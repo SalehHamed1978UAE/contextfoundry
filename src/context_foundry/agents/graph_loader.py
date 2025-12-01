@@ -205,7 +205,7 @@ class GraphLoaderAgent:
         
         for entity in entities:
             self.semantic.promote_to_trusted(entity.id)
-        
+            
         relationships = self.session.query(Relationship).filter(
             Relationship.lifecycle_state == LifecycleState.STAGING
         ).all()
@@ -214,7 +214,12 @@ class GraphLoaderAgent:
         for rel in relationships:
             rel.lifecycle_state = LifecycleState.TRUSTED
         
-        self.session.commit()
+        try:
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            logger.error(f"Failed to promote relationships to TRUSTED: {e}")
+            raise
         
         logger.info(f"Promoted {len(entities)} entities and {len(relationships)} relationships to TRUSTED")
     

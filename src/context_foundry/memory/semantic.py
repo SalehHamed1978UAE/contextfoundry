@@ -47,7 +47,13 @@ class SemanticMemory:
             lifecycle_state=lifecycle_state
         )
         self.session.add(entity)
-        self.session.commit()
+        
+        try:
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            logger.error(f"Failed to add entity {name}: {e}")
+            raise
         
         logger.debug(f"Added entity: {name} [{entity_type.value}] (state: {lifecycle_state.value})")
         return entity
@@ -77,7 +83,13 @@ class SemanticMemory:
             lifecycle_state=lifecycle_state
         )
         self.session.add(rel)
-        self.session.commit()
+        
+        try:
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            logger.error(f"Failed to add relationship: {e}")
+            raise
         
         logger.debug(f"Added relationship: {source_id} -[{relationship_type.value}]-> {target_id}")
         return rel

@@ -41,10 +41,16 @@ class SymbolicMemory:
             priority=priority,
             entity_types=entity_types or [],
             relationship_types=relationship_types or [],
-            metadata=metadata or {}
+            rule_metadata=metadata or {}
         )
         self.session.add(rule)
-        self.session.commit()
+        
+        try:
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            logger.error(f"Failed to add rule {name}: {e}")
+            raise
         
         logger.debug(f"Added rule: {name} [{rule_type.value}] (priority: {priority})")
         return rule
