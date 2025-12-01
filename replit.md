@@ -62,11 +62,19 @@ static/js/                  # JavaScript
 ## Running the System
 
 ### Web Interface (Recommended)
-The web interface provides a sleek, modern UI for querying the system:
-- Dark theme with glassmorphism effects
-- Real-time query execution with confidence meters
-- Visual evidence chain with memory layer indicators
-- Live statistics dashboard
+The web interface provides a sleek, "Cybernetic Operations" HUD-style UI for querying the system:
+- Deep slate background (#0f172a) with electric cyan (#06b6d4) accents
+- Scanline animation effect for "system running" feel
+- Tech corner accents on cards mimicking tactical displays
+- Multi-page layout: Dashboard, Memory Graph, Learning Loop, System Rules
+- Real-time query execution with animated confidence ring
+- Color-coded evidence chain by memory layer (cyan=semantic, purple=episodic, pink=symbolic)
+- Live system status footer: API version, Memory count, Latency indicator
+
+Typography:
+- Headers: Space Grotesk (geometric, technical feel)
+- Data/Code: JetBrains Mono (precision monospace)
+- UI Text: Inter (clean readability)
 
 ```bash
 python web_app.py
