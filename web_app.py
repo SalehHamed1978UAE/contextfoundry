@@ -18,6 +18,10 @@ def get_context_foundry():
 def index():
     return render_template('index.html')
 
+@app.route('/health')
+def health():
+    return 'OK', 200
+
 @app.route('/api/query', methods=['POST'])
 def query():
     data = request.get_json()
