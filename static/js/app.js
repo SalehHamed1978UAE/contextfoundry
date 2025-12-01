@@ -43,68 +43,158 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function renderMemoryGraph() {
-        const nodesContainer = document.getElementById('graphNodes');
+        const graphContainer = document.getElementById('graphNodesHtml');
         const linksContainer = document.getElementById('graphLinks');
         
-        if (nodesContainer.children.length > 0) return;
+        if (graphContainer && graphContainer.children.length > 0) return;
+        if (!graphContainer) return;
         
         const nodes = [
-            { id: 1, label: 'Payment Service', x: 150, y: 80, type: 'service' },
-            { id: 2, label: 'Auth Service', x: 250, y: 120, type: 'service' },
-            { id: 3, label: 'Checkout', x: 200, y: 180, type: 'service' },
-            { id: 4, label: 'DB', x: 100, y: 160, type: 'database' },
-            { id: 5, label: 'API Gateway', x: 300, y: 80, type: 'service' },
-            { id: 6, label: 'Cache', x: 350, y: 160, type: 'service' },
+            { id: 'n1', label: 'Payment Service', x: 120, y: 100, type: 'service', status: 'trusted' },
+            { id: 'n2', label: 'Auth Service', x: 300, y: 80, type: 'service', status: 'trusted' },
+            { id: 'n3', label: 'Checkout API', x: 480, y: 120, type: 'service', status: 'trusted' },
+            { id: 'n4', label: 'Payments DB', x: 80, y: 250, type: 'database', status: 'trusted' },
+            { id: 'n5', label: 'Users DB', x: 260, y: 280, type: 'database', status: 'trusted' },
+            { id: 'n6', label: 'API Gateway', x: 400, y: 260, type: 'service', status: 'trusted' },
+            { id: 'n7', label: 'Cache Layer', x: 560, y: 220, type: 'service', status: 'staging' },
+            { id: 'n8', label: 'Auth Team', x: 180, y: 180, type: 'team', status: 'trusted' },
         ];
         
         const links = [
-            { source: 1, target: 4 },
-            { source: 2, target: 4 },
-            { source: 3, target: 1 },
-            { source: 3, target: 2 },
-            { source: 5, target: 2 },
-            { source: 5, target: 6 },
+            { source: 'n1', target: 'n4', label: 'reads_from' },
+            { source: 'n2', target: 'n5', label: 'reads_from' },
+            { source: 'n3', target: 'n1', label: 'depends_on' },
+            { source: 'n3', target: 'n2', label: 'depends_on' },
+            { source: 'n6', target: 'n2', label: 'routes_to' },
+            { source: 'n6', target: 'n3', label: 'routes_to' },
+            { source: 'n3', target: 'n7', label: 'uses' },
+            { source: 'n8', target: 'n2', label: 'owns' },
+            { source: 'n1', target: 'n5', label: 'writes_to' },
         ];
         
-        links.forEach(link => {
+        const getNodeColor = (status, type) => {
+            if (type === 'database') return '#f59e0b';
+            if (type === 'team') return '#8b5cf6';
+            if (status === 'staging') return '#f59e0b';
+            return '#06b6d4';
+        };
+
+        const getNodeIcon = (type) => {
+            switch(type) {
+                case 'database': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>';
+                case 'team': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+                default: return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>';
+            }
+        };
+        
+        links.forEach((link, i) => {
             const source = nodes.find(n => n.id === link.source);
             const target = nodes.find(n => n.id === link.target);
+            if (!source || !target) return;
+            
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.style.opacity = '0';
+            g.style.transition = `opacity 0.5s ease ${0.5 + i * 0.05}s`;
+            
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', source.x);
             line.setAttribute('y1', source.y);
             line.setAttribute('x2', target.x);
             line.setAttribute('y2', target.y);
-            line.setAttribute('stroke', 'rgba(6, 182, 212, 0.3)');
+            line.setAttribute('stroke', 'rgba(6, 182, 212, 0.25)');
             line.setAttribute('stroke-width', '1');
-            line.setAttribute('stroke-dasharray', '4,4');
-            linksContainer.appendChild(line);
+            g.appendChild(line);
+            
+            const midX = (source.x + target.x) / 2;
+            const midY = (source.y + target.y) / 2;
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', midX);
+            text.setAttribute('y', midY - 6);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('fill', 'rgba(148, 163, 184, 0.6)');
+            text.setAttribute('font-size', '9');
+            text.setAttribute('font-family', 'JetBrains Mono, monospace');
+            text.textContent = link.label;
+            g.appendChild(text);
+            
+            linksContainer.appendChild(g);
+            
+            setTimeout(() => { g.style.opacity = '1'; }, 50);
         });
         
-        nodes.forEach(node => {
-            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-            g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+        nodes.forEach((node, i) => {
+            const color = getNodeColor(node.status, node.type);
             
-            const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            glow.setAttribute('r', '20');
-            glow.setAttribute('fill', 'url(#nodeGlow)');
-            g.appendChild(glow);
+            const nodeEl = document.createElement('div');
+            nodeEl.className = 'graph-node';
+            nodeEl.style.cssText = `
+                position: absolute;
+                left: ${node.x}px;
+                top: ${node.y}px;
+                width: 48px;
+                height: 48px;
+                margin-left: -24px;
+                margin-top: -24px;
+                border-radius: 50%;
+                background: #1e293b;
+                border: 2px solid ${color};
+                box-shadow: 0 0 20px ${color}40, 0 0 40px ${color}20;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transform: scale(0);
+                opacity: 0;
+                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.2s ease;
+                z-index: 10;
+            `;
             
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('r', '10');
-            circle.setAttribute('fill', '#0f172a');
-            circle.setAttribute('stroke', node.type === 'database' ? '#f59e0b' : '#06b6d4');
-            circle.setAttribute('stroke-width', '2');
-            g.appendChild(circle);
+            const iconWrapper = document.createElement('div');
+            iconWrapper.style.cssText = `width: 20px; height: 20px; color: ${color};`;
+            iconWrapper.innerHTML = getNodeIcon(node.type);
+            nodeEl.appendChild(iconWrapper);
             
-            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            icon.setAttribute('text-anchor', 'middle');
-            icon.setAttribute('dominant-baseline', 'central');
-            icon.setAttribute('fill', node.type === 'database' ? '#f59e0b' : '#06b6d4');
-            icon.setAttribute('font-size', '8');
-            icon.textContent = node.type === 'database' ? 'DB' : 'S';
-            g.appendChild(icon);
+            const tooltip = document.createElement('div');
+            tooltip.className = 'graph-tooltip';
+            tooltip.style.cssText = `
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-bottom: 8px;
+                padding: 6px 10px;
+                background: rgba(15, 23, 42, 0.95);
+                border: 1px solid ${color}50;
+                border-radius: 6px;
+                font-size: 11px;
+                font-family: 'JetBrains Mono', monospace;
+                color: ${color};
+                white-space: nowrap;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+                z-index: 100;
+            `;
+            tooltip.textContent = node.label;
+            nodeEl.appendChild(tooltip);
             
-            nodesContainer.appendChild(g);
+            nodeEl.addEventListener('mouseenter', () => {
+                nodeEl.style.transform = 'scale(1.15)';
+                nodeEl.style.boxShadow = `0 0 30px ${color}60, 0 0 60px ${color}30`;
+                tooltip.style.opacity = '1';
+            });
+            nodeEl.addEventListener('mouseleave', () => {
+                nodeEl.style.transform = 'scale(1)';
+                nodeEl.style.boxShadow = `0 0 20px ${color}40, 0 0 40px ${color}20`;
+                tooltip.style.opacity = '0';
+            });
+            
+            graphContainer.appendChild(nodeEl);
+            
+            setTimeout(() => {
+                nodeEl.style.transform = 'scale(1)';
+                nodeEl.style.opacity = '1';
+            }, 100 + i * 80);
         });
     }
 
