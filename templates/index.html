@@ -209,31 +209,39 @@
 
             <div class="page-content page-memory" style="display: none;">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="card-title">Semantic Memory</h2>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn" style="padding: 6px 12px; font-size: 12px;">Trusted: 165</button>
+                            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Stage</button>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Visualizing the active Knowledge Graph context.</p>
-                        <div class="memory-graph-container">
-                            <svg id="memoryGraph" width="100%" height="400" viewBox="0 0 800 400">
+                    <div class="card-body" style="padding: 0;">
+                        <p style="color: var(--text-secondary); padding: 20px 24px 0; margin: 0;">Visualizing the active Knowledge Graph context.</p>
+                        <div class="memory-graph-container" style="position: relative; height: 380px; overflow: hidden; background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.03) 0%, transparent 70%);">
+                            <svg id="memoryGraph" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
                                 <defs>
                                     <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-                                        <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.8" />
+                                        <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.6" />
                                         <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0" />
                                     </radialGradient>
                                 </defs>
                                 <g class="links" id="graphLinks"></g>
-                                <g class="nodes" id="graphNodes"></g>
                             </svg>
+                            <div id="graphNodesHtml" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
                         </div>
-                        <div style="display: flex; gap: 24px; margin-top: 24px;">
+                        <div style="display: flex; gap: 24px; padding: 16px 24px; border-top: 1px solid var(--border-color);">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 12px; height: 12px; background: #06b6d4; border-radius: 50%;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">Trusted</span>
+                                <span style="width: 12px; height: 12px; background: #06b6d4; border-radius: 50%; box-shadow: 0 0 8px #06b6d4;"></span>
+                                <span style="color: var(--text-muted); font-size: 12px;">Service (Trusted)</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">Staging</span>
+                                <span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%; box-shadow: 0 0 8px #f59e0b;"></span>
+                                <span style="color: var(--text-muted); font-size: 12px;">Database / Staging</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="width: 12px; height: 12px; background: #8b5cf6; border-radius: 50%; box-shadow: 0 0 8px #8b5cf6;"></span>
+                                <span style="color: var(--text-muted); font-size: 12px;">Team</span>
                             </div>
                         </div>
                     </div>
