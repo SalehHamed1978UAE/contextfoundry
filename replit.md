@@ -53,10 +53,27 @@ src/context_foundry/
 │   └── logger.py           # Comprehensive logging
 └── core.py                 # Main orchestrator
 main.py                     # CLI interface
+web_app.py                  # Flask web interface
+templates/                  # HTML templates
+static/css/                 # Stylesheets
+static/js/                  # JavaScript
 ```
 
 ## Running the System
 
+### Web Interface (Recommended)
+The web interface provides a sleek, modern UI for querying the system:
+- Dark theme with glassmorphism effects
+- Real-time query execution with confidence meters
+- Visual evidence chain with memory layer indicators
+- Live statistics dashboard
+
+```bash
+python web_app.py
+# Opens at http://localhost:5000
+```
+
+### CLI Interface
 ```bash
 # Run demo mode (automated queries)
 python main.py --demo
@@ -106,6 +123,7 @@ The MVP uses synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-01: Added sleek web UI with dark theme, glassmorphism, animated gradients
 - 2025-12-01: MVP Complete - All 3 demo queries working with full provenance
 - 2025-12-01: Added resilient database error handling with session rollback
 - 2025-12-01: Integrated OpenAI via Replit AI Integrations
