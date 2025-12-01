@@ -5,170 +5,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Context Foundry</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
 </head>
 <body>
+    <div class="scanline"></div>
+    
     <div class="app">
-        <div class="background-effects">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
-            <div class="orb orb-3"></div>
-        </div>
-        
-        <header class="header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                        <path d="M2 17l10 5 10-5"/>
-                        <path d="M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
-                <div class="logo-text">
-                    <span class="logo-title">Context Foundry</span>
-                    <span class="logo-subtitle">Tri-Memory Cognitive Architecture</span>
-                </div>
-            </div>
-            <div class="header-stats" id="headerStats">
-                <div class="stat-pill">
-                    <span class="stat-dot semantic"></span>
-                    <span class="stat-label">Semantic</span>
-                    <span class="stat-value" id="semanticCount">--</span>
-                </div>
-                <div class="stat-pill">
-                    <span class="stat-dot episodic"></span>
-                    <span class="stat-label">Episodic</span>
-                    <span class="stat-value" id="episodicCount">--</span>
-                </div>
-                <div class="stat-pill">
-                    <span class="stat-dot symbolic"></span>
-                    <span class="stat-label">Symbolic</span>
-                    <span class="stat-value" id="symbolicCount">--</span>
-                </div>
-            </div>
-        </header>
-
-        <main class="main">
-            <section class="query-section">
-                <div class="query-container glass">
-                    <div class="query-header">
-                        <h2>Ask anything about your infrastructure</h2>
-                        <p>Multi-hop reasoning across knowledge graph, documents, and business rules</p>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
                     </div>
-                    <form class="query-form" id="queryForm">
-                        <div class="input-wrapper">
+                    <div class="logo-text">
+                        <span class="logo-title">CONTEXT</span>
+                        <span class="logo-subtitle">FOUNDRY</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a class="nav-item active" data-page="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a class="nav-item" data-page="memory">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="6"/>
+                        <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                    Memory Graph
+                </a>
+                <a class="nav-item" data-page="learning">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 20V10"/>
+                        <path d="M18 20V4"/>
+                        <path d="M6 20v-4"/>
+                    </svg>
+                    Learning Loop
+                </a>
+                <a class="nav-item" data-page="rules">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    System Rules
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-row">
+                        <span class="status-label"><span class="status-dot"></span>SYSTEM</span>
+                        <span class="status-value">ONLINE</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">API</span>
+                        <span class="status-value" id="apiStatus">v1.0</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Memory</span>
+                        <span class="status-value" id="memoryUsage">--</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Latency</span>
+                        <span class="status-value" id="latencyValue">--</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn" id="refreshBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"/>
+                            <path d="M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn-primary" id="newQueryBtn">New Query</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Multi-hop Accuracy</div>
+                        <div class="metric-value" id="accuracyValue">--<span class="unit">%</span></div>
+                        <div class="metric-trend positive" id="accuracyTrend">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            +5% vs baseline
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Knowledge Fidelity</div>
+                        <div class="metric-value" id="fidelityValue">--<span class="unit">%</span></div>
+                        <div class="metric-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            Stable
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Confidence Calibration</div>
+                        <div class="metric-value" id="confidenceValue">--<span class="unit">%</span></div>
+                        <div class="metric-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            Within target
+                        </div>
+                    </div>
+                </div>
+
+                <div class="query-input-container">
+                    <form id="queryForm">
+                        <div class="query-input-wrapper">
                             <input 
                                 type="text" 
+                                class="query-input"
                                 id="queryInput" 
-                                placeholder="What services are affected if the Payments Database goes down?"
+                                placeholder="Ask Context Foundry about incidents, services, or runbooks..."
                                 autocomplete="off"
                             >
-                            <button type="submit" class="submit-btn" id="submitBtn">
+                            <button type="submit" class="query-btn" id="queryBtn">
                                 <span class="btn-text">Query</span>
-                                <span class="btn-loader"></span>
+                                <span class="loader"></span>
                             </button>
                         </div>
                     </form>
-                    <div class="examples-container" id="examplesContainer">
-                        <span class="examples-label">Try:</span>
-                        <div class="examples-list" id="examplesList"></div>
-                    </div>
                 </div>
-            </section>
 
-            <section class="results-section" id="resultsSection">
-                <div class="result-container glass" id="resultContainer">
-                    <div class="result-header">
-                        <div class="confidence-meter">
-                            <div class="confidence-ring" id="confidenceRing">
-                                <svg viewBox="0 0 100 100">
-                                    <circle class="confidence-bg" cx="50" cy="50" r="45"/>
-                                    <circle class="confidence-fill" cx="50" cy="50" r="45" id="confidenceFill"/>
-                                </svg>
-                                <div class="confidence-value">
-                                    <span id="confidenceValue">--</span>
-                                    <span class="confidence-label">confidence</span>
+                <div class="results-container" id="resultsContainer">
+                    <div class="card">
+                        <div class="result-header">
+                            <div class="confidence-display">
+                                <div class="confidence-ring">
+                                    <svg viewBox="0 0 80 80" width="80" height="80">
+                                        <circle class="confidence-bg" cx="40" cy="40" r="36"/>
+                                        <circle class="confidence-fill" id="confidenceFill" cx="40" cy="40" r="36"/>
+                                    </svg>
+                                    <div class="confidence-value">
+                                        <div class="confidence-percent" id="resultConfidence">--</div>
+                                        <div class="confidence-label">confidence</div>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="result-meta">
+                                <div class="result-id" id="resultId">Query ID: --</div>
+                                <div class="result-duration" id="resultDuration">-- seconds</div>
+                            </div>
                         </div>
-                        <div class="result-meta">
-                            <div class="query-id" id="queryId"></div>
-                            <div class="query-duration" id="queryDuration"></div>
+                        
+                        <div class="answer-section">
+                            <div class="answer-label">Answer</div>
+                            <div class="answer-content" id="answerContent"></div>
+                        </div>
+
+                        <div class="evidence-section">
+                            <div class="answer-label">Evidence Chain</div>
+                            <div class="evidence-list" id="evidenceList"></div>
+                        </div>
+
+                        <div class="rules-section">
+                            <div class="answer-label">Rules Applied</div>
+                            <div class="rules-list" id="rulesList"></div>
                         </div>
                     </div>
-                    
-                    <div class="answer-section">
-                        <h3>Answer</h3>
-                        <div class="answer-content" id="answerContent"></div>
-                    </div>
-
-                    <div class="evidence-section">
-                        <h3>Evidence Chain</h3>
-                        <div class="evidence-list" id="evidenceList"></div>
-                    </div>
-
-                    <div class="rules-section" id="rulesSection">
-                        <h3>Rules Applied</h3>
-                        <div class="rules-list" id="rulesList"></div>
-                    </div>
-
-                    <div class="uncertainty-section" id="uncertaintySection">
-                        <h3>Uncertainty Notes</h3>
-                        <div class="uncertainty-content" id="uncertaintyContent"></div>
-                    </div>
                 </div>
-            </section>
-        </main>
 
-        <footer class="footer">
-            <div class="memory-architecture">
-                <div class="memory-layer semantic">
-                    <div class="layer-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <circle cx="12" cy="12" r="6"/>
-                            <circle cx="12" cy="12" r="2"/>
-                        </svg>
-                    </div>
-                    <div class="layer-info">
-                        <span class="layer-name">Semantic Memory</span>
-                        <span class="layer-desc">Knowledge Graph</span>
-                    </div>
-                </div>
-                <div class="layer-connector"></div>
-                <div class="memory-layer episodic">
-                    <div class="layer-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                    </div>
-                    <div class="layer-info">
-                        <span class="layer-name">Episodic Memory</span>
-                        <span class="layer-desc">Vector Search</span>
-                    </div>
-                </div>
-                <div class="layer-connector"></div>
-                <div class="memory-layer symbolic">
-                    <div class="layer-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 20V10"/>
-                            <path d="M18 20V4"/>
-                            <path d="M6 20v-4"/>
-                        </svg>
-                    </div>
-                    <div class="layer-info">
-                        <span class="layer-name">Symbolic Memory</span>
-                        <span class="layer-desc">Rules Engine</span>
+                <div class="recent-queries" id="recentQueries">
+                    <div class="section-title">Recent Queries</div>
+                    <div class="query-list" id="queryList">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                    <path d="M2 17l10 5 10-5"/>
+                                    <path d="M2 12l10 5 10-5"/>
+                                </svg>
+                            </div>
+                            <div class="empty-title">System Ready. Waiting for input.</div>
+                            <div class="empty-description">Enter a query above to begin multi-hop reasoning.</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </footer>
+        </main>
     </div>
 
     <script src="/static/js/app.js"></script>
