@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Foundry</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
+</head>
+<body>
+    <div class="app">
+        <div class="background-effects">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+        
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">Context Foundry</span>
+                    <span class="logo-subtitle">Tri-Memory Cognitive Architecture</span>
+                </div>
+            </div>
+            <div class="header-stats" id="headerStats">
+                <div class="stat-pill">
+                    <span class="stat-dot semantic"></span>
+                    <span class="stat-label">Semantic</span>
+                    <span class="stat-value" id="semanticCount">--</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-dot episodic"></span>
+                    <span class="stat-label">Episodic</span>
+                    <span class="stat-value" id="episodicCount">--</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-dot symbolic"></span>
+                    <span class="stat-label">Symbolic</span>
+                    <span class="stat-value" id="symbolicCount">--</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <section class="query-section">
+                <div class="query-container glass">
+                    <div class="query-header">
+                        <h2>Ask anything about your infrastructure</h2>
+                        <p>Multi-hop reasoning across knowledge graph, documents, and business rules</p>
+                    </div>
+                    <form class="query-form" id="queryForm">
+                        <div class="input-wrapper">
+                            <input 
+                                type="text" 
+                                id="queryInput" 
+                                placeholder="What services are affected if the Payments Database goes down?"
+                                autocomplete="off"
+                            >
+                            <button type="submit" class="submit-btn" id="submitBtn">
+                                <span class="btn-text">Query</span>
+                                <span class="btn-loader"></span>
+                            </button>
+                        </div>
+                    </form>
+                    <div class="examples-container" id="examplesContainer">
+                        <span class="examples-label">Try:</span>
+                        <div class="examples-list" id="examplesList"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="results-section" id="resultsSection">
+                <div class="result-container glass" id="resultContainer">
+                    <div class="result-header">
+                        <div class="confidence-meter">
+                            <div class="confidence-ring" id="confidenceRing">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="confidence-bg" cx="50" cy="50" r="45"/>
+                                    <circle class="confidence-fill" cx="50" cy="50" r="45" id="confidenceFill"/>
+                                </svg>
+                                <div class="confidence-value">
+                                    <span id="confidenceValue">--</span>
+                                    <span class="confidence-label">confidence</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="result-meta">
+                            <div class="query-id" id="queryId"></div>
+                            <div class="query-duration" id="queryDuration"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="answer-section">
+                        <h3>Answer</h3>
+                        <div class="answer-content" id="answerContent"></div>
+                    </div>
+
+                    <div class="evidence-section">
+                        <h3>Evidence Chain</h3>
+                        <div class="evidence-list" id="evidenceList"></div>
+                    </div>
+
+                    <div class="rules-section" id="rulesSection">
+                        <h3>Rules Applied</h3>
+                        <div class="rules-list" id="rulesList"></div>
+                    </div>
+
+                    <div class="uncertainty-section" id="uncertaintySection">
+                        <h3>Uncertainty Notes</h3>
+                        <div class="uncertainty-content" id="uncertaintyContent"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="memory-architecture">
+                <div class="memory-layer semantic">
+                    <div class="layer-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <circle cx="12" cy="12" r="6"/>
+                            <circle cx="12" cy="12" r="2"/>
+                        </svg>
+                    </div>
+                    <div class="layer-info">
+                        <span class="layer-name">Semantic Memory</span>
+                        <span class="layer-desc">Knowledge Graph</span>
+                    </div>
+                </div>
+                <div class="layer-connector"></div>
+                <div class="memory-layer episodic">
+                    <div class="layer-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="layer-info">
+                        <span class="layer-name">Episodic Memory</span>
+                        <span class="layer-desc">Vector Search</span>
+                    </div>
+                </div>
+                <div class="layer-connector"></div>
+                <div class="memory-layer symbolic">
+                    <div class="layer-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20V10"/>
+                            <path d="M18 20V4"/>
+                            <path d="M6 20v-4"/>
+                        </svg>
+                    </div>
+                    <div class="layer-info">
+                        <span class="layer-name">Symbolic Memory</span>
+                        <span class="layer-desc">Rules Engine</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

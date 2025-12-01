@@ -19,6 +19,10 @@ author = "agent"
 task = "workflow.run"
 args = "Context Foundry CLI"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Context Foundry Web"
+
 [[workflows.workflow]]
 name = "Context Foundry CLI"
 author = "agent"
@@ -29,3 +33,23 @@ args = "python main.py --demo"
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow]]
+name = "Context Foundry Web"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python web_app.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 33315
+externalPort = 3000
