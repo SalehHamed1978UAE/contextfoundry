@@ -23,9 +23,90 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', function() {
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             this.classList.add('active');
+            
+            const page = this.dataset.page;
             document.getElementById('pageTitle').textContent = this.textContent.trim();
+            
+            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+            
+            if (page === 'dashboard') {
+                document.querySelector('.page-content:not(.page-memory):not(.page-learning):not(.page-rules)').style.display = 'block';
+            } else if (page === 'memory') {
+                document.querySelector('.page-memory').style.display = 'block';
+                renderMemoryGraph();
+            } else if (page === 'learning') {
+                document.querySelector('.page-learning').style.display = 'block';
+            } else if (page === 'rules') {
+                document.querySelector('.page-rules').style.display = 'block';
+            }
         });
     });
+
+    function renderMemoryGraph() {
+        const nodesContainer = document.getElementById('graphNodes');
+        const linksContainer = document.getElementById('graphLinks');
+        
+        if (nodesContainer.children.length > 0) return;
+        
+        const nodes = [
+            { id: 1, label: 'Payment Service', x: 150, y: 80, type: 'service' },
+            { id: 2, label: 'Auth Service', x: 250, y: 120, type: 'service' },
+            { id: 3, label: 'Checkout', x: 200, y: 180, type: 'service' },
+            { id: 4, label: 'DB', x: 100, y: 160, type: 'database' },
+            { id: 5, label: 'API Gateway', x: 300, y: 80, type: 'service' },
+            { id: 6, label: 'Cache', x: 350, y: 160, type: 'service' },
+        ];
+        
+        const links = [
+            { source: 1, target: 4 },
+            { source: 2, target: 4 },
+            { source: 3, target: 1 },
+            { source: 3, target: 2 },
+            { source: 5, target: 2 },
+            { source: 5, target: 6 },
+        ];
+        
+        links.forEach(link => {
+            const source = nodes.find(n => n.id === link.source);
+            const target = nodes.find(n => n.id === link.target);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', source.x);
+            line.setAttribute('y1', source.y);
+            line.setAttribute('x2', target.x);
+            line.setAttribute('y2', target.y);
+            line.setAttribute('stroke', 'rgba(6, 182, 212, 0.3)');
+            line.setAttribute('stroke-width', '1');
+            line.setAttribute('stroke-dasharray', '4,4');
+            linksContainer.appendChild(line);
+        });
+        
+        nodes.forEach(node => {
+            const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+            
+            const glow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            glow.setAttribute('r', '20');
+            glow.setAttribute('fill', 'url(#nodeGlow)');
+            g.appendChild(glow);
+            
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('r', '10');
+            circle.setAttribute('fill', '#0f172a');
+            circle.setAttribute('stroke', node.type === 'database' ? '#f59e0b' : '#06b6d4');
+            circle.setAttribute('stroke-width', '2');
+            g.appendChild(circle);
+            
+            const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            icon.setAttribute('text-anchor', 'middle');
+            icon.setAttribute('dominant-baseline', 'central');
+            icon.setAttribute('fill', node.type === 'database' ? '#f59e0b' : '#06b6d4');
+            icon.setAttribute('font-size', '8');
+            icon.textContent = node.type === 'database' ? 'DB' : 'S';
+            g.appendChild(icon);
+            
+            nodesContainer.appendChild(g);
+        });
+    }
 
     document.getElementById('refreshBtn').addEventListener('click', loadStats);
     document.getElementById('newQueryBtn').addEventListener('click', () => {
