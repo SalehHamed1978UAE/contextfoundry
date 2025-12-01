@@ -67,11 +67,17 @@ class EpisodicMemory:
             doc_type=doc_type,
             content=content,
             embedding=embedding,
-            metadata=metadata or {},
+            doc_metadata=metadata or {},
             source_document_id=source_document_id
         )
         self.session.add(doc)
-        self.session.commit()
+        
+        try:
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            logger.error(f"Failed to add document {title}: {e}")
+            raise
         
         logger.debug(f"Added document: {title} [{doc_type}]")
         return doc

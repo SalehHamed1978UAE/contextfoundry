@@ -158,7 +158,7 @@ class Document(Base):
     
     embedding = Column(Vector(384))
     
-    metadata = Column(JSON, default=dict)
+    doc_metadata = Column(JSON, default=dict)
     
     source_document_id = Column(String(255))
     source_section = Column(String(255))
@@ -172,7 +172,7 @@ class Document(Base):
             "title": self.title,
             "doc_type": self.doc_type,
             "content": self.content[:500] + "..." if len(self.content) > 500 else self.content,
-            "metadata": self.metadata,
+            "metadata": self.doc_metadata,
             "source_document_id": self.source_document_id
         }
 
@@ -195,7 +195,7 @@ class Rule(Base):
     entity_types = Column(ARRAY(String))
     relationship_types = Column(ARRAY(String))
     
-    metadata = Column(JSON, default=dict)
+    rule_metadata = Column(JSON, default=dict)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
