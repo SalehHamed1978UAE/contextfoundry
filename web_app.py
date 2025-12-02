@@ -14,6 +14,11 @@ def get_context_foundry():
         cf = ContextFoundry()
     return cf
 
+def reset_context_foundry():
+    """Reset the ContextFoundry instance to recover from errors."""
+    global cf
+    cf = None
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -51,6 +56,7 @@ def query():
         }
         return jsonify(response)
     except Exception as e:
+        reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
 
 @app.route('/api/stats')
@@ -60,6 +66,7 @@ def stats():
         statistics = foundry.get_statistics()
         return jsonify({'success': True, 'stats': statistics})
     except Exception as e:
+        reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
 
 @app.route('/api/examples')
