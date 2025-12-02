@@ -17,6 +17,8 @@ def get_context_foundry():
 def reset_context_foundry():
     """Reset the ContextFoundry instance to recover from errors."""
     global cf
+    if cf is not None:
+        cf.cleanup()
     cf = None
 
 @app.route('/')
