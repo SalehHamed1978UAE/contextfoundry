@@ -365,6 +365,233 @@ def get_merge_audits():
     finally:
         session.close()
 
+evaluation_result = None
+
+@app.route('/api/evaluation/query-set')
+def get_query_set():
+    """Get the 100-query evaluation set."""
+    from src.context_foundry.evaluation.query_set import QuerySet
+    
+    try:
+        qs = QuerySet()
+        category = request.args.get('category')
+        difficulty = request.args.get('difficulty')
+        
+        queries = qs.get_all_queries()
+        
+        if category:
+            from src.context_foundry.evaluation.query_set import QueryCategory
+            cat_enum = QueryCategory(category)
+            queries = [q for q in queries if q.category == cat_enum]
+        
+        if difficulty:
+            from src.context_foundry.evaluation.query_set import DifficultyLevel
+            diff_enum = DifficultyLevel(difficulty)
+            queries = [q for q in queries if q.difficulty == diff_enum]
+        
+        return jsonify({
+            'success': True,
+            'queries': [q.to_dict() for q in queries],
+            'count': len(queries),
+            'statistics': qs.get_statistics(),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/evaluation/run', methods=['POST'])
+def run_evaluation():
+    """Run blind evaluation on selected queries."""
+    from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    from src.context_foundry.evaluation.query_set import QueryCategory
+    
+    global evaluation_result
+    
+    try:
+        data = request.get_json() or {}
+        query_ids = data.get('query_ids')
+        categories = data.get('categories')
+        sample_size = data.get('sample_size')
+        reveal_source = data.get('reveal_source', False)
+        
+        if categories:
+            categories = [QueryCategory(c) for c in categories]
+        
+        evaluator = BlindEvaluator()
+        evaluation_result = evaluator.run_evaluation(
+            query_ids=query_ids,
+            categories=categories,
+            sample_size=sample_size,
+        )
+        
+        return jsonify({
+            'success': True,
+            'evaluation_id': evaluation_result.evaluation_id,
+            'total_queries': evaluation_result.total_queries,
+            'completed_queries': evaluation_result.completed_queries,
+            'pairs': [p.to_dict(reveal_source=reveal_source) for p in evaluation_result.pairs],
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/evaluation/compare', methods=['POST'])
+def compare_single_query():
+    """Run a single query through both systems for comparison."""
+    from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    
+    try:
+        data = request.get_json()
+        query_id = data.get('query_id')
+        
+        if not query_id:
+            return jsonify({'success': False, 'error': 'query_id required'}), 400
+        
+        evaluator = BlindEvaluator()
+        pair = evaluator.run_single_query(query_id)
+        
+        if not pair:
+            return jsonify({'success': False, 'error': 'Query not found'}), 404
+        
+        blind_a, blind_b = pair.get_blind_responses()
+        
+        return jsonify({
+            'success': True,
+            'pair_id': pair.pair_id,
+            'query': pair.query.to_dict(),
+            'response_a': blind_a,
+            'response_b': blind_b,
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/evaluation/graphrag', methods=['POST'])
+def query_graphrag():
+    """Run a query through GraphRAG baseline only."""
+    from src.context_foundry.evaluation.graphrag_baseline import GraphRAGBaseline
+    
+    try:
+        data = request.get_json()
+        query_text = data.get('query', '')
+        
+        if not query_text:
+            return jsonify({'success': False, 'error': 'query required'}), 400
+        
+        graphrag = GraphRAGBaseline()
+        result = graphrag.query(query_text)
+        
+        return jsonify({
+            'success': True,
+            'answer': result.answer,
+            'context': result.context.to_dict(),
+            'latency_ms': result.latency_ms,
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/evaluation/preference', methods=['POST'])
+def record_preference():
+    """Record human preference for a blind comparison."""
+    from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    
+    global evaluation_result
+    
+    try:
+        data = request.get_json()
+        pair_id = data.get('pair_id')
+        preference = data.get('preference')
+        notes = data.get('notes', '')
+        reviewer = data.get('reviewer', 'anonymous')
+        
+        if not pair_id or not preference:
+            return jsonify({'success': False, 'error': 'pair_id and preference required'}), 400
+        
+        if preference not in ['A', 'B', 'tie']:
+            return jsonify({'success': False, 'error': 'preference must be A, B, or tie'}), 400
+        
+        if evaluation_result is None:
+            return jsonify({'success': False, 'error': 'No evaluation running'}), 400
+        
+        evaluator = BlindEvaluator()
+        success = evaluator.record_preference(
+            pair_id=pair_id,
+            preference=preference,
+            notes=notes,
+            reviewer=reviewer,
+            result=evaluation_result,
+        )
+        
+        if success:
+            metrics = evaluator.calculate_metrics(evaluation_result)
+            return jsonify({
+                'success': True,
+                'metrics': metrics.to_dict(),
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Pair not found'}), 404
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/evaluation/metrics')
+def get_evaluation_metrics():
+    """Get current evaluation metrics."""
+    from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    
+    global evaluation_result
+    
+    try:
+        if evaluation_result is None:
+            return jsonify({
+                'success': True,
+                'message': 'No evaluation running',
+                'metrics': None,
+            })
+        
+        evaluator = BlindEvaluator()
+        metrics = evaluator.calculate_metrics(evaluation_result)
+        
+        return jsonify({
+            'success': True,
+            'evaluation_id': evaluation_result.evaluation_id,
+            'total_queries': evaluation_result.total_queries,
+            'completed_queries': evaluation_result.completed_queries,
+            'reviewed': sum(1 for p in evaluation_result.pairs if p.human_preference),
+            'metrics': metrics.to_dict(),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/evaluation/reveal', methods=['POST'])
+def reveal_evaluation_source():
+    """Reveal which system produced each response (only after review is complete)."""
+    from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    
+    global evaluation_result
+    
+    try:
+        if evaluation_result is None:
+            return jsonify({'success': False, 'error': 'No evaluation running'}), 400
+        
+        reviewed_count = sum(1 for p in evaluation_result.pairs if p.human_preference)
+        if reviewed_count == 0:
+            return jsonify({
+                'success': False, 
+                'error': 'No pairs have been reviewed yet. Complete review before revealing sources.'
+            }), 400
+        
+        evaluator = BlindEvaluator()
+        metrics = evaluator.calculate_metrics(evaluation_result)
+        
+        return jsonify({
+            'success': True,
+            'evaluation_id': evaluation_result.evaluation_id,
+            'total_queries': evaluation_result.total_queries,
+            'reviewed': reviewed_count,
+            'pairs': [p.to_dict(reveal_source=True) for p in evaluation_result.pairs if p.human_preference],
+            'metrics': metrics.to_dict(),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 if __name__ == '__main__':
     init_scheduler()
     app.run(host='0.0.0.0', port=5000, debug=True)
