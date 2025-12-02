@@ -155,9 +155,10 @@ The MVP2 uses scaled synthetic IT operations data:
   - ContextBundle now tracks target_entity_name, target_entity_found, target_entity_match
   - ReasoningAgent returns early with structured response for missing entities
   - Prevents fabricating relationships about non-existent entities (e.g., "Search Service" was citing Auth Service relationships)
-  - 11 extraction patterns covering: quoted names, "the X", "X goes down", "depends on X", "who owns X", "X escalation", "incidents for X", "responsible for X", fallback multi-word phrases
-  - Case-insensitive matching with title-case normalization for consistent database lookups
-  - Fallback entity detection for when patterns don't match
+  - **Known Entity Lookup First**: Primary extraction method now queries database for all trusted entity names and finds the longest match in the query string - more reliable than regex parsing
+  - Scenario suffix stripping: removes "is corrupted", "goes down", "crashes" etc. from extracted names
+  - Fallback regex patterns for entities not yet in database
+  - Case-insensitive matching with title-case normalization
 - 2025-12-02: **MVP2 Week 7 complete** - GraphRAG baseline + blind evaluation framework + web UI
 - 2025-12-02: Added Evaluation web UI with blind A/B testing interface, query browser, side-by-side comparison, voting, metrics dashboard
 - 2025-12-02: Built 100-query evaluation set across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)

@@ -176,6 +176,44 @@ class RetrievalAgent:
         
         return types if types else list(EntityType)
     
+    def _match_known_entity_in_query(self, query_text: str) -> Optional[str]:
+        """
+        Search for known entity names from the database within the query.
+        
+        This is the PRIMARY method for entity extraction - it's more reliable
+        than regex patterns because it matches against actual entities that exist.
+        
+        Returns the longest matching entity name found in the query.
+        """
+        # Fetch all trusted entity names from the database
+        try:
+            entities = self.session.query(Entity.name).filter(
+                Entity.lifecycle_state == 'TRUSTED'
+            ).all()
+            entity_names = [e[0] for e in entities]
+        except Exception as e:
+            self.logger.warning(f"Failed to fetch entity names: {e}")
+            return None
+        
+        if not entity_names:
+            return None
+        
+        # Normalize query for case-insensitive matching
+        query_lower = query_text.lower()
+        
+        # Find all entity names that appear in the query
+        matches = []
+        for name in entity_names:
+            # Case-insensitive substring search
+            if name.lower() in query_lower:
+                matches.append(name)
+        
+        if not matches:
+            return None
+        
+        # Return the longest match (most specific entity)
+        return max(matches, key=len)
+    
     def _extract_target_entity(self, query_text: str) -> Optional[str]:
         """
         Extract the specific entity the query is asking about.
@@ -183,18 +221,19 @@ class RetrievalAgent:
         This is CRITICAL for preventing hallucinations - we need to know if
         the entity being queried actually exists in the graph.
         
-        Extended patterns to catch diverse query phrasings:
-        - "the X" where X is a named entity
-        - "X goes down" / "X fails" 
-        - "depends on X" / "depend on X"
-        - "owned by X" / "owns X" / "who owns X"
-        - "escalate to X for Y" / "X escalation"
-        - "incidents for X" / "X incidents"
-        - Entity names in quotes
-        - Capitalized multi-word entity-like names (fallback)
+        STRATEGY (in order of priority):
+        1. First, search for KNOWN entity names from the database in the query
+        2. Only fall back to regex patterns if no known entities match
         
-        Now case-insensitive to catch lowercase queries like "search service".
+        This approach is more reliable because it matches against actual 
+        entities rather than trying to parse natural language with regex.
         """
+        # PRIORITY 1: Match known entity names from database
+        known_match = self._match_known_entity_in_query(query_text)
+        if known_match:
+            return known_match
+        
+        # PRIORITY 2: Fall back to regex patterns for entities not yet in DB
         # Entity type suffixes we look for (case-insensitive)
         ENTITY_SUFFIXES = r'(?:[Ss]ervice|[Dd]atabase|[Tt]eam|[Cc]ache|[Qq]ueue|[Gg]ateway|API|api|[Ss]ystem|[Ee]ngine|[Pp]latform|[Cc]luster)'
         # Entity pattern - now accepts both lower and upper case starting letters
@@ -203,7 +242,7 @@ class RetrievalAgent:
         # Pattern 1: Quoted entity names (highest priority)
         quoted = re.findall(r'["\']([^"\']+)["\']', query_text)
         if quoted:
-            return quoted[0]
+            return self._normalize_entity_name(quoted[0])
         
         # Pattern 2: "the <Entity Name>" - captures multi-word names
         the_pattern = re.search(
@@ -290,11 +329,73 @@ class RetrievalAgent:
         
         return None
     
+    def _strip_scenario_suffix(self, name: str) -> str:
+        """
+        Strip scenario/action phrases from the end of an extracted entity name.
+        
+        For example:
+        - "User Database Is Corrupted" -> "User Database"
+        - "Auth Service Goes Down" -> "Auth Service"
+        - "Payment Gateway Fails" -> "Payment Gateway"
+        
+        This prevents the entity extractor from capturing scenario descriptions
+        as part of the entity name.
+        """
+        if not name:
+            return name
+        
+        # Scenario phrases to strip (order matters - check longer phrases first)
+        SCENARIO_PHRASES = [
+            # Multi-word scenario phrases
+            r'\s+is\s+corrupted$',
+            r'\s+is\s+down$',
+            r'\s+goes\s+down$',
+            r'\s+go\s+down$',
+            r'\s+times\s+out$',
+            r'\s+timed\s+out$',
+            r'\s+is\s+unavailable$',
+            r'\s+is\s+offline$',
+            r'\s+is\s+unreachable$',
+            r'\s+has\s+failed$',
+            r'\s+has\s+issues$',
+            r'\s+is\s+slow$',
+            r'\s+is\s+failing$',
+            r'\s+stops\s+working$',
+            r'\s+becomes\s+unavailable$',
+            # Single-word scenario suffixes
+            r'\s+fails?$',
+            r'\s+crashes?$',
+            r'\s+dies?$',
+            r'\s+breaks?$',
+            # Trailing "is" / "are" / "has" / "have" (when followed by nothing)
+            r'\s+is$',
+            r'\s+are$',
+            r'\s+has$',
+            r'\s+have$',
+            r'\s+was$',
+            r'\s+were$',
+        ]
+        
+        result = name.strip()
+        for pattern in SCENARIO_PHRASES:
+            result = re.sub(pattern, '', result, flags=re.IGNORECASE)
+        
+        # Also strip trailing punctuation
+        result = result.rstrip('.,?!;:')
+        
+        return result.strip()
+    
     def _normalize_entity_name(self, name: str) -> str:
         """
         Normalize entity name to title case for consistent database lookups.
-        Handles special cases like 'API' which should stay uppercase.
+        First strips scenario suffixes, then handles special cases like 'API'.
         """
+        if not name:
+            return name
+        
+        # First, strip any scenario suffixes
+        name = self._strip_scenario_suffix(name)
+        
         if not name:
             return name
         
