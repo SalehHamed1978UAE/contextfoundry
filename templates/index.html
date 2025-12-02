@@ -10,8 +10,31 @@
 <body>
     <div class="scanline"></div>
     
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="mobile-logo">
+            <div class="mobile-logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <span class="mobile-logo-text">CONTEXT FOUNDRY</span>
+        </div>
+        <div style="width: 36px;"></div>
+    </header>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
     <div class="app">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
                     <div class="logo-icon">
