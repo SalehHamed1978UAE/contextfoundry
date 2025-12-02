@@ -102,11 +102,21 @@ class ContextBundle:
     
     retrieval_metadata: Dict[str, Any] = field(default_factory=dict)
     
+    # Target entity tracking - CRITICAL for preventing hallucinations
+    target_entity_name: Optional[str] = None  # The specific entity the query is asking about
+    target_entity_found: bool = False  # Was the target entity actually found in the graph?
+    target_entity_match: Optional[Dict] = None  # The matched entity if found
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
         if self.uncertainty:
             return self.uncertainty.overall_confidence
+        
+        # CRITICAL: If we're looking for a specific entity and didn't find it,
+        # confidence should be very low regardless of other entities found
+        if self.target_entity_name and not self.target_entity_found:
+            return 0.1  # Very low confidence - target entity not in graph
         
         confidences = []
         
@@ -124,6 +134,24 @@ class ContextBundle:
     
     def calculate_uncertainty(self) -> UncertaintyReport:
         """Calculate uncertainty report from bundle contents."""
+        uncertainty_reasons = []
+        
+        # CRITICAL: Check if target entity was found first
+        if self.target_entity_name and not self.target_entity_found:
+            # Target entity not found - this is a critical uncertainty
+            uncertainty_reasons.append(f"TARGET ENTITY NOT FOUND: '{self.target_entity_name}' does not exist in the knowledge graph")
+            self.uncertainty = UncertaintyReport(
+                overall_confidence=0.1,  # Very low confidence
+                recommendation="entity_not_found",
+                high_confidence_facts=0,
+                medium_confidence_facts=0,
+                low_confidence_facts=0,
+                low_confidence_items=[],
+                unresolved_entities=[self.target_entity_name],
+                uncertainty_reasons=uncertainty_reasons
+            )
+            return self.uncertainty
+        
         all_confidences = []
         
         for entity in self.semantic_entities:
@@ -149,7 +177,6 @@ class ContextBundle:
         else:
             recommendation = "insufficient_context"
         
-        uncertainty_reasons = []
         if low_conf > 0:
             uncertainty_reasons.append(f"{low_conf} facts have low confidence (<0.5)")
         if len(self.semantic_entities) == 0:
@@ -191,6 +218,15 @@ class ContextBundle:
     def to_llm_context(self) -> str:
         """Format bundle as context string for LLM reasoning."""
         lines = []
+        
+        # CRITICAL: If target entity not found, lead with that information
+        if self.target_entity_name and not self.target_entity_found:
+            lines.append("=== CRITICAL: TARGET ENTITY NOT FOUND ===")
+            lines.append(f"The query asks about '{self.target_entity_name}' but this entity DOES NOT EXIST in the knowledge graph.")
+            lines.append("You MUST acknowledge this in your response with LOW CONFIDENCE.")
+            lines.append("DO NOT fabricate relationships or information about non-existent entities.")
+            lines.append("The entities shown below are NOT related to the query target.\n")
+        
         lines.append("=== CONTEXT FROM KNOWLEDGE GRAPH (SEMANTIC MEMORY) ===\n")
         
         if self.semantic_entities:

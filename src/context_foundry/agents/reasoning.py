@@ -25,11 +25,16 @@ You will receive a ContextBundle containing:
 Your task is to answer the user's query based ONLY on the provided context.
 
 CRITICAL RULES:
-1. Only use information from the provided context - never make up facts
-2. Cite your sources for every claim using the entity/document/rule names
-3. If information is missing or uncertain, explicitly say so
-4. Rate your confidence (0.0-1.0) based on context quality
-5. Always check if any rules apply to your response
+1. Only use information from the provided context - NEVER make up facts
+2. If the context says "TARGET ENTITY NOT FOUND", you MUST:
+   - Set confidence to 0.1 or lower
+   - State clearly that the entity does not exist in the knowledge graph
+   - Do NOT fabricate relationships or information about non-existent entities
+   - Do NOT cite relationships from unrelated entities as if they apply to the missing entity
+3. Only cite relationships that are EXPLICITLY shown in the context
+4. If information is missing or uncertain, explicitly say so
+5. Rate your confidence (0.0-1.0) based on context quality
+6. Always check if any rules apply to your response
 
 RESPONSE FORMAT (JSON):
 {
@@ -80,6 +85,11 @@ class ReasoningAgent:
         
         Returns a structured response with answer, confidence, evidence, and uncertainty.
         """
+        # CRITICAL: Check if target entity was not found - return early with low confidence
+        if bundle.target_entity_name and not bundle.target_entity_found:
+            logger.warning(f"Reasoning with missing target entity: {bundle.target_entity_name}")
+            return self._create_entity_not_found_response(bundle)
+        
         context_str = bundle.to_llm_context()
         
         user_prompt = f"""Query: {bundle.query_text}
@@ -249,6 +259,44 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             },
             "rules_applied": [],
             "caveats": ["This response was generated due to an error"],
+            "bundle_id": bundle.query_id,
+            "query_text": bundle.query_text
+        }
+    
+    def _create_entity_not_found_response(self, bundle: ContextBundle) -> Dict:
+        """
+        Create a structured response when the target entity doesn't exist.
+        
+        CRITICAL: This prevents hallucinations by explicitly stating the entity
+        doesn't exist rather than fabricating information about it.
+        """
+        target = bundle.target_entity_name
+        
+        return {
+            "answer": f"I cannot answer this query because the entity '{target}' does not exist in the knowledge graph. "
+                     f"The system searched for '{target}' but found no matching entity. "
+                     f"This could mean: (1) the entity name is misspelled, (2) the entity hasn't been ingested yet, "
+                     f"or (3) the entity genuinely doesn't exist in your infrastructure. "
+                     f"Please verify the entity name or add it to the knowledge graph if it should exist.",
+            "confidence": 0.1,
+            "confidence_level": "very_low",
+            "entity_not_found": True,
+            "target_entity": target,
+            "evidence_chain": [],
+            "uncertainty": {
+                "uncertain_facts": [f"Whether '{target}' exists or is named differently"],
+                "reasons": [f"Entity '{target}' not found in knowledge graph"],
+                "would_help": [
+                    f"Verify the exact name of '{target}'",
+                    "Check if the entity has been ingested",
+                    "Try alternative names or spellings"
+                ]
+            },
+            "rules_applied": [],
+            "caveats": [
+                f"The entity '{target}' does not exist in the knowledge graph",
+                "No relationships or facts can be provided for non-existent entities"
+            ],
             "bundle_id": bundle.query_id,
             "query_text": bundle.query_text
         }
