@@ -332,7 +332,7 @@ class RelationExtractor:
                     max_tokens=2000,
                 )
                 
-                response_text = response.choices[0].message.content
+                response_text = response.choices[0].message.content or ""
                 raw_relations = self._parse_llm_response(response_text)
                 
                 relations = []
@@ -364,6 +364,8 @@ class RelationExtractor:
                 if attempt == self.max_retries - 1:
                     print(f"Relation extraction failed after {self.max_retries} attempts: {e}")
                     return []
+        
+        return []
     
     def extract_from_chunks(
         self,
