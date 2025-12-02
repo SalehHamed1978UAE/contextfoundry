@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Foundry - Blind Evaluation</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
+    <style>
+        .eval-container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+            height: calc(100vh - 180px);
+        }
+        
+        .query-browser {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .browser-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+        }
+        
+        .browser-header h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #06b6d4;
+            margin: 0 0 0.75rem 0;
+        }
+        
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .category-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            background: transparent;
+            color: #94a3b8;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background: rgba(6, 182, 212, 0.2);
+            border-color: #06b6d4;
+            color: #06b6d4;
+        }
+        
+        .query-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        
+        .query-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(6, 182, 212, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .query-item:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            background: rgba(30, 41, 59, 0.8);
+        }
+        
+        .query-item.selected {
+            border-color: #06b6d4;
+            background: rgba(6, 182, 212, 0.1);
+        }
+        
+        .query-item.reviewed {
+            border-left: 3px solid #10b981;
+        }
+        
+        .query-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #06b6d4;
+            margin-bottom: 0.25rem;
+        }
+        
+        .query-text {
+            font-size: 0.8rem;
+            color: #e2e8f0;
+            line-height: 1.4;
+        }
+        
+        .query-meta {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .query-tag {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+        
+        .tag-easy { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .tag-medium { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .tag-hard { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .tag-single { background: rgba(139, 92, 246, 0.2); color: #8b5cf6; }
+        .tag-multi { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+        
+        .comparison-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        
+        .metric-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .metric-box-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-box-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #06b6d4;
+        }
+        
+        .metric-box-value.cf-wins { color: #10b981; }
+        .metric-box-value.gr-wins { color: #f59e0b; }
+        
+        .comparison-area {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .comparison-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .comparison-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            color: #e2e8f0;
+        }
+        
+        .question-display {
+            background: rgba(6, 182, 212, 0.1);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+        }
+        
+        .question-label {
+            font-size: 0.7rem;
+            color: #06b6d4;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-text {
+            font-size: 1rem;
+            color: #f1f5f9;
+            font-weight: 500;
+        }
+        
+        .responses-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: rgba(6, 182, 212, 0.2);
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .response-card {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .response-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #06b6d4;
+        }
+        
+        .response-label.label-a { color: #8b5cf6; }
+        .response-label.label-b { color: #ec4899; }
+        
+        .response-latency {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        
+        .response-content {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            padding-right: 0.5rem;
+        }
+        
+        .response-source {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(6, 182, 212, 0.2);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            display: none;
+        }
+        
+        .response-source.cf { color: #10b981; }
+        .response-source.gr { color: #f59e0b; }
+        
+        .voting-bar {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(6, 182, 212, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .vote-btn {
+            padding: 0.75rem 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 2px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .vote-btn.vote-a {
+            background: transparent;
+            border-color: #8b5cf6;
+            color: #8b5cf6;
+        }
+        
+        .vote-btn.vote-a:hover:not(:disabled) {
+            background: rgba(139, 92, 246, 0.2);
+        }
+        
+        .vote-btn.vote-b {
+            background: transparent;
+            border-color: #ec4899;
+            color: #ec4899;
+        }
+        
+        .vote-btn.vote-b:hover:not(:disabled) {
+            background: rgba(236, 72, 153, 0.2);
+        }
+        
+        .vote-btn.vote-tie {
+            background: transparent;
+            border-color: #64748b;
+            color: #64748b;
+        }
+        
+        .vote-btn.vote-tie:hover:not(:disabled) {
+            background: rgba(100, 116, 139, 0.2);
+        }
+        
+        .vote-btn.selected {
+            background: currentColor;
+            color: #0f172a;
+        }
+        
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reveal-btn {
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .reveal-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(6, 182, 212, 0.3);
+            border-radius: 50%;
+            border-top-color: #06b6d4;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: #06b6d4;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <div class="app" style="padding: 1.5rem;">
+        <a href="/" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Dashboard
+        </a>
+        
+        <header style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.75rem; color: #06b6d4; margin: 0;">
+                    Blind A/B Evaluation
+                </h1>
+                <p style="color: #64748b; font-size: 0.875rem; margin: 0.5rem 0 0 0;">
+                    Compare Context Foundry vs GraphRAG baseline without knowing which is which
+                </p>
+            </div>
+            <button class="reveal-btn" id="revealBtn" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                </svg>
+                Reveal Sources
+            </button>
+        </header>
+        
+        <div class="metrics-bar" style="margin-bottom: 1rem;">
+            <div class="metric-box">
+                <div class="metric-box-label">Reviewed</div>
+                <div class="metric-box-value" id="reviewedCount">0</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-box-label">Context Foundry Wins</div>
+                <div class="metric-box-value cf-wins" id="cfWins">0</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-box-label">GraphRAG Wins</div>
+                <div class="metric-box-value gr-wins" id="grWins">0</div>
+            </div>
+            <div class="metric-box">
+                <div class="metric-box-label">Ties</div>
+                <div class="metric-box-value" id="tieCount">0</div>
+            </div>
+        </div>
+        
+        <div class="eval-container">
+            <div class="query-browser">
+                <div class="browser-header">
+                    <h3>Query Set (100 queries)</h3>
+                    <div class="category-filters">
+                        <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="impact_analysis">Impact</button>
+                        <button class="category-btn" data-category="escalation">Escalation</button>
+                        <button class="category-btn" data-category="ownership">Ownership</button>
+                        <button class="category-btn" data-category="dependencies">Dependencies</button>
+                        <button class="category-btn" data-category="incidents">Incidents</button>
+                        <button class="category-btn" data-category="expertise">Expertise</button>
+                    </div>
+                </div>
+                <div class="query-list" id="queryList">
+                    <div class="loading-spinner" style="margin: 2rem auto; display: block;"></div>
+                </div>
+            </div>
+            
+            <div class="comparison-panel">
+                <div class="comparison-area" id="comparisonArea">
+                    <div class="empty-state" id="emptyState">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                            <rect x="9" y="3" width="6" height="4" rx="1"/>
+                            <path d="M9 12h6M9 16h6"/>
+                        </svg>
+                        <h3>Select a Query</h3>
+                        <p>Choose a query from the left panel to run a blind comparison</p>
+                    </div>
+                    
+                    <div id="comparisonContent" style="display: none; height: 100%; display: flex; flex-direction: column;">
+                        <div class="question-display">
+                            <div class="question-label">Question</div>
+                            <div class="question-text" id="questionText"></div>
+                        </div>
+                        
+                        <div class="responses-grid">
+                            <div class="response-card">
+                                <div class="response-header">
+                                    <span class="response-label label-a">A</span>
+                                    <span class="response-latency" id="latencyA">--ms</span>
+                                </div>
+                                <div class="response-content" id="responseA">
+                                    Loading...
+                                </div>
+                                <div class="response-source" id="sourceA"></div>
+                            </div>
+                            <div class="response-card">
+                                <div class="response-header">
+                                    <span class="response-label label-b">B</span>
+                                    <span class="response-latency" id="latencyB">--ms</span>
+                                </div>
+                                <div class="response-content" id="responseB">
+                                    Loading...
+                                </div>
+                                <div class="response-source" id="sourceB"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="voting-bar">
+                            <button class="vote-btn vote-a" id="voteA" disabled>
+                                Choose A
+                            </button>
+                            <button class="vote-btn vote-tie" id="voteTie" disabled>
+                                Tie
+                            </button>
+                            <button class="vote-btn vote-b" id="voteB" disabled>
+                                Choose B
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let queries = [];
+        let currentPairId = null;
+        let currentQueryId = null;
+        let reviewedQueries = new Set();
+        let sourcesRevealed = false;
+        let metrics = { cf_wins: 0, graphrag_wins: 0, ties: 0 };
+        
+        async function loadQueries() {
+            try {
+                const response = await fetch('/api/evaluation/query-set');
+                const data = await response.json();
+                if (data.success) {
+                    queries = data.queries;
+                    renderQueryList();
+                }
+            } catch (error) {
+                console.error('Failed to load queries:', error);
+            }
+        }
+        
+        function renderQueryList(category = 'all') {
+            const list = document.getElementById('queryList');
+            const filtered = category === 'all' 
+                ? queries 
+                : queries.filter(q => q.category === category);
+            
+            list.innerHTML = filtered.map(q => `
+                <div class="query-item ${reviewedQueries.has(q.id) ? 'reviewed' : ''} ${currentQueryId === q.id ? 'selected' : ''}" 
+                     data-id="${q.id}" onclick="selectQuery('${q.id}')">
+                    <div class="query-id">${q.id}</div>
+                    <div class="query-text">${q.query_text}</div>
+                    <div class="query-meta">
+                        <span class="query-tag tag-${q.difficulty}">${q.difficulty}</span>
+                        <span class="query-tag tag-${q.hop_count === 'single_hop' ? 'single' : 'multi'}">${q.hop_count === 'single_hop' ? 'single' : 'multi'}-hop</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function selectQuery(queryId) {
+            currentQueryId = queryId;
+            
+            document.querySelectorAll('.query-item').forEach(el => {
+                el.classList.toggle('selected', el.dataset.id === queryId);
+            });
+            
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('comparisonContent').style.display = 'flex';
+            
+            const query = queries.find(q => q.id === queryId);
+            document.getElementById('questionText').textContent = query.query_text;
+            document.getElementById('responseA').innerHTML = '<div class="loading-spinner"></div>';
+            document.getElementById('responseB').innerHTML = '<div class="loading-spinner"></div>';
+            document.getElementById('latencyA').textContent = '--ms';
+            document.getElementById('latencyB').textContent = '--ms';
+            
+            document.querySelectorAll('.vote-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.remove('selected');
+            });
+            
+            try {
+                const response = await fetch('/api/evaluation/compare', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query_id: queryId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPairId = data.pair_id;
+                    document.getElementById('responseA').textContent = data.response_a.answer;
+                    document.getElementById('responseB').textContent = data.response_b.answer;
+                    document.getElementById('latencyA').textContent = `${Math.round(data.response_a.latency_ms)}ms`;
+                    document.getElementById('latencyB').textContent = `${Math.round(data.response_b.latency_ms)}ms`;
+                    
+                    document.querySelectorAll('.vote-btn').forEach(btn => btn.disabled = false);
+                } else {
+                    document.getElementById('responseA').textContent = 'Error: ' + data.error;
+                    document.getElementById('responseB').textContent = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                document.getElementById('responseA').textContent = 'Error loading response';
+                document.getElementById('responseB').textContent = 'Error loading response';
+            }
+        }
+        
+        async function vote(preference) {
+            if (!currentPairId) return;
+            
+            document.querySelectorAll('.vote-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = true;
+            });
+            
+            const btn = document.getElementById(`vote${preference === 'tie' ? 'Tie' : preference.toUpperCase()}`);
+            btn.classList.add('selected');
+            
+            try {
+                const response = await fetch('/api/evaluation/preference', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        pair_id: currentPairId, 
+                        preference: preference.toUpperCase() === 'TIE' ? 'tie' : preference.toUpperCase()
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    reviewedQueries.add(currentQueryId);
+                    metrics = data.metrics;
+                    updateMetrics();
+                    renderQueryList(document.querySelector('.category-btn.active').dataset.category);
+                }
+            } catch (error) {
+                console.error('Failed to record vote:', error);
+            }
+        }
+        
+        function updateMetrics() {
+            document.getElementById('reviewedCount').textContent = reviewedQueries.size;
+            document.getElementById('cfWins').textContent = metrics.cf_wins;
+            document.getElementById('grWins').textContent = metrics.graphrag_wins;
+            document.getElementById('tieCount').textContent = metrics.ties;
+            
+            document.getElementById('revealBtn').disabled = reviewedQueries.size === 0;
+        }
+        
+        async function revealSources() {
+            if (reviewedQueries.size === 0) return;
+            
+            try {
+                const response = await fetch('/api/evaluation/reveal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    sourcesRevealed = true;
+                    document.getElementById('revealBtn').disabled = true;
+                    document.getElementById('revealBtn').textContent = 'Sources Revealed';
+                    
+                    alert(`Evaluation Complete!\n\nContext Foundry wins: ${data.metrics.cf_wins}\nGraphRAG wins: ${data.metrics.graphrag_wins}\nTies: ${data.metrics.ties}\n\nWin rate: ${(data.metrics.cf_win_rate * 100).toFixed(1)}%`);
+                }
+            } catch (error) {
+                console.error('Failed to reveal sources:', error);
+            }
+        }
+        
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderQueryList(btn.dataset.category);
+            });
+        });
+        
+        document.getElementById('voteA').addEventListener('click', () => vote('A'));
+        document.getElementById('voteB').addEventListener('click', () => vote('B'));
+        document.getElementById('voteTie').addEventListener('click', () => vote('tie'));
+        document.getElementById('revealBtn').addEventListener('click', revealSources);
+        
+        loadQueries();
+    </script>
+</body>
+</html>
