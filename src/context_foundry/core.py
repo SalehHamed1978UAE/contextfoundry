@@ -34,6 +34,16 @@ class ContextFoundry:
         
         logger.info("ContextFoundry core initialized")
     
+    def cleanup(self):
+        """Clean up the session to recover from errors."""
+        try:
+            if self.session:
+                self.session.rollback()
+                self.session.close()
+                logger.info("ContextFoundry session cleaned up")
+        except Exception as e:
+            logger.warning(f"Error during session cleanup: {e}")
+    
     def initialize_database(self):
         """Initialize the database schema."""
         init_database()
