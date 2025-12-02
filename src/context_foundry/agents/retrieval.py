@@ -191,8 +191,7 @@ class RetrievalAgent:
                 Entity.lifecycle_state == 'TRUSTED'
             ).all()
             entity_names = [e[0] for e in entities]
-        except Exception as e:
-            self.logger.warning(f"Failed to fetch entity names: {e}")
+        except Exception:
             return None
         
         if not entity_names:
@@ -499,7 +498,7 @@ class RetrievalAgent:
         for keyword in keywords:
             found = self.semantic.search_entities(
                 keyword,
-                entity_types=entity_types if entity_types else None,
+                entity_types=entity_types if entity_types else list(EntityType),
                 trusted_only=True,
                 limit=5
             )
