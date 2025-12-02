@@ -149,6 +149,15 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-02: **CRITICAL FIX: Hallucination Prevention** - Fixed "confident wrong answer" bug where CF would cite real relationships for non-existent entities
+  - Added target entity extraction and verification in RetrievalAgent
+  - If queried entity doesn't exist in graph → return 10% confidence with explicit "entity not found" message
+  - ContextBundle now tracks target_entity_name, target_entity_found, target_entity_match
+  - ReasoningAgent returns early with structured response for missing entities
+  - Prevents fabricating relationships about non-existent entities (e.g., "Search Service" was citing Auth Service relationships)
+  - 11 extraction patterns covering: quoted names, "the X", "X goes down", "depends on X", "who owns X", "X escalation", "incidents for X", "responsible for X", fallback multi-word phrases
+  - Case-insensitive matching with title-case normalization for consistent database lookups
+  - Fallback entity detection for when patterns don't match
 - 2025-12-02: **MVP2 Week 7 complete** - GraphRAG baseline + blind evaluation framework + web UI
 - 2025-12-02: Added Evaluation web UI with blind A/B testing interface, query browser, side-by-side comparison, voting, metrics dashboard
 - 2025-12-02: Built 100-query evaluation set across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)

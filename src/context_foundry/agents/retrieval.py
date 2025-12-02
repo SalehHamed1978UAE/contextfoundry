@@ -1,13 +1,17 @@
 """
 Retrieval Agent - Builds ContextBundles by querying all three memory layers.
 The core of the tri-memory query system.
+
+CRITICAL: This agent now tracks "target entity" - the specific entity being queried.
+If the target entity doesn't exist in the graph, we flag this explicitly to prevent
+the LLM from hallucinating answers about non-existent entities.
 """
-from typing import List, Dict, Optional, Set
+from typing import List, Dict, Optional, Set, Tuple
 from sqlalchemy.orm import Session
 import uuid
 import re
 
-from ..models.schema import EntityType, RelationshipType, get_session
+from ..models.schema import EntityType, RelationshipType, get_session, Entity
 from ..models.context_bundle import ContextBundle, create_bundle
 from ..memory.semantic import SemanticMemory
 from ..memory.episodic import EpisodicMemory
@@ -42,17 +46,56 @@ class RetrievalAgent:
         Build a ContextBundle by querying all memory layers.
         
         This is the main entry point for context retrieval.
+        
+        CRITICAL: We now track "target entity" - the specific entity being queried.
+        If it doesn't exist, we flag this to prevent hallucinations.
         """
         bundle = create_bundle(query_text)
         
         keywords = self._extract_keywords(query_text)
         entity_types = self._infer_entity_types(query_text)
         
+        # CRITICAL: Extract and verify target entity FIRST
+        target_entity_name = self._extract_target_entity(query_text)
+        if target_entity_name:
+            found, entity_match = self._verify_target_entity_exists(target_entity_name)
+            bundle.target_entity_name = target_entity_name
+            bundle.target_entity_found = found
+            bundle.target_entity_match = entity_match
+            
+            if query_logger:
+                query_logger.log_event("TARGET_ENTITY_CHECK", {
+                    "target_entity": target_entity_name,
+                    "found": found,
+                    "match": entity_match.get("name") if entity_match else None
+                })
+            
+            if not found:
+                logger.warning(f"TARGET ENTITY NOT FOUND: '{target_entity_name}' does not exist in knowledge graph")
+        
         if query_logger:
             query_logger.log_event("RETRIEVAL_START", {
                 "keywords": keywords,
-                "inferred_entity_types": [t.value for t in entity_types]
+                "inferred_entity_types": [t.value for t in entity_types],
+                "target_entity": target_entity_name,
+                "target_entity_found": bundle.target_entity_found
             })
+        
+        # If we couldn't extract a target entity from patterns, try fallback detection
+        # Look for any capitalized multi-word phrases that look like entity names
+        if not target_entity_name:
+            potential_entities = self._find_potential_entity_names(query_text)
+            if potential_entities:
+                # Check each potential entity
+                for pe in potential_entities:
+                    found, entity_match = self._verify_target_entity_exists(pe)
+                    if not found:
+                        # Found a potential entity that doesn't exist - flag it
+                        bundle.target_entity_name = pe
+                        bundle.target_entity_found = False
+                        bundle.target_entity_match = None
+                        logger.warning(f"POTENTIAL ENTITY NOT FOUND: '{pe}' detected in query but not in graph")
+                        break
         
         semantic_results = self._query_semantic_memory(
             keywords, entity_types, traverse_depth, max_entities, query_logger
@@ -132,6 +175,212 @@ class RetrievalAgent:
             types.append(EntityType.COMPONENT)
         
         return types if types else list(EntityType)
+    
+    def _extract_target_entity(self, query_text: str) -> Optional[str]:
+        """
+        Extract the specific entity the query is asking about.
+        
+        This is CRITICAL for preventing hallucinations - we need to know if
+        the entity being queried actually exists in the graph.
+        
+        Extended patterns to catch diverse query phrasings:
+        - "the X" where X is a named entity
+        - "X goes down" / "X fails" 
+        - "depends on X" / "depend on X"
+        - "owned by X" / "owns X" / "who owns X"
+        - "escalate to X for Y" / "X escalation"
+        - "incidents for X" / "X incidents"
+        - Entity names in quotes
+        - Capitalized multi-word entity-like names (fallback)
+        
+        Now case-insensitive to catch lowercase queries like "search service".
+        """
+        # Entity type suffixes we look for (case-insensitive)
+        ENTITY_SUFFIXES = r'(?:[Ss]ervice|[Dd]atabase|[Tt]eam|[Cc]ache|[Qq]ueue|[Gg]ateway|API|api|[Ss]ystem|[Ee]ngine|[Pp]latform|[Cc]luster)'
+        # Entity pattern - now accepts both lower and upper case starting letters
+        ENTITY_PATTERN = rf'([A-Za-z][a-zA-Z]*(?:\s+[A-Za-z][a-zA-Z]*)*(?:\s+{ENTITY_SUFFIXES})?)'
+        
+        # Pattern 1: Quoted entity names (highest priority)
+        quoted = re.findall(r'["\']([^"\']+)["\']', query_text)
+        if quoted:
+            return quoted[0]
+        
+        # Pattern 2: "the <Entity Name>" - captures multi-word names
+        the_pattern = re.search(
+            rf'\bthe\s+{ENTITY_PATTERN}\b',
+            query_text, re.IGNORECASE
+        )
+        if the_pattern:
+            return self._normalize_entity_name(the_pattern.group(1))
+        
+        # Pattern 3: "<Entity> goes down" / "<Entity> fails" / "<Entity> is down"
+        fails_pattern = re.search(
+            rf'\b{ENTITY_PATTERN}\s+(?:goes?\s+down|fails?|is\s+down|crashes?|times?\s+out)\b',
+            query_text, re.IGNORECASE
+        )
+        if fails_pattern:
+            return self._normalize_entity_name(fails_pattern.group(1))
+        
+        # Pattern 4: "depends on <Entity>" / "depend on <Entity>"
+        depends_pattern = re.search(
+            rf'\bdepends?\s+on\s+(?:the\s+)?{ENTITY_PATTERN}\b',
+            query_text, re.IGNORECASE
+        )
+        if depends_pattern:
+            return self._normalize_entity_name(depends_pattern.group(1))
+        
+        # Pattern 5: "if <Entity>" (impact analysis)
+        if_pattern = re.search(
+            rf'\bif\s+(?:the\s+)?{ENTITY_PATTERN}\b',
+            query_text, re.IGNORECASE
+        )
+        if if_pattern:
+            return self._normalize_entity_name(if_pattern.group(1))
+        
+        # Pattern 6: "who owns <Entity>" / "owns <Entity>" / "owner of <Entity>"
+        owns_pattern = re.search(
+            rf'\b(?:who\s+owns?|owns?|owner\s+of)\s+(?:the\s+)?{ENTITY_PATTERN}\b',
+            query_text, re.IGNORECASE
+        )
+        if owns_pattern:
+            return self._normalize_entity_name(owns_pattern.group(1))
+        
+        # Pattern 7: "<Entity> escalation" / "escalate for <Entity>" / "escalation path for <Entity>"
+        escalation_pattern = re.search(
+            rf'\b(?:{ENTITY_PATTERN}\s+escalation|escalat\w+\s+(?:for|to|path\s+for)\s+(?:the\s+)?{ENTITY_PATTERN})\b',
+            query_text, re.IGNORECASE
+        )
+        if escalation_pattern:
+            result = escalation_pattern.group(1) or escalation_pattern.group(2)
+            return self._normalize_entity_name(result) if result else None
+        
+        # Pattern 8: "incidents for <Entity>" / "<Entity> incidents" / "issues with <Entity>"
+        incident_pattern = re.search(
+            rf'\b(?:incidents?\s+(?:for|on|with|involving)\s+(?:the\s+)?{ENTITY_PATTERN}|{ENTITY_PATTERN}\s+incidents?)\b',
+            query_text, re.IGNORECASE
+        )
+        if incident_pattern:
+            result = incident_pattern.group(1) or incident_pattern.group(2)
+            return self._normalize_entity_name(result) if result else None
+        
+        # Pattern 9: "responsible for <Entity>" / "team for <Entity>"
+        responsible_pattern = re.search(
+            rf'\b(?:responsible\s+for|team\s+for|in\s+charge\s+of)\s+(?:the\s+)?{ENTITY_PATTERN}\b',
+            query_text, re.IGNORECASE
+        )
+        if responsible_pattern:
+            return self._normalize_entity_name(responsible_pattern.group(1))
+        
+        # Pattern 10: "about <Entity>" / "regarding <Entity>"
+        about_pattern = re.search(
+            rf'\b(?:about|regarding|concerning|for)\s+(?:the\s+)?{ENTITY_PATTERN}\b',
+            query_text, re.IGNORECASE
+        )
+        if about_pattern:
+            return self._normalize_entity_name(about_pattern.group(1))
+        
+        # Pattern 11: FALLBACK - Any multi-word phrase ending with entity suffix (case-insensitive)
+        # This catches cases like "search service" at the start or middle of query
+        fallback_pattern = re.search(
+            rf'\b([A-Za-z][a-zA-Z]*(?:\s+[A-Za-z][a-zA-Z]*)*\s+{ENTITY_SUFFIXES})\b',
+            query_text, re.IGNORECASE
+        )
+        if fallback_pattern:
+            return self._normalize_entity_name(fallback_pattern.group(1))
+        
+        return None
+    
+    def _normalize_entity_name(self, name: str) -> str:
+        """
+        Normalize entity name to title case for consistent database lookups.
+        Handles special cases like 'API' which should stay uppercase.
+        """
+        if not name:
+            return name
+        
+        # Special tokens that should stay uppercase
+        special_tokens = {'API', 'DB', 'SRE', 'SEV1', 'SEV2', 'SEV3'}
+        
+        words = name.split()
+        normalized = []
+        for word in words:
+            upper = word.upper()
+            if upper in special_tokens:
+                normalized.append(upper)
+            else:
+                normalized.append(word.title())
+        
+        return ' '.join(normalized)
+    
+    def _verify_target_entity_exists(self, target_name: str) -> Tuple[bool, Optional[Dict]]:
+        """
+        Check if the target entity actually exists in the knowledge graph.
+        
+        Returns (found, entity_dict) tuple.
+        """
+        if not target_name:
+            return False, None
+        
+        # Search for exact match first
+        entity = self.semantic.find_entity_by_name(target_name)
+        if entity:
+            return True, entity.to_dict()
+        
+        # Try case-insensitive search
+        results = self.session.query(Entity).filter(
+            Entity.name.ilike(target_name),
+            Entity.lifecycle_state == 'TRUSTED'
+        ).first()
+        
+        if results:
+            return True, results.to_dict()
+        
+        # Try partial match for multi-word names
+        words = target_name.split()
+        if len(words) > 1:
+            # Try searching for the full phrase
+            results = self.session.query(Entity).filter(
+                Entity.name.ilike(f"%{target_name}%"),
+                Entity.lifecycle_state == 'TRUSTED'
+            ).first()
+            
+            if results:
+                return True, results.to_dict()
+        
+        return False, None
+    
+    def _find_potential_entity_names(self, query_text: str) -> List[str]:
+        """
+        Find potential entity names in the query that might need verification.
+        
+        This is a fallback for when pattern-based extraction fails.
+        Looks for multi-word phrases that look like entity names (case-insensitive).
+        Returns title-cased versions for consistent comparison.
+        """
+        # Entity type suffixes (case-insensitive)
+        ENTITY_SUFFIXES = r'(?:[Ss]ervice|[Dd]atabase|[Tt]eam|[Cc]ache|[Qq]ueue|[Gg]ateway|API|api|[Ss]ystem|[Ee]ngine|[Pp]latform|[Cc]luster)'
+        
+        # Find all phrases that end with an entity suffix (case-insensitive)
+        pattern = rf'\b([A-Za-z][a-zA-Z]*(?:\s+[A-Za-z][a-zA-Z]*)*\s+{ENTITY_SUFFIXES})\b'
+        matches = re.findall(pattern, query_text, re.IGNORECASE)
+        
+        # Also check for phrases that might be entity names without suffix
+        # But only if they're 2+ words (e.g., "api gateway", "payment processor")
+        alt_pattern = r'\b([A-Za-z][a-zA-Z]+\s+[A-Za-z][a-zA-Z]+(?:\s+[A-Za-z][a-zA-Z]+)?)\b'
+        alt_matches = re.findall(alt_pattern, query_text)
+        
+        # Combine and dedupe, convert to title case for consistent comparison
+        all_matches = list(set(matches + alt_matches))
+        
+        # Filter out common false positives (check lowercase version)
+        false_positives = {'what', 'who', 'where', 'when', 'how', 'which', 'the', 'are', 'does', 'can'}
+        filtered = [m for m in all_matches if m.split()[0].lower() not in false_positives]
+        
+        # Convert to title case for consistent database lookups
+        title_cased = [m.title() for m in filtered]
+        
+        # Sort by length (longer matches first) to prefer more specific entities
+        return sorted(title_cased, key=len, reverse=True)
     
     def _query_semantic_memory(
         self,
