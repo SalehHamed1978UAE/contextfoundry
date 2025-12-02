@@ -3,7 +3,7 @@
 ## Overview
 Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring.
 
-**Current State**: MVP2 Week 7 Complete - Full 100-query automated evaluation completed. Context Foundry wins 5/5 vs GraphRAG baseline with statistically significant provenance advantage (+2.19 score).
+**Current State**: MVP2 Week 7 Complete - Full 100-query automated evaluation completed. Context Foundry wins 5/5 vs GraphRAG baseline with statistically significant provenance advantage (+2.19 score). **Domain-agnostic architecture validated** with org chart domain test (30 people, 8 teams, 5 departments).
 
 ## Architecture
 
@@ -44,12 +44,14 @@ src/context_foundry/
 │   └── symbolic.py         # Rules engine operations
 ├── agents/
 │   ├── graph_loader.py     # Data ingestion agent
+│   ├── org_chart_loader.py # Org chart domain loader (non-IT domain)
 │   ├── retrieval.py        # Context retrieval agent
 │   ├── reasoning.py        # LLM reasoning agent
 │   └── validation.py       # Rule validation agent
 ├── data/
 │   ├── synthetic_generator.py       # Original IT ops synthetic data
-│   └── scaled_synthetic_generator.py # Scaled data (1,011 entities)
+│   ├── scaled_synthetic_generator.py # Scaled data (1,011 entities)
+│   └── org_chart_generator.py       # Org chart domain data (30 people, 8 teams)
 ├── ingestion/               # MVP2: Document ingestion pipeline
 │   ├── document_loader.py   # PDF/DOCX/MD/TXT loading
 │   ├── text_chunker.py      # Sentence-aware chunking
@@ -149,6 +151,13 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-02: **Domain-Agnostic Architecture Validated** - Org chart domain test successful
+  - Created org_chart_generator.py: 30 people, 8 teams, 5 departments with REPORTS_TO/MEMBER_OF/LEADS relationships
+  - Added org_chart_loader.py to populate tri-memory system with non-IT domain data
+  - Entity namespacing implemented ("Org:" prefix) to prevent cross-domain collisions
+  - Business rules applied correctly: VP approval for teams >10 members, Director approval otherwise
+  - Test query achieved 95% confidence with multi-hop reasoning: Team → Headcount → Rule → Approver
+  - Same tri-memory system handles both IT ops and org chart queries without code changes
 - 2025-12-02: **100-Query Automated Evaluation Complete** - CF wins 5/5 against GraphRAG baseline
   - 100 queries across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)
   - CF Latency: 47 wins, GraphRAG: 30 wins, Ties: 23 (not statistically significant, Cohen's d=0.17)
