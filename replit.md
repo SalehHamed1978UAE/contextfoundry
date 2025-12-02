@@ -3,7 +3,7 @@
 ## Overview
 Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring.
 
-**Current State**: MVP2 Week 5 Complete - Production-ready entity extraction pipeline with LLM-powered NER, duplicate detection, and STAGING integration. 1,011 entities in knowledge graph with extraction validation showing 98.1% entity F1 score.
+**Current State**: MVP2 Week 5 Complete - Production-ready extraction pipeline with LLM-powered NER, duplicate detection, and STAGING integration. 1,011 entities in knowledge graph. Extraction validation: 98.1% entity F1, 83.3% relation recall (improved from 39% via few-shot prompt engineering).
 
 ## Architecture
 
