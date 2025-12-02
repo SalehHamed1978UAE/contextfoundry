@@ -73,43 +73,84 @@ Given the following text and the list of known entities, extract all relationshi
 - DEPENDS_ON: Service/component depends on another service/component/database
 - OWNS: Team owns a service/component/database
 - SUPPORTS: Team provides support for a service (but doesn't own it)
-- MEMBER_OF: Person is a member of a team
-- MANAGES: Person manages/leads a team
+- MEMBER_OF: Person is a member of a team (including team leads - see clarification below)
+- MANAGES: Team or person has management responsibility for a SERVICE/SYSTEM (not a team)
 - ESCALATES_TO: Person escalates incidents to another person
 - AFFECTS: Incident affects a service/component
 - RESOLVED_BY: Incident was resolved by a person
 - CAUSED_BY: Incident was caused by issue in another entity
+
+DISTINCTION - MEMBER_OF vs MANAGES:
+- MEMBER_OF: Person belongs to a team. This includes team leads and managers OF teams.
+  Example: "Sarah Chen is Tech Lead of Payments Team" → Sarah Chen MEMBER_OF Payments Team
+  Example: "Mike Rodriguez (SRE Team Lead)" → Mike Rodriguez MEMBER_OF SRE Team
+- MANAGES: Team or person has management/operational responsibility for a SERVICE or SYSTEM.
+  Example: "Platform Team manages the API Gateway" → Platform Team MANAGES API Gateway
+  Example: "SRE Team manages the Kubernetes infrastructure" → SRE Team MANAGES Kubernetes
+
+MULTI-TARGET RELATIONSHIPS:
+When text mentions multiple targets (e.g., "routes to X, Y, and Z" or "depends on A, B, and C"), extract a SEPARATE relationship for each target.
 
 KNOWN ENTITIES:
 {entities}
 
 For each relationship, provide:
 1. relation_type: One of the types above
-2. source_name: The name of the source entity
-3. target_name: The name of the target entity
+2. source_name: The name of the source entity (must be from KNOWN ENTITIES)
+3. target_name: The name of the target entity (must be from KNOWN ENTITIES)
 4. source_span: The exact text that indicates this relationship
 5. confidence: Your confidence in this extraction (0.0 to 1.0)
 
+EXAMPLES:
+
+Example 1 - Service Dependencies (multi-target):
+Text: "API Gateway routes traffic to Order Service, Inventory Service, and Shipping Service"
+Entities: API Gateway (SERVICE), Order Service (SERVICE), Inventory Service (SERVICE), Shipping Service (SERVICE)
+Extract:
+[
+  {{"relation_type": "DEPENDS_ON", "source_name": "API Gateway", "target_name": "Order Service", "source_span": "routes traffic to Order Service", "confidence": 0.95}},
+  {{"relation_type": "DEPENDS_ON", "source_name": "API Gateway", "target_name": "Inventory Service", "source_span": "routes traffic to Inventory Service", "confidence": 0.95}},
+  {{"relation_type": "DEPENDS_ON", "source_name": "API Gateway", "target_name": "Shipping Service", "source_span": "routes traffic to Shipping Service", "confidence": 0.95}}
+]
+
+Example 2 - Incident Relations (AFFECTS, CAUSED_BY):
+Text: "INC-2024-042: The Auth Service experienced a major outage. The incident was caused by a deadlock in the Auth Database."
+Entities: INC-2024-042 (INCIDENT), Auth Service (SERVICE), Auth Database (DATABASE)
+Extract:
+[
+  {{"relation_type": "AFFECTS", "source_name": "INC-2024-042", "target_name": "Auth Service", "source_span": "Auth Service experienced a major outage", "confidence": 0.95}},
+  {{"relation_type": "CAUSED_BY", "source_name": "INC-2024-042", "target_name": "Auth Database", "source_span": "caused by a deadlock in the Auth Database", "confidence": 0.90}}
+]
+
+Example 3 - Incident Resolution (RESOLVED_BY):
+Text: "Mike Rodriguez resolved the issue by restarting the database cluster."
+Entities: INC-2024-042 (INCIDENT), Mike Rodriguez (PERSON)
+Extract:
+[
+  {{"relation_type": "RESOLVED_BY", "source_name": "INC-2024-042", "target_name": "Mike Rodriguez", "source_span": "Mike Rodriguez resolved the issue", "confidence": 0.95}}
+]
+
+Example 4 - Team Membership vs Management:
+Text: "James Wilson is the Platform Team Manager. The Platform Team manages the API Gateway."
+Entities: James Wilson (PERSON), Platform Team (TEAM), API Gateway (SERVICE)
+Extract:
+[
+  {{"relation_type": "MEMBER_OF", "source_name": "James Wilson", "target_name": "Platform Team", "source_span": "James Wilson is the Platform Team Manager", "confidence": 0.95}},
+  {{"relation_type": "MANAGES", "source_name": "Platform Team", "target_name": "API Gateway", "source_span": "Platform Team manages the API Gateway", "confidence": 0.95}}
+]
+
 IMPORTANT RULES:
-- Only extract relationships that are EXPLICITLY stated or clearly implied in the text
+- Extract ALL relationships mentioned in the text
 - Both source and target entities must be from the KNOWN ENTITIES list
-- Do NOT infer relationships that aren't supported by the text
-- Assign lower confidence (0.6-0.8) if the relationship is implied but not explicit
-- Assign higher confidence (0.9-1.0) if the relationship is explicitly stated
+- For incidents, look for: "affected", "impacted", "caused by", "due to", "resolved by", "fixed by"
+- For dependencies, look for: "depends on", "requires", "uses", "connects to", "routes to"
+- Assign lower confidence (0.5-0.7) if the relationship is implied but not explicit
+- Assign higher confidence (0.8-1.0) if the relationship is explicitly stated
 
 TEXT:
 {text}
 
-Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
-[
-  {{
-    "relation_type": "DEPENDS_ON",
-    "source_name": "Payment Service",
-    "target_name": "Payments Database",
-    "source_span": "Payment Service requires Payments Database",
-    "confidence": 0.95
-  }}
-]
+Respond with ONLY valid JSON array, no markdown code blocks or other text.
 """
 
 
