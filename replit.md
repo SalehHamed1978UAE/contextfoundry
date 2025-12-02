@@ -131,6 +131,10 @@ The MVP uses synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-02: Fixed "invalid transaction rollback" errors with proper session cleanup
+- 2025-12-02: Added skip-if-exists logic to graph_loader for graceful re-runs
+- 2025-12-02: Added ContextFoundry.cleanup() method for proper session management
+- 2025-12-02: Configured gunicorn deployment with /health endpoint
 - 2025-12-01: Added sleek web UI with dark theme, glassmorphism, animated gradients
 - 2025-12-01: MVP Complete - All 3 demo queries working with full provenance
 - 2025-12-01: Added resilient database error handling with session rollback
