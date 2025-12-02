@@ -111,6 +111,11 @@ class ContextFoundry:
             query_logger.log_error("PIPELINE_ERROR", str(e))
             logger.exception(f"Query pipeline error: {e}")
             
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            
             return {
                 "answer": f"Error processing query: {str(e)}",
                 "confidence": 0,
@@ -167,6 +172,24 @@ class ContextFoundry:
             logger.debug(f"Query log saved: {query_id}")
         except Exception as e:
             logger.error(f"Failed to save query log: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+    
+    def reset_session(self):
+        """Reset session to recover from connection errors."""
+        try:
+            if self.session:
+                self.session.rollback()
+                self.session.close()
+        except Exception:
+            pass
+        
+        self.session = get_session()
+        self.retrieval = RetrievalAgent(self.session)
+        self.validation = ValidationAgent(self.session)
+        logger.info("ContextFoundry session reset")
     
     def get_statistics(self) -> Dict:
         """Get statistics about the Context Foundry system."""

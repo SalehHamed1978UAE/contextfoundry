@@ -25,8 +25,11 @@ def reset_context_foundry():
     """Reset the ContextFoundry instance to recover from errors."""
     global cf
     if cf is not None:
-        cf.cleanup()
-    cf = None
+        try:
+            cf.reset_session()
+        except Exception:
+            cf.cleanup()
+            cf = None
 
 def init_scheduler():
     """Initialize the Gardener scheduler with 5-minute cycles."""
