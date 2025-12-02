@@ -82,7 +82,7 @@ The web interface provides a sleek, "Cybernetic Operations" HUD-style UI for que
 - Deep slate background (#0f172a) with electric cyan (#06b6d4) accents
 - Scanline animation effect for "system running" feel
 - Tech corner accents on cards mimicking tactical displays
-- Multi-page layout: Dashboard, Memory Graph, Learning Loop, System Rules
+- Multi-page layout: Dashboard, Memory Graph, Learning Loop, System Rules, A/B Evaluation
 - Real-time query execution with animated confidence ring
 - Color-coded evidence chain by memory layer (cyan=semantic, purple=episodic, pink=symbolic)
 - Live system status footer: API version, Memory count, Latency indicator
@@ -149,7 +149,8 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
-- 2025-12-02: **MVP2 Week 7 complete** - GraphRAG baseline + blind evaluation framework
+- 2025-12-02: **MVP2 Week 7 complete** - GraphRAG baseline + blind evaluation framework + web UI
+- 2025-12-02: Added Evaluation web UI with blind A/B testing interface, query browser, side-by-side comparison, voting, metrics dashboard
 - 2025-12-02: Built 100-query evaluation set across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)
 - 2025-12-02: Added GraphRAG baseline implementation for fair comparison (no confidence scores, no symbolic rules)
 - 2025-12-02: Created blind A/B evaluation framework with randomized ordering and source hiding
