@@ -71,6 +71,16 @@ class GraphLoaderAgent:
         
         for entity_data in entities:
             try:
+                entity_name = entity_data["name"]
+                
+                existing = self.session.query(Entity).filter(Entity.name == entity_name).first()
+                if existing:
+                    self.entity_map[entity_name] = existing.id
+                    if "id" in entity_data:
+                        self.entity_map[entity_data["id"]] = existing.id
+                    logger.debug(f"Entity already exists, skipping: {entity_name}")
+                    continue
+                
                 entity_type_str = entity_data.get("entity_type", "SERVICE")
                 entity_type = EntityType[entity_type_str]
                 
@@ -93,6 +103,7 @@ class GraphLoaderAgent:
                 self.stats["entities_loaded"] += 1
                 
             except Exception as e:
+                self.session.rollback()
                 error_msg = f"Failed to load entity {entity_data.get('name')}: {str(e)}"
                 logger.error(error_msg)
                 self.stats["errors"].append(error_msg)
@@ -121,6 +132,15 @@ class GraphLoaderAgent:
                 rel_type_str = rel_data.get("relationship_type", "DEPENDS_ON")
                 rel_type = RelationshipType[rel_type_str]
                 
+                existing = self.session.query(Relationship).filter(
+                    Relationship.source_id == source_id,
+                    Relationship.target_id == target_id,
+                    Relationship.relationship_type == rel_type
+                ).first()
+                if existing:
+                    logger.debug(f"Relationship already exists, skipping: {source_name} -> {target_name}")
+                    continue
+                
                 self.semantic.add_relationship(
                     source_id=source_id,
                     target_id=target_id,
@@ -136,6 +156,7 @@ class GraphLoaderAgent:
                 self.stats["relationships_loaded"] += 1
                 
             except Exception as e:
+                self.session.rollback()
                 error_msg = f"Failed to load relationship {rel_data}: {str(e)}"
                 logger.error(error_msg)
                 self.stats["errors"].append(error_msg)
@@ -148,6 +169,13 @@ class GraphLoaderAgent:
         
         for doc_data in documents:
             try:
+                existing = self.session.query(Document).filter(
+                    Document.title == doc_data["title"]
+                ).first()
+                if existing:
+                    logger.debug(f"Document already exists, skipping: {doc_data['title']}")
+                    continue
+                    
                 self.episodic.add_document(
                     title=doc_data["title"],
                     doc_type=doc_data.get("doc_type", "DOCUMENTATION"),
@@ -159,6 +187,7 @@ class GraphLoaderAgent:
                 self.stats["documents_loaded"] += 1
                 
             except Exception as e:
+                self.session.rollback()
                 error_msg = f"Failed to load document {doc_data.get('title')}: {str(e)}"
                 logger.error(error_msg)
                 self.stats["errors"].append(error_msg)
@@ -171,6 +200,13 @@ class GraphLoaderAgent:
         
         for rule_data in rules:
             try:
+                existing = self.session.query(Rule).filter(
+                    Rule.name == rule_data["name"]
+                ).first()
+                if existing:
+                    logger.debug(f"Rule already exists, skipping: {rule_data['name']}")
+                    continue
+                    
                 rule_type_str = rule_data.get("rule_type", "VALIDATION")
                 rule_type = RuleType[rule_type_str]
                 
@@ -189,6 +225,7 @@ class GraphLoaderAgent:
                 self.stats["rules_loaded"] += 1
                 
             except Exception as e:
+                self.session.rollback()
                 error_msg = f"Failed to load rule {rule_data.get('name')}: {str(e)}"
                 logger.error(error_msg)
                 self.stats["errors"].append(error_msg)
