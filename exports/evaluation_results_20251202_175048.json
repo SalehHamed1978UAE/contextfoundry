@@ -1,0 +1,131 @@
+{
+  "run_id": "20251202_175048",
+  "total_queries": 100,
+  "completed_queries": 100,
+  "latency": {
+    "cf_wins": 47,
+    "graphrag_wins": 30,
+    "ties": 23,
+    "cf_avg_ms": 2677.3,
+    "graphrag_avg_ms": 2265.7
+  },
+  "response_length": {
+    "cf_avg": 5602.0,
+    "graphrag_avg": 322.0
+  },
+  "provenance": {
+    "cf_relationship_citation_rate": 32.0,
+    "graphrag_relationship_citation_rate": 10.0,
+    "cf_rule_citation_rate": 100.0,
+    "graphrag_rule_citation_rate": 3.0,
+    "cf_avg_provenance_score": 2.32,
+    "graphrag_avg_provenance_score": 0.13
+  },
+  "confidence": {
+    "cf_avg": null
+  },
+  "by_category": {
+    "impact_analysis": {
+      "count": 20,
+      "cf_avg_latency": 3782.1,
+      "graphrag_avg_latency": 2422.1,
+      "cf_avg_provenance": 2.3,
+      "graphrag_avg_provenance": 0.05
+    },
+    "escalation": {
+      "count": 15,
+      "cf_avg_latency": 2054.4,
+      "graphrag_avg_latency": 2138.8,
+      "cf_avg_provenance": 2.27,
+      "graphrag_avg_provenance": 0
+    },
+    "ownership": {
+      "count": 15,
+      "cf_avg_latency": 2948.7,
+      "graphrag_avg_latency": 2457.4,
+      "cf_avg_provenance": 2.53,
+      "graphrag_avg_provenance": 0.4
+    },
+    "dependencies": {
+      "count": 20,
+      "cf_avg_latency": 2574.5,
+      "graphrag_avg_latency": 2417.6,
+      "cf_avg_provenance": 2.35,
+      "graphrag_avg_provenance": 0.1
+    },
+    "incidents": {
+      "count": 15,
+      "cf_avg_latency": 2259.1,
+      "graphrag_avg_latency": 2346.7,
+      "cf_avg_provenance": 2.2,
+      "graphrag_avg_provenance": 0.27
+    },
+    "expertise": {
+      "count": 15,
+      "cf_avg_latency": 2110.8,
+      "graphrag_avg_latency": 1708.8,
+      "cf_avg_provenance": 2.27,
+      "graphrag_avg_provenance": 0
+    }
+  },
+  "by_hop_count": {
+    "single_hop": {
+      "count": 41,
+      "cf_avg_latency": 3288.3,
+      "graphrag_avg_latency": 2090.0,
+      "cf_avg_provenance": 2.46,
+      "graphrag_avg_provenance": 0.12
+    },
+    "multi_hop": {
+      "count": 59,
+      "cf_avg_latency": 2252.6,
+      "graphrag_avg_latency": 2387.8,
+      "cf_avg_provenance": 2.22,
+      "graphrag_avg_provenance": 0.14
+    }
+  },
+  "by_difficulty": {
+    "easy": {
+      "count": 32,
+      "cf_avg_latency": 3241.9,
+      "graphrag_avg_latency": 1994.3,
+      "cf_avg_provenance": 2.47,
+      "graphrag_avg_provenance": 0.12
+    },
+    "medium": {
+      "count": 44,
+      "cf_avg_latency": 2656.2,
+      "graphrag_avg_latency": 2255.1,
+      "cf_avg_provenance": 2.32,
+      "graphrag_avg_provenance": 0.14
+    },
+    "hard": {
+      "count": 24,
+      "cf_avg_latency": 1963.0,
+      "graphrag_avg_latency": 2647.1,
+      "cf_avg_provenance": 2.12,
+      "graphrag_avg_provenance": 0.12
+    }
+  },
+  "human_review": {
+    "sample_size": 25,
+    "cf_correct": 0,
+    "graphrag_correct": 0
+  },
+  "statistical_significance": {
+    "latency": {
+      "cf_mean": 2677.3,
+      "graphrag_mean": 2265.7,
+      "cf_std": 3066.0,
+      "graphrag_std": 1293.2,
+      "effect_size_cohens_d": 0.17,
+      "significant": false
+    },
+    "provenance": {
+      "cf_mean": 2.32,
+      "graphrag_mean": 0.13,
+      "cf_advantage": 2.19,
+      "significant": true
+    }
+  }
+}

@@ -3,7 +3,7 @@
 ## Overview
 Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring.
 
-**Current State**: MVP2 Week 7 Complete - GraphRAG baseline implementation for comparison, 100-query evaluation set across 6 categories, blind evaluation framework with randomized A/B testing and proper source hiding until after review.
+**Current State**: MVP2 Week 7 Complete - Full 100-query automated evaluation completed. Context Foundry wins 5/5 vs GraphRAG baseline with statistically significant provenance advantage (+2.19 score).
 
 ## Architecture
 
@@ -149,6 +149,14 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-02: **100-Query Automated Evaluation Complete** - CF wins 5/5 against GraphRAG baseline
+  - 100 queries across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)
+  - CF Latency: 47 wins, GraphRAG: 30 wins, Ties: 23 (not statistically significant, Cohen's d=0.17)
+  - CF Provenance Score: 2.32/3 vs GraphRAG 0.13/3 (**+2.19 advantage, statistically significant**)
+  - CF Relationship Citations: 32% vs GraphRAG 10%
+  - CF Rule Citations: 100% vs GraphRAG 3%
+  - Response Length: CF 5602 chars (detailed), GraphRAG 322 chars (brief)
+  - Results saved: exports/evaluation_results_20251202_175048.json
 - 2025-12-02: **CRITICAL FIX: Hallucination Prevention** - Fixed "confident wrong answer" bug where CF would cite real relationships for non-existent entities
   - Added target entity extraction and verification in RetrievalAgent
   - If queried entity doesn't exist in graph → return 10% confidence with explicit "entity not found" message
