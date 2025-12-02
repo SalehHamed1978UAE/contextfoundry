@@ -3,7 +3,7 @@
 ## Overview
 Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring.
 
-**Current State**: MVP2 Week 6 Complete - Gardener agent with 5-minute scheduled cycles, Identity Resolution with duplicate detection and merge auditing, persistent conflict logs. All data now persists to PostgreSQL for full audit trail and human review workflow.
+**Current State**: MVP2 Week 7 Complete - GraphRAG baseline implementation for comparison, 100-query evaluation set across 6 categories, blind evaluation framework with randomized A/B testing and proper source hiding until after review.
 
 ## Architecture
 
@@ -61,6 +61,10 @@ src/context_foundry/
 │   ├── staging_loader.py    # STAGING layer integration
 │   ├── duplicate_detector.py # Fuzzy deduplication
 │   └── validation.py        # Precision/recall measurement
+├── evaluation/              # Week 7: Comparison framework
+│   ├── graphrag_baseline.py # Simpler GraphRAG for comparison
+│   ├── query_set.py         # 100 queries across 6 categories
+│   └── evaluator.py         # Blind A/B evaluation framework
 ├── utils/
 │   └── logger.py           # Comprehensive logging
 └── core.py                 # Main orchestrator
@@ -145,6 +149,11 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-02: **MVP2 Week 7 complete** - GraphRAG baseline + blind evaluation framework
+- 2025-12-02: Built 100-query evaluation set across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)
+- 2025-12-02: Added GraphRAG baseline implementation for fair comparison (no confidence scores, no symbolic rules)
+- 2025-12-02: Created blind A/B evaluation framework with randomized ordering and source hiding
+- 2025-12-02: Added API endpoints: /api/evaluation/query-set, /api/evaluation/run, /api/evaluation/compare, /api/evaluation/graphrag, /api/evaluation/preference, /api/evaluation/metrics, /api/evaluation/reveal
 - 2025-12-02: **MVP2 Week 6 complete** - Gardener + Identity Resolution with full persistence
 - 2025-12-02: Added ConflictLog, MergeAudit, DuplicateCandidate database tables
 - 2025-12-02: Built API endpoints: /api/conflicts, /api/duplicates, /api/merge-audits
