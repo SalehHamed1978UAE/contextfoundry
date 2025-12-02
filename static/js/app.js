@@ -6,6 +6,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const recentQueries = document.getElementById('recentQueries');
     const queryList = document.getElementById('queryList');
     
+    // Mobile menu elements
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+    
+    // Mobile menu toggle
+    if (hamburgerBtn && sidebar && mobileOverlay) {
+        hamburgerBtn.addEventListener('click', function() {
+            hamburgerBtn.classList.toggle('active');
+            sidebar.classList.toggle('open');
+            mobileOverlay.classList.toggle('visible');
+        });
+        
+        mobileOverlay.addEventListener('click', function() {
+            hamburgerBtn.classList.remove('active');
+            sidebar.classList.remove('open');
+            mobileOverlay.classList.remove('visible');
+        });
+        
+        // Close menu when nav item is clicked
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    hamburgerBtn.classList.remove('active');
+                    sidebar.classList.remove('open');
+                    mobileOverlay.classList.remove('visible');
+                }
+            });
+        });
+    }
+    
     let queryHistory = [];
     let startTime = Date.now();
 
