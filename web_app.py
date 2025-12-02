@@ -523,10 +523,26 @@ def record_preference():
         pair = comparison_pairs.get(pair_id)
         
         if pair:
+            # Check if already reviewed - prevent duplicate votes
+            if pair_id in preference_metrics['reviewed']:
+                return jsonify({
+                    'success': True,
+                    'message': 'Already reviewed',
+                    'metrics': {
+                        'cf_wins': preference_metrics['cf_wins'],
+                        'graphrag_wins': preference_metrics['graphrag_wins'],
+                        'ties': preference_metrics['ties'],
+                        'reviewed': len(preference_metrics['reviewed']),
+                    },
+                })
+            
             # Record preference on the stored pair
             pair.human_preference = preference
             pair.reviewed_by = reviewer
             pair.human_notes = notes
+            
+            # Add to reviewed set FIRST to prevent race conditions
+            preference_metrics['reviewed'].add(pair_id)
             
             # Determine actual winner based on which system was A/B
             if preference == 'tie':
@@ -543,7 +559,6 @@ def record_preference():
                     preference_metrics['cf_wins'] += 1
                 else:
                     preference_metrics['graphrag_wins'] += 1
-            preference_metrics['reviewed'].add(pair_id)
             
             return jsonify({
                 'success': True,
