@@ -383,19 +383,36 @@ class DuplicateCandidate(Base):
         }
 
 
+_engine = None
+_session_factory = None
+
+
 def get_engine():
-    """Create database engine from environment."""
-    database_url = os.environ.get("DATABASE_URL")
-    if not database_url:
-        raise ValueError("DATABASE_URL environment variable not set")
-    return create_engine(database_url, echo=False)
+    """Create database engine from environment with connection pooling."""
+    global _engine
+    if _engine is None:
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            raise ValueError("DATABASE_URL environment variable not set")
+        _engine = create_engine(
+            database_url, 
+            echo=False,
+            pool_pre_ping=True,
+            pool_recycle=300,
+            pool_size=5,
+            max_overflow=10,
+            pool_timeout=30,
+        )
+    return _engine
 
 
 def get_session():
-    """Create a new database session."""
-    engine = get_engine()
-    Session = sessionmaker(bind=engine)
-    return Session()
+    """Create a new database session with auto-reconnect."""
+    global _session_factory
+    if _session_factory is None:
+        engine = get_engine()
+        _session_factory = sessionmaker(bind=engine)
+    return _session_factory()
 
 
 def init_database():
