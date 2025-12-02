@@ -68,6 +68,10 @@ atexit.register(shutdown_scheduler)
 def index():
     return render_template('index.html')
 
+@app.route('/evaluation')
+def evaluation():
+    return render_template('evaluation.html')
+
 @app.route('/health')
 def health():
     return 'OK', 200
