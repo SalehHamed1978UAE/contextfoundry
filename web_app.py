@@ -14,6 +14,9 @@ app.secret_key = os.environ.get("SESSION_SECRET", "context-foundry-secret")
 
 cf = None
 scheduler = None
+evaluation_result = None
+comparison_pairs = {}  # Store individual comparison pairs by pair_id
+preference_metrics = {'cf_wins': 0, 'graphrag_wins': 0, 'ties': 0, 'reviewed': set()}
 
 def get_context_foundry():
     global cf
@@ -442,6 +445,8 @@ def compare_single_query():
     """Run a single query through both systems for comparison."""
     from src.context_foundry.evaluation.evaluator import BlindEvaluator
     
+    global comparison_pairs
+    
     try:
         data = request.get_json()
         query_id = data.get('query_id')
@@ -454,6 +459,9 @@ def compare_single_query():
         
         if not pair:
             return jsonify({'success': False, 'error': 'Query not found'}), 404
+        
+        # Store the pair for later preference recording
+        comparison_pairs[pair.pair_id] = pair
         
         blind_a, blind_b = pair.get_blind_responses()
         
@@ -496,7 +504,7 @@ def record_preference():
     """Record human preference for a blind comparison."""
     from src.context_foundry.evaluation.evaluator import BlindEvaluator
     
-    global evaluation_result
+    global evaluation_result, comparison_pairs, preference_metrics
     
     try:
         data = request.get_json()
@@ -511,26 +519,61 @@ def record_preference():
         if preference not in ['A', 'B', 'tie']:
             return jsonify({'success': False, 'error': 'preference must be A, B, or tie'}), 400
         
-        if evaluation_result is None:
-            return jsonify({'success': False, 'error': 'No evaluation running'}), 400
+        # Try to find pair in stored comparisons first
+        pair = comparison_pairs.get(pair_id)
         
-        evaluator = BlindEvaluator()
-        success = evaluator.record_preference(
-            pair_id=pair_id,
-            preference=preference,
-            notes=notes,
-            reviewer=reviewer,
-            result=evaluation_result,
-        )
-        
-        if success:
-            metrics = evaluator.calculate_metrics(evaluation_result)
+        if pair:
+            # Record preference on the stored pair
+            pair.human_preference = preference
+            pair.reviewed_by = reviewer
+            pair.human_notes = notes
+            
+            # Determine actual winner based on which system was A/B
+            if preference == 'tie':
+                preference_metrics['ties'] += 1
+            elif preference == 'A':
+                # A was chosen - check if A is context_foundry
+                if pair.a_is_context_foundry:
+                    preference_metrics['cf_wins'] += 1
+                else:
+                    preference_metrics['graphrag_wins'] += 1
+            else:  # preference == 'B'
+                # B was chosen - check if B is context_foundry (opposite of A)
+                if not pair.a_is_context_foundry:
+                    preference_metrics['cf_wins'] += 1
+                else:
+                    preference_metrics['graphrag_wins'] += 1
+            preference_metrics['reviewed'].add(pair_id)
+            
             return jsonify({
                 'success': True,
-                'metrics': metrics.to_dict(),
+                'metrics': {
+                    'cf_wins': preference_metrics['cf_wins'],
+                    'graphrag_wins': preference_metrics['graphrag_wins'],
+                    'ties': preference_metrics['ties'],
+                    'reviewed': len(preference_metrics['reviewed']),
+                },
             })
-        else:
-            return jsonify({'success': False, 'error': 'Pair not found'}), 404
+        
+        # Fall back to batch evaluation result if available
+        if evaluation_result is not None:
+            evaluator = BlindEvaluator()
+            success = evaluator.record_preference(
+                pair_id=pair_id,
+                preference=preference,
+                notes=notes,
+                reviewer=reviewer,
+                result=evaluation_result,
+            )
+            
+            if success:
+                metrics = evaluator.calculate_metrics(evaluation_result)
+                return jsonify({
+                    'success': True,
+                    'metrics': metrics.to_dict(),
+                })
+        
+        return jsonify({'success': False, 'error': 'Pair not found'}), 404
             
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -540,9 +583,21 @@ def get_evaluation_metrics():
     """Get current evaluation metrics."""
     from src.context_foundry.evaluation.evaluator import BlindEvaluator
     
-    global evaluation_result
+    global evaluation_result, preference_metrics
     
     try:
+        # Return stored preference metrics if available
+        if len(preference_metrics['reviewed']) > 0:
+            return jsonify({
+                'success': True,
+                'metrics': {
+                    'cf_wins': preference_metrics['cf_wins'],
+                    'graphrag_wins': preference_metrics['graphrag_wins'],
+                    'ties': preference_metrics['ties'],
+                    'reviewed': len(preference_metrics['reviewed']),
+                },
+            })
+        
         if evaluation_result is None:
             return jsonify({
                 'success': True,
@@ -569,11 +624,32 @@ def reveal_evaluation_source():
     """Reveal which system produced each response (only after review is complete)."""
     from src.context_foundry.evaluation.evaluator import BlindEvaluator
     
-    global evaluation_result
+    global evaluation_result, comparison_pairs, preference_metrics
     
     try:
+        # Check stored comparisons first
+        reviewed_pairs = [p for p in comparison_pairs.values() if p.human_preference]
+        
+        if reviewed_pairs:
+            # Calculate win rate
+            total_decided = preference_metrics['cf_wins'] + preference_metrics['graphrag_wins']
+            cf_win_rate = preference_metrics['cf_wins'] / total_decided if total_decided > 0 else 0
+            
+            return jsonify({
+                'success': True,
+                'reviewed': len(reviewed_pairs),
+                'pairs': [p.to_dict(reveal_source=True) for p in reviewed_pairs],
+                'metrics': {
+                    'cf_wins': preference_metrics['cf_wins'],
+                    'graphrag_wins': preference_metrics['graphrag_wins'],
+                    'ties': preference_metrics['ties'],
+                    'cf_win_rate': cf_win_rate,
+                },
+            })
+        
+        # Fall back to batch evaluation result
         if evaluation_result is None:
-            return jsonify({'success': False, 'error': 'No evaluation running'}), 400
+            return jsonify({'success': False, 'error': 'No pairs have been reviewed yet'}), 400
         
         reviewed_count = sum(1 for p in evaluation_result.pairs if p.human_preference)
         if reviewed_count == 0:
