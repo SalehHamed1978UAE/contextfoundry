@@ -39,6 +39,7 @@ class EntityType(str, Enum):
 class RelationshipType(str, Enum):
     DEPENDS_ON = "DEPENDS_ON"
     OWNS = "OWNS"
+    SUPPORTS = "SUPPORTS"
     MEMBER_OF = "MEMBER_OF"
     MANAGES = "MANAGES"
     ESCALATES_TO = "ESCALATES_TO"

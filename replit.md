@@ -3,7 +3,7 @@
 ## Overview
 Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring.
 
-**Current State**: MVP Complete - Successfully answering complex queries like "What services are affected if the payments database goes down?" by routing through all three memory layers and returning responses with complete evidence chains.
+**Current State**: MVP2 Week 5 Complete - Production-ready entity extraction pipeline with LLM-powered NER, duplicate detection, and STAGING integration. 1,011 entities in knowledge graph with extraction validation showing 98.1% entity F1 score.
 
 ## Architecture
 
@@ -48,7 +48,19 @@ src/context_foundry/
 │   ├── reasoning.py        # LLM reasoning agent
 │   └── validation.py       # Rule validation agent
 ├── data/
-│   └── synthetic_generator.py  # IT ops synthetic data
+│   ├── synthetic_generator.py       # Original IT ops synthetic data
+│   └── scaled_synthetic_generator.py # Scaled data (1,011 entities)
+├── ingestion/               # MVP2: Document ingestion pipeline
+│   ├── document_loader.py   # PDF/DOCX/MD/TXT loading
+│   ├── text_chunker.py      # Sentence-aware chunking
+│   └── ingestion_pipeline.py # Pipeline orchestration
+├── extraction/              # MVP2: Entity/Relation extraction
+│   ├── entity_extractor.py  # LLM-powered NER (7 entity types)
+│   ├── relation_extractor.py # Relation extraction (8 types)
+│   ├── extraction_pipeline.py # Pipeline orchestration
+│   ├── staging_loader.py    # STAGING layer integration
+│   ├── duplicate_detector.py # Fuzzy deduplication
+│   └── validation.py        # Precision/recall measurement
 ├── utils/
 │   └── logger.py           # Comprehensive logging
 └── core.py                 # Main orchestrator
@@ -107,13 +119,15 @@ python main.py
 
 ## Synthetic Data
 
-The MVP uses synthetic IT operations data:
-- 10 services (Payment, Auth, Checkout, etc.)
-- 5 teams (Payments, Auth, API, SRE, Platform)
-- 20 people with roles and expertise
-- 20 incidents with severity levels
+The MVP2 uses scaled synthetic IT operations data:
+- 122 services (Payment, Auth, Checkout, etc.)
+- 33 teams (Payments, Auth, API, SRE, Platform, etc.)
+- 385 people with roles and expertise
+- 400 incidents with severity levels
+- 71 databases
 - 5 runbooks with procedures
 - 8 business rules
+- 2,622 relationships
 
 ## Configuration
 
@@ -131,6 +145,12 @@ The MVP uses synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-02: MVP2 Week 5 complete - Entity extraction pipeline with 98.1% F1 score
+- 2025-12-02: Added duplicate detection with fuzzy matching and normalization
+- 2025-12-02: Built staging loader with STAGING layer integration and provenance
+- 2025-12-02: Created LLM-powered NER for 7 entity types and 8 relation types
+- 2025-12-02: Added document ingestion pipeline (PDF/DOCX/MD/TXT)
+- 2025-12-02: Scaled synthetic data to 1,011 entities with scaled_synthetic_generator.py
 - 2025-12-02: Fixed "invalid transaction rollback" errors with proper session cleanup
 - 2025-12-02: Added skip-if-exists logic to graph_loader for graceful re-runs
 - 2025-12-02: Added ContextFoundry.cleanup() method for proper session management
