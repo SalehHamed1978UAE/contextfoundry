@@ -3,7 +3,7 @@
 ## Overview
 Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring.
 
-**Current State**: MVP2 Week 5 Complete - Production-ready extraction pipeline with LLM-powered NER, duplicate detection, and STAGING integration. 1,011 entities in knowledge graph. Extraction validation: 98.1% entity F1, 83.3% relation recall (improved from 39% via few-shot prompt engineering).
+**Current State**: MVP2 Week 6 Complete - Gardener agent with 5-minute scheduled cycles, Identity Resolution with duplicate detection and merge auditing, persistent conflict logs. All data now persists to PostgreSQL for full audit trail and human review workflow.
 
 ## Architecture
 
@@ -145,6 +145,12 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-02: **MVP2 Week 6 complete** - Gardener + Identity Resolution with full persistence
+- 2025-12-02: Added ConflictLog, MergeAudit, DuplicateCandidate database tables
+- 2025-12-02: Built API endpoints: /api/conflicts, /api/duplicates, /api/merge-audits
+- 2025-12-02: Gardener now persists conflict records to database with cycle_id
+- 2025-12-02: IdentityResolver persists merge audits and flagged duplicate candidates
+- 2025-12-02: Added human review workflow for conflicts and duplicates
 - 2025-12-02: MVP2 Week 5 complete - Entity extraction pipeline with 98.1% F1 score
 - 2025-12-02: Added duplicate detection with fuzzy matching and normalization
 - 2025-12-02: Built staging loader with STAGING layer integration and provenance

@@ -264,6 +264,125 @@ class FeedbackRecord(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class ConflictLog(Base):
+    """Gardener: Persistent conflict records for review."""
+    __tablename__ = "conflict_logs"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    conflict_type = Column(String(50), nullable=False, index=True)
+    entity_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=True)
+    relationship_id = Column(UUID(as_uuid=True), ForeignKey("relationships.id"), nullable=True)
+    
+    existing_value = Column(Text)
+    new_value = Column(Text)
+    existing_confidence = Column(Float)
+    new_confidence = Column(Float)
+    
+    resolution = Column(String(50))
+    resolution_notes = Column(Text)
+    resolved_at = Column(DateTime)
+    resolved_by = Column(String(100))
+    
+    detected_at = Column(DateTime, default=datetime.utcnow)
+    cycle_id = Column(String(100))
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "conflict_type": self.conflict_type,
+            "entity_id": str(self.entity_id) if self.entity_id else None,
+            "relationship_id": str(self.relationship_id) if self.relationship_id else None,
+            "existing_value": self.existing_value,
+            "new_value": self.new_value,
+            "existing_confidence": self.existing_confidence,
+            "new_confidence": self.new_confidence,
+            "resolution": self.resolution,
+            "resolution_notes": self.resolution_notes,
+            "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
+            "resolved_by": self.resolved_by,
+            "detected_at": self.detected_at.isoformat() if self.detected_at else None,
+            "cycle_id": self.cycle_id,
+        }
+
+
+class MergeAudit(Base):
+    """Identity Resolution: Persistent merge audit trail."""
+    __tablename__ = "merge_audits"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    merged_entity_id = Column(UUID(as_uuid=True), nullable=False)
+    merged_entity_name = Column(String(255), nullable=False)
+    surviving_entity_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False)
+    surviving_entity_name = Column(String(255), nullable=False)
+    entity_type = Column(String(50), nullable=False)
+    
+    merge_confidence = Column(Float, nullable=False)
+    merge_signals = Column(JSON)
+    auto_merged = Column(Boolean, default=False)
+    relationships_transferred = Column(Integer, default=0)
+    properties_merged = Column(JSON)
+    
+    merged_at = Column(DateTime, default=datetime.utcnow)
+    merged_by = Column(String(100), default="identity_resolver")
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "merged_entity_id": str(self.merged_entity_id),
+            "merged_entity_name": self.merged_entity_name,
+            "surviving_entity_id": str(self.surviving_entity_id),
+            "surviving_entity_name": self.surviving_entity_name,
+            "entity_type": self.entity_type,
+            "merge_confidence": self.merge_confidence,
+            "merge_signals": self.merge_signals,
+            "auto_merged": self.auto_merged,
+            "relationships_transferred": self.relationships_transferred,
+            "properties_merged": self.properties_merged,
+            "merged_at": self.merged_at.isoformat() if self.merged_at else None,
+            "merged_by": self.merged_by,
+        }
+
+
+class DuplicateCandidate(Base):
+    """Identity Resolution: Flagged duplicate candidates for review."""
+    __tablename__ = "duplicate_candidates"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    entity_a_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False)
+    entity_b_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False)
+    entity_a_name = Column(String(255), nullable=False)
+    entity_b_name = Column(String(255), nullable=False)
+    entity_type = Column(String(50), nullable=False)
+    
+    similarity_score = Column(Float, nullable=False)
+    signals = Column(JSON)
+    merge_decision = Column(String(50), nullable=False)
+    reason = Column(Text)
+    
+    flagged_at = Column(DateTime, default=datetime.utcnow)
+    reviewed = Column(Boolean, default=False)
+    reviewed_at = Column(DateTime)
+    reviewed_by = Column(String(100))
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "entity_a_id": str(self.entity_a_id),
+            "entity_b_id": str(self.entity_b_id),
+            "entity_a_name": self.entity_a_name,
+            "entity_b_name": self.entity_b_name,
+            "entity_type": self.entity_type,
+            "similarity_score": self.similarity_score,
+            "signals": self.signals,
+            "merge_decision": self.merge_decision,
+            "reason": self.reason,
+            "flagged_at": self.flagged_at.isoformat() if self.flagged_at else None,
+            "reviewed": self.reviewed,
+            "reviewed_at": self.reviewed_at.isoformat() if self.reviewed_at else None,
+            "reviewed_by": self.reviewed_by,
+        }
+
+
 def get_engine():
     """Create database engine from environment."""
     database_url = os.environ.get("DATABASE_URL")
