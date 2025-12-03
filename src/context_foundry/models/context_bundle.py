@@ -118,6 +118,10 @@ class ContextBundle:
     # Analysis query detection - requires aggregation beyond retrieval
     is_analysis_query: bool = False
     
+    # Property-based query detection - queries about entity attributes (expertise, role, level, department)
+    is_property_query: bool = False
+    property_filters: List[Dict] = field(default_factory=list)
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
@@ -267,6 +271,8 @@ class ContextBundle:
             "created_at": self.created_at.isoformat(),
             "query_type": self.query_type,
             "is_analysis_query": self.is_analysis_query,
+            "is_property_query": self.is_property_query,
+            "property_filters": self.property_filters,
             "sequence_intent": self.sequence_intent,
             "semantic_memory": self.semantic_entities + self.semantic_relationships,
             "semantic_count": len(self.semantic_entities) + len(self.semantic_relationships),
@@ -326,6 +332,18 @@ class ContextBundle:
                 lines.append("WARNING: No multi-step sequence found in retrieved documents.")
                 lines.append("If you cannot find a complete ordered sequence, acknowledge this limitation.")
                 lines.append("Do NOT present a single rule as if it were the complete path/chain.\n")
+        
+        # PROPERTY QUERY: Guide LLM to focus on matching entities
+        if self.is_property_query:
+            lines.append("=== PROPERTY-BASED QUERY DETECTED ===")
+            lines.append(f"Filters applied: {self.property_filters}")
+            lines.append("The entities below were retrieved by searching their properties (expertise, role, level, department, etc.).")
+            lines.append("INSTRUCTIONS:")
+            lines.append("1. Focus on the entities marked with 'matched_via_property_search: True'")
+            lines.append("2. List ALL matching entities with their relevant properties")
+            lines.append("3. If the query asked for multiple criteria (e.g., 'frontend AND backend expertise'),")
+            lines.append("   only list entities that match ALL criteria")
+            lines.append("4. If no entities match the criteria, state this clearly\n")
         
         lines.append("=== CONTEXT FROM KNOWLEDGE GRAPH (SEMANTIC MEMORY) ===\n")
         

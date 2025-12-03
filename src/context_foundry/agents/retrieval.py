@@ -10,6 +10,10 @@ from typing import List, Dict, Optional, Set, Tuple
 from sqlalchemy.orm import Session
 import uuid
 import re
+import os
+import json
+
+from openai import OpenAI
 
 from ..models.schema import EntityType, RelationshipType, LifecycleState, get_session, Entity
 from ..models.context_bundle import ContextBundle, create_bundle
@@ -17,6 +21,87 @@ from ..memory.semantic import SemanticMemory
 from ..memory.episodic import EpisodicMemory
 from ..memory.symbolic import SymbolicMemory
 from ..utils.logger import logger, QueryLogger
+
+AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
+AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+
+
+PROPERTY_QUERY_SCHEMA = """You are a query analyzer for a knowledge graph system.
+
+ENTITY TYPES and their QUERYABLE PROPERTIES:
+
+PERSON:
+- role: Job title (e.g., 'Software Engineer', 'Director of Engineering', 'VP of Product')
+- level: Seniority level (e.g., 'IC', 'Manager', 'Director', 'VP', 'C-Level')
+- department: Department name (e.g., 'Engineering', 'Product', 'Sales')
+- expertise: List of skills/expertise areas (e.g., ['frontend', 'react', 'typescript', 'backend', 'python'])
+
+TEAM:
+- department: Parent department
+- focus_area: Team's primary focus
+
+SERVICE:
+- tier: Service tier (e.g., 'tier1', 'tier2')
+- language: Primary programming language
+
+Analyze the query and determine if it's asking for entities filtered by their properties.
+Return a JSON object with:
+- needs_property_search: boolean - true if this query needs property-based filtering
+- entity_type: "PERSON", "TEAM", "SERVICE", or null
+- filters: array of filter objects, each with:
+  - property: the property name (e.g., "expertise", "level", "department")
+  - contains: value to search for (use for partial matches, lists, or text search)
+  - equals: exact value match (use for exact level/department matches)
+- intersection_logic: "AND" or "OR" - how multiple filters should be combined
+
+EXAMPLES:
+Query: "Which engineers have frontend expertise?"
+{
+  "needs_property_search": true,
+  "entity_type": "PERSON",
+  "filters": [{"property": "expertise", "contains": "frontend"}],
+  "intersection_logic": "AND"
+}
+
+Query: "Who are the Directors in Engineering?"
+{
+  "needs_property_search": true,
+  "entity_type": "PERSON",
+  "filters": [{"property": "level", "contains": "Director"}, {"property": "department", "contains": "Engineering"}],
+  "intersection_logic": "AND"
+}
+
+Query: "Which engineers have both frontend and backend expertise?"
+{
+  "needs_property_search": true,
+  "entity_type": "PERSON",
+  "filters": [{"property": "expertise", "contains": "frontend"}, {"property": "expertise", "contains": "backend"}],
+  "intersection_logic": "AND"
+}
+
+Query: "What services depend on the User Database?"
+{
+  "needs_property_search": false,
+  "entity_type": null,
+  "filters": [],
+  "intersection_logic": "AND"
+}
+
+Query: "Who owns the Payment Service?"
+{
+  "needs_property_search": false,
+  "entity_type": null,
+  "filters": [],
+  "intersection_logic": "AND"
+}
+
+Query: "List all VPs"
+{
+  "needs_property_search": true,
+  "entity_type": "PERSON",
+  "filters": [{"property": "level", "contains": "VP"}],
+  "intersection_logic": "AND"
+}"""
 
 
 class RetrievalAgent:
@@ -31,7 +116,58 @@ class RetrievalAgent:
         self.episodic = EpisodicMemory(self.session)
         self.symbolic = SymbolicMemory(self.session)
         
+        self._llm_client = None
+        
         logger.info("RetrievalAgent initialized")
+    
+    @property
+    def llm_client(self):
+        """Lazy load LLM client for property query analysis."""
+        if self._llm_client is None:
+            self._llm_client = OpenAI(
+                api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
+                base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
+            )
+        return self._llm_client
+    
+    def analyze_property_query(self, query_text: str) -> Dict:
+        """
+        Use LLM to analyze if query needs property-based filtering.
+        
+        Returns structured filter specification:
+        {
+            "needs_property_search": bool,
+            "entity_type": "PERSON" | "TEAM" | "SERVICE" | None,
+            "filters": [{"property": "...", "contains": "..."}],
+            "intersection_logic": "AND" | "OR"
+        }
+        """
+        try:
+            response = self.llm_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": PROPERTY_QUERY_SCHEMA},
+                    {"role": "user", "content": f"Analyze this query:\n\n{query_text}"}
+                ],
+                temperature=0.0,
+                max_completion_tokens=500,
+                response_format={"type": "json_object"}
+            )
+            
+            response_text = response.choices[0].message.content
+            result = json.loads(response_text)
+            
+            logger.debug(f"Property query analysis: {result}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Property query analysis failed: {e}")
+            return {
+                "needs_property_search": False,
+                "entity_type": None,
+                "filters": [],
+                "intersection_logic": "AND"
+            }
     
     def build_context_bundle(
         self,
@@ -129,6 +265,66 @@ class RetrievalAgent:
                 "traversal_direction": "incoming"
             })
         
+        property_query_result = self.analyze_property_query(query_text)
+        property_entities = []
+        
+        if property_query_result.get("needs_property_search"):
+            entity_type_str = property_query_result.get("entity_type")
+            filters = property_query_result.get("filters", [])
+            intersection_logic = property_query_result.get("intersection_logic", "AND")
+            
+            if query_logger:
+                query_logger.log_event("PROPERTY_QUERY_DETECTED", {
+                    "entity_type": entity_type_str,
+                    "filters": filters,
+                    "intersection_logic": intersection_logic
+                })
+            
+            entity_type = None
+            if entity_type_str:
+                try:
+                    entity_type = EntityType(entity_type_str)
+                except ValueError:
+                    logger.warning(f"Unknown entity type from LLM: {entity_type_str}")
+            
+            if intersection_logic == "AND" and len(filters) > 1:
+                first_results = self.semantic.search_entities_by_properties(
+                    entity_type=entity_type,
+                    filters=[filters[0]],
+                    trusted_only=True
+                )
+                
+                matching_ids = {str(e.id) for e in first_results}
+                
+                for f in filters[1:]:
+                    next_results = self.semantic.search_entities_by_properties(
+                        entity_type=entity_type,
+                        filters=[f],
+                        trusted_only=True
+                    )
+                    next_ids = {str(e.id) for e in next_results}
+                    matching_ids = matching_ids.intersection(next_ids)
+                
+                property_entities = [e for e in first_results if str(e.id) in matching_ids]
+            else:
+                property_entities = self.semantic.search_entities_by_properties(
+                    entity_type=entity_type,
+                    filters=filters,
+                    trusted_only=True
+                )
+            
+            if query_logger:
+                query_logger.log_event("PROPERTY_SEARCH_RESULTS", {
+                    "count": len(property_entities),
+                    "entities": [e.name for e in property_entities[:10]]
+                })
+            
+            logger.info(f"Property search found {len(property_entities)} entities matching filters {filters}")
+            
+            bundle.is_property_query = True
+            bundle.property_filters = filters
+            bundle.target_entity_found = True
+        
         semantic_results = self._query_semantic_memory(
             keywords, entity_types, traverse_depth, max_entities, query_logger,
             is_impact_query=is_impact,
@@ -136,6 +332,15 @@ class RetrievalAgent:
         )
         bundle.semantic_entities = semantic_results["entities"]
         bundle.semantic_relationships = semantic_results["relationships"]
+        
+        if property_entities:
+            seen_ids = {e.get("id") for e in bundle.semantic_entities}
+            for entity in property_entities:
+                entity_dict = entity.to_dict()
+                entity_dict["matched_via_property_search"] = True
+                if entity_dict["id"] not in seen_ids:
+                    bundle.semantic_entities.insert(0, entity_dict)
+                    seen_ids.add(entity_dict["id"])
         
         if query_type == 'rule':
             rule_keywords = self._get_rule_document_keywords(query_text)
