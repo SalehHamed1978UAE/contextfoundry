@@ -162,6 +162,18 @@ class ContextBundle:
         for rel in self.semantic_relationships:
             all_confidences.append(("relationship", f"{rel.get('source_name')}->{rel.get('target_name')}", rel.get("confidence", 0.5)))
         
+        if self.query_type == 'rule' and self.symbolic_rules:
+            for rule in self.symbolic_rules:
+                match_score = rule.get("match_score", 5) / 10
+                rule_confidence = min(0.9, 0.6 + match_score * 0.3)
+                all_confidences.append(("rule", rule.get("name"), rule_confidence))
+            
+            for doc in self.episodic_documents:
+                doc_match_score = doc.get("match_score", 0)
+                if doc_match_score > 10:
+                    doc_confidence = min(0.85, 0.5 + doc_match_score / 30)
+                    all_confidences.append(("document", doc.get("title"), doc_confidence))
+        
         high_conf = sum(1 for _, _, c in all_confidences if c >= 0.8)
         medium_conf = sum(1 for _, _, c in all_confidences if 0.5 <= c < 0.8)
         low_conf = sum(1 for _, _, c in all_confidences if c < 0.5)
@@ -173,6 +185,19 @@ class ContextBundle:
         
         overall = sum(c for _, _, c in all_confidences) / len(all_confidences) if all_confidences else 0.0
         
+        if self.query_type == 'rule' and len(self.symbolic_rules) > 0:
+            base_boost = 0.15 * min(len(self.symbolic_rules), 3)
+            
+            has_title_match = any(d.get("match_score", 0) > 10 for d in self.episodic_documents)
+            if has_title_match:
+                base_boost += 0.1
+            
+            has_resolved_person = any(e.get("resolved_from_rule") for e in self.semantic_entities)
+            if has_resolved_person:
+                base_boost += 0.1
+            
+            overall = min(0.95, overall + base_boost)
+        
         if overall >= 0.7:
             recommendation = "proceed"
         elif overall >= 0.5:
@@ -182,9 +207,9 @@ class ContextBundle:
         
         if low_conf > 0:
             uncertainty_reasons.append(f"{low_conf} facts have low confidence (<0.5)")
-        if len(self.semantic_entities) == 0:
+        if len(self.semantic_entities) == 0 and self.query_type != 'rule':
             uncertainty_reasons.append("No entities found in knowledge graph")
-        if len(self.semantic_relationships) == 0:
+        if len(self.semantic_relationships) == 0 and self.query_type != 'rule':
             uncertainty_reasons.append("No relationships found in knowledge graph")
         if len(self.episodic_documents) == 0:
             uncertainty_reasons.append("No similar documents found in episodic memory")

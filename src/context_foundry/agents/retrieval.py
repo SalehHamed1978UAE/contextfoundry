@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 import uuid
 import re
 
-from ..models.schema import EntityType, RelationshipType, get_session, Entity
+from ..models.schema import EntityType, RelationshipType, LifecycleState, get_session, Entity
 from ..models.context_bundle import ContextBundle, create_bundle
 from ..memory.semantic import SemanticMemory
 from ..memory.episodic import EpisodicMemory
@@ -124,9 +124,15 @@ class RetrievalAgent:
         bundle.semantic_entities = semantic_results["entities"]
         bundle.semantic_relationships = semantic_results["relationships"]
         
-        episodic_results = self._query_episodic_memory(
-            query_text, keywords, max_documents, query_logger
-        )
+        if query_type == 'rule':
+            rule_keywords = self._get_rule_document_keywords(query_text)
+            episodic_results = self._query_episodic_memory_for_rules(
+                query_text, rule_keywords, max_documents, query_logger
+            )
+        else:
+            episodic_results = self._query_episodic_memory(
+                query_text, keywords, max_documents, query_logger
+            )
         bundle.episodic_documents = episodic_results
         
         relationship_types = [r.get("relationship_type") for r in bundle.semantic_relationships]
@@ -136,6 +142,16 @@ class RetrievalAgent:
             symbolic_results = self._query_symbolic_memory_for_rules(
                 query_text, keywords, max_rules * 2, query_logger
             )
+            
+            person_refs = self._extract_person_references_from_rules(symbolic_results)
+            if person_refs:
+                enriched_people = self._resolve_person_references(person_refs, query_logger)
+                bundle.semantic_entities.extend(enriched_people)
+                if query_logger:
+                    query_logger.log_event("PERSON_REFERENCES_RESOLVED", {
+                        "references": person_refs,
+                        "resolved_count": len(enriched_people)
+                    })
         else:
             symbolic_results = self._query_symbolic_memory(
                 query_text, keywords, entity_type_strs, relationship_types, max_rules, query_logger
@@ -814,6 +830,143 @@ class RetrievalAgent:
         logger.debug(f"Episodic query: {len(documents)} documents")
         
         return documents
+    
+    def _get_rule_document_keywords(self, query_text: str) -> List[str]:
+        """Extract keywords for finding relevant documents for rule queries."""
+        query_lower = query_text.lower()
+        keywords = []
+        
+        keyword_map = {
+            'escalation': ['escalation', 'escalate', 'incident', 'severity', 'sev1', 'sev2'],
+            'notification': ['notification', 'notify', 'alert', 'page'],
+            'approval': ['approval', 'approve', 'budget', 'authority'],
+            'procedure': ['procedure', 'process', 'playbook', 'runbook'],
+            'security': ['security', 'breach', 'incident', 'vulnerability'],
+            'hiring': ['hiring', 'headcount', 'team'],
+        }
+        
+        for category, kws in keyword_map.items():
+            if any(kw in query_lower for kw in kws):
+                keywords.extend(kws)
+        
+        if 'sev1' in query_lower or 'sev 1' in query_lower:
+            keywords.extend(['sev1', 'incident', 'escalation', 'commander'])
+        
+        return list(set(keywords)) if keywords else ['procedure', 'policy', 'process']
+    
+    def _query_episodic_memory_for_rules(
+        self,
+        query_text: str,
+        rule_keywords: List[str],
+        max_documents: int,
+        query_logger: Optional[QueryLogger]
+    ) -> List[Dict]:
+        """Query episodic memory specifically for rule context documents."""
+        documents = self.episodic.search_for_rule_context(
+            rule_keywords,
+            doc_types=['RUNBOOK', 'PROCEDURE'],
+            limit=max_documents
+        )
+        
+        if len(documents) < max_documents:
+            vector_docs = self.episodic.search_similar(
+                query_text,
+                limit=max_documents - len(documents),
+                min_similarity=0.0
+            )
+            
+            seen_ids = {d["id"] for d in documents}
+            for doc in vector_docs:
+                if doc["id"] not in seen_ids:
+                    documents.append(doc)
+        
+        if query_logger:
+            similarities = [d.get("similarity", 0) for d in documents]
+            query_logger.log_event("EPISODIC_QUERY_FOR_RULES", {
+                "documents_count": len(documents),
+                "keywords_used": rule_keywords,
+                "top_docs": [d.get("title") for d in documents[:3]]
+            })
+        
+        logger.debug(f"Rule episodic query: {len(documents)} documents for keywords {rule_keywords}")
+        
+        return documents
+    
+    def _extract_person_references_from_rules(self, rules: List[Dict]) -> List[str]:
+        """Extract person name references from rule actions and conditions."""
+        person_refs = []
+        
+        name_pattern = re.compile(r'\b([A-Z][a-z]+\s+[A-Z][a-z]+)\b')
+        
+        title_patterns = [
+            r'\b(VP\s+(?:of\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)',
+            r'\b(Director\s+(?:of\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)',
+            r'\b(CTO|CEO|CFO|COO|CPO)\b',
+        ]
+        
+        for rule in rules:
+            action = rule.get("action", "")
+            condition = rule.get("condition", "")
+            description = rule.get("description", "")
+            
+            full_text = f"{action} {condition} {description}"
+            
+            names = name_pattern.findall(full_text)
+            for name in names:
+                if name.lower() not in ['team lead', 'incident commander', 'service owner']:
+                    person_refs.append(name)
+            
+            for pattern in title_patterns:
+                matches = re.findall(pattern, full_text)
+                person_refs.extend(matches)
+        
+        return list(set(person_refs))
+    
+    def _resolve_person_references(
+        self,
+        person_refs: List[str],
+        query_logger: Optional[QueryLogger]
+    ) -> List[Dict]:
+        """Look up person references in semantic memory and get their context."""
+        resolved = []
+        
+        for ref in person_refs:
+            entities = self.semantic.search_entities(
+                ref,
+                entity_types=[EntityType.PERSON],
+                trusted_only=True,
+                limit=1
+            )
+            
+            if entities:
+                person = entities[0]
+                person_dict = person.to_dict()
+                
+                rel_types = [
+                    RelationshipType.MEMBER_OF,
+                    RelationshipType.MANAGES,
+                    RelationshipType.OWNS,
+                    RelationshipType.ESCALATES_TO
+                ]
+                relationships = self.semantic.get_entity_relationships(
+                    str(person.id),
+                    relationship_types=rel_types
+                )
+                
+                person_dict["resolved_from_rule"] = True
+                person_dict["role_context"] = []
+                
+                for rel in relationships:
+                    rel_info = {
+                        "type": rel.get("relationship_type", "UNKNOWN"),
+                        "target": rel.get("connected_entity", {}).get("name", "Unknown")
+                    }
+                    person_dict["role_context"].append(rel_info)
+                
+                resolved.append(person_dict)
+                logger.debug(f"Resolved person reference '{ref}': {person.name} with {len(relationships)} relationships")
+        
+        return resolved
     
     def _query_symbolic_memory(
         self,
