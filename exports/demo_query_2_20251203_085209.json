@@ -1,0 +1,314 @@
+{
+  "answer": "For a SEV1 incident on the Auth Service, you should escalate to Mia White, the VP of Engineering, as per the SEV1 Escalation Rule. This rule states that for incidents classified as SEV1 and lasting more than 5 minutes, the escalation should be directed to the VP of Engineering.",
+  "confidence": 0.95,
+  "confidence_level": "high",
+  "evidence_chain": [
+    {
+      "type": "rule",
+      "description": "SEV1 Escalation Rule specifies escalation to VP Engineering for SEV1 incidents.",
+      "source": "ESCALATION_POLICY",
+      "confidence": 0.95
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: INC-2024-016: Auth Service Memory Leak",
+      "source": "INC-2024-016: Auth Service Memory Leak",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Memory leak in auth service caused gradual degradation.",
+      "confidence": 0.8788866777380975,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: INC-2024-010: Auth Token Validation Bug",
+      "source": "INC-2024-010: Auth Token Validation Bug",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "JWT validation bypass discovered and patched. Security incident.",
+      "confidence": 0.8788865183713035,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: INC-2024-002: Auth Service Latency Spike",
+      "source": "INC-2024-002: Auth Service Latency Spike",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Auth service response times exceeded 2 seconds due to session cache issues.",
+      "confidence": 0.8788863002179118,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "INC-2024-010: Auth Token Validation Bug -[CAUSED_BY]-> Auth Service",
+      "source": "INC-2024-010: Auth Token Validation Bug -> Auth Service",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship CAUSED_BY with Auth Service.",
+      "confidence": 0.9277122169603251,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "INC-2024-010: Auth Token Validation Bug -[AFFECTS]-> API Gateway",
+      "source": "INC-2024-010: Auth Token Validation Bug -> API Gateway",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship AFFECTS with API Gateway.",
+      "confidence": 0.9277122169526345,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "INC-2024-010: Auth Token Validation Bug -[RESOLVED_BY]-> Diana Cruz",
+      "source": "INC-2024-010: Auth Token Validation Bug -> Diana Cruz",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship RESOLVED_BY with Diana Cruz.",
+      "confidence": 0.9277122169193909,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: Database Connection Pool Exhaustion",
+      "source": "Database Connection Pool Exhaustion",
+      "source_document": "6118f774-4ce6-4e6f-8817-b9a8f67f4497",
+      "similarity": 0.06338255884809639,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: SEV1 Incident Commander Playbook",
+      "source": "SEV1 Incident Commander Playbook",
+      "source_document": "d2f176b6-25f4-479e-8070-cd6b0b3234da",
+      "similarity": 0.06305642280110732,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: Cascade Impact Assessment",
+      "source": "Cascade Impact Assessment",
+      "rule_type": "VALIDATION",
+      "action": "traverse_dependencies(service, direction='downstream', depth=3)",
+      "memory_layer": "symbolic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: Payment Service Dependency Check",
+      "source": "Payment Service Dependency Check",
+      "rule_type": "INVARIANT",
+      "action": "flag_critical('Payment Service cannot operate without Payments Database')",
+      "memory_layer": "symbolic"
+    }
+  ],
+  "uncertainty": {
+    "uncertain_facts": [],
+    "reasons": [],
+    "would_help": [],
+    "context_confidence": 0.8998805100693325,
+    "context_recommendation": "proceed"
+  },
+  "rules_applied": [
+    "ESCALATION_POLICY"
+  ],
+  "caveats": [],
+  "bundle_id": "0dc13e94-0688-421f-a0d6-98ec847055b4",
+  "query_text": "Who should I escalate to for a SEV1 on the Auth Service?",
+  "validation": {
+    "passed": true,
+    "rules_checked": [
+      "Cascade Impact Assessment",
+      "Payment Service Dependency Check",
+      "On-Call Requirement",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "SEV1 Escalation Rule",
+      "Escalation Chain Validation",
+      "Budget Authority by Level",
+      "Single Primary Database"
+    ],
+    "rules_passed": [
+      "Cascade Impact Assessment",
+      "Payment Service Dependency Check",
+      "On-Call Requirement",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "SEV1 Escalation Rule",
+      "Escalation Chain Validation",
+      "Budget Authority by Level",
+      "Single Primary Database"
+    ],
+    "violations": [],
+    "warnings": []
+  },
+  "rules_checked": [
+    "Cascade Impact Assessment",
+    "Payment Service Dependency Check",
+    "On-Call Requirement",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "SEV1 Escalation Rule",
+    "Escalation Chain Validation",
+    "Budget Authority by Level",
+    "Single Primary Database"
+  ],
+  "rules_passed": [
+    "Cascade Impact Assessment",
+    "Payment Service Dependency Check",
+    "On-Call Requirement",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "SEV1 Escalation Rule",
+    "Escalation Chain Validation",
+    "Budget Authority by Level",
+    "Single Primary Database"
+  ],
+  "rules_violations": [],
+  "rules_warnings": [],
+  "query_log": {
+    "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+    "query_text": "Who should I escalate to for a SEV1 on the Auth Service?",
+    "start_time": "2025-12-03T08:51:59.024693",
+    "duration_seconds": 10.219,
+    "events": [
+      {
+        "timestamp": "2025-12-03T08:51:59.024696",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "QUERY_START",
+        "data": {
+          "query": "Who should I escalate to for a SEV1 on the Auth Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:51:59.025876",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "PIPELINE_START",
+        "data": {
+          "query": "Who should I escalate to for a SEV1 on the Auth Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:51:59.137275",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "TARGET_ENTITY_CHECK",
+        "data": {
+          "target_entity": "Auth Service",
+          "found": true,
+          "match": "Auth Service"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:51:59.139007",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "RETRIEVAL_START",
+        "data": {
+          "keywords": [
+            "escalate",
+            "SEV1",
+            "Auth",
+            "Service"
+          ],
+          "inferred_entity_types": [
+            "SERVICE",
+            "PERSON",
+            "INCIDENT"
+          ],
+          "target_entity": "Auth Service",
+          "target_entity_found": true
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:00.068398",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "SEMANTIC_RETRIEVAL",
+        "data": {
+          "entities_count": 19,
+          "relationships_count": 14,
+          "entities": [
+            "INC-2024-016: Auth Service Memory Leak",
+            "INC-2024-010: Auth Token Validation Bug",
+            "INC-2024-002: Auth Service Latency Spike",
+            "Auth Service",
+            "INC-2024-016: Auth Service Memory Leak"
+          ],
+          "confidence": 0.8788589686070398
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:00.139906",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "EPISODIC_RETRIEVAL",
+        "data": {
+          "documents_count": 5,
+          "top_similarity": 0.06338255884809639,
+          "avg_similarity": 0.05525664931023697
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:00.165409",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "SYMBOLIC_QUERY",
+        "data": {
+          "rules_found": 9,
+          "rule_names": [
+            "Cascade Impact Assessment",
+            "Payment Service Dependency Check",
+            "On-Call Requirement",
+            "Auth Service Required for API",
+            "Database Owner Notification",
+            "SEV1 Escalation Rule",
+            "Escalation Chain Validation",
+            "Budget Authority by Level",
+            "Single Primary Database"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:00.168508",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "CONTEXT_BUNDLE_BUILT",
+        "data": {
+          "semantic_items": 33,
+          "episodic_items": 5,
+          "rules_count": 9,
+          "overall_confidence": 0.8998805100693325
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:00.193669",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "LLM_CALL_START",
+        "data": {
+          "model": "gpt-4o-mini",
+          "context_length": 11135,
+          "query": "Who should I escalate to for a SEV1 on the Auth Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:08.927288",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "REASONING_COMPLETE",
+        "data": {
+          "response_length": 278,
+          "confidence": 0.95,
+          "evidence_items": 11
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:09.137558",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "VALIDATION",
+        "data": {
+          "passed": true,
+          "issues": []
+        }
+      },
+      {
+        "timestamp": "2025-12-03T08:52:09.242351",
+        "query_id": "88747ee8-9231-4588-9f32-34b0b05d332e",
+        "event_type": "QUERY_COMPLETE",
+        "data": {
+          "success": true,
+          "duration_seconds": 10.217649,
+          "final_confidence": 0.95,
+          "total_events": 11
+        }
+      }
+    ]
+  }
+}
