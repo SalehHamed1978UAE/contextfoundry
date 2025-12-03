@@ -110,6 +110,11 @@ class ContextBundle:
     # Query type classification
     query_type: str = "entity"  # 'entity', 'rule', 'impact', 'general'
     
+    # Sequence intent detection - does query ask for ordered steps/path/chain?
+    sequence_intent: bool = False
+    sequence_intent_reason: Optional[str] = None
+    has_multi_step_evidence: bool = False
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
@@ -198,6 +203,13 @@ class ContextBundle:
             
             overall = min(0.95, overall + base_boost)
         
+        if self.sequence_intent and not self.has_multi_step_evidence:
+            overall = min(overall, 0.45)
+            uncertainty_reasons.append(
+                f"SEQUENCE REQUESTED but only single-step evidence found "
+                f"(reason: {self.sequence_intent_reason})"
+            )
+        
         if overall >= 0.7:
             recommendation = "proceed"
         elif overall >= 0.5:
@@ -254,6 +266,18 @@ class ContextBundle:
             lines.append("You MUST acknowledge this in your response with LOW CONFIDENCE.")
             lines.append("DO NOT fabricate relationships or information about non-existent entities.")
             lines.append("The entities shown below are NOT related to the query target.\n")
+        
+        # SEQUENCE INTENT: Guide LLM to provide ordered steps from runbooks
+        if self.sequence_intent:
+            lines.append("=== SEQUENCE QUERY DETECTED ===")
+            lines.append(f"The user is asking for an ordered sequence/path/chain ({self.sequence_intent_reason}).")
+            if self.has_multi_step_evidence:
+                lines.append("INSTRUCTIONS: Look for numbered steps, bullet lists, or ordered procedures in the documents below.")
+                lines.append("Return the FULL ordered sequence from the runbook/procedure, then add any specific rules that apply.\n")
+            else:
+                lines.append("WARNING: No multi-step sequence found in retrieved documents.")
+                lines.append("If you cannot find a complete ordered sequence, acknowledge this limitation.")
+                lines.append("Do NOT present a single rule as if it were the complete path/chain.\n")
         
         lines.append("=== CONTEXT FROM KNOWLEDGE GRAPH (SEMANTIC MEMORY) ===\n")
         

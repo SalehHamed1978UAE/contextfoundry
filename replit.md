@@ -1,223 +1,87 @@
 # Context Foundry - Tri-Memory Cognitive Architecture MVP
 
 ## Overview
-Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring.
+Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring. The project aims to provide domain-agnostic reasoning capabilities, validated by successful application in both IT operations and organizational chart domains. It significantly outperforms baseline systems in provenance tracking and rule citation, offering detailed and reliable responses.
 
-**Current State**: MVP2 Week 7 Complete - Full 100-query automated evaluation completed. Context Foundry wins 5/5 vs GraphRAG baseline with statistically significant provenance advantage (+2.19 score). **Domain-agnostic architecture validated** with org chart domain test (30 people, 8 teams, 5 departments).
+## User Preferences
+- I want iterative development.
+- I prefer detailed explanations.
+- Ask before making major changes.
+- Ensure comprehensive logging at every step of the pipeline.
+- Prevent silent failures.
+- The system should detect when queries ask for ordered sequences vs single facts.
+- Rules should resolve person references via the semantic graph.
+- Rule queries should be correctly classified and not misclassified as entity lookups.
+- Impact queries should correctly traverse incoming DEPENDS_ON edges to identify downstream cascades.
+- Prevent "confident wrong answer" hallucinations by verifying queried entities exist in the graph before citing relationships.
+- Prioritize known entity lookup from the database, using longest match and scenario suffix stripping.
+- Provide a human review workflow for conflicts and duplicates.
+- Ensure resilient database error handling with session rollback.
+- Implement graceful re-runs for data loaders.
+- Ensure proper session management and cleanup.
 
-## Architecture
+## System Architecture
 
 ### Tri-Memory System
-
-1. **Semantic Memory (Knowledge Graph)**
-   - PostgreSQL with entities (services, teams, people, incidents) and relationships (DEPENDS_ON, OWNS, MEMBER_OF, etc.)
-   - Lifecycle states: STAGING → TRUSTED → ARCHIVED
-   - Full provenance tracking (source documents, source sentences)
-   - Confidence scoring per entity/relationship
-
-2. **Episodic Memory (Vector Search)**
-   - PostgreSQL with pgvector for document embeddings
-   - Stores runbooks and operational documents
-   - Similarity-based retrieval for context
-
-3. **Symbolic Memory (Rules Engine)**
-   - Business rules with priority ordering
-   - Rule types: INVARIANT, SAFETY_CHECK, ESCALATION_POLICY, VALIDATION
-   - Applied during response validation
+1.  **Semantic Memory (Knowledge Graph)**: PostgreSQL stores entities (services, teams, people, incidents) and relationships (DEPENDS_ON, OWNS, MEMBER_OF) with lifecycle states (STAGING → TRUSTED → ARCHIVED), full provenance tracking, and confidence scoring.
+2.  **Episodic Memory (Vector Search)**: PostgreSQL with pgvector stores document embeddings (runbooks, operational documents) for similarity-based retrieval.
+3.  **Symbolic Memory (Rules Engine)**: Business rules with priority ordering (INVARIANT, SAFETY_CHECK, ESCALATION_POLICY, VALIDATION) applied during response validation.
 
 ### Agent Pipeline
+-   **Retrieval Agent**: Queries all three memory layers to build a `ContextBundle`.
+-   **Reasoning Agent**: Uses OpenAI (gpt-4o-mini) to generate responses.
+-   **Validation Agent**: Checks responses against symbolic rules.
+-   **Graph Loader**: Handles data ingestion.
+-   **Org Chart Loader**: Specific loader for the organizational chart domain.
 
-1. **Retrieval Agent**: Queries all three memory layers, builds ContextBundle
-2. **Reasoning Agent**: Uses OpenAI (gpt-4o-mini via Replit AI Integrations) to generate response
-3. **Validation Agent**: Checks response against symbolic rules
+### UI/UX Decisions (Web Interface)
+-   **Theme**: Sleek "Cybernetic Operations" HUD-style, deep slate background (#0f172a), electric cyan (#06b6d4) accents.
+-   **Visuals**: Scanline animation, tech corner accents on cards, animated confidence ring, color-coded evidence chain (cyan=semantic, purple=episodic, pink=symbolic).
+-   **Layout**: Multi-page (Dashboard, Memory Graph, Learning Loop, System Rules, A/B Evaluation).
+-   **Typography**: Headers: Space Grotesk; Data/Code: JetBrains Mono; UI Text: Inter.
 
-## Project Structure
+### Technical Implementations & Design Choices
+-   **Lifecycle States**: Data progresses from STAGING to TRUSTED.
+-   **Confidence Scoring**: Every entity, relationship, and response includes a confidence score.
+-   **Full Provenance**: Facts trace back to source documents and sentences.
+-   **Entity Resolution**: Rule queries resolve person references via the semantic graph.
+-   **Query Classification**: Queries are classified into types ('entity', 'rule', 'impact', 'general') to ensure correct processing.
+-   **Impact Queries**: Correctly traverse incoming `DEPENDS_ON` edges for blast radius analysis.
+-   **Hallucination Prevention**: Verifies entity existence in the graph, returning low confidence for non-existent entities.
+-   **Sequence Detection**: Detects and handles queries asking for ordered sequences, adjusting confidence if multi-step evidence is missing.
+-   **Data Ingestion**: Document loader (PDF/DOCX/MD/TXT), sentence-aware chunking, LLM-powered entity and relation extraction, fuzzy deduplication, staging layer integration.
+-   **Evaluation Framework**: Automated evaluation against baseline (GraphRAG) with blind A/B testing, metrics dashboard, and comparison features.
+-   **Data Model**: SQLAlchemy models for Entity, Relationship, Document, Rule.
 
-```
-src/context_foundry/
-├── models/
-│   ├── schema.py           # SQLAlchemy models (Entity, Relationship, Document, Rule)
-│   └── context_bundle.py   # ContextBundle data structure
-├── memory/
-│   ├── semantic.py         # Knowledge graph operations
-│   ├── episodic.py         # Vector search operations
-│   └── symbolic.py         # Rules engine operations
-├── agents/
-│   ├── graph_loader.py     # Data ingestion agent
-│   ├── org_chart_loader.py # Org chart domain loader (non-IT domain)
-│   ├── retrieval.py        # Context retrieval agent
-│   ├── reasoning.py        # LLM reasoning agent
-│   └── validation.py       # Rule validation agent
-├── data/
-│   ├── synthetic_generator.py       # Original IT ops synthetic data
-│   ├── scaled_synthetic_generator.py # Scaled data (1,011 entities)
-│   └── org_chart_generator.py       # Org chart domain data (30 people, 8 teams)
-├── ingestion/               # MVP2: Document ingestion pipeline
-│   ├── document_loader.py   # PDF/DOCX/MD/TXT loading
-│   ├── text_chunker.py      # Sentence-aware chunking
-│   └── ingestion_pipeline.py # Pipeline orchestration
-├── extraction/              # MVP2: Entity/Relation extraction
-│   ├── entity_extractor.py  # LLM-powered NER (7 entity types)
-│   ├── relation_extractor.py # Relation extraction (8 types)
-│   ├── extraction_pipeline.py # Pipeline orchestration
-│   ├── staging_loader.py    # STAGING layer integration
-│   ├── duplicate_detector.py # Fuzzy deduplication
-│   └── validation.py        # Precision/recall measurement
-├── evaluation/              # Week 7: Comparison framework
-│   ├── graphrag_baseline.py # Simpler GraphRAG for comparison
-│   ├── query_set.py         # 100 queries across 6 categories
-│   └── evaluator.py         # Blind A/B evaluation framework
-├── utils/
-│   └── logger.py           # Comprehensive logging
-└── core.py                 # Main orchestrator
-main.py                     # CLI interface
-web_app.py                  # Flask web interface
-templates/                  # HTML templates
-static/css/                 # Stylesheets
-static/js/                  # JavaScript
-```
+### Feature Specifications
+-   **Core Queries**: Impact analysis, escalation path finding, team ownership, dependency chain.
+-   **Synthetic Data**: Scaled IT operations data (1,011 entities) and org chart data (30 people, 8 teams).
 
-## Running the System
-
-### Web Interface (Recommended)
-The web interface provides a sleek, "Cybernetic Operations" HUD-style UI for querying the system:
-- Deep slate background (#0f172a) with electric cyan (#06b6d4) accents
-- Scanline animation effect for "system running" feel
-- Tech corner accents on cards mimicking tactical displays
-- Multi-page layout: Dashboard, Memory Graph, Learning Loop, System Rules, A/B Evaluation
-- Real-time query execution with animated confidence ring
-- Color-coded evidence chain by memory layer (cyan=semantic, purple=episodic, pink=symbolic)
-- Live system status footer: API version, Memory count, Latency indicator
-
-Typography:
-- Headers: Space Grotesk (geometric, technical feel)
-- Data/Code: JetBrains Mono (precision monospace)
-- UI Text: Inter (clean readability)
-
-```bash
-python web_app.py
-# Opens at http://localhost:5000
-```
-
-### CLI Interface
-```bash
-# Run demo mode (automated queries)
-python main.py --demo
-
-# Run interactive CLI
-python main.py
-```
-
-### CLI Commands
-- `query <text>` - Execute a natural language query
-- `impact <entity>` - Analyze impact if entity fails
-- `escalation <context>` - Find escalation path
-- `stats` - Show memory statistics
-- `examples` - Show example queries
-- `export` - Export last query results
-
-## Example Queries
-
-1. **Impact Analysis**: "What services are affected if the Payments Database goes down?"
-2. **Escalation Path**: "Who should I escalate to for a SEV1 on the Auth Service?"
-3. **Team Ownership**: "What team owns the Payment Service?"
-4. **Dependency Chain**: "What does the Checkout Service depend on?"
-
-## Synthetic Data
-
-The MVP2 uses scaled synthetic IT operations data:
-- 122 services (Payment, Auth, Checkout, etc.)
-- 33 teams (Payments, Auth, API, SRE, Platform, etc.)
-- 385 people with roles and expertise
-- 400 incidents with severity levels
-- 71 databases
-- 5 runbooks with procedures
-- 8 business rules
-- 2,622 relationships
-
-## Configuration
-
-- Database: PostgreSQL (Neon via Replit)
-- LLM: gpt-4o-mini via Replit AI Integrations (no API key needed)
-- Vector dimensions: 384
-
-## Key Design Decisions
-
-1. **Lifecycle States**: All ingested data starts in STAGING and is promoted to TRUSTED for use in reasoning
-2. **Confidence Scoring**: Every entity, relationship, and response has a confidence score
-3. **Full Provenance**: Every fact traces back to source documents and sentences
-4. **No Silent Failures**: Comprehensive logging at every step of the pipeline
-5. **Simple Embeddings**: Using deterministic bag-of-words for MVP (production would use sentence-transformers)
+## External Dependencies
+-   **Database**: PostgreSQL (Neon via Replit).
+-   **LLM**: OpenAI (gpt-4o-mini via Replit AI Integrations).
+-   **Vector Embeddings**: pgvector (for Episodic Memory).
+-   **Web Framework**: Flask.
+-   **Deployment**: Gunicorn.
 
 ## Recent Changes
 
-- 2025-12-03: **Rule Query Entity Resolution** - Rules now resolve person references via semantic graph
-  - Added `_extract_person_references_from_rules()` to detect names (e.g., "Mia White") and titles (e.g., "VP Engineering")
-  - Added `_resolve_person_references()` to look up people in graph and get their role context (MEMBER_OF, MANAGES, etc.)
-  - Added `search_for_rule_context()` in episodic memory for keyword-based document search prioritizing title matches
-  - Updated confidence calculation: rule queries now boost confidence based on rule match scores, title matches, and resolved persons
-  - Test: "What's the escalation path for a SEV1?" → **95% confidence** with answer "escalate to Mia White, VP of Engineering"
-- 2025-12-03: **Rule/Policy Query Classification** - Fixed critical bug where rule queries were misclassified as entity lookups
-  - Added `_classify_query_type()` method with regex patterns and keyword detection for query routing
-  - Query types: 'entity' (default), 'rule' (policies/escalation/approval), 'impact', 'general'
-  - Rule queries skip entity extraction, preventing false matches like "We Detect A Security Breach" as entity name
-  - Added `_query_symbolic_memory_for_rules()` with keyword expansion (escalation → sev1, severity, incident, etc.)
-  - ContextBundle now tracks `query_type` field for logging and debugging
-- 2025-12-03: **Blast Radius Query Direction Fix** - Impact queries now correctly traverse incoming DEPENDS_ON edges
-  - Added `_is_impact_query()` to detect "blast radius", "impact", "goes down", "fails" keywords
-  - For impact queries, switches to `direction="incoming"` to find what depends on the target (downstream cascade)
-  - Recursive traversal via `traverse_dependencies()` finds full impact chain (e.g., Payments Database → Payment Service → API Gateway → Checkout Service)
-  - Edge-facing entities (API Gateway, Load Balancer, CDN) get "External Traffic Impact" note explaining all external clients blocked
-  - Test cases: Payments Database, API Gateway, User Database all correctly return downstream dependencies
-- 2025-12-02: **Domain-Agnostic Architecture Validated** - Org chart domain test successful
-  - Created org_chart_generator.py: 30 people, 8 teams, 5 departments with REPORTS_TO/MEMBER_OF/LEADS relationships
-  - Added org_chart_loader.py to populate tri-memory system with non-IT domain data
-  - Entity namespacing implemented ("Org:" prefix) to prevent cross-domain collisions
-  - Business rules applied correctly: VP approval for teams >10 members, Director approval otherwise
-  - Test query achieved 95% confidence with multi-hop reasoning: Team → Headcount → Rule → Approver
-  - Same tri-memory system handles both IT ops and org chart queries without code changes
-- 2025-12-02: **100-Query Automated Evaluation Complete** - CF wins 5/5 against GraphRAG baseline
-  - 100 queries across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)
-  - CF Latency: 47 wins, GraphRAG: 30 wins, Ties: 23 (not statistically significant, Cohen's d=0.17)
-  - CF Provenance Score: 2.32/3 vs GraphRAG 0.13/3 (**+2.19 advantage, statistically significant**)
-  - CF Relationship Citations: 32% vs GraphRAG 10%
-  - CF Rule Citations: 100% vs GraphRAG 3%
-  - Response Length: CF 5602 chars (detailed), GraphRAG 322 chars (brief)
-  - Results saved: exports/evaluation_results_20251202_175048.json
-- 2025-12-02: **CRITICAL FIX: Hallucination Prevention** - Fixed "confident wrong answer" bug where CF would cite real relationships for non-existent entities
-  - Added target entity extraction and verification in RetrievalAgent
-  - If queried entity doesn't exist in graph → return 10% confidence with explicit "entity not found" message
-  - ContextBundle now tracks target_entity_name, target_entity_found, target_entity_match
-  - ReasoningAgent returns early with structured response for missing entities
-  - Prevents fabricating relationships about non-existent entities (e.g., "Search Service" was citing Auth Service relationships)
-  - **Known Entity Lookup First**: Primary extraction method now queries database for all trusted entity names and finds the longest match in the query string - more reliable than regex parsing
-  - Scenario suffix stripping: removes "is corrupted", "goes down", "crashes" etc. from extracted names
-  - Fallback regex patterns for entities not yet in database
-  - Case-insensitive matching with title-case normalization
-- 2025-12-02: **MVP2 Week 7 complete** - GraphRAG baseline + blind evaluation framework + web UI
-- 2025-12-02: Added Evaluation web UI with blind A/B testing interface, query browser, side-by-side comparison, voting, metrics dashboard
-- 2025-12-02: Built 100-query evaluation set across 6 categories (impact, escalation, ownership, dependencies, incidents, expertise)
-- 2025-12-02: Added GraphRAG baseline implementation for fair comparison (no confidence scores, no symbolic rules)
-- 2025-12-02: Created blind A/B evaluation framework with randomized ordering and source hiding
-- 2025-12-02: Added API endpoints: /api/evaluation/query-set, /api/evaluation/run, /api/evaluation/compare, /api/evaluation/graphrag, /api/evaluation/preference, /api/evaluation/metrics, /api/evaluation/reveal
-- 2025-12-02: **MVP2 Week 6 complete** - Gardener + Identity Resolution with full persistence
-- 2025-12-02: Added ConflictLog, MergeAudit, DuplicateCandidate database tables
-- 2025-12-02: Built API endpoints: /api/conflicts, /api/duplicates, /api/merge-audits
-- 2025-12-02: Gardener now persists conflict records to database with cycle_id
-- 2025-12-02: IdentityResolver persists merge audits and flagged duplicate candidates
-- 2025-12-02: Added human review workflow for conflicts and duplicates
-- 2025-12-02: MVP2 Week 5 complete - Entity extraction pipeline with 98.1% F1 score
-- 2025-12-02: Added duplicate detection with fuzzy matching and normalization
-- 2025-12-02: Built staging loader with STAGING layer integration and provenance
-- 2025-12-02: Created LLM-powered NER for 7 entity types and 8 relation types
-- 2025-12-02: Added document ingestion pipeline (PDF/DOCX/MD/TXT)
-- 2025-12-02: Scaled synthetic data to 1,011 entities with scaled_synthetic_generator.py
-- 2025-12-02: Fixed "invalid transaction rollback" errors with proper session cleanup
-- 2025-12-02: Added skip-if-exists logic to graph_loader for graceful re-runs
-- 2025-12-02: Added ContextFoundry.cleanup() method for proper session management
-- 2025-12-02: Configured gunicorn deployment with /health endpoint
-- 2025-12-01: Added sleek web UI with dark theme, glassmorphism, animated gradients
-- 2025-12-01: MVP Complete - All 3 demo queries working with full provenance
-- 2025-12-01: Added resilient database error handling with session rollback
-- 2025-12-01: Integrated OpenAI via Replit AI Integrations
-- 2025-12-01: Built complete tri-memory architecture with 4 agents
+### 2025-12-03: Query-Structure-Aware Sequence Detection
+The system now detects when queries ask for ordered sequences vs single facts and calibrates confidence accordingly.
+
+**Implementation Details:**
+- Added `_detect_sequence_intent()` using linguistic patterns (path, chain, workflow, steps, order) and ordinal markers (first, next, then)
+- ContextBundle now tracks `sequence_intent`, `sequence_intent_reason`, `has_multi_step_evidence`
+- Added `_check_multi_step_evidence()` to detect numbered lists, bullets, arrows in TOPICALLY RELEVANT documents
+  - Separates structural keywords (procedure, path, steps) from topic keywords (escalation, approval, sev1)
+  - Requires title match OR 3+ topic keyword matches to consider document relevant
+  - Prevents false positives from unrelated numbered lists
+- Confidence capped at 45% when sequence_intent=True but no relevant multi-step evidence found
+- LLM prompt enriched with sequence guidance (look for ordered steps, avoid single-fact answers)
+- Fixed document retrieval: "Escalation Procedures" runbook now correctly retrieved for path queries
+- Updated `_get_rule_document_keywords()` to prioritize 'procedure', 'path', 'steps' for sequence queries
+
+**Test Result:**
+- Query: "What's the escalation path for a SEV1?"
+- Answer: Full 4-step path (Team Lead → Director → VP → Executive) with 95% confidence
+- Evidence: Correctly cites "Escalation Procedures" runbook and resolves Mia White as VP of Engineering
