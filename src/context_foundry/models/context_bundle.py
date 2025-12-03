@@ -302,6 +302,19 @@ class ContextBundle:
             lines.append("- For aggregate analysis, the user should query their incident database directly")
             lines.append("DO NOT attempt to synthesize patterns from partial data - this risks hallucination.\n")
         
+        # IMPACT QUERY: Guide LLM to include ALL cascade services
+        if self.query_type == 'impact':
+            lines.append("=== IMPACT/CASCADE QUERY DETECTED ===")
+            lines.append("The user is asking about blast radius, impact, or who needs to be notified if something fails.")
+            lines.append("CRITICAL INSTRUCTIONS:")
+            lines.append("1. Include ALL services in the cascade - both DIRECT dependencies AND DOWNSTREAM dependants")
+            lines.append("2. The relationships below show the full dependency chain - follow ALL edges")
+            lines.append("3. If A depends on B, and B depends on C (the failing entity), then BOTH A and B are affected")
+            lines.append("4. Present a COMPLETE list of affected services, grouped by direct vs cascade if helpful")
+            lines.append("5. Do NOT stop at just direct dependencies - the full blast radius includes transitive dependants")
+            lines.append("Example: If User Database fails, and Auth Service depends on User Database, and API Gateway depends on Auth Service,")
+            lines.append("         then BOTH Auth Service (direct) AND API Gateway (cascade) must be listed.\n")
+        
         # SEQUENCE INTENT: Guide LLM to provide ordered steps from runbooks
         if self.sequence_intent:
             lines.append("=== SEQUENCE QUERY DETECTED ===")
