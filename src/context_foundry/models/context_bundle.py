@@ -107,6 +107,9 @@ class ContextBundle:
     target_entity_found: bool = False  # Was the target entity actually found in the graph?
     target_entity_match: Optional[Dict] = None  # The matched entity if found
     
+    # Query type classification
+    query_type: str = "entity"  # 'entity', 'rule', 'impact', 'general'
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""

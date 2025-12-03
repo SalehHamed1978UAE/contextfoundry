@@ -52,45 +52,57 @@ class RetrievalAgent:
         """
         bundle = create_bundle(query_text)
         
-        keywords = self._extract_keywords(query_text)
-        entity_types = self._infer_entity_types(query_text)
+        query_type = self._classify_query_type(query_text)
+        bundle.query_type = query_type
         
-        # CRITICAL: Extract and verify target entity FIRST
-        target_entity_name = self._extract_target_entity(query_text)
-        if target_entity_name:
-            found, entity_match = self._verify_target_entity_exists(target_entity_name)
-            bundle.target_entity_name = target_entity_name
-            bundle.target_entity_found = found
-            bundle.target_entity_match = entity_match
+        if query_logger:
+            query_logger.log_event("QUERY_CLASSIFICATION", {
+                "query_type": query_type,
+                "query": query_text[:100]
+            })
+        
+        if query_type == 'rule':
+            logger.info(f"RULE QUERY detected: skipping entity extraction")
+            keywords = self._extract_rule_context_keywords(query_text)
+            entity_types = []
+            target_entity_name = None
+            bundle.target_entity_found = True
+        else:
+            keywords = self._extract_keywords(query_text)
+            entity_types = self._infer_entity_types(query_text)
             
-            if query_logger:
-                query_logger.log_event("TARGET_ENTITY_CHECK", {
-                    "target_entity": target_entity_name,
-                    "found": found,
-                    "match": entity_match.get("name") if entity_match else None
-                })
-            
-            if not found:
-                logger.warning(f"TARGET ENTITY NOT FOUND: '{target_entity_name}' does not exist in knowledge graph")
+            target_entity_name = self._extract_target_entity(query_text)
+            if target_entity_name:
+                found, entity_match = self._verify_target_entity_exists(target_entity_name)
+                bundle.target_entity_name = target_entity_name
+                bundle.target_entity_found = found
+                bundle.target_entity_match = entity_match
+                
+                if query_logger:
+                    query_logger.log_event("TARGET_ENTITY_CHECK", {
+                        "target_entity": target_entity_name,
+                        "found": found,
+                        "match": entity_match.get("name") if entity_match else None
+                    })
+                
+                if not found:
+                    logger.warning(f"TARGET ENTITY NOT FOUND: '{target_entity_name}' does not exist in knowledge graph")
         
         if query_logger:
             query_logger.log_event("RETRIEVAL_START", {
                 "keywords": keywords,
-                "inferred_entity_types": [t.value for t in entity_types],
+                "inferred_entity_types": [t.value for t in entity_types] if entity_types else [],
                 "target_entity": target_entity_name,
-                "target_entity_found": bundle.target_entity_found
+                "target_entity_found": bundle.target_entity_found,
+                "query_type": query_type
             })
         
-        # If we couldn't extract a target entity from patterns, try fallback detection
-        # Look for any capitalized multi-word phrases that look like entity names
-        if not target_entity_name:
+        if query_type != 'rule' and not target_entity_name:
             potential_entities = self._find_potential_entity_names(query_text)
             if potential_entities:
-                # Check each potential entity
                 for pe in potential_entities:
                     found, entity_match = self._verify_target_entity_exists(pe)
                     if not found:
-                        # Found a potential entity that doesn't exist - flag it
                         bundle.target_entity_name = pe
                         bundle.target_entity_found = False
                         bundle.target_entity_match = None
@@ -120,9 +132,14 @@ class RetrievalAgent:
         relationship_types = [r.get("relationship_type") for r in bundle.semantic_relationships]
         entity_type_strs = [e.get("entity_type") for e in bundle.semantic_entities]
         
-        symbolic_results = self._query_symbolic_memory(
-            query_text, keywords, entity_type_strs, relationship_types, max_rules, query_logger
-        )
+        if query_type == 'rule':
+            symbolic_results = self._query_symbolic_memory_for_rules(
+                query_text, keywords, max_rules * 2, query_logger
+            )
+        else:
+            symbolic_results = self._query_symbolic_memory(
+                query_text, keywords, entity_type_strs, relationship_types, max_rules, query_logger
+            )
         bundle.symbolic_rules = symbolic_results
         
         bundle.calculate_uncertainty()
@@ -206,6 +223,89 @@ class RetrievalAgent:
         """Check if entity is edge-facing (receives external traffic)."""
         edge_keywords = ['api gateway', 'load balancer', 'cdn', 'ingress', 'edge', 'frontend']
         return any(kw in entity_name.lower() for kw in edge_keywords)
+    
+    def _classify_query_type(self, query_text: str) -> str:
+        """
+        Classify the query type to determine the retrieval strategy.
+        
+        Returns one of:
+        - 'entity': Looking for information about a specific entity
+        - 'rule': Looking for policies, procedures, escalation paths, approval flows
+        - 'impact': Blast radius / cascade analysis (already handled separately)
+        - 'general': General question that needs all memory layers
+        
+        RULE QUERIES are characterized by:
+        - Asking about processes, procedures, policies
+        - Questions with "should", "when", "what's the process"
+        - Escalation, approval, notification questions
+        - No specific named entity being queried
+        """
+        query_lower = query_text.lower()
+        
+        if self._is_impact_query(query_text):
+            return 'impact'
+        
+        rule_patterns = [
+            r'\bwho should\b',
+            r'\bwhat.s the (process|procedure|policy|escalation|approval)\b',
+            r'\bwhat is the (process|procedure|policy|escalation|approval)\b',
+            r'\bhow (do|does|should) (we|i|one)\b',
+            r'\bwhen (do|does|should) (we|i|one)\b',
+            r'\bwhat (happens|do we do) (if|when)\b',
+            r'\bescalation path\b',
+            r'\bapproval (required|needed|process)\b',
+            r'\bnotif(y|ied|ication)\b.*\b(if|when)\b',
+            r'\brequire.* approval\b',
+            r'\bwho (approves|reviews|signs off)\b',
+            r'\bwho (gets|should be) (notified|paged|alerted)\b',
+        ]
+        
+        for pattern in rule_patterns:
+            if re.search(pattern, query_lower):
+                return 'rule'
+        
+        rule_keywords = [
+            'escalation', 'approval process', 'notification policy',
+            'what\'s the procedure', 'what\'s the policy', 'what\'s the process',
+            'budget request', 'contract expires', 'security breach',
+            'sev1', 'sev2', 'sev 1', 'sev 2', 'severity 1', 'severity 2',
+            'incident response', 'runbook', 'playbook',
+        ]
+        
+        if any(kw in query_lower for kw in rule_keywords):
+            return 'rule'
+        
+        return 'entity'
+    
+    def _extract_rule_context_keywords(self, query_text: str) -> List[str]:
+        """
+        Extract keywords relevant to rule/policy search.
+        
+        For rule queries, we want to find rules that match the scenario,
+        not entity names.
+        """
+        query_lower = query_text.lower()
+        keywords = []
+        
+        scenario_keywords = {
+            'security': ['security', 'breach', 'attack', 'vulnerability'],
+            'escalation': ['escalation', 'escalate', 'sev1', 'sev2', 'sev 1', 'sev 2', 'severity'],
+            'approval': ['approval', 'approve', 'budget', 'request', 'sign off'],
+            'notification': ['notify', 'notification', 'alert', 'page', 'pager'],
+            'incident': ['incident', 'outage', 'failure', 'down'],
+            'hiring': ['hire', 'hiring', 'headcount', 'team size'],
+            'contract': ['contract', 'vendor', 'expires', 'renewal'],
+            'database': ['database', 'db', 'data'],
+            'payment': ['payment', 'transaction', 'financial'],
+            'auth': ['auth', 'authentication', 'login', 'access'],
+        }
+        
+        for category, kws in scenario_keywords.items():
+            if any(kw in query_lower for kw in kws):
+                keywords.append(category)
+                keywords.extend([k for k in kws if k in query_lower])
+        
+        return list(set(keywords))
     
     def _match_known_entity_in_query(self, query_text: str) -> Optional[str]:
         """
@@ -742,6 +842,93 @@ class RetrievalAgent:
         logger.debug(f"Symbolic query: {len(rules)} applicable rules")
         
         return rules
+    
+    def _query_symbolic_memory_for_rules(
+        self,
+        query_text: str,
+        context_keywords: List[str],
+        max_rules: int,
+        query_logger: Optional[QueryLogger]
+    ) -> List[Dict]:
+        """
+        Query symbolic memory specifically for rule/policy queries.
+        
+        For rule queries, we fetch ALL relevant rules and score them by
+        keyword match - this ensures we don't miss applicable policies.
+        """
+        query_lower = query_text.lower()
+        
+        rule_keywords = list(context_keywords)
+        
+        keyword_expansions = {
+            'escalation': ['escalation', 'escalate', 'sev1', 'sev2', 'severity', 'incident'],
+            'notification': ['notification', 'notify', 'alert', 'page', 'pager'],
+            'approval': ['approval', 'approve', 'budget', 'authority', 'sign off'],
+            'security': ['security', 'breach', 'attack', 'vulnerability', 'incident'],
+            'hiring': ['hiring', 'hire', 'headcount', 'team', 'director', 'vp'],
+            'database': ['database', 'db', 'platform'],
+            'payment': ['payment', 'transaction', 'financial'],
+        }
+        
+        for category, kws in keyword_expansions.items():
+            if any(kw in query_lower for kw in kws):
+                rule_keywords.extend(kws)
+        
+        rule_keywords = list(set(rule_keywords))
+        
+        all_rules = self.symbolic.get_active_rules()
+        scored_rules = []
+        
+        for rule in all_rules:
+            score = 0
+            match_reasons = []
+            
+            rule_text = f"{rule.name} {rule.description} {rule.condition} {rule.action}".lower()
+            
+            for keyword in rule_keywords:
+                if keyword.lower() in rule_text:
+                    score += 2
+                    match_reasons.append(f"keyword: {keyword}")
+            
+            if 'escalat' in query_lower and rule.rule_type.value == 'ESCALATION_POLICY':
+                score += 5
+                match_reasons.append("rule_type: escalation")
+            if 'notif' in query_lower and 'notify' in rule_text:
+                score += 5
+                match_reasons.append("action: notification")
+            if 'approv' in query_lower and 'approval' in rule_text:
+                score += 5
+                match_reasons.append("action: approval")
+            if 'sev1' in query_lower or 'sev 1' in query_lower:
+                if 'sev1' in rule_text or 'severity' in rule_text:
+                    score += 5
+                    match_reasons.append("severity match")
+            
+            if score > 0:
+                scored_rules.append({
+                    **rule.to_dict(),
+                    "match_score": score,
+                    "match_reasons": match_reasons
+                })
+        
+        scored_rules.sort(key=lambda x: (x["match_score"], x["priority"]), reverse=True)
+        
+        if len(scored_rules) == 0:
+            logger.info("No matched rules for rule query, returning all active rules")
+            scored_rules = [r.to_dict() for r in all_rules[:max_rules]]
+        else:
+            scored_rules = scored_rules[:max_rules]
+        
+        if query_logger:
+            query_logger.log_event("SYMBOLIC_QUERY_FOR_RULES", {
+                "rules_found": len(scored_rules),
+                "rule_names": [r["name"] for r in scored_rules],
+                "keywords_used": rule_keywords
+            })
+        
+        logger.debug(f"Rule query symbolic search: {len(scored_rules)} applicable rules")
+        
+        return scored_rules
     
     def get_impact_analysis(self, entity_name: str) -> Dict:
         """
