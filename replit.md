@@ -151,6 +151,12 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-03: **Blast Radius Query Direction Fix** - Impact queries now correctly traverse incoming DEPENDS_ON edges
+  - Added `_is_impact_query()` to detect "blast radius", "impact", "goes down", "fails" keywords
+  - For impact queries, switches to `direction="incoming"` to find what depends on the target (downstream cascade)
+  - Recursive traversal via `traverse_dependencies()` finds full impact chain (e.g., Payments Database → Payment Service → API Gateway → Checkout Service)
+  - Edge-facing entities (API Gateway, Load Balancer, CDN) get "External Traffic Impact" note explaining all external clients blocked
+  - Test cases: Payments Database, API Gateway, User Database all correctly return downstream dependencies
 - 2025-12-02: **Domain-Agnostic Architecture Validated** - Org chart domain test successful
   - Created org_chart_generator.py: 30 people, 8 teams, 5 departments with REPORTS_TO/MEMBER_OF/LEADS relationships
   - Added org_chart_loader.py to populate tri-memory system with non-IT domain data
