@@ -67,6 +67,24 @@ Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memor
 
 ## Recent Changes
 
+### 2025-12-03: Impact Query Cascade Synthesis in LLM Answers
+The LLM now includes ALL cascade services in impact query answers, not just direct dependencies.
+
+**Problem:** Cascade evidence was being retrieved correctly, but the LLM only mentioned direct dependencies in answers.
+
+**Implementation Details:**
+- Added impact-specific guidance in `to_llm_context()` when `query_type == 'impact'`
+- Instructions emphasize: "Include ALL services in the cascade - both DIRECT dependencies AND DOWNSTREAM dependants"
+- Provides example: "If User Database fails, and Auth Service depends on User Database, and API Gateway depends on Auth Service, then BOTH Auth Service (direct) AND API Gateway (cascade) must be listed"
+- Suggests grouping services by direct vs cascade for clarity
+
+**Test Result:**
+- Query: "If the User Database is corrupted, which services need to be notified?"
+- Answer now includes:
+  - **Direct:** Auth Service, Notification Service
+  - **Cascade:** Payment Service, API Gateway, Checkout Service
+- Confidence: 95%
+
 ### 2025-12-03: Extended Impact Query Detection for Notification-Style Queries
 The system now recognizes notification-style queries with failure context as impact/cascade queries.
 
