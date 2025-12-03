@@ -97,8 +97,17 @@ class RetrievalAgent:
                         logger.warning(f"POTENTIAL ENTITY NOT FOUND: '{pe}' detected in query but not in graph")
                         break
         
+        is_impact = self._is_impact_query(query_text)
+        if is_impact and query_logger:
+            query_logger.log_event("IMPACT_QUERY_DETECTED", {
+                "target_entity": target_entity_name,
+                "traversal_direction": "incoming"
+            })
+        
         semantic_results = self._query_semantic_memory(
-            keywords, entity_types, traverse_depth, max_entities, query_logger
+            keywords, entity_types, traverse_depth, max_entities, query_logger,
+            is_impact_query=is_impact,
+            target_entity_name=target_entity_name
         )
         bundle.semantic_entities = semantic_results["entities"]
         bundle.semantic_relationships = semantic_results["relationships"]
@@ -175,6 +184,28 @@ class RetrievalAgent:
             types.append(EntityType.COMPONENT)
         
         return types if types else list(EntityType)
+    
+    def _is_impact_query(self, query_text: str) -> bool:
+        """
+        Detect if this is a blast radius / impact analysis query.
+        
+        These queries ask "if X breaks, what else breaks?" which means we need
+        to find entities that DEPEND ON X (incoming DEPENDS_ON), not what X depends on.
+        """
+        query_lower = query_text.lower()
+        impact_keywords = [
+            'blast radius', 'impact', 'affected', 'affects', 
+            'goes down', 'becomes unavailable', 'fails', 'failure',
+            'breaks', 'crashes', 'is down', 'is corrupted', 'is unavailable',
+            'what services', 'which services', 'what depends', 'what breaks',
+            'downstream', 'cascade', 'ripple effect'
+        ]
+        return any(kw in query_lower for kw in impact_keywords)
+    
+    def _is_edge_facing_entity(self, entity_name: str) -> bool:
+        """Check if entity is edge-facing (receives external traffic)."""
+        edge_keywords = ['api gateway', 'load balancer', 'cdn', 'ingress', 'edge', 'frontend']
+        return any(kw in entity_name.lower() for kw in edge_keywords)
     
     def _match_known_entity_in_query(self, query_text: str) -> Optional[str]:
         """
@@ -539,9 +570,16 @@ class RetrievalAgent:
         entity_types: List[EntityType],
         traverse_depth: int,
         max_entities: int,
-        query_logger: Optional[QueryLogger]
+        query_logger: Optional[QueryLogger],
+        is_impact_query: bool = False,
+        target_entity_name: Optional[str] = None
     ) -> Dict:
-        """Query semantic memory (knowledge graph) for relevant entities and relationships."""
+        """
+        Query semantic memory (knowledge graph) for relevant entities and relationships.
+        
+        For impact/blast radius queries, we traverse INCOMING DEPENDS_ON relationships
+        to find what depends on the target entity (downstream impact).
+        """
         entities = []
         relationships = []
         seen_entity_ids: Set[str] = set()
@@ -562,14 +600,64 @@ class RetrievalAgent:
         
         entities_to_traverse = list(entities)[:10]
         
+        if is_impact_query and target_entity_name:
+            target_entity = self.semantic.find_entity_by_name(target_entity_name)
+            if target_entity:
+                target_dict = target_entity.to_dict()
+                if target_dict["id"] not in seen_entity_ids:
+                    seen_entity_ids.add(target_dict["id"])
+                    entities.insert(0, target_dict)
+                
+                downstream = self.semantic.traverse_dependencies(
+                    target_entity.id,
+                    relationship_type=RelationshipType.DEPENDS_ON,
+                    direction="incoming",
+                    max_depth=traverse_depth
+                )
+                
+                for item in downstream:
+                    connected = item["entity"]
+                    if connected["id"] not in seen_entity_ids:
+                        seen_entity_ids.add(connected["id"])
+                        entities.append(connected)
+                    
+                    rel_dict = item["relationship"]
+                    if rel_dict not in relationships:
+                        relationships.append(rel_dict)
+                
+                logger.info(f"Impact query: found {len(downstream)} downstream dependencies for {target_entity_name}")
+                
+                if self._is_edge_facing_entity(target_entity_name):
+                    edge_note = {
+                        "id": "edge-impact-note",
+                        "name": "External Traffic Impact",
+                        "entity_type": "NOTE",
+                        "description": f"If {target_entity_name} becomes unavailable, all external traffic is blocked. No external clients can reach services behind the gateway.",
+                        "confidence": 1.0,
+                        "lifecycle_state": "TRUSTED",
+                        "properties": {"type": "impact_note", "severity": "critical"}
+                    }
+                    entities.append(edge_note)
+        
         for entity in entities_to_traverse:
-            entity_id = uuid.UUID(entity["id"])
+            entity_id_str = entity.get("id")
+            if not entity_id_str or entity_id_str == "edge-impact-note":
+                continue
+            entity_id = uuid.UUID(entity_id_str)
             
-            rels = self.semantic.get_entity_relationships(
-                entity_id,
-                direction="both",
-                trusted_only=True
-            )
+            if is_impact_query:
+                rels = self.semantic.get_entity_relationships(
+                    entity_id,
+                    relationship_types=[RelationshipType.DEPENDS_ON],
+                    direction="incoming",
+                    trusted_only=True
+                )
+            else:
+                rels = self.semantic.get_entity_relationships(
+                    entity_id,
+                    direction="both",
+                    trusted_only=True
+                )
             
             for rel_info in rels:
                 rel_dict = rel_info["relationship"]
