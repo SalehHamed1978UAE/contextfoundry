@@ -18,6 +18,41 @@ evaluation_result = None
 comparison_pairs = {}  # Store individual comparison pairs by pair_id
 preference_metrics = {'cf_wins': 0, 'graphrag_wins': 0, 'ties': 0, 'reviewed': set()}
 
+
+def _compute_metrics_from_db(session):
+    """Compute evaluation metrics from database (works across workers)."""
+    from src.context_foundry.models.schema import EvaluationVote
+    
+    votes = session.query(EvaluationVote).filter(
+        EvaluationVote.human_preference.isnot(None)
+    ).all()
+    
+    cf_wins = 0
+    graphrag_wins = 0
+    ties = 0
+    
+    for vote in votes:
+        if vote.human_preference == 'tie':
+            ties += 1
+        elif vote.human_preference == 'A':
+            if vote.a_is_context_foundry:
+                cf_wins += 1
+            else:
+                graphrag_wins += 1
+        elif vote.human_preference == 'B':
+            if not vote.a_is_context_foundry:
+                cf_wins += 1
+            else:
+                graphrag_wins += 1
+    
+    return {
+        'cf_wins': cf_wins,
+        'graphrag_wins': graphrag_wins,
+        'ties': ties,
+        'reviewed': len(votes),
+    }
+
+
 def get_context_foundry():
     global cf
     if cf is None:
@@ -444,6 +479,7 @@ def run_evaluation():
 def compare_single_query():
     """Run a single query through both systems for comparison."""
     from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    from src.context_foundry.models.schema import EvaluationVote, get_session
     
     global comparison_pairs
     
@@ -460,10 +496,30 @@ def compare_single_query():
         if not pair:
             return jsonify({'success': False, 'error': 'Query not found'}), 404
         
-        # Store the pair for later preference recording
         comparison_pairs[pair.pair_id] = pair
         
         blind_a, blind_b = pair.get_blind_responses()
+        
+        session = get_session()
+        try:
+            existing = session.query(EvaluationVote).filter_by(pair_id=pair.pair_id).first()
+            if not existing:
+                vote_record = EvaluationVote(
+                    pair_id=pair.pair_id,
+                    query_id=query_id,
+                    query_text=pair.query.text,
+                    a_is_context_foundry=pair.a_is_context_foundry,
+                    response_a=blind_a.get('answer', ''),
+                    response_b=blind_b.get('answer', ''),
+                    latency_a_ms=blind_a.get('latency_ms', 0),
+                    latency_b_ms=blind_b.get('latency_ms', 0),
+                )
+                session.add(vote_record)
+                session.commit()
+        except Exception:
+            session.rollback()
+        finally:
+            session.close()
         
         return jsonify({
             'success': True,
@@ -503,6 +559,8 @@ def query_graphrag():
 def record_preference():
     """Record human preference for a blind comparison."""
     from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    from src.context_foundry.models.schema import EvaluationVote, get_session
+    from datetime import datetime
     
     global evaluation_result, comparison_pairs, preference_metrics
     
@@ -519,7 +577,36 @@ def record_preference():
         if preference not in ['A', 'B', 'tie']:
             return jsonify({'success': False, 'error': 'preference must be A, B, or tie'}), 400
         
-        # Try to find pair in stored comparisons first
+        session = get_session()
+        try:
+            vote_record = session.query(EvaluationVote).filter_by(pair_id=pair_id).first()
+            
+            if vote_record:
+                if vote_record.human_preference:
+                    metrics = _compute_metrics_from_db(session)
+                    return jsonify({
+                        'success': True,
+                        'message': 'Already reviewed',
+                        'metrics': metrics,
+                    })
+                
+                vote_record.human_preference = preference
+                vote_record.reviewed_by = reviewer
+                vote_record.notes = notes
+                vote_record.voted_at = datetime.utcnow()
+                session.commit()
+                
+                metrics = _compute_metrics_from_db(session)
+                return jsonify({
+                    'success': True,
+                    'metrics': metrics,
+                })
+        except Exception as db_err:
+            session.rollback()
+            print(f"DB error: {db_err}")
+        finally:
+            session.close()
+        
         pair = comparison_pairs.get(pair_id)
         
         if pair:
@@ -597,11 +684,22 @@ def record_preference():
 def get_evaluation_metrics():
     """Get current evaluation metrics."""
     from src.context_foundry.evaluation.evaluator import BlindEvaluator
+    from src.context_foundry.models.schema import get_session
     
     global evaluation_result, preference_metrics
     
     try:
-        # Return stored preference metrics if available
+        session = get_session()
+        try:
+            metrics = _compute_metrics_from_db(session)
+            if metrics['reviewed'] > 0:
+                return jsonify({
+                    'success': True,
+                    'metrics': metrics,
+                })
+        finally:
+            session.close()
+        
         if len(preference_metrics['reviewed']) > 0:
             return jsonify({
                 'success': True,
@@ -617,7 +715,7 @@ def get_evaluation_metrics():
             return jsonify({
                 'success': True,
                 'message': 'No evaluation running',
-                'metrics': None,
+                'metrics': {'cf_wins': 0, 'graphrag_wins': 0, 'ties': 0, 'reviewed': 0},
             })
         
         evaluator = BlindEvaluator()

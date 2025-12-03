@@ -1,0 +1,306 @@
+{
+  "answer": "The Payments Team owns the Payment Service. This is explicitly stated in the relationships of the knowledge graph.",
+  "confidence": 0.95,
+  "confidence_level": "high",
+  "evidence_chain": [
+    {
+      "type": "relationship",
+      "description": "Payments Team owns the Payment Service.",
+      "source": "Payments Team --[OWNS]--> Payment Service",
+      "confidence": 0.95
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Growth Team",
+      "source": "Growth Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Growth Team (7 members) - User acquisition and activation",
+      "confidence": 1.0,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Brand Team",
+      "source": "Brand Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Brand Team (5 members) - Brand identity and communications",
+      "confidence": 1.0,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Frontend Team",
+      "source": "Frontend Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Frontend Team (8 members) - User interface and experience",
+      "confidence": 1.0,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Growth Team -[DEPENDS_ON]-> Product Strategy",
+      "source": "Growth Team -> Product Strategy",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Growth Team works closely with Product Strategy on experiments.",
+      "confidence": 0.98,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Mark Robinson -[MEMBER_OF]-> Growth Team",
+      "source": "Mark Robinson -> Growth Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Mark Robinson is a member of Growth Team.",
+      "confidence": 0.98,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Nancy Wright -[MEMBER_OF]-> Growth Team",
+      "source": "Nancy Wright -> Growth Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Nancy Wright is a member of Growth Team.",
+      "confidence": 0.98,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: Checkout Service Troubleshooting",
+      "source": "Checkout Service Troubleshooting",
+      "source_document": "afb76037-8961-46f4-8769-d8fbd822fe89",
+      "similarity": 0.12592643259801015,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: SEV1 Incident Commander Playbook",
+      "source": "SEV1 Incident Commander Playbook",
+      "source_document": "500d29eb-c838-4c4d-97c2-3b204958d94f",
+      "similarity": 0.11721818709021185,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: On-Call Requirement",
+      "source": "On-Call Requirement",
+      "rule_type": "SAFETY_CHECK",
+      "action": "verify_oncall_exists(service.owner_team)",
+      "memory_layer": "symbolic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: Payment Service Dependency Check",
+      "source": "Payment Service Dependency Check",
+      "rule_type": "INVARIANT",
+      "action": "flag_critical('Payment Service cannot operate without Payments Database')",
+      "memory_layer": "symbolic"
+    }
+  ],
+  "uncertainty": {
+    "uncertain_facts": [],
+    "reasons": [],
+    "would_help": [],
+    "context_confidence": 0.9582716049382722,
+    "context_recommendation": "proceed"
+  },
+  "rules_applied": [],
+  "caveats": [],
+  "bundle_id": "4677c271-ae6a-43be-9e37-29ccbd818f22",
+  "query_text": "What team owns the Payment Service?",
+  "validation": {
+    "passed": true,
+    "rules_checked": [
+      "On-Call Requirement",
+      "Payment Service Dependency Check",
+      "Escalation Chain Validation",
+      "Cascade Impact Assessment",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "VP Approval for Large Teams",
+      "Director Approval for Hiring"
+    ],
+    "rules_passed": [
+      "On-Call Requirement",
+      "Payment Service Dependency Check",
+      "Escalation Chain Validation",
+      "Cascade Impact Assessment",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "VP Approval for Large Teams",
+      "Director Approval for Hiring"
+    ],
+    "violations": [],
+    "warnings": []
+  },
+  "rules_checked": [
+    "On-Call Requirement",
+    "Payment Service Dependency Check",
+    "Escalation Chain Validation",
+    "Cascade Impact Assessment",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "VP Approval for Large Teams",
+    "Director Approval for Hiring"
+  ],
+  "rules_passed": [
+    "On-Call Requirement",
+    "Payment Service Dependency Check",
+    "Escalation Chain Validation",
+    "Cascade Impact Assessment",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "VP Approval for Large Teams",
+    "Director Approval for Hiring"
+  ],
+  "rules_violations": [],
+  "rules_warnings": [],
+  "query_log": {
+    "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+    "query_text": "What team owns the Payment Service?",
+    "start_time": "2025-12-02T19:42:19.705802",
+    "duration_seconds": 6.378782,
+    "events": [
+      {
+        "timestamp": "2025-12-02T19:42:19.705805",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "QUERY_START",
+        "data": {
+          "query": "What team owns the Payment Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:19.706784",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "PIPELINE_START",
+        "data": {
+          "query": "What team owns the Payment Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:19.872941",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "TARGET_ENTITY_CHECK",
+        "data": {
+          "target_entity": "Payment Service",
+          "found": true,
+          "match": "Payment Service"
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:19.874338",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "RETRIEVAL_START",
+        "data": {
+          "keywords": [
+            "team",
+            "owns",
+            "Payment",
+            "Service"
+          ],
+          "inferred_entity_types": [
+            "SERVICE",
+            "TEAM"
+          ],
+          "target_entity": "Payment Service",
+          "target_entity_found": true
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:22.794017",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "SEMANTIC_RETRIEVAL",
+        "data": {
+          "entities_count": 20,
+          "relationships_count": 61,
+          "entities": [
+            "Growth Team",
+            "Brand Team",
+            "Frontend Team",
+            "Data Team",
+            "Org: Platform Team"
+          ],
+          "confidence": 0.9550000000000001
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:22.899463",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "EPISODIC_RETRIEVAL",
+        "data": {
+          "documents_count": 5,
+          "top_similarity": 0.12592643259801015,
+          "avg_similarity": 0.09856998990781188
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:22.936228",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "SYMBOLIC_QUERY",
+        "data": {
+          "rules_found": 8,
+          "rule_names": [
+            "On-Call Requirement",
+            "Payment Service Dependency Check",
+            "Escalation Chain Validation",
+            "Cascade Impact Assessment",
+            "Auth Service Required for API",
+            "Database Owner Notification",
+            "VP Approval for Large Teams",
+            "Director Approval for Hiring"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:22.938585",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "CONTEXT_BUNDLE_BUILT",
+        "data": {
+          "semantic_items": 81,
+          "episodic_items": 5,
+          "rules_count": 8,
+          "overall_confidence": 0.9582716049382722
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:22.951295",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "LLM_CALL_START",
+        "data": {
+          "model": "gpt-4o-mini",
+          "context_length": 16843,
+          "query": "What team owns the Payment Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:25.661946",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "REASONING_COMPLETE",
+        "data": {
+          "response_length": 114,
+          "confidence": 0.95,
+          "evidence_items": 11
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:25.932918",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "VALIDATION",
+        "data": {
+          "passed": true,
+          "issues": []
+        }
+      },
+      {
+        "timestamp": "2025-12-02T19:42:26.082859",
+        "query_id": "91dfb4f7-8eaf-4e9f-944b-ac0c9dd5d834",
+        "event_type": "QUERY_COMPLETE",
+        "data": {
+          "success": true,
+          "duration_seconds": 6.377049,
+          "final_confidence": 0.95,
+          "total_events": 11
+        }
+      }
+    ]
+  }
+}

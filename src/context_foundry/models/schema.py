@@ -383,6 +383,43 @@ class DuplicateCandidate(Base):
         }
 
 
+class EvaluationVote(Base):
+    """Stores A/B evaluation votes for blind comparison."""
+    __tablename__ = "evaluation_votes"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    pair_id = Column(String(255), nullable=False, unique=True, index=True)
+    query_id = Column(String(50), nullable=False, index=True)
+    query_text = Column(Text, nullable=False)
+    
+    a_is_context_foundry = Column(Boolean, nullable=False)
+    response_a = Column(Text)
+    response_b = Column(Text)
+    latency_a_ms = Column(Float)
+    latency_b_ms = Column(Float)
+    
+    human_preference = Column(String(10))
+    reviewed_by = Column(String(255), default='anonymous')
+    notes = Column(Text)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    voted_at = Column(DateTime)
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "pair_id": self.pair_id,
+            "query_id": self.query_id,
+            "query_text": self.query_text,
+            "a_is_context_foundry": self.a_is_context_foundry,
+            "human_preference": self.human_preference,
+            "reviewed_by": self.reviewed_by,
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "voted_at": self.voted_at.isoformat() if self.voted_at else None,
+        }
+
+
 _engine = None
 _session_factory = None
 
