@@ -240,6 +240,7 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
         
         result["bundle_id"] = bundle.query_id
         result["query_text"] = bundle.query_text
+        result["context_bundle"] = bundle.to_dict()
         
         return result
     
@@ -260,7 +261,8 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             "rules_applied": [],
             "caveats": ["This response was generated due to an error"],
             "bundle_id": bundle.query_id,
-            "query_text": bundle.query_text
+            "query_text": bundle.query_text,
+            "context_bundle": bundle.to_dict()
         }
     
     def _create_entity_not_found_response(self, bundle: ContextBundle) -> Dict:
@@ -298,5 +300,6 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
                 "No relationships or facts can be provided for non-existent entities"
             ],
             "bundle_id": bundle.query_id,
-            "query_text": bundle.query_text
+            "query_text": bundle.query_text,
+            "context_bundle": bundle.to_dict()
         }

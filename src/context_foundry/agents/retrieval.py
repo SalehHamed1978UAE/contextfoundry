@@ -73,6 +73,13 @@ class RetrievalAgent:
             entity_types = []
             target_entity_name = None
             bundle.target_entity_found = True
+        elif query_type == 'analysis':
+            logger.info(f"ANALYSIS QUERY detected: skipping entity extraction (requires aggregation)")
+            keywords = []
+            entity_types = []
+            target_entity_name = None
+            bundle.target_entity_found = True
+            bundle.is_analysis_query = True
         else:
             keywords = self._extract_keywords(query_text)
             entity_types = self._infer_entity_types(query_text)
@@ -103,7 +110,7 @@ class RetrievalAgent:
                 "query_type": query_type
             })
         
-        if query_type != 'rule' and not target_entity_name:
+        if query_type not in ('rule', 'analysis') and not target_entity_name:
             potential_entities = self._find_potential_entity_names(query_text)
             if potential_entities:
                 for pe in potential_entities:
@@ -254,6 +261,42 @@ class RetrievalAgent:
         ]
         return any(kw in query_lower for kw in impact_keywords)
     
+    def _is_analysis_query(self, query_text: str) -> bool:
+        """
+        Detect if this is an analysis/aggregation query that requires statistical
+        capabilities beyond simple retrieval.
+        
+        These queries ask for patterns, trends, summaries across data - not specific
+        facts about entities. CF cannot reliably answer these without aggregation.
+        """
+        query_lower = query_text.lower()
+        
+        analysis_patterns = [
+            r'\bwhat patterns\b',
+            r'\bany patterns\b',
+            r'\bany trends\b',
+            r'\b(common|frequent|recurring) (issues?|problems?|causes?|errors?|incidents?)\b',
+            r'\bmost (common|frequent)\b',
+            r'\bhow many (incidents?|outages?|failures?|issues?)\b',
+            r'\bwhich services have the most\b',
+            r'\bare there any recurring\b',
+            r'\bsummary of\b',
+            r'\boverview of (all|our|recent)\b',
+            r'\btrend(s|ing)?\b',
+            r'\bstatistics\b',
+            r'\baggregate\b',
+            r'\btotal (number|count)\b',
+            r'\baverage\b',
+            r'\bfrequen(cy|t)\b',
+            r'\bhistor(y|ical) (of|analysis)\b',
+        ]
+        
+        for pattern in analysis_patterns:
+            if re.search(pattern, query_lower):
+                return True
+        
+        return False
+    
     def _is_edge_facing_entity(self, entity_name: str) -> bool:
         """Check if entity is edge-facing (receives external traffic)."""
         edge_keywords = ['api gateway', 'load balancer', 'cdn', 'ingress', 'edge', 'frontend']
@@ -380,6 +423,7 @@ class RetrievalAgent:
         - 'entity': Looking for information about a specific entity
         - 'rule': Looking for policies, procedures, escalation paths, approval flows
         - 'impact': Blast radius / cascade analysis (already handled separately)
+        - 'analysis': Aggregation/pattern queries requiring statistical analysis
         - 'general': General question that needs all memory layers
         
         RULE QUERIES are characterized by:
@@ -387,8 +431,16 @@ class RetrievalAgent:
         - Questions with "should", "when", "what's the process"
         - Escalation, approval, notification questions
         - No specific named entity being queried
+        
+        ANALYSIS QUERIES are characterized by:
+        - Asking for patterns, trends, summaries across data
+        - Aggregation questions (most common, how many, which services have)
+        - These require statistical capabilities beyond simple retrieval
         """
         query_lower = query_text.lower()
+        
+        if self._is_analysis_query(query_text):
+            return 'analysis'
         
         if self._is_impact_query(query_text):
             return 'impact'
