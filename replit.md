@@ -135,3 +135,28 @@ The system now detects when queries ask for ordered sequences vs single facts an
 - Query: "What's the escalation path for a SEV1?"
 - Answer: Full 4-step path (Team Lead → Director → VP → Executive) with 95% confidence
 - Evidence: Correctly cites "Escalation Procedures" runbook and resolves Mia White as VP of Engineering
+
+### 2025-12-03: Property-Aware Retrieval (Generalized Attribute Queries)
+The system now supports querying entities by their JSON properties (expertise, role, level, department) using LLM-based query analysis - a generalized solution that avoids hardcoded special cases.
+
+**Problem:** Previous system couldn't answer "Which engineers have frontend expertise?" because retrieval only searched entity names, not properties.
+
+**Implementation Details:**
+- **LLM Query Analyzer**: Added `analyze_property_query()` in RetrievalAgent that uses GPT-4o-mini to extract structured filters from natural language queries
+- **Property Search**: Added `search_entities_by_properties()` in SemanticMemory that queries the JSON properties field using PostgreSQL JSON operators
+- **Schema Injection**: LLM prompt includes entity type schemas (PERSON has: role, level, department, expertise)
+- **Intersection Logic**: AND queries (e.g., "frontend AND backend") compute intersection of filter results
+- **Security**: Property keys are whitelisted to prevent SQL injection
+- **Context Bundle**: Added `is_property_query`, `property_filters` fields; LLM context includes property query guidance
+
+**Example Queries Now Supported:**
+- "Which engineers have frontend expertise?" → 3 people found
+- "Who are the Directors in Engineering?" → 2 people found (Emily Zhang, Alex Rivera)
+- "Which engineers have both frontend and backend expertise?" → Correctly returns empty (intersection logic)
+- "List all VPs" → Returns all VP-level people
+
+**Test Results:**
+- Query: "Which engineers have frontend expertise?"
+- Property filters: `[{"property": "expertise", "contains": "frontend"}]`
+- Found: Fiona Martinez, Eric Johnson, Emily Zhang
+- Confidence: 100%

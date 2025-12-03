@@ -286,6 +286,118 @@ class SemanticMemory:
             return True
         return False
     
+    ALLOWED_PROPERTY_KEYS = frozenset([
+        'role', 'level', 'department', 'expertise', 'email', 'phone', 'team',
+        'domain', 'focus_area', 'headcount', 'tier', 'language', 'owner_team'
+    ])
+    
+    def search_entities_by_properties(
+        self,
+        entity_type: Optional[EntityType] = None,
+        filters: List[Dict] = None,
+        trusted_only: bool = True,
+        limit: int = 50
+    ) -> List[Entity]:
+        """
+        Search entities by their JSON properties.
+        
+        This is the GENERALIZED property search - works for any entity attribute
+        stored in the properties JSON field (expertise, role, level, department, etc.)
+        
+        Args:
+            entity_type: Filter by entity type (e.g., PERSON, TEAM)
+            filters: List of filter dicts, each with:
+                - property: the property name (e.g., "expertise", "role", "level")
+                - operator: "contains", "equals", "in" (default: "contains")
+                - value: the value to match
+            trusted_only: Only return TRUSTED entities
+            limit: Max results
+            
+        Example filters:
+            [{"property": "expertise", "contains": "frontend"}]
+            [{"property": "level", "equals": "Director"}]
+            [{"property": "department", "equals": "Engineering"}]
+            
+        SECURITY: Property names are whitelisted to prevent SQL injection.
+        """
+        filters = filters or []
+        
+        q = self.session.query(Entity)
+        
+        if trusted_only:
+            q = q.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)
+        
+        if entity_type:
+            q = q.filter(Entity.entity_type == entity_type)
+        
+        for f in filters:
+            prop_name = f.get("property", "")
+            if not prop_name:
+                continue
+            
+            if prop_name not in self.ALLOWED_PROPERTY_KEYS:
+                logger.warning(f"Blocked disallowed property key: {prop_name}")
+                continue
+            
+            if "contains" in f:
+                value = f["contains"]
+                q = q.filter(
+                    or_(
+                        text(f"properties->>'{prop_name}' ILIKE :val").bindparams(val=f"%{value}%"),
+                        text(f"properties::text ILIKE :val2").bindparams(val2=f"%{value}%")
+                    )
+                )
+            elif "equals" in f:
+                value = f["equals"]
+                q = q.filter(
+                    text(f"properties->>'{prop_name}' = :val").bindparams(val=value)
+                )
+            elif "in" in f:
+                values = f["in"]
+                if isinstance(values, list):
+                    q = q.filter(
+                        text(f"properties->>'{prop_name}' IN :vals").bindparams(vals=tuple(values))
+                    )
+        
+        results = q.order_by(Entity.confidence.desc()).limit(limit).all()
+        
+        logger.debug(f"Property search: entity_type={entity_type}, filters={filters} -> {len(results)} results")
+        return results
+    
+    def get_entity_schema(self, entity_type: EntityType) -> Dict:
+        """
+        Get the schema of properties for a given entity type.
+        
+        This is used to tell the LLM what properties are queryable.
+        """
+        schemas = {
+            EntityType.PERSON: {
+                "properties": {
+                    "role": "Job title (e.g., 'Software Engineer', 'Director of Engineering')",
+                    "level": "Seniority level (e.g., 'IC', 'Manager', 'Director', 'VP', 'C-Level')",
+                    "department": "Department name (e.g., 'Engineering', 'Product', 'Sales')",
+                    "expertise": "List of skills/expertise areas (e.g., ['frontend', 'react', 'typescript'])",
+                    "email": "Email address",
+                    "phone": "Phone number",
+                }
+            },
+            EntityType.TEAM: {
+                "properties": {
+                    "department": "Parent department",
+                    "focus_area": "Team's primary focus",
+                    "headcount": "Number of team members",
+                }
+            },
+            EntityType.SERVICE: {
+                "properties": {
+                    "tier": "Service tier (e.g., 'tier1', 'tier2')",
+                    "language": "Primary programming language",
+                    "owner_team": "Owning team name",
+                }
+            },
+        }
+        return schemas.get(entity_type, {"properties": {}})
+    
     def get_statistics(self) -> Dict:
         """Get statistics about the semantic memory."""
         stats = {
