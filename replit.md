@@ -151,6 +151,13 @@ The MVP2 uses scaled synthetic IT operations data:
 
 ## Recent Changes
 
+- 2025-12-03: **Rule/Policy Query Classification** - Fixed critical bug where rule queries were misclassified as entity lookups
+  - Added `_classify_query_type()` method with regex patterns and keyword detection for query routing
+  - Query types: 'entity' (default), 'rule' (policies/escalation/approval), 'impact', 'general'
+  - Rule queries skip entity extraction, preventing false matches like "We Detect A Security Breach" as entity name
+  - Added `_query_symbolic_memory_for_rules()` with keyword expansion (escalation → sev1, severity, incident, etc.)
+  - ContextBundle now tracks `query_type` field for logging and debugging
+  - Test: "What's the escalation path for a SEV1?" → 85% confidence citing Escalation Procedures runbook and SEV1 Escalation Rule
 - 2025-12-03: **Blast Radius Query Direction Fix** - Impact queries now correctly traverse incoming DEPENDS_ON edges
   - Added `_is_impact_query()` to detect "blast radius", "impact", "goes down", "fails" keywords
   - For impact queries, switches to `direction="incoming"` to find what depends on the target (downstream cascade)
