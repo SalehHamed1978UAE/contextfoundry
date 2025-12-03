@@ -115,6 +115,9 @@ class ContextBundle:
     sequence_intent_reason: Optional[str] = None
     has_multi_step_evidence: bool = False
     
+    # Analysis query detection - requires aggregation beyond retrieval
+    is_analysis_query: bool = False
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
@@ -156,6 +159,24 @@ class ContextBundle:
                 low_confidence_facts=0,
                 low_confidence_items=[],
                 unresolved_entities=[self.target_entity_name],
+                uncertainty_reasons=uncertainty_reasons
+            )
+            return self.uncertainty
+        
+        # Analysis queries require aggregation capabilities beyond retrieval
+        if self.is_analysis_query:
+            uncertainty_reasons.append(
+                "ANALYSIS QUERY: Pattern/trend analysis requires aggregation capabilities "
+                "beyond my current scope. I can answer questions about specific incidents, "
+                "services, or escalation paths."
+            )
+            self.uncertainty = UncertaintyReport(
+                overall_confidence=0.0,
+                recommendation="analysis_not_supported",
+                high_confidence_facts=0,
+                medium_confidence_facts=0,
+                low_confidence_facts=0,
+                low_confidence_items=[],
                 uncertainty_reasons=uncertainty_reasons
             )
             return self.uncertainty
@@ -244,6 +265,9 @@ class ContextBundle:
             "query_id": self.query_id,
             "query_text": self.query_text,
             "created_at": self.created_at.isoformat(),
+            "query_type": self.query_type,
+            "is_analysis_query": self.is_analysis_query,
+            "sequence_intent": self.sequence_intent,
             "semantic_memory": self.semantic_entities + self.semantic_relationships,
             "semantic_count": len(self.semantic_entities) + len(self.semantic_relationships),
             "episodic_memory": self.episodic_documents,
@@ -266,6 +290,17 @@ class ContextBundle:
             lines.append("You MUST acknowledge this in your response with LOW CONFIDENCE.")
             lines.append("DO NOT fabricate relationships or information about non-existent entities.")
             lines.append("The entities shown below are NOT related to the query target.\n")
+        
+        # ANALYSIS QUERY: Honest limitation - requires aggregation
+        if self.is_analysis_query:
+            lines.append("=== ANALYSIS QUERY DETECTED ===")
+            lines.append("The user is asking for pattern analysis, trends, or aggregated statistics.")
+            lines.append("This type of query requires aggregation capabilities beyond simple retrieval.")
+            lines.append("You MUST respond with LOW CONFIDENCE and explain the limitation:")
+            lines.append("- Pattern/trend analysis requires statistical aggregation across all data")
+            lines.append("- I can answer questions about specific incidents, services, or escalation paths")
+            lines.append("- For aggregate analysis, the user should query their incident database directly")
+            lines.append("DO NOT attempt to synthesize patterns from partial data - this risks hallucination.\n")
         
         # SEQUENCE INTENT: Guide LLM to provide ordered steps from runbooks
         if self.sequence_intent:

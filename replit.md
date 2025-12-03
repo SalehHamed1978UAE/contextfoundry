@@ -45,9 +45,10 @@ Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memor
 -   **Confidence Scoring**: Every entity, relationship, and response includes a confidence score.
 -   **Full Provenance**: Facts trace back to source documents and sentences.
 -   **Entity Resolution**: Rule queries resolve person references via the semantic graph.
--   **Query Classification**: Queries are classified into types ('entity', 'rule', 'impact', 'general') to ensure correct processing.
+-   **Query Classification**: Queries are classified into types ('entity', 'rule', 'impact', 'analysis', 'general') to ensure correct processing.
 -   **Impact Queries**: Correctly traverse incoming `DEPENDS_ON` edges for blast radius analysis.
 -   **Hallucination Prevention**: Verifies entity existence in the graph, returning low confidence for non-existent entities.
+-   **Analysis Query Detection**: Detects pattern/trend/aggregation queries and returns honest limitation (0% confidence) instead of hallucinating patterns from partial data.
 -   **Sequence Detection**: Detects and handles queries asking for ordered sequences, adjusting confidence if multi-step evidence is missing.
 -   **Data Ingestion**: Document loader (PDF/DOCX/MD/TXT), sentence-aware chunking, LLM-powered entity and relation extraction, fuzzy deduplication, staging layer integration.
 -   **Evaluation Framework**: Automated evaluation against baseline (GraphRAG) with blind A/B testing, metrics dashboard, and comparison features.
@@ -65,6 +66,22 @@ Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memor
 -   **Deployment**: Gunicorn.
 
 ## Recent Changes
+
+### 2025-12-03: Analysis Query Classification
+The system now detects pattern/trend/aggregation queries and returns honest limitation responses at 0% confidence instead of hallucinating patterns from partial data.
+
+**Implementation Details:**
+- Added `_is_analysis_query()` using regex patterns for pattern/trend/aggregation keywords (patterns, trends, common issues, most frequent, how many, recurring, summary, statistics, aggregate)
+- New 'analysis' query type in `_classify_query_type()` - checked before impact and rule detection
+- Analysis queries skip entity extraction entirely and set `is_analysis_query=True` on ContextBundle
+- Also excluded from potential entity name detection (prevents false "entity not found" responses)
+- `calculate_uncertainty()` returns 0% confidence with recommendation="analysis_not_supported"
+- `to_llm_context()` adds explicit guidance: "Pattern/trend analysis requires aggregation capabilities beyond my current scope"
+
+**Test Results:**
+- Query: "What patterns do you see in recent incidents?" → 0% confidence, honest limitation response
+- Query: "What are the most common issues causing outages?" → 0% confidence, honest limitation response
+- Control: "What teams own the Payment Service?" → 95% confidence, correct answer
 
 ### 2025-12-03: Query-Structure-Aware Sequence Detection
 The system now detects when queries ask for ordered sequences vs single facts and calibrates confidence accordingly.
