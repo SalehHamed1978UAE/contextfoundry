@@ -158,6 +158,62 @@ class EpisodicMemory:
         logger.debug(f"Keyword search {keywords}: found {len(results)} documents")
         return results
     
+    def search_for_rule_context(
+        self,
+        rule_keywords: List[str],
+        doc_types: List[str] = None,
+        limit: int = 5
+    ) -> List[Dict]:
+        """
+        Search for documents that provide context for rule queries.
+        
+        Prioritizes:
+        1. Exact title matches (e.g., "Escalation Procedures" for escalation queries)
+        2. High keyword density in content
+        3. RUNBOOK and PROCEDURE doc types
+        """
+        query = self.session.query(Document)
+        
+        if doc_types:
+            query = query.filter(Document.doc_type.in_(doc_types))
+        
+        results = []
+        for doc in query.all():
+            score = 0
+            match_reasons = []
+            content_lower = doc.content.lower()
+            title_lower = doc.title.lower()
+            
+            for keyword in rule_keywords:
+                keyword_lower = keyword.lower()
+                
+                if keyword_lower in title_lower:
+                    score += 10
+                    match_reasons.append(f"title:{keyword}")
+                
+                content_count = content_lower.count(keyword_lower)
+                if content_count > 0:
+                    score += min(content_count, 5)
+                    match_reasons.append(f"content:{keyword}x{content_count}")
+            
+            if doc.doc_type in ['RUNBOOK', 'PROCEDURE']:
+                score += 3
+                match_reasons.append("type:runbook/procedure")
+            
+            if score > 0:
+                results.append({
+                    **doc.to_dict(),
+                    "similarity": min(score / 20, 1.0),
+                    "match_score": score,
+                    "match_reasons": match_reasons
+                })
+        
+        results.sort(key=lambda x: x["match_score"], reverse=True)
+        results = results[:limit]
+        
+        logger.debug(f"Rule context search {rule_keywords}: found {len(results)} documents")
+        return results
+    
     def get_document_by_id(self, doc_id: str) -> Optional[Document]:
         """Get a document by its ID."""
         return self.session.query(Document).filter(
