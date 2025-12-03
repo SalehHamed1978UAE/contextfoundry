@@ -67,6 +67,21 @@ Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memor
 
 ## Recent Changes
 
+### 2025-12-03: Extended Impact Query Detection for Notification-Style Queries
+The system now recognizes notification-style queries with failure context as impact/cascade queries.
+
+**Implementation Details:**
+- Added 'impacted', 'impacts' to primary impact keywords
+- Added notification keywords ('notified', 'notify', 'alerted', 'paged', 'alert') that trigger impact detection when combined with failure context
+- Failure cues (NOT generic 'if/when'): 'corrupted', 'fails', 'failure', 'failing', 'down', 'unavailable', 'outage', 'breaks', 'broken', 'crashes', 'crashed', 'incident'
+- This ensures "If X is corrupted, which services need to be notified?" triggers cascade traversal
+
+**Test Result:**
+- Query: "If the User Database is corrupted, which services need to be notified?"
+- Query Type: impact (correctly classified)
+- Services in cascade: API Gateway, Auth Service, Checkout Service, Fraud Detection Service, Notification Service, Payment Service
+- Confidence: 95%
+
 ### 2025-12-03: Analysis Query Classification
 The system now detects pattern/trend/aggregation queries and returns honest limitation responses at 0% confidence instead of hallucinating patterns from partial data.
 

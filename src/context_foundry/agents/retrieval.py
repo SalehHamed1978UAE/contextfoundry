@@ -250,16 +250,38 @@ class RetrievalAgent:
         
         These queries ask "if X breaks, what else breaks?" which means we need
         to find entities that DEPEND ON X (incoming DEPENDS_ON), not what X depends on.
+        
+        Also includes notification-style queries like "which services need to be notified"
+        when combined with failure/causal context, as these imply full impact chain.
         """
         query_lower = query_text.lower()
+        
         impact_keywords = [
-            'blast radius', 'impact', 'affected', 'affects', 
+            'blast radius', 'impact', 'impacted', 'impacts',
+            'affected', 'affects', 
             'goes down', 'becomes unavailable', 'fails', 'failure',
             'breaks', 'crashes', 'is down', 'is corrupted', 'is unavailable',
             'what services', 'which services', 'what depends', 'what breaks',
             'downstream', 'cascade', 'ripple effect'
         ]
-        return any(kw in query_lower for kw in impact_keywords)
+        
+        if any(kw in query_lower for kw in impact_keywords):
+            return True
+        
+        notification_keywords = ['notified', 'notify', 'alerted', 'paged', 'alert']
+        failure_cues = [
+            'corrupted', 'fails', 'failure', 'failing',
+            'down', 'goes down', 'is down', 'unavailable', 'outage',
+            'breaks', 'broken', 'crashes', 'crashed', 'incident'
+        ]
+        
+        has_notification = any(kw in query_lower for kw in notification_keywords)
+        has_failure_cue = any(kw in query_lower for kw in failure_cues)
+        
+        if has_notification and has_failure_cue:
+            return True
+        
+        return False
     
     def _is_analysis_query(self, query_text: str) -> bool:
         """
