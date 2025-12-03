@@ -55,10 +55,16 @@ class RetrievalAgent:
         query_type = self._classify_query_type(query_text)
         bundle.query_type = query_type
         
+        sequence_intent, sequence_reason = self._detect_sequence_intent(query_text)
+        bundle.sequence_intent = sequence_intent
+        bundle.sequence_intent_reason = sequence_reason
+        
         if query_logger:
             query_logger.log_event("QUERY_CLASSIFICATION", {
                 "query_type": query_type,
-                "query": query_text[:100]
+                "query": query_text[:100],
+                "sequence_intent": sequence_intent,
+                "sequence_reason": sequence_reason
             })
         
         if query_type == 'rule':
@@ -158,12 +164,25 @@ class RetrievalAgent:
             )
         bundle.symbolic_rules = symbolic_results
         
+        if sequence_intent:
+            bundle.has_multi_step_evidence = self._check_multi_step_evidence(
+                bundle.episodic_documents, bundle.symbolic_rules, keywords
+            )
+            if query_logger:
+                query_logger.log_event("SEQUENCE_EVIDENCE_CHECK", {
+                    "sequence_intent": True,
+                    "has_multi_step_evidence": bundle.has_multi_step_evidence,
+                    "keywords_used": keywords
+                })
+        
         bundle.calculate_uncertainty()
         
         bundle.retrieval_metadata = {
             "keywords": keywords,
             "entity_types_searched": [t.value for t in entity_types],
-            "traverse_depth": traverse_depth
+            "traverse_depth": traverse_depth,
+            "sequence_intent": sequence_intent,
+            "sequence_reason": sequence_reason
         }
         
         if query_logger:
@@ -239,6 +258,119 @@ class RetrievalAgent:
         """Check if entity is edge-facing (receives external traffic)."""
         edge_keywords = ['api gateway', 'load balancer', 'cdn', 'ingress', 'edge', 'frontend']
         return any(kw in entity_name.lower() for kw in edge_keywords)
+    
+    def _detect_sequence_intent(self, query_text: str) -> Tuple[bool, Optional[str]]:
+        """
+        Detect if the query is asking for an ordered sequence (path, chain, workflow, steps).
+        
+        Returns (is_sequence, reason) where reason explains why it was detected.
+        
+        This is DOMAIN-AGNOSTIC - works for escalation paths, approval chains,
+        hiring workflows, contract processes, onboarding steps, etc.
+        """
+        query_lower = query_text.lower()
+        
+        sequence_patterns = [
+            (r'\b(escalation|approval|authorization)\s+(path|chain|route)\b', 'contains path/chain keyword'),
+            (r'\bwhat.s the (path|chain|route|workflow|process|procedure)\b', 'asks for path/workflow'),
+            (r'\bwhat are the (steps|stages|phases)\b', 'asks for steps/stages'),
+            (r'\bhow many (steps|stages)\b', 'asks about step count'),
+            (r'\b(first|then|next|after that|finally)\b.*\b(step|stage)\b', 'contains ordinal markers'),
+            (r'\bwalk me through\b', 'requests walkthrough'),
+            (r'\bstep.by.step\b', 'requests step-by-step'),
+            (r'\bin (what|which) order\b', 'asks about order'),
+            (r'\bsequence of\b', 'asks for sequence'),
+            (r'\bchain of (command|approval|custody)\b', 'asks for chain'),
+            (r'\bwho.* then who\b', 'asks for multi-step who'),
+            (r'\b(route|proceed|goes?) to\b.*\bthen\b', 'describes multi-hop routing'),
+        ]
+        
+        for pattern, reason in sequence_patterns:
+            if re.search(pattern, query_lower):
+                return True, reason
+        
+        sequence_nouns = ['path', 'chain', 'workflow', 'pipeline', 'sequence', 'order']
+        sequence_verbs = ['steps', 'stages', 'phases', 'levels', 'tiers']
+        
+        for noun in sequence_nouns:
+            if noun in query_lower:
+                return True, f"contains sequence noun '{noun}'"
+        
+        if any(v in query_lower for v in sequence_verbs):
+            if any(q in query_lower for q in ['what are', 'how many', 'list the', 'show me']):
+                return True, "asks for multiple steps/stages"
+        
+        return False, None
+    
+    def _check_multi_step_evidence(
+        self,
+        documents: List[Dict],
+        rules: List[Dict],
+        query_keywords: List[str] = None
+    ) -> bool:
+        """
+        Check if retrieved evidence contains TOPICALLY RELEVANT multi-step sequences.
+        
+        Multi-step evidence must:
+        1. Contain numbered lists, arrows, or sequential markers
+        2. Be topically relevant to the query (TOPIC keywords, not structural keywords)
+        
+        This prevents false positives from unrelated numbered lists.
+        """
+        step_patterns = [
+            r'^\s*[1-9]\.\s+',
+            r'^\s*step\s+[1-9]',
+            r'^\s*\d+\)\s+',
+            r'->\s*\d+\.',
+            r'then\s+\d+\.',
+            r'first.*then.*finally',
+            r'→',
+            r'##\s+(step|stage|phase)\s+\d+',
+        ]
+        
+        structural_keywords = {
+            'procedure', 'path', 'chain', 'steps', 'process', 'workflow',
+            'stage', 'phase', 'order', 'sequence', 'first', 'then', 'next'
+        }
+        
+        query_keywords = query_keywords or []
+        topic_keywords = set(
+            kw.lower() for kw in query_keywords 
+            if len(kw) > 2 and kw.lower() not in structural_keywords
+        )
+        
+        for doc in documents:
+            content = doc.get("content", "").lower()
+            title = doc.get("title", "").lower()
+            
+            if topic_keywords:
+                title_match_count = sum(1 for kw in topic_keywords if kw in title)
+                content_match_count = sum(1 for kw in topic_keywords if kw in content)
+                is_topically_relevant = title_match_count >= 1 or content_match_count >= 3
+            else:
+                is_topically_relevant = True
+            
+            if not is_topically_relevant:
+                continue
+            
+            numbered_items = re.findall(r'^\s*(\d+)\.\s+\S', content, re.MULTILINE)
+            if len(numbered_items) >= 2:
+                return True
+            
+            for pattern in step_patterns:
+                if re.search(pattern, content, re.IGNORECASE | re.MULTILINE):
+                    if len(re.findall(pattern, content, re.IGNORECASE | re.MULTILINE)) >= 2:
+                        return True
+            
+            if '→' in content or ' -> ' in content:
+                return True
+        
+        if len(rules) >= 2:
+            rule_types = set(r.get("rule_type") for r in rules)
+            if len(rule_types) >= 2:
+                return True
+        
+        return False
     
     def _classify_query_type(self, query_text: str) -> str:
         """
@@ -832,15 +964,21 @@ class RetrievalAgent:
         return documents
     
     def _get_rule_document_keywords(self, query_text: str) -> List[str]:
-        """Extract keywords for finding relevant documents for rule queries."""
+        """
+        Extract keywords for finding relevant documents for rule queries.
+        
+        Prioritizes finding procedure/path documents when sequence queries are detected.
+        """
         query_lower = query_text.lower()
         keywords = []
         
+        is_path_query = any(p in query_lower for p in ['path', 'chain', 'steps', 'order', 'sequence', 'procedure'])
+        
         keyword_map = {
-            'escalation': ['escalation', 'escalate', 'incident', 'severity', 'sev1', 'sev2'],
+            'escalation': ['escalation', 'escalate', 'procedure', 'path'],
             'notification': ['notification', 'notify', 'alert', 'page'],
-            'approval': ['approval', 'approve', 'budget', 'authority'],
-            'procedure': ['procedure', 'process', 'playbook', 'runbook'],
+            'approval': ['approval', 'approve', 'budget', 'authority', 'chain'],
+            'procedure': ['procedure', 'process', 'playbook', 'runbook', 'steps'],
             'security': ['security', 'breach', 'incident', 'vulnerability'],
             'hiring': ['hiring', 'headcount', 'team'],
         }
@@ -850,7 +988,13 @@ class RetrievalAgent:
                 keywords.extend(kws)
         
         if 'sev1' in query_lower or 'sev 1' in query_lower:
-            keywords.extend(['sev1', 'incident', 'escalation', 'commander'])
+            if is_path_query:
+                keywords.extend(['sev1', 'escalation', 'procedure', 'path'])
+            else:
+                keywords.extend(['sev1', 'incident', 'escalation', 'commander'])
+        
+        if is_path_query:
+            keywords.extend(['procedure', 'path', 'steps', 'chain'])
         
         return list(set(keywords)) if keywords else ['procedure', 'policy', 'process']
     
