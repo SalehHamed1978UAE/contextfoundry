@@ -1,0 +1,84 @@
+Here's the implementation spec:
+
+Phase 1: Sufficiency Autorater (Week 1-2)
+Add this after retrieval, before synthesis:
+pythondef check_sufficiency(query: str, retrieved_context: str) -> tuple[str, float]:
+    """
+    Returns: ("SUFFICIENT" | "INSUFFICIENT" | "PARTIAL", confidence_boost)
+    """
+    prompt = f"""Given this query and retrieved context, classify whether 
+    there is sufficient information to answer confidently.
+    
+    Query: {query}
+    
+    Retrieved Context:
+    {retrieved_context}
+    
+    Think step by step:
+    1. What specific information does the query need?
+    2. Does the context contain that information?
+    3. Is the information complete or partial?
+    
+    Classification: SUFFICIENT / INSUFFICIENT / PARTIAL
+    Explanation: [brief reason]
+    """
+    # Use existing LLM client
+    response = llm.complete(prompt)
+    return parse_sufficiency(response)
+Integration point: In ReasoningAgent.reason(), before synthesis:
+
+If SUFFICIENT → proceed with synthesis
+If PARTIAL → synthesize with lower confidence + caveat
+If INSUFFICIENT → return low confidence "I don't have enough information"
+
+
+Phase 2: Quadrant Confidence (Week 2-3)
+Replace the entity-not-found guard with quadrant logic:
+pythondef calculate_confidence(bundle: ContextBundle, sufficiency: str) -> float:
+    entity_found = bundle.target_entity_found
+    has_docs = len(bundle.episodic_documents) > 0 and bundle.episodic_documents[0].get('similarity', 0) > 0.5
+    
+    # Quadrant base scores
+    if entity_found and has_docs:
+        base = 0.90  # Best case
+    elif entity_found and not has_docs:
+        base = 0.70  # Graph only
+    elif not entity_found and has_docs:
+        base = 0.65  # Topic-centric (YOUR FAILURE CASE → NOW WORKS)
+    else:
+        base = 0.10  # No evidence
+    
+    # Adjust by sufficiency
+    if sufficiency == "SUFFICIENT":
+        return min(base + 0.10, 0.95)
+    elif sufficiency == "PARTIAL":
+        return base * 0.8
+    else:  # INSUFFICIENT
+        return min(base, 0.20)
+
+Phase 3: Entity Density Scoring (Week 3-4)
+For topic-centric queries, score proxy grounding:
+pythondef calculate_entity_density(documents: list, known_entities: set) -> float:
+    """
+    How many known entities are mentioned in retrieved docs?
+    High density = proxy grounding = higher confidence
+    """
+    mentioned_entities = extract_entities_from_text(documents)
+    known_mentions = mentioned_entities.intersection(known_entities)
+    
+    if not mentioned_entities:
+        return 0.0
+    
+    return len(known_mentions) / len(mentioned_entities)
+Use this to boost confidence in quadrant 3: If cloud migration docs mention Auth Service, Mia White, Platform Team—entities you trust—the answer is grounded even though "Cloud Migration" isn't an entity.
+
+Expected Results
+QueryBeforeAfter"What concerns has Mia White raised?"95% ✓95% ✓ (preserved)"What decisions about cloud migration?"10% ✗70% ✓"What about Project X?" (not in corpus)10% ✓10% ✓ (correctly abstains)
+
+Why This Works
+The research consensus is clear:
+
+Confidence should be determined by evidence quality and sufficiency, not by entity existence.
+
+Your knowledge graph is valuable for entity-centric queries. But documents can answer topic-centric queries when a sufficiency check validates they actually contain the answer.
+The sufficiency autorater is the missing piece. It asks the right question: "Can I answer this?" instead of "Does this entity exist?"
