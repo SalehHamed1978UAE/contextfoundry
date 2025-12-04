@@ -790,6 +790,7 @@ def reveal_evaluation_source():
 def ingest_document():
     """
     Ingest a document and extract entities/relationships to STAGING.
+    Auto-runs validation after ingestion to check for conflicts and rule violations.
     
     Body: 
         { "document_path": "..." } - Path to document file
@@ -798,11 +799,13 @@ def ingest_document():
         
         Optional:
         { "schema_config_path": "config/examples/investment_portfolio.yaml" } - Use alternate schema
+        { "skip_validation": true } - Skip auto-validation after ingestion
         
     Returns:
-        { "entities_extracted": N, "relationships_extracted": M, "staged": true, "schema_info": {...} }
+        { "entities_extracted": N, "relationships_extracted": M, "staged": true, "validation": {...}, "schema_info": {...} }
     """
     from src.context_foundry.agents.graph_builder import GraphBuilderAgent, ExtractionResult
+    from src.context_foundry.agents.staging_validator import StagingValidatorAgent
     
     try:
         data = request.get_json()
@@ -814,6 +817,7 @@ def ingest_document():
         title = data.get('title')
         doc_type = data.get('doc_type', 'DOCUMENT')
         schema_config_path = data.get('schema_config_path')
+        skip_validation = data.get('skip_validation', False)
         
         if not doc_path and not text:
             return jsonify({
@@ -822,6 +826,8 @@ def ingest_document():
             }), 400
         
         agent = GraphBuilderAgent(schema_config_path=schema_config_path)
+        validation_result = None
+        
         try:
             result = agent.ingest_document(
                 doc_path=doc_path,
@@ -829,6 +835,32 @@ def ingest_document():
                 title=title,
                 doc_type=doc_type
             )
+            
+            if not skip_validation and result.staged and (result.entities_staged > 0 or result.relationships_staged > 0):
+                validator = StagingValidatorAgent(schema_config_path=schema_config_path)
+                try:
+                    val_result = validator.validate_all_staging()
+                    validation_result = {
+                        'is_valid': val_result.is_valid,
+                        'entities_checked': val_result.entities_checked,
+                        'relationships_checked': val_result.relationships_checked,
+                        'errors_count': len(val_result.get_errors()),
+                        'warnings_count': len(val_result.get_warnings()),
+                        'conflicts_detected': val_result.conflicts_detected,
+                        'review_items_created': val_result.review_items_created,
+                        'issues': [
+                            {
+                                'severity': issue.severity.value,
+                                'rule_name': issue.rule_name,
+                                'message': issue.message,
+                                'entity_id': issue.entity_id,
+                                'relationship_id': issue.relationship_id,
+                            }
+                            for issue in val_result.issues[:20]
+                        ]
+                    }
+                finally:
+                    validator.close()
             
             return jsonify({
                 'success': True,
@@ -840,6 +872,7 @@ def ingest_document():
                 'chunks_processed': result.chunks_processed,
                 'staged': result.staged,
                 'errors': result.errors if result.errors else [],
+                'validation': validation_result,
                 'schema_info': agent.get_schema_info(),
             })
         finally:
