@@ -786,6 +786,64 @@ def reveal_evaluation_source():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/ingest', methods=['POST'])
+def ingest_document():
+    """
+    Ingest a document and extract entities/relationships to STAGING.
+    
+    Body: 
+        { "document_path": "..." } - Path to document file
+        OR
+        { "text": "...", "title": "...", "doc_type": "..." } - Raw text content
+        
+    Returns:
+        { "entities_extracted": N, "relationships_extracted": M, "staged": true }
+    """
+    from src.context_foundry.agents.graph_builder import GraphBuilderAgent, ExtractionResult
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'error': 'No JSON body provided'}), 400
+        
+        doc_path = data.get('document_path')
+        text = data.get('text')
+        title = data.get('title')
+        doc_type = data.get('doc_type', 'DOCUMENT')
+        
+        if not doc_path and not text:
+            return jsonify({
+                'success': False, 
+                'error': 'Either document_path or text must be provided'
+            }), 400
+        
+        agent = GraphBuilderAgent()
+        try:
+            result = agent.ingest_document(
+                doc_path=doc_path,
+                text=text,
+                title=title,
+                doc_type=doc_type
+            )
+            
+            return jsonify({
+                'success': True,
+                'document_id': result.document_id,
+                'entities_extracted': result.entities_extracted,
+                'relationships_extracted': result.relationships_extracted,
+                'entities_staged': result.entities_staged,
+                'relationships_staged': result.relationships_staged,
+                'chunks_processed': result.chunks_processed,
+                'staged': result.staged,
+                'errors': result.errors if result.errors else [],
+            })
+        finally:
+            agent.close()
+            
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/feedback', methods=['POST'])
 def submit_feedback():
     """Submit feedback for a query response (Learning Loop)."""
