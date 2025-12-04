@@ -1,7 +1,7 @@
 # Context Foundry - Tri-Memory Cognitive Architecture MVP
 
 ## Overview
-Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) designed for multi-hop reasoning. It provides full provenance tracking and confidence scoring for domain-agnostic reasoning. The project aims to deliver detailed, reliable responses, outperforming baseline systems in IT operations and organizational chart domains.
+Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) designed for multi-hop reasoning. Its core purpose is to provide detailed, reliable responses with full provenance tracking and confidence scoring for domain-agnostic reasoning. The project aims to outperform baseline systems in complex domains like IT operations and organizational charting, providing a robust solution for knowledge management and intelligent querying.
 
 ## User Preferences
 - I want iterative development.
@@ -23,174 +23,106 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 ## System Architecture
 
 ### Tri-Memory System
-1.  **Semantic Memory (Knowledge Graph)**: PostgreSQL stores entities and relationships with lifecycle states, provenance, and confidence scores.
-2.  **Episodic Memory (Vector Search)**: PostgreSQL with pgvector stores document embeddings for similarity-based retrieval.
-3.  **Symbolic Memory (Rules Engine)**: Business rules with priority ordering for response validation.
+1.  **Semantic Memory (Knowledge Graph)**: Stores entities and relationships with lifecycle states, provenance, and confidence scores using PostgreSQL.
+2.  **Episodic Memory (Vector Search)**: Stores document embeddings for similarity-based retrieval using PostgreSQL with pgvector.
+3.  **Symbolic Memory (Rules Engine)**: Employs business rules with priority ordering for response validation.
 
 ### Agent Pipeline
--   **Retrieval Agent**: Queries all three memory layers to build a `ContextBundle`.
--   **Reasoning Agent**: Uses OpenAI (gpt-4o-mini) to generate responses.
--   **Validation Agent**: Checks responses against symbolic rules.
--   **Graph Loader**: Handles structured data ingestion.
--   **Graph Builder Agent**: Perception layer that ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to STAGING with full provenance. Now fully configurable via YAML schema.
--   **Staging Validator Agent**: Validates STAGING data against schema rules (cardinality, source/target types, required fields). Detects conflicts and creates review items. Auto-runs after document ingestion. Marks facts with validation status (VALID/INVALID/CONFLICT).
--   **Identity Resolution Agent**: Detects duplicate entities using weighted similarity signals. Auto-merges high-confidence duplicates (≥0.95) except PERSON entities. Flags ambiguous matches (0.70-0.95) for human review. Transfers relationships during merge operations.
+-   **Retrieval Agent**: Gathers information from all three memory layers to form a `ContextBundle`.
+-   **Reasoning Agent**: Generates responses using an LLM (OpenAI gpt-4o-mini).
+-   **Validation Agent**: Validates generated responses against symbolic rules.
+-   **Graph Builder Agent**: Ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to a STAGING area with full provenance. Configurable via YAML schema.
+-   **Staging Validator Agent**: Validates STAGING data against schema rules (cardinality, types, required fields), detects conflicts, and creates review items.
+-   **Identity Resolution Agent**: Detects and manages duplicate entities using weighted similarity signals, handling auto-merges and flagging for human review.
+-   **Gardener Agent**: An autonomous agent that runs periodically to maintain graph health through decay, promotion, conflict resolution, demotion, and cleanup passes, ensuring data quality and relevance.
 
-### Domain-Agnostic Schema System (NEW)
-Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML configuration files.
+### Domain-Agnostic Schema System
+The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML files, allowing for adaptability across different domains (e.g., IT Operations, Investment Portfolio).
 
-**Key Files:**
--   `config/domain_schema.yaml` - Default IT Operations schema
--   `config/examples/investment_portfolio.yaml` - Example Investment Portfolio schema
--   `src/context_foundry/config/domain_schema.py` - DomainSchemaLoader class
-
-**How to add a new domain:**
-1.  Create a new YAML file in `config/` or `config/examples/`
-2.  Define entity_types with name, description, required_fields, optional_fields
-3.  Define relationship_types with source_types, target_types, cardinality (many-to-one or many-to-many)
-4.  Optionally add validation_rules
-5.  Pass `schema_config_path` to API endpoints or agents
-
-**API Endpoints:**
--   `GET /api/schema` - Get current schema configuration
--   `POST /api/schema/reload` - Reload schema from config file
--   `POST /api/ingest` - Ingest document with optional `schema_config_path`
--   `POST /api/validate` - Validate STAGING data against current schema
--   `GET /api/review-queue` - Get pending review items
--   `POST /api/resolve-duplicates` - Run identity resolution to detect and merge duplicates
-
-### Identity Resolution System
-The Identity Resolution Agent uses weighted similarity signals to detect duplicate entities:
-
-**Similarity Signals (weighted 0-1):**
--   `exact_name_match` (0.95): Case-insensitive exact name match
--   `external_id_match` (0.95): Matching properties.external_id
--   `email_match` (0.90): Matching email for PERSON entities
--   `alias_overlap` (0.40): Shared aliases in properties.aliases
--   `name_similarity` (0.30): Jaro-Winkler similarity ≥0.85
--   `relationship_overlap` (0.25): Shared relationships with same entities
--   `co_occurrence` (0.15): Appear in same source documents
-
-**Merge Policy:**
--   Auto-merge: Score ≥0.95 (except PERSON entities)
--   Flag for review: Score 0.70-0.95
--   PERSON entities: ALWAYS flagged, never auto-merged (due to legal implications)
-
-**Database Tables:**
--   `duplicate_candidates`: Stores flagged duplicate pairs for human review
--   `merge_audit`: Records all merge operations with full provenance
-
-### Gardener Agent (Autonomous Graph Health)
-The Gardener Agent is the "heartbeat" of Context Foundry, running every 5 minutes to maintain graph health through 5 autonomous passes:
-
-**Pass Order:**
-1.  **Decay Pass**: Applies type-specific confidence decay after grace periods
-2.  **Promotion Pass**: Moves validated facts from STAGING to TRUSTED
-3.  **Conflict Resolution Pass**: Resolves detected conflicts using type-specific strategies
-4.  **Demotion Pass**: Archives low-confidence or superseded facts
-5.  **Cleanup Pass**: Removes stale STAGING data and old resolved conflicts
-
-**Type-Specific Decay Rates:**
-| Relationship Type | Rate/Week | Floor | Grace Period |
-|-------------------|-----------|-------|--------------|
-| OWNS              | 0.02      | 0.50  | 14 days      |
-| DEPENDS_ON        | 0.01      | 0.60  | 30 days      |
-| SUPPORTS          | 0.015     | 0.55  | 21 days      |
-| MEMBER_OF         | 0.015     | 0.55  | 21 days      |
-| AFFECTS           | 0.02      | 0.50  | 14 days      |
-| CAUSED_BY         | 0.01      | 0.60  | 30 days      |
-| _DEFAULT          | 0.015     | 0.50  | 14 days      |
-| Entity (_DEFAULT) | 0.01      | 0.60  | 30 days      |
-
-**Promotion Criteria (ALL required):**
--   `validation_status == VALID` (critical gate)
--   `confidence >= 0.75`
--   `dwell_time >= 1 hour` in STAGING
--   No unresolved conflicts
--   No pending duplicate candidates
--   Respects `never_auto_merge_types` (e.g., PERSON)
-
-**Conflict Resolution Strategies:**
--   `attribute_mismatch` → `higher_confidence_wins`
--   `relationship_contradiction` → `higher_confidence_wins`
--   `temporal_overlap` → `newer_wins`
--   `cardinality_violation` → `rule_determined`
--   Margin <0.15 → escalate to human review
-
-**Cleanup Thresholds:**
--   STAGING facts older than 30 days → deleted
--   Resolved conflicts older than 90 days → deleted
-
-**API Endpoints:**
--   `GET /api/gardener/status` - Current scheduler status and cumulative stats
--   `POST /api/gardener/run` - Trigger immediate cycle
--   `GET /api/gardener/history` - Recent cycle history from logs
-
-**Database Tables:**
--   `gardener_logs`: Records every action (DECAY, PROMOTE, DEMOTE, ARCHIVE, MERGE, VALIDATE) with target_id, reason, confidence_before/after, cycle_id
-
-### UI/UX Decisions (Web Interface)
--   **Theme**: "Cybernetic Operations" HUD-style with deep slate background and electric cyan accents.
--   **Visuals**: Scanline animation, tech corner accents, animated confidence ring, color-coded evidence chain.
--   **Layout**: Multi-page (Dashboard, Memory Graph, Learning Loop, System Rules, A/B Evaluation).
--   **Typography**: Headers: Space Grotesk; Data/Code: JetBrains Mono; UI Text: Inter.
+### UI/UX Decisions
+The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains for enhanced data visualization.
 
 ### Technical Implementations & Design Choices
--   **Type Storage**: Entity and relationship types stored as VARCHAR (plain strings), validated at application layer against loaded YAML schema. EntityType and RelationshipType classes remain as string constant holders for backward compatibility (e.g., `EntityType.SERVICE = "SERVICE"`).
--   **Lifecycle States**: Data progresses from STAGING to TRUSTED.
--   **Validation Status**: Facts in STAGING are marked as PENDING, VALID, INVALID, or CONFLICT after validation. Stored in both `validation_status` column and `properties._validation_status` JSON field.
--   **Confidence Scoring**: Every entity, relationship, and response includes a confidence score.
--   **Full Provenance**: Facts trace back to source documents.
--   **Entity Resolution**: Rule queries resolve person references via the semantic graph.
--   **Query Classification**: Queries are classified into types ('entity', 'rule', 'impact', 'analysis', 'general').
--   **Impact Queries**: Traverse incoming `DEPENDS_ON` edges for blast radius analysis and include all cascade services.
--   **Hallucination Prevention**: Verifies entity existence; returns low confidence for non-existent entities.
--   **Analysis Query Detection**: Detects pattern/trend/aggregation queries and returns 0% confidence with honest limitations.
--   **Sequence Detection**: Detects and handles queries asking for ordered sequences, adjusting confidence if multi-step evidence is missing.
--   **Property-Aware Retrieval**: Supports querying entities by their JSON properties using an LLM query analyzer and PostgreSQL JSON operators.
--   **Data Ingestion**: Document loader with sentence-aware chunking, LLM-powered entity/relation extraction, fuzzy deduplication, and staging layer integration.
--   **Evaluation Framework**: Automated evaluation against baseline with A/B testing and metrics dashboard.
--   **Data Model**: SQLAlchemy models for Entity, Relationship, Document, Rule.
--   **Feature Specifications**: Core queries include impact analysis, escalation path finding, team ownership, and dependency chain. Synthetic data is used for testing.
--   **Confidence Calibration System**: Implemented a 3-phase system (Sufficiency Autorater, Quadrant Confidence, Entity Density Scoring) to improve handling of topic-centric queries.
--   **Cognitive Loop**: Infrastructure added for continuous ingestion, validation, and learning with `conflicts`, `review_queue`, and `gardener_logs` tables.
--   **Configurable Schema**: Entity types, relationship types, cardinality rules, and validation rules are all loaded from YAML configuration at runtime.
--   **Identity Resolution**: Weighted similarity scoring with 7 signals. Optimized STAGING-vs-all comparison (not O(n²) all-vs-all). Auto-merges SERVICE/TEAM/COMPONENT at ≥0.95 confidence. PERSON entities always flagged for human review. Jaro-Winkler algorithm for fuzzy name matching.
--   **SQLAlchemy JSON Mutations**: JSON columns require `flag_modified(entity, "properties")` after in-place dict mutations to persist changes correctly.
+-   **Type Storage**: Entity and relationship types are stored as VARCHAR and validated against the loaded YAML schema.
+-   **Lifecycle States**: Data transitions from STAGING to TRUSTED.
+-   **Validation Status**: Facts in STAGING are marked PENDING, VALID, INVALID, or CONFLICT.
+-   **Confidence Scoring & Provenance**: Every piece of data includes a confidence score and full provenance tracing.
+-   **Query Handling**: Includes query classification, impact analysis for `DEPENDS_ON` relationships, hallucination prevention through entity verification, detection of analysis/trend queries, and handling of ordered sequence requests.
+-   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
+-   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
+-   **Data Model**: Utilizes SQLAlchemy for Entity, Relationship, and Document models.
+-   **Configurable Schema**: All schema elements are loaded from YAML at runtime.
+-   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies (e.g., PERSON entities always require human review).
+-   **SQLAlchemy JSON Mutations**: Requires explicit flagging for JSON column modifications to ensure persistence.
 
-## Example Domain Schemas
+## Gardener Agent (Autonomous Graph Health)
+The Gardener Agent runs every 5 minutes to maintain graph health through 5 autonomous passes:
+1. **Decay Pass**: Type-specific confidence decay (OWNS: 0.02/wk, DEPENDS_ON: 0.01/wk)
+2. **Promotion Pass**: Moves VALID facts from STAGING→TRUSTED (confidence≥0.75, dwell≥1hr)
+3. **Conflict Resolution**: Strategy per type (higher_confidence_wins, newer_wins, rule_determined)
+4. **Demotion Pass**: Archives low-confidence (<0.4) or superseded facts
+5. **Cleanup Pass**: Removes stale STAGING (>30d), old resolved conflicts (>90d)
 
-### IT Operations (Default)
-```yaml
-domain: "IT Operations"
-entity_types:
-  - SERVICE, COMPONENT, TEAM, PERSON, DATABASE, INCIDENT
-relationship_types:
-  - DEPENDS_ON (many-to-many)
-  - OWNS (many-to-one: only one owner per entity)
-  - SUPPORTS (many-to-many)
-  - MEMBER_OF (many-to-many)
-  - AFFECTS (many-to-many)
-  - CAUSED_BY (many-to-one: only one root cause)
-```
+## Complete API Reference
 
-### Investment Portfolio (Example)
-```yaml
-domain: "Investment Portfolio"
-entity_types:
-  - FUND, COMPANY, SECTOR, ANALYST, HOLDING, REPORT
-relationship_types:
-  - HOLDS (many-to-many: funds hold multiple companies)
-  - COVERS (many-to-many: analysts cover multiple sectors)
-  - BELONGS_TO (many-to-one: company belongs to one sector)
-  - MANAGES (many-to-one: one manager per fund)
-  - AUTHORED (many-to-many)
-  - ABOUT (many-to-one: report about one company)
-```
+### Core Query & Stats
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/query` | POST | Query knowledge graph with natural language. Returns response with confidence, provenance, evidence chain. Body: `{"query": "..."}` |
+| `/api/stats` | GET | System statistics: entity counts, relationship counts, lifecycle distribution |
+| `/api/examples` | GET | Example queries for the UI |
+
+### Document Ingestion & Schema
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/ingest` | POST | Ingest document. Extracts entities/relationships to STAGING, auto-runs validation and identity resolution. Body: `{"text": "...", "title": "..."}` |
+| `/api/schema` | GET | Current domain schema (entity types, relationship types, cardinality rules) |
+| `/api/schema/reload` | POST | Reload schema from config file |
+| `/api/validate` | POST | Validate all STAGING data against schema rules |
+| `/api/review-queue` | GET | Pending review items (conflicts, duplicates) |
+
+### Gardener (Graph Health)
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/gardener/status` | GET | Scheduler status: running, cycle count, cumulative stats |
+| `/api/gardener/run` | POST | Trigger immediate Gardener cycle |
+| `/api/gardener/history` | GET | Recent Gardener cycle history |
+
+### Identity Resolution & Duplicates
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/resolve-duplicates` | POST | Run identity resolution to detect/merge duplicates |
+| `/api/duplicates` | GET | Pending duplicate candidates for human review |
+| `/api/duplicates/<id>/review` | POST | Resolve duplicate. Body: `{"decision": "merge|reject|skip"}` |
+| `/api/merge-audits` | GET | Merge audit trail |
+
+### Conflicts
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/conflicts` | GET | Unresolved conflicts from validation |
+| `/api/conflicts/<id>/resolve` | POST | Resolve conflict. Body: `{"resolution": "keep_existing|keep_new"}` |
+
+### Evaluation & A/B Testing
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/evaluation/query-set` | GET | Evaluation query set for A/B testing |
+| `/api/evaluation/run` | POST | Run automated evaluation against baseline |
+| `/api/evaluation/compare` | POST | Compare Context Foundry vs GraphRAG |
+| `/api/evaluation/graphrag` | POST | Query GraphRAG baseline directly |
+| `/api/evaluation/preference` | POST | Submit human preference vote |
+| `/api/evaluation/metrics` | GET | Evaluation metrics and results |
+| `/api/evaluation/reveal` | POST | Reveal which response is CF vs baseline |
+
+### Feedback (Learning Loop)
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/feedback` | POST | Submit feedback for query response |
+| `/api/feedback/stats` | GET | Feedback statistics |
+| `/api/feedback/recent` | GET | Recent feedback entries |
 
 ## External Dependencies
--   **Database**: PostgreSQL (Neon via Replit).
--   **LLM**: OpenAI (gpt-4o-mini via Replit AI Integrations for reasoning, direct OpenAI API for embeddings).
--   **Vector Embeddings**: pgvector with OpenAI text-embedding-3-small (1536 dimensions).
+-   **Database**: PostgreSQL (specifically Neon for Replit deployment).
+-   **LLM**: OpenAI (gpt-4o-mini for reasoning via Replit AI Integrations, direct OpenAI API for embeddings).
+-   **Vector Embeddings**: pgvector with OpenAI `text-embedding-3-small` (1536 dimensions).
 -   **Web Framework**: Flask.
 -   **Deployment**: Gunicorn.
