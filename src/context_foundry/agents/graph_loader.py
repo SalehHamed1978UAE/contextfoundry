@@ -8,7 +8,7 @@ import uuid
 
 from ..models.schema import (
     Entity, Relationship, Document, Rule,
-    LifecycleState, EntityType, RelationshipType, RuleType,
+    LifecycleState, RuleType,
     get_session, init_database
 )
 from ..memory.semantic import SemanticMemory
@@ -81,12 +81,11 @@ class GraphLoaderAgent:
                     logger.debug(f"Entity already exists, skipping: {entity_name}")
                     continue
                 
-                entity_type_str = entity_data.get("entity_type", "SERVICE")
-                entity_type = EntityType[entity_type_str]
+                entity_type_str = entity_data.get("entity_type", "SERVICE").upper()
                 
                 entity = self.semantic.add_entity(
                     name=entity_data["name"],
-                    entity_type=entity_type,
+                    entity_type=entity_type_str,
                     properties=entity_data.get("properties", {}),
                     description=entity_data.get("description"),
                     confidence=entity_data.get("confidence", 0.9),
@@ -129,13 +128,12 @@ class GraphLoaderAgent:
                 source_id = self.entity_map[source_name]
                 target_id = self.entity_map[target_name]
                 
-                rel_type_str = rel_data.get("relationship_type", "DEPENDS_ON")
-                rel_type = RelationshipType[rel_type_str]
+                rel_type_str = rel_data.get("relationship_type", "DEPENDS_ON").upper()
                 
                 existing = self.session.query(Relationship).filter(
                     Relationship.source_id == source_id,
                     Relationship.target_id == target_id,
-                    Relationship.relationship_type == rel_type
+                    Relationship.relationship_type == rel_type_str
                 ).first()
                 if existing:
                     logger.debug(f"Relationship already exists, skipping: {source_name} -> {target_name}")
@@ -144,7 +142,7 @@ class GraphLoaderAgent:
                 self.semantic.add_relationship(
                     source_id=source_id,
                     target_id=target_id,
-                    relationship_type=rel_type,
+                    relationship_type=rel_type_str,
                     properties=rel_data.get("properties", {}),
                     description=rel_data.get("description"),
                     confidence=rel_data.get("confidence", 0.9),

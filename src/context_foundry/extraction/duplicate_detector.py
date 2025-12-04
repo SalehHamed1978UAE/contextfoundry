@@ -9,7 +9,7 @@ import re
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from ..models.schema import Entity, EntityType, LifecycleState
+from ..models.schema import Entity, LifecycleState
 from .entity_extractor import ExtractedEntity
 
 
@@ -193,11 +193,7 @@ class DuplicateDetector:
             func.lower(Entity.name) == name.lower()
         )
         if entity_type:
-            try:
-                et = EntityType(entity_type)
-                query = query.filter(Entity.entity_type == et)
-            except ValueError:
-                pass
+            query = query.filter(Entity.entity_type == entity_type.upper())
         
         return query.first()
     
@@ -213,12 +209,8 @@ class DuplicateDetector:
         if normalized in existing:
             for entity in existing[normalized]:
                 if entity_type:
-                    try:
-                        et = EntityType(entity_type)
-                        if entity.entity_type == et:
-                            return entity
-                    except ValueError:
-                        pass
+                    if entity.entity_type == entity_type.upper():
+                        return entity
                 else:
                     return entity
         
@@ -248,12 +240,8 @@ class DuplicateDetector:
             if best_sim >= self.similarity_threshold:
                 for entity in entities:
                     if entity_type:
-                        try:
-                            et = EntityType(entity_type)
-                            if entity.entity_type != et:
-                                continue
-                        except ValueError:
-                            pass
+                        if entity.entity_type != entity_type.upper():
+                            continue
                     candidates.append((entity, best_sim))
         
         candidates.sort(key=lambda x: x[1], reverse=True)
@@ -288,7 +276,7 @@ class DuplicateDetector:
                     new_entity_type=extracted.entity_type,
                     existing_entity_id=str(exact.id),
                     existing_entity_name=exact.name,
-                    existing_entity_type=exact.entity_type.value,
+                    existing_entity_type=exact.entity_type,
                     match_type="exact",
                     similarity_score=1.0,
                 ))
@@ -305,7 +293,7 @@ class DuplicateDetector:
                     new_entity_type=extracted.entity_type,
                     existing_entity_id=str(normalized.id),
                     existing_entity_name=normalized.name,
-                    existing_entity_type=normalized.entity_type.value,
+                    existing_entity_type=normalized.entity_type,
                     match_type="normalized",
                     similarity_score=0.95,
                 ))
@@ -324,7 +312,7 @@ class DuplicateDetector:
                     new_entity_type=extracted.entity_type,
                     existing_entity_id=str(entity.id),
                     existing_entity_name=entity.name,
-                    existing_entity_type=entity.entity_type.value,
+                    existing_entity_type=entity.entity_type,
                     match_type="fuzzy",
                     similarity_score=score,
                 ))

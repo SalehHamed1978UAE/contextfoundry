@@ -439,7 +439,7 @@ class Gardener:
         staging_rel: Relationship
     ) -> Optional[Relationship]:
         """Find a TRUSTED relationship that contradicts the staging one."""
-        if staging_rel.relationship_type.value == "OWNS":
+        if staging_rel.relationship_type == "OWNS":
             existing = self.session.query(Relationship).filter(
                 and_(
                     Relationship.lifecycle_state == LifecycleState.TRUSTED,

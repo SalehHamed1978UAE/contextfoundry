@@ -126,7 +126,7 @@ class SemanticMemory:
     def get_entity_relationships(
         self,
         entity_id: uuid.UUID,
-        relationship_types: List[RelationshipType] = None,
+        relationship_types: List[str] = None,
         direction: str = "both",
         trusted_only: bool = True,
         max_depth: int = 1
@@ -137,6 +137,9 @@ class SemanticMemory:
         Returns list of dicts with relationship and connected entity info.
         """
         results = []
+        normalized_types = None
+        if relationship_types:
+            normalized_types = [t.upper() if isinstance(t, str) else t for t in relationship_types]
         
         if direction in ["outgoing", "both"]:
             q = self.session.query(Relationship).filter(
@@ -144,8 +147,8 @@ class SemanticMemory:
             )
             if trusted_only:
                 q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
-            if relationship_types:
-                q = q.filter(Relationship.relationship_type.in_(relationship_types))
+            if normalized_types:
+                q = q.filter(Relationship.relationship_type.in_(normalized_types))
             
             for rel in q.all():
                 target = self.session.query(Entity).get(rel.target_id)
@@ -162,8 +165,8 @@ class SemanticMemory:
             )
             if trusted_only:
                 q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
-            if relationship_types:
-                q = q.filter(Relationship.relationship_type.in_(relationship_types))
+            if normalized_types:
+                q = q.filter(Relationship.relationship_type.in_(normalized_types))
             
             for rel in q.all():
                 source = self.session.query(Entity).get(rel.source_id)
