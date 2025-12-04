@@ -220,9 +220,9 @@ ModelRegistry is owned by the MLOps team.
             gardener_result = gardener.run_cycle()
             progress.update(task, completed=True)
         
-        print_success(f"Facts promoted: {gardener_result.promotion.entities_promoted + gardener_result.promotion.relationships_promoted}")
-        print_success(f"Facts decayed: {gardener_result.decay.entities_decayed + gardener_result.decay.relationships_decayed}")
-        print_info(f"Conflicts resolved: {gardener_result.conflict_resolution.conflicts_resolved}")
+        print_success(f"Facts promoted: {gardener_result.facts_promoted}")
+        print_success(f"Facts decayed: {gardener_result.facts_decayed}")
+        print_info(f"Conflicts resolved: {gardener_result.conflicts_resolved}")
         
         trusted_from_doc = session.query(Entity).filter(
             Entity.source_document_id == test_doc_id,
