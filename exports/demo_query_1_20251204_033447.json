@@ -1,0 +1,1209 @@
+{
+  "answer": "If the Payments Database goes down, the following services will be affected:\n\n**Direct Dependencies:**\n1. Payment Service - This service requires the Payments Database for all transaction storage.\n2. Fraud Detection Service - This service queries historical transactions from the Payments Database.\n\n**Cascade Dependencies:**\n1. API Gateway - This service routes payment requests to the Payment Service, which depends on the Payments Database.\n2. Checkout Service - This service processes payments through the Payment Service, which also depends on the Payments Database.",
+  "confidence": 0.95,
+  "confidence_level": "high",
+  "evidence_chain": [
+    {
+      "type": "relationship",
+      "description": "Payment Service requires Payments Database for all transaction storage.",
+      "source": "Payment Service",
+      "confidence": 0.98
+    },
+    {
+      "type": "relationship",
+      "description": "Fraud Detection queries historical transactions from Payments Database.",
+      "source": "Fraud Detection Service",
+      "confidence": 0.9
+    },
+    {
+      "type": "relationship",
+      "description": "API Gateway routes payment requests to Payment Service.",
+      "source": "API Gateway",
+      "confidence": 0.88
+    },
+    {
+      "type": "relationship",
+      "description": "Checkout Service processes payments through Payment Service.",
+      "source": "Checkout Service",
+      "confidence": 0.96
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Payments Database",
+      "source": "Payments Database",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+      "confidence": 0.8692131629505551,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Payments Database",
+      "source": "Payments Database",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+      "confidence": 0.8788856951963356,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Payments Database",
+      "source": "Payments Database",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+      "confidence": 0.8783674142633645,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Payment Service -[DEPENDS_ON]-> Payments Database",
+      "source": "Payment Service -> Payments Database",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Payment Service requires Payments Database for all transaction storage.",
+      "confidence": 0.98,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "API Gateway -[DEPENDS_ON]-> Payment Service",
+      "source": "API Gateway -> Payment Service",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "API Gateway routes payment requests to Payment Service.",
+      "confidence": 0.878366887372341,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Checkout Service -[DEPENDS_ON]-> Payment Service",
+      "source": "Checkout Service -> Payment Service",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Checkout Service processes payments through Payment Service.",
+      "confidence": 0.9564439440373794,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: Payments Database Failover Procedure",
+      "source": "Payments Database Failover Procedure",
+      "source_document": "6f6f3c23-5f3f-49bf-b31a-b6a1a1d1a508",
+      "similarity": 0.10356214059710962,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: SEV1 Incident Commander Playbook",
+      "source": "SEV1 Incident Commander Playbook",
+      "source_document": "500d29eb-c838-4c4d-97c2-3b204958d94f",
+      "similarity": 0.10292093924134713,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: Payment Service Dependency Check",
+      "source": "Payment Service Dependency Check",
+      "rule_type": "INVARIANT",
+      "action": "flag_critical('Payment Service cannot operate without Payments Database')",
+      "memory_layer": "symbolic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: Cascade Impact Assessment",
+      "source": "Cascade Impact Assessment",
+      "rule_type": "VALIDATION",
+      "action": "traverse_dependencies(service, direction='downstream', depth=3)",
+      "memory_layer": "symbolic"
+    }
+  ],
+  "uncertainty": {
+    "uncertain_facts": [],
+    "reasons": [],
+    "would_help": [],
+    "context_confidence": 0.8948380522807541,
+    "context_recommendation": "proceed"
+  },
+  "rules_applied": [
+    "Payment Service Dependency Check",
+    "Cascade Impact Assessment"
+  ],
+  "caveats": [],
+  "bundle_id": "d4e45122-21b1-4297-a1fa-82ccf4dcaffd",
+  "query_text": "What services are affected if the Payments Database goes down?",
+  "context_bundle": {
+    "query_id": "d4e45122-21b1-4297-a1fa-82ccf4dcaffd",
+    "query_text": "What services are affected if the Payments Database goes down?",
+    "created_at": "2025-12-04T03:34:40.099113",
+    "query_type": "impact",
+    "is_analysis_query": false,
+    "is_property_query": false,
+    "property_filters": [],
+    "sequence_intent": false,
+    "semantic_memory": [
+      {
+        "id": "96401217-a244-49e7-b534-a1535bbe708d",
+        "name": "Payments Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true,
+          "sla": "99.99%"
+        },
+        "description": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+        "confidence": 0.8692131629505551,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing."
+      },
+      {
+        "id": "de2ff12a-1988-419f-a0e4-6ab55755ecc1",
+        "name": "Payments Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true,
+          "sla": "99.99%"
+        },
+        "description": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+        "confidence": 0.8788856951963356,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing."
+      },
+      {
+        "id": "b8b3bf64-dce4-4b27-8c02-59cceec888bc",
+        "name": "Payments Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true,
+          "sla": "99.99%"
+        },
+        "description": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+        "confidence": 0.8783674142633645,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing."
+      },
+      {
+        "id": "ff1b2cbc-8fbb-437e-a6f4-b6ffe5e31ef3",
+        "name": "Payments Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true,
+          "sla": "99.99%"
+        },
+        "description": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+        "confidence": 0.8780452709859269,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing."
+      },
+      {
+        "id": "cbf86a89-8237-443b-922c-75ff21a794af",
+        "name": "Payments Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true,
+          "sla": "99.99%"
+        },
+        "description": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+        "confidence": 0.8693329930055814,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing."
+      },
+      {
+        "id": "f80295cb-1a19-43c5-9b07-5879540b2287",
+        "name": "Payments Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true,
+          "sla": "99.99%"
+        },
+        "description": "Primary PostgreSQL database for payment transactions. Critical for all payment processing.",
+        "confidence": 0.8692716821011091,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Primary PostgreSQL database for payment transactions. Critical for all payment processing."
+      },
+      {
+        "id": "603f6a9b-35de-4c21-8873-84108102a42c",
+        "name": "Order Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2"
+        },
+        "description": "Order and transaction history database.",
+        "confidence": 0.8788859154871733,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Order and transaction history database."
+      },
+      {
+        "id": "e5d2651f-6895-4285-9a4c-3d2f3ef2dd3c",
+        "name": "User Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true
+        },
+        "description": "User identity and profile database.",
+        "confidence": 0.8788857794314763,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "User identity and profile database."
+      },
+      {
+        "id": "7773b2dc-e457-47d8-93ed-60816719ac46",
+        "name": "Order Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2"
+        },
+        "description": "Order and transaction history database.",
+        "confidence": 0.8783676065948544,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Order and transaction history database."
+      },
+      {
+        "id": "c280d921-0ac9-4037-96a0-4fab6bfd8f9b",
+        "name": "User Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true
+        },
+        "description": "User identity and profile database.",
+        "confidence": 0.8783674863340837,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "User identity and profile database."
+      },
+      {
+        "id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "name": "Payment Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "framework": "FastAPI",
+          "tier": "critical"
+        },
+        "description": "Core payment processing service. Handles all financial transactions.",
+        "confidence": 0.8783674382549134,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Core payment processing service. Handles all financial transactions."
+      },
+      {
+        "id": "118667da-ac5f-4fab-8e00-39cee3be72b2",
+        "name": "API Gateway",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Go",
+          "tier": "critical"
+        },
+        "description": "Main API gateway. Routes all external traffic.",
+        "confidence": 0.8783675102354364,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Main API gateway. Routes all external traffic."
+      },
+      {
+        "id": "6a546ef2-37cf-441e-87bf-afd9768693ed",
+        "name": "Checkout Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "TypeScript",
+          "tier": "critical"
+        },
+        "description": "Customer checkout flow. Orchestrates payment and order creation.",
+        "confidence": 0.8783675823973012,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Customer checkout flow. Orchestrates payment and order creation."
+      },
+      {
+        "id": "3339dbac-93b7-431e-a68c-77d0464b82cb",
+        "name": "Fraud Detection Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "tier": "critical"
+        },
+        "description": "Real-time fraud detection for payment transactions.",
+        "confidence": 0.8780455058853669,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Real-time fraud detection for payment transactions."
+      },
+      {
+        "id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "name": "Payment Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "framework": "FastAPI",
+          "tier": "critical"
+        },
+        "description": "Core payment processing service. Handles all financial transactions.",
+        "confidence": 0.8780452966879192,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Core payment processing service. Handles all financial transactions."
+      },
+      {
+        "id": "6c5e681a-4988-4711-9a54-a67d08cdf596",
+        "name": "Fraud Detection Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "tier": "critical"
+        },
+        "description": "Real-time fraud detection for payment transactions.",
+        "confidence": 0.8692133825591549,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Real-time fraud detection for payment transactions."
+      },
+      {
+        "id": "47531142-7327-42d3-9ab3-27bf4551e83e",
+        "name": "Payment Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "framework": "FastAPI",
+          "tier": "critical"
+        },
+        "description": "Core payment processing service. Handles all financial transactions.",
+        "confidence": 0.8692131925026808,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Core payment processing service. Handles all financial transactions."
+      },
+      {
+        "id": "c84837b5-aaa7-49dc-9d04-6d2290093185",
+        "name": "Checkout Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "TypeScript",
+          "tier": "critical"
+        },
+        "description": "Customer checkout flow. Orchestrates payment and order creation.",
+        "confidence": 0.8692133352448755,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Customer checkout flow. Orchestrates payment and order creation."
+      },
+      {
+        "id": "f72a837f-be35-4ea4-b3c1-2de41bbb8b5b",
+        "name": "API Gateway",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Go",
+          "tier": "critical"
+        },
+        "description": "Main API gateway. Routes all external traffic.",
+        "confidence": 0.869213263742561,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Main API gateway. Routes all external traffic."
+      },
+      {
+        "id": "6b6910d8-63b5-403b-8b64-a224b3426fa9",
+        "name": "Fraud Detection Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "tier": "critical"
+        },
+        "description": "Real-time fraud detection for payment transactions.",
+        "confidence": 0.8788859424227663,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Real-time fraud detection for payment transactions."
+      },
+      {
+        "id": "69c06d95-b865-45ea-91d4-1dca2dfdeef8",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "96401217-a244-49e7-b534-a1535bbe708d",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.98,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "3d11ed78-341b-4064-9f25-288c01c16dc7",
+        "source_id": "118667da-ac5f-4fab-8e00-39cee3be72b2",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "API Gateway",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.878366887372341,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "API Gateway routes payment requests to Payment Service."
+      },
+      {
+        "id": "2dc50762-777e-4307-8a6f-1d57ec3e888e",
+        "source_id": "6a546ef2-37cf-441e-87bf-afd9768693ed",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "Checkout Service",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9564439440373794,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service processes payments through Payment Service."
+      },
+      {
+        "id": "e3604834-267f-4f31-bf8f-cc62d5533653",
+        "source_id": "3339dbac-93b7-431e-a68c-77d0464b82cb",
+        "target_id": "96401217-a244-49e7-b534-a1535bbe708d",
+        "source_name": "Fraud Detection Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Fraud Detection queries historical transactions from Payments Database."
+      },
+      {
+        "id": "7a2090ee-9051-4ada-821b-67f2a5127e59",
+        "source_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "target_id": "3339dbac-93b7-431e-a68c-77d0464b82cb",
+        "source_name": "Payment Service",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8780448104209378,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service calls Fraud Detection for transaction validation."
+      },
+      {
+        "id": "694b073b-071d-4097-8cc9-eef1652482a7",
+        "source_id": "6c5e681a-4988-4711-9a54-a67d08cdf596",
+        "target_id": "96401217-a244-49e7-b534-a1535bbe708d",
+        "source_name": "Fraud Detection Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8692126584809531,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Fraud Detection queries historical transactions from Payments Database."
+      },
+      {
+        "id": "45ab6f01-dcac-440e-a016-787845bf1dde",
+        "source_id": "47531142-7327-42d3-9ab3-27bf4551e83e",
+        "target_id": "6c5e681a-4988-4711-9a54-a67d08cdf596",
+        "source_name": "Payment Service",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8692126584946672,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service calls Fraud Detection for transaction validation."
+      },
+      {
+        "id": "c5821fbd-29fe-4e3f-9283-0ef3cec2f5a9",
+        "source_id": "47531142-7327-42d3-9ab3-27bf4551e83e",
+        "target_id": "96401217-a244-49e7-b534-a1535bbe708d",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.946476005864529,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "6d1f988b-42b4-47bd-80fe-1d753656ff49",
+        "source_id": "c84837b5-aaa7-49dc-9d04-6d2290093185",
+        "target_id": "47531142-7327-42d3-9ab3-27bf4551e83e",
+        "source_name": "Checkout Service",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9464760059002167,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service processes payments through Payment Service."
+      },
+      {
+        "id": "ac8211bb-6d97-41c2-bed5-2f87dd7b5a7a",
+        "source_id": "f72a837f-be35-4ea4-b3c1-2de41bbb8b5b",
+        "target_id": "47531142-7327-42d3-9ab3-27bf4551e83e",
+        "source_name": "API Gateway",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8692126584528275,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "API Gateway routes payment requests to Payment Service."
+      },
+      {
+        "id": "ad57ceb7-fee1-4598-984b-611bf0c1eeda",
+        "source_id": "6b6910d8-63b5-403b-8b64-a224b3426fa9",
+        "target_id": "de2ff12a-1988-419f-a0e4-6ab55755ecc1",
+        "source_name": "Fraud Detection Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8788852581094818,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Fraud Detection queries historical transactions from Payments Database."
+      },
+      {
+        "id": "cc2caea7-e84e-4871-a7a4-78c2ea3b79bc",
+        "source_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "target_id": "de2ff12a-1988-419f-a0e4-6ab55755ecc1",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.957008392140113,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "073a95eb-046e-4ec1-9f4b-56f036ac0f80",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "b8b3bf64-dce4-4b27-8c02-59cceec888bc",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9564439440537488,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "7c5a4647-e255-46cb-8f4a-a39f99cb9c93",
+        "source_id": "884ca8e9-ef78-4ba7-85be-730b67c5bd8f",
+        "target_id": "b8b3bf64-dce4-4b27-8c02-59cceec888bc",
+        "source_name": "Fraud Detection Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8783668873403958,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Fraud Detection queries historical transactions from Payments Database."
+      },
+      {
+        "id": "30cddecd-23ac-49ec-a6ce-b1324eb01519",
+        "source_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "target_id": "ff1b2cbc-8fbb-437e-a6f4-b6ffe5e31ef3",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9560932380422902,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "1b5211fa-a2a3-44c1-ae87-a97c7f8b5891",
+        "source_id": "3339dbac-93b7-431e-a68c-77d0464b82cb",
+        "target_id": "ff1b2cbc-8fbb-437e-a6f4-b6ffe5e31ef3",
+        "source_name": "Fraud Detection Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8780448104556889,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Fraud Detection queries historical transactions from Payments Database."
+      },
+      {
+        "id": "5b40bf45-8d04-4ed3-a568-d8e4dc572d3b",
+        "source_id": "7b2b9346-afad-4ec1-937a-4ebaf204476c",
+        "target_id": "cbf86a89-8237-443b-922c-75ff21a794af",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9466065326195434,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "cf50c25a-0eb7-4aae-ad73-1aca0331c6f6",
+        "source_id": "7feb9d3a-cdb1-477e-b52d-2d07ea2838e0",
+        "target_id": "cbf86a89-8237-443b-922c-75ff21a794af",
+        "source_name": "Fraud Detection Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8693325299162729,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Fraud Detection queries historical transactions from Payments Database."
+      },
+      {
+        "id": "ab868567-9478-4202-87cc-dc46568ac90e",
+        "source_id": "e0dfd22b-5c59-4763-a231-04e413aeddf4",
+        "target_id": "f80295cb-1a19-43c5-9b07-5879540b2287",
+        "source_name": "Fraud Detection Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8692712711812243,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Fraud Detection queries historical transactions from Payments Database."
+      },
+      {
+        "id": "b29f789a-66e9-4419-96b5-5b6c2436de87",
+        "source_id": "542c4a18-3b90-4916-a5d5-e7c5da92f964",
+        "target_id": "f80295cb-1a19-43c5-9b07-5879540b2287",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9465398286142397,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "9bd96572-067d-4f4f-a2ec-0c4337ef7964",
+        "source_id": "a54bdbb7-9a5c-4bdf-ab2b-356b751de285",
+        "target_id": "603f6a9b-35de-4c21-8873-84108102a42c",
+        "source_name": "Checkout Service",
+        "target_name": "Order Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169012805,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service stores orders in Order Database."
+      },
+      {
+        "id": "a81ebd3a-7c27-45bf-be8a-3a578425c753",
+        "source_id": "dd1d8199-3f67-4b53-a14f-cd31e24def6d",
+        "target_id": "e5d2651f-6895-4285-9a4c-3d2f3ef2dd3c",
+        "source_name": "Notification Service",
+        "target_name": "User Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8300582993316148,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Notification Service fetches user contact info from User Database."
+      },
+      {
+        "id": "f04202e5-a9d0-4946-a421-a3bfeae70d13",
+        "source_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "target_id": "e5d2651f-6895-4285-9a4c-3d2f3ef2dd3c",
+        "source_name": "Auth Service",
+        "target_name": "User Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.957008392124246,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth Service stores user credentials in User Database."
+      },
+      {
+        "id": "191e1da0-8fb9-48fa-9cd1-0e35e8884594",
+        "source_id": "6a546ef2-37cf-441e-87bf-afd9768693ed",
+        "target_id": "7773b2dc-e457-47d8-93ed-60816719ac46",
+        "source_name": "Checkout Service",
+        "target_name": "Order Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.927165047800511,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service stores orders in Order Database."
+      },
+      {
+        "id": "1a5516e6-6a50-439d-be9c-c20ea8d44aed",
+        "source_id": "3dbb0663-44af-4e24-981d-177754874c86",
+        "target_id": "c280d921-0ac9-4037-96a0-4fab6bfd8f9b",
+        "source_name": "Notification Service",
+        "target_name": "User Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8295687269785172,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Notification Service fetches user contact info from User Database."
+      },
+      {
+        "id": "727a4cff-a21c-4ae2-bd19-f4d2e3c2d005",
+        "source_id": "e6175e20-1305-4593-a109-51e219413e13",
+        "target_id": "c280d921-0ac9-4037-96a0-4fab6bfd8f9b",
+        "source_name": "Auth Service",
+        "target_name": "User Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9564439439982466,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth Service stores user credentials in User Database."
+      }
+    ],
+    "semantic_count": 46,
+    "episodic_memory": [
+      {
+        "id": "d177f6ec-42fc-4aca-bab9-e4763699feae",
+        "title": "Payments Database Failover Procedure",
+        "doc_type": "RUNBOOK",
+        "content": "# Payments Database Failover Procedure\n\n## Overview\nThis runbook covers the procedure for handling Payments Database failovers, whether planned or unplanned.\n\n## Prerequisites\n- Access to AWS console with RDS permissions\n- PagerDuty access for escalation\n- Database connection credentials\n\n## Steps\n\n### 1. Identify the Issue\n- Check CloudWatch for RDS metrics\n- Verify primary database status in AWS RDS console\n- Check application logs for connection errors\n\n### 2. Assess Impact\n- Payment Service ...",
+        "metadata": {
+          "services": [
+            "Payment Service",
+            "Payments Database"
+          ],
+          "severity": "SEV1",
+          "owner": "Platform Team"
+        },
+        "source_document_id": "6f6f3c23-5f3f-49bf-b31a-b6a1a1d1a508",
+        "similarity": 0.10356214059710962
+      },
+      {
+        "id": "4d70f2ad-cfb6-4baf-b6d1-26c21fbeedf9",
+        "title": "SEV1 Incident Commander Playbook",
+        "doc_type": "RUNBOOK",
+        "content": "# SEV1 Incident Commander Playbook\n\n## Overview\nThis playbook is for the Incident Commander role during SEV1 incidents.\n\n## Incident Commander Responsibilities\n1. Coordinate response across teams\n2. Manage communication\n3. Make escalation decisions\n4. Document timeline\n\n## Initial Response (First 5 Minutes)\n1. Acknowledge page in PagerDuty\n2. Open incident Slack channel #inc-YYYYMMDD-XXX\n3. Identify affected services\n4. Page relevant service owners\n\n## Escalation Matrix\n\n### By Service\n- Payment...",
+        "metadata": {
+          "services": [],
+          "severity": "SEV1",
+          "owner": "SRE Team"
+        },
+        "source_document_id": "500d29eb-c838-4c4d-97c2-3b204958d94f",
+        "similarity": 0.10292093924134713
+      },
+      {
+        "id": "7e093fa4-e655-4b70-b703-6a13e1228582",
+        "title": "Database Connection Pool Exhaustion",
+        "doc_type": "RUNBOOK",
+        "content": "# Database Connection Pool Exhaustion\n\n## Overview\nProcedures for handling database connection pool exhaustion.\n\n## Symptoms\n- Application errors: \"connection pool exhausted\"\n- Slow queries or timeouts\n- Increasing connection count in database metrics\n\n## Affected Services\n- Auth Service \u2192 User Database\n- Payment Service \u2192 Payments Database\n- Checkout Service \u2192 Order Database\n\n## Immediate Actions\n\n### 1. Identify Source\n```sql\nSELECT client_addr, count(*) \nFROM pg_stat_activity \nWHERE datname =...",
+        "metadata": {
+          "services": [
+            "User Database",
+            "Payments Database",
+            "Order Database"
+          ],
+          "severity": "SEV1",
+          "owner": "Platform Team"
+        },
+        "source_document_id": "5776112e-b94c-4bd5-a0da-8bdd2e31cae9",
+        "similarity": 0.06997606566896544
+      },
+      {
+        "id": "20878516-c031-43bf-9778-d7f719f90961",
+        "title": "Database Connection Pool Exhaustion",
+        "doc_type": "RUNBOOK",
+        "content": "# Database Connection Pool Exhaustion\n\n## Overview\nProcedures for handling database connection pool exhaustion.\n\n## Symptoms\n- Application errors: \"connection pool exhausted\"\n- Slow queries or timeouts\n- Increasing connection count in database metrics\n\n## Affected Services\n- Auth Service \u2192 User Database\n- Payment Service \u2192 Payments Database\n- Checkout Service \u2192 Order Database\n\n## Immediate Actions\n\n### 1. Identify Source\n```sql\nSELECT client_addr, count(*) \nFROM pg_stat_activity \nWHERE datname =...",
+        "metadata": {
+          "services": [
+            "User Database",
+            "Payments Database",
+            "Order Database"
+          ],
+          "severity": "SEV1",
+          "owner": "Platform Team"
+        },
+        "source_document_id": "0dedada3-88a0-4e49-a3ca-c3794d77f029",
+        "similarity": 0.06775719012461656
+      },
+      {
+        "id": "bb505534-abf6-4945-8ed9-300e52b9bc57",
+        "title": "Checkout Service Troubleshooting",
+        "doc_type": "RUNBOOK",
+        "content": "# Checkout Service Troubleshooting\n\n## Overview\nGuide for diagnosing and resolving Checkout Service issues.\n\n## Dependencies\nCheckout Service depends on:\n- Payment Service (critical)\n- Auth Service (critical)\n- Order Database\n- Notification Service (non-critical)\n\n## Common Issues\n\n### Cart Calculation Errors\n- Check recent deploys for pricing logic changes\n- Verify discount service responses\n- Review cart state in Order Database\n\n### Payment Processing Failures\n- Check Payment Service health\n- ...",
+        "metadata": {
+          "services": [
+            "Checkout Service",
+            "Payment Service",
+            "Order Database"
+          ],
+          "severity": "SEV2",
+          "owner": "API Team"
+        },
+        "source_document_id": "401a4066-f17d-4f0b-a525-f8a383f28ca3",
+        "similarity": 0.06637863996277125
+      }
+    ],
+    "episodic_count": 5,
+    "symbolic_memory": [
+      {
+        "id": "154d1002-c337-4409-a1da-5c890c29ff19",
+        "name": "Payment Service Dependency Check",
+        "rule_type": "INVARIANT",
+        "description": "Payment Service must always have Payments Database available",
+        "condition": "service.name == 'Payment Service' AND NOT depends_on('Payments Database').is_healthy",
+        "action": "flag_critical('Payment Service cannot operate without Payments Database')",
+        "priority": 100,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE",
+          "DATABASE"
+        ],
+        "relationship_types": [
+          "DEPENDS_ON"
+        ],
+        "match_score": 8,
+        "match_reasons": [
+          "entity_types: {'SERVICE', 'DATABASE'}",
+          "relationship_types: {'DEPENDS_ON'}",
+          "keyword: Payments",
+          "keyword: Database"
+        ]
+      },
+      {
+        "id": "b9776382-8de7-47dd-8ce8-f84d36a362a0",
+        "name": "Cascade Impact Assessment",
+        "rule_type": "VALIDATION",
+        "description": "When assessing service impact, include all downstream dependencies",
+        "condition": "query.type == 'impact_assessment'",
+        "action": "traverse_dependencies(service, direction='downstream', depth=3)",
+        "priority": 70,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE",
+          "DATABASE",
+          "COMPONENT"
+        ],
+        "relationship_types": [
+          "DEPENDS_ON",
+          "USES"
+        ],
+        "match_score": 7,
+        "match_reasons": [
+          "entity_types: {'SERVICE', 'DATABASE'}",
+          "relationship_types: {'DEPENDS_ON'}",
+          "keyword: down"
+        ]
+      },
+      {
+        "id": "afc33854-5615-4f9f-bde4-3a7238b08000",
+        "name": "Auth Service Required for API",
+        "rule_type": "INVARIANT",
+        "description": "API Gateway requires Auth Service for all authenticated requests",
+        "condition": "service.name == 'API Gateway' AND NOT depends_on('Auth Service').is_healthy",
+        "action": "flag_critical('API Gateway cannot validate requests without Auth Service')",
+        "priority": 100,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE"
+        ],
+        "relationship_types": [
+          "DEPENDS_ON"
+        ],
+        "match_score": 4,
+        "match_reasons": [
+          "entity_types: {'SERVICE'}",
+          "relationship_types: {'DEPENDS_ON'}"
+        ]
+      },
+      {
+        "id": "d4d07c62-7d7c-457d-a622-9ff012744e0b",
+        "name": "Database Owner Notification",
+        "rule_type": "ESCALATION_POLICY",
+        "description": "Database incidents must notify Platform Team",
+        "condition": "incident.affected_service.entity_type == 'DATABASE'",
+        "action": "notify_team('Platform Team')",
+        "priority": 90,
+        "is_active": true,
+        "entity_types": [
+          "INCIDENT",
+          "DATABASE"
+        ],
+        "relationship_types": [],
+        "match_score": 4,
+        "match_reasons": [
+          "entity_types: {'DATABASE'}",
+          "keyword: affected",
+          "keyword: Database"
+        ]
+      },
+      {
+        "id": "5183a8cc-5c1d-41a2-bc28-c8dc6cffc6a1",
+        "name": "Single Primary Database",
+        "rule_type": "INVARIANT",
+        "description": "Each database cluster must have exactly one primary",
+        "condition": "database.properties.primary == True",
+        "action": "validate_unique_primary(database.cluster)",
+        "priority": 95,
+        "is_active": true,
+        "entity_types": [
+          "DATABASE"
+        ],
+        "relationship_types": [],
+        "match_score": 3,
+        "match_reasons": [
+          "entity_types: {'DATABASE'}",
+          "keyword: Database"
+        ]
+      },
+      {
+        "id": "73866669-1989-4b0b-b28b-965b5ef442d0",
+        "name": "On-Call Requirement",
+        "rule_type": "SAFETY_CHECK",
+        "description": "All critical services must have on-call coverage",
+        "condition": "service.properties.tier == 'critical'",
+        "action": "verify_oncall_exists(service.owner_team)",
+        "priority": 80,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE",
+          "TEAM"
+        ],
+        "relationship_types": [
+          "OWNS"
+        ],
+        "match_score": 3,
+        "match_reasons": [
+          "entity_types: {'SERVICE'}",
+          "keyword: services"
+        ]
+      }
+    ],
+    "rules_count": 6,
+    "confidence": 0.8948380522807541,
+    "uncertainty": {
+      "overall_confidence": 0.8948380522807541,
+      "recommendation": "proceed",
+      "high_confidence_facts": 46,
+      "medium_confidence_facts": 0,
+      "low_confidence_facts": 0,
+      "low_confidence_items": [],
+      "unresolved_entities": [],
+      "missing_relationships": [],
+      "uncertainty_reasons": []
+    },
+    "retrieval_metadata": {
+      "keywords": [
+        "services",
+        "affected",
+        "Payments",
+        "Database",
+        "goes",
+        "down"
+      ],
+      "entity_types_searched": [
+        "DATABASE",
+        "SERVICE"
+      ],
+      "traverse_depth": 2,
+      "sequence_intent": false,
+      "sequence_reason": null
+    }
+  },
+  "validation": {
+    "passed": true,
+    "rules_checked": [
+      "Payment Service Dependency Check",
+      "Cascade Impact Assessment",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "Single Primary Database",
+      "On-Call Requirement"
+    ],
+    "rules_passed": [
+      "Payment Service Dependency Check",
+      "Cascade Impact Assessment",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "Single Primary Database",
+      "On-Call Requirement"
+    ],
+    "violations": [],
+    "warnings": []
+  },
+  "rules_checked": [
+    "Payment Service Dependency Check",
+    "Cascade Impact Assessment",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "Single Primary Database",
+    "On-Call Requirement"
+  ],
+  "rules_passed": [
+    "Payment Service Dependency Check",
+    "Cascade Impact Assessment",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "Single Primary Database",
+    "On-Call Requirement"
+  ],
+  "rules_violations": [],
+  "rules_warnings": [],
+  "query_log": {
+    "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+    "query_text": "What services are affected if the Payments Database goes down?",
+    "start_time": "2025-12-04T03:34:40.095929",
+    "duration_seconds": 7.068359,
+    "events": [
+      {
+        "timestamp": "2025-12-04T03:34:40.095934",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "QUERY_START",
+        "data": {
+          "query": "What services are affected if the Payments Database goes down?"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:40.097591",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "PIPELINE_START",
+        "data": {
+          "query": "What services are affected if the Payments Database goes down?"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:40.102027",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "QUERY_CLASSIFICATION",
+        "data": {
+          "query_type": "impact",
+          "query": "What services are affected if the Payments Database goes down?",
+          "sequence_intent": false,
+          "sequence_reason": null
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:40.211800",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "TARGET_ENTITY_CHECK",
+        "data": {
+          "target_entity": "Payments Database",
+          "found": true,
+          "match": "Payments Database"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:40.213105",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "RETRIEVAL_START",
+        "data": {
+          "keywords": [
+            "services",
+            "affected",
+            "Payments",
+            "Database",
+            "goes",
+            "down"
+          ],
+          "inferred_entity_types": [
+            "DATABASE",
+            "SERVICE"
+          ],
+          "target_entity": "Payments Database",
+          "target_entity_found": true,
+          "query_type": "impact"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:40.215149",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "IMPACT_QUERY_DETECTED",
+        "data": {
+          "target_entity": "Payments Database",
+          "traversal_direction": "incoming"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:42.984124",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "SEMANTIC_RETRIEVAL",
+        "data": {
+          "entities_count": 20,
+          "relationships_count": 26,
+          "entities": [
+            "Payments Database",
+            "Payments Database",
+            "Payments Database",
+            "Payments Database",
+            "Payments Database"
+          ],
+          "confidence": 0.8752277728141719
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:43.094542",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "EPISODIC_RETRIEVAL",
+        "data": {
+          "documents_count": 5,
+          "top_similarity": 0.10356214059710962,
+          "avg_similarity": 0.08211899511896201
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:43.119166",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "SYMBOLIC_QUERY",
+        "data": {
+          "rules_found": 6,
+          "rule_names": [
+            "Payment Service Dependency Check",
+            "Cascade Impact Assessment",
+            "Auth Service Required for API",
+            "Database Owner Notification",
+            "Single Primary Database",
+            "On-Call Requirement"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:43.121749",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "CONTEXT_BUNDLE_BUILT",
+        "data": {
+          "semantic_items": 46,
+          "episodic_items": 5,
+          "rules_count": 6,
+          "overall_confidence": 0.8948380522807541
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:43.135263",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "LLM_CALL_START",
+        "data": {
+          "model": "gpt-4o-mini",
+          "context_length": 12723,
+          "query": "What services are affected if the Payments Database goes down?"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:46.958480",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "REASONING_COMPLETE",
+        "data": {
+          "response_length": 571,
+          "confidence": 0.95,
+          "evidence_items": 14
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:47.082401",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "VALIDATION",
+        "data": {
+          "passed": true,
+          "issues": []
+        }
+      },
+      {
+        "timestamp": "2025-12-04T03:34:47.163210",
+        "query_id": "32883dd4-5639-4f4d-b1e7-f5b402da7546",
+        "event_type": "QUERY_COMPLETE",
+        "data": {
+          "success": true,
+          "duration_seconds": 7.067274,
+          "final_confidence": 0.95,
+          "total_events": 13
+        }
+      }
+    ]
+  }
+}
