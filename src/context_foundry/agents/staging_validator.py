@@ -21,6 +21,7 @@ from enum import Enum
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
 from ..models.schema import (
     Entity, Relationship, Conflict, ReviewQueue,
@@ -587,6 +588,7 @@ class StagingValidatorAgent:
                 for i in entity_issue_list
             ]
             entity.last_validated_at = datetime.utcnow()
+            flag_modified(entity, "properties")  # Notify SQLAlchemy of JSON mutation
         
         for rel in relationships:
             rel_id_str = str(rel.id)
@@ -612,6 +614,7 @@ class StagingValidatorAgent:
                 for i in rel_issue_list
             ]
             rel.last_validated_at = datetime.utcnow()
+            flag_modified(rel, "properties")  # Notify SQLAlchemy of JSON mutation
         
         try:
             self.session.commit()
