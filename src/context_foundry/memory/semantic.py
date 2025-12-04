@@ -8,8 +8,7 @@ from sqlalchemy.orm import Session
 import uuid
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, EntityType, RelationshipType,
-    get_session
+    Entity, Relationship, LifecycleState, EntityType, RelationshipType, get_session
 )
 from ..utils.logger import logger
 
@@ -27,7 +26,7 @@ class SemanticMemory:
     def add_entity(
         self,
         name: str,
-        entity_type: EntityType,
+        entity_type: str,
         properties: dict = None,
         description: str = None,
         confidence: float = 0.5,
@@ -38,7 +37,7 @@ class SemanticMemory:
         """Add an entity to the knowledge graph."""
         entity = Entity(
             name=name,
-            entity_type=entity_type,
+            entity_type=entity_type.upper(),
             properties=properties or {},
             description=description,
             confidence=confidence,
@@ -55,14 +54,14 @@ class SemanticMemory:
             logger.error(f"Failed to add entity {name}: {e}")
             raise
         
-        logger.debug(f"Added entity: {name} [{entity_type.value}] (state: {lifecycle_state.value})")
+        logger.debug(f"Added entity: {name} [{entity_type}] (state: {lifecycle_state.value})")
         return entity
     
     def add_relationship(
         self,
         source_id: uuid.UUID,
         target_id: uuid.UUID,
-        relationship_type: RelationshipType,
+        relationship_type: str,
         properties: dict = None,
         description: str = None,
         confidence: float = 0.5,
@@ -74,7 +73,7 @@ class SemanticMemory:
         rel = Relationship(
             source_id=source_id,
             target_id=target_id,
-            relationship_type=relationship_type,
+            relationship_type=relationship_type.upper(),
             properties=properties or {},
             description=description,
             confidence=confidence,
@@ -91,7 +90,7 @@ class SemanticMemory:
             logger.error(f"Failed to add relationship: {e}")
             raise
         
-        logger.debug(f"Added relationship: {source_id} -[{relationship_type.value}]-> {target_id}")
+        logger.debug(f"Added relationship: {source_id} -[{relationship_type}]-> {target_id}")
         return rel
     
     def find_entity_by_name(self, name: str, trusted_only: bool = True) -> Optional[Entity]:
@@ -104,7 +103,7 @@ class SemanticMemory:
     def search_entities(
         self,
         query_text: str,
-        entity_types: List[EntityType] = None,
+        entity_types: List[str] = None,
         trusted_only: bool = True,
         limit: int = 10
     ) -> List[Entity]:
@@ -117,7 +116,8 @@ class SemanticMemory:
             q = q.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)
         
         if entity_types:
-            q = q.filter(Entity.entity_type.in_(entity_types))
+            normalized_types = [t.upper() if isinstance(t, str) else t for t in entity_types]
+            q = q.filter(Entity.entity_type.in_(normalized_types))
         
         results = q.order_by(Entity.confidence.desc()).limit(limit).all()
         logger.debug(f"Entity search '{query_text}': found {len(results)} results")
@@ -180,7 +180,7 @@ class SemanticMemory:
     def traverse_dependencies(
         self,
         entity_id: uuid.UUID,
-        relationship_type: RelationshipType = RelationshipType.DEPENDS_ON,
+        relationship_type: str = "DEPENDS_ON",
         direction: str = "outgoing",
         max_depth: int = 3
     ) -> List[Dict]:
@@ -243,7 +243,7 @@ class SemanticMemory:
         
         impacted = self.traverse_dependencies(
             entity.id,
-            relationship_type=RelationshipType.DEPENDS_ON,
+            relationship_type="DEPENDS_ON",
             direction="incoming",
             max_depth=max_depth
         )
@@ -266,7 +266,7 @@ class SemanticMemory:
         
         path = self.traverse_dependencies(
             entity.id,
-            relationship_type=RelationshipType.ESCALATES_TO,
+            relationship_type="ESCALATES_TO",
             direction="outgoing",
             max_depth=5
         )
@@ -293,7 +293,7 @@ class SemanticMemory:
     
     def search_entities_by_properties(
         self,
-        entity_type: Optional[EntityType] = None,
+        entity_type: Optional[str] = None,
         filters: List[Dict] = None,
         trusted_only: bool = True,
         limit: int = 50
@@ -364,14 +364,14 @@ class SemanticMemory:
         logger.debug(f"Property search: entity_type={entity_type}, filters={filters} -> {len(results)} results")
         return results
     
-    def get_entity_schema(self, entity_type: EntityType) -> Dict:
+    def get_entity_schema(self, entity_type: str) -> Dict:
         """
         Get the schema of properties for a given entity type.
         
         This is used to tell the LLM what properties are queryable.
         """
         schemas = {
-            EntityType.PERSON: {
+            "PERSON": {
                 "properties": {
                     "role": "Job title (e.g., 'Software Engineer', 'Director of Engineering')",
                     "level": "Seniority level (e.g., 'IC', 'Manager', 'Director', 'VP', 'C-Level')",
@@ -381,14 +381,14 @@ class SemanticMemory:
                     "phone": "Phone number",
                 }
             },
-            EntityType.TEAM: {
+            "TEAM": {
                 "properties": {
                     "department": "Parent department",
                     "focus_area": "Team's primary focus",
                     "headcount": "Number of team members",
                 }
             },
-            EntityType.SERVICE: {
+            "SERVICE": {
                 "properties": {
                     "tier": "Service tier (e.g., 'tier1', 'tier2')",
                     "language": "Primary programming language",
@@ -396,7 +396,7 @@ class SemanticMemory:
                 }
             },
         }
-        return schemas.get(entity_type, {"properties": {}})
+        return schemas.get(entity_type.upper() if entity_type else "", {"properties": {}})
     
     def get_statistics(self) -> Dict:
         """Get statistics about the semantic memory."""
