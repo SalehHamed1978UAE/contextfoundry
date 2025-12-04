@@ -33,7 +33,7 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 -   **Validation Agent**: Checks responses against symbolic rules.
 -   **Graph Loader**: Handles structured data ingestion.
 -   **Graph Builder Agent**: Perception layer that ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to STAGING with full provenance. Now fully configurable via YAML schema.
--   **Staging Validator Agent**: Validates STAGING data against schema rules (cardinality, source/target types, required fields). Detects conflicts and creates review items.
+-   **Staging Validator Agent**: Validates STAGING data against schema rules (cardinality, source/target types, required fields). Detects conflicts and creates review items. Auto-runs after document ingestion. Marks facts with validation status (VALID/INVALID/CONFLICT).
 
 ### Domain-Agnostic Schema System (NEW)
 Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML configuration files.
@@ -66,6 +66,7 @@ Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity
 ### Technical Implementations & Design Choices
 -   **Type Storage**: Entity and relationship types stored as VARCHAR (plain strings), validated at application layer against loaded YAML schema. EntityType and RelationshipType classes remain as string constant holders for backward compatibility (e.g., `EntityType.SERVICE = "SERVICE"`).
 -   **Lifecycle States**: Data progresses from STAGING to TRUSTED.
+-   **Validation Status**: Facts in STAGING are marked as PENDING, VALID, INVALID, or CONFLICT after validation. Stored in both `validation_status` column and `properties._validation_status` JSON field.
 -   **Confidence Scoring**: Every entity, relationship, and response includes a confidence score.
 -   **Full Provenance**: Facts trace back to source documents.
 -   **Entity Resolution**: Rule queries resolve person references via the semantic graph.
