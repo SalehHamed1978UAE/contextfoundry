@@ -171,9 +171,51 @@ Comprehensive scale testing validated system performance under load:
 
 **Usage:**
 ```bash
-python generate_scale_data.py 250 test_data/scale_docs_10x  # Generate 250 docs
-python scale_test_runner.py --phase baseline                 # Measure current state
-python scale_test_runner.py --phase ingest --data-dir test_data/scale_docs_10x  # Ingest
-python scale_test_runner.py --phase query --iterations 3     # Benchmark queries
-python concurrent_load_test.py --max-concurrent 10           # Load test
+python generate_scale_data.py --count 250 --output test_data/scale_docs  # Generate 250 docs
+python scale_test_runner.py --phase baseline                              # Measure current state
+python scale_test_runner.py --phase ingest --data-dir test_data/scale_docs  # Ingest
+python scale_test_runner.py --phase query --iterations 3                  # Benchmark queries
+python concurrent_load_test.py --max-concurrent 10                        # Load test
 ```
+
+### Phase 3: Breaking Point Analysis (Dec 4, 2025)
+Extended scale testing to 100x+ to find system limits:
+
+**Scale Progression:**
+| Scale | Documents | Database Size | Query Latency |
+|-------|-----------|---------------|---------------|
+| 1x | 236 | 16 MB | ~15s |
+| 10x | 1,338 | 25 MB | ~23s |
+| 50x | 3,543 | 45 MB | 15.5s |
+| 100x | 7,476 | 80 MB | 22.1s |
+
+**Breaking Points Identified:**
+
+1. **Concurrent Users**: Breaking point at 25 concurrent queries
+   - Safe limit: 10 concurrent queries (100% success, <35s latency)
+   - Stress limit: 15 concurrent queries
+   - At 25 concurrent: 2 queries exceeded 180s timeout (92% success)
+
+2. **Data Volume**: No breaking point detected up to 7,476 documents
+   - System handles 100x scale with acceptable latency
+   - Database grows linearly (~1 MB per 100 docs)
+
+3. **Memory**: No ceiling reached
+   - System total: 62.8 GB (shared infrastructure)
+   - Python processes: ~2.6 GB
+   - Database: 80 MB
+   - Available headroom: 23+ GB
+
+**Production Recommendations:**
+| Setting | Value |
+|---------|-------|
+| Max concurrent queries | 10 |
+| Comfortable concurrent | 5 |
+| Max documents | 10,000+ |
+| Query timeout | 60 seconds |
+
+**Key Insights:**
+- Concurrent limit is LLM-bound, not memory-bound
+- System scales linearly with data volume
+- Query latency is dominated by LLM inference time (~15-25s)
+- Embedding generation is 99.9% of ingestion time
