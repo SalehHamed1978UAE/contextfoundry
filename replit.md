@@ -219,3 +219,29 @@ Extended scale testing to 100x+ to find system limits:
 - System scales linearly with data volume
 - Query latency is dominated by LLM inference time (~15-25s)
 - Embedding generation is 99.9% of ingestion time
+
+### Learning Loop - Feedback Collection (Dec 4, 2025)
+Implemented human feedback collection system (Steps 1 and 2 of Learning Loop):
+
+**Database Model:**
+- `FeedbackRecord` table with fields:
+  - `query_text`, `response_text`, `confidence` - Captured from query response
+  - `judgment` - User rating: 'correct', 'incorrect', 'partial'
+  - `error_type` - Classification: 'hallucination', 'incomplete', 'wrong_entity', 'outdated'
+  - `processed` flag and `processed_at` timestamp for learning cycle integration
+  - `learning_action` - Action taken during processing
+
+**API Endpoints:**
+- `POST /api/feedback` - Submit feedback for a query response
+- `GET /api/feedback/stats` - Get aggregated feedback statistics by judgment and error type
+- `GET /api/feedback/recent` - Get recent unprocessed feedback records
+
+**UI Components:**
+- Feedback buttons appear after each query response (Correct / Partial / Incorrect)
+- Error type selector appears for incorrect/partial responses
+- Confirmation message shown after feedback submission
+
+**Next Steps (Step 3):**
+- Implement `/api/learning/run` endpoint to process feedback
+- Detect calibration errors (high-confidence incorrect, low-confidence correct)
+- Log patterns and suggest confidence adjustments
