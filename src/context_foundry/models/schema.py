@@ -26,7 +26,13 @@ class LifecycleState(str, Enum):
     ARCHIVED = "ARCHIVED"
 
 
-class EntityType(str, Enum):
+class EntityType:
+    """
+    Entity type constants for backward compatibility.
+    NOTE: Entity types are now stored as VARCHAR in the database.
+    New domains can use any string values - validation happens at application layer
+    against the loaded domain schema config.
+    """
     SERVICE = "SERVICE"
     TEAM = "TEAM"
     PERSON = "PERSON"
@@ -36,7 +42,13 @@ class EntityType(str, Enum):
     RUNBOOK = "RUNBOOK"
 
 
-class RelationshipType(str, Enum):
+class RelationshipType:
+    """
+    Relationship type constants for backward compatibility.
+    NOTE: Relationship types are now stored as VARCHAR in the database.
+    New domains can use any string values - validation happens at application layer
+    against the loaded domain schema config.
+    """
     DEPENDS_ON = "DEPENDS_ON"
     OWNS = "OWNS"
     SUPPORTS = "SUPPORTS"
@@ -110,7 +122,7 @@ class Entity(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False, index=True)
-    entity_type = Column(SQLEnum(EntityType), nullable=False, index=True)
+    entity_type = Column(String(100), nullable=False, index=True)
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
     
     properties = Column(JSON, default=dict)
@@ -145,7 +157,7 @@ class Entity(Base):
         return {
             "id": str(self.id),
             "name": self.name,
-            "entity_type": self.entity_type.value if self.entity_type else None,
+            "entity_type": self.entity_type,
             "lifecycle_state": self.lifecycle_state.value if self.lifecycle_state else None,
             "properties": self.properties,
             "description": self.description,
@@ -162,7 +174,7 @@ class Relationship(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     source_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
     target_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
-    relationship_type = Column(SQLEnum(RelationshipType), nullable=False, index=True)
+    relationship_type = Column(String(100), nullable=False, index=True)
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
     
     properties = Column(JSON, default=dict)
@@ -189,7 +201,7 @@ class Relationship(Base):
             "target_id": str(self.target_id),
             "source_name": self.source_entity.name if self.source_entity else None,
             "target_name": self.target_entity.name if self.target_entity else None,
-            "relationship_type": self.relationship_type.value if self.relationship_type else None,
+            "relationship_type": self.relationship_type,
             "lifecycle_state": self.lifecycle_state.value if self.lifecycle_state else None,
             "confidence": self.confidence,
             "source_document_id": self.source_document_id,
