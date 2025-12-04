@@ -118,13 +118,23 @@ class GardenerScheduler:
             successful = sum(1 for r in self._history if r.success)
             failed = sum(1 for r in self._history if not r.success)
             
-            total_entities = sum(
-                r.gardener_result.total_entities_affected 
+            total_decayed = sum(
+                r.gardener_result.facts_decayed 
+                for r in self._history 
+                if r.gardener_result
+            )
+            total_promoted = sum(
+                r.gardener_result.facts_promoted 
+                for r in self._history 
+                if r.gardener_result
+            )
+            total_demoted = sum(
+                r.gardener_result.facts_demoted 
                 for r in self._history 
                 if r.gardener_result
             )
             total_conflicts = sum(
-                r.gardener_result.total_conflicts 
+                r.gardener_result.conflicts_resolved 
                 for r in self._history 
                 if r.gardener_result
             )
@@ -140,8 +150,10 @@ class GardenerScheduler:
                 "interval_seconds": self.config.cycle_interval_seconds,
                 "cycles_successful": successful,
                 "cycles_failed": failed,
-                "total_entities_affected": total_entities,
-                "total_conflicts_detected": total_conflicts,
+                "total_facts_decayed": total_decayed,
+                "total_facts_promoted": total_promoted,
+                "total_facts_demoted": total_demoted,
+                "total_conflicts_resolved": total_conflicts,
                 "total_merges_performed": total_merges,
                 "last_run": self._last_result.started_at.isoformat() if self._last_result else None,
             }
@@ -224,9 +236,10 @@ class GardenerScheduler:
             gardener_summary = ""
             if gardener:
                 gardener_summary = (
-                    f"entities={gardener.total_entities_affected}, "
-                    f"rels={gardener.total_relationships_affected}, "
-                    f"conflicts={gardener.total_conflicts}"
+                    f"decayed={gardener.facts_decayed}, "
+                    f"promoted={gardener.facts_promoted}, "
+                    f"demoted={gardener.facts_demoted}, "
+                    f"conflicts={gardener.conflicts_resolved}"
                 )
             
             identity_summary = ""

@@ -77,10 +77,9 @@ def init_scheduler():
             cycle_interval_seconds=300,
             run_identity_resolution=True,
             gardener_config=GardenerConfig(
-                decay_half_life_days=30.0,
                 min_confidence_for_promotion=0.75,
-                min_dwell_time_hours=24.0,
-                archive_confidence_threshold=0.3,
+                min_dwell_time_hours=1.0,
+                archive_confidence_threshold=0.4,
             ),
             identity_config=IdentityResolutionConfig(
                 auto_merge_threshold=0.95,

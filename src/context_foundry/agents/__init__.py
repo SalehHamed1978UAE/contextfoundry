@@ -18,7 +18,11 @@ from .staging_validator import StagingValidatorAgent, ValidationResult, Validati
 from .retrieval import RetrievalAgent
 from .reasoning import ReasoningAgent
 from .validation import ValidationAgent
-from .gardener import Gardener, GardenerConfig, GardenerCycleResult, ConflictRecord
+from .gardener import (
+    GardenerAgent, Gardener, GardenerConfig, GardenerCycleResult,
+    DecayResult, PromotionResult, ConflictResult, DemotionResult, CleanupResult,
+    ConflictType, ConflictResolution
+)
 from .identity_resolver import IdentityResolver, IdentityResolutionConfig, DuplicateCandidate
 from .scheduler import GardenerScheduler, SchedulerConfig, start_scheduler, stop_scheduler
 
@@ -32,10 +36,17 @@ __all__ = [
     "RetrievalAgent", 
     "ReasoningAgent",
     "ValidationAgent",
+    "GardenerAgent",
     "Gardener",
     "GardenerConfig",
     "GardenerCycleResult",
-    "ConflictRecord",
+    "DecayResult",
+    "PromotionResult",
+    "ConflictResult",
+    "DemotionResult",
+    "CleanupResult",
+    "ConflictType",
+    "ConflictResolution",
     "IdentityResolver",
     "IdentityResolutionConfig",
     "DuplicateCandidate",
