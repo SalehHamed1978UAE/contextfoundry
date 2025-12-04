@@ -14,8 +14,7 @@ from openai import OpenAI
 from ..models.schema import Document, get_session
 from ..utils.logger import logger
 
-AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
-AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_DIM = 1536
@@ -23,13 +22,10 @@ EMBEDDING_DIM = 1536
 _openai_client: Optional[OpenAI] = None
 
 def get_openai_client() -> OpenAI:
-    """Get or create OpenAI client (uses Replit AI Integrations)."""
+    """Get or create OpenAI client for embeddings (uses direct OpenAI API key)."""
     global _openai_client
     if _openai_client is None:
-        _openai_client = OpenAI(
-            api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
-            base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
-        )
+        _openai_client = OpenAI(api_key=OPENAI_API_KEY)
     return _openai_client
 
 
