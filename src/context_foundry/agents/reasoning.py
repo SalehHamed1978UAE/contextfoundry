@@ -3,10 +3,14 @@ Reasoning Agent - Uses LLM to generate responses from ContextBundles.
 Produces responses with confidence scores and evidence chains.
 
 Uses Replit AI Integrations for OpenAI access (no API key required, billed to credits).
+
+Implements Sufficiency Autorater + Quadrant Confidence + Entity Density Scoring
+for calibrated confidence that works for both entity-centric and topic-centric queries.
 """
 import os
 import json
-from typing import Dict, List, Optional
+import re
+from typing import Dict, List, Optional, Tuple, Set
 from openai import OpenAI
 
 from ..models.context_bundle import ContextBundle, EvidenceItem
@@ -14,6 +18,30 @@ from ..utils.logger import logger, QueryLogger
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+
+SUFFICIENCY_PROMPT = """You are evaluating whether retrieved context is sufficient to answer a user query.
+
+Query: {query}
+
+Retrieved Context:
+{context}
+
+Think step by step:
+1. What specific information does the query need?
+2. Does the context contain that information?
+3. Is the information complete or partial?
+
+Respond with EXACTLY this JSON format:
+{{
+    "classification": "SUFFICIENT" | "PARTIAL" | "INSUFFICIENT",
+    "explanation": "Brief 1-2 sentence explanation",
+    "key_facts_found": ["list of key facts found in context"],
+    "key_facts_missing": ["list of key facts needed but not found"]
+}}
+
+SUFFICIENT = Context contains all key information needed to answer confidently
+PARTIAL = Context contains some relevant information but is incomplete
+INSUFFICIENT = Context does not contain the information needed to answer"""
 
 REASONING_SYSTEM_PROMPT = """You are a Context Foundry reasoning agent for IT operations.
 
@@ -26,15 +54,17 @@ Your task is to answer the user's query based ONLY on the provided context.
 
 CRITICAL RULES:
 1. Only use information from the provided context - NEVER make up facts
-2. If the context says "TARGET ENTITY NOT FOUND", you MUST:
-   - Set confidence to 0.1 or lower
-   - State clearly that the entity does not exist in the knowledge graph
-   - Do NOT fabricate relationships or information about non-existent entities
-   - Do NOT cite relationships from unrelated entities as if they apply to the missing entity
-3. Only cite relationships that are EXPLICITLY shown in the context
-4. If information is missing or uncertain, explicitly say so
-5. Rate your confidence (0.0-1.0) based on context quality
-6. Always check if any rules apply to your response
+2. For ENTITY-CENTRIC queries (about specific services, people, teams):
+   - Use semantic memory (entities/relationships) as primary evidence
+   - Supplement with episodic memory (documents) for additional detail
+3. For TOPIC-CENTRIC queries (about projects, initiatives, decisions, general topics):
+   - Episodic memory (documents) may be the primary evidence source
+   - Synthesize information from relevant documents even if no matching entity exists
+   - Ground answers by referencing known entities mentioned in documents
+4. Only cite facts that are EXPLICITLY stated in the context
+5. If information is missing or uncertain, explicitly say so
+6. Rate your confidence (0.0-1.0) based on evidence quality and completeness
+7. Always check if any rules apply to your response
 
 RESPONSE FORMAT (JSON):
 {
@@ -65,7 +95,14 @@ class ReasoningAgent:
     Generates responses with full provenance and confidence scoring.
     
     Uses Replit AI Integrations for OpenAI access.
+    
+    Implements 3-phase confidence calibration:
+    1. Sufficiency Autorater - LLM evaluates if context can answer the query
+    2. Quadrant Confidence - 4-quadrant scoring based on entity+docs presence
+    3. Entity Density Scoring - Proxy grounding via known entity mentions
     """
+    
+    SIMILARITY_THRESHOLD = 0.40
     
     def __init__(self):
         self.client = OpenAI(
@@ -73,7 +110,146 @@ class ReasoningAgent:
             base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
         )
         self.model = "gpt-4o-mini"
+        self._known_entities: Optional[Set[str]] = None
         logger.info(f"ReasoningAgent initialized with model: {self.model}")
+    
+    def _get_known_entities(self) -> Set[str]:
+        """Lazily load and cache known entity names from the database."""
+        if self._known_entities is None:
+            try:
+                from ..models.schema import Entity, get_session
+                session = get_session()
+                entities = session.query(Entity.name).all()
+                self._known_entities = {e[0].lower() for e in entities}
+                session.close()
+                logger.debug(f"Cached {len(self._known_entities)} known entities")
+            except Exception as e:
+                logger.warning(f"Failed to load known entities: {e}")
+                self._known_entities = set()
+        return self._known_entities
+    
+    def check_sufficiency(self, query: str, context: str) -> Tuple[str, Dict]:
+        """
+        Phase 1: Sufficiency Autorater
+        
+        Uses LLM to evaluate if retrieved context is sufficient to answer the query.
+        Returns: (classification, details_dict)
+        - classification: "SUFFICIENT" | "PARTIAL" | "INSUFFICIENT"
+        - details_dict: explanation, key_facts_found, key_facts_missing
+        """
+        try:
+            prompt = SUFFICIENCY_PROMPT.format(query=query, context=context[:8000])
+            
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_completion_tokens=500,
+                response_format={"type": "json_object"}
+            )
+            
+            response_text = response.choices[0].message.content or ""
+            result = json.loads(response_text)
+            
+            classification = result.get("classification", "PARTIAL").upper()
+            if classification not in ["SUFFICIENT", "PARTIAL", "INSUFFICIENT"]:
+                classification = "PARTIAL"
+            
+            logger.info(f"Sufficiency check: {classification} - {result.get('explanation', '')[:100]}")
+            return classification, result
+            
+        except Exception as e:
+            logger.warning(f"Sufficiency check failed: {e}, defaulting to PARTIAL")
+            return "PARTIAL", {"explanation": "Sufficiency check failed", "key_facts_found": [], "key_facts_missing": []}
+    
+    def calculate_entity_density(self, documents: List[Dict]) -> Tuple[float, List[str]]:
+        """
+        Phase 3: Entity Density Scoring
+        
+        Measures how many known entities are mentioned in retrieved documents.
+        High density = proxy grounding = higher confidence for topic-centric queries.
+        
+        Returns: (density_score 0.0-1.0, list of known entities found)
+        """
+        known_entities = self._get_known_entities()
+        if not known_entities or not documents:
+            return 0.0, []
+        
+        doc_text = " ".join([
+            doc.get("content", "") + " " + doc.get("title", "")
+            for doc in documents
+        ]).lower()
+        
+        found_entities = []
+        for entity in known_entities:
+            if len(entity) >= 3:
+                pattern = r'\b' + re.escape(entity) + r'\b'
+                if re.search(pattern, doc_text):
+                    found_entities.append(entity)
+        
+        if not found_entities:
+            return 0.0, []
+        
+        density = min(len(found_entities) / 10.0, 1.0)
+        
+        logger.debug(f"Entity density: {density:.2f} ({len(found_entities)} entities found: {found_entities[:5]})")
+        return density, found_entities
+    
+    def calculate_quadrant_confidence(
+        self,
+        bundle: ContextBundle,
+        sufficiency: str,
+        entity_density: float
+    ) -> Tuple[float, str]:
+        """
+        Phase 2: Quadrant Confidence Calculation
+        
+        Replaces the entity-not-found guard with nuanced quadrant logic:
+        
+        Quadrant 1: Entity found + Good docs → 0.90 base (best case)
+        Quadrant 2: Entity found + No docs → 0.70 base (graph only)
+        Quadrant 3: No entity + Good docs → 0.65 base (topic-centric - WAS BROKEN)
+        Quadrant 4: No entity + No docs → 0.10 base (no evidence)
+        
+        Adjusted by sufficiency rating and entity density.
+        
+        Returns: (confidence, quadrant_name)
+        """
+        entity_found = bundle.target_entity_found
+        
+        has_good_docs = False
+        if bundle.episodic_documents:
+            top_similarity = bundle.episodic_documents[0].get('similarity', 0)
+            has_good_docs = top_similarity > self.SIMILARITY_THRESHOLD
+        
+        if entity_found and has_good_docs:
+            base = 0.90
+            quadrant = "Q1_entity_and_docs"
+        elif entity_found and not has_good_docs:
+            base = 0.70
+            quadrant = "Q2_entity_only"
+        elif not entity_found and has_good_docs:
+            base = 0.65
+            quadrant = "Q3_docs_only"
+            if entity_density > 0.3:
+                base += 0.10
+                quadrant = "Q3_docs_grounded"
+        else:
+            base = 0.10
+            quadrant = "Q4_no_evidence"
+        
+        if sufficiency == "SUFFICIENT":
+            confidence = min(base + 0.10, 0.95)
+        elif sufficiency == "PARTIAL":
+            confidence = base * 0.85
+        else:
+            if quadrant in ["Q1_entity_and_docs", "Q3_docs_grounded"]:
+                confidence = base * 0.55
+            else:
+                confidence = min(base, 0.20)
+        
+        logger.info(f"Quadrant confidence: {quadrant} base={base:.2f} sufficiency={sufficiency} → {confidence:.2f}")
+        return confidence, quadrant
     
     def reason(
         self,
@@ -83,14 +259,26 @@ class ReasoningAgent:
         """
         Generate a reasoned response from a ContextBundle.
         
+        Uses 3-phase confidence calibration:
+        1. Sufficiency Autorater - LLM evaluates if context can answer the query
+        2. Quadrant Confidence - 4-quadrant scoring based on entity+docs presence
+        3. Entity Density Scoring - Proxy grounding via known entity mentions
+        
         Returns a structured response with answer, confidence, evidence, and uncertainty.
         """
-        # CRITICAL: Check if target entity was not found - return early with low confidence
-        if bundle.target_entity_name and not bundle.target_entity_found:
-            logger.warning(f"Reasoning with missing target entity: {bundle.target_entity_name}")
-            return self._create_entity_not_found_response(bundle)
-        
         context_str = bundle.to_llm_context()
+        
+        entity_density, grounding_entities = self.calculate_entity_density(bundle.episodic_documents)
+        
+        sufficiency, sufficiency_details = self.check_sufficiency(bundle.query_text, context_str)
+        
+        calibrated_confidence, quadrant = self.calculate_quadrant_confidence(
+            bundle, sufficiency, entity_density
+        )
+        
+        if quadrant == "Q4_no_evidence" and sufficiency == "INSUFFICIENT":
+            logger.info(f"Insufficient evidence for query, returning low-confidence response")
+            return self._create_insufficient_evidence_response(bundle, sufficiency_details)
         
         user_prompt = f"""Query: {bundle.query_text}
 
@@ -119,14 +307,17 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
                 response_format={"type": "json_object"}
             )
             
-            response_text = response.content[0].text if hasattr(response, 'content') else response.choices[0].message.content
+            response_text = response.choices[0].message.content or ""
             
             try:
                 result = json.loads(response_text)
             except json.JSONDecodeError:
                 result = self._parse_fallback(response_text)
             
-            result = self._validate_and_enrich_response(result, bundle)
+            result = self._validate_and_enrich_response(
+                result, bundle, calibrated_confidence, quadrant, 
+                sufficiency, entity_density, grounding_entities
+            )
             
             if query_logger:
                 query_logger.log_reasoning(
@@ -166,20 +357,40 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             "caveats": ["Response format was non-standard"]
         }
     
-    def _validate_and_enrich_response(self, result: Dict, bundle: ContextBundle) -> Dict:
-        """Validate and enrich the LLM response with additional context."""
+    def _validate_and_enrich_response(
+        self, 
+        result: Dict, 
+        bundle: ContextBundle,
+        calibrated_confidence: float,
+        quadrant: str,
+        sufficiency: str,
+        entity_density: float,
+        grounding_entities: List[str]
+    ) -> Dict:
+        """
+        Validate and enrich the LLM response with additional context.
+        
+        Applies calibrated confidence from the 3-phase system instead of
+        relying solely on LLM's self-reported confidence.
+        """
         if "answer" not in result:
             result["answer"] = "Unable to generate answer from context."
         
-        if "confidence" not in result:
-            result["confidence"] = bundle.confidence
+        result["confidence"] = calibrated_confidence
         
-        confidence = result.get("confidence", 0.5)
-        if confidence >= 0.85:
+        result["confidence_calibration"] = {
+            "quadrant": quadrant,
+            "sufficiency": sufficiency,
+            "entity_density": entity_density,
+            "grounding_entities": grounding_entities[:10],
+            "llm_self_confidence": result.get("confidence", 0.5)
+        }
+        
+        if calibrated_confidence >= 0.85:
             result["confidence_level"] = "high"
-        elif confidence >= 0.70:
+        elif calibrated_confidence >= 0.70:
             result["confidence_level"] = "medium"
-        elif confidence >= 0.50:
+        elif calibrated_confidence >= 0.50:
             result["confidence_level"] = "low"
         else:
             result["confidence_level"] = "very_low"
@@ -265,39 +476,47 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             "context_bundle": bundle.to_dict()
         }
     
-    def _create_entity_not_found_response(self, bundle: ContextBundle) -> Dict:
+    def _create_insufficient_evidence_response(self, bundle: ContextBundle, sufficiency_details: Dict) -> Dict:
         """
-        Create a structured response when the target entity doesn't exist.
+        Create a structured response when there's insufficient evidence to answer.
         
-        CRITICAL: This prevents hallucinations by explicitly stating the entity
-        doesn't exist rather than fabricating information about it.
+        This replaces the old entity-not-found guard with a more nuanced approach
+        that uses the Sufficiency Autorater to determine if we can answer.
+        
+        Returns a low-confidence response that honestly states limitations.
         """
-        target = bundle.target_entity_name
+        missing_facts = sufficiency_details.get("key_facts_missing", [])
+        explanation = sufficiency_details.get("explanation", "Insufficient information in the knowledge base")
         
         return {
-            "answer": f"I cannot answer this query because the entity '{target}' does not exist in the knowledge graph. "
-                     f"The system searched for '{target}' but found no matching entity. "
-                     f"This could mean: (1) the entity name is misspelled, (2) the entity hasn't been ingested yet, "
-                     f"or (3) the entity genuinely doesn't exist in your infrastructure. "
-                     f"Please verify the entity name or add it to the knowledge graph if it should exist.",
-            "confidence": 0.1,
+            "answer": f"I don't have enough information to confidently answer this query. "
+                     f"{explanation} "
+                     f"The knowledge base was searched but relevant facts were not found. "
+                     f"This could mean the topic hasn't been documented, or it may be referred to differently.",
+            "confidence": 0.10,
             "confidence_level": "very_low",
-            "entity_not_found": True,
-            "target_entity": target,
+            "insufficient_evidence": True,
+            "confidence_calibration": {
+                "quadrant": "Q4_no_evidence",
+                "sufficiency": "INSUFFICIENT",
+                "entity_density": 0.0,
+                "grounding_entities": [],
+                "llm_self_confidence": 0.1
+            },
             "evidence_chain": [],
             "uncertainty": {
-                "uncertain_facts": [f"Whether '{target}' exists or is named differently"],
-                "reasons": [f"Entity '{target}' not found in knowledge graph"],
+                "uncertain_facts": missing_facts or ["The information needed to answer this query"],
+                "reasons": ["Insufficient evidence in the knowledge base"],
                 "would_help": [
-                    f"Verify the exact name of '{target}'",
-                    "Check if the entity has been ingested",
-                    "Try alternative names or spellings"
+                    "Add relevant documents about this topic",
+                    "Try rephrasing the query with different terms",
+                    "Check if the topic is documented under a different name"
                 ]
             },
             "rules_applied": [],
             "caveats": [
-                f"The entity '{target}' does not exist in the knowledge graph",
-                "No relationships or facts can be provided for non-existent entities"
+                "The knowledge base does not contain sufficient information to answer this query",
+                "This is an honest abstention rather than a fabricated answer"
             ],
             "bundle_id": bundle.query_id,
             "query_text": bundle.query_text,
