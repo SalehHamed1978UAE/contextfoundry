@@ -785,6 +785,136 @@ def reveal_evaluation_source():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+
+@app.route('/api/feedback', methods=['POST'])
+def submit_feedback():
+    """Submit feedback for a query response (Learning Loop)."""
+    from src.context_foundry.models.schema import FeedbackRecord, get_session
+    
+    try:
+        data = request.get_json()
+        
+        query_text = data.get('query_text', '')
+        response_text = data.get('response_text', '')
+        confidence = data.get('confidence', 0)
+        judgment = data.get('judgment', '')
+        error_type = data.get('error_type')
+        query_log_id = data.get('query_log_id')
+        
+        if not query_text or not response_text or not judgment:
+            return jsonify({'success': False, 'error': 'query_text, response_text, and judgment required'}), 400
+        
+        if judgment not in ['correct', 'incorrect', 'partial']:
+            return jsonify({'success': False, 'error': 'judgment must be correct, incorrect, or partial'}), 400
+        
+        session = get_session()
+        try:
+            feedback = FeedbackRecord(
+                query_log_id=query_log_id if query_log_id else None,
+                query_text=query_text,
+                response_text=response_text,
+                confidence=confidence,
+                judgment=judgment,
+                error_type=error_type,
+                processed=False,
+            )
+            session.add(feedback)
+            session.commit()
+            
+            return jsonify({
+                'success': True,
+                'feedback_id': str(feedback.id),
+                'message': 'Feedback recorded successfully',
+            })
+        except Exception as db_err:
+            session.rollback()
+            return jsonify({'success': False, 'error': str(db_err)}), 500
+        finally:
+            session.close()
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/feedback/stats')
+def feedback_stats():
+    """Get feedback statistics for the Learning Loop dashboard."""
+    from src.context_foundry.models.schema import FeedbackRecord, get_session
+    from sqlalchemy import func
+    
+    try:
+        session = get_session()
+        try:
+            total = session.query(func.count(FeedbackRecord.id)).scalar() or 0
+            unprocessed = session.query(func.count(FeedbackRecord.id)).filter(
+                FeedbackRecord.processed == False
+            ).scalar() or 0
+            
+            correct = session.query(func.count(FeedbackRecord.id)).filter(
+                FeedbackRecord.judgment == 'correct'
+            ).scalar() or 0
+            incorrect = session.query(func.count(FeedbackRecord.id)).filter(
+                FeedbackRecord.judgment == 'incorrect'
+            ).scalar() or 0
+            partial = session.query(func.count(FeedbackRecord.id)).filter(
+                FeedbackRecord.judgment == 'partial'
+            ).scalar() or 0
+            
+            error_types = session.query(
+                FeedbackRecord.error_type,
+                func.count(FeedbackRecord.id).label('count')
+            ).filter(
+                FeedbackRecord.error_type.isnot(None)
+            ).group_by(FeedbackRecord.error_type).all()
+            
+            return jsonify({
+                'success': True,
+                'stats': {
+                    'total': total,
+                    'unprocessed': unprocessed,
+                    'processed': total - unprocessed,
+                    'by_judgment': {
+                        'correct': correct,
+                        'incorrect': incorrect,
+                        'partial': partial,
+                    },
+                    'by_error_type': {et: count for et, count in error_types if et},
+                },
+            })
+        finally:
+            session.close()
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/feedback/recent')
+def recent_feedback():
+    """Get recent feedback records."""
+    from src.context_foundry.models.schema import FeedbackRecord, get_session
+    
+    try:
+        session = get_session()
+        try:
+            limit = request.args.get('limit', 20, type=int)
+            unprocessed_only = request.args.get('unprocessed', 'false').lower() == 'true'
+            
+            query = session.query(FeedbackRecord).order_by(FeedbackRecord.created_at.desc())
+            
+            if unprocessed_only:
+                query = query.filter(FeedbackRecord.processed == False)
+            
+            records = query.limit(limit).all()
+            
+            return jsonify({
+                'success': True,
+                'feedback': [r.to_dict() for r in records],
+                'count': len(records),
+            })
+        finally:
+            session.close()
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     init_scheduler()
     app.run(host='0.0.0.0', port=5000, debug=True)
