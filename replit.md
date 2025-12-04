@@ -64,6 +64,7 @@ Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity
 -   **Typography**: Headers: Space Grotesk; Data/Code: JetBrains Mono; UI Text: Inter.
 
 ### Technical Implementations & Design Choices
+-   **Type Storage**: Entity and relationship types stored as VARCHAR (plain strings), validated at application layer against loaded YAML schema. EntityType and RelationshipType classes remain as string constant holders for backward compatibility (e.g., `EntityType.SERVICE = "SERVICE"`).
 -   **Lifecycle States**: Data progresses from STAGING to TRUSTED.
 -   **Confidence Scoring**: Every entity, relationship, and response includes a confidence score.
 -   **Full Provenance**: Facts trace back to source documents.
