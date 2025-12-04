@@ -62,32 +62,6 @@ def openai_embedding(text: str, dim: int = EMBEDDING_DIM) -> List[float]:
         raise
 
 
-def simple_embedding(text: str, dim: int = 384) -> List[float]:
-    """
-    DEPRECATED: Simple deterministic embedding for fallback only.
-    Use openai_embedding() for production.
-    """
-    np.random.seed(hash(text.lower()[:100]) % (2**32))
-    
-    words = text.lower().split()
-    word_vectors = []
-    
-    for word in words[:50]:
-        np.random.seed(hash(word) % (2**32))
-        word_vectors.append(np.random.randn(dim))
-    
-    if word_vectors:
-        embedding = np.mean(word_vectors, axis=0)
-    else:
-        embedding = np.zeros(dim)
-    
-    norm = np.linalg.norm(embedding)
-    if norm > 0:
-        embedding = embedding / norm
-    
-    return embedding.tolist()
-
-
 class EpisodicMemory:
     """
     Vector-based memory for similarity search.
