@@ -1,0 +1,1776 @@
+{
+  "answer": "The Payments Team owns the Payment Service.",
+  "confidence": 0.95,
+  "confidence_level": "high",
+  "evidence_chain": [
+    {
+      "type": "relationship",
+      "description": "Payments Team owns the Payment Service.",
+      "source": "Payments Team --[OWNS]--> Payment Service",
+      "confidence": 0.9
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Org: Brand Team",
+      "source": "Org: Brand Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Org: Brand Team (5 members) - Brand identity and communications",
+      "confidence": 0.977040348671886,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Org: Growth Team",
+      "source": "Org: Growth Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Org: Growth Team (7 members) - User acquisition and activation",
+      "confidence": 0.9770403379542596,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: Org: Data Team",
+      "source": "Org: Data Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Org: Data Team (6 members) - Data pipelines and analytics infrastructure",
+      "confidence": 0.9770403042925001,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Tom Baker -[MEMBER_OF]-> Org: Brand Team",
+      "source": "Tom Baker -> Org: Brand Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Tom Baker is a member of Org: Brand Team.",
+      "confidence": 0.9575000799709074,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Tom Baker -[OWNS]-> Org: Brand Team",
+      "source": "Tom Baker -> Org: Brand Team",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Tom Baker leads the Org: Brand Team.",
+      "confidence": 0.9575000694891359,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "Org: Growth Team -[DEPENDS_ON]-> Org: Product Strategy",
+      "source": "Org: Growth Team -> Org: Product Strategy",
+      "source_document": "org_chart_synthetic",
+      "source_sentence": "Org: Growth Team works closely with Org: Product Strategy on experiments.",
+      "confidence": 0.9575004982616879,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: Design Doc 0026 - Chunk 3",
+      "source": "Design Doc 0026 - Chunk 3",
+      "source_document": null,
+      "similarity": 0.4911150834249039,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: Design Doc 0458 - Chunk 3",
+      "source": "Design Doc 0458 - Chunk 3",
+      "source_document": null,
+      "similarity": 0.4851688745825868,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: On-Call Requirement",
+      "source": "On-Call Requirement",
+      "rule_type": "SAFETY_CHECK",
+      "action": "verify_oncall_exists(service.owner_team)",
+      "memory_layer": "symbolic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: Payment Service Dependency Check",
+      "source": "Payment Service Dependency Check",
+      "rule_type": "INVARIANT",
+      "action": "flag_critical('Payment Service cannot operate without Payments Database')",
+      "memory_layer": "symbolic"
+    }
+  ],
+  "uncertainty": {
+    "uncertain_facts": [],
+    "reasons": [],
+    "would_help": [],
+    "context_confidence": 0.9232065466390353,
+    "context_recommendation": "proceed"
+  },
+  "rules_applied": [],
+  "caveats": [],
+  "confidence_calibration": {
+    "quadrant": "Q1_entity_and_docs",
+    "sufficiency": "SUFFICIENT",
+    "entity_density": 0.7,
+    "grounding_entities": [
+      "alex thompson",
+      "emily rodriguez",
+      "fraud detection service",
+      "checkout service",
+      "auth service",
+      "lisa park",
+      "payment service"
+    ],
+    "llm_self_confidence": 0.95
+  },
+  "bundle_id": "0225f581-1281-48e7-b83a-463db987c1f6",
+  "query_text": "What team owns the Payment Service?",
+  "context_bundle": {
+    "query_id": "0225f581-1281-48e7-b83a-463db987c1f6",
+    "query_text": "What team owns the Payment Service?",
+    "created_at": "2025-12-04T14:30:24.784124",
+    "query_type": "entity",
+    "is_analysis_query": false,
+    "is_property_query": false,
+    "property_filters": [],
+    "sequence_intent": false,
+    "semantic_memory": [
+      {
+        "id": "c3729dbe-efec-4b89-88ed-9c77cb185884",
+        "name": "Org: Brand Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "department": "Marketing",
+          "headcount": 5,
+          "type": "team"
+        },
+        "description": "Brand identity and communications",
+        "confidence": 0.977040348671886,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Brand Team (5 members) - Brand identity and communications"
+      },
+      {
+        "id": "88e64cbb-0447-4652-8bf2-36582858620e",
+        "name": "Org: Growth Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "department": "Marketing",
+          "headcount": 7,
+          "type": "team"
+        },
+        "description": "User acquisition and activation",
+        "confidence": 0.9770403379542596,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Growth Team (7 members) - User acquisition and activation"
+      },
+      {
+        "id": "d6f915b4-1848-4f25-8d86-98af4f4197ac",
+        "name": "Org: Data Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "department": "Engineering",
+          "headcount": 6,
+          "type": "team"
+        },
+        "description": "Data pipelines and analytics infrastructure",
+        "confidence": 0.9770403042925001,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Data Team (6 members) - Data pipelines and analytics infrastructure"
+      },
+      {
+        "id": "d21a72d7-f98d-4d0b-af15-802422223282",
+        "name": "Org: Frontend Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "department": "Engineering",
+          "headcount": 8,
+          "type": "team"
+        },
+        "description": "User interface and experience",
+        "confidence": 0.977040292647337,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Frontend Team (8 members) - User interface and experience"
+      },
+      {
+        "id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "name": "Org: Platform Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "department": "Engineering",
+          "headcount": 12,
+          "type": "team"
+        },
+        "description": "Core infrastructure and developer tools",
+        "confidence": 0.9770402772173002,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Platform Team (12 members) - Core infrastructure and developer tools"
+      },
+      {
+        "id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "name": "Payment Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "framework": "FastAPI",
+          "tier": "critical"
+        },
+        "description": "Core payment processing service. Handles all financial transactions.",
+        "confidence": 0.8573343003590216,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Core payment processing service. Handles all financial transactions."
+      },
+      {
+        "id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "name": "Payments Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "slack_channel": "#payments-team",
+          "on_call_rotation": "daily"
+        },
+        "description": "Handles all payment processing and financial transactions",
+        "confidence": 0.8573336031943979,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Handles all payment processing and financial transactions"
+      },
+      {
+        "id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "name": "Payment Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "framework": "FastAPI",
+          "tier": "critical"
+        },
+        "description": "Core payment processing service. Handles all financial transactions.",
+        "confidence": 0.8568287247142143,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Core payment processing service. Handles all financial transactions."
+      },
+      {
+        "id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "name": "Payments Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "slack_channel": "#payments-team",
+          "on_call_rotation": "daily"
+        },
+        "description": "Handles all payment processing and financial transactions",
+        "confidence": 0.8568281360936656,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Handles all payment processing and financial transactions"
+      },
+      {
+        "id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "name": "Payment Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "framework": "FastAPI",
+          "tier": "critical"
+        },
+        "description": "Core payment processing service. Handles all financial transactions.",
+        "confidence": 0.8565144823307113,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Core payment processing service. Handles all financial transactions."
+      },
+      {
+        "id": "6b6910d8-63b5-403b-8b64-a224b3426fa9",
+        "name": "Fraud Detection Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "tier": "critical"
+        },
+        "description": "Real-time fraud detection for payment transactions.",
+        "confidence": 0.857334514435527,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Real-time fraud detection for payment transactions."
+      },
+      {
+        "id": "a54bdbb7-9a5c-4bdf-ab2b-356b751de285",
+        "name": "Checkout Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "TypeScript",
+          "tier": "critical"
+        },
+        "description": "Customer checkout flow. Orchestrates payment and order creation.",
+        "confidence": 0.8573344616120477,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Customer checkout flow. Orchestrates payment and order creation."
+      },
+      {
+        "id": "dd1d8199-3f67-4b53-a14f-cd31e24def6d",
+        "name": "Notification Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "tier": "standard"
+        },
+        "description": "Handles email, SMS, and push notifications.",
+        "confidence": 0.8573344346791865,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Handles email, SMS, and push notifications."
+      },
+      {
+        "id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "name": "Auth Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Go",
+          "tier": "critical"
+        },
+        "description": "Authentication and authorization service. Required for all authenticated requests.",
+        "confidence": 0.8573343295081984,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Authentication and authorization service. Required for all authenticated requests."
+      },
+      {
+        "id": "2680b9f6-7e5a-4716-98ff-64cc1d7e2776",
+        "name": "Tom Baker",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "role": "Director of Brand",
+          "level": "Director",
+          "department": "Marketing",
+          "expertise": [
+            "messaging",
+            "design",
+            "pr"
+          ]
+        },
+        "description": "Director of Brand in Marketing",
+        "confidence": 0.9769477637911483,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Tom Baker is a Director of Brand (Director) in Marketing."
+      },
+      {
+        "id": "5cf38580-190f-4a5d-ad29-4792ebda2be9",
+        "name": "Org: Product Strategy",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "department": "Product",
+          "headcount": 4,
+          "type": "team"
+        },
+        "description": "Long-term product vision and roadmap",
+        "confidence": 0.9770403166444205,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Product Strategy (4 members) - Long-term product vision and roadmap"
+      },
+      {
+        "id": "b89b992a-acb7-44f9-b2ba-3898e7796777",
+        "name": "Nina Sharma",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "role": "Director of Growth",
+          "level": "Director",
+          "department": "Marketing",
+          "expertise": [
+            "acquisition",
+            "conversion",
+            "retention"
+          ]
+        },
+        "description": "Director of Growth in Marketing",
+        "confidence": 0.9769477520433706,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Nina Sharma is a Director of Growth (Director) in Marketing."
+      },
+      {
+        "id": "11972928-1266-4d21-814f-296937afbaad",
+        "name": "Nancy Wright",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "role": "Content Strategist",
+          "level": "IC",
+          "department": "Marketing",
+          "expertise": [
+            "writing",
+            "seo",
+            "social"
+          ]
+        },
+        "description": "Content Strategist in Marketing",
+        "confidence": 0.9769479420098147,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Nancy Wright is a Content Strategist (IC) in Marketing."
+      },
+      {
+        "id": "70bf60a5-c42b-4400-a480-a67960b9ea00",
+        "name": "Mark Robinson",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "role": "Growth Marketing Manager",
+          "level": "Manager",
+          "department": "Marketing",
+          "expertise": [
+            "campaigns",
+            "seo",
+            "paid"
+          ]
+        },
+        "description": "Growth Marketing Manager in Marketing",
+        "confidence": 0.9769479303007005,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Mark Robinson is a Growth Marketing Manager (Manager) in Marketing."
+      },
+      {
+        "id": "3cf12a8c-68c5-42f2-9eb8-7ea9d9ce0357",
+        "name": "George Brown",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "domain": "org_chart",
+          "role": "Data Engineer",
+          "level": "IC",
+          "department": "Engineering",
+          "expertise": [
+            "spark",
+            "airflow",
+            "sql"
+          ]
+        },
+        "description": "Data Engineer in Engineering",
+        "confidence": 0.9769478590992354,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "George Brown is a Data Engineer (IC) in Engineering."
+      },
+      {
+        "id": "8bd152e8-e647-48bf-9e71-b5b58ba6fe09",
+        "source_id": "2680b9f6-7e5a-4716-98ff-64cc1d7e2776",
+        "target_id": "c3729dbe-efec-4b89-88ed-9c77cb185884",
+        "source_name": "Tom Baker",
+        "target_name": "Org: Brand Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575000799709074,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Tom Baker is a member of Org: Brand Team."
+      },
+      {
+        "id": "e4183f07-f6e0-4c4b-9387-65e360dae647",
+        "source_id": "2680b9f6-7e5a-4716-98ff-64cc1d7e2776",
+        "target_id": "c3729dbe-efec-4b89-88ed-9c77cb185884",
+        "source_name": "Tom Baker",
+        "target_name": "Org: Brand Team",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575000694891359,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Tom Baker leads the Org: Brand Team."
+      },
+      {
+        "id": "5319df75-d485-42f3-a5be-b2cd536011b2",
+        "source_id": "88e64cbb-0447-4652-8bf2-36582858620e",
+        "target_id": "5cf38580-190f-4a5d-ad29-4792ebda2be9",
+        "source_name": "Org: Growth Team",
+        "target_name": "Org: Product Strategy",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575004982616879,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Growth Team works closely with Org: Product Strategy on experiments."
+      },
+      {
+        "id": "50fb2c8f-d11e-4c7f-b326-3548600031e9",
+        "source_id": "b89b992a-acb7-44f9-b2ba-3898e7796777",
+        "target_id": "88e64cbb-0447-4652-8bf2-36582858620e",
+        "source_name": "Nina Sharma",
+        "target_name": "Org: Growth Team",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575000421857299,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Nina Sharma leads the Org: Growth Team."
+      },
+      {
+        "id": "90b67f83-9ea8-4959-879b-0e3c48cb9871",
+        "source_id": "11972928-1266-4d21-814f-296937afbaad",
+        "target_id": "88e64cbb-0447-4652-8bf2-36582858620e",
+        "source_name": "Nancy Wright",
+        "target_name": "Org: Growth Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575004121703504,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Nancy Wright is a member of Org: Growth Team."
+      },
+      {
+        "id": "a4488b68-4c15-4e7b-8ced-14ba2b552478",
+        "source_id": "70bf60a5-c42b-4400-a480-a67960b9ea00",
+        "target_id": "88e64cbb-0447-4652-8bf2-36582858620e",
+        "source_name": "Mark Robinson",
+        "target_name": "Org: Growth Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575003908219533,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Mark Robinson is a member of Org: Growth Team."
+      },
+      {
+        "id": "dacf370e-92f0-42c8-b4b5-a3d77b5be272",
+        "source_id": "b89b992a-acb7-44f9-b2ba-3898e7796777",
+        "target_id": "88e64cbb-0447-4652-8bf2-36582858620e",
+        "source_name": "Nina Sharma",
+        "target_name": "Org: Growth Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575000534072371,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Nina Sharma is a member of Org: Growth Team."
+      },
+      {
+        "id": "5d5443ec-565f-424b-906b-c579c8d37a96",
+        "source_id": "3cf12a8c-68c5-42f2-9eb8-7ea9d9ce0357",
+        "target_id": "d6f915b4-1848-4f25-8d86-98af4f4197ac",
+        "source_name": "George Brown",
+        "target_name": "Org: Data Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575002599521275,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "George Brown is a member of Org: Data Team."
+      },
+      {
+        "id": "6b63597f-71da-4e61-808d-a0f31173aabc",
+        "source_id": "454bc40e-f485-4663-8183-fa91ac99793a",
+        "target_id": "d6f915b4-1848-4f25-8d86-98af4f4197ac",
+        "source_name": "James Wilson",
+        "target_name": "Org: Data Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9574999716931593,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "James Wilson is a member of Org: Data Team."
+      },
+      {
+        "id": "9f131096-e7c0-4fca-bd8d-e666a824b4e1",
+        "source_id": "28b9a22d-6d38-4dfe-8525-2689b6c77364",
+        "target_id": "d6f915b4-1848-4f25-8d86-98af4f4197ac",
+        "source_name": "Hannah White",
+        "target_name": "Org: Data Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575002816221241,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Hannah White is a member of Org: Data Team."
+      },
+      {
+        "id": "ded97858-871f-48fa-a838-c253375e5754",
+        "source_id": "454bc40e-f485-4663-8183-fa91ac99793a",
+        "target_id": "d6f915b4-1848-4f25-8d86-98af4f4197ac",
+        "source_name": "James Wilson",
+        "target_name": "Org: Data Team",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.957499960388692,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "James Wilson leads the Org: Data Team."
+      },
+      {
+        "id": "fc939924-82ad-42f0-8ad6-b7d814ab6fed",
+        "source_id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "target_id": "d6f915b4-1848-4f25-8d86-98af4f4197ac",
+        "source_name": "Org: Platform Team",
+        "target_name": "Org: Data Team",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575004872301667,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Org: Platform Team provides infrastructure support to Org: Data Team."
+      },
+      {
+        "id": "099ef36a-055a-4175-b3ec-381a0b9e0201",
+        "source_id": "6c841ea4-0a19-49fe-a329-5b9d49f42d71",
+        "target_id": "d21a72d7-f98d-4d0b-af15-802422223282",
+        "source_name": "Emily Zhang",
+        "target_name": "Org: Frontend Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9574999364946297,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Emily Zhang is a member of Org: Frontend Team."
+      },
+      {
+        "id": "6c0d2374-ec6d-4907-8f39-030b11cb174f",
+        "source_id": "c4542a53-2384-4649-9fc0-c947c0bad19f",
+        "target_id": "d21a72d7-f98d-4d0b-af15-802422223282",
+        "source_name": "Fiona Martinez",
+        "target_name": "Org: Frontend Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575002375446998,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Fiona Martinez is a member of Org: Frontend Team."
+      },
+      {
+        "id": "9fedc932-86c3-43a0-897e-f87cef41aaa2",
+        "source_id": "8c8e0bea-393e-4523-9358-fe36a0221522",
+        "target_id": "d21a72d7-f98d-4d0b-af15-802422223282",
+        "source_name": "Eric Johnson",
+        "target_name": "Org: Frontend Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575002155907418,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Eric Johnson is a member of Org: Frontend Team."
+      },
+      {
+        "id": "df3380dd-3886-4464-a09f-62d846f8a456",
+        "source_id": "6c841ea4-0a19-49fe-a329-5b9d49f42d71",
+        "target_id": "d21a72d7-f98d-4d0b-af15-802422223282",
+        "source_name": "Emily Zhang",
+        "target_name": "Org: Frontend Team",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9574999250531747,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Emily Zhang leads the Org: Frontend Team."
+      },
+      {
+        "id": "7c3a5eba-beb0-47f0-8721-8c8ec2b446b7",
+        "source_id": "6df0e70f-73f8-4295-9867-3cb1e0fd6400",
+        "target_id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "source_name": "Alex Rivera",
+        "target_name": "Org: Platform Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9574999055409416,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Alex Rivera is a member of Org: Platform Team."
+      },
+      {
+        "id": "a16b1eaf-1af8-4a4f-975e-4af3429c3524",
+        "source_id": "6df0e70f-73f8-4295-9867-3cb1e0fd6400",
+        "target_id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "source_name": "Alex Rivera",
+        "target_name": "Org: Platform Team",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9574998943463215,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Alex Rivera leads the Org: Platform Team."
+      },
+      {
+        "id": "b8420740-3ab8-4696-9ee2-3a81791a9f1c",
+        "source_id": "83a7f880-9047-42b1-8dc9-5554c6659401",
+        "target_id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "source_name": "Diana Ross",
+        "target_name": "Org: Platform Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575001940282889,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Diana Ross is a member of Org: Platform Team."
+      },
+      {
+        "id": "c701043f-b38c-4bcd-bbbd-a4d42db78bc5",
+        "source_id": "033fee0e-8c7d-4690-9f77-361ef257651c",
+        "target_id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "source_name": "Brian Taylor",
+        "target_name": "Org: Platform Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575001718792198,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Brian Taylor is a member of Org: Platform Team."
+      },
+      {
+        "id": "d51527ec-66b4-4120-96de-bef04602d501",
+        "source_id": "2ce937bb-99ad-437e-a182-84ab2d1da57c",
+        "target_id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "source_name": "Amy Chen",
+        "target_name": "Org: Platform Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575001504455624,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Amy Chen is a member of Org: Platform Team."
+      },
+      {
+        "id": "d561e889-21a0-4fd7-85eb-f5e58c9e939f",
+        "source_id": "0966c47d-c294-4f0b-a4be-12e6b370a8d7",
+        "target_id": "b870dd0a-4f40-43ba-80f7-633e5b12093f",
+        "source_name": "Kevin Lee",
+        "target_name": "Org: Platform Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575001291371151,
+        "source_document_id": "org_chart_synthetic",
+        "source_sentence": "Kevin Lee is a member of Org: Platform Team."
+      },
+      {
+        "id": "0c369472-2810-497c-a8ce-331b38a34dd5",
+        "source_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "Payment Service",
+        "target_name": "Auth Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.904963260901915,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service validates tokens through Auth Service."
+      },
+      {
+        "id": "cc2caea7-e84e-4871-a7a4-78c2ea3b79bc",
+        "source_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "target_id": "de2ff12a-1988-419f-a0e4-6ab55755ecc1",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9335410477934598,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "ed3e5c58-ad33-4ada-a76e-759a8fa99abe",
+        "source_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "target_id": "6b6910d8-63b5-403b-8b64-a224b3426fa9",
+        "source_name": "Payment Service",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8573336152751296,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service calls Fraud Detection for transaction validation."
+      },
+      {
+        "id": "4e53b97a-19d3-46f9-8ad3-0394c142ee49",
+        "source_id": "1550ae41-fc4f-4a18-8b14-538b9b756e20",
+        "target_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "source_name": "API Gateway",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8573336155314494,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "API Gateway routes payment requests to Payment Service."
+      },
+      {
+        "id": "4e5dfc24-46f1-4b9c-85ef-fea7956bf5b3",
+        "source_id": "78b385ae-955f-4377-965d-49805f0dbba5",
+        "target_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "source_name": "INC-2024-013: Payments Database Disk Full",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632608358481,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-013: Payments Database Disk Full has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "744b338c-df65-4d35-a8d5-c6a3a57fe3a4",
+        "source_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "target_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "source_name": "Payments Team",
+        "target_name": "Payment Service",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632607775253,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payments Team owns the Payment Service."
+      },
+      {
+        "id": "e2923c84-122e-43f9-997e-612e494a1aed",
+        "source_id": "0d6020be-c07e-4c41-991e-cd9b1158c2df",
+        "target_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "source_name": "INC-2024-001: Payments Database Failover",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632605815026,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-001: Payments Database Failover has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "f73dadb8-c6c7-4f64-8a48-d6b32bd4b621",
+        "source_id": "a54bdbb7-9a5c-4bdf-ab2b-356b751de285",
+        "target_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "source_name": "Checkout Service",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9335410477298003,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service processes payments through Payment Service."
+      },
+      {
+        "id": "24c31ff4-5464-49b2-b980-dcaccc925d9b",
+        "source_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "target_id": "6b6910d8-63b5-403b-8b64-a224b3426fa9",
+        "source_name": "Payments Team",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632608745687,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payments Team owns the Fraud Detection Service."
+      },
+      {
+        "id": "2bfe8e42-a4d7-4cbe-beaa-038cb6ffa994",
+        "source_id": "9ad000fd-4808-455b-8efa-084ef6befd68",
+        "target_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "source_name": "James Wilson",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632608641625,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "James Wilson is a member of Payments Team."
+      },
+      {
+        "id": "81872c50-b118-4ec0-a1c4-2543b6c3497c",
+        "source_id": "a6070ddc-5e58-4164-a50d-ab3019d1f6da",
+        "target_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "source_name": "Lisa Park",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632607630052,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Lisa Park is a member of Payments Team."
+      },
+      {
+        "id": "a8f9b177-edc3-4df2-8eb1-cd77b3cc59db",
+        "source_id": "756bc353-6332-485f-9349-a5e925c05173",
+        "target_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "source_name": "Emily Rodriguez",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.904963260693308,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Emily Rodriguez is a member of Payments Team."
+      },
+      {
+        "id": "c5dc0132-9e16-42fb-8145-50bf74cb107f",
+        "source_id": "9ad000fd-4808-455b-8efa-084ef6befd68",
+        "target_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "source_name": "James Wilson",
+        "target_name": "Payments Team",
+        "relationship_type": "MANAGES",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632606221591,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "James Wilson leads/manages Payments Team."
+      },
+      {
+        "id": "eab9e2ca-fa78-414d-9bee-45011f80bc59",
+        "source_id": "48a71b5a-a858-42e0-a855-d11bc7c78542",
+        "target_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "source_name": "Olivia Scott",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632605708544,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Olivia Scott is a member of Payments Team."
+      },
+      {
+        "id": "f0b22d13-2f6d-4390-88df-162a9e5f3c7d",
+        "source_id": "756bc353-6332-485f-9349-a5e925c05173",
+        "target_id": "6af766e1-0b0a-4e76-9523-b4a9f0194c7a",
+        "source_name": "Emily Rodriguez",
+        "target_name": "Payments Team",
+        "relationship_type": "MANAGES",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9049632605643204,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Emily Rodriguez leads/manages Payments Team."
+      },
+      {
+        "id": "fd5ffe3e-fbae-47e3-a179-e6a3a0d31951",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "3339dbac-93b7-431e-a68c-77d0464b82cb",
+        "source_name": "Payment Service",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8793695531307323,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service calls Fraud Detection for transaction validation."
+      },
+      {
+        "id": "20182ac4-33e1-4d46-8f6f-6f266d174fc7",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "06bab283-a7c9-4110-b54f-030531c7df82",
+        "source_name": "Payment Service",
+        "target_name": "Auth Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9282234172628051,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service validates tokens through Auth Service."
+      },
+      {
+        "id": "073a95eb-046e-4ec1-9f4b-56f036ac0f80",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "b8b3bf64-dce4-4b27-8c02-59cceec888bc",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9329904410586344,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "48c2b453-7de7-4fb0-a038-b98368c41ace",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "884ca8e9-ef78-4ba7-85be-730b67c5bd8f",
+        "source_name": "Payment Service",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8568279560039128,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service calls Fraud Detection for transaction validation."
+      },
+      {
+        "id": "69c06d95-b865-45ea-91d4-1dca2dfdeef8",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "96401217-a244-49e7-b534-a1535bbe708d",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9575357356701633,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "c74a7564-e2da-4251-92fa-942a24e4aaab",
+        "source_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "target_id": "e6175e20-1305-4593-a109-51e219413e13",
+        "source_name": "Payment Service",
+        "target_name": "Auth Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295089173993,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service validates tokens through Auth Service."
+      },
+      {
+        "id": "007f7c7d-ef97-4000-969c-47c6da598616",
+        "source_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "Payments Team",
+        "target_name": "Payment Service",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295091957809,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payments Team owns the Payment Service."
+      },
+      {
+        "id": "2dc50762-777e-4307-8a6f-1d57ec3e888e",
+        "source_id": "6a546ef2-37cf-441e-87bf-afd9768693ed",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "Checkout Service",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9329904410062396,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service processes payments through Payment Service."
+      },
+      {
+        "id": "3d11ed78-341b-4064-9f25-288c01c16dc7",
+        "source_id": "118667da-ac5f-4fab-8e00-39cee3be72b2",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "API Gateway",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8568279561088549,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "API Gateway routes payment requests to Payment Service."
+      },
+      {
+        "id": "7032dfdb-c127-49f2-82fd-d2503413e627",
+        "source_id": "3fc220a6-2c69-48af-a752-a5a7c0afa854",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "INC-2024-013: Payments Database Disk Full",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9282234172302878,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-013: Payments Database Disk Full has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "9be5f0bc-fa0e-4cc7-84ca-754497810883",
+        "source_id": "0d6020be-c07e-4c41-991e-cd9b1158c2df",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "INC-2024-001: Payments Database Failover",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9282234172223446,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-001: Payments Database Failover has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "a567f717-8562-44c6-8462-8a62bcb01816",
+        "source_id": "377d73a3-01ea-48d6-867b-ced8a6f6750a",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "Payments Team",
+        "target_name": "Payment Service",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9282234172176284,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payments Team owns the Payment Service."
+      },
+      {
+        "id": "63499ece-f900-45da-9f76-a39fb7c2f64e",
+        "source_id": "aad8c8d2-c98f-4180-a2f3-f2e6b75812af",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "INC-2024-013: Payments Database Disk Full",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295090717064,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-013: Payments Database Disk Full has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "108476ee-ec1e-47c3-bf46-336f53cdab6b",
+        "source_id": "bb88e59d-29f4-4856-b91c-fc37c1a56456",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "INC-2024-001: Payments Database Failover",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.95,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-001: Payments Database Failover has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "a42386ea-6a7e-4956-bb19-8b31a869db88",
+        "source_id": "da69ef9c-9b9c-4583-b283-ce09297b5d66",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "Checkout Service",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.98,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service processes payments through Payment Service."
+      },
+      {
+        "id": "d83166b5-3e8f-40ea-a0a2-ac75c3292a9b",
+        "source_id": "d00a7bdc-00ce-49f7-96d9-e3826d5db339",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "API Gateway",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "API Gateway routes payment requests to Payment Service."
+      },
+      {
+        "id": "a54a95b5-e43c-4281-89af-d5f8fa32b665",
+        "source_id": "2c1fe63f-5093-4270-8845-8337ed85ada4",
+        "target_id": "284b6006-a361-4a5e-9e9f-40d37b08c760",
+        "source_name": "INC-2024-001: Payments Database Failover",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295089793156,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-001: Payments Database Failover has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "16085b64-4111-46b0-9b84-61da080cfb91",
+        "source_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "target_id": "884ca8e9-ef78-4ba7-85be-730b67c5bd8f",
+        "source_name": "Payments Team",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295091701436,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payments Team owns the Fraud Detection Service."
+      },
+      {
+        "id": "3220c554-8116-4e74-83a0-a82347f1ea8e",
+        "source_id": "c5d5e601-2b5b-48ab-be4d-54014e524f58",
+        "target_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "source_name": "Lisa Park",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295092470552,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Lisa Park is a member of Payments Team."
+      },
+      {
+        "id": "38a7c93e-98fb-4941-bf7a-4681c519a602",
+        "source_id": "61c9e442-619f-4b30-be57-d1faa23bd24e",
+        "target_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "source_name": "Olivia Scott",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295092352043,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Olivia Scott is a member of Payments Team."
+      },
+      {
+        "id": "5a21a0bd-8822-44db-94d0-7f79ea53bec5",
+        "source_id": "db00cd7e-0c8b-4bca-b4ca-31bd29574f53",
+        "target_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "source_name": "Emily Rodriguez",
+        "target_name": "Payments Team",
+        "relationship_type": "MANAGES",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295090869435,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Emily Rodriguez leads/manages Payments Team."
+      },
+      {
+        "id": "5df9e7ae-bab9-44b4-aca1-4d1ffb017072",
+        "source_id": "970fb03a-3917-40cf-94ef-0ac31b8c31ca",
+        "target_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "source_name": "James Wilson",
+        "target_name": "Payments Team",
+        "relationship_type": "MANAGES",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295090804134,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "James Wilson leads/manages Payments Team."
+      },
+      {
+        "id": "69f29a25-f57b-43ab-82fa-98b96d217862",
+        "source_id": "db00cd7e-0c8b-4bca-b4ca-31bd29574f53",
+        "target_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "source_name": "Emily Rodriguez",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295090625156,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Emily Rodriguez is a member of Payments Team."
+      },
+      {
+        "id": "c31fcb5b-2c8d-4d7d-b727-3e96aeeae598",
+        "source_id": "970fb03a-3917-40cf-94ef-0ac31b8c31ca",
+        "target_id": "6e342da3-b1ec-494d-a96a-dc7c4812ced7",
+        "source_name": "James Wilson",
+        "target_name": "Payments Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9044295089357807,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "James Wilson is a member of Payments Team."
+      },
+      {
+        "id": "34f63440-2761-4f29-a381-1e8b1e618464",
+        "source_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "target_id": "54287530-ab5e-4f59-97a1-833e684fc0c0",
+        "source_name": "Payment Service",
+        "target_name": "Auth Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9040978757430158,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service validates tokens through Auth Service."
+      },
+      {
+        "id": "30cddecd-23ac-49ec-a6ce-b1324eb01519",
+        "source_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "target_id": "ff1b2cbc-8fbb-437e-a6f4-b6ffe5e31ef3",
+        "source_name": "Payment Service",
+        "target_name": "Payments Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9326483349268752,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service requires Payments Database for all transaction storage."
+      },
+      {
+        "id": "7a2090ee-9051-4ada-821b-67f2a5127e59",
+        "source_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "target_id": "3339dbac-93b7-431e-a68c-77d0464b82cb",
+        "source_name": "Payment Service",
+        "target_name": "Fraud Detection Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8565137768396682,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service calls Fraud Detection for transaction validation."
+      },
+      {
+        "id": "5a9b50ce-6797-4277-a025-7d322e92a765",
+        "source_id": "96c66a82-bada-4de9-819f-c8e76907cb67",
+        "target_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "source_name": "Checkout Service",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.932648334827611,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service processes payments through Payment Service."
+      },
+      {
+        "id": "645d1e55-85c4-4617-89af-d06ed45b3cff",
+        "source_id": "f773d2c4-7de7-4c58-9d09-4f5a2aa0d644",
+        "target_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "source_name": "INC-2024-013: Payments Database Disk Full",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9040978755819958,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-013: Payments Database Disk Full has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "6bd0aeb3-281f-4f88-996e-7948910acc6f",
+        "source_id": "d00a7bdc-00ce-49f7-96d9-e3826d5db339",
+        "target_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "source_name": "API Gateway",
+        "target_name": "Payment Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8565137768550144,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "API Gateway routes payment requests to Payment Service."
+      },
+      {
+        "id": "848e9b02-1421-4238-8914-d64971376806",
+        "source_id": "3080e36b-1160-4da7-a8a8-52a0bc19d566",
+        "target_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "source_name": "INC-2024-001: Payments Database Failover",
+        "target_name": "Payment Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9040978755442792,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-001: Payments Database Failover has relationship AFFECTS with Payment Service."
+      },
+      {
+        "id": "c79efe76-08b9-44b6-b8dc-fb3272e22e79",
+        "source_id": "c9dcd537-2964-45e1-a52c-59e609a54ee2",
+        "target_id": "fa616bb1-9c28-4aed-92ea-7ccb555832a6",
+        "source_name": "Payments Team",
+        "target_name": "Payment Service",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9040978754299211,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payments Team owns the Payment Service."
+      }
+    ],
+    "semantic_count": 89,
+    "episodic_memory": [
+      {
+        "id": "8fe7f9e6-15cf-4852-b825-5d0a055b9695",
+        "title": "Design Doc 0026 - Chunk 3",
+        "doc_type": "DESIGN_DOC_CHUNK_SCALE",
+        "content": "1. Use existing Payment Service infrastructure (rejected: doesn't scale)\n2. Third-party solution (rejected: cost prohibitive)\n3. Proposed approach (selected)\n\n## Implementation Plan\n\n- Week 1: Development environment setup\n- Week 2-3: Core implementation\n- Week 4: Integration testing with Checkout Service\n- Week 5: Staged rollout",
+        "metadata": {
+          "source_document": "Design Doc 0026",
+          "chunk_index": 3,
+          "ingestion_type": "scale_test"
+        },
+        "source_document_id": null,
+        "similarity": 0.4911150834249039
+      },
+      {
+        "id": "03ff45f6-8e2f-4f89-b4cb-6eb933aaa2bc",
+        "title": "Design Doc 0458 - Chunk 3",
+        "doc_type": "DESIGN_DOC_CHUNK_SCALE",
+        "content": "1. Use existing Payment Service infrastructure (rejected: doesn't scale)\n2. Third-party solution (rejected: cost prohibitive)\n3. Proposed approach (selected)\n\n## Implementation Plan\n\n- Week 1: Development environment setup\n- Week 2-3: Core implementation\n- Week 4: Integration testing with Analytics Service\n- Week 5: Staged rollout",
+        "metadata": {
+          "source_document": "Design Doc 0458",
+          "chunk_index": 3,
+          "ingestion_type": "scale_test"
+        },
+        "source_document_id": null,
+        "similarity": 0.4851688745825868
+      },
+      {
+        "id": "419705c1-558d-4087-86d1-98526a96cd8a",
+        "title": "Project Status Update: Auth Service Cloud Migration - Chunk 6213aa07bc5aed3ecfb71fc05c759df2:chunk:6",
+        "doc_type": "MEETING_NOTES_CHUNK",
+        "content": "Dependencies\n- Payment Service team needs to update their Auth Service client library (Owner: Lisa Park)\n- DevOps needs to approve production deployment window (Owner: Alex Thompson)",
+        "metadata": {
+          "source_document": "Project Status Update: Auth Service Cloud Migration",
+          "chunk_id": "6213aa07bc5aed3ecfb71fc05c759df2:chunk:6",
+          "start_sentence": 0,
+          "end_sentence": 0,
+          "token_count": 35
+        },
+        "source_document_id": "6213aa07bc5aed3ecfb71fc05c759df2",
+        "similarity": 0.47628124845702
+      },
+      {
+        "id": "8c624dfd-e4e4-4954-a4ba-a03a83194500",
+        "title": "Cloud Migration Plan - 2024/2025 - Chunk 4e4c15df2f99747f42b91af9d3970d00:chunk:7",
+        "doc_type": "STRATEGY_DOC_CHUNK",
+        "content": "Phase 4: Payment Service (January - February 2025)\n**Status:** DEFERRED\n**Owner:** Emily Rodriguez / Lisa Park\n\n**Components:**\n- Transaction processing\n- Fraud Detection Service integration\n- PCI-compliant data handling\n- Financial reconciliation\n\n**Dependencies:**\n- Fraud Detection API modernization (Lisa Park, 2 weeks)\n- PCI audit must occur post-stabilization (January 15 deadline)\n\n**Risks:**\n- Most complex migration due to PCI requirements\n- Legacy Fraud Detection integration needs decoupli...",
+        "metadata": {
+          "source_document": "Cloud Migration Plan - 2024/2025",
+          "chunk_id": "4e4c15df2f99747f42b91af9d3970d00:chunk:7",
+          "start_sentence": 0,
+          "end_sentence": 0,
+          "token_count": 97
+        },
+        "source_document_id": "4e4c15df2f99747f42b91af9d3970d00",
+        "similarity": 0.47090142887295516
+      },
+      {
+        "id": "e2d98e46-e6f4-431d-a684-273132f2bb67",
+        "title": "Incident Report 0105 - Chunk 0",
+        "doc_type": "INCIDENT_REPORT_CHUNK_SCALE",
+        "content": "# Incident Report: Payment Service SEV2\n\n**Severity:** SEV2\n**Date:** 2025-11-21\n**Duration:** 79 minutes\n**Services Affected:** User Service, Checkout Service, Fraud Detection, Search Service\n\n## Timeline",
+        "metadata": {
+          "source_document": "Incident Report 0105",
+          "chunk_index": 0,
+          "ingestion_type": "scale_test"
+        },
+        "source_document_id": null,
+        "similarity": 0.46733114776514934
+      }
+    ],
+    "episodic_count": 5,
+    "symbolic_memory": [
+      {
+        "id": "73866669-1989-4b0b-b28b-965b5ef442d0",
+        "name": "On-Call Requirement",
+        "rule_type": "SAFETY_CHECK",
+        "description": "All critical services must have on-call coverage",
+        "condition": "service.properties.tier == 'critical'",
+        "action": "verify_oncall_exists(service.owner_team)",
+        "priority": 80,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE",
+          "TEAM"
+        ],
+        "relationship_types": [
+          "OWNS"
+        ],
+        "match_score": 7,
+        "match_reasons": [
+          "entity_types: {'TEAM', 'SERVICE'}",
+          "relationship_types: {'OWNS'}",
+          "keyword: Service"
+        ]
+      },
+      {
+        "id": "154d1002-c337-4409-a1da-5c890c29ff19",
+        "name": "Payment Service Dependency Check",
+        "rule_type": "INVARIANT",
+        "description": "Payment Service must always have Payments Database available",
+        "condition": "service.name == 'Payment Service' AND NOT depends_on('Payments Database').is_healthy",
+        "action": "flag_critical('Payment Service cannot operate without Payments Database')",
+        "priority": 100,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE",
+          "DATABASE"
+        ],
+        "relationship_types": [
+          "DEPENDS_ON"
+        ],
+        "match_score": 6,
+        "match_reasons": [
+          "entity_types: {'SERVICE'}",
+          "relationship_types: {'DEPENDS_ON'}",
+          "keyword: Payment",
+          "keyword: Service"
+        ]
+      },
+      {
+        "id": "02577644-f3df-4f29-a26f-c8f89ea26eb0",
+        "name": "Escalation Chain Validation",
+        "rule_type": "VALIDATION",
+        "description": "Verify escalation paths exist for incident response",
+        "condition": "query.type == 'escalation' OR query.type == 'incident_response'",
+        "action": "validate_escalation_path(team, severity)",
+        "priority": 85,
+        "is_active": true,
+        "entity_types": [
+          "TEAM",
+          "PERSON"
+        ],
+        "relationship_types": [
+          "ESCALATES_TO",
+          "MANAGES"
+        ],
+        "match_score": 6,
+        "match_reasons": [
+          "entity_types: {'PERSON', 'TEAM'}",
+          "relationship_types: {'MANAGES'}"
+        ]
+      },
+      {
+        "id": "b9776382-8de7-47dd-8ce8-f84d36a362a0",
+        "name": "Cascade Impact Assessment",
+        "rule_type": "VALIDATION",
+        "description": "When assessing service impact, include all downstream dependencies",
+        "condition": "query.type == 'impact_assessment'",
+        "action": "traverse_dependencies(service, direction='downstream', depth=3)",
+        "priority": 70,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE",
+          "DATABASE",
+          "COMPONENT"
+        ],
+        "relationship_types": [
+          "DEPENDS_ON",
+          "USES"
+        ],
+        "match_score": 6,
+        "match_reasons": [
+          "entity_types: {'SERVICE'}",
+          "relationship_types: {'DEPENDS_ON'}",
+          "keyword: owns",
+          "keyword: Service"
+        ]
+      },
+      {
+        "id": "afc33854-5615-4f9f-bde4-3a7238b08000",
+        "name": "Auth Service Required for API",
+        "rule_type": "INVARIANT",
+        "description": "API Gateway requires Auth Service for all authenticated requests",
+        "condition": "service.name == 'API Gateway' AND NOT depends_on('Auth Service').is_healthy",
+        "action": "flag_critical('API Gateway cannot validate requests without Auth Service')",
+        "priority": 100,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE"
+        ],
+        "relationship_types": [
+          "DEPENDS_ON"
+        ],
+        "match_score": 5,
+        "match_reasons": [
+          "entity_types: {'SERVICE'}",
+          "relationship_types: {'DEPENDS_ON'}",
+          "keyword: Service"
+        ]
+      },
+      {
+        "id": "d4d07c62-7d7c-457d-a622-9ff012744e0b",
+        "name": "Database Owner Notification",
+        "rule_type": "ESCALATION_POLICY",
+        "description": "Database incidents must notify Platform Team",
+        "condition": "incident.affected_service.entity_type == 'DATABASE'",
+        "action": "notify_team('Platform Team')",
+        "priority": 90,
+        "is_active": true,
+        "entity_types": [
+          "INCIDENT",
+          "DATABASE"
+        ],
+        "relationship_types": [],
+        "match_score": 2,
+        "match_reasons": [
+          "keyword: team",
+          "keyword: Service"
+        ]
+      },
+      {
+        "id": "4650fe6d-dfe2-4881-b818-9395c0fc3c55",
+        "name": "VP Approval for Large Teams",
+        "rule_type": "INVARIANT",
+        "description": "VP approval is required for any headcount changes to teams with more than 10 members.",
+        "condition": "team.headcount > 10",
+        "action": "require_approval(department.vp, 'headcount_increase')",
+        "priority": 100,
+        "is_active": true,
+        "entity_types": null,
+        "relationship_types": null,
+        "match_score": 1,
+        "match_reasons": [
+          "keyword: team"
+        ]
+      },
+      {
+        "id": "02884ca6-52df-4e26-8012-f841ef4047ea",
+        "name": "Director Approval for Hiring",
+        "rule_type": "ESCALATION_POLICY",
+        "description": "Directors can approve hiring for teams with 10 or fewer members.",
+        "condition": "action.type == 'hiring' AND team.headcount <= 10",
+        "action": "require_approval(team.director, 'hiring')",
+        "priority": 90,
+        "is_active": true,
+        "entity_types": null,
+        "relationship_types": null,
+        "match_score": 1,
+        "match_reasons": [
+          "keyword: team"
+        ]
+      }
+    ],
+    "rules_count": 8,
+    "confidence": 0.9232065466390353,
+    "uncertainty": {
+      "overall_confidence": 0.9232065466390353,
+      "recommendation": "proceed",
+      "high_confidence_facts": 89,
+      "medium_confidence_facts": 0,
+      "low_confidence_facts": 0,
+      "low_confidence_items": [],
+      "unresolved_entities": [],
+      "missing_relationships": [],
+      "uncertainty_reasons": []
+    },
+    "retrieval_metadata": {
+      "keywords": [
+        "team",
+        "owns",
+        "Payment",
+        "Service"
+      ],
+      "entity_types_searched": [
+        "SERVICE",
+        "TEAM"
+      ],
+      "traverse_depth": 2,
+      "sequence_intent": false,
+      "sequence_reason": null
+    }
+  },
+  "validation": {
+    "passed": true,
+    "rules_checked": [
+      "On-Call Requirement",
+      "Payment Service Dependency Check",
+      "Escalation Chain Validation",
+      "Cascade Impact Assessment",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "VP Approval for Large Teams",
+      "Director Approval for Hiring"
+    ],
+    "rules_passed": [
+      "On-Call Requirement",
+      "Payment Service Dependency Check",
+      "Escalation Chain Validation",
+      "Cascade Impact Assessment",
+      "Auth Service Required for API",
+      "Database Owner Notification",
+      "VP Approval for Large Teams",
+      "Director Approval for Hiring"
+    ],
+    "violations": [],
+    "warnings": []
+  },
+  "rules_checked": [
+    "On-Call Requirement",
+    "Payment Service Dependency Check",
+    "Escalation Chain Validation",
+    "Cascade Impact Assessment",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "VP Approval for Large Teams",
+    "Director Approval for Hiring"
+  ],
+  "rules_passed": [
+    "On-Call Requirement",
+    "Payment Service Dependency Check",
+    "Escalation Chain Validation",
+    "Cascade Impact Assessment",
+    "Auth Service Required for API",
+    "Database Owner Notification",
+    "VP Approval for Large Teams",
+    "Director Approval for Hiring"
+  ],
+  "rules_violations": [],
+  "rules_warnings": [],
+  "query_log": {
+    "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+    "query_text": "What team owns the Payment Service?",
+    "start_time": "2025-12-04T14:30:24.782402",
+    "duration_seconds": 10.635629,
+    "events": [
+      {
+        "timestamp": "2025-12-04T14:30:24.782405",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "QUERY_START",
+        "data": {
+          "query": "What team owns the Payment Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:24.783217",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "PIPELINE_START",
+        "data": {
+          "query": "What team owns the Payment Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:24.784958",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "QUERY_CLASSIFICATION",
+        "data": {
+          "query_type": "entity",
+          "query": "What team owns the Payment Service?",
+          "sequence_intent": false,
+          "sequence_reason": null
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:24.899276",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "TARGET_ENTITY_CHECK",
+        "data": {
+          "target_entity": "Payment Service",
+          "found": true,
+          "match": "Payment Service"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:24.901064",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "RETRIEVAL_START",
+        "data": {
+          "keywords": [
+            "team",
+            "owns",
+            "Payment",
+            "Service"
+          ],
+          "inferred_entity_types": [
+            "SERVICE",
+            "TEAM"
+          ],
+          "target_entity": "Payment Service",
+          "target_entity_found": true,
+          "query_type": "entity"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:28.088660",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "SEMANTIC_RETRIEVAL",
+        "data": {
+          "entities_count": 20,
+          "relationships_count": 69,
+          "entities": [
+            "Org: Brand Team",
+            "Org: Growth Team",
+            "Org: Data Team",
+            "Org: Frontend Team",
+            "Org: Platform Team"
+          ],
+          "confidence": 0.9230579055799473
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:30.797863",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "EPISODIC_RETRIEVAL",
+        "data": {
+          "documents_count": 5,
+          "top_similarity": 0.4911150834249039,
+          "avg_similarity": 0.47815955662052306
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:30.823849",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "SYMBOLIC_QUERY",
+        "data": {
+          "rules_found": 8,
+          "rule_names": [
+            "On-Call Requirement",
+            "Payment Service Dependency Check",
+            "Escalation Chain Validation",
+            "Cascade Impact Assessment",
+            "Auth Service Required for API",
+            "Database Owner Notification",
+            "VP Approval for Large Teams",
+            "Director Approval for Hiring"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:30.826245",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "CONTEXT_BUNDLE_BUILT",
+        "data": {
+          "semantic_items": 89,
+          "episodic_items": 5,
+          "rules_count": 8,
+          "overall_confidence": 0.9232065466390353
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:32.571773",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "LLM_CALL_START",
+        "data": {
+          "model": "gpt-4o-mini",
+          "context_length": 18564,
+          "query": "What team owns the Payment Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:35.142918",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "REASONING_COMPLETE",
+        "data": {
+          "response_length": 43,
+          "confidence": 0.95,
+          "evidence_items": 11
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:35.319462",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "VALIDATION",
+        "data": {
+          "passed": true,
+          "issues": []
+        }
+      },
+      {
+        "timestamp": "2025-12-04T14:30:35.416062",
+        "query_id": "57f740e4-25cb-4e9b-8218-eda17ccf3cba",
+        "event_type": "QUERY_COMPLETE",
+        "data": {
+          "success": true,
+          "duration_seconds": 10.633651,
+          "final_confidence": 0.95,
+          "total_events": 12
+        }
+      }
+    ]
+  }
+}
