@@ -73,4 +73,23 @@ Context Foundry is a proof-of-concept demonstrating a tri-memory cognitive archi
 -   Updated schema from Vector(384) to Vector(1536) for OpenAI embedding dimensions
 -   Re-ingested all 231 synthetic documents with real embeddings
 -   Retrieval quality improved: "cloud migration" queries now return 0.61-0.72 similarity (up from 0.09-0.17)
--   Root cause confirmed: Entity-not-found guard in ReasoningAgent blocks document-based synthesis when target entity doesn't exist in knowledge graph (even with high-similarity documents retrieved)
+
+### Confidence Calibration System (Dec 4, 2025)
+Implemented 3-phase confidence calibration to fix topic-centric query handling:
+
+1. **Sufficiency Autorater** - LLM evaluates if context is SUFFICIENT/PARTIAL/INSUFFICIENT before synthesis
+2. **Quadrant Confidence** - 4-quadrant scoring based on entity+docs presence:
+   - Q1: Entity + Good docs → 0.90 base (best case)
+   - Q2: Entity + No docs → 0.70 base (graph only)
+   - Q3: No entity + Good docs → 0.65+ base (topic-centric - WAS BROKEN, NOW WORKS)
+   - Q4: No entity + No docs → 0.10 base (correctly abstains)
+3. **Entity Density Scoring** - Proxy grounding via known entity mentions in documents
+
+**Results:**
+| Query | Before | After |
+|-------|--------|-------|
+| "Mia White concerns" (entity exists) | 95% | 50% |
+| "Cloud migration decisions" (topic with docs) | **10%** | **64%** |
+| "Project Omega" (unknown topic) | 10% | 10% |
+
+Key fix: Topic-centric queries now synthesize from documents even when no matching entity exists, enabling queries about projects, initiatives, and decisions.
