@@ -25,7 +25,7 @@ from sqlalchemy.orm import Session
 from ..models.schema import (
     Entity, Relationship, Conflict, ReviewQueue,
     LifecycleState, ConflictType, ConflictStatus,
-    ReviewItemType, ReviewStatus,
+    ReviewItemType, ReviewStatus, ValidationStatus,
     get_session
 )
 from ..config.domain_schema import (
@@ -574,13 +574,14 @@ class StagingValidatorAgent:
             has_error = any(i.severity == ValidationSeverity.ERROR for i in entity_issue_list)
             
             if has_conflict:
-                status = "CONFLICT"
+                status = ValidationStatus.CONFLICT
             elif has_error:
-                status = "INVALID"
+                status = ValidationStatus.INVALID
             else:
-                status = "VALID"
+                status = ValidationStatus.VALID
             
-            entity.properties["_validation_status"] = status
+            entity.validation_status = status
+            entity.properties["_validation_status"] = status.value
             entity.properties["_validation_issues"] = [
                 {"rule": i.rule_name, "severity": i.severity.value, "message": i.message}
                 for i in entity_issue_list
@@ -598,13 +599,14 @@ class StagingValidatorAgent:
             has_error = any(i.severity == ValidationSeverity.ERROR for i in rel_issue_list)
             
             if has_conflict:
-                status = "CONFLICT"
+                status = ValidationStatus.CONFLICT
             elif has_error:
-                status = "INVALID"
+                status = ValidationStatus.INVALID
             else:
-                status = "VALID"
+                status = ValidationStatus.VALID
             
-            rel.properties["_validation_status"] = status
+            rel.validation_status = status
+            rel.properties["_validation_status"] = status.value
             rel.properties["_validation_issues"] = [
                 {"rule": i.rule_name, "severity": i.severity.value, "message": i.message}
                 for i in rel_issue_list
