@@ -37,6 +37,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Desktop sidebar toggle (collapsible)
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebarToggle && sidebar) {
+        // Restore sidebar state from localStorage
+        const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+        if (sidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+        }
+        
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            // Save preference to localStorage
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+    }
+    
     let queryHistory = [];
     let startTime = Date.now();
 
