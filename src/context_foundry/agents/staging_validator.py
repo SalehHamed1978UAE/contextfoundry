@@ -197,7 +197,7 @@ class StagingValidatorAgent:
         """Validate a single entity against schema rules."""
         issues = []
         
-        entity_type_str = entity.entity_type.value if entity.entity_type else ""
+        entity_type_str = entity.entity_type if entity.entity_type else ""
         
         schema_type = None
         if entity.properties and "_schema_type" in entity.properties:
@@ -249,7 +249,7 @@ class StagingValidatorAgent:
         """Validate a single relationship against schema rules."""
         issues = []
         
-        rel_type_str = rel.relationship_type.value if rel.relationship_type else ""
+        rel_type_str = rel.relationship_type if rel.relationship_type else ""
         
         schema_type = None
         if rel.properties and "_schema_type" in rel.properties:
@@ -292,8 +292,8 @@ class StagingValidatorAgent:
             ))
             return issues
         
-        source_type = source_entity.entity_type.value if source_entity.entity_type else ""
-        target_type = target_entity.entity_type.value if target_entity.entity_type else ""
+        source_type = source_entity.entity_type if source_entity.entity_type else ""
+        target_type = target_entity.entity_type if target_entity.entity_type else ""
         
         if not rel_config.is_valid_source(source_type):
             issues.append(ValidationIssue(
