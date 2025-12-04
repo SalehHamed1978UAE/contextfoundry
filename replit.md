@@ -31,7 +31,8 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 -   **Retrieval Agent**: Queries all three memory layers to build a `ContextBundle`.
 -   **Reasoning Agent**: Uses OpenAI (gpt-4o-mini) to generate responses.
 -   **Validation Agent**: Checks responses against symbolic rules.
--   **Graph Loader**: Handles data ingestion.
+-   **Graph Loader**: Handles structured data ingestion.
+-   **Graph Builder Agent** (Chunk 2): Perception layer that ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to STAGING with full provenance.
 
 ### UI/UX Decisions (Web Interface)
 -   **Theme**: "Cybernetic Operations" HUD-style with deep slate background and electric cyan accents.
