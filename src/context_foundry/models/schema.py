@@ -57,6 +57,53 @@ class RuleType(str, Enum):
     VALIDATION = "VALIDATION"
 
 
+class ConflictType(str, Enum):
+    """Types of conflicts that can occur between facts."""
+    VALUE_MISMATCH = "VALUE_MISMATCH"
+    RELATIONSHIP_CONFLICT = "RELATIONSHIP_CONFLICT"
+    TEMPORAL_CONFLICT = "TEMPORAL_CONFLICT"
+    DUPLICATE_ENTITY = "DUPLICATE_ENTITY"
+    CONTRADICTORY_RULE = "CONTRADICTORY_RULE"
+
+
+class ConflictStatus(str, Enum):
+    """Status of a conflict record."""
+    PENDING = "PENDING"
+    AUTO_RESOLVED = "AUTO_RESOLVED"
+    HUMAN_RESOLVED = "HUMAN_RESOLVED"
+    DEFERRED = "DEFERRED"
+
+
+class ReviewItemType(str, Enum):
+    """Types of items that can be queued for human review."""
+    CONFLICT = "CONFLICT"
+    DUPLICATE = "DUPLICATE"
+    LOW_CONFIDENCE = "LOW_CONFIDENCE"
+    RULE_VIOLATION = "RULE_VIOLATION"
+    MERGE_CANDIDATE = "MERGE_CANDIDATE"
+
+
+class ReviewStatus(str, Enum):
+    """Status of a review queue item."""
+    PENDING = "PENDING"
+    IN_PROGRESS = "IN_PROGRESS"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    DEFERRED = "DEFERRED"
+
+
+class GardenerActionType(str, Enum):
+    """Types of actions the Gardener agent can take."""
+    PROMOTE = "PROMOTE"
+    DEMOTE = "DEMOTE"
+    ARCHIVE = "ARCHIVE"
+    DECAY = "DECAY"
+    MERGE = "MERGE"
+    FLAG_CONFLICT = "FLAG_CONFLICT"
+    RESOLVE_CONFLICT = "RESOLVE_CONFLICT"
+    VALIDATE = "VALIDATE"
+
+
 class Entity(Base):
     """Semantic Memory: Entities in the knowledge graph."""
     __tablename__ = "entities"
@@ -81,6 +128,7 @@ class Entity(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     promoted_at = Column(DateTime)
     archived_at = Column(DateTime)
+    last_validated_at = Column(DateTime)
     
     outgoing_relationships = relationship(
         "Relationship",
@@ -129,6 +177,7 @@ class Relationship(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_validated_at = Column(DateTime)
     
     source_entity = relationship("Entity", foreign_keys=[source_id], back_populates="outgoing_relationships")
     target_entity = relationship("Entity", foreign_keys=[target_id], back_populates="incoming_relationships")
@@ -282,8 +331,151 @@ class FeedbackRecord(Base):
         }
 
 
+class Conflict(Base):
+    """Cognitive Loop: Tracks conflicts between two facts (entities or relationships)."""
+    __tablename__ = "conflicts"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    
+    fact_a_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    fact_a_type = Column(String(20), nullable=False)
+    fact_b_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    fact_b_type = Column(String(20), nullable=False)
+    
+    conflict_type = Column(SQLEnum(ConflictType), nullable=False, index=True)
+    status = Column(SQLEnum(ConflictStatus), default=ConflictStatus.PENDING, index=True)
+    
+    description = Column(Text)
+    fact_a_summary = Column(Text)
+    fact_b_summary = Column(Text)
+    
+    confidence_a = Column(Float)
+    confidence_b = Column(Float)
+    
+    resolution = Column(String(50))
+    resolution_notes = Column(Text)
+    winner_fact_id = Column(UUID(as_uuid=True))
+    
+    detected_at = Column(DateTime, default=datetime.utcnow)
+    resolved_at = Column(DateTime)
+    resolved_by = Column(String(100))
+    
+    source_document_id = Column(String(255))
+    cycle_id = Column(String(100))
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "fact_a_id": str(self.fact_a_id),
+            "fact_a_type": self.fact_a_type,
+            "fact_b_id": str(self.fact_b_id),
+            "fact_b_type": self.fact_b_type,
+            "conflict_type": self.conflict_type.value if self.conflict_type else None,
+            "status": self.status.value if self.status else None,
+            "description": self.description,
+            "fact_a_summary": self.fact_a_summary,
+            "fact_b_summary": self.fact_b_summary,
+            "confidence_a": self.confidence_a,
+            "confidence_b": self.confidence_b,
+            "resolution": self.resolution,
+            "resolution_notes": self.resolution_notes,
+            "winner_fact_id": str(self.winner_fact_id) if self.winner_fact_id else None,
+            "detected_at": self.detected_at.isoformat() if self.detected_at else None,
+            "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
+            "resolved_by": self.resolved_by,
+        }
+
+
+class ReviewQueue(Base):
+    """Cognitive Loop: Items awaiting human review."""
+    __tablename__ = "review_queue"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    
+    item_type = Column(SQLEnum(ReviewItemType), nullable=False, index=True)
+    item_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    
+    priority = Column(Integer, default=50, index=True)
+    status = Column(SQLEnum(ReviewStatus), default=ReviewStatus.PENDING, index=True)
+    
+    title = Column(String(255), nullable=False)
+    description = Column(Text)
+    context = Column(JSON)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    expires_at = Column(DateTime)
+    
+    assigned_to = Column(String(100))
+    reviewed_at = Column(DateTime)
+    reviewer_action = Column(String(50))
+    reviewer_notes = Column(Text)
+    
+    source_cycle_id = Column(String(100))
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "item_type": self.item_type.value if self.item_type else None,
+            "item_id": str(self.item_id),
+            "priority": self.priority,
+            "status": self.status.value if self.status else None,
+            "title": self.title,
+            "description": self.description,
+            "context": self.context,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "expires_at": self.expires_at.isoformat() if self.expires_at else None,
+            "assigned_to": self.assigned_to,
+            "reviewed_at": self.reviewed_at.isoformat() if self.reviewed_at else None,
+            "reviewer_action": self.reviewer_action,
+            "reviewer_notes": self.reviewer_notes,
+        }
+
+
+class GardenerLog(Base):
+    """Cognitive Loop: Audit trail for all lifecycle changes by the Gardener agent."""
+    __tablename__ = "gardener_logs"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    
+    action_type = Column(SQLEnum(GardenerActionType), nullable=False, index=True)
+    
+    target_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    target_type = Column(String(20), nullable=False)
+    target_name = Column(String(255))
+    
+    old_state = Column(String(20))
+    new_state = Column(String(20))
+    
+    old_confidence = Column(Float)
+    new_confidence = Column(Float)
+    
+    reason = Column(Text, nullable=False)
+    details = Column(JSON)
+    
+    cycle_id = Column(String(100), nullable=False, index=True)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "action_type": self.action_type.value if self.action_type else None,
+            "target_id": str(self.target_id),
+            "target_type": self.target_type,
+            "target_name": self.target_name,
+            "old_state": self.old_state,
+            "new_state": self.new_state,
+            "old_confidence": self.old_confidence,
+            "new_confidence": self.new_confidence,
+            "reason": self.reason,
+            "details": self.details,
+            "cycle_id": self.cycle_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
 class ConflictLog(Base):
-    """Gardener: Persistent conflict records for review."""
+    """Gardener: Persistent conflict records for review (legacy, use Conflict instead)."""
     __tablename__ = "conflict_logs"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
