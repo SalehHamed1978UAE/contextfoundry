@@ -2,134 +2,190 @@
 Gardener Agent for Context Foundry.
 
 Maintains knowledge graph health through scheduled passes:
-1. Decay Pass: Apply confidence decay to aging facts
-2. Promotion Pass: Move STAGING → TRUSTED when criteria met
-3. Conflict Detection: Flag contradictions between new and trusted facts
-4. Demotion Pass: Move low-confidence facts to ARCHIVED
+1. Decay Pass: Apply type-specific confidence decay to aging facts
+2. Promotion Pass: Move STAGING → TRUSTED when all criteria met
+3. Conflict Resolution Pass: Resolve conflicts using type-specific strategies
+4. Demotion Pass: Archive low-confidence or superseded facts
+5. Cleanup Pass: Delete old STAGING facts and resolved conflicts
 """
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from enum import Enum
-import math
+import logging
+import uuid as uuid_module
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
+from sqlalchemy.orm.attributes import flag_modified
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, EntityType,
+    Entity, Relationship, LifecycleState, ValidationStatus,
     ConflictLog as ConflictLogDB,
+    GardenerLog, GardenerActionType,
+    DuplicateCandidate,
     get_session
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ConflictType(str, Enum):
     ATTRIBUTE_MISMATCH = "attribute_mismatch"
     RELATIONSHIP_CONTRADICTION = "relationship_contradiction"
+    TEMPORAL_OVERLAP = "temporal_overlap"
+    CARDINALITY_VIOLATION = "cardinality_violation"
     DUPLICATE_ENTITY = "duplicate_entity"
 
 
 class ConflictResolution(str, Enum):
-    HIGHER_AUTHORITY_WINS = "higher_authority_wins"
     HIGHER_CONFIDENCE_WINS = "higher_confidence_wins"
+    NEWER_WINS = "newer_wins"
+    RULE_DETERMINED = "rule_determined"
     ESCALATE_TO_HUMAN = "escalate_to_human"
     AUTO_MERGED = "auto_merged"
 
 
 @dataclass
+class DecayConfig:
+    """Configuration for a specific decay rate."""
+    rate_per_week: float
+    floor: float
+    grace_days: int
+
+
+@dataclass
 class GardenerConfig:
-    """Configuration for Gardener agent."""
-    decay_half_life_days: float = 30.0
+    """Configuration for Gardener agent with type-specific decay rates."""
+    
+    decay_rates: Dict[str, DecayConfig] = field(default_factory=lambda: {
+        "OWNS": DecayConfig(rate_per_week=0.02, floor=0.5, grace_days=14),
+        "DEPENDS_ON": DecayConfig(rate_per_week=0.01, floor=0.6, grace_days=30),
+        "SUPPORTS": DecayConfig(rate_per_week=0.015, floor=0.5, grace_days=21),
+        "MEMBER_OF": DecayConfig(rate_per_week=0.01, floor=0.6, grace_days=30),
+        "AFFECTS": DecayConfig(rate_per_week=0.02, floor=0.4, grace_days=7),
+        "CAUSED_BY": DecayConfig(rate_per_week=0.02, floor=0.4, grace_days=7),
+        "_DEFAULT": DecayConfig(rate_per_week=0.015, floor=0.4, grace_days=7),
+    })
+    
+    entity_decay: DecayConfig = field(
+        default_factory=lambda: DecayConfig(rate_per_week=0.015, floor=0.4, grace_days=7)
+    )
+    
     min_confidence_for_promotion: float = 0.75
-    min_dwell_time_hours: float = 24.0
-    archive_confidence_threshold: float = 0.3
+    min_dwell_time_hours: float = 1.0
+    archive_confidence_threshold: float = 0.4
     conflict_margin_for_escalation: float = 0.15
+    staleness_threshold: float = 0.5
+    
+    staging_max_age_days: int = 30
+    resolved_conflict_max_age_days: int = 90
     
     auto_merge_threshold: float = 0.95
     review_merge_threshold: float = 0.70
     never_auto_merge_types: List[str] = field(default_factory=lambda: ["PERSON"])
 
 
-@dataclass
-class ConflictRecord:
-    """Record of a detected conflict."""
-    id: str
-    conflict_type: ConflictType
-    entity_id: Optional[str]
-    relationship_id: Optional[str]
-    existing_value: str
-    new_value: str
-    existing_confidence: float
-    new_confidence: float
-    resolution: Optional[ConflictResolution] = None
-    resolved_at: Optional[datetime] = None
-    notes: str = ""
-    detected_at: datetime = field(default_factory=datetime.utcnow)
-    
-    def to_dict(self) -> Dict:
-        return {
-            "id": self.id,
-            "conflict_type": self.conflict_type.value,
-            "entity_id": self.entity_id,
-            "relationship_id": self.relationship_id,
-            "existing_value": self.existing_value,
-            "new_value": self.new_value,
-            "existing_confidence": self.existing_confidence,
-            "new_confidence": self.new_confidence,
-            "resolution": self.resolution.value if self.resolution else None,
-            "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
-            "notes": self.notes,
-            "detected_at": self.detected_at.isoformat(),
-        }
-
-
-@dataclass
-class MergeAuditRecord:
-    """Audit trail for entity merges."""
-    id: str
-    merged_entity_id: str
-    surviving_entity_id: str
-    merge_confidence: float
-    merge_signals: List[str]
-    auto_merged: bool
-    merged_at: datetime = field(default_factory=datetime.utcnow)
-    merged_by: str = "gardener"
-    
-    def to_dict(self) -> Dict:
-        return {
-            "id": self.id,
-            "merged_entity_id": self.merged_entity_id,
-            "surviving_entity_id": self.surviving_entity_id,
-            "merge_confidence": self.merge_confidence,
-            "merge_signals": self.merge_signals,
-            "auto_merged": self.auto_merged,
-            "merged_at": self.merged_at.isoformat(),
-            "merged_by": self.merged_by,
-        }
-
-
-@dataclass
-class GardenerPassResult:
-    """Result of a single gardener pass."""
-    pass_name: str
-    entities_affected: int = 0
-    relationships_affected: int = 0
-    conflicts_detected: int = 0
-    conflicts_resolved: int = 0
-    merges_performed: int = 0
-    merges_flagged: int = 0
+@dataclass 
+class DecayResult:
+    """Result of the decay pass."""
+    entities_decayed: int = 0
+    relationships_decayed: int = 0
+    entities_flagged_stale: int = 0
+    relationships_flagged_stale: int = 0
     errors: List[str] = field(default_factory=list)
     duration_seconds: float = 0.0
     
     def to_dict(self) -> Dict:
         return {
-            "pass_name": self.pass_name,
-            "entities_affected": self.entities_affected,
-            "relationships_affected": self.relationships_affected,
-            "conflicts_detected": self.conflicts_detected,
+            "entities_decayed": self.entities_decayed,
+            "relationships_decayed": self.relationships_decayed,
+            "entities_flagged_stale": self.entities_flagged_stale,
+            "relationships_flagged_stale": self.relationships_flagged_stale,
+            "errors": self.errors,
+            "duration_seconds": self.duration_seconds,
+        }
+
+
+@dataclass
+class PromotionResult:
+    """Result of the promotion pass."""
+    entities_promoted: int = 0
+    relationships_promoted: int = 0
+    entities_blocked: int = 0
+    relationships_blocked: int = 0
+    block_reasons: Dict[str, int] = field(default_factory=dict)
+    errors: List[str] = field(default_factory=list)
+    duration_seconds: float = 0.0
+    
+    def to_dict(self) -> Dict:
+        return {
+            "entities_promoted": self.entities_promoted,
+            "relationships_promoted": self.relationships_promoted,
+            "entities_blocked": self.entities_blocked,
+            "relationships_blocked": self.relationships_blocked,
+            "block_reasons": self.block_reasons,
+            "errors": self.errors,
+            "duration_seconds": self.duration_seconds,
+        }
+
+
+@dataclass
+class ConflictResult:
+    """Result of the conflict resolution pass."""
+    conflicts_processed: int = 0
+    conflicts_resolved: int = 0
+    conflicts_escalated: int = 0
+    by_resolution: Dict[str, int] = field(default_factory=dict)
+    errors: List[str] = field(default_factory=list)
+    duration_seconds: float = 0.0
+    
+    def to_dict(self) -> Dict:
+        return {
+            "conflicts_processed": self.conflicts_processed,
             "conflicts_resolved": self.conflicts_resolved,
-            "merges_performed": self.merges_performed,
-            "merges_flagged": self.merges_flagged,
+            "conflicts_escalated": self.conflicts_escalated,
+            "by_resolution": self.by_resolution,
+            "errors": self.errors,
+            "duration_seconds": self.duration_seconds,
+        }
+
+
+@dataclass
+class DemotionResult:
+    """Result of the demotion pass."""
+    entities_demoted: int = 0
+    relationships_demoted: int = 0
+    superseded_count: int = 0
+    low_confidence_count: int = 0
+    errors: List[str] = field(default_factory=list)
+    duration_seconds: float = 0.0
+    
+    def to_dict(self) -> Dict:
+        return {
+            "entities_demoted": self.entities_demoted,
+            "relationships_demoted": self.relationships_demoted,
+            "superseded_count": self.superseded_count,
+            "low_confidence_count": self.low_confidence_count,
+            "errors": self.errors,
+            "duration_seconds": self.duration_seconds,
+        }
+
+
+@dataclass
+class CleanupResult:
+    """Result of the cleanup pass."""
+    staging_deleted: int = 0
+    conflicts_deleted: int = 0
+    relationships_deleted: int = 0
+    errors: List[str] = field(default_factory=list)
+    duration_seconds: float = 0.0
+    
+    def to_dict(self) -> Dict:
+        return {
+            "staging_deleted": self.staging_deleted,
+            "conflicts_deleted": self.conflicts_deleted,
+            "relationships_deleted": self.relationships_deleted,
             "errors": self.errors,
             "duration_seconds": self.duration_seconds,
         }
@@ -141,11 +197,18 @@ class GardenerCycleResult:
     cycle_id: str
     started_at: datetime
     completed_at: Optional[datetime] = None
-    passes: List[GardenerPassResult] = field(default_factory=list)
-    total_entities_affected: int = 0
-    total_relationships_affected: int = 0
-    total_conflicts: int = 0
-    total_merges: int = 0
+    
+    decay_result: Optional[DecayResult] = None
+    promotion_result: Optional[PromotionResult] = None
+    conflict_result: Optional[ConflictResult] = None
+    demotion_result: Optional[DemotionResult] = None
+    cleanup_result: Optional[CleanupResult] = None
+    
+    facts_decayed: int = 0
+    facts_promoted: int = 0
+    facts_demoted: int = 0
+    conflicts_resolved: int = 0
+    
     success: bool = True
     error: Optional[str] = None
     
@@ -154,25 +217,32 @@ class GardenerCycleResult:
             "cycle_id": self.cycle_id,
             "started_at": self.started_at.isoformat(),
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
-            "passes": [p.to_dict() for p in self.passes],
-            "total_entities_affected": self.total_entities_affected,
-            "total_relationships_affected": self.total_relationships_affected,
-            "total_conflicts": self.total_conflicts,
-            "total_merges": self.total_merges,
+            "decay": self.decay_result.to_dict() if self.decay_result else None,
+            "promotion": self.promotion_result.to_dict() if self.promotion_result else None,
+            "conflict_resolution": self.conflict_result.to_dict() if self.conflict_result else None,
+            "demotion": self.demotion_result.to_dict() if self.demotion_result else None,
+            "cleanup": self.cleanup_result.to_dict() if self.cleanup_result else None,
+            "summary": {
+                "facts_decayed": self.facts_decayed,
+                "facts_promoted": self.facts_promoted,
+                "facts_demoted": self.facts_demoted,
+                "conflicts_resolved": self.conflicts_resolved,
+            },
             "success": self.success,
             "error": self.error,
         }
 
 
-class Gardener:
+class GardenerAgent:
     """
     Gardener agent that maintains knowledge graph health.
     
-    Runs on a 5-minute cycle with four passes:
-    1. Decay: Apply time-based confidence decay
+    Runs 5 passes in order:
+    1. Decay: Apply type-specific confidence decay
     2. Promotion: Move qualified STAGING facts to TRUSTED
-    3. Conflict Detection: Identify contradictions
-    4. Demotion: Archive low-confidence facts
+    3. Conflict Resolution: Resolve conflicts with type-specific strategies
+    4. Demotion: Archive low-confidence or superseded facts
+    5. Cleanup: Delete old STAGING data and resolved conflicts
     """
     
     def __init__(
@@ -182,13 +252,12 @@ class Gardener:
     ):
         self.session = session
         self.config = config or GardenerConfig()
-        self.conflict_log: List[ConflictRecord] = []
-        self.merge_audit: List[MergeAuditRecord] = []
         self._cycle_count = 0
+        self._promoted_entity_ids: Set[str] = set()
     
     def run_cycle(self) -> GardenerCycleResult:
         """
-        Run a complete gardener cycle with all four passes.
+        Run a complete gardener cycle with all five passes.
         
         Returns:
             GardenerCycleResult with metrics from all passes
@@ -201,407 +270,369 @@ class Gardener:
             started_at=datetime.utcnow(),
         )
         
+        self._promoted_entity_ids.clear()
+        
         try:
-            decay_result = self._run_decay_pass()
-            result.passes.append(decay_result)
-            result.total_entities_affected += decay_result.entities_affected
-            result.total_relationships_affected += decay_result.relationships_affected
+            logger.info(f"[Gardener] Starting cycle {cycle_id}")
             
-            promotion_result = self._run_promotion_pass()
-            result.passes.append(promotion_result)
-            result.total_entities_affected += promotion_result.entities_affected
-            result.total_relationships_affected += promotion_result.relationships_affected
+            result.decay_result = self.decay_pass(cycle_id)
+            result.facts_decayed = (
+                result.decay_result.entities_decayed + 
+                result.decay_result.relationships_decayed
+            )
             
-            conflict_result = self._run_conflict_detection_pass(cycle_id=cycle_id)
-            result.passes.append(conflict_result)
-            result.total_conflicts += conflict_result.conflicts_detected
+            result.promotion_result = self.promotion_pass(cycle_id)
+            result.facts_promoted = (
+                result.promotion_result.entities_promoted + 
+                result.promotion_result.relationships_promoted
+            )
             
-            demotion_result = self._run_demotion_pass()
-            result.passes.append(demotion_result)
-            result.total_entities_affected += demotion_result.entities_affected
-            result.total_relationships_affected += demotion_result.relationships_affected
+            result.conflict_result = self.conflict_resolution_pass(cycle_id)
+            result.conflicts_resolved = result.conflict_result.conflicts_resolved
+            
+            result.demotion_result = self.demotion_pass(cycle_id)
+            result.facts_demoted = (
+                result.demotion_result.entities_demoted + 
+                result.demotion_result.relationships_demoted
+            )
+            
+            result.cleanup_result = self.cleanup_pass(cycle_id)
             
             self.session.commit()
             result.success = True
+            
+            logger.info(
+                f"[Gardener] Cycle {cycle_id} complete: "
+                f"decayed={result.facts_decayed}, promoted={result.facts_promoted}, "
+                f"demoted={result.facts_demoted}, conflicts={result.conflicts_resolved}"
+            )
             
         except Exception as e:
             self.session.rollback()
             result.success = False
             result.error = str(e)
+            logger.error(f"[Gardener] Cycle {cycle_id} failed: {e}")
         
         result.completed_at = datetime.utcnow()
+        
+        self._log_cycle_summary(cycle_id, result)
+        
         return result
     
-    def _calculate_decay(self, age_days: float) -> float:
+    def decay_pass(self, cycle_id: str = "") -> DecayResult:
         """
-        Calculate confidence decay factor based on age.
+        Pass 1: Apply type-specific confidence decay to aging TRUSTED facts.
         
-        Uses exponential decay with configurable half-life:
-        decay_factor = 0.5 ^ (age_days / half_life_days)
-        
-        Args:
-            age_days: Age of the fact in days
-            
-        Returns:
-            Decay factor between 0 and 1
-        """
-        half_life = self.config.decay_half_life_days
-        return math.pow(0.5, age_days / half_life)
-    
-    def _run_decay_pass(self) -> GardenerPassResult:
-        """
-        Apply confidence decay to aging facts.
-        
-        Only decays TRUSTED facts (STAGING facts haven't been validated yet).
-        Decay is applied based on time since last update.
+        Decay rules:
+        - Only apply after grace period expires
+        - Apply rate_per_week decay
+        - Never go below floor threshold
+        - Flag facts that drop below staleness_threshold
         """
         start_time = datetime.utcnow()
-        result = GardenerPassResult(pass_name="decay")
+        result = DecayResult()
         
         try:
-            trusted_entities = self.session.query(Entity).filter(
-                Entity.lifecycle_state == LifecycleState.TRUSTED
-            ).all()
-            
-            for entity in trusted_entities:
-                age = datetime.utcnow() - (entity.updated_at or entity.created_at)
-                age_days = age.total_seconds() / 86400
-                
-                if age_days > 1:
-                    decay_factor = self._calculate_decay(age_days)
-                    new_confidence = entity.confidence * decay_factor
-                    
-                    if new_confidence < entity.confidence * 0.99:
-                        entity.confidence = max(0.1, new_confidence)
-                        result.entities_affected += 1
-            
             trusted_relationships = self.session.query(Relationship).filter(
                 Relationship.lifecycle_state == LifecycleState.TRUSTED
             ).all()
             
             for rel in trusted_relationships:
+                decay_config = self.config.decay_rates.get(
+                    rel.relationship_type,
+                    self.config.decay_rates["_DEFAULT"]
+                )
+                
                 age = datetime.utcnow() - (rel.updated_at or rel.created_at)
                 age_days = age.total_seconds() / 86400
                 
-                if age_days > 1:
-                    decay_factor = self._calculate_decay(age_days)
-                    new_confidence = rel.confidence * decay_factor
+                if age_days <= decay_config.grace_days:
+                    continue
+                
+                days_past_grace = age_days - decay_config.grace_days
+                weeks_past_grace = days_past_grace / 7.0
+                decay_amount = decay_config.rate_per_week * weeks_past_grace
+                
+                new_confidence = max(
+                    decay_config.floor,
+                    rel.confidence - decay_amount
+                )
+                
+                if new_confidence < rel.confidence:
+                    old_confidence = rel.confidence
+                    rel.confidence = new_confidence
+                    result.relationships_decayed += 1
                     
-                    if new_confidence < rel.confidence * 0.99:
-                        rel.confidence = max(0.1, new_confidence)
-                        result.relationships_affected += 1
+                    self._log_action(
+                        cycle_id=cycle_id,
+                        action_type=GardenerActionType.DECAY,
+                        target_id=rel.id,
+                        target_type="relationship",
+                        target_name=f"{rel.relationship_type}",
+                        old_confidence=old_confidence,
+                        new_confidence=new_confidence,
+                        reason=f"Decay after {age_days:.1f} days (rate={decay_config.rate_per_week}/week)",
+                    )
+                    
+                    if new_confidence < self.config.staleness_threshold:
+                        props = rel.properties or {}
+                        props["_stale"] = True
+                        props["_stale_at"] = datetime.utcnow().isoformat()
+                        rel.properties = props
+                        flag_modified(rel, "properties")
+                        result.relationships_flagged_stale += 1
+            
+            trusted_entities = self.session.query(Entity).filter(
+                Entity.lifecycle_state == LifecycleState.TRUSTED
+            ).all()
+            
+            decay_config = self.config.entity_decay
+            
+            for entity in trusted_entities:
+                age = datetime.utcnow() - (entity.updated_at or entity.created_at)
+                age_days = age.total_seconds() / 86400
+                
+                if age_days <= decay_config.grace_days:
+                    continue
+                
+                days_past_grace = age_days - decay_config.grace_days
+                weeks_past_grace = days_past_grace / 7.0
+                decay_amount = decay_config.rate_per_week * weeks_past_grace
+                
+                new_confidence = max(
+                    decay_config.floor,
+                    entity.confidence - decay_amount
+                )
+                
+                if new_confidence < entity.confidence:
+                    old_confidence = entity.confidence
+                    entity.confidence = new_confidence
+                    result.entities_decayed += 1
+                    
+                    self._log_action(
+                        cycle_id=cycle_id,
+                        action_type=GardenerActionType.DECAY,
+                        target_id=entity.id,
+                        target_type="entity",
+                        target_name=entity.name,
+                        old_confidence=old_confidence,
+                        new_confidence=new_confidence,
+                        reason=f"Decay after {age_days:.1f} days",
+                    )
+                    
+                    if new_confidence < self.config.staleness_threshold:
+                        props = entity.properties or {}
+                        props["_stale"] = True
+                        props["_stale_at"] = datetime.utcnow().isoformat()
+                        entity.properties = props
+                        flag_modified(entity, "properties")
+                        result.entities_flagged_stale += 1
                         
         except Exception as e:
             result.errors.append(f"Decay pass error: {str(e)}")
+            logger.error(f"[Gardener] Decay pass error: {e}")
         
         result.duration_seconds = (datetime.utcnow() - start_time).total_seconds()
         return result
     
-    def _run_promotion_pass(self) -> GardenerPassResult:
+    def promotion_pass(self, cycle_id: str = "") -> PromotionResult:
         """
-        Promote STAGING facts to TRUSTED when criteria are met.
-        
-        Criteria:
-        - Confidence >= 0.75
-        - Dwell time >= 24 hours (configurable)
-        - No unresolved conflicts
+        Pass 2: Promote STAGING facts to TRUSTED when ALL criteria met:
+        - validation_status = VALID
+        - confidence >= 0.75
+        - dwell_time >= 1 hour
+        - no unresolved conflicts
+        - identity resolution complete (no pending duplicates)
         """
         start_time = datetime.utcnow()
-        result = GardenerPassResult(pass_name="promotion")
+        result = PromotionResult()
         
         try:
             min_confidence = self.config.min_confidence_for_promotion
             min_age = datetime.utcnow() - timedelta(hours=self.config.min_dwell_time_hours)
             
             staging_entities = self.session.query(Entity).filter(
-                and_(
-                    Entity.lifecycle_state == LifecycleState.STAGING,
-                    Entity.confidence >= min_confidence,
-                    Entity.created_at <= min_age,
-                )
-            ).all()
-            
-            entity_ids_with_conflicts = {
-                c.entity_id for c in self.conflict_log 
-                if c.entity_id and c.resolution is None
-            }
-            
-            for entity in staging_entities:
-                if str(entity.id) not in entity_ids_with_conflicts:
-                    entity.lifecycle_state = LifecycleState.TRUSTED
-                    entity.promoted_at = datetime.utcnow()
-                    result.entities_affected += 1
-            
-            staging_relationships = self.session.query(Relationship).filter(
-                and_(
-                    Relationship.lifecycle_state == LifecycleState.STAGING,
-                    Relationship.confidence >= min_confidence,
-                    Relationship.created_at <= min_age,
-                )
-            ).all()
-            
-            rel_ids_with_conflicts = {
-                c.relationship_id for c in self.conflict_log 
-                if c.relationship_id and c.resolution is None
-            }
-            
-            for rel in staging_relationships:
-                source_trusted = self.session.query(Entity).filter(
-                    and_(
-                        Entity.id == rel.source_id,
-                        Entity.lifecycle_state == LifecycleState.TRUSTED,
-                    )
-                ).first()
-                
-                target_trusted = self.session.query(Entity).filter(
-                    and_(
-                        Entity.id == rel.target_id,
-                        Entity.lifecycle_state == LifecycleState.TRUSTED,
-                    )
-                ).first()
-                
-                if source_trusted and target_trusted:
-                    if str(rel.id) not in rel_ids_with_conflicts:
-                        rel.lifecycle_state = LifecycleState.TRUSTED
-                        result.relationships_affected += 1
-                        
-        except Exception as e:
-            result.errors.append(f"Promotion pass error: {str(e)}")
-        
-        result.duration_seconds = (datetime.utcnow() - start_time).total_seconds()
-        return result
-    
-    def _run_conflict_detection_pass(self, cycle_id: str = "") -> GardenerPassResult:
-        """
-        Detect conflicts between STAGING and TRUSTED facts.
-        
-        Conflict types:
-        - Attribute mismatch: Same entity, different properties
-        - Relationship contradiction: Conflicting relationship claims
-        - Duplicate entity: Possible duplicate entities
-        """
-        start_time = datetime.utcnow()
-        result = GardenerPassResult(pass_name="conflict_detection")
-        
-        try:
-            staging_entities = self.session.query(Entity).filter(
                 Entity.lifecycle_state == LifecycleState.STAGING
             ).all()
             
-            for staging in staging_entities:
-                trusted_match = self.session.query(Entity).filter(
-                    and_(
-                        Entity.lifecycle_state == LifecycleState.TRUSTED,
-                        Entity.name == staging.name,
-                        Entity.entity_type == staging.entity_type,
-                    )
-                ).first()
+            entity_ids_with_conflicts = self._get_entity_ids_with_unresolved_conflicts()
+            entity_ids_with_pending_duplicates = self._get_entity_ids_with_pending_duplicates()
+            
+            for entity in staging_entities:
+                block_reason = None
                 
-                if trusted_match:
-                    if staging.properties != trusted_match.properties:
-                        conflict = self._create_attribute_conflict(
-                            staging, trusted_match, cycle_id
-                        )
-                        if conflict:
-                            self.conflict_log.append(conflict)
-                            result.conflicts_detected += 1
-                            
-                            resolution = self._resolve_attribute_conflict(conflict)
-                            if resolution:
-                                result.conflicts_resolved += 1
+                if entity.validation_status != ValidationStatus.VALID:
+                    block_reason = "validation_not_valid"
+                elif entity.confidence < min_confidence:
+                    block_reason = "confidence_too_low"
+                elif entity.created_at > min_age:
+                    block_reason = "dwell_time_insufficient"
+                elif str(entity.id) in entity_ids_with_conflicts:
+                    block_reason = "unresolved_conflict"
+                elif str(entity.id) in entity_ids_with_pending_duplicates:
+                    block_reason = "pending_duplicate"
+                
+                if block_reason:
+                    result.entities_blocked += 1
+                    result.block_reasons[block_reason] = result.block_reasons.get(block_reason, 0) + 1
+                    continue
+                
+                old_state = entity.lifecycle_state.value
+                entity.lifecycle_state = LifecycleState.TRUSTED
+                
+                props = entity.properties or {}
+                props["_promoted_at"] = datetime.utcnow().isoformat()
+                props["_promoted_from"] = "STAGING"
+                entity.properties = props
+                flag_modified(entity, "properties")
+                
+                self._promoted_entity_ids.add(str(entity.id))
+                result.entities_promoted += 1
+                
+                self._log_action(
+                    cycle_id=cycle_id,
+                    action_type=GardenerActionType.PROMOTE,
+                    target_id=entity.id,
+                    target_type="entity",
+                    target_name=entity.name,
+                    old_state=old_state,
+                    new_state=LifecycleState.TRUSTED.value,
+                    old_confidence=entity.confidence,
+                    new_confidence=entity.confidence,
+                    reason="Met all promotion criteria",
+                )
             
             staging_relationships = self.session.query(Relationship).filter(
                 Relationship.lifecycle_state == LifecycleState.STAGING
             ).all()
             
-            for staging_rel in staging_relationships:
-                contradicting = self._find_contradicting_relationship(staging_rel)
-                if contradicting:
-                    conflict = self._create_relationship_conflict(
-                        staging_rel, contradicting, cycle_id
-                    )
-                    if conflict:
-                        self.conflict_log.append(conflict)
-                        result.conflicts_detected += 1
-                        
-                        resolution = self._resolve_relationship_conflict(conflict)
-                        if resolution:
-                            result.conflicts_resolved += 1
-                            
+            rel_ids_with_conflicts = self._get_relationship_ids_with_unresolved_conflicts()
+            
+            for rel in staging_relationships:
+                block_reason = None
+                
+                source_entity = self.session.query(Entity).filter(
+                    Entity.id == rel.source_id
+                ).first()
+                target_entity = self.session.query(Entity).filter(
+                    Entity.id == rel.target_id
+                ).first()
+                
+                source_trusted = (
+                    source_entity and 
+                    source_entity.lifecycle_state == LifecycleState.TRUSTED
+                )
+                target_trusted = (
+                    target_entity and 
+                    target_entity.lifecycle_state == LifecycleState.TRUSTED
+                )
+                
+                if rel.validation_status != ValidationStatus.VALID:
+                    block_reason = "validation_not_valid"
+                elif rel.confidence < min_confidence:
+                    block_reason = "confidence_too_low"
+                elif rel.created_at > min_age:
+                    block_reason = "dwell_time_insufficient"
+                elif not (source_trusted and target_trusted):
+                    block_reason = "endpoints_not_trusted"
+                elif str(rel.id) in rel_ids_with_conflicts:
+                    block_reason = "unresolved_conflict"
+                
+                if block_reason:
+                    result.relationships_blocked += 1
+                    result.block_reasons[block_reason] = result.block_reasons.get(block_reason, 0) + 1
+                    continue
+                
+                old_state = rel.lifecycle_state.value
+                rel.lifecycle_state = LifecycleState.TRUSTED
+                
+                props = rel.properties or {}
+                props["_promoted_at"] = datetime.utcnow().isoformat()
+                rel.properties = props
+                flag_modified(rel, "properties")
+                
+                result.relationships_promoted += 1
+                
+                self._log_action(
+                    cycle_id=cycle_id,
+                    action_type=GardenerActionType.PROMOTE,
+                    target_id=rel.id,
+                    target_type="relationship",
+                    target_name=rel.relationship_type,
+                    old_state=old_state,
+                    new_state=LifecycleState.TRUSTED.value,
+                    reason="Met all promotion criteria",
+                )
+                
         except Exception as e:
-            result.errors.append(f"Conflict detection error: {str(e)}")
+            result.errors.append(f"Promotion pass error: {str(e)}")
+            logger.error(f"[Gardener] Promotion pass error: {e}")
         
         result.duration_seconds = (datetime.utcnow() - start_time).total_seconds()
         return result
     
-    def _find_contradicting_relationship(
-        self, 
-        staging_rel: Relationship
-    ) -> Optional[Relationship]:
-        """Find a TRUSTED relationship that contradicts the staging one."""
-        if staging_rel.relationship_type == "OWNS":
-            existing = self.session.query(Relationship).filter(
-                and_(
-                    Relationship.lifecycle_state == LifecycleState.TRUSTED,
-                    Relationship.relationship_type == staging_rel.relationship_type,
-                    Relationship.target_id == staging_rel.target_id,
-                    Relationship.source_id != staging_rel.source_id,
-                )
-            ).first()
-            return existing
-        
-        return None
-    
-    def _create_attribute_conflict(
-        self,
-        staging: Entity,
-        trusted: Entity,
-        cycle_id: str = "",
-    ) -> Optional[ConflictRecord]:
-        """Create a conflict record for attribute mismatch and persist to DB."""
-        import uuid as uuid_module
-        conflict_id = str(uuid_module.uuid4())
-        
-        db_conflict = ConflictLogDB(
-            id=uuid_module.UUID(conflict_id),
-            conflict_type=ConflictType.ATTRIBUTE_MISMATCH.value,
-            entity_id=staging.id,
-            relationship_id=None,
-            existing_value=str(trusted.properties),
-            new_value=str(staging.properties),
-            existing_confidence=trusted.confidence,
-            new_confidence=staging.confidence,
-            cycle_id=cycle_id,
-        )
-        self.session.add(db_conflict)
-        
-        return ConflictRecord(
-            id=conflict_id,
-            conflict_type=ConflictType.ATTRIBUTE_MISMATCH,
-            entity_id=str(staging.id),
-            relationship_id=None,
-            existing_value=str(trusted.properties),
-            new_value=str(staging.properties),
-            existing_confidence=trusted.confidence,
-            new_confidence=staging.confidence,
-        )
-    
-    def _create_relationship_conflict(
-        self,
-        staging: Relationship,
-        trusted: Relationship,
-        cycle_id: str = "",
-    ) -> Optional[ConflictRecord]:
-        """Create a conflict record for relationship contradiction and persist to DB."""
-        import uuid as uuid_module
-        conflict_id = str(uuid_module.uuid4())
-        
-        db_conflict = ConflictLogDB(
-            id=uuid_module.UUID(conflict_id),
-            conflict_type=ConflictType.RELATIONSHIP_CONTRADICTION.value,
-            entity_id=None,
-            relationship_id=staging.id,
-            existing_value=f"{trusted.source_entity.name} -> {trusted.target_entity.name}",
-            new_value=f"{staging.source_entity.name} -> {staging.target_entity.name}",
-            existing_confidence=trusted.confidence,
-            new_confidence=staging.confidence,
-            cycle_id=cycle_id,
-        )
-        self.session.add(db_conflict)
-        
-        return ConflictRecord(
-            id=conflict_id,
-            conflict_type=ConflictType.RELATIONSHIP_CONTRADICTION,
-            entity_id=None,
-            relationship_id=str(staging.id),
-            existing_value=f"{trusted.source_entity.name} -> {trusted.target_entity.name}",
-            new_value=f"{staging.source_entity.name} -> {staging.target_entity.name}",
-            existing_confidence=trusted.confidence,
-            new_confidence=staging.confidence,
-        )
-    
-    def _resolve_attribute_conflict(
-        self,
-        conflict: ConflictRecord
-    ) -> bool:
+    def conflict_resolution_pass(self, cycle_id: str = "") -> ConflictResult:
         """
-        Resolve an attribute mismatch conflict.
+        Pass 3: Resolve unresolved conflicts using type-specific strategies:
+        - attribute_mismatch → higher_confidence_wins
+        - relationship_contradiction → higher_confidence_wins
+        - temporal_overlap → newer_wins
+        - cardinality_violation → rule_determined
         
-        Strategy: higher_authority_wins (source document authority)
-        If margin < 0.15, escalate to human review.
-        """
-        margin = abs(conflict.existing_confidence - conflict.new_confidence)
-        
-        if margin < self.config.conflict_margin_for_escalation:
-            conflict.resolution = ConflictResolution.ESCALATE_TO_HUMAN
-            conflict.notes = f"Confidence margin {margin:.2f} < {self.config.conflict_margin_for_escalation}"
-            return False
-        
-        if conflict.new_confidence > conflict.existing_confidence:
-            conflict.resolution = ConflictResolution.HIGHER_AUTHORITY_WINS
-            conflict.resolved_at = datetime.utcnow()
-            conflict.notes = "New extraction has higher confidence, will replace on promotion"
-            return True
-        else:
-            conflict.resolution = ConflictResolution.HIGHER_AUTHORITY_WINS
-            conflict.resolved_at = datetime.utcnow()
-            conflict.notes = "Existing trusted fact has higher confidence, staging discarded"
-            
-            if conflict.entity_id:
-                staging = self.session.query(Entity).filter(
-                    Entity.id == conflict.entity_id
-                ).first()
-                if staging:
-                    staging.lifecycle_state = LifecycleState.ARCHIVED
-                    staging.archived_at = datetime.utcnow()
-            
-            return True
-    
-    def _resolve_relationship_conflict(
-        self,
-        conflict: ConflictRecord
-    ) -> bool:
-        """
-        Resolve a relationship contradiction conflict.
-        
-        Strategy: higher_confidence_wins
-        If margin < 0.15, escalate to human review.
-        """
-        margin = abs(conflict.existing_confidence - conflict.new_confidence)
-        
-        if margin < self.config.conflict_margin_for_escalation:
-            conflict.resolution = ConflictResolution.ESCALATE_TO_HUMAN
-            conflict.notes = f"Confidence margin {margin:.2f} < {self.config.conflict_margin_for_escalation}"
-            return False
-        
-        if conflict.new_confidence > conflict.existing_confidence:
-            conflict.resolution = ConflictResolution.HIGHER_CONFIDENCE_WINS
-            conflict.resolved_at = datetime.utcnow()
-            conflict.notes = "New relationship has higher confidence"
-            return True
-        else:
-            conflict.resolution = ConflictResolution.HIGHER_CONFIDENCE_WINS
-            conflict.resolved_at = datetime.utcnow()
-            conflict.notes = "Existing relationship has higher confidence, staging discarded"
-            
-            if conflict.relationship_id:
-                staging = self.session.query(Relationship).filter(
-                    Relationship.id == conflict.relationship_id
-                ).first()
-                if staging:
-                    staging.lifecycle_state = LifecycleState.ARCHIVED
-            
-            return True
-    
-    def _run_demotion_pass(self) -> GardenerPassResult:
-        """
-        Demote low-confidence TRUSTED facts to ARCHIVED.
-        
-        Criteria:
-        - Confidence below archive threshold (default 0.3)
+        If margin < 0.15: keep in review_queue for human decision
         """
         start_time = datetime.utcnow()
-        result = GardenerPassResult(pass_name="demotion")
+        result = ConflictResult()
+        
+        try:
+            unresolved_conflicts = self.session.query(ConflictLogDB).filter(
+                ConflictLogDB.resolved_at.is_(None)
+            ).all()
+            
+            for conflict in unresolved_conflicts:
+                result.conflicts_processed += 1
+                
+                resolved, resolution = self._resolve_conflict(conflict)
+                
+                if resolved:
+                    conflict.resolved_at = datetime.utcnow()
+                    conflict.resolution = resolution.value
+                    result.conflicts_resolved += 1
+                    result.by_resolution[resolution.value] = (
+                        result.by_resolution.get(resolution.value, 0) + 1
+                    )
+                    
+                    self._log_action(
+                        cycle_id=cycle_id,
+                        action_type=GardenerActionType.RESOLVE_CONFLICT,
+                        target_id=conflict.id,
+                        target_type="conflict",
+                        target_name=conflict.conflict_type,
+                        reason=f"Resolved via {resolution.value}",
+                        details={"conflict_type": conflict.conflict_type},
+                    )
+                else:
+                    result.conflicts_escalated += 1
+                    conflict.resolution = ConflictResolution.ESCALATE_TO_HUMAN.value
+                    conflict.resolution_notes = "Margin too small for auto-resolution"
+                    
+        except Exception as e:
+            result.errors.append(f"Conflict resolution error: {str(e)}")
+            logger.error(f"[Gardener] Conflict resolution error: {e}")
+        
+        result.duration_seconds = (datetime.utcnow() - start_time).total_seconds()
+        return result
+    
+    def demotion_pass(self, cycle_id: str = "") -> DemotionResult:
+        """
+        Pass 4: Demote TRUSTED facts to ARCHIVED when:
+        - confidence < archive_threshold (0.4)
+        - superseded by newly promoted facts
+        
+        Sets valid_to timestamp on archived facts.
+        """
+        start_time = datetime.utcnow()
+        result = DemotionResult()
         
         try:
             threshold = self.config.archive_confidence_threshold
@@ -614,73 +645,350 @@ class Gardener:
             ).all()
             
             for entity in low_confidence_entities:
+                old_state = entity.lifecycle_state.value
                 entity.lifecycle_state = LifecycleState.ARCHIVED
-                entity.archived_at = datetime.utcnow()
-                result.entities_affected += 1
+                
+                props = entity.properties or {}
+                props["_valid_to"] = datetime.utcnow().isoformat()
+                props["_archived_reason"] = "low_confidence"
+                entity.properties = props
+                flag_modified(entity, "properties")
+                
+                result.entities_demoted += 1
+                result.low_confidence_count += 1
+                
+                self._log_action(
+                    cycle_id=cycle_id,
+                    action_type=GardenerActionType.DEMOTE,
+                    target_id=entity.id,
+                    target_type="entity",
+                    target_name=entity.name,
+                    old_state=old_state,
+                    new_state=LifecycleState.ARCHIVED.value,
+                    old_confidence=entity.confidence,
+                    reason=f"Confidence {entity.confidence:.2f} below threshold {threshold}",
+                )
             
-            low_confidence_relationships = self.session.query(Relationship).filter(
+            low_confidence_rels = self.session.query(Relationship).filter(
                 and_(
                     Relationship.lifecycle_state == LifecycleState.TRUSTED,
                     Relationship.confidence < threshold,
                 )
             ).all()
             
-            for rel in low_confidence_relationships:
+            for rel in low_confidence_rels:
+                old_state = rel.lifecycle_state.value
                 rel.lifecycle_state = LifecycleState.ARCHIVED
-                result.relationships_affected += 1
+                
+                props = rel.properties or {}
+                props["_valid_to"] = datetime.utcnow().isoformat()
+                props["_archived_reason"] = "low_confidence"
+                rel.properties = props
+                flag_modified(rel, "properties")
+                
+                result.relationships_demoted += 1
+                result.low_confidence_count += 1
+                
+                self._log_action(
+                    cycle_id=cycle_id,
+                    action_type=GardenerActionType.DEMOTE,
+                    target_id=rel.id,
+                    target_type="relationship",
+                    target_name=rel.relationship_type,
+                    old_state=old_state,
+                    new_state=LifecycleState.ARCHIVED.value,
+                    old_confidence=rel.confidence,
+                    reason=f"Confidence {rel.confidence:.2f} below threshold {threshold}",
+                )
+            
+            superseded = self._find_superseded_facts()
+            for entity in superseded.get("entities", []):
+                if entity.lifecycle_state == LifecycleState.ARCHIVED:
+                    continue
+                    
+                old_state = entity.lifecycle_state.value
+                entity.lifecycle_state = LifecycleState.ARCHIVED
+                
+                props = entity.properties or {}
+                props["_valid_to"] = datetime.utcnow().isoformat()
+                props["_archived_reason"] = "superseded"
+                entity.properties = props
+                flag_modified(entity, "properties")
+                
+                result.entities_demoted += 1
+                result.superseded_count += 1
+                
+                self._log_action(
+                    cycle_id=cycle_id,
+                    action_type=GardenerActionType.DEMOTE,
+                    target_id=entity.id,
+                    target_type="entity",
+                    target_name=entity.name,
+                    old_state=old_state,
+                    new_state=LifecycleState.ARCHIVED.value,
+                    reason="Superseded by newly promoted fact",
+                )
                 
         except Exception as e:
             result.errors.append(f"Demotion pass error: {str(e)}")
+            logger.error(f"[Gardener] Demotion pass error: {e}")
         
         result.duration_seconds = (datetime.utcnow() - start_time).total_seconds()
         return result
     
-    def get_unresolved_conflicts(self) -> List[ConflictRecord]:
-        """Get all unresolved conflicts requiring human review."""
-        return [
-            c for c in self.conflict_log 
-            if c.resolution == ConflictResolution.ESCALATE_TO_HUMAN
-        ]
+    def cleanup_pass(self, cycle_id: str = "") -> CleanupResult:
+        """
+        Pass 5: Cleanup old data:
+        - Delete STAGING facts older than 30 days (never promoted)
+        - Delete resolved conflicts older than 90 days
+        """
+        start_time = datetime.utcnow()
+        result = CleanupResult()
+        
+        try:
+            staging_cutoff = datetime.utcnow() - timedelta(
+                days=self.config.staging_max_age_days
+            )
+            
+            old_staging_entities = self.session.query(Entity).filter(
+                and_(
+                    Entity.lifecycle_state == LifecycleState.STAGING,
+                    Entity.created_at < staging_cutoff,
+                )
+            ).all()
+            
+            entity_ids_to_delete = [e.id for e in old_staging_entities]
+            
+            if entity_ids_to_delete:
+                self.session.query(Relationship).filter(
+                    or_(
+                        Relationship.source_id.in_(entity_ids_to_delete),
+                        Relationship.target_id.in_(entity_ids_to_delete),
+                    )
+                ).delete(synchronize_session=False)
+            
+            for entity in old_staging_entities:
+                self._log_action(
+                    cycle_id=cycle_id,
+                    action_type=GardenerActionType.ARCHIVE,
+                    target_id=entity.id,
+                    target_type="entity",
+                    target_name=entity.name,
+                    reason=f"Deleted: STAGING older than {self.config.staging_max_age_days} days",
+                )
+                self.session.delete(entity)
+                result.staging_deleted += 1
+            
+            old_staging_rels = self.session.query(Relationship).filter(
+                and_(
+                    Relationship.lifecycle_state == LifecycleState.STAGING,
+                    Relationship.created_at < staging_cutoff,
+                )
+            ).all()
+            
+            for rel in old_staging_rels:
+                self.session.delete(rel)
+                result.relationships_deleted += 1
+            
+            conflict_cutoff = datetime.utcnow() - timedelta(
+                days=self.config.resolved_conflict_max_age_days
+            )
+            
+            old_resolved_conflicts = self.session.query(ConflictLogDB).filter(
+                and_(
+                    ConflictLogDB.resolved_at.isnot(None),
+                    ConflictLogDB.resolved_at < conflict_cutoff,
+                )
+            ).all()
+            
+            for conflict in old_resolved_conflicts:
+                self.session.delete(conflict)
+                result.conflicts_deleted += 1
+                
+        except Exception as e:
+            result.errors.append(f"Cleanup pass error: {str(e)}")
+            logger.error(f"[Gardener] Cleanup pass error: {e}")
+        
+        result.duration_seconds = (datetime.utcnow() - start_time).total_seconds()
+        return result
     
-    def get_conflict_stats(self) -> Dict:
-        """Get statistics about conflicts."""
-        total = len(self.conflict_log)
-        resolved = sum(1 for c in self.conflict_log if c.resolved_at)
-        escalated = sum(
-            1 for c in self.conflict_log 
-            if c.resolution == ConflictResolution.ESCALATE_TO_HUMAN
+    def _resolve_conflict(
+        self, 
+        conflict: ConflictLogDB
+    ) -> Tuple[bool, Optional[ConflictResolution]]:
+        """
+        Apply resolution strategy based on conflict type.
+        Returns (resolved, resolution_type).
+        """
+        margin = abs(
+            (conflict.existing_confidence or 0) - 
+            (conflict.new_confidence or 0)
         )
         
-        by_type = {}
-        for c in self.conflict_log:
-            t = c.conflict_type.value
-            by_type[t] = by_type.get(t, 0) + 1
+        if margin < self.config.conflict_margin_for_escalation:
+            return False, None
         
-        return {
-            "total": total,
-            "resolved": resolved,
-            "escalated": escalated,
-            "pending": total - resolved,
-            "by_type": by_type,
-        }
+        conflict_type = conflict.conflict_type
+        
+        if conflict_type in ["attribute_mismatch", "ATTRIBUTE_MISMATCH"]:
+            if (conflict.new_confidence or 0) > (conflict.existing_confidence or 0):
+                self._apply_new_value_wins(conflict)
+            return True, ConflictResolution.HIGHER_CONFIDENCE_WINS
+            
+        elif conflict_type in ["relationship_contradiction", "RELATIONSHIP_CONTRADICTION"]:
+            if (conflict.new_confidence or 0) > (conflict.existing_confidence or 0):
+                self._apply_new_value_wins(conflict)
+            return True, ConflictResolution.HIGHER_CONFIDENCE_WINS
+            
+        elif conflict_type in ["temporal_overlap", "TEMPORAL_OVERLAP"]:
+            return True, ConflictResolution.NEWER_WINS
+            
+        elif conflict_type in ["cardinality_violation", "CARDINALITY_VIOLATION"]:
+            return True, ConflictResolution.RULE_DETERMINED
+            
+        else:
+            if (conflict.new_confidence or 0) > (conflict.existing_confidence or 0):
+                self._apply_new_value_wins(conflict)
+            return True, ConflictResolution.HIGHER_CONFIDENCE_WINS
     
-    def get_lifecycle_stats(self) -> Dict:
-        """Get current lifecycle state statistics."""
-        entity_counts = {}
-        for state in LifecycleState:
-            count = self.session.query(Entity).filter(
-                Entity.lifecycle_state == state
-            ).count()
-            entity_counts[state.value] = count
+    def _apply_new_value_wins(self, conflict: ConflictLogDB) -> None:
+        """Apply the new value when it wins the conflict."""
+        if conflict.entity_id:
+            old_entity = self.session.query(Entity).filter(
+                Entity.id == conflict.entity_id,
+                Entity.lifecycle_state == LifecycleState.TRUSTED,
+            ).first()
+            if old_entity:
+                old_entity.lifecycle_state = LifecycleState.ARCHIVED
+                props = old_entity.properties or {}
+                props["_superseded_by_conflict"] = str(conflict.id)
+                old_entity.properties = props
+                flag_modified(old_entity, "properties")
+    
+    def _get_entity_ids_with_unresolved_conflicts(self) -> Set[str]:
+        """Get IDs of entities with unresolved conflicts."""
+        conflicts = self.session.query(ConflictLogDB.entity_id).filter(
+            and_(
+                ConflictLogDB.entity_id.isnot(None),
+                ConflictLogDB.resolved_at.is_(None),
+            )
+        ).all()
+        return {str(c.entity_id) for c in conflicts if c.entity_id}
+    
+    def _get_relationship_ids_with_unresolved_conflicts(self) -> Set[str]:
+        """Get IDs of relationships with unresolved conflicts."""
+        conflicts = self.session.query(ConflictLogDB.relationship_id).filter(
+            and_(
+                ConflictLogDB.relationship_id.isnot(None),
+                ConflictLogDB.resolved_at.is_(None),
+            )
+        ).all()
+        return {str(c.relationship_id) for c in conflicts if c.relationship_id}
+    
+    def _get_entity_ids_with_pending_duplicates(self) -> Set[str]:
+        """Get IDs of entities with pending duplicate candidates."""
+        candidates = self.session.query(
+            DuplicateCandidate.entity_a_id,
+            DuplicateCandidate.entity_b_id,
+        ).filter(
+            DuplicateCandidate.reviewed == False
+        ).all()
         
-        rel_counts = {}
-        for state in LifecycleState:
-            count = self.session.query(Relationship).filter(
-                Relationship.lifecycle_state == state
-            ).count()
-            rel_counts[state.value] = count
+        ids = set()
+        for c in candidates:
+            ids.add(str(c.entity_a_id))
+            ids.add(str(c.entity_b_id))
+        return ids
+    
+    def _find_superseded_facts(self) -> Dict[str, List]:
+        """
+        Find facts that are superseded by newly promoted facts.
+        A fact is superseded if a newer fact with the same name/type was promoted.
+        """
+        superseded = {"entities": [], "relationships": []}
         
-        return {
-            "entities": entity_counts,
-            "relationships": rel_counts,
-        }
+        for promoted_id in self._promoted_entity_ids:
+            promoted = self.session.query(Entity).filter(
+                Entity.id == promoted_id
+            ).first()
+            
+            if not promoted:
+                continue
+            
+            older_versions = self.session.query(Entity).filter(
+                and_(
+                    Entity.name == promoted.name,
+                    Entity.entity_type == promoted.entity_type,
+                    Entity.lifecycle_state == LifecycleState.TRUSTED,
+                    Entity.id != promoted.id,
+                    Entity.created_at < promoted.created_at,
+                )
+            ).all()
+            
+            superseded["entities"].extend(older_versions)
+        
+        return superseded
+    
+    def _log_action(
+        self,
+        cycle_id: str,
+        action_type: GardenerActionType,
+        target_id,
+        target_type: str,
+        target_name: str = "",
+        old_state: str = None,
+        new_state: str = None,
+        old_confidence: float = None,
+        new_confidence: float = None,
+        reason: str = "",
+        details: Dict = None,
+    ) -> None:
+        """Log a gardener action to the gardener_logs table."""
+        try:
+            log_entry = GardenerLog(
+                action_type=action_type,
+                target_id=target_id,
+                target_type=target_type,
+                target_name=target_name,
+                old_state=old_state,
+                new_state=new_state,
+                old_confidence=old_confidence,
+                new_confidence=new_confidence,
+                reason=reason,
+                details=details,
+                cycle_id=cycle_id,
+            )
+            self.session.add(log_entry)
+        except Exception as e:
+            logger.warning(f"Failed to log gardener action: {e}")
+    
+    def _log_cycle_summary(self, cycle_id: str, result: GardenerCycleResult) -> None:
+        """Log a summary entry for the entire cycle."""
+        try:
+            summary_id = uuid_module.uuid4()
+            log_entry = GardenerLog(
+                id=summary_id,
+                action_type=GardenerActionType.VALIDATE,
+                target_id=summary_id,
+                target_type="cycle",
+                target_name=cycle_id,
+                reason=f"Cycle complete: success={result.success}",
+                details={
+                    "facts_decayed": result.facts_decayed,
+                    "facts_promoted": result.facts_promoted,
+                    "facts_demoted": result.facts_demoted,
+                    "conflicts_resolved": result.conflicts_resolved,
+                    "duration_seconds": (
+                        (result.completed_at - result.started_at).total_seconds()
+                        if result.completed_at else 0
+                    ),
+                },
+                cycle_id=cycle_id,
+            )
+            self.session.add(log_entry)
+            self.session.commit()
+        except Exception as e:
+            logger.warning(f"Failed to log cycle summary: {e}")
+
+
+Gardener = GardenerAgent
