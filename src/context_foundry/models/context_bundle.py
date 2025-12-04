@@ -345,7 +345,16 @@ class ContextBundle:
             lines.append("   only list entities that match ALL criteria")
             lines.append("4. If no entities match the criteria, state this clearly\n")
         
-        lines.append("=== CONTEXT FROM KNOWLEDGE GRAPH (SEMANTIC MEMORY) ===\n")
+        lines.append("=== SIMILAR DOCUMENTS (EPISODIC MEMORY) ===\n")
+        if self.episodic_documents:
+            for doc in self.episodic_documents:
+                lines.append(f"  [{doc.get('doc_type')}] {doc.get('title')} "
+                           f"(similarity: {doc.get('similarity', 0):.2f})")
+                lines.append(f"    Content: {doc.get('content', '')[:800]}...")
+        else:
+            lines.append("  No similar documents found.")
+        
+        lines.append("\n=== CONTEXT FROM KNOWLEDGE GRAPH (SEMANTIC MEMORY) ===\n")
         
         if self.semantic_entities:
             lines.append("ENTITIES:")
@@ -367,15 +376,6 @@ class ContextBundle:
                            f"{rel.get('target_name')} (confidence: {conf:.2f})")
                 if rel.get("source_sentence"):
                     lines.append(f"    Source: \"{rel.get('source_sentence')}\"")
-        
-        lines.append("\n=== SIMILAR DOCUMENTS (EPISODIC MEMORY) ===\n")
-        if self.episodic_documents:
-            for doc in self.episodic_documents:
-                lines.append(f"  [{doc.get('doc_type')}] {doc.get('title')} "
-                           f"(similarity: {doc.get('similarity', 0):.2f})")
-                lines.append(f"    Content: {doc.get('content', '')[:300]}...")
-        else:
-            lines.append("  No similar documents found.")
         
         lines.append("\n=== APPLICABLE RULES (SYMBOLIC MEMORY) ===\n")
         if self.symbolic_rules:
