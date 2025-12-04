@@ -507,7 +507,7 @@ def compare_single_query():
                 vote_record = EvaluationVote(
                     pair_id=pair.pair_id,
                     query_id=query_id,
-                    query_text=pair.query.text,
+                    query_text=pair.query.query_text,
                     a_is_context_foundry=pair.a_is_context_foundry,
                     response_a=blind_a.get('answer', ''),
                     response_b=blind_b.get('answer', ''),
