@@ -1,0 +1,1276 @@
+{
+  "answer": "For a SEV1 incident on the Auth Service, you should escalate to Mia White, who is the VP of Engineering. She is listed as an escalation point for SEV1 incidents.",
+  "confidence": 0.95,
+  "confidence_level": "high",
+  "evidence_chain": [
+    {
+      "type": "rule",
+      "description": "Escalation policy for SEV1 incidents specifies escalation to Mia White.",
+      "source": "SEV1 Escalation Rule",
+      "confidence": 0.95
+    },
+    {
+      "type": "entity",
+      "description": "Mia White is the VP of Engineering.",
+      "source": "Mia White",
+      "confidence": 0.88
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: INC-2024-016: Auth Service Memory Leak",
+      "source": "INC-2024-016: Auth Service Memory Leak",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Memory leak in auth service caused gradual degradation.",
+      "confidence": 0.8788863736842734,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: INC-2024-010: Auth Token Validation Bug",
+      "source": "INC-2024-010: Auth Token Validation Bug",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "JWT validation bypass discovered and patched. Security incident.",
+      "confidence": 0.8788862143135389,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "entity",
+      "description": "Entity from knowledge graph: INC-2024-002: Auth Service Latency Spike",
+      "source": "INC-2024-002: Auth Service Latency Spike",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Auth service response times exceeded 2 seconds due to session cache issues.",
+      "confidence": 0.878885996153172,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "INC-2024-010: Auth Token Validation Bug -[AFFECTS]-> API Gateway",
+      "source": "INC-2024-010: Auth Token Validation Bug -> API Gateway",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship AFFECTS with API Gateway.",
+      "confidence": 0.95,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "INC-2024-010: Auth Token Validation Bug -[RESOLVED_BY]-> Diana Cruz",
+      "source": "INC-2024-010: Auth Token Validation Bug -> Diana Cruz",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship RESOLVED_BY with Diana Cruz.",
+      "confidence": 0.95,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "relationship",
+      "description": "INC-2024-010: Auth Token Validation Bug -[CAUSED_BY]-> Auth Service",
+      "source": "INC-2024-010: Auth Token Validation Bug -> Auth Service",
+      "source_document": "synthetic_data_v1",
+      "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship CAUSED_BY with Auth Service.",
+      "confidence": 0.95,
+      "memory_layer": "semantic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: SEV1 Incident Commander Playbook",
+      "source": "SEV1 Incident Commander Playbook",
+      "source_document": "a6a22c0f-90e6-444d-a0f9-dd93079de88d",
+      "similarity": 1.0,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "document",
+      "description": "Related document: SEV1 Incident Commander Playbook",
+      "source": "SEV1 Incident Commander Playbook",
+      "source_document": "4ef1c7f6-efa2-44df-bed3-f0ce0dec3bec",
+      "similarity": 1.0,
+      "memory_layer": "episodic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: SEV1 Escalation Rule",
+      "source": "SEV1 Escalation Rule",
+      "rule_type": "ESCALATION_POLICY",
+      "action": "escalate_to('Mia White', 'VP Engineering')",
+      "memory_layer": "symbolic"
+    },
+    {
+      "type": "rule",
+      "description": "Applicable rule: Escalation Chain Validation",
+      "source": "Escalation Chain Validation",
+      "rule_type": "VALIDATION",
+      "action": "validate_escalation_path(team, severity)",
+      "memory_layer": "symbolic"
+    }
+  ],
+  "uncertainty": {
+    "uncertain_facts": [],
+    "reasons": [],
+    "would_help": [],
+    "context_confidence": 0.95,
+    "context_recommendation": "proceed"
+  },
+  "rules_applied": [
+    "SEV1 Escalation Rule",
+    "Escalation Chain Validation"
+  ],
+  "caveats": [],
+  "bundle_id": "a29e5b30-264d-4ea8-a6d1-3a7dd93df5b2",
+  "query_text": "Who should I escalate to for a SEV1 on the Auth Service?",
+  "context_bundle": {
+    "query_id": "a29e5b30-264d-4ea8-a6d1-3a7dd93df5b2",
+    "query_text": "Who should I escalate to for a SEV1 on the Auth Service?",
+    "created_at": "2025-12-03T18:59:39.170119",
+    "query_type": "rule",
+    "is_analysis_query": false,
+    "is_property_query": false,
+    "property_filters": [],
+    "sequence_intent": false,
+    "semantic_memory": [
+      {
+        "id": "8ff63c07-e9db-4aab-826b-f274565033b8",
+        "name": "INC-2024-016: Auth Service Memory Leak",
+        "entity_type": "INCIDENT",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "severity": "SEV2",
+          "status": "resolved",
+          "duration_minutes": 45,
+          "date": "2024-03-25"
+        },
+        "description": "Memory leak in auth service caused gradual degradation.",
+        "confidence": 0.8788863736842734,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Memory leak in auth service caused gradual degradation."
+      },
+      {
+        "id": "6cb2cc43-1a89-429d-851f-059997640f98",
+        "name": "INC-2024-010: Auth Token Validation Bug",
+        "entity_type": "INCIDENT",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "severity": "SEV1",
+          "status": "resolved",
+          "duration_minutes": 15,
+          "date": "2024-03-10"
+        },
+        "description": "JWT validation bypass discovered and patched. Security incident.",
+        "confidence": 0.8788862143135389,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "JWT validation bypass discovered and patched. Security incident."
+      },
+      {
+        "id": "3b27babe-b26f-467a-be7f-a7b2dc4f30e2",
+        "name": "INC-2024-002: Auth Service Latency Spike",
+        "entity_type": "INCIDENT",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "severity": "SEV2",
+          "status": "resolved",
+          "duration_minutes": 30,
+          "date": "2024-01-22"
+        },
+        "description": "Auth service response times exceeded 2 seconds due to session cache issues.",
+        "confidence": 0.878885996153172,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth service response times exceeded 2 seconds due to session cache issues."
+      },
+      {
+        "id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "name": "Auth Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Go",
+          "tier": "critical"
+        },
+        "description": "Authentication and authorization service. Required for all authenticated requests.",
+        "confidence": 0.8788857528630049,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Authentication and authorization service. Required for all authenticated requests."
+      },
+      {
+        "id": "152303b7-5f85-47e3-a0ea-c534866fd383",
+        "name": "Authentication Team",
+        "entity_type": "TEAM",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "slack_channel": "#auth-team",
+          "on_call_rotation": "weekly"
+        },
+        "description": "Manages user authentication, authorization, and identity",
+        "confidence": 0.8788850355263302,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Manages user authentication, authorization, and identity"
+      },
+      {
+        "id": "118667da-ac5f-4fab-8e00-39cee3be72b2",
+        "name": "API Gateway",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Go",
+          "tier": "critical"
+        },
+        "description": "Main API gateway. Routes all external traffic.",
+        "confidence": 0.8783675102354364,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Main API gateway. Routes all external traffic."
+      },
+      {
+        "id": "56b74980-9134-4bee-a19c-a8f3a6b598bf",
+        "name": "Diana Cruz",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "role": "Security Engineer",
+          "team": "Authentication Team",
+          "phone": "+1-555-0304",
+          "expertise": [
+            "Penetration Testing",
+            "Security Audits"
+          ]
+        },
+        "description": "Security engineer",
+        "confidence": 0.8693329426707505,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Security engineer"
+      },
+      {
+        "id": "06bab283-a7c9-4110-b54f-030531c7df82",
+        "name": "Auth Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Go",
+          "tier": "critical"
+        },
+        "description": "Authentication and authorization service. Required for all authenticated requests.",
+        "confidence": 0.8693330442896117,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Authentication and authorization service. Required for all authenticated requests."
+      },
+      {
+        "id": "1550ae41-fc4f-4a18-8b14-538b9b756e20",
+        "name": "API Gateway",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Go",
+          "tier": "critical"
+        },
+        "description": "Main API gateway. Routes all external traffic.",
+        "confidence": 0.878885806209125,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Main API gateway. Routes all external traffic."
+      },
+      {
+        "id": "5b2932f5-7994-415e-9578-b90b15384a5e",
+        "name": "Diana Cruz",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "role": "Security Engineer",
+          "team": "Authentication Team",
+          "phone": "+1-555-0304",
+          "expertise": [
+            "Penetration Testing",
+            "Security Audits"
+          ]
+        },
+        "description": "Security engineer",
+        "confidence": 0.8788856414429156,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Security engineer"
+      },
+      {
+        "id": "2f32610b-1995-4b57-b948-3946a6fdbc08",
+        "name": "Session Cache",
+        "entity_type": "COMPONENT",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "Redis",
+          "version": "7.0",
+          "cluster": true
+        },
+        "description": "Redis cluster for session management and caching.",
+        "confidence": 0.8788858334986696,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Redis cluster for session management and caching."
+      },
+      {
+        "id": "156d6f5c-e371-431a-a79b-270463009313",
+        "name": "Session Cache",
+        "entity_type": "COMPONENT",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "Redis",
+          "version": "7.0",
+          "cluster": true
+        },
+        "description": "Redis cluster for session management and caching.",
+        "confidence": 0.8692718230116026,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Redis cluster for session management and caching."
+      },
+      {
+        "id": "512b9aab-0223-4a1a-ba69-f35721f3b3a7",
+        "name": "David Kim",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "role": "Tech Lead",
+          "team": "Authentication Team",
+          "phone": "+1-555-0301",
+          "expertise": [
+            "OAuth",
+            "JWT",
+            "Security"
+          ]
+        },
+        "description": "Auth team tech lead, security expert",
+        "confidence": 0.87888525853183,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth team tech lead, security expert"
+      },
+      {
+        "id": "e5d2651f-6895-4285-9a4c-3d2f3ef2dd3c",
+        "name": "User Database",
+        "entity_type": "DATABASE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "type": "PostgreSQL",
+          "version": "14.2",
+          "primary": true
+        },
+        "description": "User identity and profile database.",
+        "confidence": 0.8788857794314763,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "User identity and profile database."
+      },
+      {
+        "id": "496f559e-81ea-4d3e-b172-e100712b7b07",
+        "name": "INC-2024-006: User Database Connection Exhaustion",
+        "entity_type": "INCIDENT",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "severity": "SEV1",
+          "status": "resolved",
+          "duration_minutes": 35,
+          "date": "2024-02-20"
+        },
+        "description": "Auth service exhausted database connection pool during traffic spike.",
+        "confidence": 0.8788861027631848,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth service exhausted database connection pool during traffic spike."
+      },
+      {
+        "id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "name": "Payment Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "Python",
+          "framework": "FastAPI",
+          "tier": "critical"
+        },
+        "description": "Core payment processing service. Handles all financial transactions.",
+        "confidence": 0.8788857229157462,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Core payment processing service. Handles all financial transactions."
+      },
+      {
+        "id": "a54bdbb7-9a5c-4bdf-ab2b-356b751de285",
+        "name": "Checkout Service",
+        "entity_type": "SERVICE",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "language": "TypeScript",
+          "tier": "critical"
+        },
+        "description": "Customer checkout flow. Orchestrates payment and order creation.",
+        "confidence": 0.8788858883076203,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Customer checkout flow. Orchestrates payment and order creation."
+      },
+      {
+        "id": "d8e69158-cdeb-49f8-9abb-a92db9980b3d",
+        "name": "INC-2024-007: Session Cache Cluster Partition",
+        "entity_type": "INCIDENT",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "severity": "SEV1",
+          "status": "resolved",
+          "duration_minutes": 25,
+          "date": "2024-02-25"
+        },
+        "description": "Redis cluster network partition caused session validation failures.",
+        "confidence": 0.8788861349397147,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Redis cluster network partition caused session validation failures."
+      },
+      {
+        "id": "c7efd49c-059c-44af-be4d-34946c83cce7",
+        "name": "Sam Brown",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "role": "Engineer",
+          "team": "Authentication Team",
+          "phone": "+1-555-0303",
+          "expertise": [
+            "MFA",
+            "Security"
+          ]
+        },
+        "description": "Auth engineer, MFA specialist",
+        "confidence": 0.878885506155338,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth engineer, MFA specialist"
+      },
+      {
+        "id": "9eab78a3-77fa-4ece-a492-74882b0c8948",
+        "name": "Rachel Green",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "role": "Senior Engineer",
+          "team": "Authentication Team",
+          "phone": "+1-555-0302",
+          "expertise": [
+            "Identity",
+            "SSO"
+          ]
+        },
+        "description": "Senior auth engineer, SSO specialist",
+        "confidence": 0.8788852862603929,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Senior auth engineer, SSO specialist"
+      },
+      {
+        "id": "67724852-4998-4117-8135-260806518a20",
+        "name": "Mia White",
+        "entity_type": "PERSON",
+        "lifecycle_state": "TRUSTED",
+        "properties": {
+          "role": "VP Engineering",
+          "team": "SRE Team",
+          "phone": "+1-555-0001",
+          "pagerduty": true,
+          "expertise": [
+            "Leadership",
+            "Incident Management"
+          ]
+        },
+        "description": "VP of Engineering, escalation point for SEV1",
+        "confidence": 0.8788855330511984,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "VP of Engineering, escalation point for SEV1",
+        "resolved_from_rule": true,
+        "role_context": [
+          {
+            "type": "UNKNOWN",
+            "target": "SRE Team"
+          },
+          {
+            "type": "UNKNOWN",
+            "target": "SRE Team"
+          },
+          {
+            "type": "UNKNOWN",
+            "target": "David Kim"
+          },
+          {
+            "type": "UNKNOWN",
+            "target": "Emily Rodriguez"
+          },
+          {
+            "type": "UNKNOWN",
+            "target": "Chris Taylor"
+          }
+        ]
+      },
+      {
+        "id": "3480279b-037d-417d-8133-df3f25ba6a93",
+        "source_id": "6cb2cc43-1a89-429d-851f-059997640f98",
+        "target_id": "118667da-ac5f-4fab-8e00-39cee3be72b2",
+        "source_name": "INC-2024-010: Auth Token Validation Bug",
+        "target_name": "API Gateway",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.95,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship AFFECTS with API Gateway."
+      },
+      {
+        "id": "4e2222ca-4b21-4063-930a-f9513c424cee",
+        "source_id": "6cb2cc43-1a89-429d-851f-059997640f98",
+        "target_id": "56b74980-9134-4bee-a19c-a8f3a6b598bf",
+        "source_name": "INC-2024-010: Auth Token Validation Bug",
+        "target_name": "Diana Cruz",
+        "relationship_type": "RESOLVED_BY",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.95,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship RESOLVED_BY with Diana Cruz."
+      },
+      {
+        "id": "f1bc9be9-ecf0-49d2-bf76-7090787e6f79",
+        "source_id": "6cb2cc43-1a89-429d-851f-059997640f98",
+        "target_id": "06bab283-a7c9-4110-b54f-030531c7df82",
+        "source_name": "INC-2024-010: Auth Token Validation Bug",
+        "target_name": "Auth Service",
+        "relationship_type": "CAUSED_BY",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.95,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship CAUSED_BY with Auth Service."
+      },
+      {
+        "id": "278913ad-299e-4d67-8247-9cfa3e4e8796",
+        "source_id": "6cb2cc43-1a89-429d-851f-059997640f98",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "INC-2024-010: Auth Token Validation Bug",
+        "target_name": "Auth Service",
+        "relationship_type": "CAUSED_BY",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169603251,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship CAUSED_BY with Auth Service."
+      },
+      {
+        "id": "44c3b36d-bc2e-4ce2-8de2-597822d15b21",
+        "source_id": "6cb2cc43-1a89-429d-851f-059997640f98",
+        "target_id": "1550ae41-fc4f-4a18-8b14-538b9b756e20",
+        "source_name": "INC-2024-010: Auth Token Validation Bug",
+        "target_name": "API Gateway",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169526345,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship AFFECTS with API Gateway."
+      },
+      {
+        "id": "8fc53a98-7bb6-49d7-9216-a4e2eddef368",
+        "source_id": "6cb2cc43-1a89-429d-851f-059997640f98",
+        "target_id": "5b2932f5-7994-415e-9578-b90b15384a5e",
+        "source_name": "INC-2024-010: Auth Token Validation Bug",
+        "target_name": "Diana Cruz",
+        "relationship_type": "RESOLVED_BY",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169193909,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-010: Auth Token Validation Bug has relationship RESOLVED_BY with Diana Cruz."
+      },
+      {
+        "id": "3a23d3e2-4191-4a02-be27-08f7b1102ca6",
+        "source_id": "3b27babe-b26f-467a-be7f-a7b2dc4f30e2",
+        "target_id": "2f32610b-1995-4b57-b948-3946a6fdbc08",
+        "source_name": "INC-2024-002: Auth Service Latency Spike",
+        "target_name": "Session Cache",
+        "relationship_type": "CAUSED_BY",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169553635,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-002: Auth Service Latency Spike has relationship CAUSED_BY with Session Cache."
+      },
+      {
+        "id": "7358b074-f8d7-4b67-a7ff-ff356687beda",
+        "source_id": "3b27babe-b26f-467a-be7f-a7b2dc4f30e2",
+        "target_id": "06bab283-a7c9-4110-b54f-030531c7df82",
+        "source_name": "INC-2024-002: Auth Service Latency Spike",
+        "target_name": "Auth Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.95,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-002: Auth Service Latency Spike has relationship AFFECTS with Auth Service."
+      },
+      {
+        "id": "e5640f35-9202-41b2-bab8-cbe59c00ab3c",
+        "source_id": "3b27babe-b26f-467a-be7f-a7b2dc4f30e2",
+        "target_id": "156d6f5c-e371-431a-a79b-270463009313",
+        "source_name": "INC-2024-002: Auth Service Latency Spike",
+        "target_name": "Session Cache",
+        "relationship_type": "CAUSED_BY",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.95,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-002: Auth Service Latency Spike has relationship CAUSED_BY with Session Cache."
+      },
+      {
+        "id": "0408cfa9-5a2c-405b-96bd-ea35141b1167",
+        "source_id": "3b27babe-b26f-467a-be7f-a7b2dc4f30e2",
+        "target_id": "512b9aab-0223-4a1a-ba69-f35721f3b3a7",
+        "source_name": "INC-2024-002: Auth Service Latency Spike",
+        "target_name": "David Kim",
+        "relationship_type": "RESOLVED_BY",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169734738,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-002: Auth Service Latency Spike has relationship RESOLVED_BY with David Kim."
+      },
+      {
+        "id": "de4bbff7-46b7-4481-aa83-0ae6d00f7575",
+        "source_id": "3b27babe-b26f-467a-be7f-a7b2dc4f30e2",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "INC-2024-002: Auth Service Latency Spike",
+        "target_name": "Auth Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122168633233,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-002: Auth Service Latency Spike has relationship AFFECTS with Auth Service."
+      },
+      {
+        "id": "448b429c-00e9-46fd-8ce4-f5859d43447b",
+        "source_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "target_id": "2f32610b-1995-4b57-b948-3946a6fdbc08",
+        "source_name": "Auth Service",
+        "target_name": "Session Cache",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.927712216953875,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth Service uses Session Cache for active sessions."
+      },
+      {
+        "id": "f04202e5-a9d0-4946-a421-a3bfeae70d13",
+        "source_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "target_id": "e5d2651f-6895-4285-9a4c-3d2f3ef2dd3c",
+        "source_name": "Auth Service",
+        "target_name": "User Database",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.957008392124246,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Auth Service stores user credentials in User Database."
+      },
+      {
+        "id": "006da27f-8bf3-4b54-8dd4-3dfdee1fa2d1",
+        "source_id": "496f559e-81ea-4d3e-b172-e100712b7b07",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "INC-2024-006: User Database Connection Exhaustion",
+        "target_name": "Auth Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169744662,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-006: User Database Connection Exhaustion has relationship AFFECTS with Auth Service."
+      },
+      {
+        "id": "0c369472-2810-497c-a8ce-331b38a34dd5",
+        "source_id": "29f94887-66ea-4f69-85a6-4a59c4192160",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "Payment Service",
+        "target_name": "Auth Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169704968,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Payment Service validates tokens through Auth Service."
+      },
+      {
+        "id": "8773bb65-12d0-4d6d-8f6a-f8a49b4779d9",
+        "source_id": "152303b7-5f85-47e3-a0ea-c534866fd383",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "Authentication Team",
+        "target_name": "Auth Service",
+        "relationship_type": "OWNS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169233603,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Authentication Team owns the Auth Service."
+      },
+      {
+        "id": "8db53f46-e4b6-48ea-a573-3343cd842f47",
+        "source_id": "1550ae41-fc4f-4a18-8b14-538b9b756e20",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "API Gateway",
+        "target_name": "Auth Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9570083921920651,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "API Gateway validates all requests through Auth Service."
+      },
+      {
+        "id": "98275256-ba87-465b-a09e-a440f5e846ea",
+        "source_id": "a54bdbb7-9a5c-4bdf-ab2b-356b751de285",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "Checkout Service",
+        "target_name": "Auth Service",
+        "relationship_type": "DEPENDS_ON",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.8788852581313394,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Checkout Service verifies user identity through Auth Service."
+      },
+      {
+        "id": "e5d299ea-ea42-4fd8-b773-f7d380d21098",
+        "source_id": "d8e69158-cdeb-49f8-9abb-a92db9980b3d",
+        "target_id": "89ea8e41-b44a-4aa1-9332-77abff03cad6",
+        "source_name": "INC-2024-007: Session Cache Cluster Partition",
+        "target_name": "Auth Service",
+        "relationship_type": "AFFECTS",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122168598501,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Incident INC-2024-007: Session Cache Cluster Partition has relationship AFFECTS with Auth Service."
+      },
+      {
+        "id": "1595e525-6c9c-4163-be66-91898a8cd6d6",
+        "source_id": "5b2932f5-7994-415e-9578-b90b15384a5e",
+        "target_id": "152303b7-5f85-47e3-a0ea-c534866fd383",
+        "source_name": "Diana Cruz",
+        "target_name": "Authentication Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169667755,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Diana Cruz is a member of Authentication Team."
+      },
+      {
+        "id": "4ad1990b-972f-44ff-a8f2-8b2c9ca01bd4",
+        "source_id": "c7efd49c-059c-44af-be4d-34946c83cce7",
+        "target_id": "152303b7-5f85-47e3-a0ea-c534866fd383",
+        "source_name": "Sam Brown",
+        "target_name": "Authentication Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122169504017,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Sam Brown is a member of Authentication Team."
+      },
+      {
+        "id": "b50bbae5-c194-4135-a665-cba7c82ef4c1",
+        "source_id": "9eab78a3-77fa-4ece-a492-74882b0c8948",
+        "target_id": "152303b7-5f85-47e3-a0ea-c534866fd383",
+        "source_name": "Rachel Green",
+        "target_name": "Authentication Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122168774642,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "Rachel Green is a member of Authentication Team."
+      },
+      {
+        "id": "cdde9fd6-8f6e-4050-a68b-c98dadf3deaa",
+        "source_id": "512b9aab-0223-4a1a-ba69-f35721f3b3a7",
+        "target_id": "152303b7-5f85-47e3-a0ea-c534866fd383",
+        "source_name": "David Kim",
+        "target_name": "Authentication Team",
+        "relationship_type": "MANAGES",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122168685331,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "David Kim leads/manages Authentication Team."
+      },
+      {
+        "id": "d88e94dd-741e-45a0-abc5-0a066f93d1ca",
+        "source_id": "512b9aab-0223-4a1a-ba69-f35721f3b3a7",
+        "target_id": "152303b7-5f85-47e3-a0ea-c534866fd383",
+        "source_name": "David Kim",
+        "target_name": "Authentication Team",
+        "relationship_type": "MEMBER_OF",
+        "lifecycle_state": "TRUSTED",
+        "confidence": 0.9277122168650599,
+        "source_document_id": "synthetic_data_v1",
+        "source_sentence": "David Kim is a member of Authentication Team."
+      }
+    ],
+    "semantic_count": 45,
+    "episodic_memory": [
+      {
+        "id": "cfa8b4b3-2cd3-459c-b772-1e55e62e4575",
+        "title": "SEV1 Incident Commander Playbook",
+        "doc_type": "RUNBOOK",
+        "content": "# SEV1 Incident Commander Playbook\n\n## Overview\nThis playbook is for the Incident Commander role during SEV1 incidents.\n\n## Incident Commander Responsibilities\n1. Coordinate response across teams\n2. Manage communication\n3. Make escalation decisions\n4. Document timeline\n\n## Initial Response (First 5 Minutes)\n1. Acknowledge page in PagerDuty\n2. Open incident Slack channel #inc-YYYYMMDD-XXX\n3. Identify affected services\n4. Page relevant service owners\n\n## Escalation Matrix\n\n### By Service\n- Payment...",
+        "metadata": {
+          "services": [],
+          "severity": "SEV1",
+          "owner": "SRE Team"
+        },
+        "source_document_id": "a6a22c0f-90e6-444d-a0f9-dd93079de88d",
+        "similarity": 1.0,
+        "match_score": 48,
+        "match_reasons": [
+          "title:incident",
+          "content:incidentx7",
+          "title:commander",
+          "content:commanderx3",
+          "content:escalationx2",
+          "title:sev1",
+          "content:sev1x6",
+          "type:runbook/procedure"
+        ]
+      },
+      {
+        "id": "9c025a83-3e51-41b2-8ac9-fa3f184bcecc",
+        "title": "SEV1 Incident Commander Playbook",
+        "doc_type": "RUNBOOK",
+        "content": "# SEV1 Incident Commander Playbook\n\n## Overview\nThis playbook is for the Incident Commander role during SEV1 incidents.\n\n## Incident Commander Responsibilities\n1. Coordinate response across teams\n2. Manage communication\n3. Make escalation decisions\n4. Document timeline\n\n## Initial Response (First 5 Minutes)\n1. Acknowledge page in PagerDuty\n2. Open incident Slack channel #inc-YYYYMMDD-XXX\n3. Identify affected services\n4. Page relevant service owners\n\n## Escalation Matrix\n\n### By Service\n- Payment...",
+        "metadata": {
+          "services": [],
+          "severity": "SEV1",
+          "owner": "SRE Team"
+        },
+        "source_document_id": "4ef1c7f6-efa2-44df-bed3-f0ce0dec3bec",
+        "similarity": 1.0,
+        "match_score": 48,
+        "match_reasons": [
+          "title:incident",
+          "content:incidentx7",
+          "title:commander",
+          "content:commanderx3",
+          "content:escalationx2",
+          "title:sev1",
+          "content:sev1x6",
+          "type:runbook/procedure"
+        ]
+      },
+      {
+        "id": "4a4a8340-1aa6-4ad7-9436-16edd7e7e192",
+        "title": "SEV1 Incident Commander Playbook",
+        "doc_type": "RUNBOOK",
+        "content": "# SEV1 Incident Commander Playbook\n\n## Overview\nThis playbook is for the Incident Commander role during SEV1 incidents.\n\n## Incident Commander Responsibilities\n1. Coordinate response across teams\n2. Manage communication\n3. Make escalation decisions\n4. Document timeline\n\n## Initial Response (First 5 Minutes)\n1. Acknowledge page in PagerDuty\n2. Open incident Slack channel #inc-YYYYMMDD-XXX\n3. Identify affected services\n4. Page relevant service owners\n\n## Escalation Matrix\n\n### By Service\n- Payment...",
+        "metadata": {
+          "services": [],
+          "severity": "SEV1",
+          "owner": "SRE Team"
+        },
+        "source_document_id": "3578c866-ea3b-4543-a667-178e96e82cca",
+        "similarity": 1.0,
+        "match_score": 48,
+        "match_reasons": [
+          "title:incident",
+          "content:incidentx7",
+          "title:commander",
+          "content:commanderx3",
+          "content:escalationx2",
+          "title:sev1",
+          "content:sev1x6",
+          "type:runbook/procedure"
+        ]
+      },
+      {
+        "id": "570ba8d0-74c4-447c-a11b-16e5a2be6c18",
+        "title": "SEV1 Incident Commander Playbook",
+        "doc_type": "RUNBOOK",
+        "content": "# SEV1 Incident Commander Playbook\n\n## Overview\nThis playbook is for the Incident Commander role during SEV1 incidents.\n\n## Incident Commander Responsibilities\n1. Coordinate response across teams\n2. Manage communication\n3. Make escalation decisions\n4. Document timeline\n\n## Initial Response (First 5 Minutes)\n1. Acknowledge page in PagerDuty\n2. Open incident Slack channel #inc-YYYYMMDD-XXX\n3. Identify affected services\n4. Page relevant service owners\n\n## Escalation Matrix\n\n### By Service\n- Payment...",
+        "metadata": {
+          "services": [],
+          "severity": "SEV1",
+          "owner": "SRE Team"
+        },
+        "source_document_id": "04a2a212-726f-4c71-86ba-8785fad48357",
+        "similarity": 1.0,
+        "match_score": 48,
+        "match_reasons": [
+          "title:incident",
+          "content:incidentx7",
+          "title:commander",
+          "content:commanderx3",
+          "content:escalationx2",
+          "title:sev1",
+          "content:sev1x6",
+          "type:runbook/procedure"
+        ]
+      },
+      {
+        "id": "4d70f2ad-cfb6-4baf-b6d1-26c21fbeedf9",
+        "title": "SEV1 Incident Commander Playbook",
+        "doc_type": "RUNBOOK",
+        "content": "# SEV1 Incident Commander Playbook\n\n## Overview\nThis playbook is for the Incident Commander role during SEV1 incidents.\n\n## Incident Commander Responsibilities\n1. Coordinate response across teams\n2. Manage communication\n3. Make escalation decisions\n4. Document timeline\n\n## Initial Response (First 5 Minutes)\n1. Acknowledge page in PagerDuty\n2. Open incident Slack channel #inc-YYYYMMDD-XXX\n3. Identify affected services\n4. Page relevant service owners\n\n## Escalation Matrix\n\n### By Service\n- Payment...",
+        "metadata": {
+          "services": [],
+          "severity": "SEV1",
+          "owner": "SRE Team"
+        },
+        "source_document_id": "500d29eb-c838-4c4d-97c2-3b204958d94f",
+        "similarity": 1.0,
+        "match_score": 48,
+        "match_reasons": [
+          "title:incident",
+          "content:incidentx7",
+          "title:commander",
+          "content:commanderx3",
+          "content:escalationx2",
+          "title:sev1",
+          "content:sev1x6",
+          "type:runbook/procedure"
+        ]
+      }
+    ],
+    "episodic_count": 5,
+    "symbolic_memory": [
+      {
+        "id": "5f2423f4-35b5-43ab-8367-5efac154280e",
+        "name": "SEV1 Escalation Rule",
+        "rule_type": "ESCALATION_POLICY",
+        "description": "All SEV1 incidents must be escalated to VP Engineering within 5 minutes",
+        "condition": "incident.severity == 'SEV1' AND incident.duration > 5_minutes",
+        "action": "escalate_to('Mia White', 'VP Engineering')",
+        "priority": 100,
+        "is_active": true,
+        "entity_types": [
+          "INCIDENT"
+        ],
+        "relationship_types": [],
+        "match_score": 20,
+        "match_reasons": [
+          "keyword: incident",
+          "keyword: escalation",
+          "keyword: sev1",
+          "keyword: severity",
+          "keyword: escalate",
+          "rule_type: escalation",
+          "severity match"
+        ]
+      },
+      {
+        "id": "02577644-f3df-4f29-a26f-c8f89ea26eb0",
+        "name": "Escalation Chain Validation",
+        "rule_type": "VALIDATION",
+        "description": "Verify escalation paths exist for incident response",
+        "condition": "query.type == 'escalation' OR query.type == 'incident_response'",
+        "action": "validate_escalation_path(team, severity)",
+        "priority": 85,
+        "is_active": true,
+        "entity_types": [
+          "TEAM",
+          "PERSON"
+        ],
+        "relationship_types": [
+          "ESCALATES_TO",
+          "MANAGES"
+        ],
+        "match_score": 11,
+        "match_reasons": [
+          "keyword: incident",
+          "keyword: escalation",
+          "keyword: severity",
+          "severity match"
+        ]
+      },
+      {
+        "id": "f8caf077-0687-4518-9dc1-7e761ca14fb4",
+        "name": "Budget Authority by Level",
+        "rule_type": "ESCALATION_POLICY",
+        "description": "Expense approvals escalate based on amount: IC ($500), Manager ($5K), Director ($50K), VP ($500K).",
+        "condition": "expense.amount > level_budget_limit",
+        "action": "escalate_to_next_level(approver)",
+        "priority": 95,
+        "is_active": true,
+        "entity_types": null,
+        "relationship_types": null,
+        "match_score": 9,
+        "match_reasons": [
+          "keyword: auth",
+          "keyword: escalate",
+          "rule_type: escalation"
+        ]
+      },
+      {
+        "id": "d4d07c62-7d7c-457d-a622-9ff012744e0b",
+        "name": "Database Owner Notification",
+        "rule_type": "ESCALATION_POLICY",
+        "description": "Database incidents must notify Platform Team",
+        "condition": "incident.affected_service.entity_type == 'DATABASE'",
+        "action": "notify_team('Platform Team')",
+        "priority": 90,
+        "is_active": true,
+        "entity_types": [
+          "INCIDENT",
+          "DATABASE"
+        ],
+        "relationship_types": [],
+        "match_score": 7,
+        "match_reasons": [
+          "keyword: incident",
+          "rule_type: escalation"
+        ]
+      },
+      {
+        "id": "02884ca6-52df-4e26-8012-f841ef4047ea",
+        "name": "Director Approval for Hiring",
+        "rule_type": "ESCALATION_POLICY",
+        "description": "Directors can approve hiring for teams with 10 or fewer members.",
+        "condition": "action.type == 'hiring' AND team.headcount <= 10",
+        "action": "require_approval(team.director, 'hiring')",
+        "priority": 90,
+        "is_active": true,
+        "entity_types": null,
+        "relationship_types": null,
+        "match_score": 5,
+        "match_reasons": [
+          "rule_type: escalation"
+        ]
+      },
+      {
+        "id": "afc33854-5615-4f9f-bde4-3a7238b08000",
+        "name": "Auth Service Required for API",
+        "rule_type": "INVARIANT",
+        "description": "API Gateway requires Auth Service for all authenticated requests",
+        "condition": "service.name == 'API Gateway' AND NOT depends_on('Auth Service').is_healthy",
+        "action": "flag_critical('API Gateway cannot validate requests without Auth Service')",
+        "priority": 100,
+        "is_active": true,
+        "entity_types": [
+          "SERVICE"
+        ],
+        "relationship_types": [
+          "DEPENDS_ON"
+        ],
+        "match_score": 2,
+        "match_reasons": [
+          "keyword: auth"
+        ]
+      }
+    ],
+    "rules_count": 6,
+    "confidence": 0.95,
+    "uncertainty": {
+      "overall_confidence": 0.95,
+      "recommendation": "proceed",
+      "high_confidence_facts": 54,
+      "medium_confidence_facts": 2,
+      "low_confidence_facts": 0,
+      "low_confidence_items": [],
+      "unresolved_entities": [],
+      "missing_relationships": [],
+      "uncertainty_reasons": []
+    },
+    "retrieval_metadata": {
+      "keywords": [
+        "sev1",
+        "auth",
+        "escalate",
+        "escalation"
+      ],
+      "entity_types_searched": [],
+      "traverse_depth": 2,
+      "sequence_intent": false,
+      "sequence_reason": null
+    }
+  },
+  "validation": {
+    "passed": true,
+    "rules_checked": [
+      "SEV1 Escalation Rule",
+      "Escalation Chain Validation",
+      "Budget Authority by Level",
+      "Database Owner Notification",
+      "Director Approval for Hiring",
+      "Auth Service Required for API"
+    ],
+    "rules_passed": [
+      "SEV1 Escalation Rule",
+      "Escalation Chain Validation",
+      "Budget Authority by Level",
+      "Database Owner Notification",
+      "Director Approval for Hiring",
+      "Auth Service Required for API"
+    ],
+    "violations": [],
+    "warnings": []
+  },
+  "rules_checked": [
+    "SEV1 Escalation Rule",
+    "Escalation Chain Validation",
+    "Budget Authority by Level",
+    "Database Owner Notification",
+    "Director Approval for Hiring",
+    "Auth Service Required for API"
+  ],
+  "rules_passed": [
+    "SEV1 Escalation Rule",
+    "Escalation Chain Validation",
+    "Budget Authority by Level",
+    "Database Owner Notification",
+    "Director Approval for Hiring",
+    "Auth Service Required for API"
+  ],
+  "rules_violations": [],
+  "rules_warnings": [],
+  "query_log": {
+    "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+    "query_text": "Who should I escalate to for a SEV1 on the Auth Service?",
+    "start_time": "2025-12-03T18:59:39.168120",
+    "duration_seconds": 6.015644,
+    "events": [
+      {
+        "timestamp": "2025-12-03T18:59:39.168123",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "QUERY_START",
+        "data": {
+          "query": "Who should I escalate to for a SEV1 on the Auth Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:39.169093",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "PIPELINE_START",
+        "data": {
+          "query": "Who should I escalate to for a SEV1 on the Auth Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:39.170271",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "QUERY_CLASSIFICATION",
+        "data": {
+          "query_type": "rule",
+          "query": "Who should I escalate to for a SEV1 on the Auth Service?",
+          "sequence_intent": false,
+          "sequence_reason": null
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:39.173029",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "RETRIEVAL_START",
+        "data": {
+          "keywords": [
+            "sev1",
+            "auth",
+            "escalate",
+            "escalation"
+          ],
+          "inferred_entity_types": [],
+          "target_entity": null,
+          "target_entity_found": true,
+          "query_type": "rule"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:41.532072",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "SEMANTIC_RETRIEVAL",
+        "data": {
+          "entities_count": 20,
+          "relationships_count": 24,
+          "entities": [
+            "INC-2024-016: Auth Service Memory Leak",
+            "INC-2024-010: Auth Token Validation Bug",
+            "INC-2024-002: Auth Service Latency Spike",
+            "Auth Service",
+            "Authentication Team"
+          ],
+          "confidence": 0.8774238826601864
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:41.626243",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "EPISODIC_QUERY_FOR_RULES",
+        "data": {
+          "documents_count": 5,
+          "keywords_used": [
+            "procedure",
+            "incident",
+            "commander",
+            "escalation",
+            "sev1",
+            "path",
+            "escalate"
+          ],
+          "top_docs": [
+            "SEV1 Incident Commander Playbook",
+            "SEV1 Incident Commander Playbook",
+            "SEV1 Incident Commander Playbook"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:41.651924",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "SYMBOLIC_QUERY_FOR_RULES",
+        "data": {
+          "rules_found": 6,
+          "rule_names": [
+            "SEV1 Escalation Rule",
+            "Escalation Chain Validation",
+            "Budget Authority by Level",
+            "Database Owner Notification",
+            "Director Approval for Hiring",
+            "Auth Service Required for API"
+          ],
+          "keywords_used": [
+            "incident",
+            "sev2",
+            "auth",
+            "escalation",
+            "sev1",
+            "severity",
+            "escalate"
+          ]
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:41.884130",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "PERSON_REFERENCES_RESOLVED",
+        "data": {
+          "references": [
+            "Auth Service",
+            "VP Engineering",
+            "Mia White",
+            "Platform Team"
+          ],
+          "resolved_count": 1
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:41.886358",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "CONTEXT_BUNDLE_BUILT",
+        "data": {
+          "semantic_items": 45,
+          "episodic_items": 5,
+          "rules_count": 6,
+          "overall_confidence": 0.95
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:41.903845",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "LLM_CALL_START",
+        "data": {
+          "model": "gpt-4o-mini",
+          "context_length": 12467,
+          "query": "Who should I escalate to for a SEV1 on the Auth Service?"
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:44.943184",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "REASONING_COMPLETE",
+        "data": {
+          "response_length": 161,
+          "confidence": 0.95,
+          "evidence_items": 12
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:45.093986",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "VALIDATION",
+        "data": {
+          "passed": true,
+          "issues": []
+        }
+      },
+      {
+        "timestamp": "2025-12-03T18:59:45.180473",
+        "query_id": "969b8f18-3a2c-455e-ad2f-eee607e5e93e",
+        "event_type": "QUERY_COMPLETE",
+        "data": {
+          "success": true,
+          "duration_seconds": 6.012342,
+          "final_confidence": 0.95,
+          "total_events": 12
+        }
+      }
+    ]
+  }
+}
