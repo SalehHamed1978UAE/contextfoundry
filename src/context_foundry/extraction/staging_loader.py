@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from ..models.schema import (
-    Entity, Relationship, EntityType, RelationshipType, LifecycleState
+    Entity, Relationship, LifecycleState
 )
 from .entity_extractor import ExtractedEntity
 from .relation_extractor import ExtractedRelation
@@ -77,35 +77,29 @@ class StagingLoader:
         self.enable_deduplication = enable_deduplication
         self.duplicate_detector = DuplicateDetector(session, similarity_threshold)
     
-    def _map_entity_type(self, entity_type: str) -> Optional[EntityType]:
-        """Map string entity type to EntityType enum."""
-        try:
-            return EntityType(entity_type)
-        except ValueError:
-            return None
+    def _normalize_entity_type(self, entity_type: str) -> str:
+        """Normalize entity type string for database storage.
+        
+        Since entity_type is now VARCHAR, we just normalize to uppercase.
+        Any type from the loaded schema config is valid.
+        """
+        return entity_type.upper()
     
-    def _map_relation_type(self, relation_type: str) -> Optional[RelationshipType]:
-        """Map string relation type to RelationshipType enum."""
-        type_map = {
-            "DEPENDS_ON": RelationshipType.DEPENDS_ON,
-            "OWNS": RelationshipType.OWNS,
-            "SUPPORTS": RelationshipType.SUPPORTS,
-            "MEMBER_OF": RelationshipType.MEMBER_OF,
-            "MANAGES": RelationshipType.MANAGES,
-            "ESCALATES_TO": RelationshipType.ESCALATES_TO,
-            "AFFECTS": RelationshipType.AFFECTS,
-            "RESOLVED_BY": RelationshipType.RESOLVED_BY,
-            "CAUSED_BY": RelationshipType.CAUSED_BY,
-        }
-        return type_map.get(relation_type)
+    def _normalize_relation_type(self, relation_type: str) -> str:
+        """Normalize relationship type string for database storage.
+        
+        Since relationship_type is now VARCHAR, we just normalize to uppercase.
+        Any type from the loaded schema config is valid.
+        """
+        return relation_type.upper()
     
     def _find_entity_by_name(
         self, 
         name: str, 
-        entity_type: Optional[EntityType] = None
+        entity_type: Optional[str] = None
     ) -> Optional[Entity]:
         """Find an entity by name, optionally filtered by type."""
-        cache_key = (name.lower(), entity_type.value if entity_type else None)
+        cache_key = (name.lower(), entity_type if entity_type else None)
         
         if cache_key in self._entity_cache:
             return self._entity_cache[cache_key]
@@ -135,7 +129,7 @@ class StagingLoader:
         
         if entity:
             self._entity_cache[cache_key] = entity
-            specific_key = (name.lower(), entity.entity_type.value)
+            specific_key = (name.lower(), entity.entity_type)
             self._entity_cache[specific_key] = entity
         
         return entity
@@ -155,9 +149,7 @@ class StagingLoader:
         Returns:
             Tuple of (entity, action) where action is 'created', 'updated', or 'skipped'
         """
-        entity_type = self._map_entity_type(extracted.entity_type)
-        if not entity_type:
-            return None, "error"
+        entity_type = self._normalize_entity_type(extracted.entity_type)
         
         existing = self._find_entity_by_name(extracted.canonical_name, entity_type)
         
@@ -192,7 +184,7 @@ class StagingLoader:
         
         self.session.add(entity)
         
-        cache_key = (extracted.canonical_name.lower(), entity_type.value)
+        cache_key = (extracted.canonical_name.lower(), entity_type)
         self._entity_cache[cache_key] = entity
         
         return entity, "created"
@@ -212,9 +204,7 @@ class StagingLoader:
         Returns:
             Tuple of (relationship, action) where action is 'created', 'updated', 'skipped', or 'error'
         """
-        relation_type = self._map_relation_type(extracted.relation_type)
-        if not relation_type:
-            return None, "error"
+        relation_type = self._normalize_relation_type(extracted.relation_type)
         
         source_entity = self._find_entity_by_name_any_type(extracted.source_name)
         target_entity = self._find_entity_by_name_any_type(extracted.target_name)
