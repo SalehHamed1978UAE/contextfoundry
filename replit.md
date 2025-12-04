@@ -110,3 +110,29 @@ Fixed issue where the Sufficiency Autorater couldn't see document evidence due t
 | "Cloud migration decisions" | 64% (no change) | 64% (no regression) |
 
 **Context Order:** Documents → Knowledge Graph → Rules → Uncertainty Report
+
+### Regression Test Suite (Dec 4, 2025)
+Created comprehensive test suite with 37 tests covering:
+
+**Test Categories:**
+- **Entity Queries (7 tests)**: Mia White concerns, Alex Rivera role, Auth Service ownership, team members, dependencies, escalation paths, service tiers
+- **Topic Queries (6 tests)**: Cloud migration decisions, cost reduction, frontend framework, observability, Q4 budget, hiring plans
+- **Impact Queries (4 tests)**: Auth Service failure cascade, Payment Service outage, API Gateway blast radius, Notification Service impact
+- **Missing Entity Abstention (5 tests)**: Unknown services, persons, projects, teams, fictional topics
+- **Contradiction Handling (3 tests)**: Vendor switches, cost target evolution, decision reversals
+- **Temporal Reasoning (5 tests)**: Migration timelines, recent hires, Q4 initiatives, incident sequences, meeting decisions
+- **Edge Cases (4 tests)**: Ambiguous names, partial matches, short queries, multi-hop reasoning
+- **Confidence Calibration (3 tests)**: Q1/Q3/Q4 quadrant verification
+
+**Test Assertions:**
+- Confidence in expected range (varies by query type)
+- Key facts present in answer
+- No hallucinated content (forbidden terms check)
+- Correct entity mentions
+
+**Usage:**
+```bash
+python run_regression_tests.py           # Run all 37 tests
+python run_regression_tests.py --quick   # Run 5 key tests (~1 min)
+python run_regression_tests.py --smoke   # Run 2 smoke tests (~15 sec)
+```
