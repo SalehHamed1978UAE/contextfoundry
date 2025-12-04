@@ -32,7 +32,30 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 -   **Reasoning Agent**: Uses OpenAI (gpt-4o-mini) to generate responses.
 -   **Validation Agent**: Checks responses against symbolic rules.
 -   **Graph Loader**: Handles structured data ingestion.
--   **Graph Builder Agent** (Chunk 2): Perception layer that ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to STAGING with full provenance.
+-   **Graph Builder Agent**: Perception layer that ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to STAGING with full provenance. Now fully configurable via YAML schema.
+-   **Staging Validator Agent**: Validates STAGING data against schema rules (cardinality, source/target types, required fields). Detects conflicts and creates review items.
+
+### Domain-Agnostic Schema System (NEW)
+Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML configuration files.
+
+**Key Files:**
+-   `config/domain_schema.yaml` - Default IT Operations schema
+-   `config/examples/investment_portfolio.yaml` - Example Investment Portfolio schema
+-   `src/context_foundry/config/domain_schema.py` - DomainSchemaLoader class
+
+**How to add a new domain:**
+1.  Create a new YAML file in `config/` or `config/examples/`
+2.  Define entity_types with name, description, required_fields, optional_fields
+3.  Define relationship_types with source_types, target_types, cardinality (many-to-one or many-to-many)
+4.  Optionally add validation_rules
+5.  Pass `schema_config_path` to API endpoints or agents
+
+**API Endpoints:**
+-   `GET /api/schema` - Get current schema configuration
+-   `POST /api/schema/reload` - Reload schema from config file
+-   `POST /api/ingest` - Ingest document with optional `schema_config_path`
+-   `POST /api/validate` - Validate STAGING data against current schema
+-   `GET /api/review-queue` - Get pending review items
 
 ### UI/UX Decisions (Web Interface)
 -   **Theme**: "Cybernetic Operations" HUD-style with deep slate background and electric cyan accents.
@@ -57,6 +80,37 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 -   **Feature Specifications**: Core queries include impact analysis, escalation path finding, team ownership, and dependency chain. Synthetic data is used for testing.
 -   **Confidence Calibration System**: Implemented a 3-phase system (Sufficiency Autorater, Quadrant Confidence, Entity Density Scoring) to improve handling of topic-centric queries.
 -   **Cognitive Loop**: Infrastructure added for continuous ingestion, validation, and learning with `conflicts`, `review_queue`, and `gardener_logs` tables.
+-   **Configurable Schema**: Entity types, relationship types, cardinality rules, and validation rules are all loaded from YAML configuration at runtime.
+
+## Example Domain Schemas
+
+### IT Operations (Default)
+```yaml
+domain: "IT Operations"
+entity_types:
+  - SERVICE, COMPONENT, TEAM, PERSON, DATABASE, INCIDENT
+relationship_types:
+  - DEPENDS_ON (many-to-many)
+  - OWNS (many-to-one: only one owner per entity)
+  - SUPPORTS (many-to-many)
+  - MEMBER_OF (many-to-many)
+  - AFFECTS (many-to-many)
+  - CAUSED_BY (many-to-one: only one root cause)
+```
+
+### Investment Portfolio (Example)
+```yaml
+domain: "Investment Portfolio"
+entity_types:
+  - FUND, COMPANY, SECTOR, ANALYST, HOLDING, REPORT
+relationship_types:
+  - HOLDS (many-to-many: funds hold multiple companies)
+  - COVERS (many-to-many: analysts cover multiple sectors)
+  - BELONGS_TO (many-to-one: company belongs to one sector)
+  - MANAGES (many-to-one: one manager per fund)
+  - AUTHORED (many-to-many)
+  - ABOUT (many-to-one: report about one company)
+```
 
 ## External Dependencies
 -   **Database**: PostgreSQL (Neon via Replit).
