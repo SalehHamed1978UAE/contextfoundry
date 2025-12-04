@@ -93,3 +93,20 @@ Implemented 3-phase confidence calibration to fix topic-centric query handling:
 | "Project Omega" (unknown topic) | 10% | 10% |
 
 Key fix: Topic-centric queries now synthesize from documents even when no matching entity exists, enabling queries about projects, initiatives, and decisions.
+
+### Autorater Context Visibility Fix (Dec 4, 2025)
+Fixed issue where the Sufficiency Autorater couldn't see document evidence due to context truncation:
+
+**Root Cause:** The Knowledge Graph section was ~9,500 chars, pushing documents beyond the autorater's 8,000 char window. The autorater was rating INSUFFICIENT even when docs contained clear evidence.
+
+**Solution:**
+1. **Reordered context sections** - Documents now come BEFORE Knowledge Graph (docs ~2,800 chars appear within 8K window)
+2. **Increased doc snippets** - From 300 chars to 800 chars per document (5 docs × 800 = 4,000 chars, within budget)
+
+**Results:**
+| Query | Before Fix | After Fix |
+|-------|------------|-----------|
+| "Mia White concerns" | 50% (INSUFFICIENT) | **95%** (SUFFICIENT) |
+| "Cloud migration decisions" | 64% (no change) | 64% (no regression) |
+
+**Context Order:** Documents → Knowledge Graph → Rules → Uncertainty Report
