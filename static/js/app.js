@@ -293,6 +293,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    let currentQueryData = null;
+    
     function displayResults(data, duration) {
         resultsContainer.classList.add('visible');
         recentQueries.style.display = 'none';
@@ -334,7 +336,104 @@ document.addEventListener('DOMContentLoaded', function() {
             `<span class="rule-tag ${passedRules.includes(rule) ? 'passed' : ''}">${escapeHtml(rule)}</span>`
         ).join('');
 
+        currentQueryData = {
+            query_text: queryInput.value,
+            response_text: data.answer,
+            confidence: data.confidence,
+            query_log_id: data.query_log?.query_id || null
+        };
+        
+        resetFeedbackUI();
+        document.getElementById('feedbackSection').style.display = 'block';
+
         resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function resetFeedbackUI() {
+        document.querySelectorAll('.feedback-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.disabled = false;
+        });
+        document.querySelectorAll('.error-type-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById('errorTypeSelector').style.display = 'none';
+        document.getElementById('feedbackStatus').style.display = 'none';
+        document.getElementById('feedbackStatus').className = 'feedback-status';
+    }
+    
+    document.querySelectorAll('.feedback-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const judgment = this.dataset.judgment;
+            
+            document.querySelectorAll('.feedback-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            if (judgment === 'incorrect' || judgment === 'partial') {
+                document.getElementById('errorTypeSelector').style.display = 'block';
+            } else {
+                document.getElementById('errorTypeSelector').style.display = 'none';
+                await submitFeedback(judgment, null);
+            }
+        });
+    });
+    
+    document.querySelectorAll('.error-type-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const errorType = this.dataset.error;
+            const judgment = document.querySelector('.feedback-btn.active')?.dataset.judgment || 'incorrect';
+            
+            document.querySelectorAll('.error-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            await submitFeedback(judgment, errorType);
+        });
+    });
+    
+    async function submitFeedback(judgment, errorType) {
+        if (!currentQueryData) {
+            showFeedbackStatus('No query data available', false);
+            return;
+        }
+        
+        document.querySelectorAll('.feedback-btn').forEach(btn => btn.disabled = true);
+        document.querySelectorAll('.error-type-btn').forEach(btn => btn.disabled = true);
+        
+        try {
+            const response = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query_text: currentQueryData.query_text,
+                    response_text: currentQueryData.response_text,
+                    confidence: currentQueryData.confidence,
+                    judgment: judgment,
+                    error_type: errorType,
+                    query_log_id: currentQueryData.query_log_id
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                showFeedbackStatus('Thank you for your feedback!', true);
+            } else {
+                showFeedbackStatus(data.error || 'Failed to submit feedback', false);
+                document.querySelectorAll('.feedback-btn').forEach(btn => btn.disabled = false);
+                document.querySelectorAll('.error-type-btn').forEach(btn => btn.disabled = false);
+            }
+        } catch (error) {
+            showFeedbackStatus('Network error: ' + error.message, false);
+            document.querySelectorAll('.feedback-btn').forEach(btn => btn.disabled = false);
+            document.querySelectorAll('.error-type-btn').forEach(btn => btn.disabled = false);
+        }
+    }
+    
+    function showFeedbackStatus(message, isSuccess) {
+        const statusEl = document.getElementById('feedbackStatus');
+        statusEl.textContent = message;
+        statusEl.className = 'feedback-status ' + (isSuccess ? 'success' : 'error');
+        statusEl.style.display = 'block';
     }
 
     function addToHistory(query, data, duration) {

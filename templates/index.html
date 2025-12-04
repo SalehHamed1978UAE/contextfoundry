@@ -208,6 +208,34 @@
                             <div class="answer-content" id="answerContent"></div>
                         </div>
 
+                        <div class="feedback-section" id="feedbackSection" style="display: none;">
+                            <div class="answer-label">Was this answer helpful?</div>
+                            <div class="feedback-buttons">
+                                <button class="feedback-btn correct" data-judgment="correct" title="Correct">
+                                    <span class="feedback-icon">&#128077;</span>
+                                    <span class="feedback-text">Correct</span>
+                                </button>
+                                <button class="feedback-btn partial" data-judgment="partial" title="Partially Correct">
+                                    <span class="feedback-icon">&#129300;</span>
+                                    <span class="feedback-text">Partial</span>
+                                </button>
+                                <button class="feedback-btn incorrect" data-judgment="incorrect" title="Incorrect">
+                                    <span class="feedback-icon">&#128078;</span>
+                                    <span class="feedback-text">Incorrect</span>
+                                </button>
+                            </div>
+                            <div class="error-type-selector" id="errorTypeSelector" style="display: none;">
+                                <div class="answer-label" style="margin-top: 12px;">What was wrong?</div>
+                                <div class="error-type-buttons">
+                                    <button class="error-type-btn" data-error="hallucination">Hallucination</button>
+                                    <button class="error-type-btn" data-error="incomplete">Incomplete</button>
+                                    <button class="error-type-btn" data-error="wrong_entity">Wrong Entity</button>
+                                    <button class="error-type-btn" data-error="outdated">Outdated Info</button>
+                                </div>
+                            </div>
+                            <div class="feedback-status" id="feedbackStatus" style="display: none;"></div>
+                        </div>
+
                         <div class="evidence-section">
                             <div class="answer-label">Evidence Chain</div>
                             <div class="evidence-list" id="evidenceList"></div>

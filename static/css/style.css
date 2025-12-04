@@ -930,3 +930,124 @@ body {
         display: none !important;
     }
 }
+
+.feedback-section {
+    padding: 16px 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 16px;
+}
+
+.feedback-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.feedback-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.feedback-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    background: rgba(6, 182, 212, 0.1);
+}
+
+.feedback-btn.active {
+    border-color: var(--accent-primary);
+    background: rgba(6, 182, 212, 0.15);
+    color: var(--accent-primary);
+}
+
+.feedback-btn.correct:hover,
+.feedback-btn.correct.active {
+    border-color: var(--accent-success);
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--accent-success);
+}
+
+.feedback-btn.partial:hover,
+.feedback-btn.partial.active {
+    border-color: var(--accent-warning);
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent-warning);
+}
+
+.feedback-btn.incorrect:hover,
+.feedback-btn.incorrect.active {
+    border-color: var(--accent-error);
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--accent-error);
+}
+
+.feedback-icon {
+    font-size: 18px;
+}
+
+.feedback-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.error-type-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.error-type-btn {
+    padding: 8px 14px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.error-type-btn:hover {
+    border-color: var(--accent-error);
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-error);
+}
+
+.error-type-btn.active {
+    border-color: var(--accent-error);
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--accent-error);
+}
+
+.feedback-status {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.feedback-status.success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid var(--accent-success);
+    color: var(--accent-success);
+}
+
+.feedback-status.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid var(--accent-error);
+    color: var(--accent-error);
+}
