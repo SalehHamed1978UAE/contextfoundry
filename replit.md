@@ -80,6 +80,55 @@ The Identity Resolution Agent uses weighted similarity signals to detect duplica
 -   `duplicate_candidates`: Stores flagged duplicate pairs for human review
 -   `merge_audit`: Records all merge operations with full provenance
 
+### Gardener Agent (Autonomous Graph Health)
+The Gardener Agent is the "heartbeat" of Context Foundry, running every 5 minutes to maintain graph health through 5 autonomous passes:
+
+**Pass Order:**
+1.  **Decay Pass**: Applies type-specific confidence decay after grace periods
+2.  **Promotion Pass**: Moves validated facts from STAGING to TRUSTED
+3.  **Conflict Resolution Pass**: Resolves detected conflicts using type-specific strategies
+4.  **Demotion Pass**: Archives low-confidence or superseded facts
+5.  **Cleanup Pass**: Removes stale STAGING data and old resolved conflicts
+
+**Type-Specific Decay Rates:**
+| Relationship Type | Rate/Week | Floor | Grace Period |
+|-------------------|-----------|-------|--------------|
+| OWNS              | 0.02      | 0.50  | 14 days      |
+| DEPENDS_ON        | 0.01      | 0.60  | 30 days      |
+| SUPPORTS          | 0.015     | 0.55  | 21 days      |
+| MEMBER_OF         | 0.015     | 0.55  | 21 days      |
+| AFFECTS           | 0.02      | 0.50  | 14 days      |
+| CAUSED_BY         | 0.01      | 0.60  | 30 days      |
+| _DEFAULT          | 0.015     | 0.50  | 14 days      |
+| Entity (_DEFAULT) | 0.01      | 0.60  | 30 days      |
+
+**Promotion Criteria (ALL required):**
+-   `validation_status == VALID` (critical gate)
+-   `confidence >= 0.75`
+-   `dwell_time >= 1 hour` in STAGING
+-   No unresolved conflicts
+-   No pending duplicate candidates
+-   Respects `never_auto_merge_types` (e.g., PERSON)
+
+**Conflict Resolution Strategies:**
+-   `attribute_mismatch` → `higher_confidence_wins`
+-   `relationship_contradiction` → `higher_confidence_wins`
+-   `temporal_overlap` → `newer_wins`
+-   `cardinality_violation` → `rule_determined`
+-   Margin <0.15 → escalate to human review
+
+**Cleanup Thresholds:**
+-   STAGING facts older than 30 days → deleted
+-   Resolved conflicts older than 90 days → deleted
+
+**API Endpoints:**
+-   `GET /api/gardener/status` - Current scheduler status and cumulative stats
+-   `POST /api/gardener/run` - Trigger immediate cycle
+-   `GET /api/gardener/history` - Recent cycle history from logs
+
+**Database Tables:**
+-   `gardener_logs`: Records every action (DECAY, PROMOTE, DEMOTE, ARCHIVE, MERGE, VALIDATE) with target_id, reason, confidence_before/after, cycle_id
+
 ### UI/UX Decisions (Web Interface)
 -   **Theme**: "Cybernetic Operations" HUD-style with deep slate background and electric cyan accents.
 -   **Visuals**: Scanline animation, tech corner accents, animated confidence ring, color-coded evidence chain.
