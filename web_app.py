@@ -796,8 +796,11 @@ def ingest_document():
         OR
         { "text": "...", "title": "...", "doc_type": "..." } - Raw text content
         
+        Optional:
+        { "schema_config_path": "config/examples/investment_portfolio.yaml" } - Use alternate schema
+        
     Returns:
-        { "entities_extracted": N, "relationships_extracted": M, "staged": true }
+        { "entities_extracted": N, "relationships_extracted": M, "staged": true, "schema_info": {...} }
     """
     from src.context_foundry.agents.graph_builder import GraphBuilderAgent, ExtractionResult
     
@@ -810,6 +813,7 @@ def ingest_document():
         text = data.get('text')
         title = data.get('title')
         doc_type = data.get('doc_type', 'DOCUMENT')
+        schema_config_path = data.get('schema_config_path')
         
         if not doc_path and not text:
             return jsonify({
@@ -817,7 +821,7 @@ def ingest_document():
                 'error': 'Either document_path or text must be provided'
             }), 400
         
-        agent = GraphBuilderAgent()
+        agent = GraphBuilderAgent(schema_config_path=schema_config_path)
         try:
             result = agent.ingest_document(
                 doc_path=doc_path,
@@ -836,6 +840,7 @@ def ingest_document():
                 'chunks_processed': result.chunks_processed,
                 'staged': result.staged,
                 'errors': result.errors if result.errors else [],
+                'schema_info': agent.get_schema_info(),
             })
         finally:
             agent.close()
@@ -1038,53 +1043,6 @@ def reload_schema():
             'domain': loader.schema.domain,
             'entity_types': list(loader.schema.entity_types.keys()),
             'relationship_types': list(loader.schema.relationship_types.keys()),
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/ingest', methods=['POST'])
-def ingest_document():
-    """Ingest a document and extract entities/relationships to STAGING."""
-    from src.context_foundry.agents.graph_builder import GraphBuilderAgent
-    
-    try:
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({'success': False, 'error': 'No JSON data provided'}), 400
-        
-        text = data.get('text', '')
-        doc_type = data.get('doc_type', 'DOCUMENT')
-        title = data.get('title')
-        schema_config_path = data.get('schema_config_path')
-        
-        if not text:
-            return jsonify({'success': False, 'error': 'No text provided'}), 400
-        
-        agent = GraphBuilderAgent(schema_config_path=schema_config_path)
-        
-        result = agent.ingest_document(
-            text=text,
-            doc_type=doc_type,
-            title=title
-        )
-        
-        agent.close()
-        
-        return jsonify({
-            'success': True,
-            'result': {
-                'document_id': result.document_id,
-                'entities_extracted': result.entities_extracted,
-                'relationships_extracted': result.relationships_extracted,
-                'entities_staged': result.entities_staged,
-                'relationships_staged': result.relationships_staged,
-                'chunks_processed': result.chunks_processed,
-                'errors': result.errors,
-                'staged': result.staged,
-            },
-            'schema_info': agent.get_schema_info(),
         })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
