@@ -407,6 +407,45 @@ def get_merge_audits():
     finally:
         session.close()
 
+
+@app.route('/api/resolve-duplicates', methods=['POST'])
+def resolve_duplicates():
+    """
+    Run identity resolution on all STAGING entities.
+    
+    Detects duplicate entities and either auto-merges or flags for review.
+    
+    Returns:
+        { duplicates_found, auto_merged, flagged_for_review, errors }
+    """
+    from src.context_foundry.agents.identity_resolver import IdentityResolver
+    from src.context_foundry.models.schema import get_session
+    
+    try:
+        session = get_session()
+        
+        resolver = IdentityResolver(session)
+        result = resolver.run(commit=True)
+        
+        return jsonify({
+            'success': True,
+            'entities_scanned': result.entities_scanned,
+            'duplicates_found': result.candidates_found,
+            'auto_merged': result.auto_merged,
+            'flagged_for_review': result.flagged_for_review,
+            'relationships_transferred': result.relationships_transferred,
+            'errors': result.errors,
+            'started_at': result.started_at.isoformat() if result.started_at else None,
+            'completed_at': result.completed_at.isoformat() if result.completed_at else None,
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
+
+
 evaluation_result = None
 
 @app.route('/api/evaluation/query-set')
@@ -791,6 +830,7 @@ def ingest_document():
     """
     Ingest a document and extract entities/relationships to STAGING.
     Auto-runs validation after ingestion to check for conflicts and rule violations.
+    Auto-runs identity resolution to detect and handle duplicate entities.
     
     Body: 
         { "document_path": "..." } - Path to document file
@@ -800,12 +840,15 @@ def ingest_document():
         Optional:
         { "schema_config_path": "config/examples/investment_portfolio.yaml" } - Use alternate schema
         { "skip_validation": true } - Skip auto-validation after ingestion
+        { "skip_identity_resolution": true } - Skip identity resolution after validation
         
     Returns:
-        { "entities_extracted": N, "relationships_extracted": M, "staged": true, "validation": {...}, "schema_info": {...} }
+        { "entities_extracted": N, "relationships_extracted": M, "staged": true, "validation": {...}, "identity_resolution": {...}, "schema_info": {...} }
     """
     from src.context_foundry.agents.graph_builder import GraphBuilderAgent, ExtractionResult
     from src.context_foundry.agents.staging_validator import StagingValidatorAgent
+    from src.context_foundry.agents.identity_resolver import IdentityResolver
+    from src.context_foundry.models.schema import get_session
     
     try:
         data = request.get_json()
@@ -818,6 +861,7 @@ def ingest_document():
         doc_type = data.get('doc_type', 'DOCUMENT')
         schema_config_path = data.get('schema_config_path')
         skip_validation = data.get('skip_validation', False)
+        skip_identity_resolution = data.get('skip_identity_resolution', False)
         
         if not doc_path and not text:
             return jsonify({
@@ -827,6 +871,7 @@ def ingest_document():
         
         agent = GraphBuilderAgent(schema_config_path=schema_config_path)
         validation_result = None
+        identity_result = None
         
         try:
             result = agent.ingest_document(
@@ -862,6 +907,22 @@ def ingest_document():
                 finally:
                     validator.close()
             
+            if not skip_identity_resolution and result.staged and (result.entities_staged > 0):
+                session = get_session()
+                try:
+                    resolver = IdentityResolver(session)
+                    id_result = resolver.run(commit=True)
+                    identity_result = {
+                        'entities_scanned': id_result.entities_scanned,
+                        'duplicates_found': id_result.candidates_found,
+                        'auto_merged': id_result.auto_merged,
+                        'flagged_for_review': id_result.flagged_for_review,
+                        'relationships_transferred': id_result.relationships_transferred,
+                        'errors': id_result.errors,
+                    }
+                finally:
+                    session.close()
+            
             return jsonify({
                 'success': True,
                 'document_id': result.document_id,
@@ -873,6 +934,7 @@ def ingest_document():
                 'staged': result.staged,
                 'errors': result.errors if result.errors else [],
                 'validation': validation_result,
+                'identity_resolution': identity_result,
                 'schema_info': agent.get_schema_info(),
             })
         finally:

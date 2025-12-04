@@ -1,15 +1,19 @@
 """
 Identity Resolution for Context Foundry.
 
-Detects and merges duplicate entities using multiple signals:
-1. Exact name match
-2. Alias overlap
-3. Relationship overlap
+Detects and merges duplicate entities using multiple weighted signals:
+1. exact_name_match (0.95) - Canonical names identical
+2. external_id_match (0.95) - Same ID from authoritative source
+3. email_match (0.90) - Same email (Person entities)
+4. alias_overlap (0.40) - Shared alias between entities
+5. name_similarity (0.30) - Jaro-Winkler > 0.85
+6. relationship_overlap (0.25) - Same relationships to same targets
+7. co_occurrence (0.15) - Mentioned together in same documents
 
 Conservative merge policy:
-- Auto-merge at >= 0.95 confidence
+- Auto-merge at >= 0.95 confidence (except PERSON)
 - Flag for review at 0.70-0.95
-- Never auto-merge Person entities
+- Never auto-merge Person entities - ALWAYS flag for review
 """
 from datetime import datetime
 from typing import Dict, List, Optional, Set, Tuple
@@ -25,6 +29,78 @@ from ..models.schema import (
     MergeAudit as MergeAuditDB,
     DuplicateCandidate as DuplicateCandidateDB,
 )
+from ..utils.logger import logger
+
+
+# Signal weights as specified
+SIGNAL_WEIGHTS = {
+    'exact_name_match': 0.95,
+    'external_id_match': 0.95,
+    'email_match': 0.90,
+    'alias_overlap': 0.40,
+    'name_similarity': 0.30,
+    'relationship_overlap': 0.25,
+    'co_occurrence': 0.15,
+}
+
+
+def jaro_winkler_similarity(s1: str, s2: str) -> float:
+    """
+    Calculate Jaro-Winkler similarity between two strings.
+    Returns a score between 0.0 and 1.0 where 1.0 is an exact match.
+    """
+    if s1 == s2:
+        return 1.0
+    
+    len1, len2 = len(s1), len(s2)
+    if len1 == 0 or len2 == 0:
+        return 0.0
+    
+    match_distance = max(len1, len2) // 2 - 1
+    if match_distance < 0:
+        match_distance = 0
+    
+    s1_matches = [False] * len1
+    s2_matches = [False] * len2
+    
+    matches = 0
+    transpositions = 0
+    
+    for i in range(len1):
+        start = max(0, i - match_distance)
+        end = min(i + match_distance + 1, len2)
+        
+        for j in range(start, end):
+            if s2_matches[j] or s1[i] != s2[j]:
+                continue
+            s1_matches[i] = True
+            s2_matches[j] = True
+            matches += 1
+            break
+    
+    if matches == 0:
+        return 0.0
+    
+    k = 0
+    for i in range(len1):
+        if not s1_matches[i]:
+            continue
+        while not s2_matches[k]:
+            k += 1
+        if s1[i] != s2[k]:
+            transpositions += 1
+        k += 1
+    
+    jaro = (matches / len1 + matches / len2 + (matches - transpositions / 2) / matches) / 3
+    
+    prefix = 0
+    for i in range(min(len1, len2, 4)):
+        if s1[i] == s2[i]:
+            prefix += 1
+        else:
+            break
+    
+    return jaro + prefix * 0.1 * (1 - jaro)
 
 
 class MergeDecision(str, Enum):
@@ -111,10 +187,15 @@ class IdentityResolutionConfig:
     review_threshold: float = 0.70
     never_auto_merge_types: List[str] = field(default_factory=lambda: ["PERSON"])
     
-    exact_name_weight: float = 0.50
-    alias_overlap_weight: float = 0.25
-    relationship_overlap_weight: float = 0.25
+    exact_name_weight: float = SIGNAL_WEIGHTS['exact_name_match']
+    external_id_weight: float = SIGNAL_WEIGHTS['external_id_match']
+    email_weight: float = SIGNAL_WEIGHTS['email_match']
+    alias_overlap_weight: float = SIGNAL_WEIGHTS['alias_overlap']
+    name_similarity_weight: float = SIGNAL_WEIGHTS['name_similarity']
+    relationship_overlap_weight: float = SIGNAL_WEIGHTS['relationship_overlap']
+    co_occurrence_weight: float = SIGNAL_WEIGHTS['co_occurrence']
     
+    name_similarity_threshold: float = 0.85
     min_relationship_overlap_count: int = 2
 
 
@@ -168,12 +249,14 @@ class IdentityResolver:
         self.candidates: List[DuplicateCandidate] = []
         self.merge_audit: List[MergeAuditRecord] = []
     
-    def run(self, commit: bool = True) -> IdentityResolutionResult:
+    def run(self, commit: bool = True, staging_only: bool = True) -> IdentityResolutionResult:
         """
-        Run identity resolution on all entities.
+        Run identity resolution to detect duplicate entities.
         
         Args:
             commit: Whether to commit merges to database
+            staging_only: If True, only compare STAGING entities against all
+                          If False, compare all entities (slower, for batch cleanup)
             
         Returns:
             IdentityResolutionResult with metrics
@@ -181,53 +264,112 @@ class IdentityResolver:
         result = IdentityResolutionResult(started_at=datetime.utcnow())
         
         try:
-            entities = self.session.query(Entity).filter(
+            staging_entities = self.session.query(Entity).filter(
+                Entity.lifecycle_state == LifecycleState.STAGING
+            ).all()
+            
+            all_entities = self.session.query(Entity).filter(
                 Entity.lifecycle_state.in_([
                     LifecycleState.STAGING,
                     LifecycleState.TRUSTED,
                 ])
             ).all()
             
-            result.entities_scanned = len(entities)
+            result.entities_scanned = len(all_entities)
             
-            entities_by_type: Dict[str, List[Entity]] = {}
-            for entity in entities:
-                t = entity.entity_type
-                if t not in entities_by_type:
-                    entities_by_type[t] = []
-                entities_by_type[t].append(entity)
-            
-            for entity_type, type_entities in entities_by_type.items():
-                candidates = self._find_duplicates_in_type(type_entities)
+            if staging_only:
+                candidates = self._find_staging_duplicates(staging_entities, all_entities)
+            else:
+                entities_by_type: Dict[str, List[Entity]] = {}
+                for entity in all_entities:
+                    t = entity.entity_type
+                    if t not in entities_by_type:
+                        entities_by_type[t] = []
+                    entities_by_type[t].append(entity)
                 
-                for candidate in candidates:
-                    self.candidates.append(candidate)
-                    result.candidates_found += 1
-                    
-                    if candidate.merge_decision == MergeDecision.AUTO_MERGE:
-                        merge_result = self._perform_merge(candidate)
-                        if merge_result:
-                            result.auto_merged += 1
-                            result.relationships_transferred += merge_result.relationships_transferred
-                    elif candidate.merge_decision == MergeDecision.FLAG_FOR_REVIEW:
-                        self._persist_duplicate_candidate(candidate)
-                        result.flagged_for_review += 1
+                candidates = []
+                for entity_type, type_entities in entities_by_type.items():
+                    candidates.extend(self._find_duplicates_in_type(type_entities))
+            
+            for candidate in candidates:
+                self.candidates.append(candidate)
+                result.candidates_found += 1
+                
+                if candidate.merge_decision == MergeDecision.AUTO_MERGE:
+                    merge_result = self._perform_merge(candidate)
+                    if merge_result:
+                        result.auto_merged += 1
+                        result.relationships_transferred += merge_result.relationships_transferred
+                elif candidate.merge_decision == MergeDecision.FLAG_FOR_REVIEW:
+                    self._persist_duplicate_candidate(candidate)
+                    result.flagged_for_review += 1
             
             if commit:
                 self.session.commit()
+            
+            logger.info(f"Identity resolution: scanned={result.entities_scanned}, "
+                       f"found={result.candidates_found}, merged={result.auto_merged}, "
+                       f"flagged={result.flagged_for_review}")
                 
         except Exception as e:
             self.session.rollback()
             result.errors.append(str(e))
+            logger.error(f"Identity resolution error: {e}")
         
         result.completed_at = datetime.utcnow()
         return result
+    
+    def _find_staging_duplicates(
+        self,
+        staging_entities: List[Entity],
+        all_entities: List[Entity]
+    ) -> List[DuplicateCandidate]:
+        """
+        Compare each STAGING entity against all entities to find duplicates.
+        More efficient than all-vs-all comparison.
+        """
+        candidates = []
+        seen_pairs: Set[Tuple[str, str]] = set()
+        
+        for staging_entity in staging_entities:
+            for other_entity in all_entities:
+                if staging_entity.id == other_entity.id:
+                    continue
+                if staging_entity.entity_type != other_entity.entity_type:
+                    continue
+                    
+                pair_key = tuple(sorted([str(staging_entity.id), str(other_entity.id)]))
+                if pair_key in seen_pairs:
+                    continue
+                seen_pairs.add(pair_key)
+                
+                score, signals = self._calculate_similarity(staging_entity, other_entity)
+                
+                if score >= self.config.review_threshold:
+                    decision = self._determine_merge_decision(
+                        staging_entity, other_entity, score
+                    )
+                    
+                    candidate = DuplicateCandidate(
+                        entity_a_id=str(staging_entity.id),
+                        entity_b_id=str(other_entity.id),
+                        entity_a_name=staging_entity.name,
+                        entity_b_name=other_entity.name,
+                        entity_type=staging_entity.entity_type,
+                        similarity_score=score,
+                        signals=signals,
+                        merge_decision=decision,
+                        reason=self._get_decision_reason(decision, staging_entity, score),
+                    )
+                    candidates.append(candidate)
+        
+        return candidates
     
     def _find_duplicates_in_type(
         self, 
         entities: List[Entity]
     ) -> List[DuplicateCandidate]:
-        """Find duplicate candidates within a single entity type."""
+        """Find duplicate candidates within a single entity type (all-vs-all)."""
         candidates = []
         seen_pairs: Set[Tuple[str, str]] = set()
         
@@ -266,7 +408,16 @@ class IdentityResolver:
         entity_b: Entity
     ) -> Tuple[float, List[str]]:
         """
-        Calculate similarity score between two entities.
+        Calculate similarity score between two entities using weighted signals.
+        
+        Signals and weights:
+        - exact_name_match: 0.95
+        - external_id_match: 0.95
+        - email_match: 0.90
+        - alias_overlap: 0.40
+        - name_similarity: 0.30 (Jaro-Winkler > 0.85)
+        - relationship_overlap: 0.25
+        - co_occurrence: 0.15
         
         Returns:
             Tuple of (score, list of signals that matched)
@@ -280,9 +431,24 @@ class IdentityResolver:
         if name_a == name_b:
             signals.append("exact_name_match")
             weighted_score += self.config.exact_name_weight
-        elif self._fuzzy_name_match(name_a, name_b):
-            signals.append("fuzzy_name_match")
-            weighted_score += self.config.exact_name_weight * 0.8
+        else:
+            jw_score = jaro_winkler_similarity(name_a, name_b)
+            if jw_score >= self.config.name_similarity_threshold:
+                signals.append(f"name_similarity:{jw_score:.2f}")
+                weighted_score += self.config.name_similarity_weight
+        
+        ext_id_a = self._get_external_id(entity_a)
+        ext_id_b = self._get_external_id(entity_b)
+        if ext_id_a and ext_id_b and ext_id_a == ext_id_b:
+            signals.append("external_id_match")
+            weighted_score += self.config.external_id_weight
+        
+        if entity_a.entity_type == "PERSON" or entity_b.entity_type == "PERSON":
+            email_a = self._get_email(entity_a)
+            email_b = self._get_email(entity_b)
+            if email_a and email_b and email_a.lower() == email_b.lower():
+                signals.append("email_match")
+                weighted_score += self.config.email_weight
         
         aliases_a = self._get_aliases(entity_a)
         aliases_b = self._get_aliases(entity_b)
@@ -302,20 +468,36 @@ class IdentityResolver:
             overlap_score = min(1.0, rel_overlap / 5.0)
             weighted_score += self.config.relationship_overlap_weight * overlap_score
         
+        co_occur = self._check_co_occurrence(entity_a, entity_b)
+        if co_occur:
+            signals.append(f"co_occurrence:{co_occur}")
+            weighted_score += self.config.co_occurrence_weight
+        
         return min(1.0, weighted_score), signals
     
-    def _fuzzy_name_match(self, name_a: str, name_b: str) -> bool:
-        """Check for fuzzy name match using simple heuristics."""
-        if name_a in name_b or name_b in name_a:
-            return True
+    def _get_external_id(self, entity: Entity) -> Optional[str]:
+        """Get external_id from entity properties."""
+        if entity.properties:
+            return entity.properties.get("external_id")
+        return None
+    
+    def _get_email(self, entity: Entity) -> Optional[str]:
+        """Get email from entity properties."""
+        if entity.properties:
+            return entity.properties.get("email")
+        return None
+    
+    def _check_co_occurrence(self, entity_a: Entity, entity_b: Entity) -> int:
+        """Check if entities appear in the same source documents."""
+        docs_a = set()
+        docs_b = set()
         
-        words_a = set(name_a.split())
-        words_b = set(name_b.split())
+        if entity_a.source_document_id:
+            docs_a.add(str(entity_a.source_document_id))
+        if entity_b.source_document_id:
+            docs_b.add(str(entity_b.source_document_id))
         
-        overlap = len(words_a.intersection(words_b))
-        total = max(len(words_a), len(words_b))
-        
-        return overlap / total >= 0.7 if total > 0 else False
+        return len(docs_a.intersection(docs_b))
     
     def _get_aliases(self, entity: Entity) -> Set[str]:
         """Get aliases from entity properties."""
