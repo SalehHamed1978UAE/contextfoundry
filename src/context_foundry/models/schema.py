@@ -157,7 +157,7 @@ class Document(Base):
     doc_type = Column(String(50), nullable=False, index=True)
     content = Column(Text, nullable=False)
     
-    embedding = Column(Vector(384))
+    embedding = Column(Vector(1536))
     
     doc_metadata = Column(JSON, default=dict)
     
