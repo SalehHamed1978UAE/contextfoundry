@@ -155,9 +155,6 @@ RELATIONSHIP TYPES (with valid source → target):
 - MEMBER_OF: Person → Team
   (e.g., "John Smith is on the Platform Team")
 
-- MANAGES: Person → Team
-  (e.g., "Sarah leads the Payments Team")
-
 - AFFECTS: Incident → Service/Component/Database
   (e.g., "INC-001 affected the Payment Service")
 
@@ -171,7 +168,7 @@ TEXT TO ANALYZE:
 {text}
 
 For EACH relationship found, return:
-- type: One of DEPENDS_ON, OWNS, SUPPORTS, MEMBER_OF, MANAGES, AFFECTS, CAUSED_BY
+- type: One of DEPENDS_ON, OWNS, SUPPORTS, MEMBER_OF, AFFECTS, CAUSED_BY
 - source_name: The canonical name of the source entity
 - target_name: The canonical name of the target entity
 - properties: Any additional context (as key-value pairs)
@@ -224,7 +221,6 @@ class GraphBuilderAgent:
         "OWNS": RelationshipType.OWNS,
         "SUPPORTS": RelationshipType.SUPPORTS,
         "MEMBER_OF": RelationshipType.MEMBER_OF,
-        "MANAGES": RelationshipType.MANAGES,
         "AFFECTS": RelationshipType.AFFECTS,
         "CAUSED_BY": RelationshipType.CAUSED_BY,
     }
@@ -234,7 +230,6 @@ class GraphBuilderAgent:
         "OWNS": {"TEAM"},
         "SUPPORTS": {"TEAM"},
         "MEMBER_OF": {"PERSON"},
-        "MANAGES": {"PERSON"},
         "AFFECTS": {"INCIDENT"},
         "CAUSED_BY": {"INCIDENT"},
     }
@@ -244,7 +239,6 @@ class GraphBuilderAgent:
         "OWNS": {"SERVICE", "COMPONENT", "DATABASE"},
         "SUPPORTS": {"SERVICE", "COMPONENT"},
         "MEMBER_OF": {"TEAM"},
-        "MANAGES": {"TEAM"},
         "AFFECTS": {"SERVICE", "COMPONENT", "DATABASE"},
         "CAUSED_BY": {"INCIDENT"},
     }
@@ -450,14 +444,24 @@ class GraphBuilderAgent:
                     logger.debug(f"Skipping low-confidence entity: {e.get('canonical_name')} ({confidence})")
                     continue
                 
+                source_sentence = e.get("source_sentence", "")
+                start_offset = chunk.start_offset
+                end_offset = chunk.end_offset
+                
+                if source_sentence:
+                    sentence_pos = chunk.text.find(source_sentence)
+                    if sentence_pos >= 0:
+                        start_offset = chunk.start_offset + sentence_pos
+                        end_offset = start_offset + len(source_sentence)
+                
                 entity = ExtractedEntity(
                     entity_type=e.get("type"),
                     canonical_name=e.get("canonical_name", e.get("name", "")),
                     properties=e.get("properties", {}),
                     confidence=confidence,
-                    source_sentence=e.get("source_sentence", ""),
-                    start_offset=chunk.start_offset,
-                    end_offset=chunk.end_offset
+                    source_sentence=source_sentence,
+                    start_offset=start_offset,
+                    end_offset=end_offset
                 )
                 entities.append(entity)
             
@@ -612,12 +616,21 @@ class GraphBuilderAgent:
                     logger.debug(f"Entity already exists: {entity.canonical_name}")
                     continue
                 
+                props_with_provenance = {
+                    **entity.properties,
+                    "_provenance": {
+                        "start_offset": entity.start_offset,
+                        "end_offset": entity.end_offset,
+                        "extraction_method": "graph_builder_llm"
+                    }
+                }
+                
                 db_entity = Entity(
                     id=uuid.uuid4(),
                     name=entity.canonical_name,
                     entity_type=self.ENTITY_TYPE_MAP[entity.entity_type],
                     lifecycle_state=LifecycleState.STAGING,
-                    properties=entity.properties,
+                    properties=props_with_provenance,
                     confidence=entity.confidence,
                     source_document_id=source_document_id,
                     source_sentence=entity.source_sentence[:500] if entity.source_sentence else None,
