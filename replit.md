@@ -61,6 +61,16 @@ Context Foundry is a proof-of-concept demonstrating a tri-memory cognitive archi
 ## External Dependencies
 -   **Database**: PostgreSQL (Neon via Replit).
 -   **LLM**: OpenAI (gpt-4o-mini via Replit AI Integrations).
--   **Vector Embeddings**: pgvector.
+-   **Vector Embeddings**: pgvector with OpenAI text-embedding-3-small (1536 dimensions).
 -   **Web Framework**: Flask.
 -   **Deployment**: Gunicorn.
+
+## Required Environment Variables
+-   **OPENAI_API_KEY**: Required for episodic memory embeddings (text-embedding-3-small). Note: Replit AI Integrations only supports chat completions, not embeddings endpoint, so a direct OpenAI API key is needed for document ingestion.
+
+## Recent Changes (Dec 4, 2025)
+-   Replaced simple_embedding() hash-based placeholders with real OpenAI text-embedding-3-small embeddings
+-   Updated schema from Vector(384) to Vector(1536) for OpenAI embedding dimensions
+-   Re-ingested all 231 synthetic documents with real embeddings
+-   Retrieval quality improved: "cloud migration" queries now return 0.61-0.72 similarity (up from 0.09-0.17)
+-   Root cause confirmed: Entity-not-found guard in ReasoningAgent blocks document-based synthesis when target entity doesn't exist in knowledge graph (even with high-similarity documents retrieved)
