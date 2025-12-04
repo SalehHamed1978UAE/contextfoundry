@@ -250,18 +250,36 @@ class FeedbackRecord(Base):
     
     query_text = Column(Text, nullable=False)
     response_text = Column(Text, nullable=False)
+    confidence = Column(Float)
     
-    judgment = Column(String(20))
-    error_type = Column(String(50))
+    judgment = Column(String(20), index=True)
+    error_type = Column(String(50), index=True)
     human_correction = Column(Text)
     severity = Column(String(20))
     
     confidence_was = Column(Float)
     
-    processed = Column(Boolean, default=False)
+    processed = Column(Boolean, default=False, index=True)
+    processed_at = Column(DateTime)
     learning_action = Column(Text)
     
     created_at = Column(DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "query_log_id": str(self.query_log_id) if self.query_log_id else None,
+            "query_text": self.query_text,
+            "response_text": self.response_text[:500] + "..." if self.response_text and len(self.response_text) > 500 else self.response_text,
+            "confidence": self.confidence,
+            "judgment": self.judgment,
+            "error_type": self.error_type,
+            "human_correction": self.human_correction,
+            "processed": self.processed,
+            "processed_at": self.processed_at.isoformat() if self.processed_at else None,
+            "learning_action": self.learning_action,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
 
 
 class ConflictLog(Base):
