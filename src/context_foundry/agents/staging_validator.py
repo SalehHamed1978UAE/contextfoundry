@@ -333,29 +333,18 @@ class StagingValidatorAgent:
         For many-to-one relationships (e.g., OWNS, CAUSED_BY), verify that:
         - Each source has at most one target (in combined STAGING + TRUSTED)
         
-        Note: Only checks types that exist in the database enum. Schema-specific
-        types (e.g., BELONGS_TO from Investment Portfolio) are validated via
-        _schema_type property in relationships, not database queries.
+        Note: Relationship types are now stored as VARCHAR strings (not enums).
+        Schema-specific types are validated via _schema_type property in relationships.
         """
         issues = []
         
-        from ..models.schema import RelationshipType
-        db_relationship_types = {r.value for r in RelationshipType}
-        
         for rel_type in self.many_to_one_types:
-            if rel_type not in db_relationship_types:
-                continue
-            
             existing_targets = {}
             
-            try:
-                db_enum = RelationshipType(rel_type)
-                trusted_rels = self.session.query(Relationship).filter(
-                    Relationship.relationship_type == db_enum,
-                    Relationship.lifecycle_state == LifecycleState.TRUSTED
-                ).all()
-            except ValueError:
-                continue
+            trusted_rels = self.session.query(Relationship).filter(
+                Relationship.relationship_type == rel_type.upper(),
+                Relationship.lifecycle_state == LifecycleState.TRUSTED
+            ).all()
             
             for rel in trusted_rels:
                 source_key = str(rel.source_id)
@@ -369,7 +358,7 @@ class StagingValidatorAgent:
                     }
             
             for rel in staging_relationships:
-                rel_type_str = rel.relationship_type.value if rel.relationship_type else ""
+                rel_type_str = rel.relationship_type if rel.relationship_type else ""
                 schema_type = rel.properties.get("_schema_type", rel_type_str) if rel.properties else rel_type_str
                 
                 if schema_type.upper() != rel_type:

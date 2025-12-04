@@ -12,8 +12,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from ..models.schema import (
-    Entity, Relationship, Document, Rule, EntityType, 
-    RelationshipType, RuleType, LifecycleState, get_session
+    Entity, Relationship, Document, Rule,
+    RuleType, LifecycleState, get_session
 )
 from ..data.org_chart_generator import generate_org_chart_data
 from ..memory.episodic import EpisodicMemory
@@ -26,17 +26,17 @@ class OrgChartLoader:
     """Loads org chart data into the tri-memory system."""
     
     ORG_ENTITY_TYPE_MAP = {
-        "VP": EntityType.PERSON,
-        "Director": EntityType.PERSON,
-        "Manager": EntityType.PERSON,
-        "IC": EntityType.PERSON,
+        "VP": "PERSON",
+        "Director": "PERSON",
+        "Manager": "PERSON",
+        "IC": "PERSON",
     }
     
     ORG_REL_TYPE_MAP = {
-        "REPORTS_TO": RelationshipType.ESCALATES_TO,
-        "MEMBER_OF": RelationshipType.MEMBER_OF,
-        "LEADS": RelationshipType.OWNS,
-        "COLLABORATES_WITH": RelationshipType.DEPENDS_ON,
+        "REPORTS_TO": "ESCALATES_TO",
+        "MEMBER_OF": "MEMBER_OF",
+        "LEADS": "OWNS",
+        "COLLABORATES_WITH": "DEPENDS_ON",
     }
     
     def __init__(self, session: Optional[Session] = None):
@@ -118,7 +118,7 @@ class OrgChartLoader:
         entity = Entity(
             id=uuid.uuid4(),
             name=name,
-            entity_type=EntityType.TEAM,
+            entity_type="TEAM",
             description=dept["mission"],
             properties={
                 "domain": "org_chart",
@@ -148,7 +148,7 @@ class OrgChartLoader:
         entity = Entity(
             id=uuid.uuid4(),
             name=name,
-            entity_type=EntityType.TEAM,
+            entity_type="TEAM",
             description=team["focus"],
             properties={
                 "domain": "org_chart",
@@ -178,7 +178,7 @@ class OrgChartLoader:
         entity = Entity(
             id=uuid.uuid4(),
             name=name,
-            entity_type=EntityType.PERSON,
+            entity_type="PERSON",
             description=f"{person['role']} in {person['department']}",
             properties={
                 "domain": "org_chart",

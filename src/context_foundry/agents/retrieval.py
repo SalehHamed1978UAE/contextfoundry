@@ -15,7 +15,7 @@ import json
 
 from openai import OpenAI
 
-from ..models.schema import EntityType, RelationshipType, LifecycleState, get_session, Entity
+from ..models.schema import EntityType, LifecycleState, get_session, Entity
 from ..models.context_bundle import ContextBundle, create_bundle
 from ..memory.semantic import SemanticMemory
 from ..memory.episodic import EpisodicMemory
@@ -240,7 +240,7 @@ class RetrievalAgent:
         if query_logger:
             query_logger.log_event("RETRIEVAL_START", {
                 "keywords": keywords,
-                "inferred_entity_types": [t.value for t in entity_types] if entity_types else [],
+                "inferred_entity_types": entity_types if entity_types else [],
                 "target_entity": target_entity_name,
                 "target_entity_found": bundle.target_entity_found,
                 "query_type": query_type
@@ -280,12 +280,7 @@ class RetrievalAgent:
                     "intersection_logic": intersection_logic
                 })
             
-            entity_type = None
-            if entity_type_str:
-                try:
-                    entity_type = EntityType(entity_type_str)
-                except ValueError:
-                    logger.warning(f"Unknown entity type from LLM: {entity_type_str}")
+            entity_type = entity_type_str.upper() if entity_type_str else None
             
             if intersection_logic == "AND" and len(filters) > 1:
                 first_results = self.semantic.search_entities_by_properties(
@@ -391,7 +386,7 @@ class RetrievalAgent:
         
         bundle.retrieval_metadata = {
             "keywords": keywords,
-            "entity_types_searched": [t.value for t in entity_types],
+            "entity_types_searched": entity_types,
             "traverse_depth": traverse_depth,
             "sequence_intent": sequence_intent,
             "sequence_reason": sequence_reason
@@ -427,27 +422,27 @@ class RetrievalAgent:
         
         return keywords
     
-    def _infer_entity_types(self, query_text: str) -> List[EntityType]:
+    def _infer_entity_types(self, query_text: str) -> List[str]:
         """Infer which entity types are relevant based on query content."""
         query_lower = query_text.lower()
         types = []
         
         if any(w in query_lower for w in ['database', 'db', 'postgres', 'mysql', 'redis']):
-            types.append(EntityType.DATABASE)
+            types.append("DATABASE")
         if any(w in query_lower for w in ['service', 'api', 'endpoint']):
-            types.append(EntityType.SERVICE)
+            types.append("SERVICE")
         if any(w in query_lower for w in ['team', 'group', 'department']):
-            types.append(EntityType.TEAM)
+            types.append("TEAM")
         if any(w in query_lower for w in ['person', 'who', 'engineer', 'lead', 'escalat', 'contact']):
-            types.append(EntityType.PERSON)
+            types.append("PERSON")
         if any(w in query_lower for w in ['incident', 'outage', 'failure', 'sev1', 'sev2']):
-            types.append(EntityType.INCIDENT)
+            types.append("INCIDENT")
         if any(w in query_lower for w in ['runbook', 'procedure', 'playbook', 'how to']):
-            types.append(EntityType.RUNBOOK)
+            types.append("RUNBOOK")
         if any(w in query_lower for w in ['component', 'cache', 'queue']):
-            types.append(EntityType.COMPONENT)
+            types.append("COMPONENT")
         
-        return types if types else list(EntityType)
+        return types if types else [EntityType.SERVICE, EntityType.DATABASE, EntityType.TEAM, EntityType.PERSON, EntityType.INCIDENT, EntityType.COMPONENT, EntityType.RUNBOOK]
     
     def _is_impact_query(self, query_text: str) -> bool:
         """
@@ -1094,7 +1089,7 @@ class RetrievalAgent:
     def _query_semantic_memory(
         self,
         keywords: List[str],
-        entity_types: List[EntityType],
+        entity_types: List[str],
         traverse_depth: int,
         max_entities: int,
         query_logger: Optional[QueryLogger],
@@ -1111,10 +1106,11 @@ class RetrievalAgent:
         relationships = []
         seen_entity_ids: Set[str] = set()
         
+        default_types = [EntityType.SERVICE, EntityType.DATABASE, EntityType.TEAM, EntityType.PERSON, EntityType.INCIDENT, EntityType.COMPONENT, EntityType.RUNBOOK]
         for keyword in keywords:
             found = self.semantic.search_entities(
                 keyword,
-                entity_types=entity_types if entity_types else list(EntityType),
+                entity_types=entity_types if entity_types else default_types,
                 trusted_only=True,
                 limit=5
             )
@@ -1137,7 +1133,7 @@ class RetrievalAgent:
                 
                 downstream = self.semantic.traverse_dependencies(
                     target_entity.id,
-                    relationship_type=RelationshipType.DEPENDS_ON,
+                    relationship_type="DEPENDS_ON",
                     direction="incoming",
                     max_depth=traverse_depth
                 )
@@ -1175,7 +1171,7 @@ class RetrievalAgent:
             if is_impact_query:
                 rels = self.semantic.get_entity_relationships(
                     entity_id,
-                    relationship_types=[RelationshipType.DEPENDS_ON],
+                    relationship_types=["DEPENDS_ON"],
                     direction="incoming",
                     trusted_only=True
                 )
@@ -1356,7 +1352,7 @@ class RetrievalAgent:
         for ref in person_refs:
             entities = self.semantic.search_entities(
                 ref,
-                entity_types=[EntityType.PERSON],
+                entity_types=["PERSON"],
                 trusted_only=True,
                 limit=1
             )
@@ -1366,10 +1362,10 @@ class RetrievalAgent:
                 person_dict = person.to_dict()
                 
                 rel_types = [
-                    RelationshipType.MEMBER_OF,
-                    RelationshipType.MANAGES,
-                    RelationshipType.OWNS,
-                    RelationshipType.ESCALATES_TO
+                    "MEMBER_OF",
+                    "MANAGES",
+                    "OWNS",
+                    "ESCALATES_TO"
                 ]
                 relationships = self.semantic.get_entity_relationships(
                     str(person.id),

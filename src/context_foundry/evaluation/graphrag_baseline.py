@@ -128,7 +128,7 @@ class GraphRAGBaseline:
             for entity in entities:
                 context.entities.append({
                     "name": entity.name,
-                    "type": entity.entity_type.value,
+                    "type": entity.entity_type,
                     "description": entity.description,
                     "properties": entity.properties,
                 })
@@ -136,7 +136,7 @@ class GraphRAGBaseline:
                 for rel in entity.outgoing_relationships:
                     context.relationships.append({
                         "source": entity.name,
-                        "type": rel.relationship_type.value,
+                        "type": rel.relationship_type,
                         "target": rel.target_entity.name if rel.target_entity else "Unknown",
                         "properties": rel.properties,
                     })
@@ -144,7 +144,7 @@ class GraphRAGBaseline:
                 for rel in entity.incoming_relationships:
                     context.relationships.append({
                         "source": rel.source_entity.name if rel.source_entity else "Unknown",
-                        "type": rel.relationship_type.value,
+                        "type": rel.relationship_type,
                         "target": entity.name,
                         "properties": rel.properties,
                     })

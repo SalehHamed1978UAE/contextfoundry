@@ -192,7 +192,7 @@ class IdentityResolver:
             
             entities_by_type: Dict[str, List[Entity]] = {}
             for entity in entities:
-                t = entity.entity_type.value
+                t = entity.entity_type
                 if t not in entities_by_type:
                     entities_by_type[t] = []
                 entities_by_type[t].append(entity)
@@ -250,7 +250,7 @@ class IdentityResolver:
                         entity_b_id=str(entity_b.id),
                         entity_a_name=entity_a.name,
                         entity_b_name=entity_b.name,
-                        entity_type=entity_a.entity_type.value,
+                        entity_type=entity_a.entity_type,
                         similarity_score=score,
                         signals=signals,
                         merge_decision=decision,
@@ -342,14 +342,14 @@ class IdentityResolver:
         b_rel_targets = set()
         
         for rel in entity_a.outgoing_relationships:
-            a_rel_targets.add((rel.relationship_type.value, str(rel.target_id)))
+            a_rel_targets.add((rel.relationship_type, str(rel.target_id)))
         for rel in entity_a.incoming_relationships:
-            a_rel_targets.add((rel.relationship_type.value, str(rel.source_id)))
+            a_rel_targets.add((rel.relationship_type, str(rel.source_id)))
         
         for rel in entity_b.outgoing_relationships:
-            b_rel_targets.add((rel.relationship_type.value, str(rel.target_id)))
+            b_rel_targets.add((rel.relationship_type, str(rel.target_id)))
         for rel in entity_b.incoming_relationships:
-            b_rel_targets.add((rel.relationship_type.value, str(rel.source_id)))
+            b_rel_targets.add((rel.relationship_type, str(rel.source_id)))
         
         return len(a_rel_targets.intersection(b_rel_targets))
     
@@ -360,7 +360,7 @@ class IdentityResolver:
         score: float,
     ) -> MergeDecision:
         """Determine merge decision based on score and entity type."""
-        entity_type = entity_a.entity_type.value
+        entity_type = entity_a.entity_type
         
         if entity_type in self.config.never_auto_merge_types:
             if score >= self.config.review_threshold:
@@ -384,11 +384,11 @@ class IdentityResolver:
         if decision == MergeDecision.AUTO_MERGE:
             return f"Score {score:.2f} >= {self.config.auto_merge_threshold} auto-merge threshold"
         elif decision == MergeDecision.FLAG_FOR_REVIEW:
-            if entity.entity_type.value in self.config.never_auto_merge_types:
+            if entity.entity_type in self.config.never_auto_merge_types:
                 return f"Person entities never auto-merged (score: {score:.2f})"
             return f"Score {score:.2f} in review range [{self.config.review_threshold}, {self.config.auto_merge_threshold})"
         elif decision == MergeDecision.BLOCKED:
-            return f"Entity type {entity.entity_type.value} blocked from auto-merge"
+            return f"Entity type {entity.entity_type} blocked from auto-merge"
         else:
             return f"Score {score:.2f} below review threshold {self.config.review_threshold}"
     
@@ -467,7 +467,7 @@ class IdentityResolver:
             merged_entity_name=merged.name,
             surviving_entity_id=survivor.id,
             surviving_entity_name=survivor.name,
-            entity_type=survivor.entity_type.value,
+            entity_type=survivor.entity_type,
             merge_confidence=candidate.similarity_score,
             merge_signals=candidate.signals,
             auto_merged=True,
@@ -482,7 +482,7 @@ class IdentityResolver:
             merged_entity_name=merged.name,
             surviving_entity_id=str(survivor.id),
             surviving_entity_name=survivor.name,
-            entity_type=survivor.entity_type.value,
+            entity_type=survivor.entity_type,
             merge_confidence=candidate.similarity_score,
             merge_signals=candidate.signals,
             auto_merged=True,
