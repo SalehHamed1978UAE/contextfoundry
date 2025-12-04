@@ -17,22 +17,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Context Foundry CLI"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Context Foundry Web"
-
-[[workflows.workflow]]
-name = "Context Foundry CLI"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py --demo"
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[workflows.workflow]]
 name = "Context Foundry Web"
