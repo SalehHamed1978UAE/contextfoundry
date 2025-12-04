@@ -116,6 +116,14 @@ class GardenerActionType(str, Enum):
     VALIDATE = "VALIDATE"
 
 
+class ValidationStatus(str, Enum):
+    """Validation status for facts (entities/relationships) in STAGING."""
+    PENDING = "PENDING"      # Not yet validated
+    VALID = "VALID"          # Passed all validation checks
+    INVALID = "INVALID"      # Failed validation (has errors)
+    CONFLICT = "CONFLICT"    # Conflicts with existing TRUSTED data
+
+
 class Entity(Base):
     """Semantic Memory: Entities in the knowledge graph."""
     __tablename__ = "entities"
@@ -124,6 +132,7 @@ class Entity(Base):
     name = Column(String(255), nullable=False, index=True)
     entity_type = Column(String(100), nullable=False, index=True)
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
+    validation_status = Column(SQLEnum(ValidationStatus), default=ValidationStatus.PENDING, index=True)
     
     properties = Column(JSON, default=dict)
     description = Column(Text)
@@ -176,6 +185,7 @@ class Relationship(Base):
     target_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
     relationship_type = Column(String(100), nullable=False, index=True)
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
+    validation_status = Column(SQLEnum(ValidationStatus), default=ValidationStatus.PENDING, index=True)
     
     properties = Column(JSON, default=dict)
     description = Column(Text)

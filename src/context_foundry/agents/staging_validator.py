@@ -137,6 +137,8 @@ class StagingValidatorAgent:
         
         has_errors = any(i.severity == ValidationSeverity.ERROR for i in all_issues)
         
+        self._mark_validation_status(staging_entities, staging_relationships, all_issues, conflicts_detected)
+        
         result = ValidationResult(
             is_valid=not has_errors,
             entities_checked=len(staging_entities),
@@ -532,6 +534,89 @@ class StagingValidatorAgent:
             return 0
         
         return review_count
+    
+    def _mark_validation_status(
+        self,
+        entities: List[Entity],
+        relationships: List[Relationship],
+        issues: List[ValidationIssue],
+        conflicts_count: int
+    ) -> None:
+        """
+        Mark entities and relationships with their validation status.
+        
+        Status values (stored in properties._validation_status):
+        - VALID: No issues found, can be promoted
+        - INVALID: Has validation errors, cannot be promoted
+        - CONFLICT: Conflicts with existing TRUSTED data
+        """
+        entity_issues: Dict[str, List[ValidationIssue]] = {}
+        rel_issues: Dict[str, List[ValidationIssue]] = {}
+        
+        for issue in issues:
+            if issue.entity_id:
+                if issue.entity_id not in entity_issues:
+                    entity_issues[issue.entity_id] = []
+                entity_issues[issue.entity_id].append(issue)
+            if issue.relationship_id:
+                if issue.relationship_id not in rel_issues:
+                    rel_issues[issue.relationship_id] = []
+                rel_issues[issue.relationship_id].append(issue)
+        
+        for entity in entities:
+            entity_id_str = str(entity.id)
+            entity_issue_list = entity_issues.get(entity_id_str, [])
+            
+            if not entity.properties:
+                entity.properties = {}
+            
+            has_conflict = any(i.conflicting_fact_id for i in entity_issue_list)
+            has_error = any(i.severity == ValidationSeverity.ERROR for i in entity_issue_list)
+            
+            if has_conflict:
+                status = "CONFLICT"
+            elif has_error:
+                status = "INVALID"
+            else:
+                status = "VALID"
+            
+            entity.properties["_validation_status"] = status
+            entity.properties["_validation_issues"] = [
+                {"rule": i.rule_name, "severity": i.severity.value, "message": i.message}
+                for i in entity_issue_list
+            ]
+            entity.last_validated_at = datetime.utcnow()
+        
+        for rel in relationships:
+            rel_id_str = str(rel.id)
+            rel_issue_list = rel_issues.get(rel_id_str, [])
+            
+            if not rel.properties:
+                rel.properties = {}
+            
+            has_conflict = any(i.conflicting_fact_id for i in rel_issue_list)
+            has_error = any(i.severity == ValidationSeverity.ERROR for i in rel_issue_list)
+            
+            if has_conflict:
+                status = "CONFLICT"
+            elif has_error:
+                status = "INVALID"
+            else:
+                status = "VALID"
+            
+            rel.properties["_validation_status"] = status
+            rel.properties["_validation_issues"] = [
+                {"rule": i.rule_name, "severity": i.severity.value, "message": i.message}
+                for i in rel_issue_list
+            ]
+            rel.last_validated_at = datetime.utcnow()
+        
+        try:
+            self.session.commit()
+            logger.info(f"Marked validation status for {len(entities)} entities and {len(relationships)} relationships")
+        except Exception as e:
+            logger.error(f"Failed to mark validation status: {e}")
+            self.session.rollback()
     
     def get_pending_review_items(self, limit: int = 50) -> List[Dict]:
         """Get pending review queue items."""
