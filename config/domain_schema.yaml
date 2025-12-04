@@ -1,0 +1,137 @@
+schema_version: "1.0"
+domain: "IT Operations"
+description: "Default schema for IT Operations management including services, teams, incidents, and infrastructure."
+
+entity_types:
+  - name: SERVICE
+    description: "A software service or application"
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - tier
+      - owner_team
+      - description
+      - language
+      - repository
+
+  - name: COMPONENT
+    description: "Part of a service (API, queue, cache, module)"
+    required_fields:
+      - canonical_name
+      - component_type
+    optional_fields:
+      - parent_service
+      - version
+
+  - name: TEAM
+    description: "An organizational team"
+    required_fields:
+      - name
+    optional_fields:
+      - department
+      - manager
+      - slack_channel
+
+  - name: PERSON
+    description: "An individual in the organization"
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - email
+      - role
+      - team
+      - level
+
+  - name: DATABASE
+    description: "A database instance"
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - db_type
+      - host
+      - version
+
+  - name: INCIDENT
+    description: "An incident or outage reference"
+    required_fields:
+      - external_id
+      - title
+    optional_fields:
+      - severity
+      - status
+      - start_time
+      - end_time
+
+relationship_types:
+  - name: DEPENDS_ON
+    description: "Service/Component depends on another Service/Component/Database"
+    source_types:
+      - SERVICE
+      - COMPONENT
+    target_types:
+      - SERVICE
+      - COMPONENT
+      - DATABASE
+    cardinality: many-to-many
+
+  - name: OWNS
+    description: "Team owns a Service/Component/Database"
+    source_types:
+      - TEAM
+    target_types:
+      - SERVICE
+      - COMPONENT
+      - DATABASE
+    cardinality: many-to-one
+
+  - name: SUPPORTS
+    description: "Team provides support for a Service/Component"
+    source_types:
+      - TEAM
+    target_types:
+      - SERVICE
+      - COMPONENT
+    cardinality: many-to-many
+
+  - name: MEMBER_OF
+    description: "Person is a member of a Team"
+    source_types:
+      - PERSON
+    target_types:
+      - TEAM
+    cardinality: many-to-many
+
+  - name: AFFECTS
+    description: "Incident affects a Service/Component/Database"
+    source_types:
+      - INCIDENT
+    target_types:
+      - SERVICE
+      - COMPONENT
+      - DATABASE
+    cardinality: many-to-many
+
+  - name: CAUSED_BY
+    description: "Incident was caused by another Incident or change"
+    source_types:
+      - INCIDENT
+    target_types:
+      - INCIDENT
+    cardinality: many-to-one
+
+validation_rules:
+  - name: single_owner
+    description: "Each service/component/database can only have one owner team"
+    applies_to: OWNS
+    constraint: cardinality
+    
+  - name: single_root_cause
+    description: "Each incident can only have one root cause"
+    applies_to: CAUSED_BY
+    constraint: cardinality
+
+  - name: severity_required_for_production
+    description: "Production incidents must have a severity level"
+    applies_to: INCIDENT
+    condition: "properties.environment == 'production'"
+    requires: "properties.severity is not null"

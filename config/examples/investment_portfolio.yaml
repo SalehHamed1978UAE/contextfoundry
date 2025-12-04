@@ -1,0 +1,130 @@
+schema_version: "1.0"
+domain: "Investment Portfolio"
+description: "Schema for investment portfolio management including funds, companies, sectors, and analysts."
+
+entity_types:
+  - name: FUND
+    description: "An investment fund or portfolio"
+    required_fields:
+      - fund_name
+      - fund_type
+    optional_fields:
+      - aum
+      - inception_date
+      - management_fee
+      - strategy
+
+  - name: COMPANY
+    description: "A publicly traded company"
+    required_fields:
+      - company_name
+      - ticker
+    optional_fields:
+      - market_cap
+      - headquarters
+      - industry
+      - ceo
+
+  - name: SECTOR
+    description: "An industry sector"
+    required_fields:
+      - sector_name
+    optional_fields:
+      - parent_sector
+      - description
+
+  - name: ANALYST
+    description: "An investment analyst or portfolio manager"
+    required_fields:
+      - name
+    optional_fields:
+      - email
+      - specialization
+      - years_experience
+      - certifications
+
+  - name: HOLDING
+    description: "A position in a security"
+    required_fields:
+      - position_size
+    optional_fields:
+      - entry_price
+      - entry_date
+      - current_value
+      - weight_pct
+
+  - name: REPORT
+    description: "An analyst report or research note"
+    required_fields:
+      - title
+      - report_date
+    optional_fields:
+      - rating
+      - price_target
+      - summary
+
+relationship_types:
+  - name: HOLDS
+    description: "Fund holds a position in a Company"
+    source_types:
+      - FUND
+    target_types:
+      - COMPANY
+    cardinality: many-to-many
+
+  - name: COVERS
+    description: "Analyst covers a Company or Sector"
+    source_types:
+      - ANALYST
+    target_types:
+      - COMPANY
+      - SECTOR
+    cardinality: many-to-many
+
+  - name: BELONGS_TO
+    description: "Company belongs to a Sector"
+    source_types:
+      - COMPANY
+    target_types:
+      - SECTOR
+    cardinality: many-to-one
+
+  - name: MANAGES
+    description: "Analyst manages a Fund"
+    source_types:
+      - ANALYST
+    target_types:
+      - FUND
+    cardinality: many-to-one
+
+  - name: AUTHORED
+    description: "Analyst authored a Report"
+    source_types:
+      - ANALYST
+    target_types:
+      - REPORT
+    cardinality: many-to-many
+
+  - name: ABOUT
+    description: "Report is about a Company"
+    source_types:
+      - REPORT
+    target_types:
+      - COMPANY
+    cardinality: many-to-one
+
+validation_rules:
+  - name: single_sector
+    description: "Each company belongs to exactly one primary sector"
+    applies_to: BELONGS_TO
+    constraint: cardinality
+
+  - name: single_fund_manager
+    description: "Each fund has one primary manager"
+    applies_to: MANAGES
+    constraint: cardinality
+
+  - name: position_size_positive
+    description: "Position size must be positive"
+    applies_to: HOLDING
+    condition: "properties.position_size > 0"
