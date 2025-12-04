@@ -4,18 +4,19 @@ Graph Builder Agent - Ingests documents, extracts entities/relationships, writes
 This is the "perception layer" - how Context Foundry sees new information entering the knowledge graph.
 
 Key principles:
-1. Schema-driven extraction - Only looks for defined entity/relationship types
+1. Schema-driven extraction - Only looks for defined entity/relationship types from config
 2. Everything goes to STAGING first (not TRUSTED)
 3. Full provenance tracking (source doc, sentence, character offsets)
 4. Confidence scoring on every extraction
 5. No inference - only extracts explicitly stated facts
+6. Domain-agnostic - works with any schema (IT Ops, Finance, Healthcare, etc.)
 """
 import os
 import json
 import re
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from openai import OpenAI
 
@@ -24,6 +25,7 @@ from ..models.schema import (
     LifecycleState, EntityType, RelationshipType,
     get_session
 )
+from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 from ..utils.logger import logger
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
@@ -77,37 +79,14 @@ class ExtractionResult:
     staged: bool = True
 
 
-ENTITY_EXTRACTION_PROMPT = """You are an entity extraction system for IT operations knowledge graphs.
+ENTITY_EXTRACTION_PROMPT_TEMPLATE = """You are an entity extraction system for {domain} knowledge graphs.
 
 Given this text, extract any entities of these EXACT types:
 
-ENTITY TYPES:
-- SERVICE: A software service or application (e.g., "Auth Service", "Payment Gateway")
-  Required: canonical_name
-  Optional: tier, owner_team, description
-
-- COMPONENT: Part of a service (API, queue, cache, module)
-  Required: canonical_name, component_type
-  Optional: parent_service
-
-- TEAM: An organizational team (e.g., "Platform Team", "Payments Team")
-  Required: name
-  Optional: department, manager
-
-- PERSON: An individual (e.g., "John Smith", "Sarah Chen")
-  Required: canonical_name
-  Optional: email, role, team
-
-- DATABASE: A database instance (e.g., "Users DB", "Payments Database")
-  Required: canonical_name
-  Optional: db_type (postgres, mysql, redis, etc.)
-
-- INCIDENT: An incident or outage reference (e.g., "INC-2024-001")
-  Required: external_id, title
-  Optional: severity, status
+{entity_types_section}
 
 For EACH entity found, return:
-- type: One of SERVICE, COMPONENT, TEAM, PERSON, DATABASE, INCIDENT
+- type: One of {entity_type_names}
 - canonical_name: The standardized name
 - properties: Any additional attributes mentioned (as key-value pairs)
 - confidence: 0.0-1.0 how certain you are this is correct
@@ -130,36 +109,19 @@ Respond with ONLY a valid JSON array of entities. If no entities found, return [
 Example format:
 [
   {{
-    "type": "SERVICE",
-    "canonical_name": "Auth Service",
-    "properties": {{"tier": "critical", "owner": "Platform Team"}},
+    "type": "ENTITY_TYPE",
+    "canonical_name": "Example Name",
+    "properties": {{"key": "value"}},
     "confidence": 0.95,
-    "source_sentence": "The Auth Service handles all authentication requests."
+    "source_sentence": "The exact sentence from the text."
   }}
 ]"""
 
-RELATIONSHIP_EXTRACTION_PROMPT = """You are a relationship extraction system for IT operations knowledge graphs.
+RELATIONSHIP_EXTRACTION_PROMPT_TEMPLATE = """You are a relationship extraction system for {domain} knowledge graphs.
 
 Given this text and the entities already identified, extract relationships between them.
 
-RELATIONSHIP TYPES (with valid source → target):
-- DEPENDS_ON: Service/Component → Service/Component/Database
-  (e.g., "Payment Service depends on Auth Service")
-
-- OWNS: Team → Service/Component/Database
-  (e.g., "Platform Team owns the Auth Service")
-
-- SUPPORTS: Team → Service/Component
-  (e.g., "DevOps Team supports the Kubernetes cluster")
-
-- MEMBER_OF: Person → Team
-  (e.g., "John Smith is on the Platform Team")
-
-- AFFECTS: Incident → Service/Component/Database
-  (e.g., "INC-001 affected the Payment Service")
-
-- CAUSED_BY: Incident → Incident/Change
-  (e.g., "The outage was caused by a config change")
+{relationship_types_section}
 
 ENTITIES FOUND IN THIS TEXT:
 {entities}
@@ -168,7 +130,7 @@ TEXT TO ANALYZE:
 {text}
 
 For EACH relationship found, return:
-- type: One of DEPENDS_ON, OWNS, SUPPORTS, MEMBER_OF, AFFECTS, CAUSED_BY
+- type: One of {relationship_type_names}
 - source_name: The canonical name of the source entity
 - target_name: The canonical name of the target entity
 - properties: Any additional context (as key-value pairs)
@@ -186,12 +148,12 @@ Respond with ONLY a valid JSON array of relationships. If none found, return [].
 Example format:
 [
   {{
-    "type": "OWNS",
-    "source_name": "Platform Team",
-    "target_name": "Auth Service",
+    "type": "RELATIONSHIP_TYPE",
+    "source_name": "Source Entity Name",
+    "target_name": "Target Entity Name",
     "properties": {{}},
     "confidence": 0.92,
-    "source_sentence": "The Platform Team owns and maintains the Auth Service."
+    "source_sentence": "The exact sentence from the text."
   }}
 ]"""
 
@@ -202,6 +164,7 @@ class GraphBuilderAgent:
     and writes them to STAGING with confidence and provenance.
     
     This is the perception layer of the cognitive loop.
+    Now fully configurable via domain_schema.yaml for any domain.
     """
     
     MAX_CHUNK_TOKENS = 512
@@ -214,6 +177,7 @@ class GraphBuilderAgent:
         "PERSON": EntityType.PERSON,
         "DATABASE": EntityType.DATABASE,
         "INCIDENT": EntityType.INCIDENT,
+        "RUNBOOK": EntityType.RUNBOOK,
     }
     
     RELATIONSHIP_TYPE_MAP = {
@@ -223,28 +187,25 @@ class GraphBuilderAgent:
         "MEMBER_OF": RelationshipType.MEMBER_OF,
         "AFFECTS": RelationshipType.AFFECTS,
         "CAUSED_BY": RelationshipType.CAUSED_BY,
+        "MANAGES": RelationshipType.MANAGES,
+        "ESCALATES_TO": RelationshipType.ESCALATES_TO,
+        "RESOLVED_BY": RelationshipType.RESOLVED_BY,
+        "DOCUMENTS": RelationshipType.DOCUMENTS,
+        "USES": RelationshipType.USES,
     }
     
-    VALID_RELATIONSHIP_SOURCES = {
-        "DEPENDS_ON": {"SERVICE", "COMPONENT"},
-        "OWNS": {"TEAM"},
-        "SUPPORTS": {"TEAM"},
-        "MEMBER_OF": {"PERSON"},
-        "AFFECTS": {"INCIDENT"},
-        "CAUSED_BY": {"INCIDENT"},
-    }
-    
-    VALID_RELATIONSHIP_TARGETS = {
-        "DEPENDS_ON": {"SERVICE", "COMPONENT", "DATABASE"},
-        "OWNS": {"SERVICE", "COMPONENT", "DATABASE"},
-        "SUPPORTS": {"SERVICE", "COMPONENT"},
-        "MEMBER_OF": {"TEAM"},
-        "AFFECTS": {"SERVICE", "COMPONENT", "DATABASE"},
-        "CAUSED_BY": {"INCIDENT"},
-    }
-    
-    def __init__(self, session=None):
+    def __init__(self, session=None, schema_config_path: str = None):
         self.session = session or get_session()
+        
+        self.schema_loader = get_schema_loader(
+            config_path=schema_config_path, 
+            force_reload=schema_config_path is not None
+        )
+        self.schema = self.schema_loader.schema
+        
+        logger.info(f"GraphBuilderAgent using domain: {self.schema.domain}")
+        logger.info(f"Entity types: {list(self.schema.entity_types.keys())}")
+        logger.info(f"Relationship types: {list(self.schema.relationship_types.keys())}")
         
         if AI_INTEGRATIONS_OPENAI_API_KEY and AI_INTEGRATIONS_OPENAI_BASE_URL:
             self.client = OpenAI(
@@ -259,7 +220,68 @@ class GraphBuilderAgent:
         self.model = "gpt-4o-mini"
         self._entity_cache = {}
         
-        logger.info("GraphBuilderAgent initialized")
+        self._valid_entity_types = self.schema_loader.get_valid_entity_types()
+        self._valid_relationship_types = self.schema_loader.get_valid_relationship_types()
+        
+        logger.info("GraphBuilderAgent initialized with configurable schema")
+    
+    def _build_entity_extraction_prompt(self, text: str) -> str:
+        """Build entity extraction prompt dynamically from schema config."""
+        entity_types_section = self.schema_loader.build_entity_extraction_prompt()
+        entity_type_names = ", ".join(self.schema.get_entity_type_names())
+        
+        return ENTITY_EXTRACTION_PROMPT_TEMPLATE.format(
+            domain=self.schema.domain,
+            entity_types_section=entity_types_section,
+            entity_type_names=entity_type_names,
+            text=text
+        )
+    
+    def _build_relationship_extraction_prompt(self, text: str, entities: List[ExtractedEntity]) -> str:
+        """Build relationship extraction prompt dynamically from schema config."""
+        relationship_types_section = self.schema_loader.build_relationship_extraction_prompt()
+        relationship_type_names = ", ".join(self.schema.get_relationship_type_names())
+        
+        entities_str = json.dumps([
+            {"type": e.entity_type, "name": e.canonical_name}
+            for e in entities
+        ], indent=2)
+        
+        return RELATIONSHIP_EXTRACTION_PROMPT_TEMPLATE.format(
+            domain=self.schema.domain,
+            relationship_types_section=relationship_types_section,
+            relationship_type_names=relationship_type_names,
+            entities=entities_str,
+            text=text
+        )
+    
+    def _validate_entity_type(self, entity_type: str) -> bool:
+        """Check if entity type is valid according to loaded schema."""
+        return entity_type.upper() in self._valid_entity_types
+    
+    def _validate_relationship(self, rel_type: str, source_type: str, target_type: str) -> Tuple[bool, str]:
+        """Validate relationship type and source/target compatibility."""
+        return self.schema.validate_relationship(rel_type, source_type, target_type)
+    
+    def _map_entity_type_to_enum(self, entity_type: str) -> Optional[EntityType]:
+        """Map schema entity type to database enum (backward compatibility)."""
+        entity_type_upper = entity_type.upper()
+        if entity_type_upper in self.ENTITY_TYPE_MAP:
+            return self.ENTITY_TYPE_MAP[entity_type_upper]
+        if entity_type_upper in [e.value for e in EntityType]:
+            return EntityType(entity_type_upper)
+        logger.warning(f"Entity type {entity_type} not in database enum, using SERVICE as fallback")
+        return EntityType.SERVICE
+    
+    def _map_relationship_type_to_enum(self, rel_type: str) -> Optional[RelationshipType]:
+        """Map schema relationship type to database enum (backward compatibility)."""
+        rel_type_upper = rel_type.upper()
+        if rel_type_upper in self.RELATIONSHIP_TYPE_MAP:
+            return self.RELATIONSHIP_TYPE_MAP[rel_type_upper]
+        if rel_type_upper in [r.value for r in RelationshipType]:
+            return RelationshipType(rel_type_upper)
+        logger.warning(f"Relationship type {rel_type} not in database enum, using DEPENDS_ON as fallback")
+        return RelationshipType.DEPENDS_ON
     
     def ingest_document(self, doc_path: str = None, text: str = None, 
                         doc_type: str = "DOCUMENT", title: str = None) -> ExtractionResult:
@@ -276,7 +298,7 @@ class GraphBuilderAgent:
             ExtractionResult with extraction statistics
         """
         doc_id = str(uuid.uuid4())[:8]
-        logger.info(f"[{doc_id}] Starting document ingestion")
+        logger.info(f"[{doc_id}] Starting document ingestion for domain: {self.schema.domain}")
         
         if doc_path:
             try:
@@ -408,8 +430,9 @@ class GraphBuilderAgent:
     def extract_entities(self, chunk: Chunk) -> List[ExtractedEntity]:
         """
         Extract entities from a chunk using schema-driven LLM prompts.
+        Prompts are built dynamically from domain_schema.yaml.
         """
-        prompt = ENTITY_EXTRACTION_PROMPT.format(text=chunk.text)
+        prompt = self._build_entity_extraction_prompt(chunk.text)
         
         try:
             response = self.client.chat.completions.create(
@@ -435,8 +458,10 @@ class GraphBuilderAgent:
             
             entities = []
             for e in entities_data:
-                if e.get("type") not in self.ENTITY_TYPE_MAP:
-                    logger.warning(f"Unknown entity type: {e.get('type')}")
+                entity_type = e.get("type", "").upper()
+                
+                if not self._validate_entity_type(entity_type):
+                    logger.warning(f"Unknown entity type: {entity_type} (valid: {self._valid_entity_types})")
                     continue
                 
                 confidence = float(e.get("confidence", 0.5))
@@ -455,7 +480,7 @@ class GraphBuilderAgent:
                         end_offset = start_offset + len(source_sentence)
                 
                 entity = ExtractedEntity(
-                    entity_type=e.get("type"),
+                    entity_type=entity_type,
                     canonical_name=e.get("canonical_name", e.get("name", "")),
                     properties=e.get("properties", {}),
                     confidence=confidence,
@@ -477,19 +502,12 @@ class GraphBuilderAgent:
     def extract_relationships(self, chunk: Chunk, entities: List[ExtractedEntity]) -> List[ExtractedRelationship]:
         """
         Extract relationships between entities using schema-driven LLM prompts.
+        Validates relationships against config-defined source/target types.
         """
         if len(entities) < 2:
             return []
         
-        entities_str = json.dumps([
-            {"type": e.entity_type, "name": e.canonical_name}
-            for e in entities
-        ], indent=2)
-        
-        prompt = RELATIONSHIP_EXTRACTION_PROMPT.format(
-            entities=entities_str,
-            text=chunk.text
-        )
+        prompt = self._build_relationship_extraction_prompt(chunk.text, entities)
         
         try:
             response = self.client.chat.completions.create(
@@ -517,9 +535,9 @@ class GraphBuilderAgent:
             
             relationships = []
             for r in relationships_data:
-                rel_type = r.get("type")
+                rel_type = r.get("type", "").upper()
                 
-                if rel_type not in self.RELATIONSHIP_TYPE_MAP:
+                if rel_type not in self._valid_relationship_types:
                     logger.warning(f"Unknown relationship type: {rel_type}")
                     continue
                 
@@ -533,15 +551,12 @@ class GraphBuilderAgent:
                 source_entity = entity_map[source_name]
                 target_entity = entity_map[target_name]
                 
-                valid_sources = self.VALID_RELATIONSHIP_SOURCES.get(rel_type, set())
-                valid_targets = self.VALID_RELATIONSHIP_TARGETS.get(rel_type, set())
+                is_valid, error_msg = self._validate_relationship(
+                    rel_type, source_entity.entity_type, target_entity.entity_type
+                )
                 
-                if source_entity.entity_type not in valid_sources:
-                    logger.debug(f"Invalid source type for {rel_type}: {source_entity.entity_type}")
-                    continue
-                
-                if target_entity.entity_type not in valid_targets:
-                    logger.debug(f"Invalid target type for {rel_type}: {target_entity.entity_type}")
+                if not is_valid:
+                    logger.debug(f"Invalid relationship: {error_msg}")
                     continue
                 
                 confidence = float(r.get("confidence", 0.5))
@@ -577,6 +592,9 @@ class GraphBuilderAgent:
         """
         Write extracted entities and relationships to STAGING (not TRUSTED).
         
+        Maps schema-defined types to database enums for backward compatibility.
+        Stores original schema type in properties for future migration.
+        
         Returns:
             Tuple of (entities_staged, relationships_staged)
         """
@@ -592,7 +610,8 @@ class GraphBuilderAgent:
                 source_document_id=source_document_id,
                 doc_metadata={
                     "ingested_by": "graph_builder",
-                    "ingested_at": datetime.utcnow().isoformat()
+                    "ingested_at": datetime.utcnow().isoformat(),
+                    "domain": self.schema.domain
                 }
             )
             self.session.add(doc)
@@ -606,9 +625,11 @@ class GraphBuilderAgent:
         
         for entity in entities:
             try:
+                db_entity_type = self._map_entity_type_to_enum(entity.entity_type)
+                
                 existing = self.session.query(Entity).filter(
                     Entity.name == entity.canonical_name,
-                    Entity.entity_type == self.ENTITY_TYPE_MAP[entity.entity_type]
+                    Entity.entity_type == db_entity_type
                 ).first()
                 
                 if existing:
@@ -622,13 +643,15 @@ class GraphBuilderAgent:
                         "start_offset": entity.start_offset,
                         "end_offset": entity.end_offset,
                         "extraction_method": "graph_builder_llm"
-                    }
+                    },
+                    "_schema_type": entity.entity_type,
+                    "_domain": self.schema.domain
                 }
                 
                 db_entity = Entity(
                     id=uuid.uuid4(),
                     name=entity.canonical_name,
-                    entity_type=self.ENTITY_TYPE_MAP[entity.entity_type],
+                    entity_type=db_entity_type,
                     lifecycle_state=LifecycleState.STAGING,
                     properties=props_with_provenance,
                     confidence=entity.confidence,
@@ -662,23 +685,31 @@ class GraphBuilderAgent:
                     logger.debug(f"Relationship references unmapped entity: {rel.source_name} -> {rel.target_name}")
                     continue
                 
+                db_rel_type = self._map_relationship_type_to_enum(rel.relationship_type)
+                
                 existing = self.session.query(Relationship).filter(
                     Relationship.source_id == source_id,
                     Relationship.target_id == target_id,
-                    Relationship.relationship_type == self.RELATIONSHIP_TYPE_MAP[rel.relationship_type]
+                    Relationship.relationship_type == db_rel_type
                 ).first()
                 
                 if existing:
                     logger.debug(f"Relationship already exists: {rel.source_name} -> {rel.target_name}")
                     continue
                 
+                rel_props = {
+                    **rel.properties,
+                    "_schema_type": rel.relationship_type,
+                    "_domain": self.schema.domain
+                }
+                
                 db_rel = Relationship(
                     id=uuid.uuid4(),
                     source_id=source_id,
                     target_id=target_id,
-                    relationship_type=self.RELATIONSHIP_TYPE_MAP[rel.relationship_type],
+                    relationship_type=db_rel_type,
                     lifecycle_state=LifecycleState.STAGING,
-                    properties=rel.properties,
+                    properties=rel_props,
                     confidence=rel.confidence,
                     source_document_id=source_document_id,
                     source_sentence=rel.source_sentence[:500] if rel.source_sentence else None,
@@ -702,6 +733,17 @@ class GraphBuilderAgent:
             return 0, 0
         
         return entities_staged, relationships_staged
+    
+    def get_schema_info(self) -> Dict:
+        """Return current schema configuration for debugging/API responses."""
+        return {
+            "domain": self.schema.domain,
+            "schema_version": self.schema.schema_version,
+            "description": self.schema.description,
+            "entity_types": list(self.schema.entity_types.keys()),
+            "relationship_types": list(self.schema.relationship_types.keys()),
+            "cardinality_constraints": self.schema_loader.get_cardinality_constraints()
+        }
     
     def close(self):
         """Close database session."""
