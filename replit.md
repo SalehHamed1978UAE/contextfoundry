@@ -1,7 +1,7 @@
 # Context Foundry - Tri-Memory Cognitive Architecture MVP
 
 ## Overview
-Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) that performs multi-hop reasoning with full provenance and confidence scoring. The project aims to provide domain-agnostic reasoning capabilities, validated by successful application in both IT operations and organizational chart domains. It significantly outperforms baseline systems in provenance tracking and rule citation, offering detailed and reliable responses.
+Context Foundry is a proof-of-concept demonstrating a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) for multi-hop reasoning with full provenance and confidence scoring. It provides domain-agnostic reasoning, validated in IT operations and organizational chart domains, outperforming baseline systems in provenance tracking and rule citation by offering detailed and reliable responses.
 
 ## User Preferences
 - I want iterative development.
@@ -23,140 +23,44 @@ Context Foundry is a walking skeleton proof-of-concept demonstrating a tri-memor
 ## System Architecture
 
 ### Tri-Memory System
-1.  **Semantic Memory (Knowledge Graph)**: PostgreSQL stores entities (services, teams, people, incidents) and relationships (DEPENDS_ON, OWNS, MEMBER_OF) with lifecycle states (STAGING → TRUSTED → ARCHIVED), full provenance tracking, and confidence scoring.
-2.  **Episodic Memory (Vector Search)**: PostgreSQL with pgvector stores document embeddings (runbooks, operational documents) for similarity-based retrieval.
-3.  **Symbolic Memory (Rules Engine)**: Business rules with priority ordering (INVARIANT, SAFETY_CHECK, ESCALATION_POLICY, VALIDATION) applied during response validation.
+1.  **Semantic Memory (Knowledge Graph)**: PostgreSQL stores entities and relationships with lifecycle states, provenance tracking, and confidence scoring.
+2.  **Episodic Memory (Vector Search)**: PostgreSQL with pgvector stores document embeddings for similarity-based retrieval.
+3.  **Symbolic Memory (Rules Engine)**: Business rules with priority ordering for response validation.
 
 ### Agent Pipeline
 -   **Retrieval Agent**: Queries all three memory layers to build a `ContextBundle`.
 -   **Reasoning Agent**: Uses OpenAI (gpt-4o-mini) to generate responses.
 -   **Validation Agent**: Checks responses against symbolic rules.
 -   **Graph Loader**: Handles data ingestion.
--   **Org Chart Loader**: Specific loader for the organizational chart domain.
 
 ### UI/UX Decisions (Web Interface)
--   **Theme**: Sleek "Cybernetic Operations" HUD-style, deep slate background (#0f172a), electric cyan (#06b6d4) accents.
--   **Visuals**: Scanline animation, tech corner accents on cards, animated confidence ring, color-coded evidence chain (cyan=semantic, purple=episodic, pink=symbolic).
+-   **Theme**: "Cybernetic Operations" HUD-style with a deep slate background and electric cyan accents.
+-   **Visuals**: Scanline animation, tech corner accents, animated confidence ring, color-coded evidence chain.
 -   **Layout**: Multi-page (Dashboard, Memory Graph, Learning Loop, System Rules, A/B Evaluation).
 -   **Typography**: Headers: Space Grotesk; Data/Code: JetBrains Mono; UI Text: Inter.
 
 ### Technical Implementations & Design Choices
 -   **Lifecycle States**: Data progresses from STAGING to TRUSTED.
 -   **Confidence Scoring**: Every entity, relationship, and response includes a confidence score.
--   **Full Provenance**: Facts trace back to source documents and sentences.
+-   **Full Provenance**: Facts trace back to source documents.
 -   **Entity Resolution**: Rule queries resolve person references via the semantic graph.
--   **Query Classification**: Queries are classified into types ('entity', 'rule', 'impact', 'analysis', 'general') to ensure correct processing.
--   **Impact Queries**: Correctly traverse incoming `DEPENDS_ON` edges for blast radius analysis.
--   **Hallucination Prevention**: Verifies entity existence in the graph, returning low confidence for non-existent entities.
--   **Analysis Query Detection**: Detects pattern/trend/aggregation queries and returns honest limitation (0% confidence) instead of hallucinating patterns from partial data.
+-   **Query Classification**: Queries are classified into types ('entity', 'rule', 'impact', 'analysis', 'general').
+-   **Impact Queries**: Traverse incoming `DEPENDS_ON` edges for blast radius analysis and include all cascade services.
+-   **Hallucination Prevention**: Verifies entity existence; returns low confidence for non-existent entities.
+-   **Analysis Query Detection**: Detects pattern/trend/aggregation queries and returns 0% confidence with honest limitations.
 -   **Sequence Detection**: Detects and handles queries asking for ordered sequences, adjusting confidence if multi-step evidence is missing.
--   **Data Ingestion**: Document loader (PDF/DOCX/MD/TXT), sentence-aware chunking, LLM-powered entity and relation extraction, fuzzy deduplication, staging layer integration.
--   **Evaluation Framework**: Automated evaluation against baseline (GraphRAG) with blind A/B testing, metrics dashboard, and comparison features.
+-   **Property-Aware Retrieval**: Supports querying entities by their JSON properties using an LLM query analyzer and PostgreSQL JSON operators.
+-   **Data Ingestion**: Document loader with sentence-aware chunking, LLM-powered entity/relation extraction, fuzzy deduplication, and staging layer integration.
+-   **Evaluation Framework**: Automated evaluation against baseline with A/B testing and metrics dashboard.
 -   **Data Model**: SQLAlchemy models for Entity, Relationship, Document, Rule.
 
 ### Feature Specifications
 -   **Core Queries**: Impact analysis, escalation path finding, team ownership, dependency chain.
--   **Synthetic Data**: Scaled IT operations data (1,011 entities) and org chart data (30 people, 8 teams).
+-   **Synthetic Data**: Scaled IT operations data and org chart data for testing.
 
 ## External Dependencies
 -   **Database**: PostgreSQL (Neon via Replit).
 -   **LLM**: OpenAI (gpt-4o-mini via Replit AI Integrations).
--   **Vector Embeddings**: pgvector (for Episodic Memory).
+-   **Vector Embeddings**: pgvector.
 -   **Web Framework**: Flask.
 -   **Deployment**: Gunicorn.
-
-## Recent Changes
-
-### 2025-12-03: Impact Query Cascade Synthesis in LLM Answers
-The LLM now includes ALL cascade services in impact query answers, not just direct dependencies.
-
-**Problem:** Cascade evidence was being retrieved correctly, but the LLM only mentioned direct dependencies in answers.
-
-**Implementation Details:**
-- Added impact-specific guidance in `to_llm_context()` when `query_type == 'impact'`
-- Instructions emphasize: "Include ALL services in the cascade - both DIRECT dependencies AND DOWNSTREAM dependants"
-- Provides example: "If User Database fails, and Auth Service depends on User Database, and API Gateway depends on Auth Service, then BOTH Auth Service (direct) AND API Gateway (cascade) must be listed"
-- Suggests grouping services by direct vs cascade for clarity
-
-**Test Result:**
-- Query: "If the User Database is corrupted, which services need to be notified?"
-- Answer now includes:
-  - **Direct:** Auth Service, Notification Service
-  - **Cascade:** Payment Service, API Gateway, Checkout Service
-- Confidence: 95%
-
-### 2025-12-03: Extended Impact Query Detection for Notification-Style Queries
-The system now recognizes notification-style queries with failure context as impact/cascade queries.
-
-**Implementation Details:**
-- Added 'impacted', 'impacts' to primary impact keywords
-- Added notification keywords ('notified', 'notify', 'alerted', 'paged', 'alert') that trigger impact detection when combined with failure context
-- Failure cues (NOT generic 'if/when'): 'corrupted', 'fails', 'failure', 'failing', 'down', 'unavailable', 'outage', 'breaks', 'broken', 'crashes', 'crashed', 'incident'
-- This ensures "If X is corrupted, which services need to be notified?" triggers cascade traversal
-
-**Test Result:**
-- Query: "If the User Database is corrupted, which services need to be notified?"
-- Query Type: impact (correctly classified)
-- Services in cascade: API Gateway, Auth Service, Checkout Service, Fraud Detection Service, Notification Service, Payment Service
-- Confidence: 95%
-
-### 2025-12-03: Analysis Query Classification
-The system now detects pattern/trend/aggregation queries and returns honest limitation responses at 0% confidence instead of hallucinating patterns from partial data.
-
-**Implementation Details:**
-- Added `_is_analysis_query()` using regex patterns for pattern/trend/aggregation keywords (patterns, trends, common issues, most frequent, how many, recurring, summary, statistics, aggregate)
-- New 'analysis' query type in `_classify_query_type()` - checked before impact and rule detection
-- Analysis queries skip entity extraction entirely and set `is_analysis_query=True` on ContextBundle
-- Also excluded from potential entity name detection (prevents false "entity not found" responses)
-- `calculate_uncertainty()` returns 0% confidence with recommendation="analysis_not_supported"
-- `to_llm_context()` adds explicit guidance: "Pattern/trend analysis requires aggregation capabilities beyond my current scope"
-
-**Test Results:**
-- Query: "What patterns do you see in recent incidents?" → 0% confidence, honest limitation response
-- Query: "What are the most common issues causing outages?" → 0% confidence, honest limitation response
-- Control: "What teams own the Payment Service?" → 95% confidence, correct answer
-
-### 2025-12-03: Query-Structure-Aware Sequence Detection
-The system now detects when queries ask for ordered sequences vs single facts and calibrates confidence accordingly.
-
-**Implementation Details:**
-- Added `_detect_sequence_intent()` using linguistic patterns (path, chain, workflow, steps, order) and ordinal markers (first, next, then)
-- ContextBundle now tracks `sequence_intent`, `sequence_intent_reason`, `has_multi_step_evidence`
-- Added `_check_multi_step_evidence()` to detect numbered lists, bullets, arrows in TOPICALLY RELEVANT documents
-  - Separates structural keywords (procedure, path, steps) from topic keywords (escalation, approval, sev1)
-  - Requires title match OR 3+ topic keyword matches to consider document relevant
-  - Prevents false positives from unrelated numbered lists
-- Confidence capped at 45% when sequence_intent=True but no relevant multi-step evidence found
-- LLM prompt enriched with sequence guidance (look for ordered steps, avoid single-fact answers)
-- Fixed document retrieval: "Escalation Procedures" runbook now correctly retrieved for path queries
-- Updated `_get_rule_document_keywords()` to prioritize 'procedure', 'path', 'steps' for sequence queries
-
-**Test Result:**
-- Query: "What's the escalation path for a SEV1?"
-- Answer: Full 4-step path (Team Lead → Director → VP → Executive) with 95% confidence
-- Evidence: Correctly cites "Escalation Procedures" runbook and resolves Mia White as VP of Engineering
-
-### 2025-12-03: Property-Aware Retrieval (Generalized Attribute Queries)
-The system now supports querying entities by their JSON properties (expertise, role, level, department) using LLM-based query analysis - a generalized solution that avoids hardcoded special cases.
-
-**Problem:** Previous system couldn't answer "Which engineers have frontend expertise?" because retrieval only searched entity names, not properties.
-
-**Implementation Details:**
-- **LLM Query Analyzer**: Added `analyze_property_query()` in RetrievalAgent that uses GPT-4o-mini to extract structured filters from natural language queries
-- **Property Search**: Added `search_entities_by_properties()` in SemanticMemory that queries the JSON properties field using PostgreSQL JSON operators
-- **Schema Injection**: LLM prompt includes entity type schemas (PERSON has: role, level, department, expertise)
-- **Intersection Logic**: AND queries (e.g., "frontend AND backend") compute intersection of filter results
-- **Security**: Property keys are whitelisted to prevent SQL injection
-- **Context Bundle**: Added `is_property_query`, `property_filters` fields; LLM context includes property query guidance
-
-**Example Queries Now Supported:**
-- "Which engineers have frontend expertise?" → 3 people found
-- "Who are the Directors in Engineering?" → 2 people found (Emily Zhang, Alex Rivera)
-- "Which engineers have both frontend and backend expertise?" → Correctly returns empty (intersection logic)
-- "List all VPs" → Returns all VP-level people
-
-**Test Results:**
-- Query: "Which engineers have frontend expertise?"
-- Property filters: `[{"property": "expertise", "contains": "frontend"}]`
-- Found: Fiona Martinez, Eric Johnson, Emily Zhang
-- Confidence: 100%
