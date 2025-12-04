@@ -34,6 +34,7 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 -   **Graph Loader**: Handles structured data ingestion.
 -   **Graph Builder Agent**: Perception layer that ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to STAGING with full provenance. Now fully configurable via YAML schema.
 -   **Staging Validator Agent**: Validates STAGING data against schema rules (cardinality, source/target types, required fields). Detects conflicts and creates review items. Auto-runs after document ingestion. Marks facts with validation status (VALID/INVALID/CONFLICT).
+-   **Identity Resolution Agent**: Detects duplicate entities using weighted similarity signals. Auto-merges high-confidence duplicates (≥0.95) except PERSON entities. Flags ambiguous matches (0.70-0.95) for human review. Transfers relationships during merge operations.
 
 ### Domain-Agnostic Schema System (NEW)
 Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML configuration files.
@@ -56,6 +57,28 @@ Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity
 -   `POST /api/ingest` - Ingest document with optional `schema_config_path`
 -   `POST /api/validate` - Validate STAGING data against current schema
 -   `GET /api/review-queue` - Get pending review items
+-   `POST /api/resolve-duplicates` - Run identity resolution to detect and merge duplicates
+
+### Identity Resolution System
+The Identity Resolution Agent uses weighted similarity signals to detect duplicate entities:
+
+**Similarity Signals (weighted 0-1):**
+-   `exact_name_match` (0.95): Case-insensitive exact name match
+-   `external_id_match` (0.95): Matching properties.external_id
+-   `email_match` (0.90): Matching email for PERSON entities
+-   `alias_overlap` (0.40): Shared aliases in properties.aliases
+-   `name_similarity` (0.30): Jaro-Winkler similarity ≥0.85
+-   `relationship_overlap` (0.25): Shared relationships with same entities
+-   `co_occurrence` (0.15): Appear in same source documents
+
+**Merge Policy:**
+-   Auto-merge: Score ≥0.95 (except PERSON entities)
+-   Flag for review: Score 0.70-0.95
+-   PERSON entities: ALWAYS flagged, never auto-merged (due to legal implications)
+
+**Database Tables:**
+-   `duplicate_candidates`: Stores flagged duplicate pairs for human review
+-   `merge_audit`: Records all merge operations with full provenance
 
 ### UI/UX Decisions (Web Interface)
 -   **Theme**: "Cybernetic Operations" HUD-style with deep slate background and electric cyan accents.
@@ -83,6 +106,8 @@ Context Foundry is now truly domain-agnostic. The knowledge graph schema (entity
 -   **Confidence Calibration System**: Implemented a 3-phase system (Sufficiency Autorater, Quadrant Confidence, Entity Density Scoring) to improve handling of topic-centric queries.
 -   **Cognitive Loop**: Infrastructure added for continuous ingestion, validation, and learning with `conflicts`, `review_queue`, and `gardener_logs` tables.
 -   **Configurable Schema**: Entity types, relationship types, cardinality rules, and validation rules are all loaded from YAML configuration at runtime.
+-   **Identity Resolution**: Weighted similarity scoring with 7 signals. Optimized STAGING-vs-all comparison (not O(n²) all-vs-all). Auto-merges SERVICE/TEAM/COMPONENT at ≥0.95 confidence. PERSON entities always flagged for human review. Jaro-Winkler algorithm for fuzzy name matching.
+-   **SQLAlchemy JSON Mutations**: JSON columns require `flag_modified(entity, "properties")` after in-place dict mutations to persist changes correctly.
 
 ## Example Domain Schemas
 
