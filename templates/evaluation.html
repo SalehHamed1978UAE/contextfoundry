@@ -529,7 +529,20 @@
         let currentQueryId = null;
         let reviewedQueries = new Set();
         let sourcesRevealed = false;
-        let metrics = { cf_wins: 0, graphrag_wins: 0, ties: 0 };
+        let metrics = { cf_wins: 0, graphrag_wins: 0, ties: 0, reviewed: 0 };
+        
+        async function loadMetrics() {
+            try {
+                const response = await fetch('/api/evaluation/metrics');
+                const data = await response.json();
+                if (data.success && data.metrics) {
+                    metrics = data.metrics;
+                    updateMetrics();
+                }
+            } catch (error) {
+                console.error('Failed to load metrics:', error);
+            }
+        }
         
         async function loadQueries() {
             try {
@@ -645,12 +658,13 @@
         }
         
         function updateMetrics() {
-            document.getElementById('reviewedCount').textContent = reviewedQueries.size;
-            document.getElementById('cfWins').textContent = metrics.cf_wins;
-            document.getElementById('grWins').textContent = metrics.graphrag_wins;
-            document.getElementById('tieCount').textContent = metrics.ties;
+            const reviewedCount = metrics.reviewed || reviewedQueries.size;
+            document.getElementById('reviewedCount').textContent = reviewedCount;
+            document.getElementById('cfWins').textContent = metrics.cf_wins || 0;
+            document.getElementById('grWins').textContent = metrics.graphrag_wins || 0;
+            document.getElementById('tieCount').textContent = metrics.ties || 0;
             
-            document.getElementById('revealBtn').disabled = reviewedQueries.size === 0;
+            document.getElementById('revealBtn').disabled = reviewedCount === 0;
         }
         
         async function revealSources() {
@@ -689,6 +703,7 @@
         document.getElementById('revealBtn').addEventListener('click', revealSources);
         
         loadQueries();
+        loadMetrics();
     </script>
 </body>
 </html>
