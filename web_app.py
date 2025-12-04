@@ -973,6 +973,193 @@ def recent_feedback():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/schema')
+def get_schema():
+    """Get current domain schema configuration."""
+    from src.context_foundry.config.domain_schema import get_schema_loader
+    
+    try:
+        loader = get_schema_loader()
+        schema = loader.schema
+        
+        return jsonify({
+            'success': True,
+            'schema': {
+                'domain': schema.domain,
+                'schema_version': schema.schema_version,
+                'description': schema.description,
+                'entity_types': [
+                    {
+                        'name': et.name,
+                        'description': et.description,
+                        'required_fields': et.required_fields,
+                        'optional_fields': et.optional_fields,
+                    }
+                    for et in schema.entity_types.values()
+                ],
+                'relationship_types': [
+                    {
+                        'name': rt.name,
+                        'description': rt.description,
+                        'source_types': rt.source_types,
+                        'target_types': rt.target_types,
+                        'cardinality': rt.cardinality.value,
+                    }
+                    for rt in schema.relationship_types.values()
+                ],
+                'validation_rules': [
+                    {
+                        'name': r.name,
+                        'description': r.description,
+                        'applies_to': r.applies_to,
+                    }
+                    for r in schema.validation_rules
+                ],
+            },
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/schema/reload', methods=['POST'])
+def reload_schema():
+    """Reload domain schema from config file."""
+    from src.context_foundry.config.domain_schema import get_schema_loader
+    
+    try:
+        data = request.get_json() or {}
+        config_path = data.get('config_path')
+        
+        loader = get_schema_loader(config_path=config_path, force_reload=True)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Schema reloaded for domain: {loader.schema.domain}',
+            'domain': loader.schema.domain,
+            'entity_types': list(loader.schema.entity_types.keys()),
+            'relationship_types': list(loader.schema.relationship_types.keys()),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/ingest', methods=['POST'])
+def ingest_document():
+    """Ingest a document and extract entities/relationships to STAGING."""
+    from src.context_foundry.agents.graph_builder import GraphBuilderAgent
+    
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({'success': False, 'error': 'No JSON data provided'}), 400
+        
+        text = data.get('text', '')
+        doc_type = data.get('doc_type', 'DOCUMENT')
+        title = data.get('title')
+        schema_config_path = data.get('schema_config_path')
+        
+        if not text:
+            return jsonify({'success': False, 'error': 'No text provided'}), 400
+        
+        agent = GraphBuilderAgent(schema_config_path=schema_config_path)
+        
+        result = agent.ingest_document(
+            text=text,
+            doc_type=doc_type,
+            title=title
+        )
+        
+        agent.close()
+        
+        return jsonify({
+            'success': True,
+            'result': {
+                'document_id': result.document_id,
+                'entities_extracted': result.entities_extracted,
+                'relationships_extracted': result.relationships_extracted,
+                'entities_staged': result.entities_staged,
+                'relationships_staged': result.relationships_staged,
+                'chunks_processed': result.chunks_processed,
+                'errors': result.errors,
+                'staged': result.staged,
+            },
+            'schema_info': agent.get_schema_info(),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/validate', methods=['POST'])
+def validate_staging():
+    """Validate all STAGING entities and relationships against schema rules."""
+    from src.context_foundry.agents.staging_validator import StagingValidatorAgent
+    
+    try:
+        data = request.get_json() or {}
+        schema_config_path = data.get('schema_config_path')
+        
+        validator = StagingValidatorAgent(schema_config_path=schema_config_path)
+        result = validator.validate_all_staging()
+        
+        issues_list = [
+            {
+                'severity': issue.severity.value,
+                'rule_name': issue.rule_name,
+                'message': issue.message,
+                'entity_id': issue.entity_id,
+                'relationship_id': issue.relationship_id,
+                'conflicting_fact_id': issue.conflicting_fact_id,
+                'suggested_action': issue.suggested_action,
+            }
+            for issue in result.issues
+        ]
+        
+        validator.close()
+        
+        return jsonify({
+            'success': True,
+            'validation': {
+                'is_valid': result.is_valid,
+                'entities_checked': result.entities_checked,
+                'relationships_checked': result.relationships_checked,
+                'issues': issues_list,
+                'errors_count': len(result.get_errors()),
+                'warnings_count': len(result.get_warnings()),
+                'conflicts_detected': result.conflicts_detected,
+                'review_items_created': result.review_items_created,
+            },
+            'schema_info': validator.get_schema_info(),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/review-queue')
+def get_review_queue():
+    """Get items in the review queue."""
+    from src.context_foundry.agents.staging_validator import StagingValidatorAgent
+    
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        
+        validator = StagingValidatorAgent()
+        items = validator.get_pending_review_items(limit=limit)
+        conflicts = validator.get_pending_conflicts(limit=limit)
+        
+        validator.close()
+        
+        return jsonify({
+            'success': True,
+            'review_items': items,
+            'pending_conflicts': conflicts,
+            'review_count': len(items),
+            'conflict_count': len(conflicts),
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     init_scheduler()
     app.run(host='0.0.0.0', port=5000, debug=True)
