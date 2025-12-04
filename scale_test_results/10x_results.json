@@ -1,0 +1,34 @@
+{
+  "scale_factor": "10x",
+  "timestamp": "2025-12-04T13:30:00Z",
+  "baseline": {
+    "documents": 236,
+    "database_size_mb": 16
+  },
+  "post_ingestion": {
+    "documents": 1338,
+    "database_size_mb": 25,
+    "entities": 376,
+    "relationships": 652
+  },
+  "ingestion": {
+    "documents_added": 250,
+    "chunks_added": 852,
+    "total_items": 1102,
+    "elapsed_seconds": 409.9,
+    "embedding_time_pct": 99.9,
+    "docs_per_second": 0.61
+  },
+  "query_benchmark": {
+    "single_query_latency_sec": 23.21,
+    "concurrent_3_total_sec": 30.1,
+    "concurrent_3_per_query_sec": 10.0,
+    "sample_confidence": 0.76
+  },
+  "observations": [
+    "Embedding generation is the bottleneck (99.9% of ingestion time)",
+    "Database size increased 56% (16MB -> 25MB)",
+    "Query latency ~23s per query (single-threaded)",
+    "3 concurrent queries show good parallelism (30s total vs 69s sequential)"
+  ]
+}
