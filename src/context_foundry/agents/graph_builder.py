@@ -170,30 +170,6 @@ class GraphBuilderAgent:
     MAX_CHUNK_TOKENS = 512
     CHARS_PER_TOKEN = 4
     
-    ENTITY_TYPE_MAP = {
-        "SERVICE": EntityType.SERVICE,
-        "COMPONENT": EntityType.COMPONENT,
-        "TEAM": EntityType.TEAM,
-        "PERSON": EntityType.PERSON,
-        "DATABASE": EntityType.DATABASE,
-        "INCIDENT": EntityType.INCIDENT,
-        "RUNBOOK": EntityType.RUNBOOK,
-    }
-    
-    RELATIONSHIP_TYPE_MAP = {
-        "DEPENDS_ON": RelationshipType.DEPENDS_ON,
-        "OWNS": RelationshipType.OWNS,
-        "SUPPORTS": RelationshipType.SUPPORTS,
-        "MEMBER_OF": RelationshipType.MEMBER_OF,
-        "AFFECTS": RelationshipType.AFFECTS,
-        "CAUSED_BY": RelationshipType.CAUSED_BY,
-        "MANAGES": RelationshipType.MANAGES,
-        "ESCALATES_TO": RelationshipType.ESCALATES_TO,
-        "RESOLVED_BY": RelationshipType.RESOLVED_BY,
-        "DOCUMENTS": RelationshipType.DOCUMENTS,
-        "USES": RelationshipType.USES,
-    }
-    
     def __init__(self, session=None, schema_config_path: str = None):
         self.session = session or get_session()
         
@@ -263,25 +239,21 @@ class GraphBuilderAgent:
         """Validate relationship type and source/target compatibility."""
         return self.schema.validate_relationship(rel_type, source_type, target_type)
     
-    def _map_entity_type_to_enum(self, entity_type: str) -> Optional[EntityType]:
-        """Map schema entity type to database enum (backward compatibility)."""
-        entity_type_upper = entity_type.upper()
-        if entity_type_upper in self.ENTITY_TYPE_MAP:
-            return self.ENTITY_TYPE_MAP[entity_type_upper]
-        if entity_type_upper in [e.value for e in EntityType]:
-            return EntityType(entity_type_upper)
-        logger.warning(f"Entity type {entity_type} not in database enum, using SERVICE as fallback")
-        return EntityType.SERVICE
+    def _normalize_entity_type(self, entity_type: str) -> str:
+        """Normalize entity type string for database storage.
+        
+        Since entity_type is now VARCHAR, we just normalize to uppercase.
+        No enum mapping needed - any type from loaded schema is valid.
+        """
+        return entity_type.upper()
     
-    def _map_relationship_type_to_enum(self, rel_type: str) -> Optional[RelationshipType]:
-        """Map schema relationship type to database enum (backward compatibility)."""
-        rel_type_upper = rel_type.upper()
-        if rel_type_upper in self.RELATIONSHIP_TYPE_MAP:
-            return self.RELATIONSHIP_TYPE_MAP[rel_type_upper]
-        if rel_type_upper in [r.value for r in RelationshipType]:
-            return RelationshipType(rel_type_upper)
-        logger.warning(f"Relationship type {rel_type} not in database enum, using DEPENDS_ON as fallback")
-        return RelationshipType.DEPENDS_ON
+    def _normalize_relationship_type(self, rel_type: str) -> str:
+        """Normalize relationship type string for database storage.
+        
+        Since relationship_type is now VARCHAR, we just normalize to uppercase.
+        No enum mapping needed - any type from loaded schema is valid.
+        """
+        return rel_type.upper()
     
     def ingest_document(self, doc_path: str = None, text: str = None, 
                         doc_type: str = "DOCUMENT", title: str = None) -> ExtractionResult:
@@ -625,7 +597,7 @@ class GraphBuilderAgent:
         
         for entity in entities:
             try:
-                db_entity_type = self._map_entity_type_to_enum(entity.entity_type)
+                db_entity_type = self._normalize_entity_type(entity.entity_type)
                 
                 existing = self.session.query(Entity).filter(
                     Entity.name == entity.canonical_name,
@@ -685,7 +657,7 @@ class GraphBuilderAgent:
                     logger.debug(f"Relationship references unmapped entity: {rel.source_name} -> {rel.target_name}")
                     continue
                 
-                db_rel_type = self._map_relationship_type_to_enum(rel.relationship_type)
+                db_rel_type = self._normalize_relationship_type(rel.relationship_type)
                 
                 existing = self.session.query(Relationship).filter(
                     Relationship.source_id == source_id,
