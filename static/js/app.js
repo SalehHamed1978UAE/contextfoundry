@@ -248,12 +248,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    let currentDetailEntityId = null;
+    
     function showDetailsPanel(data) {
         const panel = document.getElementById('detailsPanel');
         const content = document.getElementById('detailsContent');
         if (!panel || !content) return;
         
         const entity = data.entity;
+        currentDetailEntityId = entity.id;
         const typeColor = getEntityTypeColor(entity.type);
         const lifecycleColor = getLifecycleColor(entity.lifecycle_state);
         
@@ -303,29 +306,74 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">${escapeHtml(entity.name)}</div>
                 <div style="color: ${typeColor}; font-size: 12px;">${entity.type}</div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
-                    <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">STATE</div>
-                    <div style="color: ${lifecycleColor}; font-weight: 500;">${entity.lifecycle_state}</div>
+            
+            <div class="detail-tabs" style="display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid var(--border-color);">
+                <button class="detail-tab active" data-tab="details" style="padding: 8px 16px; background: transparent; border: none; border-bottom: 2px solid var(--accent-primary); color: var(--accent-primary); font-size: 11px; cursor: pointer; font-weight: 600;">Details</button>
+                <button class="detail-tab" data-tab="history" style="padding: 8px 16px; background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-size: 11px; cursor: pointer;">History</button>
+            </div>
+            
+            <div id="detailsTabContent" class="tab-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                        <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">STATE</div>
+                        <div style="color: ${lifecycleColor}; font-weight: 500;">${entity.lifecycle_state}</div>
+                    </div>
+                    <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                        <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">CONFIDENCE</div>
+                        <div style="color: var(--text-primary); font-weight: 500;">${Math.round(entity.confidence * 100)}%</div>
+                    </div>
                 </div>
-                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
-                    <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">CONFIDENCE</div>
-                    <div style="color: var(--text-primary); font-weight: 500;">${Math.round(entity.confidence * 100)}%</div>
+                ${entity.description ? `<div style="margin-bottom: 16px; color: var(--text-secondary);">${escapeHtml(entity.description)}</div>` : ''}
+                ${entity.source_sentence ? `<div style="margin-bottom: 16px; padding: 12px; background: var(--bg-secondary); border-radius: 6px; font-size: 12px; color: var(--text-muted); font-style: italic;">"${escapeHtml(entity.source_sentence)}"</div>` : ''}
+                ${propsHtml}
+                ${outgoingHtml}
+                ${incomingHtml}
+                <div style="margin-top: 20px;">
+                    <button id="expandFromPanelBtn" class="btn btn-primary" style="width: 100%; padding: 10px;" data-entity-id="${entity.id}">
+                        Expand Neighbors
+                    </button>
                 </div>
             </div>
-            ${entity.description ? `<div style="margin-bottom: 16px; color: var(--text-secondary);">${escapeHtml(entity.description)}</div>` : ''}
-            ${entity.source_sentence ? `<div style="margin-bottom: 16px; padding: 12px; background: var(--bg-secondary); border-radius: 6px; font-size: 12px; color: var(--text-muted); font-style: italic;">"${escapeHtml(entity.source_sentence)}"</div>` : ''}
-            ${propsHtml}
-            ${outgoingHtml}
-            ${incomingHtml}
-            <div style="margin-top: 20px;">
-                <button id="expandFromPanelBtn" class="btn btn-primary" style="width: 100%; padding: 10px;" data-entity-id="${entity.id}">
-                    Expand Neighbors
-                </button>
+            
+            <div id="historyTabContent" class="tab-content" style="display: none;">
+                <div id="historyLoading" style="text-align: center; padding: 24px; color: var(--text-muted);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                    </svg>
+                    <div style="margin-top: 8px; font-size: 11px;">Loading history...</div>
+                </div>
+                <div id="historyContent"></div>
             </div>
         `;
         
         panel.style.display = 'block';
+        
+        // Setup tab switching
+        content.querySelectorAll('.detail-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                // Update tab styles
+                content.querySelectorAll('.detail-tab').forEach(t => {
+                    t.classList.remove('active');
+                    t.style.borderBottomColor = 'transparent';
+                    t.style.color = 'var(--text-muted)';
+                });
+                tab.classList.add('active');
+                tab.style.borderBottomColor = 'var(--accent-primary)';
+                tab.style.color = 'var(--accent-primary)';
+                
+                // Show/hide content
+                document.getElementById('detailsTabContent').style.display = tabName === 'details' ? 'block' : 'none';
+                document.getElementById('historyTabContent').style.display = tabName === 'history' ? 'block' : 'none';
+                
+                // Load history if switching to history tab
+                if (tabName === 'history' && currentDetailEntityId) {
+                    loadEntityHistory(currentDetailEntityId);
+                }
+            });
+        });
         
         content.querySelectorAll('.rel-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -340,6 +388,82 @@ document.addEventListener('DOMContentLoaded', function() {
             expandBtn.addEventListener('click', () => {
                 expandEntity(expandBtn.dataset.entityId);
             });
+        }
+    }
+    
+    async function loadEntityHistory(entityId) {
+        const historyContent = document.getElementById('historyContent');
+        const historyLoading = document.getElementById('historyLoading');
+        
+        if (!historyContent) return;
+        
+        if (historyLoading) historyLoading.style.display = 'block';
+        historyContent.innerHTML = '';
+        
+        try {
+            const response = await fetch(`/api/entities/${entityId}/history`);
+            const data = await response.json();
+            
+            if (historyLoading) historyLoading.style.display = 'none';
+            
+            if (data.success && data.history && data.history.length > 0) {
+                let html = `
+                    <div style="color: var(--text-primary); font-weight: 600; margin-bottom: 12px; font-size: 13px;">
+                        ${escapeHtml(data.current_name)} - Version History
+                    </div>
+                    <div style="border-left: 2px solid var(--border-color); padding-left: 16px;">
+                `;
+                
+                data.history.forEach((version, index) => {
+                    const isCurrent = version.is_current;
+                    const validFrom = version.valid_from ? new Date(version.valid_from).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Unknown';
+                    const confidence = Math.round((version.confidence || 0.5) * 100);
+                    const stateColor = version.lifecycle_state === 'TRUSTED' ? '#10b981' : 
+                                       version.lifecycle_state === 'STAGING' ? '#f59e0b' : '#6b7280';
+                    
+                    html += `
+                        <div style="position: relative; padding: 12px 0; ${index < data.history.length - 1 ? 'border-bottom: 1px dashed var(--border-color);' : ''}">
+                            <div style="position: absolute; left: -22px; top: 14px; width: 12px; height: 12px; border-radius: 50%; background: ${isCurrent ? 'var(--accent-primary)' : 'var(--bg-tertiary)'}; border: 2px solid ${isCurrent ? 'var(--accent-primary)' : 'var(--border-color)'};"></div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="color: ${isCurrent ? 'var(--accent-primary)' : 'var(--text-primary)'}; font-weight: ${isCurrent ? '600' : '400'}; font-size: 12px;">
+                                    ${validFrom} ${isCurrent ? '(Current)' : ''}
+                                </span>
+                                <span style="font-size: 10px; color: var(--text-muted);">${confidence}%</span>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+                                <span style="background: ${stateColor}20; color: ${stateColor}; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 500;">${version.lifecycle_state}</span>
+                            </div>
+                            ${version.change_reason ? `
+                                <div style="background: var(--bg-secondary); padding: 8px; border-radius: 4px; font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                                    "${escapeHtml(version.change_reason)}"
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                historyContent.innerHTML = html;
+            } else {
+                historyContent.innerHTML = `
+                    <div style="text-align: center; padding: 24px; color: var(--text-muted);">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px; opacity: 0.5;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <div style="font-size: 12px;">No version history available</div>
+                        <div style="font-size: 10px; margin-top: 4px; opacity: 0.7;">This entity has only one version</div>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Failed to load entity history:', error);
+            if (historyLoading) historyLoading.style.display = 'none';
+            historyContent.innerHTML = `
+                <div style="text-align: center; padding: 24px; color: #ef4444;">
+                    <div style="font-size: 12px;">Failed to load history</div>
+                </div>
+            `;
         }
     }
     
@@ -1161,4 +1285,265 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error(message);
         alert('Error: ' + message);
     }
+    
+    // ============================================
+    // TIMELINE SLIDER FUNCTIONALITY
+    // ============================================
+    
+    let timelineEarliest = null;
+    let timelineLatest = null;
+    let currentAsOfDate = null;
+    let timelineDebounceTimer = null;
+    
+    async function initTimeline() {
+        try {
+            const response = await fetch('/api/knowledge/date-range');
+            const data = await response.json();
+            
+            if (data.success) {
+                timelineEarliest = new Date(data.earliest);
+                timelineLatest = new Date(data.today);
+                
+                const earliestLabel = document.getElementById('timelineEarliestLabel');
+                const latestLabel = document.getElementById('timelineLatestLabel');
+                const datePicker = document.getElementById('timelineDatePicker');
+                
+                if (earliestLabel) {
+                    earliestLabel.textContent = formatDateShort(timelineEarliest);
+                }
+                if (latestLabel) {
+                    latestLabel.textContent = 'Today';
+                }
+                if (datePicker) {
+                    datePicker.min = formatDateISO(timelineEarliest);
+                    datePicker.max = formatDateISO(timelineLatest);
+                    datePicker.value = formatDateISO(timelineLatest);
+                }
+                
+                setupTimelineListeners();
+            }
+        } catch (error) {
+            console.error('Failed to load timeline range:', error);
+        }
+    }
+    
+    function setupTimelineListeners() {
+        const slider = document.getElementById('timelineSlider');
+        const datePicker = document.getElementById('timelineDatePicker');
+        const resetBtn = document.getElementById('timelineResetBtn');
+        const returnBtn = document.getElementById('returnToPresentBtn');
+        
+        if (slider) {
+            slider.addEventListener('input', () => {
+                clearTimeout(timelineDebounceTimer);
+                const date = sliderValueToDate(parseInt(slider.value));
+                updateTimelineLabel(date);
+                
+                timelineDebounceTimer = setTimeout(() => {
+                    setTimelineDate(date);
+                }, 300);
+            });
+        }
+        
+        if (datePicker) {
+            datePicker.addEventListener('change', () => {
+                const date = new Date(datePicker.value);
+                if (!isNaN(date.getTime())) {
+                    const sliderValue = dateToSliderValue(date);
+                    if (slider) slider.value = sliderValue;
+                    setTimelineDate(date);
+                }
+            });
+        }
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', resetTimeline);
+        }
+        
+        if (returnBtn) {
+            returnBtn.addEventListener('click', resetTimeline);
+        }
+    }
+    
+    function sliderValueToDate(value) {
+        if (!timelineEarliest || !timelineLatest) return new Date();
+        const range = timelineLatest.getTime() - timelineEarliest.getTime();
+        const offset = (value / 100) * range;
+        return new Date(timelineEarliest.getTime() + offset);
+    }
+    
+    function dateToSliderValue(date) {
+        if (!timelineEarliest || !timelineLatest) return 100;
+        const range = timelineLatest.getTime() - timelineEarliest.getTime();
+        if (range === 0) return 100;
+        const offset = date.getTime() - timelineEarliest.getTime();
+        return Math.round((offset / range) * 100);
+    }
+    
+    function updateTimelineLabel(date) {
+        const label = document.getElementById('timelineCurrentLabel');
+        if (label) {
+            const isToday = isSameDay(date, new Date());
+            label.textContent = isToday ? 'Today' : formatDateDisplay(date);
+            label.style.color = isToday ? 'var(--accent-primary)' : '#f97316';
+        }
+    }
+    
+    function setTimelineDate(date) {
+        const isToday = isSameDay(date, new Date());
+        
+        if (isToday) {
+            currentAsOfDate = null;
+            hideTimelineBanner();
+        } else {
+            currentAsOfDate = formatDateISO(date);
+            showTimelineBanner(date);
+        }
+        
+        const datePicker = document.getElementById('timelineDatePicker');
+        if (datePicker) {
+            datePicker.value = formatDateISO(date);
+        }
+        
+        refreshGraphWithTimeline();
+    }
+    
+    function resetTimeline() {
+        currentAsOfDate = null;
+        
+        const slider = document.getElementById('timelineSlider');
+        const datePicker = document.getElementById('timelineDatePicker');
+        const label = document.getElementById('timelineCurrentLabel');
+        
+        if (slider) slider.value = 100;
+        if (datePicker) datePicker.value = formatDateISO(new Date());
+        if (label) {
+            label.textContent = 'Today';
+            label.style.color = 'var(--accent-primary)';
+        }
+        
+        hideTimelineBanner();
+        refreshGraphWithTimeline();
+    }
+    
+    function showTimelineBanner(date) {
+        const banner = document.getElementById('timelineBanner');
+        const dateLabel = document.getElementById('timelineBannerDate');
+        
+        if (banner) {
+            banner.style.display = 'flex';
+        }
+        if (dateLabel) {
+            dateLabel.textContent = formatDateDisplay(date);
+        }
+    }
+    
+    function hideTimelineBanner() {
+        const banner = document.getElementById('timelineBanner');
+        if (banner) {
+            banner.style.display = 'none';
+        }
+    }
+    
+    function updateTimelineEntityCount(count, total) {
+        const countEl = document.getElementById('timelineEntityCount');
+        if (countEl) {
+            countEl.textContent = `${count} entities`;
+        }
+    }
+    
+    async function refreshGraphWithTimeline() {
+        clearGraph();
+        loadGlobalStats();
+    }
+    
+    async function searchEntitiesWithTimeline(query) {
+        if (!query || query.length < 2) return [];
+        try {
+            let url = `/api/graph/search?q=${encodeURIComponent(query)}&lifecycle_state=${currentLifecycleFilter}`;
+            if (currentAsOfDate) {
+                url += `&as_of_date=${encodeURIComponent(currentAsOfDate)}`;
+            }
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.success ? data.results : [];
+        } catch (error) {
+            console.error('Search error:', error);
+            return [];
+        }
+    }
+    
+    async function expandEntityWithTimeline(entityId) {
+        try {
+            let url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}`;
+            if (currentAsOfDate) {
+                url += `&as_of_date=${encodeURIComponent(currentAsOfDate)}`;
+            }
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.success) {
+                if (data.nodes && data.nodes.length === 0 && data.message) {
+                    showGraphMessage(data.message);
+                    return data;
+                }
+                data.nodes.forEach(node => {
+                    if (!graphNodes[node.id]) {
+                        graphNodes[node.id] = node;
+                    }
+                });
+                data.edges.forEach(edge => {
+                    if (!graphEdges.find(e => e.id === edge.id)) {
+                        graphEdges.push(edge);
+                    }
+                });
+                
+                if (data.is_historical) {
+                    updateTimelineEntityCount(data.stats.total_nodes);
+                }
+                
+                renderGraph();
+                return data;
+            }
+            return null;
+        } catch (error) {
+            console.error('Expand error:', error);
+            return null;
+        }
+    }
+    
+    function formatDateISO(date) {
+        return date.toISOString().split('T')[0];
+    }
+    
+    function formatDateShort(date) {
+        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+    
+    function formatDateDisplay(date) {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    function isSameDay(date1, date2) {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    }
+    
+    // Override the original search and expand functions to use timeline
+    const originalSearchEntities = searchEntities;
+    searchEntities = async function(query) {
+        return searchEntitiesWithTimeline(query);
+    };
+    
+    const originalExpandEntity = expandEntity;
+    expandEntity = async function(entityId) {
+        return expandEntityWithTimeline(entityId);
+    };
+    
+    // Initialize timeline when Memory Graph page is shown
+    const originalRenderMemoryGraph = renderMemoryGraph;
+    renderMemoryGraph = function() {
+        originalRenderMemoryGraph();
+        initTimeline();
+    };
 });

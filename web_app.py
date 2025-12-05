@@ -165,16 +165,38 @@ def graph_visualization():
     - lifecycle_state: STAGING, TRUSTED, ARCHIVED, or 'all' (default: 'all')
     - entity_type: Filter by entity type (e.g., SERVICE, TEAM, PERSON)
     - limit: Maximum number of entities to return (default: 100)
+    - as_of_date: ISO date string for temporal filtering (optional)
     """
     from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
+    from datetime import datetime
+    from sqlalchemy import or_
     
     lifecycle_filter = request.args.get('lifecycle_state', 'all')
     entity_type_filter = request.args.get('entity_type', None)
     limit = int(request.args.get('limit', 100))
+    as_of_date_str = request.args.get('as_of_date', None)
+    
+    as_of_date = None
+    if as_of_date_str:
+        try:
+            as_of_date = datetime.fromisoformat(as_of_date_str.replace('Z', '+00:00'))
+        except ValueError:
+            try:
+                as_of_date = datetime.strptime(as_of_date_str, '%Y-%m-%d')
+            except ValueError:
+                pass
     
     session = get_session()
     try:
         entity_query = session.query(Entity)
+        
+        if as_of_date:
+            entity_query = entity_query.filter(
+                Entity.valid_from <= as_of_date,
+                or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+            )
+        else:
+            entity_query = entity_query.filter(Entity.valid_to.is_(None))
         
         if lifecycle_filter != 'all':
             try:
@@ -194,6 +216,14 @@ def graph_visualization():
             Relationship.target_id.in_(entity_ids)
         )
         
+        if as_of_date:
+            rel_query = rel_query.filter(
+                Relationship.valid_from <= as_of_date,
+                or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+            )
+        else:
+            rel_query = rel_query.filter(Relationship.valid_to.is_(None))
+        
         if lifecycle_filter != 'all':
             try:
                 state = LifecycleState(lifecycle_filter)
@@ -205,14 +235,18 @@ def graph_visualization():
         
         nodes = []
         for e in entities:
-            nodes.append({
+            node_data = {
                 'id': str(e.id),
                 'name': e.name,
                 'type': e.entity_type,
                 'lifecycle_state': e.lifecycle_state.value if e.lifecycle_state else 'STAGING',
                 'confidence': e.confidence or 0.5,
-                'validation_status': e.validation_status.value if e.validation_status else 'PENDING'
-            })
+                'validation_status': e.validation_status.value if e.validation_status else 'PENDING',
+                'valid_from': e.valid_from.isoformat() if e.valid_from else None,
+                'valid_to': e.valid_to.isoformat() if e.valid_to else None,
+                'is_superseded': e.superseded_by is not None
+            }
+            nodes.append(node_data)
         
         edges = []
         for r in relationships:
@@ -227,13 +261,22 @@ def graph_visualization():
         
         state_counts = {}
         for state in LifecycleState:
-            count = session.query(Entity).filter(Entity.lifecycle_state == state).count()
-            state_counts[state.value] = count
+            count_query = session.query(Entity).filter(Entity.lifecycle_state == state)
+            if as_of_date:
+                count_query = count_query.filter(
+                    Entity.valid_from <= as_of_date,
+                    or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+                )
+            else:
+                count_query = count_query.filter(Entity.valid_to.is_(None))
+            state_counts[state.value] = count_query.count()
         
         return jsonify({
             'success': True,
             'nodes': nodes,
             'edges': edges,
+            'as_of_date': as_of_date_str,
+            'is_historical': as_of_date is not None,
             'stats': {
                 'total_nodes': len(nodes),
                 'total_edges': len(edges),
@@ -253,13 +296,26 @@ def graph_search():
     - q: Search query (entity name, partial match)
     - lifecycle_state: Filter by lifecycle state (default: 'all')
     - limit: Max results for search (default: 10)
+    - as_of_date: ISO date string for temporal filtering (optional)
     """
     from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
     from sqlalchemy import or_, func
+    from datetime import datetime
     
     query = request.args.get('q', '').strip()
     lifecycle_filter = request.args.get('lifecycle_state', 'all')
     limit = int(request.args.get('limit', 10))
+    as_of_date_str = request.args.get('as_of_date', None)
+    
+    as_of_date = None
+    if as_of_date_str:
+        try:
+            as_of_date = datetime.fromisoformat(as_of_date_str.replace('Z', '+00:00'))
+        except ValueError:
+            try:
+                as_of_date = datetime.strptime(as_of_date_str, '%Y-%m-%d')
+            except ValueError:
+                pass
     
     if not query:
         return jsonify({'success': True, 'results': [], 'message': 'Enter a search term'})
@@ -269,6 +325,14 @@ def graph_search():
         entity_query = session.query(Entity).filter(
             func.lower(Entity.name).contains(query.lower())
         )
+        
+        if as_of_date:
+            entity_query = entity_query.filter(
+                Entity.valid_from <= as_of_date,
+                or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+            )
+        else:
+            entity_query = entity_query.filter(Entity.valid_to.is_(None))
         
         if lifecycle_filter != 'all':
             try:
@@ -301,11 +365,25 @@ def graph_expand(entity_id):
     
     Returns the entity, all directly connected entities, and their relationships.
     Respects lifecycle_state filter for all entities and relationships.
+    Supports as_of_date for temporal filtering.
     """
     from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
+    from sqlalchemy import or_
+    from datetime import datetime
     import uuid
     
     lifecycle_filter = request.args.get('lifecycle_state', 'all')
+    as_of_date_str = request.args.get('as_of_date', None)
+    
+    as_of_date = None
+    if as_of_date_str:
+        try:
+            as_of_date = datetime.fromisoformat(as_of_date_str.replace('Z', '+00:00'))
+        except ValueError:
+            try:
+                as_of_date = datetime.strptime(as_of_date_str, '%Y-%m-%d')
+            except ValueError:
+                pass
     
     session = get_session()
     try:
@@ -315,6 +393,15 @@ def graph_expand(entity_id):
             return jsonify({'error': 'Invalid entity ID', 'success': False}), 400
         
         center_query = session.query(Entity).filter(Entity.id == entity_uuid)
+        
+        if as_of_date:
+            center_query = center_query.filter(
+                Entity.valid_from <= as_of_date,
+                or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+            )
+        else:
+            center_query = center_query.filter(Entity.valid_to.is_(None))
+        
         if lifecycle_filter != 'all':
             try:
                 state = LifecycleState(lifecycle_filter)
@@ -326,13 +413,18 @@ def graph_expand(entity_id):
         if not center_entity:
             entity_exists = session.query(Entity).filter(Entity.id == entity_uuid).first()
             if entity_exists:
+                message = f'Entity exists but is not visible'
+                if as_of_date:
+                    message += f' as of {as_of_date_str}'
+                if lifecycle_filter != 'all':
+                    message += f' in {lifecycle_filter} state'
                 return jsonify({
                     'success': True,
                     'center_id': entity_id,
                     'nodes': [],
                     'edges': [],
                     'stats': {'total_nodes': 0, 'total_edges': 0, 'neighbors': 0},
-                    'message': f'Entity exists but is not in {lifecycle_filter} state'
+                    'message': message
                 })
             return jsonify({'error': 'Entity not found', 'success': False}), 404
         
@@ -342,6 +434,19 @@ def graph_expand(entity_id):
         incoming_query = session.query(Relationship).filter(
             Relationship.target_id == entity_uuid
         )
+        
+        if as_of_date:
+            outgoing_query = outgoing_query.filter(
+                Relationship.valid_from <= as_of_date,
+                or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+            )
+            incoming_query = incoming_query.filter(
+                Relationship.valid_from <= as_of_date,
+                or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+            )
+        else:
+            outgoing_query = outgoing_query.filter(Relationship.valid_to.is_(None))
+            incoming_query = incoming_query.filter(Relationship.valid_to.is_(None))
         
         if lifecycle_filter != 'all':
             try:
@@ -363,6 +468,13 @@ def graph_expand(entity_id):
         neighbors = []
         if neighbor_ids:
             neighbor_query = session.query(Entity).filter(Entity.id.in_(neighbor_ids))
+            if as_of_date:
+                neighbor_query = neighbor_query.filter(
+                    Entity.valid_from <= as_of_date,
+                    or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+                )
+            else:
+                neighbor_query = neighbor_query.filter(Entity.valid_to.is_(None))
             if lifecycle_filter != 'all':
                 try:
                     state = LifecycleState(lifecycle_filter)
@@ -389,7 +501,9 @@ def graph_expand(entity_id):
                 'description': e.description,
                 'source_document_id': e.source_document_id,
                 'created_at': e.created_at.isoformat() if e.created_at else None,
-                'promoted_at': e.promoted_at.isoformat() if e.promoted_at else None
+                'promoted_at': e.promoted_at.isoformat() if e.promoted_at else None,
+                'valid_from': e.valid_from.isoformat() if e.valid_from else None,
+                'valid_to': e.valid_to.isoformat() if e.valid_to else None
             })
         
         edges = []
@@ -411,6 +525,8 @@ def graph_expand(entity_id):
             'center_id': entity_id,
             'nodes': nodes,
             'edges': edges,
+            'as_of_date': as_of_date_str,
+            'is_historical': as_of_date is not None,
             'stats': {
                 'total_nodes': len(nodes),
                 'total_edges': len(edges),
@@ -696,6 +812,47 @@ def knowledge_diff():
                 'relationships_added': len(added_rels),
                 'relationships_removed': len(removed_rels)
             }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+    finally:
+        session.close()
+
+@app.route('/api/knowledge/date-range')
+def knowledge_date_range():
+    """Get the temporal range of knowledge in the database for timeline slider.
+    
+    Returns:
+    - earliest: ISO date string of oldest valid_from
+    - latest: ISO date string of today (or most recent valid_from)
+    - total_snapshots: Number of distinct valid_from dates
+    """
+    from src.context_foundry.models.schema import get_session, Entity
+    from sqlalchemy import func
+    from datetime import datetime, timezone
+    
+    session = get_session()
+    try:
+        earliest_date = session.query(func.min(Entity.valid_from)).scalar()
+        latest_date = session.query(func.max(Entity.valid_from)).scalar()
+        
+        distinct_dates = session.query(func.count(func.distinct(func.date(Entity.valid_from)))).scalar()
+        
+        now = datetime.now(timezone.utc)
+        
+        if not earliest_date:
+            earliest_date = now
+        if not latest_date:
+            latest_date = now
+        
+        latest_date = max(latest_date, now.replace(tzinfo=None))
+        
+        return jsonify({
+            'success': True,
+            'earliest': earliest_date.isoformat() + 'Z' if earliest_date else None,
+            'latest': latest_date.isoformat() + 'Z' if latest_date else None,
+            'today': now.isoformat() + 'Z',
+            'total_snapshots': distinct_dates or 0
         })
     except Exception as e:
         return jsonify({'error': str(e), 'success': False}), 500

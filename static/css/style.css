@@ -1518,3 +1518,72 @@ body {
         padding: 6px 8px !important;
     }
 }
+
+/* Timeline Slider Styling */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#timelineSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    outline: none;
+    transition: background 0.2s;
+}
+
+#timelineSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg-primary);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    transition: all 0.2s;
+}
+
+#timelineSlider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.7);
+}
+
+#timelineSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    cursor: pointer;
+    border: 2px solid var(--bg-primary);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+#timelineResetBtn:hover,
+#returnToPresentBtn:hover {
+    background: rgba(6, 182, 212, 0.2);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+#timelineDatePicker {
+    color-scheme: dark;
+}
+
+#timelineDatePicker:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+}
+
+/* Detail tabs styling */
+.detail-tab:hover {
+    color: var(--text-primary) !important;
+}
+
+.detail-tab.active {
+    font-weight: 600;
+}
