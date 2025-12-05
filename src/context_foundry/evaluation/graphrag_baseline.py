@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 
 from ..models.schema import (
-    Entity, Relationship, Document, LifecycleState, EntityType,
+    Entity, Relationship, Document, LifecycleState,
     get_session
 )
 

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 import uuid
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, EntityType, RelationshipType, get_session
+    Entity, Relationship, LifecycleState, get_session
 )
 from ..utils.logger import logger
 

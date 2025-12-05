@@ -29,6 +29,7 @@ class EntityTypeConfig:
     description: str = ""
     required_fields: List[str] = field(default_factory=list)
     optional_fields: List[str] = field(default_factory=list)
+    keywords: List[str] = field(default_factory=list)
     
     def get_all_fields(self) -> List[str]:
         """Get all fields (required + optional)."""
@@ -77,6 +78,7 @@ class DomainSchema:
     entity_types: Dict[str, EntityTypeConfig]
     relationship_types: Dict[str, RelationshipTypeConfig]
     validation_rules: List[ValidationRuleConfig]
+    example_queries: List[str] = field(default_factory=list)
     
     def get_entity_type(self, name: str) -> Optional[EntityTypeConfig]:
         """Get entity type config by name."""
@@ -189,7 +191,8 @@ class DomainSchemaLoader:
                 name=et['name'].upper(),
                 description=et.get('description', ''),
                 required_fields=et.get('required_fields', []),
-                optional_fields=et.get('optional_fields', [])
+                optional_fields=et.get('optional_fields', []),
+                keywords=et.get('keywords', [])
             )
             entity_types[entity_config.name] = entity_config
         
@@ -229,7 +232,8 @@ class DomainSchemaLoader:
             description=config.get('description', ''),
             entity_types=entity_types,
             relationship_types=relationship_types,
-            validation_rules=validation_rules
+            validation_rules=validation_rules,
+            example_queries=config.get('example_queries', [])
         )
     
     def _create_default_schema(self) -> DomainSchema:
