@@ -1334,13 +1334,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const resetBtn = document.getElementById('timelineResetBtn');
         const returnBtn = document.getElementById('returnToPresentBtn');
         
+        console.log('Timeline listeners setup:', { slider: !!slider, datePicker: !!datePicker });
+        
         if (slider) {
             slider.addEventListener('input', () => {
                 clearTimeout(timelineDebounceTimer);
                 const date = sliderValueToDate(parseInt(slider.value));
+                console.log('Slider moved:', slider.value, '-> date:', date);
                 updateTimelineLabel(date);
                 
                 timelineDebounceTimer = setTimeout(() => {
+                    console.log('Setting timeline date:', date, 'currentEntity:', currentExpandedEntityId);
                     setTimelineDate(date);
                 }, 300);
             });
@@ -1454,12 +1458,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function refreshGraphWithTimeline() {
+        console.log('refreshGraphWithTimeline called, currentEntity:', currentExpandedEntityId, 'asOfDate:', currentAsOfDate);
         clearGraph();
         loadGlobalStats();
         
         // Re-expand the current entity with the new date filter
         if (currentExpandedEntityId) {
+            console.log('Re-expanding entity with date:', currentAsOfDate);
             await expandEntityWithTimeline(currentExpandedEntityId);
+        } else {
+            console.log('No current entity to re-expand');
         }
     }
     
