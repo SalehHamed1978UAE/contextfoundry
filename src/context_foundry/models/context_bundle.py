@@ -125,6 +125,11 @@ class ContextBundle:
     # Temporal query support - "as of when?" queries
     as_of_date: Optional[str] = None  # ISO format date string for time-travel queries
     
+    # Blast radius / impact query - structured list of affected entities from graph traversal
+    # This is DETERMINISTIC - populated directly from exhaustive graph traversal, not LLM
+    blast_radius_entities: List[str] = field(default_factory=list)  # Sorted list of affected entity names
+    blast_radius_complete: bool = True  # Whether traversal reached max_depth limit
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
@@ -268,7 +273,7 @@ class ContextBundle:
     
     def to_dict(self) -> dict:
         """Convert bundle to dictionary for serialization."""
-        return {
+        result = {
             "query_id": self.query_id,
             "query_text": self.query_text,
             "created_at": self.created_at.isoformat(),
@@ -288,6 +293,13 @@ class ContextBundle:
             "uncertainty": self.uncertainty.to_dict() if self.uncertainty else None,
             "retrieval_metadata": self.retrieval_metadata
         }
+        
+        # Add blast radius entities if this is an impact query
+        if self.blast_radius_entities:
+            result["blast_radius_entities"] = self.blast_radius_entities
+            result["blast_radius_complete"] = self.blast_radius_complete
+        
+        return result
     
     def to_llm_context(self) -> str:
         """Format bundle as context string for LLM reasoning."""
