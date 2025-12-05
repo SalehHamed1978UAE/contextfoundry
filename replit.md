@@ -62,6 +62,7 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
 -   **Temporal Tracking**: Entities and relationships have `valid_from`, `valid_to`, `superseded_by`, and `change_reason` columns for full temporal history. Supports "as of when?" queries via `as_of_date` parameter and diff analysis between dates.
 -   **Query Handling**: Includes query classification, impact analysis for `DEPENDS_ON` relationships, hallucination prevention through entity verification, detection of analysis/trend queries, and handling of ordered sequence requests.
 -   **Deterministic Impact Queries**: All LLM calls use temperature=0.0. Impact/blast-radius queries use exhaustive graph traversal (BFS with max_depth=10) instead of LLM discovery. The `blast_radius_entities` field provides a sorted, repeatable list of affected entities directly from graph traversal. Test verified: 5 identical queries return 100% identical results.
+-   **Timeline Slider**: The Memory Graph includes a timeline slider that filters the graph by date. Moving the slider re-expands the current entity with the new `as_of_date` parameter. The `currentExpandedEntityId` tracks which entity is being viewed for proper refresh on date change.
 -   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
 -   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
 -   **Data Model**: Utilizes SQLAlchemy for Entity, Relationship, and Document models.
