@@ -2,9 +2,23 @@ schema_version: "1.0"
 domain: "IT Operations"
 description: "Default schema for IT Operations management including services, teams, incidents, and infrastructure."
 
+example_queries:
+  - "What services are affected if the Payments Database goes down?"
+  - "Who should I escalate to for a SEV1 on the Auth Service?"
+  - "What team owns the Payment Service?"
+  - "What does the Checkout Service depend on?"
+  - "What incidents have affected the Auth Service?"
+  - "Who are the experts on payment processing?"
+
 entity_types:
   - name: SERVICE
     description: "A software service or application"
+    keywords:
+      - service
+      - microservice
+      - application
+      - app
+      - api
     required_fields:
       - canonical_name
     optional_fields:
@@ -16,6 +30,14 @@ entity_types:
 
   - name: COMPONENT
     description: "Part of a service (API, queue, cache, module)"
+    keywords:
+      - component
+      - module
+      - queue
+      - cache
+      - api
+      - gateway
+      - load balancer
     required_fields:
       - canonical_name
       - component_type
@@ -25,6 +47,11 @@ entity_types:
 
   - name: TEAM
     description: "An organizational team"
+    keywords:
+      - team
+      - squad
+      - group
+      - department
     required_fields:
       - name
     optional_fields:
@@ -34,6 +61,14 @@ entity_types:
 
   - name: PERSON
     description: "An individual in the organization"
+    keywords:
+      - person
+      - engineer
+      - developer
+      - manager
+      - lead
+      - on-call
+      - contact
     required_fields:
       - canonical_name
     optional_fields:
@@ -44,6 +79,14 @@ entity_types:
 
   - name: DATABASE
     description: "A database instance"
+    keywords:
+      - database
+      - db
+      - postgres
+      - mysql
+      - redis
+      - mongodb
+      - data store
     required_fields:
       - canonical_name
     optional_fields:
@@ -53,6 +96,14 @@ entity_types:
 
   - name: INCIDENT
     description: "An incident or outage reference"
+    keywords:
+      - incident
+      - outage
+      - issue
+      - alert
+      - sev1
+      - sev2
+      - downtime
     required_fields:
       - external_id
       - title

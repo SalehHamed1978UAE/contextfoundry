@@ -1,0 +1,161 @@
+schema_version: "1.0"
+domain: "Investment Portfolio"
+description: "Schema for investment management: companies, sectors, funds, analysts, and investment relationships."
+
+example_queries:
+  - "What companies does the Growth Fund invest in?"
+  - "Which sectors has our portfolio exposure to?"
+  - "Who covers the Technology sector?"
+  - "What is Sarah's investment thesis on TechCorp?"
+  - "Which funds are invested in the Healthcare sector?"
+  - "What companies are in the Energy sector?"
+
+entity_types:
+  - name: COMPANY
+    description: "A publicly traded or private company"
+    keywords:
+      - company
+      - corporation
+      - firm
+      - stock
+      - ticker
+      - business
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - ticker
+      - sector
+      - market_cap
+      - description
+      - founded_year
+
+  - name: SECTOR
+    description: "An industry sector or classification"
+    keywords:
+      - sector
+      - industry
+      - segment
+      - vertical
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - description
+      - parent_sector
+
+  - name: FUND
+    description: "An investment fund or portfolio"
+    keywords:
+      - fund
+      - portfolio
+      - etf
+      - mutual fund
+      - hedge fund
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - fund_type
+      - aum
+      - inception_date
+      - strategy
+
+  - name: ANALYST
+    description: "An investment analyst or portfolio manager"
+    keywords:
+      - analyst
+      - portfolio manager
+      - pm
+      - researcher
+      - advisor
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - email
+      - specialty
+      - team
+      - experience_years
+
+  - name: THESIS
+    description: "An investment thesis or recommendation"
+    keywords:
+      - thesis
+      - recommendation
+      - rating
+      - buy
+      - sell
+      - hold
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - rating
+      - target_price
+      - timeframe
+      - rationale
+
+relationship_types:
+  - name: INVESTS_IN
+    description: "Fund invests in a Company"
+    source_types:
+      - FUND
+    target_types:
+      - COMPANY
+    cardinality: many-to-many
+
+  - name: BELONGS_TO
+    description: "Company belongs to a Sector"
+    source_types:
+      - COMPANY
+    target_types:
+      - SECTOR
+    cardinality: many-to-one
+
+  - name: COVERS
+    description: "Analyst covers a Sector or Company"
+    source_types:
+      - ANALYST
+    target_types:
+      - SECTOR
+      - COMPANY
+    cardinality: many-to-many
+
+  - name: MANAGES
+    description: "Analyst manages a Fund"
+    source_types:
+      - ANALYST
+    target_types:
+      - FUND
+    cardinality: many-to-many
+
+  - name: AUTHORED
+    description: "Analyst authored a Thesis on a Company"
+    source_types:
+      - ANALYST
+    target_types:
+      - THESIS
+    cardinality: many-to-many
+
+  - name: TARGETS
+    description: "Thesis targets a Company"
+    source_types:
+      - THESIS
+    target_types:
+      - COMPANY
+    cardinality: many-to-one
+
+  - name: SUBSECTOR_OF
+    description: "Sector is a subsector of another Sector"
+    source_types:
+      - SECTOR
+    target_types:
+      - SECTOR
+    cardinality: many-to-one
+
+validation_rules:
+  - name: thesis_requires_target
+    description: "Every thesis must target exactly one company"
+    applies_to: THESIS
+    constraint: "must have TARGETS relationship"
+
+  - name: company_needs_sector
+    description: "Companies should belong to a sector"
+    applies_to: COMPANY
+    constraint: "should have BELONGS_TO relationship"
