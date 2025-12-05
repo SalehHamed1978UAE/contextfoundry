@@ -57,6 +57,8 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
 **Frontier Detection UI:**
 - Frontier nodes in Memory Graph display with dashed amber borders and a "?" badge to indicate knowledge boundaries
 - Hover tooltips on frontier nodes show the human-readable message explaining why traversal stopped
+- Frontier detection works during any graph exploration - when clicking/expanding any node, neighbors with no further edges are identified as frontiers
+- Frontier data accumulates as user explores (not replaced), building a complete picture of knowledge boundaries
 - "Knowledge Frontier" panel appears below query results showing:
   - Knowledge Boundaries: Collapsible list of frontier nodes with entity name, type, and explanation
   - Documentation Gaps: Actionable list of missing documentation that could improve future queries
