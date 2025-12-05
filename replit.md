@@ -37,11 +37,19 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 -   **Gardener Agent**: An autonomous agent that runs periodically to maintain graph health through decay, promotion, conflict resolution, demotion, and cleanup passes, ensuring data quality and relevance.
 
 ### Domain-Agnostic Schema System
-The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML files, allowing for adaptability across different domains (e.g., IT Operations, Fiction & Literature). Both the ingestion AND query pipelines are fully domain-agnostic:
+The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML files, allowing for adaptability across different domains (e.g., IT Operations, Fiction & Literature, Investment Portfolio). Both the ingestion AND query pipelines are fully domain-agnostic:
+- Entity Extractor builds dynamic prompts from active schema entity types and descriptions
+- Relation Extractor builds dynamic prompts with source/target type constraints from schema
 - Retrieval Agent dynamically searches all entity types from the current schema
 - Reasoning Agent adapts its system prompt to include domain name and available types
 - Property query analyzer generates schemas from current domain's property definitions
+- `/api/examples` endpoint loads example queries from the active schema YAML
 - Schema hot-reload via `/api/schema/reload` propagates to all components within the same process
+
+### Available Domain Schemas
+- `config/domain_schema.yaml` - IT Operations (SERVICE, COMPONENT, TEAM, PERSON, DATABASE, INCIDENT)
+- `config/fiction_schema.yaml` - Fiction & Literature (CHARACTER, CREATURE, LOCATION, OBJECT, EVENT)
+- `config/investment_schema.yaml` - Investment Portfolio (COMPANY, SECTOR, FUND, ANALYST, THESIS)
 
 ### UI/UX Decisions
 The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains for enhanced data visualization.
