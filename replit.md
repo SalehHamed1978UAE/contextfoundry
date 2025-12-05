@@ -94,6 +94,7 @@ The Gardener Agent runs every 5 minutes to maintain graph health through 5 auton
 |----------|--------|---------|
 | `/api/entities/<id>/history` | GET | Get temporal history for an entity - all versions over time with superseded_by chains and change_reasons |
 | `/api/knowledge/diff` | GET | Get differences in knowledge graph between two dates. Query params: `from_date`, `to_date` (required), `entity_type` (optional). Returns added/removed/modified entities and relationships |
+| `/api/knowledge/date-range` | GET | Get date range bounds for timeline slider. Returns `earliest` (first valid_from), `today`, `total_snapshots` count |
 
 ### Document Ingestion & Schema
 | Endpoint | Method | Purpose |
