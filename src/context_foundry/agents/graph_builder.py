@@ -413,7 +413,7 @@ class GraphBuilderAgent:
                     {"role": "system", "content": "You are an entity extraction system. Respond only with valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.1,
+                temperature=0.0,  # Deterministic extraction
                 max_tokens=2000
             )
             
@@ -488,7 +488,7 @@ class GraphBuilderAgent:
                     {"role": "system", "content": "You are a relationship extraction system. Respond only with valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.1,
+                temperature=0.0,  # Deterministic extraction
                 max_tokens=2000
             )
             

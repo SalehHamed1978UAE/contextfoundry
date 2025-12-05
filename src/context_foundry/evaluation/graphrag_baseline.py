@@ -223,7 +223,7 @@ Answer the question based on the context provided. If the context doesn't contai
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,
+                temperature=0.0,  # Deterministic for baseline comparison
                 max_tokens=500,
             )
             return response.choices[0].message.content

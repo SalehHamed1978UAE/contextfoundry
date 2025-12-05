@@ -88,7 +88,7 @@ class ExtractionPipeline:
     def __init__(
         self,
         model: str = "gpt-4o-mini",
-        temperature: float = 0.1,
+        temperature: float = 0.0,  # Deterministic for consistent extraction
         on_document_processed: Optional[Callable[[ExtractionResult], None]] = None,
         on_progress: Optional[Callable[[int, int], None]] = None,
     ):
@@ -97,7 +97,7 @@ class ExtractionPipeline:
         
         Args:
             model: OpenAI model to use for extraction
-            temperature: Temperature for generation
+            temperature: Temperature for generation (0.0 = deterministic)
             on_document_processed: Callback after each document
             on_progress: Callback with (current, total) for progress
         """

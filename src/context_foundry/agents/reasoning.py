@@ -159,7 +159,7 @@ class ReasoningAgent:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
+                temperature=0.0,  # Deterministic for consistency
                 max_completion_tokens=500,
                 response_format={"type": "json_object"}
             )
@@ -321,7 +321,7 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
                     {"role": "system", "content": reasoning_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.3,
+                temperature=0.0,  # Deterministic for consistent answers
                 max_completion_tokens=2000,
                 response_format={"type": "json_object"}
             )
