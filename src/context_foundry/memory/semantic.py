@@ -318,6 +318,103 @@ class SemanticMemory:
             "impacted": impacted
         }
     
+    def get_exhaustive_blast_radius(
+        self,
+        entity_name: str,
+        max_depth: int = 10,
+        as_of_date: Optional[datetime] = None
+    ) -> Dict:
+        """
+        EXHAUSTIVE graph traversal for blast radius / impact queries.
+        
+        Uses BFS to find ALL entities that depend on the target entity,
+        either directly or transitively. This is deterministic and complete,
+        unlike LLM-based discovery which may vary.
+        
+        The result is a complete, reproducible set of affected entities
+        that will be the same every time for the same graph state.
+        
+        Args:
+            entity_name: Name of the entity that might fail
+            max_depth: Maximum traversal depth (default 10 for exhaustive search)
+            as_of_date: Optional datetime for temporal queries
+        
+        Returns:
+            Dict with:
+                - entity: The source entity
+                - affected: List of all affected entities with paths
+                - affected_count: Total count
+                - relationships: All traversed relationships
+                - traversal_complete: Whether we hit max_depth
+        """
+        entity = self.find_entity_by_name(entity_name)
+        if not entity:
+            logger.warning(f"Entity not found for blast radius: {entity_name}")
+            return {
+                "entity": entity_name, 
+                "error": "Entity not found", 
+                "affected": [],
+                "affected_count": 0,
+                "relationships": [],
+                "traversal_complete": True
+            }
+        
+        visited: Set[uuid.UUID] = set()
+        affected: List[Dict] = []
+        relationships: List[Dict] = []
+        queue: List[tuple] = [(entity.id, 0, [entity.name])]
+        max_depth_reached = False
+        
+        visited.add(entity.id)
+        
+        while queue:
+            current_id, depth, path = queue.pop(0)
+            
+            if depth >= max_depth:
+                max_depth_reached = True
+                continue
+            
+            rels = self.get_entity_relationships(
+                current_id,
+                relationship_types=["DEPENDS_ON"],
+                direction="incoming",
+                trusted_only=True,
+                as_of_date=as_of_date
+            )
+            
+            for rel_info in rels:
+                connected = rel_info["connected_entity"]
+                connected_id = uuid.UUID(connected["id"])
+                rel_dict = rel_info["relationship"]
+                
+                if rel_dict not in relationships:
+                    relationships.append(rel_dict)
+                
+                if connected_id not in visited:
+                    visited.add(connected_id)
+                    new_path = path + [connected["name"]]
+                    
+                    affected.append({
+                        "entity": connected,
+                        "depth": depth + 1,
+                        "path": new_path,
+                        "dependency_chain": " -> ".join(new_path)
+                    })
+                    
+                    queue.append((connected_id, depth + 1, new_path))
+        
+        affected.sort(key=lambda x: (x["depth"], x["entity"]["name"]))
+        
+        logger.info(f"Exhaustive blast radius for {entity_name}: {len(affected)} entities affected, {len(relationships)} relationships (depth_limited={max_depth_reached})")
+        
+        return {
+            "entity": entity.to_dict(),
+            "affected": affected,
+            "affected_count": len(affected),
+            "relationships": relationships,
+            "traversal_complete": not max_depth_reached
+        }
+    
     def find_escalation_path(
         self,
         start_entity_name: str

@@ -1171,32 +1171,34 @@ class RetrievalAgent:
         entities_to_traverse = list(entities)[:10]
         
         if is_impact_query and target_entity_name:
-            target_entity = self.semantic.find_entity_by_name(target_entity_name)
-            if target_entity:
-                target_dict = target_entity.to_dict()
-                if target_dict["id"] not in seen_entity_ids:
-                    seen_entity_ids.add(target_dict["id"])
-                    entities.insert(0, target_dict)
+            # Use EXHAUSTIVE graph traversal for blast radius queries
+            # This is deterministic and complete - will return same results every time
+            blast_radius = self.semantic.get_exhaustive_blast_radius(
+                target_entity_name,
+                max_depth=10,  # Deep traversal for complete coverage
+                as_of_date=as_of_date
+            )
+            
+            if not blast_radius.get("error"):
+                # Add source entity
+                source_entity = blast_radius["entity"]
+                if source_entity["id"] not in seen_entity_ids:
+                    seen_entity_ids.add(source_entity["id"])
+                    entities.insert(0, source_entity)
                 
-                downstream = self.semantic.traverse_dependencies(
-                    target_entity.id,
-                    relationship_type="DEPENDS_ON",
-                    direction="incoming",
-                    max_depth=traverse_depth,
-                    as_of_date=as_of_date
-                )
-                
-                for item in downstream:
+                # Add ALL affected entities (exhaustive, deterministic)
+                for item in blast_radius["affected"]:
                     connected = item["entity"]
                     if connected["id"] not in seen_entity_ids:
                         seen_entity_ids.add(connected["id"])
                         entities.append(connected)
-                    
-                    rel_dict = item["relationship"]
+                
+                # Add ALL relationships
+                for rel_dict in blast_radius["relationships"]:
                     if rel_dict not in relationships:
                         relationships.append(rel_dict)
                 
-                logger.info(f"Impact query: found {len(downstream)} downstream dependencies for {target_entity_name}")
+                logger.info(f"Exhaustive blast radius: {blast_radius['affected_count']} entities affected (complete={blast_radius['traversal_complete']})")
                 
                 if self._is_edge_facing_entity(target_entity_name):
                     edge_note = {
