@@ -330,18 +330,79 @@
                                         <div style="font-size: 11px; opacity: 0.7;">Type an entity name above</div>
                                     </div>
                                 </div>
-                                <div class="graph-legend" style="display: flex; gap: 12px; padding: 8px 16px; border-top: 1px solid var(--border-color); flex-wrap: wrap; font-size: 10px;">
-                                    <div style="display: flex; align-items: center; gap: 4px;">
-                                        <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></span>
-                                        <span style="color: var(--text-muted);">TRUSTED</span>
+                                <div class="graph-legend" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border-color); font-size: 10px;">
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                        <span style="color: var(--text-muted); font-weight: 500; min-width: 45px;">Types:</span>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #3B82F6; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">SERVICE</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #8B5CF6; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">COMPONENT</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #10B981; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">TEAM</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #F59E0B; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">PERSON</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #06B6D4; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">DATABASE</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #EF4444; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">INCIDENT</span>
+                                        </div>
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 4px;">
-                                        <span style="width: 8px; height: 8px; background: #f59e0b; border-radius: 50%;"></span>
-                                        <span style="color: var(--text-muted);">STAGING</span>
-                                    </div>
-                                    <div style="display: flex; align-items: center; gap: 4px;">
-                                        <span style="width: 8px; height: 8px; background: #6b7280; border-radius: 50%;"></span>
-                                        <span style="color: var(--text-muted);">ARCHIVED</span>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                        <span style="color: var(--text-muted); font-weight: 500; min-width: 45px;">State:</span>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; border: 2px solid #10b981; border-radius: 50%; background: transparent;"></span>
+                                            <span style="color: var(--text-muted);">TRUSTED</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; border: 2px dashed #f59e0b; border-radius: 50%; background: transparent;"></span>
+                                            <span style="color: var(--text-muted);">STAGING</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; border: 2px solid #6b7280; border-radius: 50%; background: transparent; opacity: 0.4;"></span>
+                                            <span style="color: var(--text-muted);">ARCHIVED</span>
+                                        </div>
+                                        <div style="margin-left: auto; display: flex; gap: 6px;">
+                                            <button id="graphSpreadBtn" class="btn" style="padding: 4px 8px; font-size: 10px;" title="Spread nodes apart">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M8 3L4 7l4 4"/>
+                                                    <path d="M16 3l4 4-4 4"/>
+                                                    <path d="M4 7h16"/>
+                                                    <path d="M8 21l-4-4 4-4"/>
+                                                    <path d="M16 21l4-4-4-4"/>
+                                                    <path d="M4 17h16"/>
+                                                </svg>
+                                                Spread
+                                            </button>
+                                            <button id="graphCompactBtn" class="btn" style="padding: 4px 8px; font-size: 10px;" title="Compact nodes together">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M4 3l4 4-4 4"/>
+                                                    <path d="M20 3l-4 4 4 4"/>
+                                                    <path d="M8 7h8"/>
+                                                    <path d="M4 21l4-4-4-4"/>
+                                                    <path d="M20 21l-4-4 4-4"/>
+                                                    <path d="M8 17h8"/>
+                                                </svg>
+                                                Compact
+                                            </button>
+                                            <button id="graphResetBtn" class="btn" style="padding: 4px 8px; font-size: 10px;" title="Reset layout">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                                    <path d="M3 3v5h5"/>
+                                                </svg>
+                                                Reset
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
