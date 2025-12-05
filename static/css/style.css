@@ -1407,3 +1407,28 @@ body {
 .breadcrumb-current {
     color: var(--text-secondary);
 }
+
+/* Graph visualization styles */
+#graphRefreshBtn.spinning svg {
+    animation: spin 0.5s linear;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.graph-filter-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+}
+
+#graphStats .graph-stat {
+    font-weight: 500;
+}
+
+#graphStats .graph-stat.staging { color: #f59e0b; }
+#graphStats .graph-stat.trusted { color: #10b981; }
+#graphStats .graph-stat.archived { color: #6b7280; }
+#graphStats .graph-stat.total { color: var(--text-muted); margin-left: auto; }
