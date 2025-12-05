@@ -387,6 +387,9 @@ def graph_expand(entity_id):
     Includes frontier detection: neighbors with no further edges are marked as frontiers.
     Respects lifecycle_state filter for all entities and relationships.
     Supports as_of_date for temporal filtering.
+    
+    Optional: include_speculative=true to get rule-based and similarity inferences
+    for frontier nodes (Phase 2 speculative layer).
     """
     from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
     from src.context_foundry.config.domain_schema import FrontierReason, FrontierNode, generate_frontier_message
@@ -396,6 +399,7 @@ def graph_expand(entity_id):
     
     lifecycle_filter = request.args.get('lifecycle_state', 'all')
     as_of_date_str = request.args.get('as_of_date', None)
+    include_speculative = request.args.get('include_speculative', 'false').lower() == 'true'
     
     as_of_date = None
     if as_of_date_str:
@@ -594,19 +598,53 @@ def graph_expand(entity_id):
                     'source_sentence': r.source_sentence
                 })
         
+        speculative = {'inferred': [], 'similar': []}
+        if include_speculative and frontier:
+            try:
+                from src.context_foundry.memory.inference import InferenceEngine
+                
+                frontier_nodes = [
+                    FrontierNode(
+                        entity_id=f['entity_id'],
+                        entity_name=f['entity_name'],
+                        entity_type=f['entity_type'],
+                        reason=FrontierReason(f['reason']),
+                        message=f['message'],
+                        depth=f.get('depth', 1)
+                    )
+                    for f in frontier
+                ]
+                
+                visited_ids = {str(e.id) for e in all_entities}
+                
+                inference_engine = InferenceEngine(session)
+                speculative_result = inference_engine.get_speculative_results(
+                    frontier_nodes=frontier_nodes,
+                    visited_entities=visited_ids,
+                    include_similar=True
+                )
+                speculative = speculative_result.to_dict()
+            except Exception as spec_error:
+                import traceback
+                traceback.print_exc()
+                speculative = {'inferred': [], 'similar': [], 'error': str(spec_error)}
+        
         return jsonify({
             'success': True,
             'center_id': entity_id,
             'nodes': nodes,
             'edges': edges,
             'frontier': frontier,
+            'speculative': speculative,
             'as_of_date': as_of_date_str,
             'is_historical': as_of_date is not None,
             'stats': {
                 'total_nodes': len(nodes),
                 'total_edges': len(edges),
                 'neighbors': len(neighbors),
-                'frontier_nodes': len(frontier)
+                'frontier_nodes': len(frontier),
+                'speculative_inferred': len(speculative.get('inferred', [])),
+                'speculative_similar': len(speculative.get('similar', []))
             }
         })
     except Exception as e:
