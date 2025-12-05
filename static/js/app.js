@@ -1703,6 +1703,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (data.frontier && Array.isArray(data.frontier)) {
+                    console.log('Frontier nodes received:', data.frontier.length, data.frontier);
                     data.frontier.forEach(f => {
                         currentFrontierNodes[f.entity_name] = {
                             reason: f.reason,
@@ -1711,6 +1712,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             depth: f.depth
                         };
                     });
+                    console.log('currentFrontierNodes updated:', Object.keys(currentFrontierNodes));
                 }
                 
                 if (data.is_historical) {
