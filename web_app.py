@@ -142,6 +142,12 @@ def query():
                 'duration_seconds': result.get('query_log', {}).get('duration_seconds', 0)
             }
         }
+        
+        # Include blast radius entities for deterministic impact query tracking
+        context_bundle = result.get('context_bundle', {})
+        if context_bundle.get('blast_radius_entities'):
+            response['blast_radius_entities'] = context_bundle['blast_radius_entities']
+            response['blast_radius_complete'] = context_bundle.get('blast_radius_complete', True)
         return jsonify(response)
     except Exception as e:
         reset_context_foundry()

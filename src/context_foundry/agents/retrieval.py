@@ -338,6 +338,11 @@ class RetrievalAgent:
         bundle.semantic_entities = semantic_results["entities"]
         bundle.semantic_relationships = semantic_results["relationships"]
         
+        # Set blast radius entities for deterministic impact queries
+        if "blast_radius_entities" in semantic_results:
+            bundle.blast_radius_entities = semantic_results["blast_radius_entities"]
+            bundle.blast_radius_complete = semantic_results.get("blast_radius_complete", True)
+        
         if property_entities:
             seen_ids = {e.get("id") for e in bundle.semantic_entities}
             for entity in property_entities:
@@ -1252,10 +1257,27 @@ class RetrievalAgent:
         
         logger.debug(f"Semantic query: {len(entities)} entities, {len(relationships)} relationships")
         
-        return {
+        result = {
             "entities": entities,
             "relationships": relationships
         }
+        
+        # Include blast radius entities for determinism tracking (populated during impact queries)
+        if is_impact_query and target_entity_name:
+            blast_radius = self.semantic.get_exhaustive_blast_radius(
+                target_entity_name,
+                max_depth=10,
+                as_of_date=as_of_date
+            )
+            if not blast_radius.get("error"):
+                # Extract sorted list of affected entity names for deterministic comparison
+                result["blast_radius_entities"] = sorted([
+                    item["entity"]["name"] for item in blast_radius["affected"]
+                ])
+                result["blast_radius_complete"] = blast_radius["traversal_complete"]
+                logger.info(f"Blast radius entities (deterministic): {result['blast_radius_entities']}")
+        
+        return result
     
     def _query_episodic_memory(
         self,
