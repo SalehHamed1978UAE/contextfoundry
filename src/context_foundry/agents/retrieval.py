@@ -1176,11 +1176,13 @@ class RetrievalAgent:
         entities_to_traverse = list(entities)[:10]
         
         if is_impact_query and target_entity_name:
-            # Use EXHAUSTIVE graph traversal for blast radius queries
-            # This is deterministic and complete - will return same results every time
-            blast_radius = self.semantic.get_exhaustive_blast_radius(
+            # Use SCHEMA-DRIVEN graph traversal for blast radius queries
+            # Traversal rules are read from the schema YAML, not hardcoded
+            # This handles multiple relationship types (DEPENDS_ON, ROUTES_TO, etc.)
+            blast_radius = self.semantic.get_schema_driven_blast_radius(
                 target_entity_name,
-                max_depth=10,  # Deep traversal for complete coverage
+                mode="impact",  # Uses schema-defined traversal rules for impact mode
+                max_depth=10,
                 as_of_date=as_of_date
             )
             
@@ -1191,19 +1193,19 @@ class RetrievalAgent:
                     seen_entity_ids.add(source_entity["id"])
                     entities.insert(0, source_entity)
                 
-                # Add ALL affected entities (exhaustive, deterministic)
+                # Add ALL affected entities (schema-driven, deterministic)
                 for item in blast_radius["affected"]:
                     connected = item["entity"]
                     if connected["id"] not in seen_entity_ids:
                         seen_entity_ids.add(connected["id"])
                         entities.append(connected)
                 
-                # Add ALL relationships
-                for rel_dict in blast_radius["relationships"]:
+                # Add ALL traversed relationships (schema-driven, includes ROUTES_TO, DEPENDS_ON, etc.)
+                for rel_dict in blast_radius.get("relationships", []):
                     if rel_dict not in relationships:
                         relationships.append(rel_dict)
                 
-                logger.info(f"Exhaustive blast radius: {blast_radius['affected_count']} entities affected (complete={blast_radius['traversal_complete']})")
+                logger.info(f"Schema-driven blast radius ({blast_radius['mode']}): {blast_radius['affected_count']} entities, {len(blast_radius.get('relationships', []))} relationships")
                 
                 if self._is_edge_facing_entity(target_entity_name):
                     edge_note = {
@@ -1224,13 +1226,11 @@ class RetrievalAgent:
             entity_id = uuid.UUID(entity_id_str)
             
             if is_impact_query:
-                rels = self.semantic.get_entity_relationships(
-                    entity_id,
-                    relationship_types=["DEPENDS_ON"],
-                    direction="incoming",
-                    trusted_only=True,
-                    as_of_date=as_of_date
-                )
+                # For impact queries, relationships are already collected via schema-driven traversal
+                # which includes all relationship types marked with include=true for mode=impact
+                # (DEPENDS_ON incoming, ROUTES_TO outgoing, etc.)
+                # Skip hardcoded relationship collection here
+                continue
             else:
                 rels = self.semantic.get_entity_relationships(
                     entity_id,
@@ -1264,18 +1264,18 @@ class RetrievalAgent:
         
         # Include blast radius entities for determinism tracking (populated during impact queries)
         if is_impact_query and target_entity_name:
-            blast_radius = self.semantic.get_exhaustive_blast_radius(
+            blast_radius = self.semantic.get_schema_driven_blast_radius(
                 target_entity_name,
+                mode="impact",
                 max_depth=10,
                 as_of_date=as_of_date
             )
             if not blast_radius.get("error"):
-                # Extract sorted list of affected entity names for deterministic comparison
-                result["blast_radius_entities"] = sorted([
-                    item["entity"]["name"] for item in blast_radius["affected"]
-                ])
+                # Use pre-sorted list from schema-driven traversal
+                result["blast_radius_entities"] = blast_radius.get("affected_entity_names", [])
                 result["blast_radius_complete"] = blast_radius["traversal_complete"]
-                logger.info(f"Blast radius entities (deterministic): {result['blast_radius_entities']}")
+                result["blast_radius_mode"] = blast_radius.get("mode", "impact")
+                logger.info(f"Blast radius entities (schema-driven, {blast_radius['mode']}): {result['blast_radius_entities']}")
         
         return result
     
