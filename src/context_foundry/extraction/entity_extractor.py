@@ -245,7 +245,7 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                     max_tokens=2000,
                 )
                 
-                response_text = response.choices[0].message.content
+                response_text = response.choices[0].message.content or ""
                 raw_entities = self._parse_llm_response(response_text)
                 
                 entities = []
@@ -277,6 +277,8 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                 if attempt == self.max_retries - 1:
                     print(f"Entity extraction failed after {self.max_retries} attempts: {e}")
                     return []
+        
+        return []
     
     def extract_from_chunks(
         self,
