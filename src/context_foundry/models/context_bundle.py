@@ -130,6 +130,12 @@ class ContextBundle:
     blast_radius_entities: List[str] = field(default_factory=list)  # Sorted list of affected entity names
     blast_radius_complete: bool = True  # Whether traversal reached max_depth limit
     
+    # Frontier detection - where knowledge ends in the graph
+    # Frontier nodes are entities where traversal stopped (no more edges for the mode)
+    frontier: List[Dict] = field(default_factory=list)  # List of frontier node dicts
+    gaps_identified: List[str] = field(default_factory=list)  # Documentation gaps found
+    traversal_result: Optional[Dict] = None  # Full structured traversal result
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
@@ -298,6 +304,14 @@ class ContextBundle:
         if self.blast_radius_entities:
             result["blast_radius_entities"] = self.blast_radius_entities
             result["blast_radius_complete"] = self.blast_radius_complete
+        
+        # Add frontier detection results
+        if self.frontier:
+            result["frontier"] = self.frontier
+        if self.gaps_identified:
+            result["gaps_identified"] = self.gaps_identified
+        if self.traversal_result:
+            result["traversal_result"] = self.traversal_result
         
         return result
     

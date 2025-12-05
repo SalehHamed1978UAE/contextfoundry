@@ -13,7 +13,15 @@ import uuid
 from ..models.schema import (
     Entity, Relationship, LifecycleState, get_session
 )
-from ..config.domain_schema import get_schema_loader
+from ..config.domain_schema import (
+    get_schema_loader,
+    FrontierReason,
+    FrontierNode,
+    ConfirmedEntity,
+    TraversalResult,
+    generate_frontier_message,
+    generate_gap_description
+)
 from ..utils.logger import logger
 
 
@@ -540,12 +548,15 @@ class SemanticMemory:
         entity_name: str,
         mode: str = "impact",
         max_depth: int = 10,
+        confidence_threshold: float = 0.0,
         as_of_date: Optional[datetime] = None
-    ) -> Dict:
+    ) -> TraversalResult:
         """
-        Schema-driven blast radius using generic traversal.
+        Schema-driven blast radius using generic traversal with frontier detection.
         
-        Uses traverse_from_entity with the specified mode to find all affected entities.
+        Uses traverse_with_frontier_detection to find all affected entities,
+        identify frontier nodes where knowledge ends, and surface documentation gaps.
+        
         The mode determines which relationships are followed and in which direction,
         as defined in the schema YAML.
         
@@ -553,10 +564,55 @@ class SemanticMemory:
             entity_name: Name of the entity that might fail
             mode: Traversal mode (default: "impact")
             max_depth: Maximum traversal depth
+            confidence_threshold: Minimum confidence for relationships
             as_of_date: Optional datetime for temporal queries
         
         Returns:
-            Dict with entity, affected list, relationships, and traversal metadata
+            TraversalResult with confirmed entities, frontier nodes, and gaps
+        """
+        entity = self.find_entity_by_name(entity_name)
+        if not entity:
+            logger.warning(f"Entity not found for schema-driven blast radius: {entity_name}")
+            return TraversalResult(
+                start_entity_id="",
+                start_entity_name=entity_name,
+                start_entity_type="Unknown",
+                mode=mode,
+                max_depth=max_depth,
+                confidence_threshold=confidence_threshold,
+                traversal_complete=False,
+                gaps_identified=[f"Entity '{entity_name}' not found in knowledge graph"],
+                timestamp=datetime.utcnow().isoformat()
+            )
+        
+        result = self.traverse_with_frontier_detection(
+            entity.id,
+            mode=mode,
+            max_depth=max_depth,
+            confidence_threshold=confidence_threshold,
+            as_of_date=as_of_date
+        )
+        
+        logger.info(
+            f"Schema-driven blast radius for {entity_name} (mode={mode}): "
+            f"{len(result.confirmed_entities)} confirmed, "
+            f"{len(result.frontier_nodes)} frontier nodes"
+        )
+        
+        return result
+    
+    def get_schema_driven_blast_radius_legacy(
+        self,
+        entity_name: str,
+        mode: str = "impact",
+        max_depth: int = 10,
+        as_of_date: Optional[datetime] = None
+    ) -> Dict:
+        """
+        Legacy blast radius method for backward compatibility.
+        
+        Returns the old Dict format instead of TraversalResult.
+        Use get_schema_driven_blast_radius for new code.
         """
         entity = self.find_entity_by_name(entity_name)
         if not entity:
@@ -589,7 +645,7 @@ class SemanticMemory:
         
         affected.sort(key=lambda x: x["entity"]["name"])
         
-        logger.info(f"Schema-driven blast radius for {entity_name} (mode={mode}): {len(affected)} entities, {len(traversed_relationships)} relationships")
+        logger.info(f"Legacy blast radius for {entity_name} (mode={mode}): {len(affected)} entities")
         
         return {
             "entity": entity.to_dict(),
@@ -683,6 +739,242 @@ class SemanticMemory:
         
         logger.debug(f"Schema-driven traversal from {entity_id} in mode '{mode}': found {len(reachable)} entities, {len(traversed_relationships)} relationships")
         return reachable, traversed_relationships
+    
+    def traverse_with_frontier_detection(
+        self,
+        entity_id: uuid.UUID,
+        mode: str,
+        max_depth: int = 10,
+        confidence_threshold: float = 0.0,
+        as_of_date: Optional[datetime] = None
+    ) -> TraversalResult:
+        """
+        Schema-driven graph traversal with frontier detection.
+        
+        This is the primary traversal method that returns a complete TraversalResult
+        including confirmed entities, frontier nodes (where knowledge ends), and gaps.
+        
+        For each node visited, it determines:
+        - NO_RELATIONSHIPS: Node has no relationships at all
+        - NO_EDGES_FOR_MODE: Node has relationships, but none match the mode's direction/type rules
+        - BELOW_CONFIDENCE_THRESHOLD: All edges are below the confidence threshold
+        - MAX_DEPTH_REACHED: Hit the depth limit
+        
+        Args:
+            entity_id: The starting node ID
+            mode: The traversal context (defined in schema per relationship type)
+            max_depth: Maximum traversal depth
+            confidence_threshold: Minimum confidence for relationships (default 0.0)
+            as_of_date: Optional datetime for temporal queries
+        
+        Returns:
+            TraversalResult with confirmed entities, frontier nodes, and gaps
+        """
+        schema = get_schema_loader().schema
+        
+        start_entity = self.session.query(Entity).get(entity_id)
+        if not start_entity:
+            logger.warning(f"Start entity not found: {entity_id}")
+            return TraversalResult(
+                start_entity_id=str(entity_id),
+                start_entity_name="Unknown",
+                start_entity_type="Unknown",
+                mode=mode,
+                max_depth=max_depth,
+                confidence_threshold=confidence_threshold,
+                traversal_complete=False,
+                timestamp=datetime.utcnow().isoformat()
+            )
+        
+        confirmed_entities: List[ConfirmedEntity] = []
+        frontier_nodes: List[FrontierNode] = []
+        gaps_identified: List[str] = []
+        traversed_relationships: List[Dict] = []
+        
+        visited: Set[uuid.UUID] = set()
+        seen_rel_ids: Set[str] = set()
+        entity_depths: Dict[uuid.UUID, int] = {}
+        entity_paths: Dict[uuid.UUID, List[str]] = {}
+        
+        queue = deque([(entity_id, 0, [])])
+        
+        while queue:
+            current_id, depth, path = queue.popleft()
+            
+            if current_id in visited:
+                continue
+            
+            if depth > max_depth:
+                current_entity = self.session.query(Entity).get(current_id)
+                if current_entity and current_id != entity_id:
+                    message = generate_frontier_message(
+                        FrontierReason.MAX_DEPTH_REACHED,
+                        mode,
+                        current_entity.name,
+                        current_entity.entity_type
+                    )
+                    frontier_nodes.append(FrontierNode(
+                        entity_id=str(current_id),
+                        entity_name=current_entity.name,
+                        entity_type=current_entity.entity_type,
+                        reason=FrontierReason.MAX_DEPTH_REACHED,
+                        message=message,
+                        depth=depth
+                    ))
+                continue
+            
+            visited.add(current_id)
+            entity_depths[current_id] = depth
+            entity_paths[current_id] = path
+            
+            current_entity = self.session.query(Entity).get(current_id)
+            if not current_entity:
+                continue
+            
+            all_relationships = self._get_relationships_for_entity(current_id, as_of_date, trusted_only=True)
+            
+            if len(all_relationships) == 0 and current_id != entity_id:
+                message = generate_frontier_message(
+                    FrontierReason.NO_RELATIONSHIPS,
+                    mode,
+                    current_entity.name,
+                    current_entity.entity_type
+                )
+                frontier_nodes.append(FrontierNode(
+                    entity_id=str(current_id),
+                    entity_name=current_entity.name,
+                    entity_type=current_entity.entity_type,
+                    reason=FrontierReason.NO_RELATIONSHIPS,
+                    message=message,
+                    depth=depth
+                ))
+                gap = generate_gap_description(
+                    FrontierReason.NO_RELATIONSHIPS,
+                    mode,
+                    current_entity.name,
+                    current_entity.entity_type
+                )
+                if gap:
+                    gaps_identified.append(gap)
+                continue
+            
+            valid_edges_for_mode = []
+            edges_below_threshold = []
+            
+            for rel in all_relationships:
+                rel_type_def = schema.get_relationship_type(rel.relationship_type)
+                
+                if not rel_type_def or not rel_type_def.semantics:
+                    continue
+                
+                rule = rel_type_def.semantics.modes.get(mode)
+                
+                if not rule or not rule.include:
+                    continue
+                
+                neighbor_id = None
+                
+                if rel.source_id == current_id and rule.from_source:
+                    neighbor_id = rel.target_id
+                elif rel.target_id == current_id and rule.from_target:
+                    neighbor_id = rel.source_id
+                
+                if neighbor_id is None:
+                    continue
+                
+                if rel.confidence < confidence_threshold:
+                    edges_below_threshold.append((rel, neighbor_id))
+                    continue
+                
+                neighbor_entity = self.session.query(Entity).get(neighbor_id)
+                if not neighbor_entity:
+                    continue
+                if neighbor_entity.lifecycle_state != LifecycleState.TRUSTED:
+                    continue
+                if as_of_date:
+                    if neighbor_entity.valid_from and neighbor_entity.valid_from > as_of_date:
+                        continue
+                    if neighbor_entity.valid_to and neighbor_entity.valid_to <= as_of_date:
+                        continue
+                elif neighbor_entity.valid_to is not None:
+                    continue
+                
+                valid_edges_for_mode.append((rel, neighbor_id, neighbor_entity))
+            
+            if len(valid_edges_for_mode) == 0 and current_id != entity_id:
+                if len(edges_below_threshold) > 0:
+                    reason = FrontierReason.BELOW_CONFIDENCE_THRESHOLD
+                else:
+                    reason = FrontierReason.NO_EDGES_FOR_MODE
+                
+                message = generate_frontier_message(
+                    reason,
+                    mode,
+                    current_entity.name,
+                    current_entity.entity_type
+                )
+                frontier_nodes.append(FrontierNode(
+                    entity_id=str(current_id),
+                    entity_name=current_entity.name,
+                    entity_type=current_entity.entity_type,
+                    reason=reason,
+                    message=message,
+                    depth=depth
+                ))
+                gap = generate_gap_description(
+                    reason,
+                    mode,
+                    current_entity.name,
+                    current_entity.entity_type
+                )
+                if gap:
+                    gaps_identified.append(gap)
+                continue
+            
+            new_neighbors_found = False
+            for rel, neighbor_id, neighbor_entity in valid_edges_for_mode:
+                rel_id = str(rel.id)
+                if rel_id not in seen_rel_ids:
+                    seen_rel_ids.add(rel_id)
+                    traversed_relationships.append(rel.to_dict())
+                
+                if neighbor_id not in visited:
+                    new_neighbors_found = True
+                    new_path = path + [rel.relationship_type]
+                    queue.append((neighbor_id, depth + 1, new_path))
+                    
+                    if neighbor_id not in entity_depths:
+                        confirmed_entities.append(ConfirmedEntity(
+                            entity_id=str(neighbor_id),
+                            entity_name=neighbor_entity.name,
+                            entity_type=neighbor_entity.entity_type,
+                            confidence=neighbor_entity.confidence,
+                            depth=depth + 1,
+                            path=new_path
+                        ))
+        
+        confirmed_entities.sort(key=lambda x: (x.depth, x.entity_name))
+        
+        logger.info(
+            f"Traversal from {start_entity.name} (mode={mode}): "
+            f"{len(confirmed_entities)} confirmed, {len(frontier_nodes)} frontier nodes, "
+            f"{len(gaps_identified)} gaps"
+        )
+        
+        return TraversalResult(
+            start_entity_id=str(entity_id),
+            start_entity_name=start_entity.name,
+            start_entity_type=start_entity.entity_type,
+            mode=mode,
+            max_depth=max_depth,
+            confidence_threshold=confidence_threshold,
+            confirmed_entities=confirmed_entities,
+            traversed_relationships=traversed_relationships,
+            frontier_nodes=frontier_nodes,
+            gaps_identified=gaps_identified,
+            traversal_complete=True,
+            timestamp=datetime.utcnow().isoformat()
+        )
     
     def find_escalation_path(
         self,

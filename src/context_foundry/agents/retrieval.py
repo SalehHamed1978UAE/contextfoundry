@@ -21,7 +21,7 @@ from ..memory.semantic import SemanticMemory
 from ..memory.episodic import EpisodicMemory
 from ..memory.symbolic import SymbolicMemory
 from ..utils.logger import logger, QueryLogger
-from ..config.domain_schema import get_schema_loader, DomainSchema
+from ..config.domain_schema import get_schema_loader, DomainSchema, TraversalResult
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -342,6 +342,14 @@ class RetrievalAgent:
         if "blast_radius_entities" in semantic_results:
             bundle.blast_radius_entities = semantic_results["blast_radius_entities"]
             bundle.blast_radius_complete = semantic_results.get("blast_radius_complete", True)
+        
+        # Set frontier detection results
+        if "frontier" in semantic_results:
+            bundle.frontier = semantic_results["frontier"]
+        if "gaps_identified" in semantic_results:
+            bundle.gaps_identified = semantic_results["gaps_identified"]
+        if "traversal_result" in semantic_results:
+            bundle.traversal_result = semantic_results["traversal_result"]
         
         if property_entities:
             seen_ids = {e.get("id") for e in bundle.semantic_entities}
@@ -1175,37 +1183,48 @@ class RetrievalAgent:
         
         entities_to_traverse = list(entities)[:10]
         
+        traversal_result: Optional[TraversalResult] = None
+        
         if is_impact_query and target_entity_name:
             # Use SCHEMA-DRIVEN graph traversal for blast radius queries
             # Traversal rules are read from the schema YAML, not hardcoded
             # This handles multiple relationship types (DEPENDS_ON, ROUTES_TO, etc.)
-            blast_radius = self.semantic.get_schema_driven_blast_radius(
+            # Returns TraversalResult with confirmed entities, frontier nodes, and gaps
+            traversal_result = self.semantic.get_schema_driven_blast_radius(
                 target_entity_name,
                 mode="impact",  # Uses schema-defined traversal rules for impact mode
                 max_depth=10,
                 as_of_date=as_of_date
             )
             
-            if not blast_radius.get("error"):
+            if traversal_result.traversal_complete:
                 # Add source entity
-                source_entity = blast_radius["entity"]
-                if source_entity["id"] not in seen_entity_ids:
-                    seen_entity_ids.add(source_entity["id"])
-                    entities.insert(0, source_entity)
+                source_entity = self.semantic.find_entity_by_name(traversal_result.start_entity_name)
+                if source_entity:
+                    source_dict = source_entity.to_dict()
+                    if source_dict["id"] not in seen_entity_ids:
+                        seen_entity_ids.add(source_dict["id"])
+                        entities.insert(0, source_dict)
                 
-                # Add ALL affected entities (schema-driven, deterministic)
-                for item in blast_radius["affected"]:
-                    connected = item["entity"]
-                    if connected["id"] not in seen_entity_ids:
-                        seen_entity_ids.add(connected["id"])
-                        entities.append(connected)
+                # Add ALL confirmed entities (schema-driven, deterministic)
+                for confirmed in traversal_result.confirmed_entities:
+                    if confirmed.entity_id not in seen_entity_ids:
+                        seen_entity_ids.add(confirmed.entity_id)
+                        entity = self.semantic.session.query(Entity).get(uuid.UUID(confirmed.entity_id))
+                        if entity:
+                            entities.append(entity.to_dict())
                 
                 # Add ALL traversed relationships (schema-driven, includes ROUTES_TO, DEPENDS_ON, etc.)
-                for rel_dict in blast_radius.get("relationships", []):
+                for rel_dict in traversal_result.traversed_relationships:
                     if rel_dict not in relationships:
                         relationships.append(rel_dict)
                 
-                logger.info(f"Schema-driven blast radius ({blast_radius['mode']}): {blast_radius['affected_count']} entities, {len(blast_radius.get('relationships', []))} relationships")
+                logger.info(
+                    f"Schema-driven traversal ({traversal_result.mode}): "
+                    f"{len(traversal_result.confirmed_entities)} confirmed, "
+                    f"{len(traversal_result.frontier_nodes)} frontier nodes, "
+                    f"{len(traversal_result.gaps_identified)} gaps"
+                )
                 
                 if self._is_edge_facing_entity(target_entity_name):
                     edge_note = {
@@ -1262,20 +1281,31 @@ class RetrievalAgent:
             "relationships": relationships
         }
         
-        # Include blast radius entities for determinism tracking (populated during impact queries)
-        if is_impact_query and target_entity_name:
-            blast_radius = self.semantic.get_schema_driven_blast_radius(
-                target_entity_name,
-                mode="impact",
-                max_depth=10,
-                as_of_date=as_of_date
-            )
-            if not blast_radius.get("error"):
-                # Use pre-sorted list from schema-driven traversal
-                result["blast_radius_entities"] = blast_radius.get("affected_entity_names", [])
-                result["blast_radius_complete"] = blast_radius["traversal_complete"]
-                result["blast_radius_mode"] = blast_radius.get("mode", "impact")
-                logger.info(f"Blast radius entities (schema-driven, {blast_radius['mode']}): {result['blast_radius_entities']}")
+        # Include traversal result with frontier detection for impact queries
+        if is_impact_query and target_entity_name and traversal_result:
+            if traversal_result.traversal_complete:
+                # Confirmed entities from traversal
+                result["blast_radius_entities"] = sorted([
+                    e.entity_name for e in traversal_result.confirmed_entities
+                ])
+                result["blast_radius_complete"] = True
+                result["blast_radius_mode"] = traversal_result.mode
+                
+                # NEW: Frontier nodes (where knowledge ends)
+                result["frontier"] = [f.to_dict() for f in traversal_result.frontier_nodes]
+                
+                # NEW: Documentation gaps identified
+                result["gaps_identified"] = traversal_result.gaps_identified
+                
+                # NEW: Full traversal result for structured response
+                result["traversal_result"] = traversal_result.to_dict()
+                
+                logger.info(
+                    f"Traversal result ({traversal_result.mode}): "
+                    f"{len(result['blast_radius_entities'])} confirmed, "
+                    f"{len(result['frontier'])} frontier nodes, "
+                    f"{len(result['gaps_identified'])} gaps"
+                )
         
         return result
     
