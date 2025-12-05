@@ -2,9 +2,24 @@ schema_version: "1.0"
 domain: "Fiction & Literature"
 description: "Schema for extracting narrative elements from fiction: characters, locations, objects, creatures, and their relationships."
 
+example_queries:
+  - "Who does Alice meet in Wonderland?"
+  - "What locations does Alice visit?"
+  - "What creatures does Alice encounter?"
+  - "Who is the Queen of Hearts?"
+  - "What happens at the Mad Tea Party?"
+  - "What magical objects appear in the story?"
+
 entity_types:
   - name: CHARACTER
     description: "A person or anthropomorphized being in the story"
+    keywords:
+      - character
+      - person
+      - protagonist
+      - antagonist
+      - hero
+      - villain
     required_fields:
       - canonical_name
     optional_fields:
@@ -15,6 +30,12 @@ entity_types:
 
   - name: CREATURE
     description: "An animal or fantastical creature"
+    keywords:
+      - creature
+      - animal
+      - beast
+      - monster
+      - pet
     required_fields:
       - canonical_name
     optional_fields:
@@ -24,6 +45,15 @@ entity_types:
 
   - name: LOCATION
     description: "A place or setting in the story"
+    keywords:
+      - location
+      - place
+      - setting
+      - world
+      - kingdom
+      - land
+      - room
+      - garden
     required_fields:
       - canonical_name
     optional_fields:
@@ -33,6 +63,13 @@ entity_types:
 
   - name: OBJECT
     description: "A notable item, artifact, or prop"
+    keywords:
+      - object
+      - item
+      - artifact
+      - tool
+      - weapon
+      - potion
     required_fields:
       - canonical_name
     optional_fields:
@@ -42,6 +79,13 @@ entity_types:
 
   - name: EVENT
     description: "A significant happening or action"
+    keywords:
+      - event
+      - party
+      - trial
+      - meeting
+      - adventure
+      - journey
     required_fields:
       - canonical_name
     optional_fields:
