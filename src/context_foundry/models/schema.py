@@ -115,6 +115,11 @@ class Entity(Base):
     archived_at = Column(DateTime)
     last_validated_at = Column(DateTime)
     
+    valid_from = Column(DateTime, default=datetime.utcnow, index=True)
+    valid_to = Column(DateTime, index=True)
+    superseded_by = Column(UUID(as_uuid=True), ForeignKey("entities.id"))
+    change_reason = Column(Text)
+    
     outgoing_relationships = relationship(
         "Relationship",
         foreign_keys="Relationship.source_id",
@@ -136,7 +141,11 @@ class Entity(Base):
             "description": self.description,
             "confidence": self.confidence,
             "source_document_id": self.source_document_id,
-            "source_sentence": self.source_sentence
+            "source_sentence": self.source_sentence,
+            "valid_from": self.valid_from.isoformat() if self.valid_from else None,
+            "valid_to": self.valid_to.isoformat() if self.valid_to else None,
+            "superseded_by": str(self.superseded_by) if self.superseded_by else None,
+            "change_reason": self.change_reason
         }
 
 
@@ -165,6 +174,11 @@ class Relationship(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_validated_at = Column(DateTime)
     
+    valid_from = Column(DateTime, default=datetime.utcnow, index=True)
+    valid_to = Column(DateTime, index=True)
+    superseded_by = Column(UUID(as_uuid=True), ForeignKey("relationships.id"))
+    change_reason = Column(Text)
+    
     source_entity = relationship("Entity", foreign_keys=[source_id], back_populates="outgoing_relationships")
     target_entity = relationship("Entity", foreign_keys=[target_id], back_populates="incoming_relationships")
     
@@ -179,7 +193,11 @@ class Relationship(Base):
             "lifecycle_state": self.lifecycle_state.value if self.lifecycle_state else None,
             "confidence": self.confidence,
             "source_document_id": self.source_document_id,
-            "source_sentence": self.source_sentence
+            "source_sentence": self.source_sentence,
+            "valid_from": self.valid_from.isoformat() if self.valid_from else None,
+            "valid_to": self.valid_to.isoformat() if self.valid_to else None,
+            "superseded_by": str(self.superseded_by) if self.superseded_by else None,
+            "change_reason": self.change_reason
         }
 
 
