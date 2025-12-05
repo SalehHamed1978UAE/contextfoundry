@@ -25,7 +25,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, EntityType,
+    Entity, Relationship, LifecycleState,
     MergeAudit as MergeAuditDB,
     DuplicateCandidate as DuplicateCandidateDB,
 )

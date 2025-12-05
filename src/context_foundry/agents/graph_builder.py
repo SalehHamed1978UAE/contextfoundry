@@ -22,7 +22,7 @@ from openai import OpenAI
 
 from ..models.schema import (
     Entity, Relationship, Document,
-    LifecycleState, EntityType, RelationshipType,
+    LifecycleState,
     get_session
 )
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
