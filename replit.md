@@ -29,134 +29,43 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 
 ### Agent Pipeline
 -   **Retrieval Agent**: Gathers information from all three memory layers to form a `ContextBundle`.
--   **Reasoning Agent**: Generates responses using an LLM (OpenAI gpt-4o-mini).
+-   **Reasoning Agent**: Generates responses using an LLM.
 -   **Validation Agent**: Validates generated responses against symbolic rules.
 -   **Graph Builder Agent**: Ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to a STAGING area with full provenance. Configurable via YAML schema.
--   **Staging Validator Agent**: Validates STAGING data against schema rules (cardinality, types, required fields), detects conflicts, and creates review items.
--   **Identity Resolution Agent**: Detects and manages duplicate entities using weighted similarity signals, handling auto-merges and flagging for human review.
--   **Gardener Agent**: An autonomous agent that runs periodically to maintain graph health through decay, promotion, conflict resolution, demotion, and cleanup passes, ensuring data quality and relevance.
+-   **Staging Validator Agent**: Validates STAGING data against schema rules, detects conflicts, and creates review items.
+-   **Identity Resolution Agent**: Detects and manages duplicate entities using weighted similarity signals.
+-   **Gardener Agent**: An autonomous agent that runs periodically to maintain graph health through decay, promotion, conflict resolution, demotion, and cleanup passes.
 
 ### Domain-Agnostic Schema System
-The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML files, allowing for adaptability across different domains (e.g., IT Operations, Fiction & Literature, Investment Portfolio). Both the ingestion AND query pipelines are fully domain-agnostic:
-- Entity Extractor builds dynamic prompts from active schema entity types and descriptions
-- Relation Extractor builds dynamic prompts with source/target type constraints from schema
-- Retrieval Agent dynamically searches all entity types from the current schema
-- Reasoning Agent adapts its system prompt to include domain name and available types
-- Property query analyzer generates schemas from current domain's property definitions
-- `/api/examples` endpoint loads example queries from the active schema YAML
-- Schema hot-reload via `/api/schema/reload` propagates to all components within the same process
-
-### Available Domain Schemas
-- `config/domain_schema.yaml` - IT Operations (SERVICE, COMPONENT, TEAM, PERSON, DATABASE, INCIDENT)
-- `config/fiction_schema.yaml` - Fiction & Literature (CHARACTER, CREATURE, LOCATION, OBJECT, EVENT)
-- `config/investment_schema.yaml` - Investment Portfolio (COMPANY, SECTOR, FUND, ANALYST, THESIS)
+The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML files, allowing for adaptability across different domains (e.g., IT Operations, Fiction & Literature, Investment Portfolio). Both the ingestion AND query pipelines are fully domain-agnostic, dynamically adapting prompts and searches based on the active schema.
+Available Domain Schemas:
+- `config/domain_schema.yaml` - IT Operations
+- `config/fiction_schema.yaml` - Fiction & Literature
+- `config/investment_schema.yaml` - Investment Portfolio
 
 ### UI/UX Decisions
-The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains for enhanced data visualization.
-
+The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains.
 **Frontier Detection UI:**
-- Frontier nodes in Memory Graph display with dashed amber borders and a "?" badge to indicate knowledge boundaries
-- Hover tooltips on frontier nodes show the human-readable message explaining why traversal stopped
-- Frontier detection works during any graph exploration - when clicking/expanding any node, neighbors with no further edges are identified as frontiers
-- Frontier data accumulates as user explores (not replaced), building a complete picture of knowledge boundaries
-- "Knowledge Frontier" panel appears below query results showing:
-  - Knowledge Boundaries: Collapsible list of frontier nodes with entity name, type, and explanation
-  - Documentation Gaps: Actionable list of missing documentation that could improve future queries
-- Subtle pulse animation on frontier nodes draws attention to incomplete knowledge areas
+- Frontier nodes in Memory Graph display with dashed amber borders and a "?" badge.
+- Hover tooltips explain why traversal stopped.
+- "Knowledge Frontier" panel shows knowledge boundaries and documentation gaps.
 
 ### Technical Implementations & Design Choices
--   **Type Storage**: Entity and relationship types are stored as VARCHAR and validated against the loaded YAML schema.
+-   **Type Storage**: Entity and relationship types are stored as VARCHAR and validated against loaded YAML schema.
 -   **Lifecycle States**: Data transitions from STAGING to TRUSTED.
--   **Validation Status**: Facts in STAGING are marked PENDING, VALID, INVALID, or CONFLICT.
--   **Confidence Scoring & Provenance**: Every piece of data includes a confidence score and full provenance tracing.
--   **Temporal Tracking**: Entities and relationships have `valid_from`, `valid_to`, `superseded_by`, and `change_reason` columns for full temporal history. Supports "as of when?" queries via `as_of_date` parameter and diff analysis between dates.
--   **Query Handling**: Includes query classification, impact analysis via schema-driven traversal, hallucination prevention through entity verification, detection of analysis/trend queries, and handling of ordered sequence requests.
--   **Schema-Driven Multi-Mode Traversal**: Relationship traversal is fully configurable via YAML schema. Each relationship type defines `semantics.modes` with TraversalRules specifying `from_source`, `from_target`, and `include` for each mode (e.g., impact, dependency). Zero hardcoded relationship types in traversal code.
--   **Deterministic Impact Queries**: All LLM calls use temperature=0.0. Impact/blast-radius queries use exhaustive graph traversal (BFS with max_depth=10) driven by schema semantics. The `blast_radius_entities` field provides a sorted, repeatable list of affected entities. Traversal respects TRUSTED-only filtering on both edges and connected entities with temporal validity checks.
--   **Frontier Detection (Multi-Tier Traversal)**: Graph traversal explicitly identifies where knowledge ends. FrontierNode dataclass captures entities where traversal stopped, with classified reasons (NO_RELATIONSHIPS, NO_EDGES_FOR_MODE, BELOW_CONFIDENCE_THRESHOLD, MAX_DEPTH_REACHED, ALL_NEIGHBORS_VISITED). API responses include `confirmed` (entities with complete knowledge), `frontier` (where knowledge ends with human-readable messages), and `gaps_identified` (documentation improvement suggestions). Domain-agnostic design works for any mode (impact, dependency, ownership) and any entity type.
--   **Timeline Slider**: The Memory Graph includes a timeline slider that filters the graph by date. Moving the slider re-expands the current entity with the new `as_of_date` parameter. The `currentExpandedEntityId` tracks which entity is being viewed for proper refresh on date change.
+-   **Confidence Scoring & Provenance**: Every piece of data includes a confidence score and full provenance.
+-   **Temporal Tracking**: Entities and relationships have `valid_from`, `valid_to`, `superseded_by`, and `change_reason` for full temporal history, supporting "as of when?" queries.
+-   **Query Handling**: Includes query classification, impact analysis, hallucination prevention, and detection of analysis/trend queries and ordered sequence requests.
+-   **Schema-Driven Multi-Mode Traversal**: Relationship traversal is fully configurable via YAML schema with `semantics.modes` and `TraversalRules`.
+-   **Deterministic Impact Queries**: LLM calls use `temperature=0.0`. Impact/blast-radius queries use exhaustive graph traversal (BFS with max_depth=10) driven by schema semantics.
+-   **Frontier Detection (Multi-Tier Traversal)**: Graph traversal explicitly identifies where knowledge ends, capturing `FrontierNode` data with classified reasons for stoppage.
+-   **Speculative Inference Layer**: Extends beyond confirmed knowledge using 3 schema-driven inference rules (Transitive Dependency, Co-occurrence, Shared Dependency) and vector similarity search to suggest potential connections.
+-   **Timeline Slider**: Filters the graph by date, re-expanding the current entity with the new `as_of_date`.
 -   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
 -   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
 -   **Data Model**: Utilizes SQLAlchemy for Entity, Relationship, and Document models.
--   **Configurable Schema**: All schema elements are loaded from YAML at runtime.
--   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies (e.g., PERSON entities always require human review). Merges now create temporal history chains.
--   **SQLAlchemy JSON Mutations**: Requires explicit flagging for JSON column modifications to ensure persistence.
-
-## Gardener Agent (Autonomous Graph Health)
-The Gardener Agent runs every 5 minutes to maintain graph health through 5 autonomous passes:
-1. **Decay Pass**: Type-specific confidence decay (OWNS: 0.02/wk, DEPENDS_ON: 0.01/wk)
-2. **Promotion Pass**: Moves VALID facts from STAGING→TRUSTED (confidence≥0.75, dwell≥1hr)
-3. **Conflict Resolution**: Strategy per type (higher_confidence_wins, newer_wins, rule_determined)
-4. **Demotion Pass**: Archives low-confidence (<0.4) or superseded facts
-5. **Cleanup Pass**: Removes stale STAGING (>30d), old resolved conflicts (>90d)
-
-## Complete API Reference
-
-### Core Query & Stats
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/query` | POST | Query knowledge graph with natural language. Returns response with confidence, provenance, evidence chain. Body: `{"query": "...", "as_of_date": "2024-01-01"}` (as_of_date optional for temporal queries) |
-| `/api/stats` | GET | System statistics: entity counts, relationship counts, lifecycle distribution |
-| `/api/examples` | GET | Example queries for the UI |
-| `/api/graph/visualization` | GET | Live graph data for visualization. Query params: `lifecycle_state` (STAGING/TRUSTED/ARCHIVED/all), `entity_type`, `limit`. Returns nodes and edges with lifecycle states and confidence scores. |
-| `/api/graph/search` | GET | Search entities by name. Query params: `q` (search term), `lifecycle_state`, `limit`. Returns matching entities for search-first exploration. |
-| `/api/graph/expand/<entity_id>` | GET | Get entity with 1-hop neighbors (progressive disclosure). Query params: `lifecycle_state`. Returns center node, neighbors, and edges respecting lifecycle filter. |
-| `/api/graph/entity/<entity_id>` | GET | Full entity details for side panel. Returns entity info, properties, incoming/outgoing relationships with names. |
-
-### Temporal Tracking & History
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/entities/<id>/history` | GET | Get temporal history for an entity - all versions over time with superseded_by chains and change_reasons |
-| `/api/knowledge/diff` | GET | Get differences in knowledge graph between two dates. Query params: `from_date`, `to_date` (required), `entity_type` (optional). Returns added/removed/modified entities and relationships |
-| `/api/knowledge/date-range` | GET | Get date range bounds for timeline slider. Returns `earliest` (first valid_from), `today`, `total_snapshots` count |
-
-### Document Ingestion & Schema
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/ingest` | POST | Ingest document. Extracts entities/relationships to STAGING, auto-runs validation and identity resolution. Body: `{"text": "...", "title": "..."}` |
-| `/api/schema` | GET | Current domain schema (entity types, relationship types, cardinality rules) |
-| `/api/schema/reload` | POST | Reload schema from config file |
-| `/api/validate` | POST | Validate all STAGING data against schema rules |
-| `/api/review-queue` | GET | Pending review items (conflicts, duplicates) |
-
-### Gardener (Graph Health)
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/gardener/status` | GET | Scheduler status: running, cycle count, cumulative stats |
-| `/api/gardener/run` | POST | Trigger immediate Gardener cycle |
-| `/api/gardener/history` | GET | Recent Gardener cycle history |
-
-### Identity Resolution & Duplicates
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/resolve-duplicates` | POST | Run identity resolution to detect/merge duplicates |
-| `/api/duplicates` | GET | Pending duplicate candidates for human review |
-| `/api/duplicates/<id>/review` | POST | Resolve duplicate. Body: `{"decision": "merge|reject|skip"}` |
-| `/api/merge-audits` | GET | Merge audit trail |
-
-### Conflicts
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/conflicts` | GET | Unresolved conflicts from validation |
-| `/api/conflicts/<id>/resolve` | POST | Resolve conflict. Body: `{"resolution": "keep_existing|keep_new"}` |
-
-### Evaluation & A/B Testing
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/evaluation/query-set` | GET | Evaluation query set for A/B testing |
-| `/api/evaluation/run` | POST | Run automated evaluation against baseline |
-| `/api/evaluation/compare` | POST | Compare Context Foundry vs GraphRAG |
-| `/api/evaluation/graphrag` | POST | Query GraphRAG baseline directly |
-| `/api/evaluation/preference` | POST | Submit human preference vote |
-| `/api/evaluation/metrics` | GET | Evaluation metrics and results |
-| `/api/evaluation/reveal` | POST | Reveal which response is CF vs baseline |
-
-### Feedback (Learning Loop)
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/feedback` | POST | Submit feedback for query response |
-| `/api/feedback/stats` | GET | Feedback statistics |
-| `/api/feedback/recent` | GET | Recent feedback entries |
+-   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies (e.g., PERSON entities always require human review).
+-   **SQLAlchemy JSON Mutations**: Requires explicit flagging for JSON column modifications.
 
 ## External Dependencies
 -   **Database**: PostgreSQL (specifically Neon for Replit deployment).
