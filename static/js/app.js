@@ -133,6 +133,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    function getRelationshipTypeColor(relType) {
+        const type = (relType || '').toUpperCase();
+        switch(type) {
+            case 'DEPENDS_ON': return '#3B82F6';
+            case 'OWNS': return '#10B981';
+            case 'AFFECTS': return '#F97316';
+            case 'SUPPORTS': return '#8B5CF6';
+            case 'MEMBER_OF': return '#EAB308';
+            case 'CAUSED_BY': return '#EF4444';
+            case 'MANAGES': return '#06B6D4';
+            case 'USES': return '#EC4899';
+            case 'RESOLVED_BY': return '#22C55E';
+            case 'ASSIGNED_TO': return '#F59E0B';
+            default: return '#94A3B8';
+        }
+    }
+    
     function getNodeIcon(type) {
         const normalizedType = (type || '').toUpperCase();
         switch(normalizedType) {
@@ -387,40 +404,97 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
+        let existingDefs = linksContainer.querySelector('defs');
+        if (!existingDefs) {
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            linksContainer.insertBefore(defs, linksContainer.firstChild);
+            existingDefs = defs;
+        }
+        existingDefs.innerHTML = '';
+        
+        const markerColors = new Set();
+        edges.forEach(edge => {
+            const color = getRelationshipTypeColor(edge.type);
+            markerColors.add(color);
+        });
+        
+        markerColors.forEach(color => {
+            const markerId = `arrow-${color.replace('#', '')}`;
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', markerId);
+            marker.setAttribute('viewBox', '0 0 10 10');
+            marker.setAttribute('refX', '9');
+            marker.setAttribute('refY', '5');
+            marker.setAttribute('markerWidth', '6');
+            marker.setAttribute('markerHeight', '6');
+            marker.setAttribute('orient', 'auto-start-reverse');
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+            path.setAttribute('fill', color);
+            marker.appendChild(path);
+            existingDefs.appendChild(marker);
+        });
+        
         edges.forEach((edge, i) => {
             const source = nodePositions[edge.source];
             const target = nodePositions[edge.target];
             if (!source || !target) return;
             
-            const edgeColor = getLifecycleColor(edge.lifecycle_state);
+            const relColor = getRelationshipTypeColor(edge.type);
             const confidence = edge.confidence || 0.5;
-            const strokeWidth = 1 + confidence * 2;
+            const baseWidth = 1.5;
+            const maxWidth = 4;
+            const strokeWidth = baseWidth + (confidence * (maxWidth - baseWidth));
+            const strokeOpacity = 0.5 + (confidence * 0.4);
+            const markerId = `arrow-${relColor.replace('#', '')}`;
+            
+            const dx = target.x - source.x;
+            const dy = target.y - source.y;
+            const len = Math.sqrt(dx * dx + dy * dy);
+            const nodeRadius = 25;
+            const arrowOffset = 8;
+            
+            const startX = source.x + (dx / len) * nodeRadius;
+            const startY = source.y + (dy / len) * nodeRadius;
+            const endX = target.x - (dx / len) * (nodeRadius + arrowOffset);
+            const endY = target.y - (dy / len) * (nodeRadius + arrowOffset);
             
             const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             g.style.opacity = '0';
             g.style.transition = `opacity 0.4s ease ${i * 0.05}s`;
             
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', source.x);
-            line.setAttribute('y1', source.y);
-            line.setAttribute('x2', target.x);
-            line.setAttribute('y2', target.y);
-            line.setAttribute('stroke', edgeColor + '60');
+            line.setAttribute('x1', startX);
+            line.setAttribute('y1', startY);
+            line.setAttribute('x2', endX);
+            line.setAttribute('y2', endY);
+            line.setAttribute('stroke', relColor);
+            line.setAttribute('stroke-opacity', strokeOpacity);
             line.setAttribute('stroke-width', strokeWidth);
+            line.setAttribute('marker-end', `url(#${markerId})`);
+            
+            if (confidence < 0.5) {
+                line.setAttribute('stroke-dasharray', '4,2');
+            }
+            
             g.appendChild(line);
             
-            const midX = (source.x + target.x) / 2;
-            const midY = (source.y + target.y) / 2;
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2;
             
             const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
             const labelText = edge.type || '';
-            const labelWidth = labelText.length * 6 + 8;
+            const labelWidth = labelText.length * 5.5 + 10;
             labelBg.setAttribute('x', midX - labelWidth / 2);
-            labelBg.setAttribute('y', midY - 10);
+            labelBg.setAttribute('y', midY - 9);
             labelBg.setAttribute('width', labelWidth);
-            labelBg.setAttribute('height', 14);
-            labelBg.setAttribute('fill', 'rgba(15, 23, 42, 0.9)');
-            labelBg.setAttribute('rx', '3');
+            labelBg.setAttribute('height', 16);
+            labelBg.setAttribute('fill', 'rgba(15, 23, 42, 0.95)');
+            labelBg.setAttribute('stroke', relColor);
+            labelBg.setAttribute('stroke-width', '1');
+            labelBg.setAttribute('stroke-opacity', '0.5');
+            labelBg.setAttribute('rx', '4');
             g.appendChild(labelBg);
             
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -428,8 +502,9 @@ document.addEventListener('DOMContentLoaded', function() {
             text.setAttribute('y', midY);
             text.setAttribute('text-anchor', 'middle');
             text.setAttribute('dominant-baseline', 'middle');
-            text.setAttribute('fill', edgeColor);
+            text.setAttribute('fill', relColor);
             text.setAttribute('font-size', '9');
+            text.setAttribute('font-weight', '500');
             text.setAttribute('font-family', 'JetBrains Mono, monospace');
             text.textContent = labelText;
             g.appendChild(text);
