@@ -298,6 +298,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const graphContainer = document.getElementById('graphNodesHtml');
         const linksContainer = document.getElementById('graphLinks');
         const emptyState = document.getElementById('graphEmptyState');
+        const canvasContainer = document.getElementById('graphCanvasContainer');
         
         if (!graphContainer) return;
         
@@ -316,9 +317,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (emptyState) emptyState.style.display = 'none';
         updateVisibleCount(nodes.length);
         
-        const container = graphContainer.parentElement;
-        const containerWidth = container?.offsetWidth || 700;
-        const containerHeight = container?.offsetHeight || 400;
+        const container = canvasContainer || graphContainer.parentElement;
+        const rect = container?.getBoundingClientRect();
+        const containerWidth = Math.max(rect?.width || 300, 200);
+        const containerHeight = Math.max(rect?.height || 250, 200);
+        const padding = 50;
         const centerX = containerWidth / 2;
         const centerY = containerHeight / 2;
         
@@ -330,14 +333,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const neighbors = nodes.filter(n => n.id !== centerNode.id);
             const angleStep = (2 * Math.PI) / Math.max(neighbors.length, 1);
-            const radius = Math.min(containerWidth, containerHeight) * 0.35;
+            const maxRadius = Math.min(containerWidth - padding * 2, containerHeight - padding * 2) / 2;
+            const radius = Math.max(60, Math.min(maxRadius, 120));
             
             neighbors.forEach((node, i) => {
                 const angle = i * angleStep - Math.PI / 2;
-                nodePositions[node.id] = {
-                    x: centerX + radius * Math.cos(angle),
-                    y: centerY + radius * Math.sin(angle)
-                };
+                let x = centerX + radius * Math.cos(angle);
+                let y = centerY + radius * Math.sin(angle);
+                x = Math.max(padding, Math.min(containerWidth - padding, x));
+                y = Math.max(padding, Math.min(containerHeight - padding, y));
+                nodePositions[node.id] = { x, y };
             });
         }
         
@@ -392,6 +397,8 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => { g.style.opacity = '1'; }, 50);
         });
         
+        const isMobile = containerWidth < 500;
+        
         nodes.forEach((node, i) => {
             const pos = nodePositions[node.id];
             if (!pos) return;
@@ -400,8 +407,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const confidence = node.confidence || 0.5;
             const isCenter = node.is_center;
             const isSelected = node.id === selectedNodeId;
-            const baseSize = isCenter ? 56 : 40;
-            const size = baseSize + (confidence * 12);
+            const baseSize = isMobile ? (isCenter ? 44 : 32) : (isCenter ? 56 : 40);
+            const size = baseSize + (confidence * (isMobile ? 8 : 12));
             
             const nodeEl = document.createElement('div');
             nodeEl.className = 'graph-node';

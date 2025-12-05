@@ -1432,3 +1432,89 @@ body {
 #graphStats .graph-stat.trusted { color: #10b981; }
 #graphStats .graph-stat.archived { color: #6b7280; }
 #graphStats .graph-stat.total { color: var(--text-muted); margin-left: auto; }
+
+/* Graph Explorer Layout */
+.graph-explorer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: calc(100vh - 140px);
+    min-height: 500px;
+}
+
+.graph-main-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 350px;
+}
+
+.graph-details-panel {
+    display: none;
+    height: 280px;
+    max-height: 40vh;
+    overflow: hidden;
+}
+
+.graph-details-panel.visible,
+.graph-details-panel[style*="display: block"] {
+    display: block;
+}
+
+/* Desktop layout: side-by-side */
+@media (min-width: 900px) {
+    .graph-explorer-container {
+        flex-direction: row;
+        height: calc(100vh - 140px);
+    }
+    
+    .graph-main-panel {
+        flex: 1;
+        min-height: unset;
+    }
+    
+    .graph-details-panel {
+        width: 320px;
+        height: 100%;
+        max-height: none;
+        flex-shrink: 0;
+    }
+}
+
+/* Mobile optimizations */
+@media (max-width: 600px) {
+    .graph-explorer-container {
+        height: auto;
+        min-height: calc(100vh - 120px);
+    }
+    
+    .graph-main-panel {
+        min-height: 400px;
+    }
+    
+    .graph-details-panel {
+        height: auto;
+        max-height: 50vh;
+    }
+    
+    .graph-legend {
+        justify-content: center;
+    }
+    
+    #graphStats {
+        justify-content: center;
+    }
+}
+
+/* Node styling adjustments for mobile */
+@media (max-width: 600px) {
+    .graph-node {
+        min-width: 32px !important;
+        min-height: 32px !important;
+    }
+    
+    .graph-tooltip {
+        font-size: 10px !important;
+        padding: 6px 8px !important;
+    }
+}
