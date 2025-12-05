@@ -1205,8 +1205,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Render gaps panel if there are gaps identified
-        renderGapsPanel(data.gaps_identified || [], data.frontier || []);
+        // Render gaps panel if there are gaps identified or speculative results
+        renderGapsPanel(data.gaps_identified || [], data.frontier || [], data.speculative || {});
         
         resetFeedbackUI();
         document.getElementById('feedbackSection').style.display = 'block';
@@ -1214,7 +1214,7 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
-    function renderGapsPanel(gaps, frontier) {
+    function renderGapsPanel(gaps, frontier, speculative) {
         let gapsPanel = document.getElementById('gapsPanel');
         
         // Create panel if it doesn't exist
@@ -1229,8 +1229,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Hide if no gaps or frontier nodes
-        if ((!gaps || gaps.length === 0) && (!frontier || frontier.length === 0)) {
+        // Get speculative counts
+        const inferredCount = speculative?.inferred?.length || 0;
+        const similarCount = speculative?.similar?.length || 0;
+        const hasSpeculative = inferredCount > 0 || similarCount > 0;
+        
+        // Hide if no gaps, frontier nodes, or speculative results
+        if ((!gaps || gaps.length === 0) && (!frontier || frontier.length === 0) && !hasSpeculative) {
             gapsPanel.style.display = 'none';
             return;
         }
@@ -1294,6 +1299,69 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         ` : '';
         
+        const speculativeHtml = hasSpeculative ? `
+            <div class="speculative-section">
+                <div class="speculative-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" stroke-dasharray="5,5"/>
+                        <path d="M12 8l4 4-4 4"/>
+                    </svg>
+                    <span>Speculative Connections (${inferredCount + similarCount})</span>
+                    <span class="speculative-badge">AI Inferred</span>
+                    <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
+                <div class="speculative-items">
+                    ${inferredCount > 0 ? `
+                        <div class="speculative-group">
+                            <div class="speculative-group-title">Rule-Based Inferences (${inferredCount})</div>
+                            ${speculative.inferred.map(inf => `
+                                <div class="speculative-item inferred">
+                                    <div class="speculative-entity">
+                                        <span class="speculative-icon">~</span>
+                                        <span class="speculative-name">${escapeHtml(inf.source_entity_name)} → ${escapeHtml(inf.target_entity_name)}</span>
+                                        <span class="speculative-confidence">${Math.round(inf.confidence * 100)}%</span>
+                                    </div>
+                                    <div class="speculative-relationship">${escapeHtml(inf.inferred_relationship_type)}</div>
+                                    <div class="speculative-rule">Rule: ${escapeHtml(inf.rule_name)}</div>
+                                    ${inf.supporting_evidence?.length > 0 ? `
+                                        <div class="speculative-evidence">
+                                            ${inf.supporting_evidence.map(e => `<span class="evidence-chip">${escapeHtml(e)}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    ${similarCount > 0 ? `
+                        <div class="speculative-group">
+                            <div class="speculative-group-title">Vector Similarity (${similarCount})</div>
+                            ${speculative.similar.map(sim => `
+                                <div class="speculative-item similar">
+                                    <div class="speculative-entity">
+                                        <span class="speculative-icon">≈</span>
+                                        <span class="speculative-name">${escapeHtml(sim.entity_name)}</span>
+                                        <span class="speculative-type">${escapeHtml(sim.entity_type)}</span>
+                                        <span class="speculative-confidence">${Math.round(sim.confidence * 100)}%</span>
+                                    </div>
+                                    <div class="speculative-scores">
+                                        <span>Similarity: ${Math.round(sim.similarity_score * 100)}%</span>
+                                        <span>Co-occurrence: ${Math.round(sim.co_occurrence_score * 100)}%</span>
+                                    </div>
+                                    ${sim.supporting_evidence?.length > 0 ? `
+                                        <div class="speculative-evidence">
+                                            ${sim.supporting_evidence.map(e => `<span class="evidence-chip">${escapeHtml(e)}</span>`).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        ` : '';
+        
         gapsPanel.innerHTML = `
             <div class="gaps-panel-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1304,6 +1372,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span>Knowledge Frontier</span>
             </div>
             ${frontierHtml}
+            ${speculativeHtml}
             ${gapsHtml}
         `;
     }
