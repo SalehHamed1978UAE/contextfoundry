@@ -212,6 +212,18 @@ document.addEventListener('DOMContentLoaded', function() {
                         graphEdges.push(edge);
                     }
                 });
+                
+                if (data.frontier && Array.isArray(data.frontier)) {
+                    data.frontier.forEach(f => {
+                        currentFrontierNodes[f.entity_name] = {
+                            reason: f.reason,
+                            message: f.message,
+                            entity_type: f.entity_type,
+                            depth: f.depth
+                        };
+                    });
+                }
+                
                 renderGraph();
                 return data;
             }
@@ -1673,7 +1685,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(url);
             const data = await response.json();
             if (data.success) {
-                // Track the current entity for timeline refresh
                 currentExpandedEntityId = entityId;
                 
                 if (data.nodes && data.nodes.length === 0 && data.message) {
@@ -1690,6 +1701,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         graphEdges.push(edge);
                     }
                 });
+                
+                if (data.frontier && Array.isArray(data.frontier)) {
+                    data.frontier.forEach(f => {
+                        currentFrontierNodes[f.entity_name] = {
+                            reason: f.reason,
+                            message: f.message,
+                            entity_type: f.entity_type,
+                            depth: f.depth
+                        };
+                    });
+                }
                 
                 if (data.is_historical) {
                     updateTimelineEntityCount(data.stats.total_nodes);
