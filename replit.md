@@ -72,6 +72,9 @@ The Gardener Agent runs every 5 minutes to maintain graph health through 5 auton
 | `/api/stats` | GET | System statistics: entity counts, relationship counts, lifecycle distribution |
 | `/api/examples` | GET | Example queries for the UI |
 | `/api/graph/visualization` | GET | Live graph data for visualization. Query params: `lifecycle_state` (STAGING/TRUSTED/ARCHIVED/all), `entity_type`, `limit`. Returns nodes and edges with lifecycle states and confidence scores. |
+| `/api/graph/search` | GET | Search entities by name. Query params: `q` (search term), `lifecycle_state`, `limit`. Returns matching entities for search-first exploration. |
+| `/api/graph/expand/<entity_id>` | GET | Get entity with 1-hop neighbors (progressive disclosure). Query params: `lifecycle_state`. Returns center node, neighbors, and edges respecting lifecycle filter. |
+| `/api/graph/entity/<entity_id>` | GET | Full entity details for side panel. Returns entity info, properties, incoming/outgoing relationships with names. |
 
 ### Document Ingestion & Schema
 | Endpoint | Method | Purpose |
