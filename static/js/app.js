@@ -685,6 +685,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const isFrontier = !!frontierInfo;
             const frontierColor = '#f59e0b';  // Amber/warning color
             
+            // Debug: log node names and frontier status
+            if (Object.keys(currentFrontierNodes).length > 0) {
+                console.log('Checking node:', node.name, 'isFrontier:', isFrontier, 'frontierKeys:', Object.keys(currentFrontierNodes));
+            }
+            
             // Override border style for frontier nodes
             const borderStyle = isFrontier ? 'dashed' : lifecycleStyle.style;
             const nodeColor = isFrontier ? frontierColor : typeColor;
