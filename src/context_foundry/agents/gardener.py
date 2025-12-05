@@ -629,10 +629,11 @@ class GardenerAgent:
         - confidence < archive_threshold (0.4)
         - superseded by newly promoted facts
         
-        Sets valid_to timestamp on archived facts.
+        Uses temporal columns (valid_to, superseded_by, change_reason) to preserve history.
         """
         start_time = datetime.utcnow()
         result = DemotionResult()
+        now = datetime.utcnow()
         
         try:
             threshold = self.config.archive_confidence_threshold
@@ -641,18 +642,15 @@ class GardenerAgent:
                 and_(
                     Entity.lifecycle_state == LifecycleState.TRUSTED,
                     Entity.confidence < threshold,
+                    Entity.valid_to.is_(None),
                 )
             ).all()
             
             for entity in low_confidence_entities:
                 old_state = entity.lifecycle_state.value
                 entity.lifecycle_state = LifecycleState.ARCHIVED
-                
-                props = entity.properties or {}
-                props["_valid_to"] = datetime.utcnow().isoformat()
-                props["_archived_reason"] = "low_confidence"
-                entity.properties = props
-                flag_modified(entity, "properties")
+                entity.valid_to = now
+                entity.change_reason = f"Low confidence ({entity.confidence:.2f} < {threshold})"
                 
                 result.entities_demoted += 1
                 result.low_confidence_count += 1
@@ -673,18 +671,15 @@ class GardenerAgent:
                 and_(
                     Relationship.lifecycle_state == LifecycleState.TRUSTED,
                     Relationship.confidence < threshold,
+                    Relationship.valid_to.is_(None),
                 )
             ).all()
             
             for rel in low_confidence_rels:
                 old_state = rel.lifecycle_state.value
                 rel.lifecycle_state = LifecycleState.ARCHIVED
-                
-                props = rel.properties or {}
-                props["_valid_to"] = datetime.utcnow().isoformat()
-                props["_archived_reason"] = "low_confidence"
-                rel.properties = props
-                flag_modified(rel, "properties")
+                rel.valid_to = now
+                rel.change_reason = f"Low confidence ({rel.confidence:.2f} < {threshold})"
                 
                 result.relationships_demoted += 1
                 result.low_confidence_count += 1
@@ -701,19 +696,16 @@ class GardenerAgent:
                     reason=f"Confidence {rel.confidence:.2f} below threshold {threshold}",
                 )
             
-            superseded = self._find_superseded_facts()
-            for entity in superseded.get("entities", []):
-                if entity.lifecycle_state == LifecycleState.ARCHIVED:
+            superseded_pairs = self._find_superseded_facts()
+            for old_entity, new_entity_id, source_doc in superseded_pairs.get("entities", []):
+                if old_entity.lifecycle_state == LifecycleState.ARCHIVED:
                     continue
                     
-                old_state = entity.lifecycle_state.value
-                entity.lifecycle_state = LifecycleState.ARCHIVED
-                
-                props = entity.properties or {}
-                props["_valid_to"] = datetime.utcnow().isoformat()
-                props["_archived_reason"] = "superseded"
-                entity.properties = props
-                flag_modified(entity, "properties")
+                old_state = old_entity.lifecycle_state.value
+                old_entity.lifecycle_state = LifecycleState.ARCHIVED
+                old_entity.valid_to = now
+                old_entity.superseded_by = new_entity_id
+                old_entity.change_reason = f"Superseded by information from {source_doc or 'newer document'}"
                 
                 result.entities_demoted += 1
                 result.superseded_count += 1
@@ -721,12 +713,13 @@ class GardenerAgent:
                 self._log_action(
                     cycle_id=cycle_id,
                     action_type=GardenerActionType.DEMOTE,
-                    target_id=entity.id,
+                    target_id=old_entity.id,
                     target_type="entity",
-                    target_name=entity.name,
+                    target_name=old_entity.name,
                     old_state=old_state,
                     new_state=LifecycleState.ARCHIVED.value,
-                    reason="Superseded by newly promoted fact",
+                    reason=f"Superseded by {new_entity_id}",
+                    details={"superseded_by": str(new_entity_id), "source_doc": source_doc},
                 )
                 
         except Exception as e:
@@ -852,7 +845,12 @@ class GardenerAgent:
             return True, ConflictResolution.HIGHER_CONFIDENCE_WINS
     
     def _apply_new_value_wins(self, conflict: ConflictLogDB) -> None:
-        """Apply the new value when it wins the conflict."""
+        """
+        Apply the new value when it wins the conflict.
+        Uses temporal columns to preserve history chain.
+        """
+        now = datetime.utcnow()
+        
         if conflict.entity_id:
             old_entity = self.session.query(Entity).filter(
                 Entity.id == conflict.entity_id,
@@ -860,10 +858,18 @@ class GardenerAgent:
             ).first()
             if old_entity:
                 old_entity.lifecycle_state = LifecycleState.ARCHIVED
-                props = old_entity.properties or {}
-                props["_superseded_by_conflict"] = str(conflict.id)
-                old_entity.properties = props
-                flag_modified(old_entity, "properties")
+                old_entity.valid_to = now
+                old_entity.change_reason = f"Conflict resolution: new value wins (confidence {conflict.new_confidence:.2f} > {conflict.existing_confidence:.2f})"
+        
+        if conflict.relationship_id:
+            old_rel = self.session.query(Relationship).filter(
+                Relationship.id == conflict.relationship_id,
+                Relationship.lifecycle_state == LifecycleState.TRUSTED,
+            ).first()
+            if old_rel:
+                old_rel.lifecycle_state = LifecycleState.ARCHIVED
+                old_rel.valid_to = now
+                old_rel.change_reason = f"Conflict resolution: new value wins (confidence {conflict.new_confidence:.2f} > {conflict.existing_confidence:.2f})"
     
     def _get_entity_ids_with_unresolved_conflicts(self) -> Set[str]:
         """Get IDs of entities with unresolved conflicts."""
@@ -904,6 +910,10 @@ class GardenerAgent:
         """
         Find facts that are superseded by newly promoted facts.
         A fact is superseded if a newer fact with the same name/type was promoted.
+        
+        Returns dict with:
+        - entities: List of tuples (old_entity, new_entity_id, source_document_id)
+        - relationships: List of tuples (old_rel, new_rel_id, source_document_id)
         """
         superseded = {"entities": [], "relationships": []}
         
@@ -922,10 +932,14 @@ class GardenerAgent:
                     Entity.lifecycle_state == LifecycleState.TRUSTED,
                     Entity.id != promoted.id,
                     Entity.created_at < promoted.created_at,
+                    Entity.valid_to.is_(None),
                 )
             ).all()
             
-            superseded["entities"].extend(older_versions)
+            for old_entity in older_versions:
+                superseded["entities"].append(
+                    (old_entity, promoted.id, promoted.source_document_id)
+                )
         
         return superseded
     
