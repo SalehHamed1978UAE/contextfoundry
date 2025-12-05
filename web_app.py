@@ -495,39 +495,33 @@ def graph_entity_details(entity_id):
 
 @app.route('/api/examples')
 def examples():
-    examples = [
-        {
-            'query': 'What services are affected if the Payments Database goes down?',
-            'category': 'Impact Analysis',
-            'icon': 'zap'
-        },
-        {
-            'query': 'Who should I escalate to for a SEV1 on the Auth Service?',
-            'category': 'Escalation',
-            'icon': 'users'
-        },
-        {
-            'query': 'What team owns the Payment Service?',
-            'category': 'Ownership',
-            'icon': 'building'
-        },
-        {
-            'query': 'What does the Checkout Service depend on?',
-            'category': 'Dependencies',
-            'icon': 'git-branch'
-        },
-        {
-            'query': 'What incidents have affected the Auth Service?',
-            'category': 'Incident History',
-            'icon': 'alert-triangle'
-        },
-        {
-            'query': 'Who are the experts on payment processing?',
-            'category': 'Expertise',
-            'icon': 'award'
-        }
-    ]
-    return jsonify({'success': True, 'examples': examples})
+    """Load example queries from active domain schema."""
+    from src.context_foundry.config.domain_schema import get_schema_loader
+    
+    schema_loader = get_schema_loader()
+    schema = schema_loader.schema
+    
+    example_queries = schema.example_queries
+    
+    if example_queries:
+        formatted_examples = [
+            {
+                'query': query,
+                'category': schema.domain,
+                'icon': 'search'
+            }
+            for query in example_queries
+        ]
+    else:
+        formatted_examples = [
+            {
+                'query': f"Tell me about entities in the {schema.domain} domain",
+                'category': schema.domain,
+                'icon': 'search'
+            }
+        ]
+    
+    return jsonify({'success': True, 'examples': formatted_examples, 'domain': schema.domain})
 
 @app.route('/api/gardener/status')
 def gardener_status():
