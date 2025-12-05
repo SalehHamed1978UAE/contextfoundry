@@ -384,10 +384,12 @@ def graph_expand(entity_id):
     """Get an entity and its 1-hop neighbors (for progressive disclosure).
     
     Returns the entity, all directly connected entities, and their relationships.
+    Includes frontier detection: neighbors with no further edges are marked as frontiers.
     Respects lifecycle_state filter for all entities and relationships.
     Supports as_of_date for temporal filtering.
     """
     from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
+    from src.context_foundry.config.domain_schema import FrontierReason, FrontierNode, generate_frontier_message
     from sqlalchemy import or_
     from datetime import datetime
     import uuid
@@ -506,6 +508,58 @@ def graph_expand(entity_id):
         all_entities = [center_entity] + neighbors
         all_relationships = outgoing_rels + incoming_rels
         
+        frontier = []
+        center_id_uuid = uuid.UUID(entity_id)
+        
+        for neighbor in neighbors:
+            neighbor_outgoing = session.query(Relationship).filter(
+                Relationship.source_id == neighbor.id,
+                Relationship.target_id != center_id_uuid
+            )
+            neighbor_incoming = session.query(Relationship).filter(
+                Relationship.target_id == neighbor.id,
+                Relationship.source_id != center_id_uuid
+            )
+            
+            if as_of_date:
+                neighbor_outgoing = neighbor_outgoing.filter(
+                    Relationship.valid_from <= as_of_date,
+                    or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+                )
+                neighbor_incoming = neighbor_incoming.filter(
+                    Relationship.valid_from <= as_of_date,
+                    or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+                )
+            else:
+                neighbor_outgoing = neighbor_outgoing.filter(Relationship.valid_to.is_(None))
+                neighbor_incoming = neighbor_incoming.filter(Relationship.valid_to.is_(None))
+            
+            if lifecycle_filter != 'all':
+                try:
+                    state = LifecycleState(lifecycle_filter)
+                    neighbor_outgoing = neighbor_outgoing.filter(Relationship.lifecycle_state == state)
+                    neighbor_incoming = neighbor_incoming.filter(Relationship.lifecycle_state == state)
+                except ValueError:
+                    pass
+            
+            has_further_edges = neighbor_outgoing.first() is not None or neighbor_incoming.first() is not None
+            
+            if not has_further_edges:
+                message = generate_frontier_message(
+                    FrontierReason.NO_RELATIONSHIPS,
+                    "explore",
+                    neighbor.name,
+                    neighbor.entity_type
+                )
+                frontier.append({
+                    'entity_id': str(neighbor.id),
+                    'entity_name': neighbor.name,
+                    'entity_type': neighbor.entity_type,
+                    'reason': FrontierReason.NO_RELATIONSHIPS.value,
+                    'message': message,
+                    'depth': 1
+                })
+        
         nodes = []
         for e in all_entities:
             props = e.properties or {}
@@ -545,12 +599,14 @@ def graph_expand(entity_id):
             'center_id': entity_id,
             'nodes': nodes,
             'edges': edges,
+            'frontier': frontier,
             'as_of_date': as_of_date_str,
             'is_historical': as_of_date is not None,
             'stats': {
                 'total_nodes': len(nodes),
                 'total_edges': len(edges),
-                'neighbors': len(neighbors)
+                'neighbors': len(neighbors),
+                'frontier_nodes': len(frontier)
             }
         })
     except Exception as e:
