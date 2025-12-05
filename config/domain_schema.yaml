@@ -124,6 +124,36 @@ relationship_types:
       - COMPONENT
       - DATABASE
     cardinality: many-to-many
+    semantics:
+      modes:
+        impact:
+          from_source: false
+          from_target: true
+          include: true
+        dependency:
+          from_source: true
+          from_target: false
+          include: true
+
+  - name: ROUTES_TO
+    description: "Component/Service routes traffic to another Service/Component"
+    source_types:
+      - SERVICE
+      - COMPONENT
+    target_types:
+      - SERVICE
+      - COMPONENT
+    cardinality: many-to-many
+    semantics:
+      modes:
+        impact:
+          from_source: true
+          from_target: false
+          include: true
+        dependency:
+          from_source: true
+          from_target: false
+          include: true
 
   - name: OWNS
     description: "Team owns a Service/Component/Database"
@@ -134,6 +164,16 @@ relationship_types:
       - COMPONENT
       - DATABASE
     cardinality: many-to-one
+    semantics:
+      modes:
+        ownership:
+          from_source: true
+          from_target: true
+          include: true
+        impact:
+          include: false
+        dependency:
+          include: false
 
   - name: SUPPORTS
     description: "Team provides support for a Service/Component"
@@ -143,6 +183,16 @@ relationship_types:
       - SERVICE
       - COMPONENT
     cardinality: many-to-many
+    semantics:
+      modes:
+        ownership:
+          from_source: true
+          from_target: true
+          include: true
+        impact:
+          include: false
+        dependency:
+          include: false
 
   - name: MEMBER_OF
     description: "Person is a member of a Team"
@@ -151,6 +201,16 @@ relationship_types:
     target_types:
       - TEAM
     cardinality: many-to-many
+    semantics:
+      modes:
+        organizational:
+          from_source: true
+          from_target: true
+          include: true
+        impact:
+          include: false
+        dependency:
+          include: false
 
   - name: AFFECTS
     description: "Incident affects a Service/Component/Database"
@@ -161,6 +221,16 @@ relationship_types:
       - COMPONENT
       - DATABASE
     cardinality: many-to-many
+    semantics:
+      modes:
+        incident:
+          from_source: true
+          from_target: true
+          include: true
+        impact:
+          include: false
+        dependency:
+          include: false
 
   - name: CAUSED_BY
     description: "Incident was caused by another Incident or change"
@@ -169,6 +239,34 @@ relationship_types:
     target_types:
       - INCIDENT
     cardinality: many-to-one
+    semantics:
+      modes:
+        incident:
+          from_source: true
+          from_target: true
+          include: true
+        impact:
+          include: false
+        dependency:
+          include: false
+
+  - name: RESOLVED_BY
+    description: "Incident was resolved by a Person"
+    source_types:
+      - INCIDENT
+    target_types:
+      - PERSON
+    cardinality: many-to-one
+    semantics:
+      modes:
+        incident:
+          from_source: true
+          from_target: true
+          include: true
+        impact:
+          include: false
+        dependency:
+          include: false
 
 validation_rules:
   - name: single_owner

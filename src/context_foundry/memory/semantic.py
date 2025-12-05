@@ -4,14 +4,16 @@ Stores entities and relationships with STAGING/TRUSTED/ARCHIVED lifecycle.
 Supports temporal queries via as_of_date parameter.
 """
 from datetime import datetime
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Set
 from sqlalchemy import or_, and_, text
 from sqlalchemy.orm import Session
+from collections import deque
 import uuid
 
 from ..models.schema import (
     Entity, Relationship, LifecycleState, get_session
 )
+from ..config.domain_schema import get_schema_loader
 from ..utils.logger import logger
 
 
@@ -414,6 +416,273 @@ class SemanticMemory:
             "relationships": relationships,
             "traversal_complete": not max_depth_reached
         }
+    
+    def _get_relationships_for_entity(
+        self, 
+        entity_id: uuid.UUID, 
+        as_of_date: Optional[datetime] = None,
+        trusted_only: bool = True
+    ) -> List[Relationship]:
+        """Get all relationships where entity is source OR target.
+        
+        Args:
+            entity_id: The entity to get relationships for
+            as_of_date: Optional temporal filter
+            trusted_only: If True, only return TRUSTED relationships (default)
+        """
+        q = self.session.query(Relationship).filter(
+            or_(
+                Relationship.source_id == entity_id,
+                Relationship.target_id == entity_id
+            )
+        )
+        
+        if trusted_only:
+            q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
+        else:
+            q = q.filter(Relationship.lifecycle_state != LifecycleState.ARCHIVED)
+        
+        if as_of_date:
+            q = q.filter(
+                Relationship.valid_from <= as_of_date,
+                or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+            )
+        else:
+            q = q.filter(Relationship.valid_to.is_(None))
+        
+        return q.all()
+    
+    def traverse_from_entity(
+        self,
+        entity_id: uuid.UUID,
+        mode: str,
+        max_depth: int = 10,
+        as_of_date: Optional[datetime] = None
+    ) -> Set[uuid.UUID]:
+        """
+        Generic graph traversal that respects relationship semantics for a given mode.
+        
+        This is SCHEMA-DRIVEN: the traversal rules are read from the schema YAML,
+        not hardcoded. Each relationship type defines how it should be traversed
+        in different modes (impact, dependency, ownership, etc.).
+        
+        Only TRUSTED entities and relationships are included in the traversal.
+        
+        Args:
+            entity_id: The starting node ID
+            mode: The traversal context (defined in schema per relationship type)
+            max_depth: Maximum traversal depth
+            as_of_date: Optional datetime for temporal queries
+        
+        Returns:
+            Set of reachable entity IDs
+            
+        Behavior:
+            - If relationship type has no semantics: not traversed
+            - If mode not defined for relationship type: not traversed
+            - Cycles handled via visited set
+            - Only TRUSTED entities and relationships are followed
+        """
+        schema = get_schema_loader().schema
+        reachable: Set[uuid.UUID] = set()
+        visited: Set[uuid.UUID] = set()
+        queue = deque([(entity_id, 0)])
+        
+        while queue:
+            current_id, depth = queue.popleft()
+            
+            if current_id in visited or depth > max_depth:
+                continue
+            visited.add(current_id)
+            
+            relationships = self._get_relationships_for_entity(current_id, as_of_date, trusted_only=True)
+            
+            for rel in relationships:
+                rel_type_def = schema.get_relationship_type(rel.relationship_type)
+                
+                if not rel_type_def or not rel_type_def.semantics:
+                    continue
+                
+                rule = rel_type_def.semantics.modes.get(mode)
+                
+                if not rule or not rule.include:
+                    continue
+                
+                neighbor_id = None
+                
+                if rel.source_id == current_id and rule.from_source:
+                    neighbor_id = rel.target_id
+                elif rel.target_id == current_id and rule.from_target:
+                    neighbor_id = rel.source_id
+                
+                if neighbor_id and neighbor_id not in reachable:
+                    neighbor_entity = self.session.query(Entity).get(neighbor_id)
+                    if not neighbor_entity:
+                        continue
+                    if neighbor_entity.lifecycle_state != LifecycleState.TRUSTED:
+                        continue
+                    if as_of_date:
+                        if neighbor_entity.valid_from and neighbor_entity.valid_from > as_of_date:
+                            continue
+                        if neighbor_entity.valid_to and neighbor_entity.valid_to <= as_of_date:
+                            continue
+                    elif neighbor_entity.valid_to is not None:
+                        continue
+                    
+                    reachable.add(neighbor_id)
+                    queue.append((neighbor_id, depth + 1))
+        
+        logger.debug(f"Schema-driven traversal from {entity_id} in mode '{mode}': found {len(reachable)} entities")
+        return reachable
+    
+    def get_schema_driven_blast_radius(
+        self,
+        entity_name: str,
+        mode: str = "impact",
+        max_depth: int = 10,
+        as_of_date: Optional[datetime] = None
+    ) -> Dict:
+        """
+        Schema-driven blast radius using generic traversal.
+        
+        Uses traverse_from_entity with the specified mode to find all affected entities.
+        The mode determines which relationships are followed and in which direction,
+        as defined in the schema YAML.
+        
+        Args:
+            entity_name: Name of the entity that might fail
+            mode: Traversal mode (default: "impact")
+            max_depth: Maximum traversal depth
+            as_of_date: Optional datetime for temporal queries
+        
+        Returns:
+            Dict with entity, affected list, relationships, and traversal metadata
+        """
+        entity = self.find_entity_by_name(entity_name)
+        if not entity:
+            logger.warning(f"Entity not found for schema-driven blast radius: {entity_name}")
+            return {
+                "entity": entity_name,
+                "error": "Entity not found",
+                "affected": [],
+                "affected_count": 0,
+                "relationships": [],
+                "mode": mode,
+                "traversal_complete": True
+            }
+        
+        affected_ids, traversed_relationships = self.traverse_from_entity_with_relationships(
+            entity.id,
+            mode=mode,
+            max_depth=max_depth,
+            as_of_date=as_of_date
+        )
+        
+        affected = []
+        for aid in affected_ids:
+            e = self.session.query(Entity).get(aid)
+            if e:
+                affected.append({
+                    "entity": e.to_dict(),
+                    "id": str(aid)
+                })
+        
+        affected.sort(key=lambda x: x["entity"]["name"])
+        
+        logger.info(f"Schema-driven blast radius for {entity_name} (mode={mode}): {len(affected)} entities, {len(traversed_relationships)} relationships")
+        
+        return {
+            "entity": entity.to_dict(),
+            "affected": affected,
+            "affected_count": len(affected),
+            "affected_entity_names": sorted([a["entity"]["name"] for a in affected]),
+            "relationships": traversed_relationships,
+            "mode": mode,
+            "traversal_complete": True
+        }
+    
+    def traverse_from_entity_with_relationships(
+        self,
+        entity_id: uuid.UUID,
+        mode: str,
+        max_depth: int = 10,
+        as_of_date: Optional[datetime] = None
+    ) -> Tuple[Set[uuid.UUID], List[Dict]]:
+        """
+        Generic graph traversal that returns both affected entities AND traversed relationships.
+        
+        This is like traverse_from_entity but also collects the relationships that were followed
+        during traversal, so they can be displayed in the UI.
+        
+        Only TRUSTED entities and relationships are included in the traversal.
+        
+        Args:
+            entity_id: The starting node ID
+            mode: The traversal context (defined in schema per relationship type)
+            max_depth: Maximum traversal depth
+            as_of_date: Optional datetime for temporal queries
+        
+        Returns:
+            Tuple of (Set of reachable entity IDs, List of traversed relationship dicts)
+        """
+        schema = get_schema_loader().schema
+        reachable: Set[uuid.UUID] = set()
+        visited: Set[uuid.UUID] = set()
+        traversed_relationships: List[Dict] = []
+        seen_rel_ids: Set[str] = set()
+        queue = deque([(entity_id, 0)])
+        
+        while queue:
+            current_id, depth = queue.popleft()
+            
+            if current_id in visited or depth > max_depth:
+                continue
+            visited.add(current_id)
+            
+            relationships = self._get_relationships_for_entity(current_id, as_of_date, trusted_only=True)
+            
+            for rel in relationships:
+                rel_type_def = schema.get_relationship_type(rel.relationship_type)
+                
+                if not rel_type_def or not rel_type_def.semantics:
+                    continue
+                
+                rule = rel_type_def.semantics.modes.get(mode)
+                
+                if not rule or not rule.include:
+                    continue
+                
+                neighbor_id = None
+                
+                if rel.source_id == current_id and rule.from_source:
+                    neighbor_id = rel.target_id
+                elif rel.target_id == current_id and rule.from_target:
+                    neighbor_id = rel.source_id
+                
+                if neighbor_id and neighbor_id not in reachable:
+                    neighbor_entity = self.session.query(Entity).get(neighbor_id)
+                    if not neighbor_entity:
+                        continue
+                    if neighbor_entity.lifecycle_state != LifecycleState.TRUSTED:
+                        continue
+                    if as_of_date:
+                        if neighbor_entity.valid_from and neighbor_entity.valid_from > as_of_date:
+                            continue
+                        if neighbor_entity.valid_to and neighbor_entity.valid_to <= as_of_date:
+                            continue
+                    elif neighbor_entity.valid_to is not None:
+                        continue
+                    
+                    reachable.add(neighbor_id)
+                    queue.append((neighbor_id, depth + 1))
+                    
+                    rel_id = str(rel.id)
+                    if rel_id not in seen_rel_ids:
+                        seen_rel_ids.add(rel_id)
+                        traversed_relationships.append(rel.to_dict())
+        
+        logger.debug(f"Schema-driven traversal from {entity_id} in mode '{mode}': found {len(reachable)} entities, {len(traversed_relationships)} relationships")
+        return reachable, traversed_relationships
     
     def find_escalation_path(
         self,

@@ -23,6 +23,30 @@ class Cardinality(str, Enum):
 
 
 @dataclass
+class TraversalRule:
+    """Defines how a relationship is traversed in a specific mode.
+    
+    For example, for 'impact' mode (what breaks if X fails):
+    - from_source=True means: if we're at source, traverse to target
+    - from_target=True means: if we're at target, traverse to source
+    """
+    from_source: bool = False  # If True, traverse Source -> Target
+    from_target: bool = False  # If True, traverse Target -> Source
+    include: bool = True       # If False, ignore this relationship in this mode
+
+
+@dataclass
+class RelationshipSemantics:
+    """Holds traversal rules for different query modes.
+    
+    Modes are schema-defined (e.g., 'impact', 'dependency', 'ownership').
+    Each mode defines how relationships should be traversed.
+    """
+    modes: Dict[str, TraversalRule] = field(default_factory=dict)
+    properties: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
 class EntityTypeConfig:
     """Configuration for an entity type."""
     name: str
@@ -44,6 +68,7 @@ class RelationshipTypeConfig:
     source_types: List[str] = field(default_factory=list)
     target_types: List[str] = field(default_factory=list)
     cardinality: Cardinality = Cardinality.MANY_TO_MANY
+    semantics: Optional[RelationshipSemantics] = None
     
     def is_valid_source(self, entity_type: str) -> bool:
         """Check if entity type is a valid source for this relationship."""
@@ -56,6 +81,12 @@ class RelationshipTypeConfig:
     def is_many_to_one(self) -> bool:
         """Check if this relationship enforces single target per source."""
         return self.cardinality == Cardinality.MANY_TO_ONE
+    
+    def get_traversal_rule(self, mode: str) -> Optional[TraversalRule]:
+        """Get traversal rule for a specific mode."""
+        if self.semantics is None:
+            return None
+        return self.semantics.modes.get(mode)
 
 
 @dataclass
@@ -205,12 +236,15 @@ class DomainSchemaLoader:
                 logger.warning(f"Unknown cardinality {cardinality_str}, defaulting to many-to-many")
                 cardinality = Cardinality.MANY_TO_MANY
             
+            semantics = self._parse_relationship_semantics(rt.get('semantics'))
+            
             rel_config = RelationshipTypeConfig(
                 name=rt['name'].upper(),
                 description=rt.get('description', ''),
                 source_types=[s.upper() for s in rt.get('source_types', [])],
                 target_types=[t.upper() for t in rt.get('target_types', [])],
-                cardinality=cardinality
+                cardinality=cardinality,
+                semantics=semantics
             )
             relationship_types[rel_config.name] = rel_config
         
@@ -234,6 +268,24 @@ class DomainSchemaLoader:
             relationship_types=relationship_types,
             validation_rules=validation_rules,
             example_queries=config.get('example_queries', [])
+        )
+    
+    def _parse_relationship_semantics(self, sem_data: Optional[Dict]) -> Optional[RelationshipSemantics]:
+        """Parse relationship semantics from YAML config."""
+        if sem_data is None:
+            return None
+        
+        modes = {}
+        for mode_name, mode_data in sem_data.get('modes', {}).items():
+            modes[mode_name] = TraversalRule(
+                from_source=mode_data.get('from_source', False),
+                from_target=mode_data.get('from_target', False),
+                include=mode_data.get('include', True)
+            )
+        
+        return RelationshipSemantics(
+            modes=modes,
+            properties=sem_data.get('properties', {})
         )
     
     def _create_default_schema(self) -> DomainSchema:
