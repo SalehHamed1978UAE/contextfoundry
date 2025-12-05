@@ -1,0 +1,85 @@
+Yes, proceed.
+Tell Replit:
+
+Implement Phase 1: Make CF fully domain-agnostic.
+
+Task 1: Remove EntityType/RelationshipType classes from models/schema.py
+
+Delete lines 29-62 (both classes)
+Remove the unused import from retrieval.py line 18
+Verify nothing breaks
+
+
+Task 2: Enhance schema YAML structure
+Before fixing the extractors, the YAML schema needs to support richer metadata.
+Update schema structure to include:
+yamldomain: "Fiction & Literature"
+description: "Knowledge graph for fictional works"
+
+entity_types:
+  - name: CHARACTER
+    description: "A person or anthropomorphized being in the story"
+    keywords: ["character", "person", "who", "protagonist", "antagonist"]
+    
+  - name: LOCATION
+    description: "A place where events occur"
+    keywords: ["place", "where", "location", "setting"]
+
+relationship_types:
+  - name: INTERACTS_WITH
+    description: "Characters who interact with each other"
+    source_types: [CHARACTER, CREATURE]  # What can be the source
+    target_types: [CHARACTER, CREATURE, OBJECT]  # What can be the target
+    
+  - name: TRAVELS_TO
+    description: "Movement to a location"
+    source_types: [CHARACTER, CREATURE]
+    target_types: [LOCATION]
+
+example_queries:
+  - "What does Alice possess?"
+  - "Where does Alice travel?"
+  - "Who interacts with the White Rabbit?"
+Update the schema loader to parse these new fields.
+
+Task 3: Make entity_extractor.py dynamic
+Replace hardcoded ENTITY_TYPES dict and prompt.
+pythondef _build_extraction_prompt(self, text: str) -> str:
+    schema = get_schema_loader().schema
+    
+    entity_descriptions = "\n".join([
+        f"- {et.name}: {et.description}"
+        for et in schema.entity_types
+    ])
+    
+    return f"""Extract entities from the following text for the {schema.domain} domain.
+
+Entity types to extract:
+{entity_descriptions}
+
+Text:
+{text}
+
+Return JSON array of entities with: type, name, description, confidence
+"""
+
+Task 4: Make relation_extractor.py dynamic
+Same pattern — build prompt from schema.relationship_types including source/target constraints.
+
+Task 5: Make /api/examples dynamic in web_app.py
+python@app.route('/api/examples', methods=['GET'])
+def get_examples():
+    schema = get_schema_loader().schema
+    return jsonify({
+        "domain": schema.domain,
+        "examples": schema.example_queries  # From YAML
+    })
+
+Task 6: Test with all three schemas
+After all fixes:
+
+Load IT Operations schema → run test queries
+Load Fiction schema → run Alice queries
+Load Investment Portfolio schema → run portfolio queries
+
+All should work without code changes.

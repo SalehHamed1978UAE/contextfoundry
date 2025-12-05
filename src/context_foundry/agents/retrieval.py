@@ -15,7 +15,7 @@ import json
 
 from openai import OpenAI
 
-from ..models.schema import EntityType, LifecycleState, get_session, Entity
+from ..models.schema import LifecycleState, get_session, Entity
 from ..models.context_bundle import ContextBundle, create_bundle
 from ..memory.semantic import SemanticMemory
 from ..memory.episodic import EpisodicMemory

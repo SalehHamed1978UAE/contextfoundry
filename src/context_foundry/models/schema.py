@@ -26,42 +26,6 @@ class LifecycleState(str, Enum):
     ARCHIVED = "ARCHIVED"
 
 
-class EntityType:
-    """
-    Entity type constants for backward compatibility.
-    NOTE: Entity types are now stored as VARCHAR in the database.
-    New domains can use any string values - validation happens at application layer
-    against the loaded domain schema config.
-    """
-    SERVICE = "SERVICE"
-    TEAM = "TEAM"
-    PERSON = "PERSON"
-    COMPONENT = "COMPONENT"
-    DATABASE = "DATABASE"
-    INCIDENT = "INCIDENT"
-    RUNBOOK = "RUNBOOK"
-
-
-class RelationshipType:
-    """
-    Relationship type constants for backward compatibility.
-    NOTE: Relationship types are now stored as VARCHAR in the database.
-    New domains can use any string values - validation happens at application layer
-    against the loaded domain schema config.
-    """
-    DEPENDS_ON = "DEPENDS_ON"
-    OWNS = "OWNS"
-    SUPPORTS = "SUPPORTS"
-    MEMBER_OF = "MEMBER_OF"
-    MANAGES = "MANAGES"
-    ESCALATES_TO = "ESCALATES_TO"
-    CAUSED_BY = "CAUSED_BY"
-    RESOLVED_BY = "RESOLVED_BY"
-    DOCUMENTS = "DOCUMENTS"
-    AFFECTS = "AFFECTS"
-    USES = "USES"
-
-
 class RuleType(str, Enum):
     INVARIANT = "INVARIANT"
     SAFETY_CHECK = "SAFETY_CHECK"
