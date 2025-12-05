@@ -1294,6 +1294,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let timelineLatest = null;
     let currentAsOfDate = null;
     let timelineDebounceTimer = null;
+    let currentExpandedEntityId = null; // Track which entity is currently displayed
     
     async function initTimeline() {
         try {
@@ -1455,6 +1456,11 @@ document.addEventListener('DOMContentLoaded', function() {
     async function refreshGraphWithTimeline() {
         clearGraph();
         loadGlobalStats();
+        
+        // Re-expand the current entity with the new date filter
+        if (currentExpandedEntityId) {
+            await expandEntityWithTimeline(currentExpandedEntityId);
+        }
     }
     
     async function searchEntitiesWithTimeline(query) {
@@ -1482,6 +1488,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch(url);
             const data = await response.json();
             if (data.success) {
+                // Track the current entity for timeline refresh
+                currentExpandedEntityId = entityId;
+                
                 if (data.nodes && data.nodes.length === 0 && data.message) {
                     showGraphMessage(data.message);
                     return data;
