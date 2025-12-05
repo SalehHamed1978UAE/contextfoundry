@@ -54,6 +54,14 @@ The knowledge graph schema (entity types, relationship types, cardinality rules,
 ### UI/UX Decisions
 The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains for enhanced data visualization.
 
+**Frontier Detection UI:**
+- Frontier nodes in Memory Graph display with dashed amber borders and a "?" badge to indicate knowledge boundaries
+- Hover tooltips on frontier nodes show the human-readable message explaining why traversal stopped
+- "Knowledge Frontier" panel appears below query results showing:
+  - Knowledge Boundaries: Collapsible list of frontier nodes with entity name, type, and explanation
+  - Documentation Gaps: Actionable list of missing documentation that could improve future queries
+- Subtle pulse animation on frontier nodes draws attention to incomplete knowledge areas
+
 ### Technical Implementations & Design Choices
 -   **Type Storage**: Entity and relationship types are stored as VARCHAR and validated against the loaded YAML schema.
 -   **Lifecycle States**: Data transitions from STAGING to TRUSTED.
