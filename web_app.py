@@ -117,13 +117,14 @@ def health():
 def query():
     data = request.get_json()
     query_text = data.get('query', '')
+    as_of_date = data.get('as_of_date')  # Optional: ISO format date string for temporal queries
     
     if not query_text:
         return jsonify({'error': 'No query provided'}), 400
     
     try:
         foundry = get_context_foundry()
-        result = foundry.query(query_text)
+        result = foundry.query(query_text, as_of_date=as_of_date)
         
         response = {
             'success': True,
@@ -135,6 +136,7 @@ def query():
             'rules_checked': result.get('rules_checked', []),
             'rules_passed': result.get('rules_passed', []),
             'validation': result.get('validation', {}),
+            'as_of_date': as_of_date,  # Echo back the temporal filter if used
             'query_log': {
                 'query_id': result.get('query_log', {}).get('query_id', ''),
                 'duration_seconds': result.get('query_log', {}).get('duration_seconds', 0)
@@ -487,6 +489,213 @@ def graph_entity_details(entity_id):
             },
             'outgoing_relationships': outgoing_list,
             'incoming_relationships': incoming_list
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+    finally:
+        session.close()
+
+@app.route('/api/entities/<entity_id>/history')
+def entity_history(entity_id):
+    """Get temporal history for an entity - all versions over time.
+    
+    Returns a list of entity versions ordered by valid_from (newest first),
+    showing how the entity evolved over time through merges, updates, etc.
+    """
+    from src.context_foundry.models.schema import get_session, Entity
+    import uuid as uuid_module
+    
+    session = get_session()
+    try:
+        try:
+            entity_uuid = uuid_module.UUID(entity_id)
+        except ValueError:
+            return jsonify({'error': 'Invalid entity ID', 'success': False}), 400
+        
+        current = session.query(Entity).filter(Entity.id == entity_uuid).first()
+        if not current:
+            return jsonify({'error': 'Entity not found', 'success': False}), 404
+        
+        history = []
+        
+        history.append({
+            'id': str(current.id),
+            'name': current.name,
+            'entity_type': current.entity_type,
+            'confidence': current.confidence or 0.5,
+            'lifecycle_state': current.lifecycle_state.value if current.lifecycle_state else 'STAGING',
+            'valid_from': current.valid_from.isoformat() if current.valid_from else None,
+            'valid_to': current.valid_to.isoformat() if current.valid_to else None,
+            'is_current': current.valid_to is None,
+            'change_reason': current.change_reason,
+            'superseded_by': str(current.superseded_by) if current.superseded_by else None,
+            'properties': current.properties or {},
+            'source_document_id': current.source_document_id,
+            'created_at': current.created_at.isoformat() if current.created_at else None
+        })
+        
+        predecessors = session.query(Entity).filter(
+            Entity.superseded_by == entity_uuid
+        ).order_by(Entity.valid_from.desc()).all()
+        
+        for pred in predecessors:
+            history.append({
+                'id': str(pred.id),
+                'name': pred.name,
+                'entity_type': pred.entity_type,
+                'confidence': pred.confidence or 0.5,
+                'lifecycle_state': pred.lifecycle_state.value if pred.lifecycle_state else 'ARCHIVED',
+                'valid_from': pred.valid_from.isoformat() if pred.valid_from else None,
+                'valid_to': pred.valid_to.isoformat() if pred.valid_to else None,
+                'is_current': False,
+                'change_reason': pred.change_reason,
+                'superseded_by': str(pred.superseded_by) if pred.superseded_by else None,
+                'properties': pred.properties or {},
+                'source_document_id': pred.source_document_id,
+                'created_at': pred.created_at.isoformat() if pred.created_at else None
+            })
+        
+        history.sort(key=lambda x: x['valid_from'] or '', reverse=True)
+        
+        return jsonify({
+            'success': True,
+            'entity_id': entity_id,
+            'current_name': current.name,
+            'history_count': len(history),
+            'history': history
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+    finally:
+        session.close()
+
+@app.route('/api/knowledge/diff')
+def knowledge_diff():
+    """Get differences in the knowledge graph between two dates.
+    
+    Query parameters:
+    - from_date: ISO format date string (required)
+    - to_date: ISO format date string (required)
+    - entity_type: Optional filter by entity type
+    
+    Returns entities and relationships that:
+    - Were added (valid_from between from_date and to_date)
+    - Were removed (valid_to between from_date and to_date)
+    - Were modified (has superseded_by link)
+    """
+    from src.context_foundry.models.schema import get_session, Entity, Relationship
+    from datetime import datetime
+    
+    from_date_str = request.args.get('from_date')
+    to_date_str = request.args.get('to_date')
+    entity_type_filter = request.args.get('entity_type')
+    
+    if not from_date_str or not to_date_str:
+        return jsonify({'error': 'Both from_date and to_date are required', 'success': False}), 400
+    
+    try:
+        from_date = datetime.fromisoformat(from_date_str.replace('Z', '+00:00'))
+    except ValueError:
+        try:
+            from_date = datetime.strptime(from_date_str, '%Y-%m-%d')
+        except ValueError:
+            return jsonify({'error': 'Invalid from_date format', 'success': False}), 400
+    
+    try:
+        to_date = datetime.fromisoformat(to_date_str.replace('Z', '+00:00'))
+    except ValueError:
+        try:
+            to_date = datetime.strptime(to_date_str, '%Y-%m-%d')
+        except ValueError:
+            return jsonify({'error': 'Invalid to_date format', 'success': False}), 400
+    
+    session = get_session()
+    try:
+        added_query = session.query(Entity).filter(
+            Entity.valid_from >= from_date,
+            Entity.valid_from <= to_date
+        )
+        if entity_type_filter:
+            added_query = added_query.filter(Entity.entity_type == entity_type_filter.upper())
+        added_entities = added_query.all()
+        
+        removed_query = session.query(Entity).filter(
+            Entity.valid_to >= from_date,
+            Entity.valid_to <= to_date
+        )
+        if entity_type_filter:
+            removed_query = removed_query.filter(Entity.entity_type == entity_type_filter.upper())
+        removed_entities = removed_query.all()
+        
+        modified_query = session.query(Entity).filter(
+            Entity.superseded_by.isnot(None),
+            Entity.valid_to >= from_date,
+            Entity.valid_to <= to_date
+        )
+        if entity_type_filter:
+            modified_query = modified_query.filter(Entity.entity_type == entity_type_filter.upper())
+        modified_entities = modified_query.all()
+        
+        added_rels = session.query(Relationship).filter(
+            Relationship.valid_from >= from_date,
+            Relationship.valid_from <= to_date
+        ).all()
+        
+        removed_rels = session.query(Relationship).filter(
+            Relationship.valid_to >= from_date,
+            Relationship.valid_to <= to_date
+        ).all()
+        
+        def entity_to_dict(e):
+            return {
+                'id': str(e.id),
+                'name': e.name,
+                'entity_type': e.entity_type,
+                'confidence': e.confidence or 0.5,
+                'valid_from': e.valid_from.isoformat() if e.valid_from else None,
+                'valid_to': e.valid_to.isoformat() if e.valid_to else None,
+                'change_reason': e.change_reason,
+                'superseded_by': str(e.superseded_by) if e.superseded_by else None
+            }
+        
+        def rel_to_dict(r):
+            source = session.query(Entity).filter(Entity.id == r.source_id).first()
+            target = session.query(Entity).filter(Entity.id == r.target_id).first()
+            return {
+                'id': str(r.id),
+                'relationship_type': r.relationship_type,
+                'source_id': str(r.source_id),
+                'source_name': source.name if source else 'Unknown',
+                'target_id': str(r.target_id),
+                'target_name': target.name if target else 'Unknown',
+                'confidence': r.confidence or 0.5,
+                'valid_from': r.valid_from.isoformat() if r.valid_from else None,
+                'valid_to': r.valid_to.isoformat() if r.valid_to else None,
+                'change_reason': r.change_reason
+            }
+        
+        return jsonify({
+            'success': True,
+            'from_date': from_date_str,
+            'to_date': to_date_str,
+            'diff': {
+                'entities': {
+                    'added': [entity_to_dict(e) for e in added_entities],
+                    'removed': [entity_to_dict(e) for e in removed_entities],
+                    'modified': [entity_to_dict(e) for e in modified_entities]
+                },
+                'relationships': {
+                    'added': [rel_to_dict(r) for r in added_rels],
+                    'removed': [rel_to_dict(r) for r in removed_rels]
+                }
+            },
+            'summary': {
+                'entities_added': len(added_entities),
+                'entities_removed': len(removed_entities),
+                'entities_modified': len(modified_entities),
+                'relationships_added': len(added_rels),
+                'relationships_removed': len(removed_rels)
+            }
         })
     except Exception as e:
         return jsonify({'error': str(e), 'success': False}), 500

@@ -612,6 +612,7 @@ class IdentityResolver:
         3. Earlier creation date
         
         The merged entity's relationships are transferred to survivor.
+        Uses temporal columns to preserve history chain.
         """
         entity_a = self.session.query(Entity).filter(
             Entity.id == candidate.entity_a_id
@@ -624,6 +625,7 @@ class IdentityResolver:
             return None
         
         survivor, merged = self._choose_survivor(entity_a, entity_b)
+        now = datetime.utcnow()
         
         relationships_transferred = self._transfer_relationships(merged, survivor)
         
@@ -634,12 +636,15 @@ class IdentityResolver:
             survivor.confidence = merged.confidence
         
         merged.lifecycle_state = LifecycleState.ARCHIVED
-        merged.archived_at = datetime.utcnow()
+        merged.archived_at = now
+        merged.valid_to = now
+        merged.superseded_by = survivor.id
+        merged.change_reason = f"Merged into {survivor.name} via identity resolution (score: {candidate.similarity_score:.2f})"
         
         if merged.properties is None:
             merged.properties = {}
         merged.properties["merged_into"] = str(survivor.id)
-        merged.properties["merged_at"] = datetime.utcnow().isoformat()
+        merged.properties["merged_at"] = now.isoformat()
         
         audit_id = str(uuid.uuid4())
         
@@ -700,8 +705,12 @@ class IdentityResolver:
         from_entity: Entity,
         to_entity: Entity,
     ) -> int:
-        """Transfer relationships from merged entity to survivor."""
+        """
+        Transfer relationships from merged entity to survivor.
+        Uses temporal columns to preserve history on archived relationships.
+        """
         transferred = 0
+        now = datetime.utcnow()
         
         for rel in from_entity.outgoing_relationships:
             existing = self.session.query(Relationship).filter(
@@ -709,6 +718,7 @@ class IdentityResolver:
                     Relationship.source_id == to_entity.id,
                     Relationship.target_id == rel.target_id,
                     Relationship.relationship_type == rel.relationship_type,
+                    Relationship.valid_to.is_(None),
                 )
             ).first()
             
@@ -719,6 +729,8 @@ class IdentityResolver:
                 if rel.confidence > existing.confidence:
                     existing.confidence = rel.confidence
                 rel.lifecycle_state = LifecycleState.ARCHIVED
+                rel.valid_to = now
+                rel.change_reason = f"Duplicate relationship archived during entity merge to {to_entity.name}"
         
         for rel in from_entity.incoming_relationships:
             existing = self.session.query(Relationship).filter(
@@ -726,6 +738,7 @@ class IdentityResolver:
                     Relationship.source_id == rel.source_id,
                     Relationship.target_id == to_entity.id,
                     Relationship.relationship_type == rel.relationship_type,
+                    Relationship.valid_to.is_(None),
                 )
             ).first()
             
@@ -736,6 +749,8 @@ class IdentityResolver:
                 if rel.confidence > existing.confidence:
                     existing.confidence = rel.confidence
                 rel.lifecycle_state = LifecycleState.ARCHIVED
+                rel.valid_to = now
+                rel.change_reason = f"Duplicate relationship archived during entity merge to {to_entity.name}"
         
         return transferred
     

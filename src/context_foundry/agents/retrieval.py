@@ -165,7 +165,8 @@ class RetrievalAgent:
         max_entities: int = 20,
         max_documents: int = 5,
         max_rules: int = 10,
-        traverse_depth: int = 2
+        traverse_depth: int = 2,
+        as_of_date: Optional[str] = None
     ) -> ContextBundle:
         """
         Build a ContextBundle by querying all memory layers.
@@ -174,8 +175,24 @@ class RetrievalAgent:
         
         CRITICAL: We now track "target entity" - the specific entity being queried.
         If it doesn't exist, we flag this to prevent hallucinations.
+        
+        Args:
+            as_of_date: Optional ISO date string for temporal queries.
+                        If provided, only returns facts that were valid at this date.
         """
+        from datetime import datetime
+        
+        parsed_as_of_date = None
+        if as_of_date:
+            try:
+                parsed_as_of_date = datetime.fromisoformat(as_of_date.replace('Z', '+00:00'))
+            except ValueError:
+                try:
+                    parsed_as_of_date = datetime.strptime(as_of_date, '%Y-%m-%d')
+                except ValueError:
+                    logger.warning(f"Invalid as_of_date format: {as_of_date}")
         bundle = create_bundle(query_text)
+        bundle.as_of_date = as_of_date
         
         query_type = self._classify_query_type(query_text)
         bundle.query_type = query_type
@@ -275,7 +292,8 @@ class RetrievalAgent:
                 first_results = self.semantic.search_entities_by_properties(
                     entity_type=entity_type,
                     filters=[filters[0]],
-                    trusted_only=True
+                    trusted_only=True,
+                    as_of_date=parsed_as_of_date
                 )
                 
                 matching_ids = {str(e.id) for e in first_results}
@@ -284,7 +302,8 @@ class RetrievalAgent:
                     next_results = self.semantic.search_entities_by_properties(
                         entity_type=entity_type,
                         filters=[f],
-                        trusted_only=True
+                        trusted_only=True,
+                        as_of_date=parsed_as_of_date
                     )
                     next_ids = {str(e.id) for e in next_results}
                     matching_ids = matching_ids.intersection(next_ids)
@@ -294,7 +313,8 @@ class RetrievalAgent:
                 property_entities = self.semantic.search_entities_by_properties(
                     entity_type=entity_type,
                     filters=filters,
-                    trusted_only=True
+                    trusted_only=True,
+                    as_of_date=parsed_as_of_date
                 )
             
             if query_logger:
@@ -312,7 +332,8 @@ class RetrievalAgent:
         semantic_results = self._query_semantic_memory(
             keywords, entity_types, traverse_depth, max_entities, query_logger,
             is_impact_query=is_impact,
-            target_entity_name=target_entity_name
+            target_entity_name=target_entity_name,
+            as_of_date=parsed_as_of_date
         )
         bundle.semantic_entities = semantic_results["entities"]
         bundle.semantic_relationships = semantic_results["relationships"]
@@ -1112,13 +1133,18 @@ class RetrievalAgent:
         max_entities: int,
         query_logger: Optional[QueryLogger],
         is_impact_query: bool = False,
-        target_entity_name: Optional[str] = None
+        target_entity_name: Optional[str] = None,
+        as_of_date = None
     ) -> Dict:
         """
         Query semantic memory (knowledge graph) for relevant entities and relationships.
         
         For impact/blast radius queries, we traverse INCOMING DEPENDS_ON relationships
         to find what depends on the target entity (downstream impact).
+        
+        Args:
+            as_of_date: Optional datetime for temporal queries. If provided, only returns
+                        entities and relationships that were valid at this date.
         """
         entities = []
         relationships = []
@@ -1132,7 +1158,8 @@ class RetrievalAgent:
                 keyword,
                 entity_types=entity_types if entity_types else default_types,
                 trusted_only=True,
-                limit=5
+                limit=5,
+                as_of_date=as_of_date
             )
             
             for entity in found:
@@ -1155,7 +1182,8 @@ class RetrievalAgent:
                     target_entity.id,
                     relationship_type="DEPENDS_ON",
                     direction="incoming",
-                    max_depth=traverse_depth
+                    max_depth=traverse_depth,
+                    as_of_date=as_of_date
                 )
                 
                 for item in downstream:
@@ -1193,13 +1221,15 @@ class RetrievalAgent:
                     entity_id,
                     relationship_types=["DEPENDS_ON"],
                     direction="incoming",
-                    trusted_only=True
+                    trusted_only=True,
+                    as_of_date=as_of_date
                 )
             else:
                 rels = self.semantic.get_entity_relationships(
                     entity_id,
                     direction="both",
-                    trusted_only=True
+                    trusted_only=True,
+                    as_of_date=as_of_date
                 )
             
             for rel_info in rels:

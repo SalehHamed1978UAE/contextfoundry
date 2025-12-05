@@ -59,12 +59,13 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
 -   **Lifecycle States**: Data transitions from STAGING to TRUSTED.
 -   **Validation Status**: Facts in STAGING are marked PENDING, VALID, INVALID, or CONFLICT.
 -   **Confidence Scoring & Provenance**: Every piece of data includes a confidence score and full provenance tracing.
+-   **Temporal Tracking**: Entities and relationships have `valid_from`, `valid_to`, `superseded_by`, and `change_reason` columns for full temporal history. Supports "as of when?" queries via `as_of_date` parameter and diff analysis between dates.
 -   **Query Handling**: Includes query classification, impact analysis for `DEPENDS_ON` relationships, hallucination prevention through entity verification, detection of analysis/trend queries, and handling of ordered sequence requests.
 -   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
 -   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
 -   **Data Model**: Utilizes SQLAlchemy for Entity, Relationship, and Document models.
 -   **Configurable Schema**: All schema elements are loaded from YAML at runtime.
--   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies (e.g., PERSON entities always require human review).
+-   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies (e.g., PERSON entities always require human review). Merges now create temporal history chains.
 -   **SQLAlchemy JSON Mutations**: Requires explicit flagging for JSON column modifications to ensure persistence.
 
 ## Gardener Agent (Autonomous Graph Health)
@@ -80,13 +81,19 @@ The Gardener Agent runs every 5 minutes to maintain graph health through 5 auton
 ### Core Query & Stats
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
-| `/api/query` | POST | Query knowledge graph with natural language. Returns response with confidence, provenance, evidence chain. Body: `{"query": "..."}` |
+| `/api/query` | POST | Query knowledge graph with natural language. Returns response with confidence, provenance, evidence chain. Body: `{"query": "...", "as_of_date": "2024-01-01"}` (as_of_date optional for temporal queries) |
 | `/api/stats` | GET | System statistics: entity counts, relationship counts, lifecycle distribution |
 | `/api/examples` | GET | Example queries for the UI |
 | `/api/graph/visualization` | GET | Live graph data for visualization. Query params: `lifecycle_state` (STAGING/TRUSTED/ARCHIVED/all), `entity_type`, `limit`. Returns nodes and edges with lifecycle states and confidence scores. |
 | `/api/graph/search` | GET | Search entities by name. Query params: `q` (search term), `lifecycle_state`, `limit`. Returns matching entities for search-first exploration. |
 | `/api/graph/expand/<entity_id>` | GET | Get entity with 1-hop neighbors (progressive disclosure). Query params: `lifecycle_state`. Returns center node, neighbors, and edges respecting lifecycle filter. |
 | `/api/graph/entity/<entity_id>` | GET | Full entity details for side panel. Returns entity info, properties, incoming/outgoing relationships with names. |
+
+### Temporal Tracking & History
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/entities/<id>/history` | GET | Get temporal history for an entity - all versions over time with superseded_by chains and change_reasons |
+| `/api/knowledge/diff` | GET | Get differences in knowledge graph between two dates. Query params: `from_date`, `to_date` (required), `entity_type` (optional). Returns added/removed/modified entities and relationships |
 
 ### Document Ingestion & Schema
 | Endpoint | Method | Purpose |

@@ -122,6 +122,9 @@ class ContextBundle:
     is_property_query: bool = False
     property_filters: List[Dict] = field(default_factory=list)
     
+    # Temporal query support - "as of when?" queries
+    as_of_date: Optional[str] = None  # ISO format date string for time-travel queries
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
@@ -274,6 +277,7 @@ class ContextBundle:
             "is_property_query": self.is_property_query,
             "property_filters": self.property_filters,
             "sequence_intent": self.sequence_intent,
+            "as_of_date": self.as_of_date,
             "semantic_memory": self.semantic_entities + self.semantic_relationships,
             "semantic_count": len(self.semantic_entities) + len(self.semantic_relationships),
             "episodic_memory": self.episodic_documents,

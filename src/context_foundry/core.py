@@ -61,7 +61,8 @@ class ContextFoundry:
         self,
         query_text: str,
         display_output: bool = True,
-        save_to_log: bool = True
+        save_to_log: bool = True,
+        as_of_date: str = None
     ) -> Dict:
         """
         Process a query through the full Context Foundry pipeline.
@@ -71,16 +72,21 @@ class ContextFoundry:
         2. Reasoning Agent generates response with LLM
         3. Validation Agent checks response against rules
         4. Response returned with full provenance
+        
+        Args:
+            as_of_date: Optional ISO date string for temporal queries.
+                        If provided, returns knowledge graph state as of this date.
         """
         query_id = str(uuid.uuid4())
         query_logger = QueryLogger(query_id, query_text)
         
         try:
-            query_logger.log_event("PIPELINE_START", {"query": query_text})
+            query_logger.log_event("PIPELINE_START", {"query": query_text, "as_of_date": as_of_date})
             
             bundle = self.retrieval.build_context_bundle(
                 query_text,
-                query_logger=query_logger
+                query_logger=query_logger,
+                as_of_date=as_of_date
             )
             
             if display_output:

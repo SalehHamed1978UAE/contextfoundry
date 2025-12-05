@@ -1,7 +1,9 @@
 """
 Semantic Memory Layer - Knowledge Graph with Lifecycle States.
 Stores entities and relationships with STAGING/TRUSTED/ARCHIVED lifecycle.
+Supports temporal queries via as_of_date parameter.
 """
+from datetime import datetime
 from typing import List, Dict, Optional, Tuple
 from sqlalchemy import or_, and_, text
 from sqlalchemy.orm import Session
@@ -105,9 +107,20 @@ class SemanticMemory:
         query_text: str,
         entity_types: List[str] = None,
         trusted_only: bool = True,
-        limit: int = 10
+        limit: int = 10,
+        as_of_date: Optional[datetime] = None
     ) -> List[Entity]:
-        """Search entities by name (case-insensitive contains)."""
+        """
+        Search entities by name (case-insensitive contains).
+        
+        Args:
+            query_text: Search term
+            entity_types: Filter by entity types
+            trusted_only: Only return TRUSTED entities
+            limit: Max results
+            as_of_date: If provided, filter entities that were valid at this date
+                        (valid_from <= as_of_date AND (valid_to IS NULL OR valid_to > as_of_date))
+        """
         q = self.session.query(Entity).filter(
             Entity.name.ilike(f"%{query_text}%")
         )
@@ -119,8 +132,16 @@ class SemanticMemory:
             normalized_types = [t.upper() if isinstance(t, str) else t for t in entity_types]
             q = q.filter(Entity.entity_type.in_(normalized_types))
         
+        if as_of_date:
+            q = q.filter(
+                Entity.valid_from <= as_of_date,
+                or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+            )
+        else:
+            q = q.filter(Entity.valid_to.is_(None))
+        
         results = q.order_by(Entity.confidence.desc()).limit(limit).all()
-        logger.debug(f"Entity search '{query_text}': found {len(results)} results")
+        logger.debug(f"Entity search '{query_text}': found {len(results)} results (as_of={as_of_date})")
         return results
     
     def get_entity_relationships(
@@ -129,11 +150,13 @@ class SemanticMemory:
         relationship_types: List[str] = None,
         direction: str = "both",
         trusted_only: bool = True,
-        max_depth: int = 1
+        max_depth: int = 1,
+        as_of_date: Optional[datetime] = None
     ) -> List[Dict]:
         """
         Get relationships for an entity.
         direction: 'outgoing', 'incoming', or 'both'
+        as_of_date: If provided, filter relationships that were valid at this date
         Returns list of dicts with relationship and connected entity info.
         """
         results = []
@@ -149,15 +172,31 @@ class SemanticMemory:
                 q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
             if normalized_types:
                 q = q.filter(Relationship.relationship_type.in_(normalized_types))
+            if as_of_date:
+                q = q.filter(
+                    Relationship.valid_from <= as_of_date,
+                    or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+                )
+            else:
+                q = q.filter(Relationship.valid_to.is_(None))
             
             for rel in q.all():
                 target = self.session.query(Entity).get(rel.target_id)
                 if target and (not trusted_only or target.lifecycle_state == LifecycleState.TRUSTED):
-                    results.append({
-                        "relationship": rel.to_dict(),
-                        "direction": "outgoing",
-                        "connected_entity": target.to_dict()
-                    })
+                    if as_of_date:
+                        if target.valid_from and target.valid_from <= as_of_date:
+                            if target.valid_to is None or target.valid_to > as_of_date:
+                                results.append({
+                                    "relationship": rel.to_dict(),
+                                    "direction": "outgoing",
+                                    "connected_entity": target.to_dict()
+                                })
+                    elif target.valid_to is None:
+                        results.append({
+                            "relationship": rel.to_dict(),
+                            "direction": "outgoing",
+                            "connected_entity": target.to_dict()
+                        })
         
         if direction in ["incoming", "both"]:
             q = self.session.query(Relationship).filter(
@@ -167,17 +206,33 @@ class SemanticMemory:
                 q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
             if normalized_types:
                 q = q.filter(Relationship.relationship_type.in_(normalized_types))
+            if as_of_date:
+                q = q.filter(
+                    Relationship.valid_from <= as_of_date,
+                    or_(Relationship.valid_to.is_(None), Relationship.valid_to > as_of_date)
+                )
+            else:
+                q = q.filter(Relationship.valid_to.is_(None))
             
             for rel in q.all():
                 source = self.session.query(Entity).get(rel.source_id)
                 if source and (not trusted_only or source.lifecycle_state == LifecycleState.TRUSTED):
-                    results.append({
-                        "relationship": rel.to_dict(),
-                        "direction": "incoming",
-                        "connected_entity": source.to_dict()
-                    })
+                    if as_of_date:
+                        if source.valid_from and source.valid_from <= as_of_date:
+                            if source.valid_to is None or source.valid_to > as_of_date:
+                                results.append({
+                                    "relationship": rel.to_dict(),
+                                    "direction": "incoming",
+                                    "connected_entity": source.to_dict()
+                                })
+                    elif source.valid_to is None:
+                        results.append({
+                            "relationship": rel.to_dict(),
+                            "direction": "incoming",
+                            "connected_entity": source.to_dict()
+                        })
         
-        logger.debug(f"Entity {entity_id} relationships: found {len(results)}")
+        logger.debug(f"Entity {entity_id} relationships: found {len(results)} (as_of={as_of_date})")
         return results
     
     def traverse_dependencies(
@@ -185,11 +240,15 @@ class SemanticMemory:
         entity_id: uuid.UUID,
         relationship_type: str = "DEPENDS_ON",
         direction: str = "outgoing",
-        max_depth: int = 3
+        max_depth: int = 3,
+        as_of_date: Optional[datetime] = None
     ) -> List[Dict]:
         """
         Traverse dependency graph from an entity.
         Returns all entities reachable via the specified relationship type.
+        
+        Args:
+            as_of_date: If provided, only returns entities/relationships valid at this date.
         """
         visited = set()
         results = []
@@ -207,7 +266,8 @@ class SemanticMemory:
                 current_id,
                 relationship_types=[relationship_type],
                 direction=direction,
-                trusted_only=True
+                trusted_only=True,
+                as_of_date=as_of_date
             )
             
             for rel_info in rels:
@@ -227,7 +287,7 @@ class SemanticMemory:
         if entity:
             traverse(entity_id, 1, [entity.name])
         
-        logger.debug(f"Dependency traversal from {entity_id}: found {len(results)} connected entities")
+        logger.debug(f"Dependency traversal from {entity_id}: found {len(results)} connected entities (as_of={as_of_date})")
         return results
     
     def find_impact_chain(
@@ -299,7 +359,8 @@ class SemanticMemory:
         entity_type: Optional[str] = None,
         filters: List[Dict] = None,
         trusted_only: bool = True,
-        limit: int = 50
+        limit: int = 50,
+        as_of_date: Optional[datetime] = None
     ) -> List[Entity]:
         """
         Search entities by their JSON properties.
@@ -315,6 +376,7 @@ class SemanticMemory:
                 - value: the value to match
             trusted_only: Only return TRUSTED entities
             limit: Max results
+            as_of_date: If provided, filter entities that were valid at this date
             
         Example filters:
             [{"property": "expertise", "contains": "frontend"}]
@@ -332,6 +394,14 @@ class SemanticMemory:
         
         if entity_type:
             q = q.filter(Entity.entity_type == entity_type)
+        
+        if as_of_date:
+            q = q.filter(
+                Entity.valid_from <= as_of_date,
+                or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+            )
+        else:
+            q = q.filter(Entity.valid_to.is_(None))
         
         for f in filters:
             prop_name = f.get("property", "")
