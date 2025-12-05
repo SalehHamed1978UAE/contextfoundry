@@ -1,157 +1,23 @@
 """
-Relation Extractor for Context Foundry MVP2.
-Uses LLM-powered relation extraction with confidence scoring.
+Relation Extractor for Context Foundry - Domain-Agnostic Version.
+Uses LLM-powered relation extraction with confidence scoring based on active schema.
 
 Uses Replit AI Integrations for OpenAI access (no API key required, billed to credits).
 """
 import json
 import os
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from datetime import datetime
 import hashlib
 
 from openai import OpenAI
 
+from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
+
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
-
-
-RELATION_TYPES = {
-    "DEPENDS_ON": {
-        "description": "Service/component A depends on service/component B",
-        "source_types": ["SERVICE", "COMPONENT"],
-        "target_types": ["SERVICE", "COMPONENT", "DATABASE"],
-    },
-    "OWNS": {
-        "description": "Team A owns service/component/database B",
-        "source_types": ["TEAM"],
-        "target_types": ["SERVICE", "COMPONENT", "DATABASE"],
-    },
-    "SUPPORTS": {
-        "description": "Team A provides support for service B (but doesn't own it)",
-        "source_types": ["TEAM"],
-        "target_types": ["SERVICE", "COMPONENT"],
-    },
-    "MEMBER_OF": {
-        "description": "Person A is a member of Team B",
-        "source_types": ["PERSON"],
-        "target_types": ["TEAM"],
-    },
-    "MANAGES": {
-        "description": "Person A manages Team B (is lead/manager)",
-        "source_types": ["PERSON"],
-        "target_types": ["TEAM"],
-    },
-    "ESCALATES_TO": {
-        "description": "For incidents, Person A escalates to Person B",
-        "source_types": ["PERSON"],
-        "target_types": ["PERSON"],
-    },
-    "AFFECTS": {
-        "description": "Incident A affects service/component B",
-        "source_types": ["INCIDENT"],
-        "target_types": ["SERVICE", "COMPONENT", "DATABASE"],
-    },
-    "RESOLVED_BY": {
-        "description": "Incident A was resolved by Person B",
-        "source_types": ["INCIDENT"],
-        "target_types": ["PERSON"],
-    },
-    "CAUSED_BY": {
-        "description": "Incident A was caused by issue in service/component B",
-        "source_types": ["INCIDENT"],
-        "target_types": ["SERVICE", "COMPONENT", "DATABASE", "INCIDENT"],
-    },
-}
-
-
-RELATION_EXTRACTION_PROMPT = """You are an expert at extracting relationships between IT operations entities from technical documents.
-
-Given the following text and the list of known entities, extract all relationships of these types:
-- DEPENDS_ON: Service/component depends on another service/component/database
-- OWNS: Team owns a service/component/database
-- SUPPORTS: Team provides support for a service (but doesn't own it)
-- MEMBER_OF: Person is a member of a team (including team leads - see clarification below)
-- MANAGES: Team or person has management responsibility for a SERVICE/SYSTEM (not a team)
-- ESCALATES_TO: Person escalates incidents to another person
-- AFFECTS: Incident affects a service/component
-- RESOLVED_BY: Incident was resolved by a person
-- CAUSED_BY: Incident was caused by issue in another entity
-
-DISTINCTION - MEMBER_OF vs MANAGES:
-- MEMBER_OF: Person belongs to a team. This includes team leads and managers OF teams.
-  Example: "Sarah Chen is Tech Lead of Payments Team" → Sarah Chen MEMBER_OF Payments Team
-  Example: "Mike Rodriguez (SRE Team Lead)" → Mike Rodriguez MEMBER_OF SRE Team
-- MANAGES: Team or person has management/operational responsibility for a SERVICE or SYSTEM.
-  Example: "Platform Team manages the API Gateway" → Platform Team MANAGES API Gateway
-  Example: "SRE Team manages the Kubernetes infrastructure" → SRE Team MANAGES Kubernetes
-
-MULTI-TARGET RELATIONSHIPS:
-When text mentions multiple targets (e.g., "routes to X, Y, and Z" or "depends on A, B, and C"), extract a SEPARATE relationship for each target.
-
-KNOWN ENTITIES:
-{entities}
-
-For each relationship, provide:
-1. relation_type: One of the types above
-2. source_name: The name of the source entity (must be from KNOWN ENTITIES)
-3. target_name: The name of the target entity (must be from KNOWN ENTITIES)
-4. source_span: The exact text that indicates this relationship
-5. confidence: Your confidence in this extraction (0.0 to 1.0)
-
-EXAMPLES:
-
-Example 1 - Service Dependencies (multi-target):
-Text: "API Gateway routes traffic to Order Service, Inventory Service, and Shipping Service"
-Entities: API Gateway (SERVICE), Order Service (SERVICE), Inventory Service (SERVICE), Shipping Service (SERVICE)
-Extract:
-[
-  {{"relation_type": "DEPENDS_ON", "source_name": "API Gateway", "target_name": "Order Service", "source_span": "routes traffic to Order Service", "confidence": 0.95}},
-  {{"relation_type": "DEPENDS_ON", "source_name": "API Gateway", "target_name": "Inventory Service", "source_span": "routes traffic to Inventory Service", "confidence": 0.95}},
-  {{"relation_type": "DEPENDS_ON", "source_name": "API Gateway", "target_name": "Shipping Service", "source_span": "routes traffic to Shipping Service", "confidence": 0.95}}
-]
-
-Example 2 - Incident Relations (AFFECTS, CAUSED_BY):
-Text: "INC-2024-042: The Auth Service experienced a major outage. The incident was caused by a deadlock in the Auth Database."
-Entities: INC-2024-042 (INCIDENT), Auth Service (SERVICE), Auth Database (DATABASE)
-Extract:
-[
-  {{"relation_type": "AFFECTS", "source_name": "INC-2024-042", "target_name": "Auth Service", "source_span": "Auth Service experienced a major outage", "confidence": 0.95}},
-  {{"relation_type": "CAUSED_BY", "source_name": "INC-2024-042", "target_name": "Auth Database", "source_span": "caused by a deadlock in the Auth Database", "confidence": 0.90}}
-]
-
-Example 3 - Incident Resolution (RESOLVED_BY):
-Text: "Mike Rodriguez resolved the issue by restarting the database cluster."
-Entities: INC-2024-042 (INCIDENT), Mike Rodriguez (PERSON)
-Extract:
-[
-  {{"relation_type": "RESOLVED_BY", "source_name": "INC-2024-042", "target_name": "Mike Rodriguez", "source_span": "Mike Rodriguez resolved the issue", "confidence": 0.95}}
-]
-
-Example 4 - Team Membership vs Management:
-Text: "James Wilson is the Platform Team Manager. The Platform Team manages the API Gateway."
-Entities: James Wilson (PERSON), Platform Team (TEAM), API Gateway (SERVICE)
-Extract:
-[
-  {{"relation_type": "MEMBER_OF", "source_name": "James Wilson", "target_name": "Platform Team", "source_span": "James Wilson is the Platform Team Manager", "confidence": 0.95}},
-  {{"relation_type": "MANAGES", "source_name": "Platform Team", "target_name": "API Gateway", "source_span": "Platform Team manages the API Gateway", "confidence": 0.95}}
-]
-
-IMPORTANT RULES:
-- Extract ALL relationships mentioned in the text
-- Both source and target entities must be from the KNOWN ENTITIES list
-- For incidents, look for: "affected", "impacted", "caused by", "due to", "resolved by", "fixed by"
-- For dependencies, look for: "depends on", "requires", "uses", "connects to", "routes to"
-- Assign lower confidence (0.5-0.7) if the relationship is implied but not explicit
-- Assign higher confidence (0.8-1.0) if the relationship is explicitly stated
-
-TEXT:
-{text}
-
-Respond with ONLY valid JSON array, no markdown code blocks or other text.
-"""
 
 
 @dataclass
@@ -185,9 +51,9 @@ class ExtractedRelation:
 
 class RelationExtractor:
     """
-    LLM-powered relation extractor for IT operations relationships.
+    LLM-powered relation extractor that works with any domain schema.
     
-    Supports: DEPENDS_ON, OWNS, SUPPORTS, MEMBER_OF, MANAGES, ESCALATES_TO, AFFECTS, RESOLVED_BY, CAUSED_BY
+    Loads relationship types dynamically from the active domain schema configuration.
     """
     
     def __init__(
@@ -195,6 +61,7 @@ class RelationExtractor:
         model: str = "gpt-4o-mini",
         temperature: float = 0.1,
         max_retries: int = 3,
+        schema_loader: Optional[DomainSchemaLoader] = None,
     ):
         """
         Initialize the relation extractor.
@@ -203,6 +70,7 @@ class RelationExtractor:
             model: OpenAI model to use
             temperature: Temperature for generation (lower = more deterministic)
             max_retries: Maximum retries on API errors
+            schema_loader: Optional schema loader instance (uses singleton if not provided)
         """
         self.client = OpenAI(
             api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -211,6 +79,79 @@ class RelationExtractor:
         self.model = model
         self.temperature = temperature
         self.max_retries = max_retries
+        self._schema_loader = schema_loader
+    
+    @property
+    def schema_loader(self) -> DomainSchemaLoader:
+        """Get schema loader (lazy initialization)."""
+        if self._schema_loader is None:
+            self._schema_loader = get_schema_loader()
+        return self._schema_loader
+    
+    def get_valid_relation_types(self) -> Set[str]:
+        """Get set of valid relationship type names from schema."""
+        return self.schema_loader.get_valid_relationship_types()
+    
+    def _build_relation_extraction_prompt(self, text: str, entities_str: str) -> str:
+        """Build dynamic relation extraction prompt from active schema."""
+        schema = self.schema_loader.schema
+        domain = schema.domain
+        
+        rel_descriptions = []
+        for name, rel_config in schema.relationship_types.items():
+            desc = rel_config.description or f"{name} relationship"
+            sources = "/".join(rel_config.source_types) if rel_config.source_types else "any"
+            targets = "/".join(rel_config.target_types) if rel_config.target_types else "any"
+            cardinality_note = " (one target only)" if rel_config.is_many_to_one() else ""
+            
+            rel_descriptions.append(f"- {name}: {desc}")
+            rel_descriptions.append(f"  Source types: {sources} → Target types: {targets}{cardinality_note}")
+        
+        rel_list = "\n".join(rel_descriptions)
+        rel_type_names = ", ".join(schema.relationship_types.keys())
+        
+        prompt = f"""You are an expert at extracting relationships between entities from documents in the {domain} domain.
+
+Given the following text and the list of known entities, extract all relationships of these types:
+{rel_list}
+
+KNOWN ENTITIES:
+{entities_str}
+
+For each relationship, provide:
+1. relation_type: One of {rel_type_names}
+2. source_name: The name of the source entity (must be from KNOWN ENTITIES)
+3. target_name: The name of the target entity (must be from KNOWN ENTITIES)
+4. source_span: The exact text that indicates this relationship
+5. confidence: Your confidence in this extraction (0.0 to 1.0)
+
+IMPORTANT RULES:
+- Extract ALL relationships mentioned in the text
+- Both source and target entities must be from the KNOWN ENTITIES list
+- When text mentions multiple targets (e.g., "X, Y, and Z"), extract a SEPARATE relationship for each target
+- Assign lower confidence (0.5-0.7) if the relationship is implied but not explicit
+- Assign higher confidence (0.8-1.0) if the relationship is explicitly stated
+- Only extract relationships that are EXPLICITLY mentioned or clearly implied in the text
+
+TEXT:
+{text}
+
+Respond with ONLY valid JSON array, no markdown code blocks or other text. Format:
+[
+  {{
+    "relation_type": "RELATION_TYPE",
+    "source_name": "Source Entity",
+    "target_name": "Target Entity",
+    "source_span": "exact text showing relationship",
+    "confidence": 0.95
+  }}
+]"""
+        return prompt
+    
+    def _build_system_prompt(self) -> str:
+        """Build dynamic system prompt from active schema."""
+        schema = self.schema_loader.schema
+        return f"You are an expert at extracting relationships between {schema.domain} entities. Respond only with valid JSON."
     
     def _generate_relation_id(
         self, 
@@ -255,11 +196,11 @@ class RelationExtractor:
     def _validate_relation(self, relation: Dict, entity_names: set) -> bool:
         """Validate extracted relation has required fields and valid references."""
         required = ["relation_type", "source_name", "target_name"]
-        for field in required:
-            if field not in relation:
+        for fld in required:
+            if fld not in relation:
                 return False
         
-        if relation["relation_type"] not in RELATION_TYPES:
+        if relation["relation_type"].upper() not in self.get_valid_relation_types():
             return False
         
         source_lower = relation["source_name"].lower()
@@ -275,6 +216,7 @@ class RelationExtractor:
         """Normalize relation fields."""
         relation["source_name"] = relation["source_name"].strip()
         relation["target_name"] = relation["target_name"].strip()
+        relation["relation_type"] = relation["relation_type"].upper()
         
         if "confidence" not in relation:
             relation["confidence"] = 0.75
@@ -315,17 +257,15 @@ class RelationExtractor:
         }
         
         entities_str = self._format_entities_for_prompt(entities)
-        prompt = RELATION_EXTRACTION_PROMPT.format(
-            entities=entities_str,
-            text=text
-        )
+        prompt = self._build_relation_extraction_prompt(text, entities_str)
+        system_prompt = self._build_system_prompt()
         
         for attempt in range(self.max_retries):
             try:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "You are an expert at extracting relationships between IT operations entities. Respond only with valid JSON."},
+                        {"role": "system", "content": system_prompt},
                         {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,

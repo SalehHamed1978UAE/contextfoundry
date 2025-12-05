@@ -1,97 +1,23 @@
 """
-Entity Extractor for Context Foundry MVP2.
-Uses LLM-powered NER to extract IT operations entities.
+Entity Extractor for Context Foundry - Domain-Agnostic Version.
+Uses LLM-powered NER to extract entities based on active schema configuration.
 
 Uses Replit AI Integrations for OpenAI access (no API key required, billed to credits).
 """
 import json
 import os
 import re
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from datetime import datetime
 import hashlib
 
 from openai import OpenAI
 
+from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
+
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
-
-
-ENTITY_TYPES = {
-    "SERVICE": {
-        "description": "A software service or microservice (e.g., Payment Service, Auth Service)",
-        "required_fields": ["canonical_name"],
-        "optional_fields": ["language", "framework", "tier", "description"],
-    },
-    "COMPONENT": {
-        "description": "An infrastructure component (e.g., Redis cache, Kafka queue, Load Balancer)",
-        "required_fields": ["canonical_name", "component_type"],
-        "optional_fields": ["version", "description"],
-    },
-    "DATABASE": {
-        "description": "A database instance (e.g., Payments Database, User Database)",
-        "required_fields": ["canonical_name", "db_type"],
-        "optional_fields": ["version", "description"],
-    },
-    "TEAM": {
-        "description": "An engineering or operations team (e.g., Payments Team, SRE Team)",
-        "required_fields": ["name"],
-        "optional_fields": ["slack_channel", "description"],
-    },
-    "PERSON": {
-        "description": "A person (engineer, manager, on-call contact)",
-        "required_fields": ["canonical_name"],
-        "optional_fields": ["role", "team", "email", "phone", "expertise"],
-    },
-    "INCIDENT": {
-        "description": "An incident or outage (e.g., INC-2024-001)",
-        "required_fields": ["external_id", "title"],
-        "optional_fields": ["severity", "status", "date", "duration_minutes", "description"],
-    },
-}
-
-
-ENTITY_EXTRACTION_PROMPT = """You are an expert at extracting IT operations entities from technical documents.
-
-Given the following text, extract all entities of these types:
-- SERVICE: Software services or microservices
-- COMPONENT: Infrastructure components (caches, queues, load balancers)
-- DATABASE: Database instances
-- TEAM: Engineering or operations teams
-- PERSON: People (engineers, managers, on-call contacts)
-- INCIDENT: Incidents or outages
-
-For each entity, provide:
-1. entity_type: One of SERVICE, COMPONENT, DATABASE, TEAM, PERSON, INCIDENT
-2. canonical_name: The standardized name of the entity
-3. properties: Additional properties like role, severity, etc.
-4. source_span: The exact text span where this entity appears
-5. confidence: Your confidence in this extraction (0.0 to 1.0)
-
-IMPORTANT RULES:
-- Only extract entities that are EXPLICITLY mentioned in the text
-- Do NOT infer or hallucinate entities that aren't mentioned
-- Use the exact text span where the entity appears
-- Assign lower confidence (0.6-0.8) if the entity type is ambiguous
-- Assign higher confidence (0.9-1.0) if the entity type is clearly stated
-
-Return the result as a JSON array of objects.
-
-TEXT:
-{text}
-
-Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
-[
-  {{
-    "entity_type": "SERVICE",
-    "canonical_name": "Payment Service",
-    "properties": {{"language": "Python", "tier": "critical"}},
-    "source_span": "Payment Service",
-    "confidence": 0.95
-  }}
-]
-"""
 
 
 @dataclass
@@ -125,9 +51,9 @@ class ExtractedEntity:
 
 class EntityExtractor:
     """
-    LLM-powered entity extractor for IT operations entities.
+    LLM-powered entity extractor that works with any domain schema.
     
-    Supports: SERVICE, COMPONENT, DATABASE, TEAM, PERSON, INCIDENT
+    Loads entity types dynamically from the active domain schema configuration.
     """
     
     def __init__(
@@ -135,6 +61,7 @@ class EntityExtractor:
         model: str = "gpt-4o-mini",
         temperature: float = 0.1,
         max_retries: int = 3,
+        schema_loader: Optional[DomainSchemaLoader] = None,
     ):
         """
         Initialize the entity extractor.
@@ -143,6 +70,7 @@ class EntityExtractor:
             model: OpenAI model to use
             temperature: Temperature for generation (lower = more deterministic)
             max_retries: Maximum retries on API errors
+            schema_loader: Optional schema loader instance (uses singleton if not provided)
         """
         self.client = OpenAI(
             api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -151,6 +79,77 @@ class EntityExtractor:
         self.model = model
         self.temperature = temperature
         self.max_retries = max_retries
+        self._schema_loader = schema_loader
+    
+    @property
+    def schema_loader(self) -> DomainSchemaLoader:
+        """Get schema loader (lazy initialization)."""
+        if self._schema_loader is None:
+            self._schema_loader = get_schema_loader()
+        return self._schema_loader
+    
+    def get_valid_entity_types(self) -> Set[str]:
+        """Get set of valid entity type names from schema."""
+        return self.schema_loader.get_valid_entity_types()
+    
+    def _build_entity_extraction_prompt(self, text: str) -> str:
+        """Build dynamic entity extraction prompt from active schema."""
+        schema = self.schema_loader.schema
+        domain = schema.domain
+        
+        entity_descriptions = []
+        for name, entity_config in schema.entity_types.items():
+            desc = entity_config.description or f"A {name.lower()}"
+            entity_descriptions.append(f"- {name}: {desc}")
+            
+            if entity_config.required_fields:
+                entity_descriptions.append(f"  Required: {', '.join(entity_config.required_fields)}")
+            if entity_config.optional_fields:
+                entity_descriptions.append(f"  Optional: {', '.join(entity_config.optional_fields)}")
+        
+        entity_list = "\n".join(entity_descriptions)
+        entity_type_names = ", ".join(schema.entity_types.keys())
+        
+        prompt = f"""You are an expert at extracting entities from documents in the {domain} domain.
+
+Given the following text, extract all entities of these types:
+{entity_list}
+
+For each entity, provide:
+1. entity_type: One of {entity_type_names}
+2. canonical_name: The standardized name of the entity
+3. properties: Additional properties (as listed above for each type)
+4. source_span: The exact text span where this entity appears
+5. confidence: Your confidence in this extraction (0.0 to 1.0)
+
+IMPORTANT RULES:
+- Only extract entities that are EXPLICITLY mentioned in the text
+- Do NOT infer or hallucinate entities that aren't mentioned
+- Use the exact text span where the entity appears
+- Assign lower confidence (0.6-0.8) if the entity type is ambiguous
+- Assign higher confidence (0.9-1.0) if the entity type is clearly stated
+
+Return the result as a JSON array of objects.
+
+TEXT:
+{text}
+
+Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
+[
+  {{
+    "entity_type": "ENTITY_TYPE",
+    "canonical_name": "Entity Name",
+    "properties": {{}},
+    "source_span": "exact text",
+    "confidence": 0.95
+  }}
+]"""
+        return prompt
+    
+    def _build_system_prompt(self) -> str:
+        """Build dynamic system prompt from active schema."""
+        schema = self.schema_loader.schema
+        return f"You are an expert at extracting {schema.domain} entities. Respond only with valid JSON."
     
     def _generate_entity_id(self, entity_type: str, canonical_name: str) -> str:
         """Generate deterministic entity ID."""
@@ -179,12 +178,12 @@ class EntityExtractor:
             return []
     
     def _validate_entity(self, entity: Dict) -> bool:
-        """Validate extracted entity has required fields."""
+        """Validate extracted entity has required fields and valid type."""
         if "entity_type" not in entity:
             return False
         if "canonical_name" not in entity and "name" not in entity:
             return False
-        if entity["entity_type"] not in ENTITY_TYPES:
+        if entity["entity_type"].upper() not in self.get_valid_entity_types():
             return False
         return True
     
@@ -194,6 +193,7 @@ class EntityExtractor:
             entity["canonical_name"] = entity.pop("name")
         
         entity["canonical_name"] = entity["canonical_name"].strip()
+        entity["entity_type"] = entity["entity_type"].upper()
         
         if "properties" not in entity:
             entity["properties"] = {}
@@ -230,14 +230,15 @@ class EntityExtractor:
         if not text.strip():
             return []
         
-        prompt = ENTITY_EXTRACTION_PROMPT.format(text=text)
+        prompt = self._build_entity_extraction_prompt(text)
+        system_prompt = self._build_system_prompt()
         
         for attempt in range(self.max_retries):
             try:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "You are an expert at extracting IT operations entities. Respond only with valid JSON."},
+                        {"role": "system", "content": system_prompt},
                         {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,
