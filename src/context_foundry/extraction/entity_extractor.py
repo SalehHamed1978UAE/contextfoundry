@@ -59,7 +59,7 @@ class EntityExtractor:
     def __init__(
         self,
         model: str = "gpt-4o-mini",
-        temperature: float = 0.1,
+        temperature: float = 0.0,  # Deterministic for consistent extraction
         max_retries: int = 3,
         schema_loader: Optional[DomainSchemaLoader] = None,
     ):
@@ -68,7 +68,7 @@ class EntityExtractor:
         
         Args:
             model: OpenAI model to use
-            temperature: Temperature for generation (lower = more deterministic)
+            temperature: Temperature for generation (0.0 = deterministic)
             max_retries: Maximum retries on API errors
             schema_loader: Optional schema loader instance (uses singleton if not provided)
         """
