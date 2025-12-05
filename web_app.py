@@ -855,9 +855,9 @@ def knowledge_date_range():
         
         return jsonify({
             'success': True,
-            'earliest': earliest_date.isoformat() + 'Z' if earliest_date else None,
-            'latest': latest_date.isoformat() + 'Z' if latest_date else None,
-            'today': now.isoformat() + 'Z',
+            'earliest': earliest_date.strftime('%Y-%m-%dT%H:%M:%SZ') if earliest_date else None,
+            'latest': latest_date.strftime('%Y-%m-%dT%H:%M:%SZ') if latest_date else None,
+            'today': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
             'total_snapshots': distinct_dates or 0
         })
     except Exception as e:
