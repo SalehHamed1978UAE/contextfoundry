@@ -273,16 +273,36 @@
 
             <div class="page-content page-memory" style="display: none;">
                 <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <h2 class="card-title">Semantic Memory</h2>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn" style="padding: 6px 12px; font-size: 12px;">Trusted: 165</button>
-                            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Stage</button>
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <h2 class="card-title">Live Knowledge Graph</h2>
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <select id="lifecycleFilter" class="graph-filter-select" style="padding: 6px 12px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); cursor: pointer;">
+                                <option value="all">All States</option>
+                                <option value="TRUSTED">TRUSTED only</option>
+                                <option value="STAGING">STAGING only</option>
+                                <option value="ARCHIVED">ARCHIVED only</option>
+                            </select>
+                            <button id="graphRefreshBtn" class="btn" style="padding: 6px 12px; font-size: 12px;" title="Refresh graph">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.5s;">
+                                    <path d="M23 4v6h-6"/>
+                                    <path d="M1 20v-6h6"/>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                </svg>
+                            </button>
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); cursor: pointer;">
+                                <input type="checkbox" id="autoRefreshToggle" style="cursor: pointer;">
+                                Auto-refresh (30s)
+                            </label>
                         </div>
                     </div>
                     <div class="card-body" style="padding: 0;">
-                        <p style="color: var(--text-secondary); padding: 20px 24px 0; margin: 0;">Visualizing the active Knowledge Graph context.</p>
-                        <div class="memory-graph-container" style="position: relative; height: 380px; overflow: hidden; background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.03) 0%, transparent 70%);">
+                        <div id="graphStats" style="padding: 12px 24px; display: flex; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); font-size: 12px; font-family: 'JetBrains Mono', monospace;">
+                            <span class="graph-stat staging" style="color: #f59e0b;">STAGING: --</span>
+                            <span class="graph-stat trusted" style="color: #10b981;">TRUSTED: --</span>
+                            <span class="graph-stat archived" style="color: #6b7280;">ARCHIVED: --</span>
+                            <span class="graph-stat total" style="color: var(--text-muted);">Loading...</span>
+                        </div>
+                        <div class="memory-graph-container" style="position: relative; height: 420px; overflow: hidden; background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.03) 0%, transparent 70%);">
                             <svg id="memoryGraph" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
                                 <defs>
                                     <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
@@ -294,18 +314,21 @@
                             </svg>
                             <div id="graphNodesHtml" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
                         </div>
-                        <div style="display: flex; gap: 24px; padding: 16px 24px; border-top: 1px solid var(--border-color);">
+                        <div style="display: flex; gap: 24px; padding: 16px 24px; border-top: 1px solid var(--border-color); flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 12px; height: 12px; background: #06b6d4; border-radius: 50%; box-shadow: 0 0 8px #06b6d4;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">Service (Trusted)</span>
+                                <span style="width: 12px; height: 12px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;"></span>
+                                <span style="color: var(--text-muted); font-size: 12px;">TRUSTED (active)</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%; box-shadow: 0 0 8px #f59e0b;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">Database / Staging</span>
+                                <span style="color: var(--text-muted); font-size: 12px;">STAGING (pending)</span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 12px; height: 12px; background: #8b5cf6; border-radius: 50%; box-shadow: 0 0 8px #8b5cf6;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">Team</span>
+                                <span style="width: 12px; height: 12px; background: #6b7280; border-radius: 50%; box-shadow: 0 0 8px #6b7280;"></span>
+                                <span style="color: var(--text-muted); font-size: 12px;">ARCHIVED (superseded)</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                                <span style="color: var(--text-muted); font-size: 11px;">Node size = confidence</span>
                             </div>
                         </div>
                     </div>

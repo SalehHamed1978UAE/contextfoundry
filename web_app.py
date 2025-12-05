@@ -155,6 +155,94 @@ def stats():
         reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
 
+@app.route('/api/graph/visualization')
+def graph_visualization():
+    """Get graph data for dynamic visualization.
+    
+    Query parameters:
+    - lifecycle_state: STAGING, TRUSTED, ARCHIVED, or 'all' (default: 'all')
+    - entity_type: Filter by entity type (e.g., SERVICE, TEAM, PERSON)
+    - limit: Maximum number of entities to return (default: 100)
+    """
+    from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
+    
+    lifecycle_filter = request.args.get('lifecycle_state', 'all')
+    entity_type_filter = request.args.get('entity_type', None)
+    limit = int(request.args.get('limit', 100))
+    
+    session = get_session()
+    try:
+        entity_query = session.query(Entity)
+        
+        if lifecycle_filter != 'all':
+            try:
+                state = LifecycleState(lifecycle_filter)
+                entity_query = entity_query.filter(Entity.lifecycle_state == state)
+            except ValueError:
+                pass
+        
+        if entity_type_filter:
+            entity_query = entity_query.filter(Entity.entity_type == entity_type_filter)
+        
+        entities = entity_query.order_by(Entity.confidence.desc()).limit(limit).all()
+        entity_ids = {e.id for e in entities}
+        
+        rel_query = session.query(Relationship).filter(
+            Relationship.source_id.in_(entity_ids),
+            Relationship.target_id.in_(entity_ids)
+        )
+        
+        if lifecycle_filter != 'all':
+            try:
+                state = LifecycleState(lifecycle_filter)
+                rel_query = rel_query.filter(Relationship.lifecycle_state == state)
+            except ValueError:
+                pass
+        
+        relationships = rel_query.all()
+        
+        nodes = []
+        for e in entities:
+            nodes.append({
+                'id': str(e.id),
+                'name': e.name,
+                'type': e.entity_type,
+                'lifecycle_state': e.lifecycle_state.value if e.lifecycle_state else 'STAGING',
+                'confidence': e.confidence or 0.5,
+                'validation_status': e.validation_status.value if e.validation_status else 'PENDING'
+            })
+        
+        edges = []
+        for r in relationships:
+            edges.append({
+                'id': str(r.id),
+                'source': str(r.source_id),
+                'target': str(r.target_id),
+                'type': r.relationship_type,
+                'lifecycle_state': r.lifecycle_state.value if r.lifecycle_state else 'STAGING',
+                'confidence': r.confidence or 0.5
+            })
+        
+        state_counts = {}
+        for state in LifecycleState:
+            count = session.query(Entity).filter(Entity.lifecycle_state == state).count()
+            state_counts[state.value] = count
+        
+        return jsonify({
+            'success': True,
+            'nodes': nodes,
+            'edges': edges,
+            'stats': {
+                'total_nodes': len(nodes),
+                'total_edges': len(edges),
+                'lifecycle_counts': state_counts
+            }
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+    finally:
+        session.close()
+
 @app.route('/api/examples')
 def examples():
     examples = [

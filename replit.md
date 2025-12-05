@@ -71,6 +71,7 @@ The Gardener Agent runs every 5 minutes to maintain graph health through 5 auton
 | `/api/query` | POST | Query knowledge graph with natural language. Returns response with confidence, provenance, evidence chain. Body: `{"query": "..."}` |
 | `/api/stats` | GET | System statistics: entity counts, relationship counts, lifecycle distribution |
 | `/api/examples` | GET | Example queries for the UI |
+| `/api/graph/visualization` | GET | Live graph data for visualization. Query params: `lifecycle_state` (STAGING/TRUSTED/ARCHIVED/all), `entity_type`, `limit`. Returns nodes and edges with lifecycle states and confidence scores. |
 
 ### Document Ingestion & Schema
 | Endpoint | Method | Purpose |

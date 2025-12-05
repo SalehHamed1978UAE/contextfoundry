@@ -89,99 +89,142 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    function renderMemoryGraph() {
+    let graphAutoRefreshInterval = null;
+    let currentLifecycleFilter = 'all';
+    
+    async function fetchGraphData(lifecycleState = 'all') {
+        try {
+            const url = `/api/graph/visualization?lifecycle_state=${lifecycleState}&limit=100`;
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.success) {
+                return data;
+            }
+            console.error('Failed to fetch graph data:', data.error);
+            return null;
+        } catch (error) {
+            console.error('Error fetching graph data:', error);
+            return null;
+        }
+    }
+    
+    function getLifecycleColor(lifecycleState) {
+        switch(lifecycleState) {
+            case 'STAGING': return '#f59e0b';
+            case 'TRUSTED': return '#10b981';
+            case 'ARCHIVED': return '#6b7280';
+            default: return '#06b6d4';
+        }
+    }
+    
+    function getNodeIcon(type) {
+        const normalizedType = (type || '').toUpperCase();
+        switch(normalizedType) {
+            case 'DATABASE': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>';
+            case 'TEAM': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+            case 'PERSON': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+            case 'SERVICE': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>';
+            case 'COMPONENT': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>';
+            case 'INCIDENT': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+            default: return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>';
+        }
+    }
+    
+    async function renderMemoryGraph(forceRefresh = false) {
         const graphContainer = document.getElementById('graphNodesHtml');
         const linksContainer = document.getElementById('graphLinks');
         
-        if (graphContainer && graphContainer.children.length > 0) return;
         if (!graphContainer) return;
         
-        const nodes = [
-            { id: 'n1', label: 'Payment Service', x: 120, y: 100, type: 'service', status: 'trusted' },
-            { id: 'n2', label: 'Auth Service', x: 300, y: 80, type: 'service', status: 'trusted' },
-            { id: 'n3', label: 'Checkout API', x: 480, y: 120, type: 'service', status: 'trusted' },
-            { id: 'n4', label: 'Payments DB', x: 80, y: 250, type: 'database', status: 'trusted' },
-            { id: 'n5', label: 'Users DB', x: 260, y: 280, type: 'database', status: 'trusted' },
-            { id: 'n6', label: 'API Gateway', x: 400, y: 260, type: 'service', status: 'trusted' },
-            { id: 'n7', label: 'Cache Layer', x: 560, y: 220, type: 'service', status: 'staging' },
-            { id: 'n8', label: 'Auth Team', x: 180, y: 180, type: 'team', status: 'trusted' },
-        ];
+        if (graphContainer.children.length > 0 && !forceRefresh) return;
         
-        const links = [
-            { source: 'n1', target: 'n4', label: 'reads_from' },
-            { source: 'n2', target: 'n5', label: 'reads_from' },
-            { source: 'n3', target: 'n1', label: 'depends_on' },
-            { source: 'n3', target: 'n2', label: 'depends_on' },
-            { source: 'n6', target: 'n2', label: 'routes_to' },
-            { source: 'n6', target: 'n3', label: 'routes_to' },
-            { source: 'n3', target: 'n7', label: 'uses' },
-            { source: 'n8', target: 'n2', label: 'owns' },
-            { source: 'n1', target: 'n5', label: 'writes_to' },
-        ];
+        graphContainer.innerHTML = '';
+        linksContainer.innerHTML = '';
         
-        const getNodeColor = (status, type) => {
-            if (type === 'database') return '#f59e0b';
-            if (type === 'team') return '#8b5cf6';
-            if (status === 'staging') return '#f59e0b';
-            return '#06b6d4';
-        };
-
-        const getNodeIcon = (type) => {
-            switch(type) {
-                case 'database': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>';
-                case 'team': return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
-                default: return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>';
-            }
-        };
+        const data = await fetchGraphData(currentLifecycleFilter);
+        if (!data || !data.nodes || data.nodes.length === 0) {
+            graphContainer.innerHTML = '<div style="color: #64748b; text-align: center; padding: 40px;">No entities found. Ingest some documents first.</div>';
+            return;
+        }
         
-        links.forEach((link, i) => {
-            const source = nodes.find(n => n.id === link.source);
-            const target = nodes.find(n => n.id === link.target);
+        const nodes = data.nodes;
+        const edges = data.edges;
+        
+        updateGraphStats(data.stats);
+        
+        const containerWidth = graphContainer.parentElement?.offsetWidth || 700;
+        const containerHeight = graphContainer.parentElement?.offsetHeight || 400;
+        
+        const nodePositions = {};
+        const cols = Math.ceil(Math.sqrt(nodes.length));
+        const cellWidth = Math.min(120, (containerWidth - 80) / cols);
+        const cellHeight = Math.min(100, (containerHeight - 80) / Math.ceil(nodes.length / cols));
+        
+        nodes.forEach((node, i) => {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            const jitterX = (Math.random() - 0.5) * 30;
+            const jitterY = (Math.random() - 0.5) * 30;
+            nodePositions[node.id] = {
+                x: 60 + col * cellWidth + jitterX,
+                y: 60 + row * cellHeight + jitterY
+            };
+        });
+        
+        edges.forEach((edge, i) => {
+            const source = nodePositions[edge.source];
+            const target = nodePositions[edge.target];
             if (!source || !target) return;
+            
+            const edgeColor = getLifecycleColor(edge.lifecycle_state);
             
             const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             g.style.opacity = '0';
-            g.style.transition = `opacity 0.5s ease ${0.5 + i * 0.05}s`;
+            g.style.transition = `opacity 0.5s ease ${0.3 + i * 0.02}s`;
             
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', source.x);
             line.setAttribute('y1', source.y);
             line.setAttribute('x2', target.x);
             line.setAttribute('y2', target.y);
-            line.setAttribute('stroke', 'rgba(6, 182, 212, 0.25)');
-            line.setAttribute('stroke-width', '1');
+            line.setAttribute('stroke', edgeColor + '40');
+            line.setAttribute('stroke-width', '1.5');
             g.appendChild(line);
             
             const midX = (source.x + target.x) / 2;
             const midY = (source.y + target.y) / 2;
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', midX);
-            text.setAttribute('y', midY - 6);
+            text.setAttribute('y', midY - 4);
             text.setAttribute('text-anchor', 'middle');
             text.setAttribute('fill', 'rgba(148, 163, 184, 0.6)');
-            text.setAttribute('font-size', '9');
+            text.setAttribute('font-size', '8');
             text.setAttribute('font-family', 'JetBrains Mono, monospace');
-            text.textContent = link.label;
+            text.textContent = edge.type;
             g.appendChild(text);
             
             linksContainer.appendChild(g);
-            
             setTimeout(() => { g.style.opacity = '1'; }, 50);
         });
         
         nodes.forEach((node, i) => {
-            const color = getNodeColor(node.status, node.type);
+            const pos = nodePositions[node.id];
+            const color = getLifecycleColor(node.lifecycle_state);
+            const confidence = node.confidence || 0.5;
+            const baseSize = 36;
+            const size = baseSize + (confidence * 16);
+            const opacity = 0.6 + (confidence * 0.4);
             
             const nodeEl = document.createElement('div');
             nodeEl.className = 'graph-node';
             nodeEl.style.cssText = `
                 position: absolute;
-                left: ${node.x}px;
-                top: ${node.y}px;
-                width: 48px;
-                height: 48px;
-                margin-left: -24px;
-                margin-top: -24px;
+                left: ${pos.x}px;
+                top: ${pos.y}px;
+                width: ${size}px;
+                height: ${size}px;
+                margin-left: ${-size/2}px;
+                margin-top: ${-size/2}px;
                 border-radius: 50%;
                 background: #1e293b;
                 border: 2px solid ${color};
@@ -196,8 +239,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 z-index: 10;
             `;
             
+            const iconSize = Math.max(14, size * 0.4);
             const iconWrapper = document.createElement('div');
-            iconWrapper.style.cssText = `width: 20px; height: 20px; color: ${color};`;
+            iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${color}; opacity: ${opacity};`;
             iconWrapper.innerHTML = getNodeIcon(node.type);
             nodeEl.appendChild(iconWrapper);
             
@@ -209,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 left: 50%;
                 transform: translateX(-50%);
                 margin-bottom: 8px;
-                padding: 6px 10px;
+                padding: 8px 12px;
                 background: rgba(15, 23, 42, 0.95);
                 border: 1px solid ${color}50;
                 border-radius: 6px;
@@ -221,8 +265,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 pointer-events: none;
                 transition: opacity 0.2s ease;
                 z-index: 100;
+                text-align: left;
             `;
-            tooltip.textContent = node.label;
+            tooltip.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 4px;">${escapeHtml(node.name)}</div>
+                <div style="color: #94a3b8; font-size: 10px;">Type: ${node.type}</div>
+                <div style="color: #94a3b8; font-size: 10px;">State: ${node.lifecycle_state}</div>
+                <div style="color: #94a3b8; font-size: 10px;">Confidence: ${Math.round(confidence * 100)}%</div>
+            `;
             nodeEl.appendChild(tooltip);
             
             nodeEl.addEventListener('mouseenter', () => {
@@ -241,9 +291,60 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 nodeEl.style.transform = 'scale(1)';
                 nodeEl.style.opacity = '1';
-            }, 100 + i * 80);
+            }, 100 + i * 40);
         });
     }
+    
+    function updateGraphStats(stats) {
+        const statsEl = document.getElementById('graphStats');
+        if (statsEl && stats) {
+            const counts = stats.lifecycle_counts || {};
+            statsEl.innerHTML = `
+                <span class="graph-stat staging">STAGING: ${counts.STAGING || 0}</span>
+                <span class="graph-stat trusted">TRUSTED: ${counts.TRUSTED || 0}</span>
+                <span class="graph-stat archived">ARCHIVED: ${counts.ARCHIVED || 0}</span>
+                <span class="graph-stat total">Showing: ${stats.total_nodes} nodes, ${stats.total_edges} edges</span>
+            `;
+        }
+    }
+    
+    function initGraphControls() {
+        const filterSelect = document.getElementById('lifecycleFilter');
+        const refreshBtn = document.getElementById('graphRefreshBtn');
+        const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+        
+        if (filterSelect) {
+            filterSelect.addEventListener('change', async (e) => {
+                currentLifecycleFilter = e.target.value;
+                await renderMemoryGraph(true);
+            });
+        }
+        
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async () => {
+                refreshBtn.classList.add('spinning');
+                await renderMemoryGraph(true);
+                setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
+            });
+        }
+        
+        if (autoRefreshToggle) {
+            autoRefreshToggle.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    graphAutoRefreshInterval = setInterval(() => {
+                        renderMemoryGraph(true);
+                    }, 30000);
+                } else {
+                    if (graphAutoRefreshInterval) {
+                        clearInterval(graphAutoRefreshInterval);
+                        graphAutoRefreshInterval = null;
+                    }
+                }
+            });
+        }
+    }
+    
+    initGraphControls();
 
     document.getElementById('refreshBtn').addEventListener('click', loadStats);
     document.getElementById('newQueryBtn').addEventListener('click', () => {
