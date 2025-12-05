@@ -100,6 +100,22 @@ document.addEventListener('DOMContentLoaded', function() {
     let dragNodeId = null;
     let dragOffset = { x: 0, y: 0 };
     
+    // Frontier detection data from query responses
+    let currentFrontierNodes = {};  // Map of entity_name -> frontier info
+    let currentGapsIdentified = [];
+    
+    // Helper to get human-readable frontier reason text
+    function getFrontierReasonText(reason) {
+        switch(reason) {
+            case 'no_relationships': return 'No relationships documented';
+            case 'no_edges_for_mode': return 'No edges for this traversal mode';
+            case 'below_confidence_threshold': return 'Confidence below threshold';
+            case 'max_depth_reached': return 'Maximum traversal depth reached';
+            case 'all_neighbors_visited': return 'All neighbors already visited';
+            default: return 'Unknown boundary';
+        }
+    }
+    
     function getLifecycleColor(lifecycleState) {
         switch(lifecycleState) {
             case 'STAGING': return '#f59e0b';
@@ -651,11 +667,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const baseSize = isMobile ? (isCenter ? 44 : 32) : (isCenter ? 56 : 40);
             const size = baseSize + (confidence * (isMobile ? 8 : 12));
             const borderWidth = isSelected ? 3 : 2;
-            const borderStyle = lifecycleStyle.style;
+            
+            // Check if this node is on the frontier (knowledge boundary)
+            const frontierInfo = currentFrontierNodes[node.name];
+            const isFrontier = !!frontierInfo;
+            const frontierColor = '#f59e0b';  // Amber/warning color
+            
+            // Override border style for frontier nodes
+            const borderStyle = isFrontier ? 'dashed' : lifecycleStyle.style;
+            const nodeColor = isFrontier ? frontierColor : typeColor;
             const nodeOpacity = lifecycleStyle.opacity;
             
             const nodeEl = document.createElement('div');
-            nodeEl.className = 'graph-node';
+            nodeEl.className = 'graph-node' + (isFrontier ? ' frontier-node' : '');
             nodeEl.dataset.nodeId = node.id;
             nodeEl.style.cssText = `
                 position: absolute;
@@ -666,9 +690,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 margin-left: ${-size/2}px;
                 margin-top: ${-size/2}px;
                 border-radius: ${isCenter ? '12px' : '50%'};
-                background: ${isSelected ? typeColor + '30' : '#1e293b'};
-                border: ${borderWidth}px ${borderStyle} ${typeColor};
-                box-shadow: 0 0 ${isCenter ? '30px' : '20px'} ${typeColor}${isCenter ? '60' : '40'};
+                background: ${isSelected ? nodeColor + '30' : (isFrontier ? '#1e293b' : '#1e293b')};
+                border: ${borderWidth}px ${borderStyle} ${nodeColor};
+                box-shadow: 0 0 ${isCenter ? '30px' : '20px'} ${nodeColor}${isCenter ? '60' : '40'}${isFrontier ? ', inset 0 0 10px ' + frontierColor + '20' : ''};
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -683,13 +707,37 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const iconSize = Math.max(16, size * 0.4);
             const iconWrapper = document.createElement('div');
-            iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${typeColor};`;
+            iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${nodeColor}; position: relative;`;
             iconWrapper.innerHTML = getNodeIcon(node.type);
             nodeEl.appendChild(iconWrapper);
             
+            // Add frontier indicator (question mark badge) for frontier nodes
+            if (isFrontier) {
+                const frontierBadge = document.createElement('div');
+                frontierBadge.className = 'frontier-badge';
+                frontierBadge.style.cssText = `
+                    position: absolute;
+                    top: -4px;
+                    right: -4px;
+                    width: 16px;
+                    height: 16px;
+                    background: ${frontierColor};
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 10px;
+                    font-weight: bold;
+                    color: #1e293b;
+                    box-shadow: 0 0 8px ${frontierColor}80;
+                `;
+                frontierBadge.textContent = '?';
+                nodeEl.appendChild(frontierBadge);
+            }
+            
             const lifecycleColor = getLifecycleColor(node.lifecycle_state);
             const tooltip = document.createElement('div');
-            tooltip.className = 'graph-tooltip';
+            tooltip.className = 'graph-tooltip' + (isFrontier ? ' frontier-tooltip' : '');
             tooltip.style.cssText = `
                 position: absolute;
                 bottom: 100%;
@@ -698,35 +746,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 margin-bottom: 8px;
                 padding: 8px 12px;
                 background: rgba(15, 23, 42, 0.95);
-                border: 1px solid ${typeColor}50;
+                border: 1px solid ${isFrontier ? frontierColor : typeColor}50;
                 border-radius: 6px;
                 font-size: 11px;
                 font-family: 'JetBrains Mono', monospace;
-                color: ${typeColor};
+                color: ${isFrontier ? frontierColor : typeColor};
                 white-space: nowrap;
                 opacity: 0;
                 pointer-events: none;
                 transition: opacity 0.2s ease;
                 z-index: 100;
+                max-width: 280px;
             `;
-            tooltip.innerHTML = `
-                <div style="font-weight: bold;">${escapeHtml(node.name)}</div>
-                <div style="display: flex; gap: 8px; margin-top: 4px; font-size: 10px;">
-                    <span style="color: ${typeColor};">${node.type}</span>
-                    <span style="color: ${lifecycleColor};">${node.lifecycle_state}</span>
-                    <span style="color: #94a3b8;">${Math.round(confidence * 100)}%</span>
-                </div>
-            `;
+            
+            // Build tooltip content - enhanced for frontier nodes
+            let tooltipHtml = `<div style="font-weight: bold;">${escapeHtml(node.name)}</div>`;
+            tooltipHtml += `<div style="display: flex; gap: 8px; margin-top: 4px; font-size: 10px;">
+                <span style="color: ${typeColor};">${node.type}</span>
+                <span style="color: ${lifecycleColor};">${node.lifecycle_state}</span>
+                <span style="color: #94a3b8;">${Math.round(confidence * 100)}%</span>
+            </div>`;
+            
+            if (isFrontier) {
+                const reasonText = getFrontierReasonText(frontierInfo.reason);
+                tooltipHtml += `
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid ${frontierColor}30;">
+                        <div style="display: flex; align-items: center; gap: 4px; color: ${frontierColor}; font-weight: 600;">
+                            <span style="font-size: 12px;">?</span>
+                            <span>Knowledge Boundary</span>
+                        </div>
+                        <div style="margin-top: 4px; color: #94a3b8; white-space: normal; line-height: 1.3;">
+                            ${escapeHtml(frontierInfo.message)}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            tooltip.innerHTML = tooltipHtml;
             nodeEl.appendChild(tooltip);
             
             nodeEl.addEventListener('mouseenter', () => {
                 nodeEl.style.transform = 'scale(1.1)';
-                nodeEl.style.boxShadow = `0 0 40px ${typeColor}80`;
+                nodeEl.style.boxShadow = `0 0 40px ${nodeColor}80`;
                 tooltip.style.opacity = '1';
             });
             nodeEl.addEventListener('mouseleave', () => {
                 nodeEl.style.transform = 'scale(1)';
-                nodeEl.style.boxShadow = `0 0 ${isCenter ? '30px' : '20px'} ${typeColor}${isCenter ? '60' : '40'}`;
+                nodeEl.style.boxShadow = `0 0 ${isCenter ? '30px' : '20px'} ${nodeColor}${isCenter ? '60' : '40'}`;
                 tooltip.style.opacity = '0';
             });
             
@@ -1108,10 +1174,121 @@ document.addEventListener('DOMContentLoaded', function() {
             query_log_id: data.query_log?.query_id || null
         };
         
+        // Store frontier detection data for graph visualization
+        currentFrontierNodes = {};
+        currentGapsIdentified = data.gaps_identified || [];
+        if (data.frontier && Array.isArray(data.frontier)) {
+            data.frontier.forEach(f => {
+                currentFrontierNodes[f.entity_name] = {
+                    reason: f.reason,
+                    message: f.message,
+                    entity_type: f.entity_type,
+                    depth: f.depth
+                };
+            });
+        }
+        
+        // Render gaps panel if there are gaps identified
+        renderGapsPanel(data.gaps_identified || [], data.frontier || []);
+        
         resetFeedbackUI();
         document.getElementById('feedbackSection').style.display = 'block';
 
         resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function renderGapsPanel(gaps, frontier) {
+        let gapsPanel = document.getElementById('gapsPanel');
+        
+        // Create panel if it doesn't exist
+        if (!gapsPanel) {
+            gapsPanel = document.createElement('div');
+            gapsPanel.id = 'gapsPanel';
+            gapsPanel.className = 'gaps-panel';
+            // Insert after evidence section
+            const evidenceSection = document.querySelector('.evidence-section');
+            if (evidenceSection) {
+                evidenceSection.parentNode.insertBefore(gapsPanel, evidenceSection.nextSibling);
+            }
+        }
+        
+        // Hide if no gaps or frontier nodes
+        if ((!gaps || gaps.length === 0) && (!frontier || frontier.length === 0)) {
+            gapsPanel.style.display = 'none';
+            return;
+        }
+        
+        gapsPanel.style.display = 'block';
+        
+        const frontierHtml = frontier.length > 0 ? `
+            <div class="frontier-section">
+                <div class="frontier-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                    </svg>
+                    <span>Knowledge Boundaries (${frontier.length})</span>
+                    <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
+                <div class="frontier-items">
+                    ${frontier.map(f => `
+                        <div class="frontier-item">
+                            <div class="frontier-entity">
+                                <span class="frontier-icon">?</span>
+                                <span class="frontier-name">${escapeHtml(f.entity_name)}</span>
+                                <span class="frontier-type">${escapeHtml(f.entity_type || '')}</span>
+                            </div>
+                            <div class="frontier-message">${escapeHtml(f.message)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        ` : '';
+        
+        const gapsHtml = gaps.length > 0 ? `
+            <div class="gaps-section">
+                <div class="gaps-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    <span>Documentation Gaps (${gaps.length})</span>
+                    <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                </div>
+                <div class="gaps-items">
+                    ${gaps.map(gap => `
+                        <div class="gap-item">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4"/>
+                                <path d="M12 16h.01"/>
+                            </svg>
+                            <span>${escapeHtml(gap)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        ` : '';
+        
+        gapsPanel.innerHTML = `
+            <div class="gaps-panel-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span>Knowledge Frontier</span>
+            </div>
+            ${frontierHtml}
+            ${gapsHtml}
+        `;
     }
     
     function resetFeedbackUI() {
