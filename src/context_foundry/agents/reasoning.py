@@ -15,6 +15,7 @@ from openai import OpenAI
 
 from ..models.context_bundle import ContextBundle, EvidenceItem
 from ..utils.logger import logger, QueryLogger
+from ..config.domain_schema import get_schema_loader, DomainSchema
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -43,21 +44,33 @@ SUFFICIENT = Context contains all key information needed to answer confidently
 PARTIAL = Context contains some relevant information but is incomplete
 INSUFFICIENT = Context does not contain the information needed to answer"""
 
-REASONING_SYSTEM_PROMPT = """You are a Context Foundry reasoning agent for IT operations.
+def _build_reasoning_system_prompt(schema: DomainSchema) -> str:
+    """
+    Build a domain-agnostic reasoning system prompt.
+    
+    Uses the currently loaded schema to describe the domain context,
+    making the reasoning agent work for any domain (IT Ops, Fiction, Healthcare, etc.).
+    """
+    entity_types = ", ".join(schema.get_entity_type_names())
+    relationship_types = ", ".join(schema.get_relationship_type_names())
+    
+    return f"""You are a Context Foundry reasoning agent for {schema.domain}.
 
 You will receive a ContextBundle containing:
-1. SEMANTIC MEMORY: Entities and relationships from the knowledge graph (services, teams, people, incidents)
-2. EPISODIC MEMORY: Similar documents and runbooks from vector search
+1. SEMANTIC MEMORY: Entities and relationships from the knowledge graph
+   - Entity types in this domain: {entity_types}
+   - Relationship types: {relationship_types}
+2. EPISODIC MEMORY: Similar documents from vector search
 3. SYMBOLIC MEMORY: Business rules and policies that apply
 
 Your task is to answer the user's query based ONLY on the provided context.
 
 CRITICAL RULES:
 1. Only use information from the provided context - NEVER make up facts
-2. For ENTITY-CENTRIC queries (about specific services, people, teams):
+2. For ENTITY-CENTRIC queries (about specific entities like {entity_types.split(", ")[0] if entity_types else "entities"}):
    - Use semantic memory (entities/relationships) as primary evidence
    - Supplement with episodic memory (documents) for additional detail
-3. For TOPIC-CENTRIC queries (about projects, initiatives, decisions, general topics):
+3. For TOPIC-CENTRIC queries (about general topics, events, or concepts):
    - Episodic memory (documents) may be the primary evidence source
    - Synthesize information from relevant documents even if no matching entity exists
    - Ground answers by referencing known entities mentioned in documents
@@ -67,26 +80,29 @@ CRITICAL RULES:
 7. Always check if any rules apply to your response
 
 RESPONSE FORMAT (JSON):
-{
+{{
     "answer": "Your detailed answer here",
     "confidence": 0.85,
     "confidence_level": "high|medium|low|very_low",
     "evidence_chain": [
-        {
+        {{
             "type": "entity|relationship|document|rule",
             "description": "What this evidence shows",
             "source": "Name of source entity/document/rule",
             "confidence": 0.9
-        }
+        }}
     ],
-    "uncertainty": {
+    "uncertainty": {{
         "uncertain_facts": ["List of facts you're unsure about"],
         "reasons": ["Why you're uncertain"],
         "would_help": ["What additional info would help"]
-    },
+    }},
     "rules_applied": ["List of rules that apply to this response"],
     "caveats": ["Any important caveats or warnings"]
-}"""
+}}"""
+
+
+REASONING_SYSTEM_PROMPT = None
 
 
 class ReasoningAgent:
@@ -296,10 +312,13 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
                     "query": bundle.query_text
                 })
             
+            schema = get_schema_loader().schema
+            reasoning_prompt = _build_reasoning_system_prompt(schema)
+            
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": REASONING_SYSTEM_PROMPT},
+                    {"role": "system", "content": reasoning_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.3,

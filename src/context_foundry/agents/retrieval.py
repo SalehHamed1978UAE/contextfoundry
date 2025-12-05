@@ -21,87 +21,70 @@ from ..memory.semantic import SemanticMemory
 from ..memory.episodic import EpisodicMemory
 from ..memory.symbolic import SymbolicMemory
 from ..utils.logger import logger, QueryLogger
+from ..config.domain_schema import get_schema_loader, DomainSchema
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
 
 
-PROPERTY_QUERY_SCHEMA = """You are a query analyzer for a knowledge graph system.
+def _build_property_query_schema(schema: DomainSchema) -> str:
+    """
+    Build a domain-agnostic property query schema prompt.
+    
+    Uses the currently loaded schema to determine valid entity types and their fields.
+    """
+    entity_types_str = ", ".join([f'"{t}"' for t in schema.get_entity_type_names()])
+    
+    entity_descriptions = []
+    for entity_type in schema.get_entity_type_names():
+        config = schema.get_entity_type(entity_type)
+        if config:
+            fields = config.get_all_fields()
+            if fields:
+                field_desc = "\n".join([f"- {f}" for f in fields])
+                entity_descriptions.append(f"{entity_type}:\n{field_desc}")
+            else:
+                entity_descriptions.append(f"{entity_type}: (properties determined by content)")
+    
+    entity_properties = "\n\n".join(entity_descriptions) if entity_descriptions else "Entity properties are determined by domain content."
+    
+    return f"""You are a query analyzer for a knowledge graph system.
+
+CURRENT DOMAIN: {schema.domain}
 
 ENTITY TYPES and their QUERYABLE PROPERTIES:
 
-PERSON:
-- role: Job title (e.g., 'Software Engineer', 'Director of Engineering', 'VP of Product')
-- level: Seniority level (e.g., 'IC', 'Manager', 'Director', 'VP', 'C-Level')
-- department: Department name (e.g., 'Engineering', 'Product', 'Sales')
-- expertise: List of skills/expertise areas (e.g., ['frontend', 'react', 'typescript', 'backend', 'python'])
-
-TEAM:
-- department: Parent department
-- focus_area: Team's primary focus
-
-SERVICE:
-- tier: Service tier (e.g., 'tier1', 'tier2')
-- language: Primary programming language
+{entity_properties}
 
 Analyze the query and determine if it's asking for entities filtered by their properties.
 Return a JSON object with:
 - needs_property_search: boolean - true if this query needs property-based filtering
-- entity_type: "PERSON", "TEAM", "SERVICE", or null
+- entity_type: One of [{entity_types_str}] or null
 - filters: array of filter objects, each with:
-  - property: the property name (e.g., "expertise", "level", "department")
+  - property: the property name
   - contains: value to search for (use for partial matches, lists, or text search)
-  - equals: exact value match (use for exact level/department matches)
+  - equals: exact value match (use for exact matches)
 - intersection_logic: "AND" or "OR" - how multiple filters should be combined
 
 EXAMPLES:
-Query: "Which engineers have frontend expertise?"
-{
+Query: "Which entities have a specific property value?"
+{{
   "needs_property_search": true,
-  "entity_type": "PERSON",
-  "filters": [{"property": "expertise", "contains": "frontend"}],
+  "entity_type": "ENTITY_TYPE",
+  "filters": [{{"property": "property_name", "contains": "value"}}],
   "intersection_logic": "AND"
-}
+}}
 
-Query: "Who are the Directors in Engineering?"
-{
-  "needs_property_search": true,
-  "entity_type": "PERSON",
-  "filters": [{"property": "level", "contains": "Director"}, {"property": "department", "contains": "Engineering"}],
-  "intersection_logic": "AND"
-}
-
-Query: "Which engineers have both frontend and backend expertise?"
-{
-  "needs_property_search": true,
-  "entity_type": "PERSON",
-  "filters": [{"property": "expertise", "contains": "frontend"}, {"property": "expertise", "contains": "backend"}],
-  "intersection_logic": "AND"
-}
-
-Query: "What services depend on the User Database?"
-{
+Query: "What depends on X?" or "Who is X?"
+{{
   "needs_property_search": false,
   "entity_type": null,
   "filters": [],
   "intersection_logic": "AND"
-}
+}}"""
 
-Query: "Who owns the Payment Service?"
-{
-  "needs_property_search": false,
-  "entity_type": null,
-  "filters": [],
-  "intersection_logic": "AND"
-}
 
-Query: "List all VPs"
-{
-  "needs_property_search": true,
-  "entity_type": "PERSON",
-  "filters": [{"property": "level", "contains": "VP"}],
-  "intersection_logic": "AND"
-}"""
+PROPERTY_QUERY_SCHEMA = None
 
 
 class RetrievalAgent:
@@ -134,19 +117,25 @@ class RetrievalAgent:
         """
         Use LLM to analyze if query needs property-based filtering.
         
+        DOMAIN-AGNOSTIC: Uses the currently loaded schema to determine
+        valid entity types for property filtering.
+        
         Returns structured filter specification:
         {
             "needs_property_search": bool,
-            "entity_type": "PERSON" | "TEAM" | "SERVICE" | None,
+            "entity_type": str | None (one of current schema's entity types),
             "filters": [{"property": "...", "contains": "..."}],
             "intersection_logic": "AND" | "OR"
         }
         """
         try:
+            schema = get_schema_loader().schema
+            property_query_prompt = _build_property_query_schema(schema)
+            
             response = self.llm_client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": PROPERTY_QUERY_SCHEMA},
+                    {"role": "system", "content": property_query_prompt},
                     {"role": "user", "content": f"Analyze this query:\n\n{query_text}"}
                 ],
                 temperature=0.0,
@@ -423,26 +412,55 @@ class RetrievalAgent:
         return keywords
     
     def _infer_entity_types(self, query_text: str) -> List[str]:
-        """Infer which entity types are relevant based on query content."""
-        query_lower = query_text.lower()
-        types = []
+        """
+        Infer which entity types are relevant based on query content.
         
-        if any(w in query_lower for w in ['database', 'db', 'postgres', 'mysql', 'redis']):
-            types.append("DATABASE")
-        if any(w in query_lower for w in ['service', 'api', 'endpoint']):
-            types.append("SERVICE")
-        if any(w in query_lower for w in ['team', 'group', 'department']):
-            types.append("TEAM")
-        if any(w in query_lower for w in ['person', 'who', 'engineer', 'lead', 'escalat', 'contact']):
-            types.append("PERSON")
-        if any(w in query_lower for w in ['incident', 'outage', 'failure', 'sev1', 'sev2']):
-            types.append("INCIDENT")
-        if any(w in query_lower for w in ['runbook', 'procedure', 'playbook', 'how to']):
-            types.append("RUNBOOK")
-        if any(w in query_lower for w in ['component', 'cache', 'queue']):
-            types.append("COMPONENT")
+        DOMAIN-AGNOSTIC: Uses the currently loaded schema's entity types
+        instead of hardcoded IT Operations types.
         
-        return types if types else [EntityType.SERVICE, EntityType.DATABASE, EntityType.TEAM, EntityType.PERSON, EntityType.INCIDENT, EntityType.COMPONENT, EntityType.RUNBOOK]
+        IMPORTANT: Always returns ALL schema types to avoid missing entities.
+        For example, "What does Alice possess?" should search CHARACTER for Alice
+        even though 'possess' matches OBJECT type. The relationship filtering
+        happens later in the pipeline.
+        """
+        schema = get_schema_loader().schema
+        return schema.get_entity_type_names()
+    
+    def _build_entity_type_keywords(self, schema: DomainSchema) -> Dict[str, List[str]]:
+        """
+        Build keyword mapping for entity type inference.
+        
+        Uses schema descriptions and names to generate relevant keywords.
+        Falls back to name-based inference for unknown types.
+        """
+        keyword_map = {}
+        
+        common_keywords = {
+            'DATABASE': ['database', 'db', 'postgres', 'mysql', 'redis', 'data store'],
+            'SERVICE': ['service', 'api', 'endpoint', 'microservice'],
+            'TEAM': ['team', 'group', 'department', 'squad'],
+            'PERSON': ['person', 'who', 'engineer', 'lead', 'manager', 'contact', 'owner'],
+            'INCIDENT': ['incident', 'outage', 'failure', 'sev1', 'sev2', 'alert'],
+            'RUNBOOK': ['runbook', 'procedure', 'playbook', 'how to', 'guide'],
+            'COMPONENT': ['component', 'cache', 'queue', 'module'],
+            'CHARACTER': ['character', 'protagonist', 'hero', 'villain', 'who', 'person'],
+            'CREATURE': ['creature', 'animal', 'beast', 'monster', 'being'],
+            'LOCATION': ['location', 'place', 'where', 'setting', 'land', 'world'],
+            'OBJECT': ['object', 'item', 'thing', 'artifact', 'possess', 'has', 'owns'],
+            'EVENT': ['event', 'happened', 'occurs', 'when', 'incident', 'happening'],
+        }
+        
+        for entity_type in schema.get_entity_type_names():
+            if entity_type in common_keywords:
+                keyword_map[entity_type] = common_keywords[entity_type]
+            else:
+                keyword_map[entity_type] = [entity_type.lower(), entity_type.lower().replace('_', ' ')]
+                entity_config = schema.get_entity_type(entity_type)
+                if entity_config and entity_config.description:
+                    desc_words = entity_config.description.lower().split()
+                    keyword_map[entity_type].extend([w for w in desc_words if len(w) > 3][:3])
+        
+        return keyword_map
     
     def _is_impact_query(self, query_text: str) -> bool:
         """
@@ -1106,7 +1124,9 @@ class RetrievalAgent:
         relationships = []
         seen_entity_ids: Set[str] = set()
         
-        default_types = [EntityType.SERVICE, EntityType.DATABASE, EntityType.TEAM, EntityType.PERSON, EntityType.INCIDENT, EntityType.COMPONENT, EntityType.RUNBOOK]
+        schema = get_schema_loader().schema
+        default_types = schema.get_entity_type_names()
+        
         for keyword in keywords:
             found = self.semantic.search_entities(
                 keyword,
