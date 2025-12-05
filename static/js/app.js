@@ -94,6 +94,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let graphEdges = [];
     let selectedNodeId = null;
     let searchDebounceTimer = null;
+    let layoutRadiusMultiplier = 1.0;
+    let customNodePositions = {};
+    let isDragging = false;
+    let dragNodeId = null;
+    let dragOffset = { x: 0, y: 0 };
     
     function getLifecycleColor(lifecycleState) {
         switch(lifecycleState) {
@@ -101,6 +106,30 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'TRUSTED': return '#10b981';
             case 'ARCHIVED': return '#6b7280';
             default: return '#06b6d4';
+        }
+    }
+    
+    function getEntityTypeColor(entityType) {
+        const type = (entityType || '').toUpperCase();
+        switch(type) {
+            case 'SERVICE': return '#3B82F6';
+            case 'COMPONENT': return '#8B5CF6';
+            case 'TEAM': return '#10B981';
+            case 'PERSON': return '#F59E0B';
+            case 'DATABASE': return '#06B6D4';
+            case 'INCIDENT': return '#EF4444';
+            case 'RUNBOOK': return '#EC4899';
+            case 'DOCUMENT': return '#84CC16';
+            default: return '#94A3B8';
+        }
+    }
+    
+    function getLifecycleBorderStyle(lifecycleState) {
+        switch(lifecycleState) {
+            case 'TRUSTED': return { style: 'solid', opacity: 1 };
+            case 'STAGING': return { style: 'dashed', opacity: 0.85 };
+            case 'ARCHIVED': return { style: 'solid', opacity: 0.4 };
+            default: return { style: 'solid', opacity: 0.7 };
         }
     }
     
@@ -208,7 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!panel || !content) return;
         
         const entity = data.entity;
-        const color = getLifecycleColor(entity.lifecycle_state);
+        const typeColor = getEntityTypeColor(entity.type);
+        const lifecycleColor = getLifecycleColor(entity.lifecycle_state);
         
         let propsHtml = '';
         if (entity.properties && Object.keys(entity.properties).length > 0) {
@@ -225,10 +255,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.outgoing_relationships && data.outgoing_relationships.length > 0) {
             outgoingHtml = '<div style="margin-top: 16px;"><div style="color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">OUTGOING RELATIONSHIPS</div>';
             data.outgoing_relationships.forEach(rel => {
+                const relColor = getEntityTypeColor(rel.target_type);
                 outgoingHtml += `
                     <div class="rel-item" data-entity-id="${rel.target_id}" style="padding: 8px; margin-bottom: 4px; background: var(--bg-secondary); border-radius: 4px; cursor: pointer;">
                         <div style="color: var(--accent-primary); font-size: 11px;">${escapeHtml(rel.relationship_type)}</div>
-                        <div>${escapeHtml(rel.target_name)} <span style="color: var(--text-muted); font-size: 11px;">(${rel.target_type})</span></div>
+                        <div>${escapeHtml(rel.target_name)} <span style="color: ${relColor}; font-size: 11px;">(${rel.target_type})</span></div>
                     </div>
                 `;
             });
@@ -239,10 +270,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.incoming_relationships && data.incoming_relationships.length > 0) {
             incomingHtml = '<div style="margin-top: 16px;"><div style="color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">INCOMING RELATIONSHIPS</div>';
             data.incoming_relationships.forEach(rel => {
+                const relColor = getEntityTypeColor(rel.source_type);
                 incomingHtml += `
                     <div class="rel-item" data-entity-id="${rel.source_id}" style="padding: 8px; margin-bottom: 4px; background: var(--bg-secondary); border-radius: 4px; cursor: pointer;">
                         <div style="color: var(--accent-warning); font-size: 11px;">${escapeHtml(rel.relationship_type)}</div>
-                        <div>${escapeHtml(rel.source_name)} <span style="color: var(--text-muted); font-size: 11px;">(${rel.source_type})</span></div>
+                        <div>${escapeHtml(rel.source_name)} <span style="color: ${relColor}; font-size: 11px;">(${rel.source_type})</span></div>
                     </div>
                 `;
             });
@@ -250,14 +282,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         content.innerHTML = `
-            <div style="border-left: 3px solid ${color}; padding-left: 12px; margin-bottom: 16px;">
+            <div style="border-left: 3px solid ${typeColor}; padding-left: 12px; margin-bottom: 16px;">
                 <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">${escapeHtml(entity.name)}</div>
-                <div style="color: var(--text-muted); font-size: 12px;">${entity.type}</div>
+                <div style="color: ${typeColor}; font-size: 12px;">${entity.type}</div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                 <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
                     <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">STATE</div>
-                    <div style="color: ${color}; font-weight: 500;">${entity.lifecycle_state}</div>
+                    <div style="color: ${lifecycleColor}; font-weight: 500;">${entity.lifecycle_state}</div>
                 </div>
                 <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
                     <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">CONFIDENCE</div>
@@ -329,20 +361,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const nodePositions = {};
         
         if (centerNode) {
-            nodePositions[centerNode.id] = { x: centerX, y: centerY };
+            if (customNodePositions[centerNode.id]) {
+                nodePositions[centerNode.id] = customNodePositions[centerNode.id];
+            } else {
+                nodePositions[centerNode.id] = { x: centerX, y: centerY };
+            }
             
             const neighbors = nodes.filter(n => n.id !== centerNode.id);
             const angleStep = (2 * Math.PI) / Math.max(neighbors.length, 1);
             const maxRadius = Math.min(containerWidth - padding * 2, containerHeight - padding * 2) / 2;
-            const radius = Math.max(60, Math.min(maxRadius, 120));
+            const baseRadius = Math.max(60, Math.min(maxRadius, 120));
+            const radius = baseRadius * layoutRadiusMultiplier;
             
             neighbors.forEach((node, i) => {
-                const angle = i * angleStep - Math.PI / 2;
-                let x = centerX + radius * Math.cos(angle);
-                let y = centerY + radius * Math.sin(angle);
-                x = Math.max(padding, Math.min(containerWidth - padding, x));
-                y = Math.max(padding, Math.min(containerHeight - padding, y));
-                nodePositions[node.id] = { x, y };
+                if (customNodePositions[node.id]) {
+                    nodePositions[node.id] = customNodePositions[node.id];
+                } else {
+                    const angle = i * angleStep - Math.PI / 2;
+                    let x = centerX + radius * Math.cos(angle);
+                    let y = centerY + radius * Math.sin(angle);
+                    x = Math.max(padding, Math.min(containerWidth - padding, x));
+                    y = Math.max(padding, Math.min(containerHeight - padding, y));
+                    nodePositions[node.id] = { x, y };
+                }
             });
         }
         
@@ -403,12 +444,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const pos = nodePositions[node.id];
             if (!pos) return;
             
-            const color = getLifecycleColor(node.lifecycle_state);
+            const typeColor = getEntityTypeColor(node.type);
+            const lifecycleStyle = getLifecycleBorderStyle(node.lifecycle_state);
             const confidence = node.confidence || 0.5;
             const isCenter = node.is_center;
             const isSelected = node.id === selectedNodeId;
             const baseSize = isMobile ? (isCenter ? 44 : 32) : (isCenter ? 56 : 40);
             const size = baseSize + (confidence * (isMobile ? 8 : 12));
+            const borderWidth = isSelected ? 3 : 2;
+            const borderStyle = lifecycleStyle.style;
+            const nodeOpacity = lifecycleStyle.opacity;
             
             const nodeEl = document.createElement('div');
             nodeEl.className = 'graph-node';
@@ -422,9 +467,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 margin-left: ${-size/2}px;
                 margin-top: ${-size/2}px;
                 border-radius: ${isCenter ? '12px' : '50%'};
-                background: ${isSelected ? color + '30' : '#1e293b'};
-                border: ${isSelected ? '3px' : '2px'} solid ${color};
-                box-shadow: 0 0 ${isCenter ? '30px' : '20px'} ${color}${isCenter ? '60' : '40'};
+                background: ${isSelected ? typeColor + '30' : '#1e293b'};
+                border: ${borderWidth}px ${borderStyle} ${typeColor};
+                box-shadow: 0 0 ${isCenter ? '30px' : '20px'} ${typeColor}${isCenter ? '60' : '40'};
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -435,12 +480,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 z-index: ${isCenter ? 20 : 10};
             `;
             
+            nodeEl.dataset.nodeOpacity = nodeOpacity;
+            
             const iconSize = Math.max(16, size * 0.4);
             const iconWrapper = document.createElement('div');
-            iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${color};`;
+            iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${typeColor};`;
             iconWrapper.innerHTML = getNodeIcon(node.type);
             nodeEl.appendChild(iconWrapper);
             
+            const lifecycleColor = getLifecycleColor(node.lifecycle_state);
             const tooltip = document.createElement('div');
             tooltip.className = 'graph-tooltip';
             tooltip.style.cssText = `
@@ -451,11 +499,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 margin-bottom: 8px;
                 padding: 8px 12px;
                 background: rgba(15, 23, 42, 0.95);
-                border: 1px solid ${color}50;
+                border: 1px solid ${typeColor}50;
                 border-radius: 6px;
                 font-size: 11px;
                 font-family: 'JetBrains Mono', monospace;
-                color: ${color};
+                color: ${typeColor};
                 white-space: nowrap;
                 opacity: 0;
                 pointer-events: none;
@@ -464,36 +512,66 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             tooltip.innerHTML = `
                 <div style="font-weight: bold;">${escapeHtml(node.name)}</div>
-                <div style="color: #94a3b8; font-size: 10px; margin-top: 2px;">${node.type} | ${node.lifecycle_state} | ${Math.round(confidence * 100)}%</div>
+                <div style="display: flex; gap: 8px; margin-top: 4px; font-size: 10px;">
+                    <span style="color: ${typeColor};">${node.type}</span>
+                    <span style="color: ${lifecycleColor};">${node.lifecycle_state}</span>
+                    <span style="color: #94a3b8;">${Math.round(confidence * 100)}%</span>
+                </div>
             `;
             nodeEl.appendChild(tooltip);
             
             nodeEl.addEventListener('mouseenter', () => {
                 nodeEl.style.transform = 'scale(1.1)';
-                nodeEl.style.boxShadow = `0 0 40px ${color}80`;
+                nodeEl.style.boxShadow = `0 0 40px ${typeColor}80`;
                 tooltip.style.opacity = '1';
             });
             nodeEl.addEventListener('mouseleave', () => {
                 nodeEl.style.transform = 'scale(1)';
-                nodeEl.style.boxShadow = `0 0 ${isCenter ? '30px' : '20px'} ${color}${isCenter ? '60' : '40'}`;
+                nodeEl.style.boxShadow = `0 0 ${isCenter ? '30px' : '20px'} ${typeColor}${isCenter ? '60' : '40'}`;
                 tooltip.style.opacity = '0';
             });
             
-            nodeEl.addEventListener('click', () => {
-                selectedNodeId = node.id;
-                loadEntityDetails(node.id);
-                renderGraph();
+            let clickTimeout = null;
+            
+            nodeEl.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                isDragging = true;
+                window.graphHasDragged = false;
+                dragNodeId = node.id;
+                const rect = nodeEl.getBoundingClientRect();
+                dragOffset = {
+                    x: e.clientX - rect.left - rect.width / 2,
+                    y: e.clientY - rect.top - rect.height / 2
+                };
+                nodeEl.style.cursor = 'grabbing';
+                nodeEl.style.zIndex = '100';
+                e.preventDefault();
             });
             
-            nodeEl.addEventListener('dblclick', () => {
-                expandEntity(node.id);
+            nodeEl.addEventListener('click', (e) => {
+                if (window.graphHasDragged) {
+                    window.graphHasDragged = false;
+                    return;
+                }
+                if (clickTimeout) {
+                    clearTimeout(clickTimeout);
+                    clickTimeout = null;
+                    expandEntity(node.id);
+                } else {
+                    clickTimeout = setTimeout(() => {
+                        selectedNodeId = node.id;
+                        loadEntityDetails(node.id);
+                        renderGraph();
+                        clickTimeout = null;
+                    }, 250);
+                }
             });
             
             graphContainer.appendChild(nodeEl);
             
             setTimeout(() => {
                 nodeEl.style.transform = 'scale(1)';
-                nodeEl.style.opacity = '1';
+                nodeEl.style.opacity = nodeOpacity.toString();
             }, 100 + i * 50);
         });
     }
@@ -525,6 +603,8 @@ document.addEventListener('DOMContentLoaded', function() {
         graphNodes = {};
         graphEdges = [];
         selectedNodeId = null;
+        customNodePositions = {};
+        layoutRadiusMultiplier = 1.0;
         renderGraph();
         const panel = document.getElementById('detailsPanel');
         if (panel) panel.style.display = 'none';
@@ -533,12 +613,78 @@ document.addEventListener('DOMContentLoaded', function() {
         if (emptyState) emptyState.style.display = 'block';
     }
     
+    function setupDragHandlers() {
+        const graphContainer = document.getElementById('graphNodesHtml');
+        const canvasContainer = document.getElementById('graphCanvasContainer');
+        if (!canvasContainer) return;
+        
+        canvasContainer.addEventListener('mousemove', (e) => {
+            if (!isDragging || !dragNodeId) return;
+            
+            const containerRect = canvasContainer.getBoundingClientRect();
+            const x = e.clientX - containerRect.left;
+            const y = e.clientY - containerRect.top;
+            
+            const prevPos = customNodePositions[dragNodeId];
+            if (!prevPos || Math.abs(x - prevPos.x) > 3 || Math.abs(y - prevPos.y) > 3) {
+                window.graphHasDragged = true;
+            }
+            
+            customNodePositions[dragNodeId] = { x, y };
+            
+            const nodeEl = document.querySelector(`.graph-node[data-node-id="${dragNodeId}"]`);
+            if (nodeEl) {
+                nodeEl.style.left = `${x}px`;
+                nodeEl.style.top = `${y}px`;
+            }
+            
+            document.querySelectorAll('.graph-node').forEach(el => {
+                if (el.dataset.nodeId !== dragNodeId) {
+                    el.style.pointerEvents = 'none';
+                }
+            });
+        });
+        
+        canvasContainer.addEventListener('mouseup', () => {
+            if (isDragging && dragNodeId) {
+                const nodeEl = document.querySelector(`.graph-node[data-node-id="${dragNodeId}"]`);
+                if (nodeEl) {
+                    nodeEl.style.cursor = 'pointer';
+                    nodeEl.style.zIndex = '';
+                }
+                renderGraph();
+            }
+            isDragging = false;
+            dragNodeId = null;
+            document.querySelectorAll('.graph-node').forEach(el => {
+                el.style.pointerEvents = '';
+            });
+        });
+        
+        canvasContainer.addEventListener('mouseleave', () => {
+            if (isDragging && dragNodeId) {
+                const nodeEl = document.querySelector(`.graph-node[data-node-id="${dragNodeId}"]`);
+                if (nodeEl) {
+                    nodeEl.style.cursor = 'pointer';
+                    nodeEl.style.zIndex = '';
+                }
+            }
+            isDragging = false;
+            dragNodeId = null;
+        });
+    }
+    
     function initGraphExplorer() {
         const searchInput = document.getElementById('graphSearchInput');
         const searchResults = document.getElementById('searchResults');
         const filterSelect = document.getElementById('lifecycleFilter');
         const clearBtn = document.getElementById('graphClearBtn');
         const closePanel = document.getElementById('closePanelBtn');
+        const spreadBtn = document.getElementById('graphSpreadBtn');
+        const compactBtn = document.getElementById('graphCompactBtn');
+        const resetBtn = document.getElementById('graphResetBtn');
+        
+        setupDragHandlers();
         
         if (searchInput && searchResults) {
             searchInput.addEventListener('input', () => {
@@ -555,14 +701,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (results.length === 0) {
                         searchResults.innerHTML = '<div style="padding: 12px; color: var(--text-muted);">No entities found</div>';
                     } else {
-                        searchResults.innerHTML = results.map(r => `
-                            <div class="search-result-item" data-entity-id="${r.id}" style="padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s;">
+                        searchResults.innerHTML = results.map(r => {
+                            const typeColor = getEntityTypeColor(r.type);
+                            const lifecycleColor = getLifecycleColor(r.lifecycle_state);
+                            return `
+                            <div class="search-result-item" data-entity-id="${r.id}" style="padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s; border-left: 3px solid ${typeColor};">
                                 <div style="font-weight: 500; color: var(--text-primary);">${escapeHtml(r.name)}</div>
-                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
-                                    ${r.type} | <span style="color: ${getLifecycleColor(r.lifecycle_state)};">${r.lifecycle_state}</span> | ${Math.round(r.confidence * 100)}%
+                                <div style="font-size: 11px; margin-top: 4px; display: flex; gap: 8px;">
+                                    <span style="color: ${typeColor};">${r.type}</span>
+                                    <span style="color: ${lifecycleColor};">${r.lifecycle_state}</span>
+                                    <span style="color: var(--text-muted);">${Math.round(r.confidence * 100)}%</span>
                                 </div>
                             </div>
-                        `).join('');
+                        `}).join('');
                     }
                     searchResults.style.display = 'block';
                     
@@ -607,6 +758,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 const panel = document.getElementById('detailsPanel');
                 if (panel) panel.style.display = 'none';
                 selectedNodeId = null;
+                renderGraph();
+            });
+        }
+        
+        if (spreadBtn) {
+            spreadBtn.addEventListener('click', () => {
+                customNodePositions = {};
+                layoutRadiusMultiplier = Math.min(layoutRadiusMultiplier + 0.3, 2.5);
+                renderGraph();
+            });
+        }
+        
+        if (compactBtn) {
+            compactBtn.addEventListener('click', () => {
+                customNodePositions = {};
+                layoutRadiusMultiplier = Math.max(layoutRadiusMultiplier - 0.3, 0.4);
+                renderGraph();
+            });
+        }
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                customNodePositions = {};
+                layoutRadiusMultiplier = 1.0;
                 renderGraph();
             });
         }
