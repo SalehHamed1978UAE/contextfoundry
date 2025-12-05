@@ -100,6 +100,218 @@ class ValidationRuleConfig:
     requires: Optional[str] = None
 
 
+class FrontierReason(str, Enum):
+    """Reasons why traversal stopped at a node.
+    
+    These reasons are domain-agnostic and apply to any traversal mode.
+    """
+    NO_RELATIONSHIPS = "no_relationships"  # Entity has no relationships at all
+    NO_EDGES_FOR_MODE = "no_edges_for_mode"  # Relationships exist, but none match mode's rules
+    BELOW_CONFIDENCE_THRESHOLD = "below_confidence_threshold"  # All edges below threshold
+    MAX_DEPTH_REACHED = "max_depth_reached"  # Hit the traversal depth limit
+    ALL_NEIGHBORS_VISITED = "all_neighbors_visited"  # All valid neighbors already in visited set
+
+
+def generate_frontier_message(
+    reason: FrontierReason,
+    mode: str,
+    entity_name: str,
+    entity_type: str
+) -> str:
+    """Generate a human-readable message explaining why traversal stopped.
+    
+    This is domain-agnostic - it works for any entity type and traversal mode.
+    
+    Args:
+        reason: Why traversal stopped
+        mode: The traversal mode being used (e.g., 'impact', 'dependency', 'ownership')
+        entity_name: Name of the frontier entity
+        entity_type: Type of the frontier entity (e.g., 'SERVICE', 'CHARACTER', 'COMPANY')
+    
+    Returns:
+        Human-readable explanation string
+    """
+    mode_descriptions = {
+        "impact": "affected by",
+        "dependency": "dependent on", 
+        "ownership": "owned by or owning",
+        "organizational": "organizationally connected to",
+        "incident": "related to incidents involving"
+    }
+    
+    mode_phrase = mode_descriptions.get(mode, f"connected to (via '{mode}' mode)")
+    entity_type_lower = entity_type.lower().replace("_", " ")
+    
+    if reason == FrontierReason.NO_RELATIONSHIPS:
+        return (
+            f"{entity_name} has no documented relationships. "
+            f"This {entity_type_lower} may need further documentation."
+        )
+    
+    elif reason == FrontierReason.NO_EDGES_FOR_MODE:
+        return (
+            f"No entities documented as {mode_phrase} {entity_name}. "
+            f"This may indicate incomplete documentation for this {entity_type_lower}."
+        )
+    
+    elif reason == FrontierReason.BELOW_CONFIDENCE_THRESHOLD:
+        return (
+            f"Relationships exist for {entity_name}, but all are below the confidence threshold. "
+            f"Consider reviewing low-confidence connections for this {entity_type_lower}."
+        )
+    
+    elif reason == FrontierReason.MAX_DEPTH_REACHED:
+        return (
+            f"Traversal stopped at {entity_name} due to depth limit. "
+            f"The full {mode} chain may extend further from this {entity_type_lower}."
+        )
+    
+    elif reason == FrontierReason.ALL_NEIGHBORS_VISITED:
+        return (
+            f"All entities {mode_phrase} {entity_name} have already been visited. "
+            f"Traversal complete for this {entity_type_lower}."
+        )
+    
+    return f"Traversal stopped at {entity_name} ({reason.value})."
+
+
+def generate_gap_description(
+    reason: FrontierReason,
+    mode: str,
+    entity_name: str,
+    entity_type: str
+) -> Optional[str]:
+    """Generate a gap description for documentation improvement.
+    
+    Not all frontier nodes represent documentation gaps - only some reasons
+    indicate missing information that should be added.
+    
+    Returns:
+        Gap description if this represents a documentation gap, None otherwise
+    """
+    entity_type_lower = entity_type.lower().replace("_", " ")
+    
+    if reason == FrontierReason.NO_RELATIONSHIPS:
+        return f"{entity_name} ({entity_type_lower}) has no documented relationships"
+    
+    elif reason == FrontierReason.NO_EDGES_FOR_MODE:
+        mode_descriptions = {
+            "impact": "dependents",
+            "dependency": "dependencies",
+            "ownership": "ownership relationships",
+        }
+        mode_word = mode_descriptions.get(mode, f"{mode} relationships")
+        return f"{entity_name} ({entity_type_lower}) has no documented {mode_word}"
+    
+    return None
+
+
+@dataclass
+class FrontierNode:
+    """A node where traversal stopped, with the reason why.
+    
+    Frontier nodes represent the boundary of confirmed knowledge.
+    They're candidates for inference expansion in later phases.
+    """
+    entity_id: str
+    entity_name: str
+    entity_type: str
+    reason: FrontierReason
+    message: str  # Human-readable explanation
+    depth: int = 0  # How deep in traversal this node was reached
+    last_documented: Optional[str] = None  # Staleness indicator
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for API response."""
+        return {
+            "entity_id": self.entity_id,
+            "entity_name": self.entity_name,
+            "entity_type": self.entity_type,
+            "reason": self.reason.value,
+            "message": self.message,
+            "depth": self.depth,
+            "last_documented": self.last_documented
+        }
+
+
+@dataclass
+class ConfirmedEntity:
+    """An entity confirmed through explicit graph traversal."""
+    entity_id: str
+    entity_name: str
+    entity_type: str
+    confidence: float
+    depth: int  # How many hops from the starting entity
+    path: List[str] = field(default_factory=list)  # Relationship types traversed to reach this
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for API response."""
+        return {
+            "entity_id": self.entity_id,
+            "entity_name": self.entity_name,
+            "entity_type": self.entity_type,
+            "confidence": self.confidence,
+            "depth": self.depth,
+            "path": self.path
+        }
+
+
+@dataclass
+class TraversalResult:
+    """Complete result of a schema-driven traversal operation.
+    
+    Separates confirmed knowledge from speculative inference,
+    and explicitly tracks where knowledge ends (frontier nodes).
+    """
+    # The starting entity
+    start_entity_id: str
+    start_entity_name: str
+    start_entity_type: str
+    
+    # Traversal parameters
+    mode: str
+    max_depth: int
+    confidence_threshold: float = 0.0
+    
+    # Tier 1: Confirmed knowledge (explicit graph relationships)
+    confirmed_entities: List[ConfirmedEntity] = field(default_factory=list)
+    traversed_relationships: List[Dict] = field(default_factory=list)
+    
+    # Frontier: Where knowledge ends
+    frontier_nodes: List[FrontierNode] = field(default_factory=list)
+    
+    # Gaps identified (for documentation improvement)
+    gaps_identified: List[str] = field(default_factory=list)
+    
+    # Metadata
+    traversal_complete: bool = True
+    timestamp: Optional[str] = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to structured API response format."""
+        return {
+            "confirmed": {
+                "entities": [e.to_dict() for e in self.confirmed_entities],
+                "count": len(self.confirmed_entities),
+                "complete": self.traversal_complete
+            },
+            "frontier": [f.to_dict() for f in self.frontier_nodes],
+            "gaps_identified": self.gaps_identified,
+            "relationships": self.traversed_relationships,
+            "metadata": {
+                "start_entity": {
+                    "id": self.start_entity_id,
+                    "name": self.start_entity_name,
+                    "type": self.start_entity_type
+                },
+                "mode": self.mode,
+                "max_depth": self.max_depth,
+                "confidence_threshold": self.confidence_threshold,
+                "timestamp": self.timestamp
+            }
+        }
+
+
 @dataclass
 class DomainSchema:
     """Complete domain schema configuration."""

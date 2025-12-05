@@ -143,11 +143,25 @@ def query():
             }
         }
         
-        # Include blast radius entities for deterministic impact query tracking
+        # Include traversal results for impact queries
         context_bundle = result.get('context_bundle', {})
+        
+        # Legacy: blast radius entities for backward compatibility
         if context_bundle.get('blast_radius_entities'):
             response['blast_radius_entities'] = context_bundle['blast_radius_entities']
             response['blast_radius_complete'] = context_bundle.get('blast_radius_complete', True)
+        
+        # NEW: Structured traversal result with frontier detection
+        if context_bundle.get('traversal_result'):
+            traversal = context_bundle['traversal_result']
+            response['confirmed'] = traversal.get('confirmed', {})
+            response['frontier'] = traversal.get('frontier', [])
+            response['gaps_identified'] = traversal.get('gaps_identified', [])
+        elif context_bundle.get('frontier'):
+            # Fallback if traversal_result not present but frontier is
+            response['frontier'] = context_bundle['frontier']
+            response['gaps_identified'] = context_bundle.get('gaps_identified', [])
+        
         return jsonify(response)
     except Exception as e:
         reset_context_foundry()
