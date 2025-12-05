@@ -272,64 +272,95 @@
             </div>
 
             <div class="page-content page-memory" style="display: none;">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                        <h2 class="card-title">Live Knowledge Graph</h2>
-                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                            <select id="lifecycleFilter" class="graph-filter-select" style="padding: 6px 12px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); cursor: pointer;">
-                                <option value="all">All States</option>
-                                <option value="TRUSTED">TRUSTED only</option>
-                                <option value="STAGING">STAGING only</option>
-                                <option value="ARCHIVED">ARCHIVED only</option>
-                            </select>
-                            <button id="graphRefreshBtn" class="btn" style="padding: 6px 12px; font-size: 12px;" title="Refresh graph">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition: transform 0.5s;">
-                                    <path d="M23 4v6h-6"/>
-                                    <path d="M1 20v-6h6"/>
-                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                                </svg>
-                            </button>
-                            <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); cursor: pointer;">
-                                <input type="checkbox" id="autoRefreshToggle" style="cursor: pointer;">
-                                Auto-refresh (30s)
-                            </label>
+                <div class="graph-explorer-container" style="display: flex; gap: 16px; height: calc(100vh - 140px);">
+                    <div class="graph-main-panel" style="flex: 1; display: flex; flex-direction: column;">
+                        <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+                            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                                <h2 class="card-title">Knowledge Graph Explorer</h2>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <select id="lifecycleFilter" class="graph-filter-select" style="padding: 6px 12px; font-size: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); cursor: pointer;">
+                                        <option value="all">All States</option>
+                                        <option value="TRUSTED">TRUSTED</option>
+                                        <option value="STAGING">STAGING</option>
+                                        <option value="ARCHIVED">ARCHIVED</option>
+                                    </select>
+                                    <button id="graphClearBtn" class="btn" style="padding: 6px 12px; font-size: 12px;" title="Clear graph">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 6L6 18M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body" style="padding: 0; flex: 1; display: flex; flex-direction: column;">
+                                <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+                                    <div style="position: relative;">
+                                        <input type="text" id="graphSearchInput" placeholder="Search entities... (e.g., 'Auth Service', 'Payment')" 
+                                            style="width: 100%; padding: 12px 16px; padding-left: 44px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); font-size: 14px;"
+                                            autocomplete="off">
+                                        <svg style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path d="M21 21l-4.35-4.35"/>
+                                        </svg>
+                                    </div>
+                                    <div id="searchResults" style="display: none; position: absolute; z-index: 100; width: calc(100% - 48px); margin-top: 4px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 240px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.4);"></div>
+                                </div>
+                                <div id="graphStats" style="padding: 8px 24px; display: flex; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); font-size: 11px; font-family: 'JetBrains Mono', monospace;">
+                                    <span class="graph-stat" style="color: #10b981;">TRUSTED: <span id="statTrusted">--</span></span>
+                                    <span class="graph-stat" style="color: #f59e0b;">STAGING: <span id="statStaging">--</span></span>
+                                    <span class="graph-stat" style="color: #6b7280;">ARCHIVED: <span id="statArchived">--</span></span>
+                                    <span style="color: var(--text-muted); margin-left: auto;">Visible: <span id="statVisible">0</span> nodes</span>
+                                </div>
+                                <div class="memory-graph-container" style="position: relative; flex: 1; overflow: hidden; background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.03) 0%, transparent 70%);">
+                                    <svg id="memoryGraph" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                                        <defs>
+                                            <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.6" />
+                                                <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0" />
+                                            </radialGradient>
+                                        </defs>
+                                        <g class="links" id="graphLinks"></g>
+                                    </svg>
+                                    <div id="graphNodesHtml" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                                    <div id="graphEmptyState" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted);">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path d="M21 21l-4.35-4.35"/>
+                                        </svg>
+                                        <div style="font-size: 14px; margin-bottom: 8px;">Search to explore the knowledge graph</div>
+                                        <div style="font-size: 12px; opacity: 0.7;">Type an entity name above to get started</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 16px; padding: 12px 24px; border-top: 1px solid var(--border-color); flex-wrap: wrap; font-size: 11px;">
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="width: 10px; height: 10px; background: #10b981; border-radius: 50%;"></span>
+                                        <span style="color: var(--text-muted);">TRUSTED</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="width: 10px; height: 10px; background: #f59e0b; border-radius: 50%;"></span>
+                                        <span style="color: var(--text-muted);">STAGING</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="width: 10px; height: 10px; background: #6b7280; border-radius: 50%;"></span>
+                                        <span style="color: var(--text-muted);">ARCHIVED</span>
+                                    </div>
+                                    <div style="margin-left: auto; color: var(--text-muted);">
+                                        Click = select | Double-click = expand neighbors
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body" style="padding: 0;">
-                        <div id="graphStats" style="padding: 12px 24px; display: flex; gap: 16px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); font-size: 12px; font-family: 'JetBrains Mono', monospace;">
-                            <span class="graph-stat staging" style="color: #f59e0b;">STAGING: --</span>
-                            <span class="graph-stat trusted" style="color: #10b981;">TRUSTED: --</span>
-                            <span class="graph-stat archived" style="color: #6b7280;">ARCHIVED: --</span>
-                            <span class="graph-stat total" style="color: var(--text-muted);">Loading...</span>
-                        </div>
-                        <div class="memory-graph-container" style="position: relative; height: 420px; overflow: hidden; background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.03) 0%, transparent 70%);">
-                            <svg id="memoryGraph" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
-                                <defs>
-                                    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-                                        <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.6" />
-                                        <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0" />
-                                    </radialGradient>
-                                </defs>
-                                <g class="links" id="graphLinks"></g>
-                            </svg>
-                            <div id="graphNodesHtml" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
-                        </div>
-                        <div style="display: flex; gap: 24px; padding: 16px 24px; border-top: 1px solid var(--border-color); flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 12px; height: 12px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">TRUSTED (active)</span>
+                    <div id="detailsPanel" class="graph-details-panel" style="width: 320px; display: none;">
+                        <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 class="card-title" style="font-size: 14px;">Entity Details</h3>
+                                <button id="closePanelBtn" class="btn" style="padding: 4px 8px; font-size: 12px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                </button>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%; box-shadow: 0 0 8px #f59e0b;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">STAGING (pending)</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="width: 12px; height: 12px; background: #6b7280; border-radius: 50%; box-shadow: 0 0 8px #6b7280;"></span>
-                                <span style="color: var(--text-muted); font-size: 12px;">ARCHIVED (superseded)</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
-                                <span style="color: var(--text-muted); font-size: 11px;">Node size = confidence</span>
-                            </div>
+                            <div id="detailsContent" class="card-body" style="flex: 1; overflow-y: auto; font-size: 13px;"></div>
                         </div>
                     </div>
                 </div>

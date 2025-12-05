@@ -243,6 +243,256 @@ def graph_visualization():
     finally:
         session.close()
 
+@app.route('/api/graph/search')
+def graph_search():
+    """Search for entities and return matching node with 1-hop neighbors.
+    
+    Query parameters:
+    - q: Search query (entity name, partial match)
+    - lifecycle_state: Filter by lifecycle state (default: 'all')
+    - limit: Max results for search (default: 10)
+    """
+    from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
+    from sqlalchemy import or_, func
+    
+    query = request.args.get('q', '').strip()
+    lifecycle_filter = request.args.get('lifecycle_state', 'all')
+    limit = int(request.args.get('limit', 10))
+    
+    if not query:
+        return jsonify({'success': True, 'results': [], 'message': 'Enter a search term'})
+    
+    session = get_session()
+    try:
+        entity_query = session.query(Entity).filter(
+            func.lower(Entity.name).contains(query.lower())
+        )
+        
+        if lifecycle_filter != 'all':
+            try:
+                state = LifecycleState(lifecycle_filter)
+                entity_query = entity_query.filter(Entity.lifecycle_state == state)
+            except ValueError:
+                pass
+        
+        matches = entity_query.order_by(Entity.confidence.desc()).limit(limit).all()
+        
+        results = []
+        for e in matches:
+            results.append({
+                'id': str(e.id),
+                'name': e.name,
+                'type': e.entity_type,
+                'lifecycle_state': e.lifecycle_state.value if e.lifecycle_state else 'STAGING',
+                'confidence': e.confidence or 0.5
+            })
+        
+        return jsonify({'success': True, 'results': results})
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+    finally:
+        session.close()
+
+@app.route('/api/graph/expand/<entity_id>')
+def graph_expand(entity_id):
+    """Get an entity and its 1-hop neighbors (for progressive disclosure).
+    
+    Returns the entity, all directly connected entities, and their relationships.
+    Respects lifecycle_state filter for all entities and relationships.
+    """
+    from src.context_foundry.models.schema import get_session, Entity, Relationship, LifecycleState
+    import uuid
+    
+    lifecycle_filter = request.args.get('lifecycle_state', 'all')
+    
+    session = get_session()
+    try:
+        try:
+            entity_uuid = uuid.UUID(entity_id)
+        except ValueError:
+            return jsonify({'error': 'Invalid entity ID', 'success': False}), 400
+        
+        center_query = session.query(Entity).filter(Entity.id == entity_uuid)
+        if lifecycle_filter != 'all':
+            try:
+                state = LifecycleState(lifecycle_filter)
+                center_query = center_query.filter(Entity.lifecycle_state == state)
+            except ValueError:
+                pass
+        
+        center_entity = center_query.first()
+        if not center_entity:
+            entity_exists = session.query(Entity).filter(Entity.id == entity_uuid).first()
+            if entity_exists:
+                return jsonify({
+                    'success': True,
+                    'center_id': entity_id,
+                    'nodes': [],
+                    'edges': [],
+                    'stats': {'total_nodes': 0, 'total_edges': 0, 'neighbors': 0},
+                    'message': f'Entity exists but is not in {lifecycle_filter} state'
+                })
+            return jsonify({'error': 'Entity not found', 'success': False}), 404
+        
+        outgoing_query = session.query(Relationship).filter(
+            Relationship.source_id == entity_uuid
+        )
+        incoming_query = session.query(Relationship).filter(
+            Relationship.target_id == entity_uuid
+        )
+        
+        if lifecycle_filter != 'all':
+            try:
+                state = LifecycleState(lifecycle_filter)
+                outgoing_query = outgoing_query.filter(Relationship.lifecycle_state == state)
+                incoming_query = incoming_query.filter(Relationship.lifecycle_state == state)
+            except ValueError:
+                pass
+        
+        outgoing_rels = outgoing_query.all()
+        incoming_rels = incoming_query.all()
+        
+        neighbor_ids = set()
+        for r in outgoing_rels:
+            neighbor_ids.add(r.target_id)
+        for r in incoming_rels:
+            neighbor_ids.add(r.source_id)
+        
+        neighbors = []
+        if neighbor_ids:
+            neighbor_query = session.query(Entity).filter(Entity.id.in_(neighbor_ids))
+            if lifecycle_filter != 'all':
+                try:
+                    state = LifecycleState(lifecycle_filter)
+                    neighbor_query = neighbor_query.filter(Entity.lifecycle_state == state)
+                except ValueError:
+                    pass
+            neighbors = neighbor_query.all()
+        
+        all_entities = [center_entity] + neighbors
+        all_relationships = outgoing_rels + incoming_rels
+        
+        nodes = []
+        for e in all_entities:
+            props = e.properties or {}
+            nodes.append({
+                'id': str(e.id),
+                'name': e.name,
+                'type': e.entity_type,
+                'lifecycle_state': e.lifecycle_state.value if e.lifecycle_state else 'STAGING',
+                'confidence': e.confidence or 0.5,
+                'validation_status': e.validation_status.value if e.validation_status else 'PENDING',
+                'is_center': str(e.id) == entity_id,
+                'properties': props,
+                'description': e.description,
+                'source_document_id': e.source_document_id,
+                'created_at': e.created_at.isoformat() if e.created_at else None,
+                'promoted_at': e.promoted_at.isoformat() if e.promoted_at else None
+            })
+        
+        edges = []
+        valid_node_ids = {str(e.id) for e in all_entities}
+        for r in all_relationships:
+            if str(r.source_id) in valid_node_ids and str(r.target_id) in valid_node_ids:
+                edges.append({
+                    'id': str(r.id),
+                    'source': str(r.source_id),
+                    'target': str(r.target_id),
+                    'type': r.relationship_type,
+                    'lifecycle_state': r.lifecycle_state.value if r.lifecycle_state else 'STAGING',
+                    'confidence': r.confidence or 0.5,
+                    'source_sentence': r.source_sentence
+                })
+        
+        return jsonify({
+            'success': True,
+            'center_id': entity_id,
+            'nodes': nodes,
+            'edges': edges,
+            'stats': {
+                'total_nodes': len(nodes),
+                'total_edges': len(edges),
+                'neighbors': len(neighbors)
+            }
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'success': False}), 500
+    finally:
+        session.close()
+
+@app.route('/api/graph/entity/<entity_id>')
+def graph_entity_details(entity_id):
+    """Get full details for a single entity (for side panel)."""
+    from src.context_foundry.models.schema import get_session, Entity, Relationship
+    import uuid
+    
+    session = get_session()
+    try:
+        try:
+            entity_uuid = uuid.UUID(entity_id)
+        except ValueError:
+            return jsonify({'error': 'Invalid entity ID', 'success': False}), 400
+        
+        entity = session.query(Entity).filter(Entity.id == entity_uuid).first()
+        if not entity:
+            return jsonify({'error': 'Entity not found', 'success': False}), 404
+        
+        outgoing = session.query(Relationship).filter(
+            Relationship.source_id == entity_uuid
+        ).all()
+        incoming = session.query(Relationship).filter(
+            Relationship.target_id == entity_uuid
+        ).all()
+        
+        outgoing_list = []
+        for r in outgoing:
+            target = session.query(Entity).filter(Entity.id == r.target_id).first()
+            outgoing_list.append({
+                'relationship_type': r.relationship_type,
+                'target_id': str(r.target_id),
+                'target_name': target.name if target else 'Unknown',
+                'target_type': target.entity_type if target else 'Unknown',
+                'confidence': r.confidence or 0.5
+            })
+        
+        incoming_list = []
+        for r in incoming:
+            source = session.query(Entity).filter(Entity.id == r.source_id).first()
+            incoming_list.append({
+                'relationship_type': r.relationship_type,
+                'source_id': str(r.source_id),
+                'source_name': source.name if source else 'Unknown',
+                'source_type': source.entity_type if source else 'Unknown',
+                'confidence': r.confidence or 0.5
+            })
+        
+        return jsonify({
+            'success': True,
+            'entity': {
+                'id': str(entity.id),
+                'name': entity.name,
+                'type': entity.entity_type,
+                'lifecycle_state': entity.lifecycle_state.value if entity.lifecycle_state else 'STAGING',
+                'validation_status': entity.validation_status.value if entity.validation_status else 'PENDING',
+                'confidence': entity.confidence or 0.5,
+                'description': entity.description,
+                'properties': entity.properties or {},
+                'source_document_id': entity.source_document_id,
+                'source_sentence': entity.source_sentence,
+                'created_at': entity.created_at.isoformat() if entity.created_at else None,
+                'promoted_at': entity.promoted_at.isoformat() if entity.promoted_at else None,
+                'archived_at': entity.archived_at.isoformat() if entity.archived_at else None
+            },
+            'outgoing_relationships': outgoing_list,
+            'incoming_relationships': incoming_list
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'success': False}), 500
+    finally:
+        session.close()
+
 @app.route('/api/examples')
 def examples():
     examples = [

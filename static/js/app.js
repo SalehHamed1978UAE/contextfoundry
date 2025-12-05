@@ -89,24 +89,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    let graphAutoRefreshInterval = null;
     let currentLifecycleFilter = 'all';
-    
-    async function fetchGraphData(lifecycleState = 'all') {
-        try {
-            const url = `/api/graph/visualization?lifecycle_state=${lifecycleState}&limit=100`;
-            const response = await fetch(url);
-            const data = await response.json();
-            if (data.success) {
-                return data;
-            }
-            console.error('Failed to fetch graph data:', data.error);
-            return null;
-        } catch (error) {
-            console.error('Error fetching graph data:', error);
-            return null;
-        }
-    }
+    let graphNodes = {};
+    let graphEdges = [];
+    let selectedNodeId = null;
+    let searchDebounceTimer = null;
     
     function getLifecycleColor(lifecycleState) {
         switch(lifecycleState) {
@@ -130,46 +117,229 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    async function renderMemoryGraph(forceRefresh = false) {
+    async function searchEntities(query) {
+        if (!query || query.length < 2) return [];
+        try {
+            const url = `/api/graph/search?q=${encodeURIComponent(query)}&lifecycle_state=${currentLifecycleFilter}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.success ? data.results : [];
+        } catch (error) {
+            console.error('Search error:', error);
+            return [];
+        }
+    }
+    
+    async function expandEntity(entityId) {
+        try {
+            const url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.success) {
+                if (data.nodes && data.nodes.length === 0 && data.message) {
+                    showGraphMessage(data.message);
+                    return data;
+                }
+                data.nodes.forEach(node => {
+                    if (!graphNodes[node.id]) {
+                        graphNodes[node.id] = node;
+                    }
+                });
+                data.edges.forEach(edge => {
+                    if (!graphEdges.find(e => e.id === edge.id)) {
+                        graphEdges.push(edge);
+                    }
+                });
+                renderGraph();
+                return data;
+            }
+            return null;
+        } catch (error) {
+            console.error('Expand error:', error);
+            return null;
+        }
+    }
+    
+    function showGraphMessage(message) {
+        const emptyState = document.getElementById('graphEmptyState');
+        if (emptyState) {
+            emptyState.innerHTML = `
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <div style="font-size: 14px; margin-bottom: 8px;">${escapeHtml(message)}</div>
+                <div style="font-size: 12px; opacity: 0.7;">Try changing the lifecycle filter or searching for a different entity</div>
+            `;
+            emptyState.style.display = 'block';
+        }
+    }
+    
+    function resetEmptyState() {
+        const emptyState = document.getElementById('graphEmptyState');
+        if (emptyState) {
+            emptyState.innerHTML = `
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <div style="font-size: 14px; margin-bottom: 8px;">Search to explore the knowledge graph</div>
+                <div style="font-size: 12px; opacity: 0.7;">Type an entity name above to get started</div>
+            `;
+        }
+    }
+    
+    async function loadEntityDetails(entityId) {
+        try {
+            const url = `/api/graph/entity/${entityId}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.success) {
+                showDetailsPanel(data);
+            }
+        } catch (error) {
+            console.error('Details error:', error);
+        }
+    }
+    
+    function showDetailsPanel(data) {
+        const panel = document.getElementById('detailsPanel');
+        const content = document.getElementById('detailsContent');
+        if (!panel || !content) return;
+        
+        const entity = data.entity;
+        const color = getLifecycleColor(entity.lifecycle_state);
+        
+        let propsHtml = '';
+        if (entity.properties && Object.keys(entity.properties).length > 0) {
+            propsHtml = '<div style="margin-top: 16px;"><div style="color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">PROPERTIES</div>';
+            for (const [key, value] of Object.entries(entity.properties)) {
+                if (key !== '_promoted_at' && value) {
+                    propsHtml += `<div style="margin-bottom: 4px;"><span style="color: var(--text-muted);">${escapeHtml(key)}:</span> ${escapeHtml(String(value))}</div>`;
+                }
+            }
+            propsHtml += '</div>';
+        }
+        
+        let outgoingHtml = '';
+        if (data.outgoing_relationships && data.outgoing_relationships.length > 0) {
+            outgoingHtml = '<div style="margin-top: 16px;"><div style="color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">OUTGOING RELATIONSHIPS</div>';
+            data.outgoing_relationships.forEach(rel => {
+                outgoingHtml += `
+                    <div class="rel-item" data-entity-id="${rel.target_id}" style="padding: 8px; margin-bottom: 4px; background: var(--bg-secondary); border-radius: 4px; cursor: pointer;">
+                        <div style="color: var(--accent-primary); font-size: 11px;">${escapeHtml(rel.relationship_type)}</div>
+                        <div>${escapeHtml(rel.target_name)} <span style="color: var(--text-muted); font-size: 11px;">(${rel.target_type})</span></div>
+                    </div>
+                `;
+            });
+            outgoingHtml += '</div>';
+        }
+        
+        let incomingHtml = '';
+        if (data.incoming_relationships && data.incoming_relationships.length > 0) {
+            incomingHtml = '<div style="margin-top: 16px;"><div style="color: var(--text-muted); font-size: 11px; margin-bottom: 8px;">INCOMING RELATIONSHIPS</div>';
+            data.incoming_relationships.forEach(rel => {
+                incomingHtml += `
+                    <div class="rel-item" data-entity-id="${rel.source_id}" style="padding: 8px; margin-bottom: 4px; background: var(--bg-secondary); border-radius: 4px; cursor: pointer;">
+                        <div style="color: var(--accent-warning); font-size: 11px;">${escapeHtml(rel.relationship_type)}</div>
+                        <div>${escapeHtml(rel.source_name)} <span style="color: var(--text-muted); font-size: 11px;">(${rel.source_type})</span></div>
+                    </div>
+                `;
+            });
+            incomingHtml += '</div>';
+        }
+        
+        content.innerHTML = `
+            <div style="border-left: 3px solid ${color}; padding-left: 12px; margin-bottom: 16px;">
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">${escapeHtml(entity.name)}</div>
+                <div style="color: var(--text-muted); font-size: 12px;">${entity.type}</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                    <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">STATE</div>
+                    <div style="color: ${color}; font-weight: 500;">${entity.lifecycle_state}</div>
+                </div>
+                <div style="background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+                    <div style="color: var(--text-muted); font-size: 10px; margin-bottom: 4px;">CONFIDENCE</div>
+                    <div style="color: var(--text-primary); font-weight: 500;">${Math.round(entity.confidence * 100)}%</div>
+                </div>
+            </div>
+            ${entity.description ? `<div style="margin-bottom: 16px; color: var(--text-secondary);">${escapeHtml(entity.description)}</div>` : ''}
+            ${entity.source_sentence ? `<div style="margin-bottom: 16px; padding: 12px; background: var(--bg-secondary); border-radius: 6px; font-size: 12px; color: var(--text-muted); font-style: italic;">"${escapeHtml(entity.source_sentence)}"</div>` : ''}
+            ${propsHtml}
+            ${outgoingHtml}
+            ${incomingHtml}
+            <div style="margin-top: 20px;">
+                <button id="expandFromPanelBtn" class="btn btn-primary" style="width: 100%; padding: 10px;" data-entity-id="${entity.id}">
+                    Expand Neighbors
+                </button>
+            </div>
+        `;
+        
+        panel.style.display = 'block';
+        
+        content.querySelectorAll('.rel-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const targetId = item.dataset.entityId;
+                expandEntity(targetId);
+                loadEntityDetails(targetId);
+            });
+        });
+        
+        const expandBtn = document.getElementById('expandFromPanelBtn');
+        if (expandBtn) {
+            expandBtn.addEventListener('click', () => {
+                expandEntity(expandBtn.dataset.entityId);
+            });
+        }
+    }
+    
+    function renderGraph() {
         const graphContainer = document.getElementById('graphNodesHtml');
         const linksContainer = document.getElementById('graphLinks');
+        const emptyState = document.getElementById('graphEmptyState');
         
         if (!graphContainer) return;
-        
-        if (graphContainer.children.length > 0 && !forceRefresh) return;
         
         graphContainer.innerHTML = '';
         linksContainer.innerHTML = '';
         
-        const data = await fetchGraphData(currentLifecycleFilter);
-        if (!data || !data.nodes || data.nodes.length === 0) {
-            graphContainer.innerHTML = '<div style="color: #64748b; text-align: center; padding: 40px;">No entities found. Ingest some documents first.</div>';
+        const nodes = Object.values(graphNodes);
+        const edges = graphEdges.filter(e => graphNodes[e.source] && graphNodes[e.target]);
+        
+        if (nodes.length === 0) {
+            if (emptyState) emptyState.style.display = 'block';
+            updateVisibleCount(0);
             return;
         }
         
-        const nodes = data.nodes;
-        const edges = data.edges;
+        if (emptyState) emptyState.style.display = 'none';
+        updateVisibleCount(nodes.length);
         
-        updateGraphStats(data.stats);
+        const container = graphContainer.parentElement;
+        const containerWidth = container?.offsetWidth || 700;
+        const containerHeight = container?.offsetHeight || 400;
+        const centerX = containerWidth / 2;
+        const centerY = containerHeight / 2;
         
-        const containerWidth = graphContainer.parentElement?.offsetWidth || 700;
-        const containerHeight = graphContainer.parentElement?.offsetHeight || 400;
-        
+        const centerNode = nodes.find(n => n.is_center) || nodes[0];
         const nodePositions = {};
-        const cols = Math.ceil(Math.sqrt(nodes.length));
-        const cellWidth = Math.min(120, (containerWidth - 80) / cols);
-        const cellHeight = Math.min(100, (containerHeight - 80) / Math.ceil(nodes.length / cols));
         
-        nodes.forEach((node, i) => {
-            const col = i % cols;
-            const row = Math.floor(i / cols);
-            const jitterX = (Math.random() - 0.5) * 30;
-            const jitterY = (Math.random() - 0.5) * 30;
-            nodePositions[node.id] = {
-                x: 60 + col * cellWidth + jitterX,
-                y: 60 + row * cellHeight + jitterY
-            };
-        });
+        if (centerNode) {
+            nodePositions[centerNode.id] = { x: centerX, y: centerY };
+            
+            const neighbors = nodes.filter(n => n.id !== centerNode.id);
+            const angleStep = (2 * Math.PI) / Math.max(neighbors.length, 1);
+            const radius = Math.min(containerWidth, containerHeight) * 0.35;
+            
+            neighbors.forEach((node, i) => {
+                const angle = i * angleStep - Math.PI / 2;
+                nodePositions[node.id] = {
+                    x: centerX + radius * Math.cos(angle),
+                    y: centerY + radius * Math.sin(angle)
+                };
+            });
+        }
         
         edges.forEach((edge, i) => {
             const source = nodePositions[edge.source];
@@ -177,30 +347,45 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!source || !target) return;
             
             const edgeColor = getLifecycleColor(edge.lifecycle_state);
+            const confidence = edge.confidence || 0.5;
+            const strokeWidth = 1 + confidence * 2;
             
             const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
             g.style.opacity = '0';
-            g.style.transition = `opacity 0.5s ease ${0.3 + i * 0.02}s`;
+            g.style.transition = `opacity 0.4s ease ${i * 0.05}s`;
             
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', source.x);
             line.setAttribute('y1', source.y);
             line.setAttribute('x2', target.x);
             line.setAttribute('y2', target.y);
-            line.setAttribute('stroke', edgeColor + '40');
-            line.setAttribute('stroke-width', '1.5');
+            line.setAttribute('stroke', edgeColor + '60');
+            line.setAttribute('stroke-width', strokeWidth);
             g.appendChild(line);
             
             const midX = (source.x + target.x) / 2;
             const midY = (source.y + target.y) / 2;
+            
+            const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            const labelText = edge.type || '';
+            const labelWidth = labelText.length * 6 + 8;
+            labelBg.setAttribute('x', midX - labelWidth / 2);
+            labelBg.setAttribute('y', midY - 10);
+            labelBg.setAttribute('width', labelWidth);
+            labelBg.setAttribute('height', 14);
+            labelBg.setAttribute('fill', 'rgba(15, 23, 42, 0.9)');
+            labelBg.setAttribute('rx', '3');
+            g.appendChild(labelBg);
+            
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', midX);
-            text.setAttribute('y', midY - 4);
+            text.setAttribute('y', midY);
             text.setAttribute('text-anchor', 'middle');
-            text.setAttribute('fill', 'rgba(148, 163, 184, 0.6)');
-            text.setAttribute('font-size', '8');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('fill', edgeColor);
+            text.setAttribute('font-size', '9');
             text.setAttribute('font-family', 'JetBrains Mono, monospace');
-            text.textContent = edge.type;
+            text.textContent = labelText;
             g.appendChild(text);
             
             linksContainer.appendChild(g);
@@ -209,14 +394,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         nodes.forEach((node, i) => {
             const pos = nodePositions[node.id];
+            if (!pos) return;
+            
             const color = getLifecycleColor(node.lifecycle_state);
             const confidence = node.confidence || 0.5;
-            const baseSize = 36;
-            const size = baseSize + (confidence * 16);
-            const opacity = 0.6 + (confidence * 0.4);
+            const isCenter = node.is_center;
+            const isSelected = node.id === selectedNodeId;
+            const baseSize = isCenter ? 56 : 40;
+            const size = baseSize + (confidence * 12);
             
             const nodeEl = document.createElement('div');
             nodeEl.className = 'graph-node';
+            nodeEl.dataset.nodeId = node.id;
             nodeEl.style.cssText = `
                 position: absolute;
                 left: ${pos.x}px;
@@ -225,23 +414,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 height: ${size}px;
                 margin-left: ${-size/2}px;
                 margin-top: ${-size/2}px;
-                border-radius: 50%;
-                background: #1e293b;
-                border: 2px solid ${color};
-                box-shadow: 0 0 20px ${color}40, 0 0 40px ${color}20;
+                border-radius: ${isCenter ? '12px' : '50%'};
+                background: ${isSelected ? color + '30' : '#1e293b'};
+                border: ${isSelected ? '3px' : '2px'} solid ${color};
+                box-shadow: 0 0 ${isCenter ? '30px' : '20px'} ${color}${isCenter ? '60' : '40'};
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
                 transform: scale(0);
                 opacity: 0;
-                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.2s ease;
-                z-index: 10;
+                transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.2s ease, background 0.2s ease;
+                z-index: ${isCenter ? 20 : 10};
             `;
             
-            const iconSize = Math.max(14, size * 0.4);
+            const iconSize = Math.max(16, size * 0.4);
             const iconWrapper = document.createElement('div');
-            iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${color}; opacity: ${opacity};`;
+            iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${color};`;
             iconWrapper.innerHTML = getNodeIcon(node.type);
             nodeEl.appendChild(iconWrapper);
             
@@ -265,25 +454,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 pointer-events: none;
                 transition: opacity 0.2s ease;
                 z-index: 100;
-                text-align: left;
             `;
             tooltip.innerHTML = `
-                <div style="font-weight: bold; margin-bottom: 4px;">${escapeHtml(node.name)}</div>
-                <div style="color: #94a3b8; font-size: 10px;">Type: ${node.type}</div>
-                <div style="color: #94a3b8; font-size: 10px;">State: ${node.lifecycle_state}</div>
-                <div style="color: #94a3b8; font-size: 10px;">Confidence: ${Math.round(confidence * 100)}%</div>
+                <div style="font-weight: bold;">${escapeHtml(node.name)}</div>
+                <div style="color: #94a3b8; font-size: 10px; margin-top: 2px;">${node.type} | ${node.lifecycle_state} | ${Math.round(confidence * 100)}%</div>
             `;
             nodeEl.appendChild(tooltip);
             
             nodeEl.addEventListener('mouseenter', () => {
-                nodeEl.style.transform = 'scale(1.15)';
-                nodeEl.style.boxShadow = `0 0 30px ${color}60, 0 0 60px ${color}30`;
+                nodeEl.style.transform = 'scale(1.1)';
+                nodeEl.style.boxShadow = `0 0 40px ${color}80`;
                 tooltip.style.opacity = '1';
             });
             nodeEl.addEventListener('mouseleave', () => {
                 nodeEl.style.transform = 'scale(1)';
-                nodeEl.style.boxShadow = `0 0 20px ${color}40, 0 0 40px ${color}20`;
+                nodeEl.style.boxShadow = `0 0 ${isCenter ? '30px' : '20px'} ${color}${isCenter ? '60' : '40'}`;
                 tooltip.style.opacity = '0';
+            });
+            
+            nodeEl.addEventListener('click', () => {
+                selectedNodeId = node.id;
+                loadEntityDetails(node.id);
+                renderGraph();
+            });
+            
+            nodeEl.addEventListener('dblclick', () => {
+                expandEntity(node.id);
             });
             
             graphContainer.appendChild(nodeEl);
@@ -291,60 +487,131 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => {
                 nodeEl.style.transform = 'scale(1)';
                 nodeEl.style.opacity = '1';
-            }, 100 + i * 40);
+            }, 100 + i * 50);
         });
     }
     
-    function updateGraphStats(stats) {
-        const statsEl = document.getElementById('graphStats');
-        if (statsEl && stats) {
-            const counts = stats.lifecycle_counts || {};
-            statsEl.innerHTML = `
-                <span class="graph-stat staging">STAGING: ${counts.STAGING || 0}</span>
-                <span class="graph-stat trusted">TRUSTED: ${counts.TRUSTED || 0}</span>
-                <span class="graph-stat archived">ARCHIVED: ${counts.ARCHIVED || 0}</span>
-                <span class="graph-stat total">Showing: ${stats.total_nodes} nodes, ${stats.total_edges} edges</span>
-            `;
+    function updateVisibleCount(count) {
+        const el = document.getElementById('statVisible');
+        if (el) el.textContent = count;
+    }
+    
+    async function loadGlobalStats() {
+        try {
+            const response = await fetch('/api/graph/visualization?limit=1');
+            const data = await response.json();
+            if (data.success && data.stats) {
+                const counts = data.stats.lifecycle_counts || {};
+                const trusted = document.getElementById('statTrusted');
+                const staging = document.getElementById('statStaging');
+                const archived = document.getElementById('statArchived');
+                if (trusted) trusted.textContent = counts.TRUSTED || 0;
+                if (staging) staging.textContent = counts.STAGING || 0;
+                if (archived) archived.textContent = counts.ARCHIVED || 0;
+            }
+        } catch (error) {
+            console.error('Stats error:', error);
         }
     }
     
-    function initGraphControls() {
+    function clearGraph() {
+        graphNodes = {};
+        graphEdges = [];
+        selectedNodeId = null;
+        renderGraph();
+        const panel = document.getElementById('detailsPanel');
+        if (panel) panel.style.display = 'none';
+        resetEmptyState();
+        const emptyState = document.getElementById('graphEmptyState');
+        if (emptyState) emptyState.style.display = 'block';
+    }
+    
+    function initGraphExplorer() {
+        const searchInput = document.getElementById('graphSearchInput');
+        const searchResults = document.getElementById('searchResults');
         const filterSelect = document.getElementById('lifecycleFilter');
-        const refreshBtn = document.getElementById('graphRefreshBtn');
-        const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+        const clearBtn = document.getElementById('graphClearBtn');
+        const closePanel = document.getElementById('closePanelBtn');
         
-        if (filterSelect) {
-            filterSelect.addEventListener('change', async (e) => {
-                currentLifecycleFilter = e.target.value;
-                await renderMemoryGraph(true);
-            });
-        }
-        
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', async () => {
-                refreshBtn.classList.add('spinning');
-                await renderMemoryGraph(true);
-                setTimeout(() => refreshBtn.classList.remove('spinning'), 500);
-            });
-        }
-        
-        if (autoRefreshToggle) {
-            autoRefreshToggle.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    graphAutoRefreshInterval = setInterval(() => {
-                        renderMemoryGraph(true);
-                    }, 30000);
-                } else {
-                    if (graphAutoRefreshInterval) {
-                        clearInterval(graphAutoRefreshInterval);
-                        graphAutoRefreshInterval = null;
+        if (searchInput && searchResults) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchDebounceTimer);
+                const query = searchInput.value.trim();
+                
+                if (query.length < 2) {
+                    searchResults.style.display = 'none';
+                    return;
+                }
+                
+                searchDebounceTimer = setTimeout(async () => {
+                    const results = await searchEntities(query);
+                    if (results.length === 0) {
+                        searchResults.innerHTML = '<div style="padding: 12px; color: var(--text-muted);">No entities found</div>';
+                    } else {
+                        searchResults.innerHTML = results.map(r => `
+                            <div class="search-result-item" data-entity-id="${r.id}" style="padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border-color); transition: background 0.2s;">
+                                <div style="font-weight: 500; color: var(--text-primary);">${escapeHtml(r.name)}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                                    ${r.type} | <span style="color: ${getLifecycleColor(r.lifecycle_state)};">${r.lifecycle_state}</span> | ${Math.round(r.confidence * 100)}%
+                                </div>
+                            </div>
+                        `).join('');
                     }
+                    searchResults.style.display = 'block';
+                    
+                    searchResults.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('mouseenter', () => {
+                            item.style.background = 'var(--bg-tertiary)';
+                        });
+                        item.addEventListener('mouseleave', () => {
+                            item.style.background = 'transparent';
+                        });
+                        item.addEventListener('click', () => {
+                            const entityId = item.dataset.entityId;
+                            searchResults.style.display = 'none';
+                            searchInput.value = '';
+                            clearGraph();
+                            expandEntity(entityId);
+                            loadEntityDetails(entityId);
+                        });
+                    });
+                }, 200);
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                    searchResults.style.display = 'none';
                 }
             });
         }
+        
+        if (filterSelect) {
+            filterSelect.addEventListener('change', (e) => {
+                currentLifecycleFilter = e.target.value;
+            });
+        }
+        
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearGraph);
+        }
+        
+        if (closePanel) {
+            closePanel.addEventListener('click', () => {
+                const panel = document.getElementById('detailsPanel');
+                if (panel) panel.style.display = 'none';
+                selectedNodeId = null;
+                renderGraph();
+            });
+        }
+        
+        loadGlobalStats();
     }
     
-    initGraphControls();
+    function renderMemoryGraph() {
+        initGraphExplorer();
+    }
+    
+    initGraphExplorer();
 
     document.getElementById('refreshBtn').addEventListener('click', loadStats);
     document.getElementById('newQueryBtn').addEventListener('click', () => {
