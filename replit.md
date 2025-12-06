@@ -35,6 +35,7 @@ The system is built around a dual-system architecture with distinct governance f
 - **Context Bundle API:** Provides a public API for structured truth delivery, translating internal context bundles into Pydantic models. Supports fuzzy matching and graceful empty-state handling.
 - **Schema Versioning & Deprecation:** Manages type versions, migrations, and deprecation processes with an audit trail, supporting multi-hop translation chains.
 - **UI/UX:** A web interface built with `base.html` and a simplified 4-page navigation: Dashboard (query interface + metrics), Memory Graph (interactive knowledge graph visualization), Command Center (agent management by cognitive phase), and A/B Evaluation (query comparisons). All pages extend base.html for consistent sidebar and styling. Features include AJAX polling for real-time updates, D3.js force-directed graph visualization, and collapsible sidebar with localStorage persistence.
+- **Navigation Architecture:** Dashboard and Memory Graph are client-side sections within index.html (instant switching via JavaScript). Command Center and A/B Evaluation are separate Flask routes requiring full page navigation. FOUC prevention implemented with inline critical CSS (body opacity 0 until loaded) and HTTP Color-Scheme headers. Note: Minor flash during page transitions to Command Center/A/B Eval is a Replit iframe limitation - full elimination would require converting all pages to SPA architecture.
 
 ## External Dependencies
 - **Database**: PostgreSQL (Neon for Replit)
