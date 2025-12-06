@@ -25,10 +25,25 @@ from src.context_foundry.memory.episodic import openai_embedding
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
+FIXTURE_ENTITY_IDS = {
+    'frontend_app': uuid.UUID('96f8b46b-e5a5-41ad-9579-11b67f7cf768'),
+    'auth_gateway': uuid.UUID('b8d3c1f2-9a5e-4b7c-8d6f-1e2a3b4c5d6e'),
+    'user_database': uuid.UUID('c9e4d2a3-0b6f-5c8d-9e7a-2f3b4c5d6e7f'),
+    'payment_processor': uuid.UUID('ceaeb85e-b1ec-4930-b18f-953188ffecb7'),
+    'fraud_detection': uuid.UUID('df9fc96f-c2fd-5a41-c29a-064299aafd8c'),
+    'mobile_app': uuid.UUID('9e73a762-e1b9-4938-9d6a-a8aa516541a3'),
+    'web_app': uuid.UUID('ae84b873-f2ca-5a49-ae7b-b9bb627652b4'),
+    'core_api': uuid.UUID('be95c984-03db-6b5a-bf8c-cacc73863c15')
+}
+
 def get_session():
     engine = create_engine(DATABASE_URL)
     Session = sessionmaker(bind=engine)
     return Session()
+
+def entity_exists(session, entity_id):
+    """Check if entity already exists."""
+    return session.query(Entity).filter(Entity.id == entity_id).first() is not None
 
 def seed_transitive_chain(session):
     """
@@ -42,9 +57,16 @@ def seed_transitive_chain(session):
     """
     print("\n=== Seeding Fixture 1: Transitive Chain ===")
     
-    frontend_id = uuid.uuid4()
-    auth_id = uuid.uuid4()
-    userdb_id = uuid.uuid4()
+    frontend_id = FIXTURE_ENTITY_IDS['frontend_app']
+    auth_id = FIXTURE_ENTITY_IDS['auth_gateway']
+    userdb_id = FIXTURE_ENTITY_IDS['user_database']
+    
+    if entity_exists(session, frontend_id):
+        print("  Skipping - entities already exist")
+        print(f"  Frontend App: {frontend_id}")
+        print(f"  Auth Gateway: {auth_id}")
+        print(f"  User Database: {userdb_id}")
+        return frontend_id, auth_id, userdb_id
     
     frontend = Entity(
         id=frontend_id,
