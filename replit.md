@@ -114,10 +114,45 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
 - 13 relationships with correct source/target type pairs
 - CREATURE type correctly rejected by validation trigger
 
-### Session 2: Week 2 (Next)
+### Session 2: Week 2 ✅ COMPLETE
 **Objective**: Build constrained extraction pipeline with dynamic SchemaPromptGenerator and Pydantic models
 
-### Session 3: Week 3
+**Completed Components**:
+1. **OntologyRepository** (`src/context_foundry/ontology/repository.py`)
+   - Queries ontology_types and ontology_relations from PostgreSQL at extraction time
+   - TTL-backed caching via get_snapshot() for efficiency
+   - Returns fully-typed Pydantic models (OntologyType, OntologyRelation)
+   
+2. **SchemaPromptGenerator** (`src/context_foundry/ontology/prompt_generator.py`)
+   - Dynamically builds LLM prompts from database (NOT hardcoded types)
+   - build_entity_extraction_prompt() includes all Layer 1-2 types
+   - build_relationship_extraction_prompt() includes semantics and trigger phrases
+   - validate_entity_type() checks against database
+   
+3. **ConstrainedExtractor** (`src/context_foundry/ontology/constrained_extractor.py`)
+   - Uses SchemaPromptGenerator for dynamic prompts
+   - Validates extracted entities against ontology before accepting
+   - Rejects invalid types (CREATURE, MONSTER, etc.)
+   - Writes validated entities to entities_v2 shadow table
+   - Logs extraction events for audit trail
+   
+4. **ShadowAdapter** (`src/context_foundry/ontology/shadow_adapter.py`)
+   - Runs both legacy and constrained extraction in SHADOW mode
+   - Logs comparison metrics via ShadowMetrics
+   - Provides cutover readiness check
+   
+5. **Pydantic Models** (`src/context_foundry/ontology/models.py`)
+   - EntityExtraction, RelationshipExtraction with validation
+   - OntologySnapshot for cached ontology state
+   - Strict confidence bounds (0.0-1.0)
+
+**Verification Passed**:
+- All 13 pytest tests pass
+- 20 types loaded dynamically from database
+- 13 relations with semantics
+- CREATURE, MONSTER, cat correctly rejected by validation
+
+### Session 3: Week 3 (Next)
 **Objective**: Confidence & provenance system with corroboration scoring
 
 ### Session 4: Week 4
