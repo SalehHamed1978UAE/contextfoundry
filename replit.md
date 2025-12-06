@@ -130,6 +130,22 @@ Six base validation rules (stored in `ontology.rules`):
 - ✅ **promote_to_type()**: Converts orphan patterns to PROPOSED types
 - ✅ **finalize_promotion()**: Marks orphans RESOLVED on success, reverts to ACTIVE on failure
 
+### Session 8 Progress ✅
+
+**Context Bundle API (Pillar 4: Deliver Structured Truth):**
+- ✅ Created Pydantic models: APIContextBundle, APIEntity, APIRelationship, FrontierNode, RetrievalMeta
+- ✅ BundleBuilder class translates internal ContextBundle to public API schema with timing instrumentation
+- ✅ POST /api/v1/context endpoint with request validation (query, focal_entity, max_hops, include_episodic)
+- ✅ GET /api/v1/context/schema returns OpenAPI 3.0 documentation
+- ✅ Fuzzy focal entity matching handles pluralization ("Payment Database" → "Payments Database")
+- ✅ Graceful empty-state handling with explicit knowledge_gaps and low confidence (0.1)
+
+**API Test Results:**
+| Query | Focal | Related | Confidence | Knowledge Gaps |
+|-------|-------|---------|------------|----------------|
+| Payment Database | 1 (fuzzy matched) | 13 | 90% | None |
+| XYZ (unknown) | 0 | 1 | 10% | "Entity 'XYZ' not found in knowledge graph" |
+
 ### Session 7 Progress ✅
 
 **End-to-End Governance Tests:**
@@ -166,6 +182,8 @@ Six base validation rules (stored in `ontology.rules`):
 
 | File | Purpose |
 |------|---------|
+| `src/context_foundry/api/context_bundle.py` | Public API Pydantic models for Context Bundle |
+| `src/context_foundry/api/bundle_builder.py` | BundleBuilder class with timing instrumentation |
 | `src/context_foundry/migrations/007_rfc_v2_dual_system.sql` | RFC v2 database migration |
 | `src/context_foundry/migrations/008_approval_workflow.sql` | Approval workflow tables |
 | `src/context_foundry/migrations/009_message_bus.sql` | Message bus infrastructure |
@@ -213,9 +231,12 @@ Four-pass maintenance system:
 
 ## Next Steps
 
-### Session 8 (Future)
+### Session 9 (Future)
+- Add regression tests for multi-hop queries and pluralization fuzziness
+- Monitor retrieval timing metrics via logging/metrics dashboards
+- Document error-handling conventions (400 vs 500) in API docs
 - Schema versioning with query translation
 - Production rollout with Row-Level Security (RLS)
 - Web UI for approval workflows
 - Integrate finalize_promotion() into TypeLifecycleManager callbacks
-- Enrich auto-generated properties_schema with domain-specific data
+- /api/v1/context/stream endpoint for SSE streaming on large graphs
