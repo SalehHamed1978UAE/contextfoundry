@@ -213,8 +213,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
+                console.log('Speculative data received:', data.speculative);
                 if (data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
+                    console.log('Processing', data.speculative.inferred.length, 'speculative inferences');
                     data.speculative.inferred.forEach(inf => {
+                        console.log('Adding speculative edge:', inf.source_entity_name, '->', inf.target_entity_name);
                         const targetId = inf.target_entity_id;
                         if (!graphNodes[targetId]) {
                             graphNodes[targetId] = {
