@@ -1,75 +1,169 @@
-# Context Foundry - Tri-Memory Cognitive Architecture MVP
+# Context Foundry - Dual-System Cognitive Architecture
 
 ## Overview
-Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (Semantic/Episodic/Symbolic) designed for multi-hop reasoning. Its core purpose is to provide detailed, reliable responses with full provenance tracking and confidence scoring for domain-agnostic reasoning. The project aims to outperform baseline systems in complex domains like IT operations and organizational charting, providing a robust solution for knowledge management and intelligent querying.
+Context Foundry implements a **dual-system cognitive architecture** for enterprise knowledge graph governance, separating **Ontology Foundry** (schema governance) from **Context Foundry** (instance governance). This separation enables different governance cadences, confidence thresholds, and agent responsibilities for schema vs. instance management.
 
 ## User Preferences
-- I want iterative development.
-- I prefer detailed explanations.
-- Ask before making major changes.
-- Ensure comprehensive logging at every step of the pipeline.
-- Prevent silent failures.
-- The system should detect when queries ask for ordered sequences vs single facts.
-- Rules should resolve person references via the semantic graph.
-- Rule queries should be correctly classified and not misclassified as entity lookups.
-- Impact queries should correctly traverse incoming DEPENDS_ON edges to identify downstream cascades.
-- Prevent "confident wrong answer" hallucinations by verifying queried entities exist in the graph before citing relationships.
-- Prioritize known entity lookup from the database, using longest match and scenario suffix stripping.
-- Provide a human review workflow for conflicts and duplicates.
-- Ensure resilient database error handling with session rollback.
-- Implement graceful re-runs for data loaders.
-- Ensure proper session management and cleanup.
+- Iterative development with detailed explanations
+- Ask before making major changes
+- Comprehensive logging at every step
+- Prevent silent failures and "confident wrong answer" hallucinations
+- Provide human review workflow for conflicts and duplicates
+- Ensure resilient database error handling with session rollback
 
-## System Architecture
+---
+
+## RFC v2: Dual-System Architecture
+
+### System Separation
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     ONTOLOGY FOUNDRY                            │
+│                   (Schema Governance)                           │
+│                                                                 │
+│  Governs: What TYPES of things can exist                        │
+│  Cadence: Weekly/Monthly                                        │
+│  Confidence: 0.90+ (calibrated)                                 │
+│  Storage: ontology.* schema                                     │
+│                                                                 │
+│  Agents: TypeValidator, HierarchyEnforcer, CollisionDetector    │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │
+                          │ CONSTRAINS (types must be ACTIVE)
+                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     CONTEXT FOUNDRY                             │
+│                   (Knowledge Governance)                        │
+│                                                                 │
+│  Governs: What SPECIFIC things we know                          │
+│  Cadence: Continuous (per document)                             │
+│  Confidence: 0.70+ (configurable per type)                      │
+│  Storage: context.* schema                                      │
+│                                                                 │
+│  Agents: Extractor, Gardener, Resolver, QueryAgent              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Database Schema Structure
+
+| Schema | Purpose | Tables |
+|--------|---------|--------|
+| `ontology` | Schema governance | meta_ontology, types, relations, rules, versions, type_migration_map |
+| `context` | Instance governance | entities, relationships, documents, embeddings, orphan_patterns |
+| `shared` | Cross-system | users, audit_log, message_queue, confidence_thresholds |
+
+### Layer 0: Immutable Meta-Ontology
+
+Five immutable meta-types define the governance substrate:
+1. **OntologyType** - Definition of entity types
+2. **OntologyRelation** - Definition of relationship types
+3. **ValidationRule** - Constraint rules for validation
+4. **OntologyVersion** - Versioned snapshots
+5. **LifecycleState** - Valid states for governed entities
+
+### Ontology Lifecycle States
+
+| State | Meaning | Extraction Allowed |
+|-------|---------|-------------------|
+| PROPOSED | LLM-generated or human-submitted | No |
+| VALIDATING | Under rule evaluation | No |
+| CONTESTED | Conflicts detected | No |
+| APPROVED | Passed validation | No |
+| ACTIVE | In production | **Yes** |
+| DEPRECATED | Marked for removal | No |
+
+### SHACL-Inspired Validation Rules
+
+Six base validation rules (stored in `ontology.rules`):
+1. `hierarchy_minimum_depth` - Types must have depth >= 3
+2. `type_naming_convention` - PascalCase naming required
+3. `uuid_namespace_allocation` - UUIDs follow layer conventions
+4. `no_orphan_types` - Types should have relationships (WARNING)
+5. `extraction_hints_required` - NLP hints required (WARNING)
+6. `valid_properties_schema` - Valid JSON Schema required
+
+### Validation Agents
+
+| Agent | Responsibility |
+|-------|---------------|
+| **RuleExecutor** | Executes SHACL-inspired rules with ERROR/WARNING/INFO severity |
+| **TypeValidator** | Validates JSON schema, required fields, naming conventions |
+| **HierarchyEnforcer** | Ensures depth >= 3, no circular refs, valid layer progression |
+| **CollisionDetector** | Detects name/UUID collisions, semantic duplicates |
+
+---
+
+## Implementation Status
+
+### Session 5 Progress ✅
+
+**Phase 1 (P0) - Foundation:**
+- ✅ Created 3 database schemas (ontology, context, shared)
+- ✅ Seeded Layer 0 meta-ontology (5 immutable meta-types)
+- ⏳ Awaiting 8 validated ontology SQL files (200 types)
+
+**Phase 2 (P1) - Rules Engine:**
+- ✅ Created ontology.rules table with SHACL-inspired schema
+- ✅ Seeded 6 base validation rules
+- ✅ Built RuleExecutor class (tested and working)
+
+**Phase 3 (P2) - Validation Agents:**
+- ✅ Built TypeValidator agent
+- ✅ Built HierarchyEnforcer agent
+- ✅ Built CollisionDetector agent
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/context_foundry/migrations/007_rfc_v2_dual_system.sql` | RFC v2 database migration |
+| `src/context_foundry/ontology_foundry/rule_executor.py` | SHACL-inspired rule execution |
+| `src/context_foundry/ontology_foundry/type_validator.py` | Type validation agent |
+| `src/context_foundry/ontology_foundry/hierarchy_enforcer.py` | Hierarchy enforcement agent |
+| `src/context_foundry/ontology_foundry/collision_detector.py` | Collision detection agent |
+
+---
+
+## Previous Architecture (Sessions 1-4)
 
 ### Tri-Memory System
-1.  **Semantic Memory (Knowledge Graph)**: Stores entities and relationships with lifecycle states, provenance, and confidence scores using PostgreSQL.
-2.  **Episodic Memory (Vector Search)**: Stores document embeddings for similarity-based retrieval using PostgreSQL with pgvector.
-3.  **Symbolic Memory (Rules Engine)**: Employs business rules with priority ordering for response validation.
+1. **Semantic Memory**: Entities and relationships with lifecycle states
+2. **Episodic Memory**: Document embeddings with pgvector
+3. **Symbolic Memory**: Business rules with priority ordering
 
-### Agent Pipeline
--   **Retrieval Agent**: Gathers information from all three memory layers.
--   **Reasoning Agent**: Generates responses using an LLM.
--   **Validation Agent**: Validates generated responses against symbolic rules.
--   **Graph Builder Agent**: Ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to a STAGING area with full provenance.
--   **Staging Validator Agent**: Validates STAGING data against schema rules, detects conflicts, and creates review items.
--   **Identity Resolution Agent**: Detects and manages duplicate entities using weighted similarity signals.
--   **Gardener Agent**: An autonomous agent that runs periodically to maintain graph health through decay, promotion, conflict resolution, demotion, and cleanup passes.
+### Gardener Agent
+Four-pass maintenance system:
+1. Corroboration Pass
+2. Conflict Resolution Pass
+3. Promotion Pass (type-specific thresholds)
+4. Decay Pass
 
-### Domain-Agnostic Schema System
-The knowledge graph schema (entity types, relationship types, cardinality rules, validation rules) is fully configurable via YAML files, allowing for adaptability across different domains (e.g., IT Operations, Fiction & Literature, Investment Portfolio). Both the ingestion AND query pipelines are fully domain-agnostic, dynamically adapting prompts and searches based on the active schema.
-Available Domain Schemas:
-- `config/domain_schema.yaml` - IT Operations
-- `config/fiction_schema.yaml` - Fiction & Literature
-- `config/investment_schema.yaml` - Investment Portfolio
+### Infrastructure Domain Template
+- 28 entity types for asset-intensive infrastructure
+- 15 relationship types
+- Risk-based promotion thresholds (CRITICAL/HIGH/MEDIUM/LOW)
 
-### UI/UX Decisions
-The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains. Frontier detection in the UI highlights knowledge boundaries.
-
-### Technical Implementations & Design Choices
--   **Lifecycle States**: Data transitions from STAGING to TRUSTED.
--   **Confidence Scoring & Provenance**: Every piece of data includes a confidence score and full provenance.
--   **Temporal Tracking**: Entities and relationships have `valid_from`, `valid_to`, `superseded_by`, and `change_reason` for full temporal history, supporting "as of when?" queries.
--   **Query Handling**: Includes query classification, impact analysis, hallucination prevention, and detection of analysis/trend queries and ordered sequence requests.
--   **Schema-Driven Multi-Mode Traversal**: Relationship traversal is fully configurable via YAML schema.
--   **Deterministic Impact Queries**: LLM calls use `temperature=0.0`. Impact/blast-radius queries use exhaustive graph traversal (BFS with max_depth=10) driven by schema semantics.
--   **Frontier Detection (Multi-Tier Traversal)**: Graph traversal explicitly identifies where knowledge ends, capturing `FrontierNode` data with classified reasons for stoppage.
--   **Speculative Inference Layer**: Extends beyond confirmed knowledge using 3 schema-driven inference rules and vector similarity search to suggest potential connections (Transitive Dependency, Co-occurrence, Shared Dependency).
--   **Three-Tier Query Response Pipeline**: Query responses are structured into three confidence tiers: CONFIRMED, INFERRED, and KNOWLEDGE BOUNDARY, with corresponding UI visuals.
--   **Timeline Slider**: Filters the graph by date.
--   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
--   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
--   **Data Model**: Utilizes SQLAlchemy for Entity, Relationship, and Document models.
--   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies.
--   **Ontology Architecture (6-Week Rebuild)**: Migration to a database-backed ontology for dynamic schema management, including:
-    - Shadow mode infrastructure and database-backed ontology foundation (`entities_v2`, `ontology_types`, `ontology_relations`).
-    - Constrained extraction pipeline with dynamic `SchemaPromptGenerator` and Pydantic models.
-    - `GardenerAgent` with type-weighted promotion thresholds from the database.
-    - Data cleanup scripts for orphans and stale staging, supporting infrastructure domain templates and risk-based threshold seeding.
+---
 
 ## External Dependencies
--   **Database**: PostgreSQL (specifically Neon for Replit deployment).
--   **LLM**: OpenAI (gpt-4o-mini for reasoning via Replit AI Integrations, direct OpenAI API for embeddings).
--   **Vector Embeddings**: pgvector with OpenAI `text-embedding-3-small`.
--   **Web Framework**: Flask.
--   **Deployment**: Gunicorn.
+
+- **Database**: PostgreSQL (Neon for Replit)
+- **LLM**: OpenAI gpt-4o-mini
+- **Vector Embeddings**: pgvector with text-embedding-3-small
+- **Web Framework**: Flask
+- **Deployment**: Gunicorn
+
+---
+
+## Next Steps
+
+### Remaining Session 5 Work
+1. Load 8 validated ontology SQL files (200 types with status='ACTIVE')
+2. Test full validation pipeline with proposed types
+
+### Session 6 (Future)
+- OrphanDetector agent for feedback channel
+- Approval workflow with human-in-the-loop
+- Schema versioning with query translation
+- Production rollout with RLS
