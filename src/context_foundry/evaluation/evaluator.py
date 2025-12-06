@@ -324,14 +324,18 @@ class BlindEvaluator:
                     for item in confirmed:
                         svc = item.get("service", item.get("name", "Unknown"))
                         desc = item.get("description", "")
-                        parts.append(f"  - {svc}: {desc}" if desc else f"  - {svc}")
+                        conf = item.get("confidence")
+                        conf_str = f" ({int(conf*100)}%)" if conf else ""
+                        parts.append(f"  - {svc}{conf_str}: {desc}" if desc else f"  - {svc}{conf_str}")
                 inferred = raw_answer.get("INFERRED IMPACT", raw_answer.get("inferred_impact", []))
                 if inferred:
                     parts.append("\nInferred Impact:")
                     for item in inferred:
                         svc = item.get("service", item.get("name", "Unknown"))
                         inference = item.get("inference", "")
-                        parts.append(f"  - {svc}: {inference}" if inference else f"  - {svc}")
+                        conf = item.get("confidence")
+                        conf_str = f" ({int(conf*100)}%)" if conf else ""
+                        parts.append(f"  - {svc}{conf_str}: {inference}" if inference else f"  - {svc}{conf_str}")
                 boundary = raw_answer.get("KNOWLEDGE BOUNDARY", raw_answer.get("knowledge_boundary", []))
                 if boundary:
                     parts.append("\nKnowledge Boundaries:")
