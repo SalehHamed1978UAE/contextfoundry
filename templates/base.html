@@ -15,16 +15,16 @@
             padding: 0;
         }
     </style>
+    <script type="module" src="https://cdn.skypack.dev/@hotwired/turbo"></script>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
     {% block head %}{% endblock %}
 </head>
 <body>
-    <div class="page-transition-overlay" id="pageTransitionOverlay"></div>
-    <div class="scanline"></div>
+    <div class="scanline" data-turbo-permanent id="scanline"></div>
     
-    <!-- Mobile Header -->
-    <header class="mobile-header">
+    <!-- Mobile Header - kept permanent during Turbo navigation -->
+    <header class="mobile-header" data-turbo-permanent id="mobileHeader">
         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
             <span></span>
             <span></span>
@@ -44,10 +44,10 @@
     </header>
     
     <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-overlay" id="mobileOverlay" data-turbo-permanent></div>
     
     <div class="app">
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar" data-turbo-permanent>
             <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M15 18l-6-6 6-6"/>
@@ -145,30 +145,35 @@
     </div>
     
     <script>
-        // Sidebar toggle for mobile
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        
-        if (hamburgerBtn) {
-            hamburgerBtn.addEventListener('click', () => {
-                sidebar.classList.add('open');
-                mobileOverlay.classList.add('active');
-            });
-        }
-        
-        if (mobileOverlay) {
-            mobileOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                mobileOverlay.classList.remove('active');
-            });
-        }
-        
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-            });
+        // Initialize sidebar interactions (runs once, elements are permanent)
+        function initSidebar() {
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (hamburgerBtn && !hamburgerBtn._initialized) {
+                hamburgerBtn._initialized = true;
+                hamburgerBtn.addEventListener('click', () => {
+                    sidebar.classList.add('open');
+                    mobileOverlay.classList.add('active');
+                });
+            }
+            
+            if (mobileOverlay && !mobileOverlay._initialized) {
+                mobileOverlay._initialized = true;
+                mobileOverlay.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                    mobileOverlay.classList.remove('active');
+                });
+            }
+            
+            if (sidebarToggle && !sidebarToggle._initialized) {
+                sidebarToggle._initialized = true;
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
         }
         
         // Update system status
@@ -187,21 +192,15 @@
             }
         }
         
-        // Update status every 30 seconds
+        // Initialize on first load
+        initSidebar();
         updateSystemStatus();
         setInterval(updateSystemStatus, 30000);
         
-        // Page transition - show overlay before navigation
-        const overlay = document.getElementById('pageTransitionOverlay');
-        document.querySelectorAll('a[href]').forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && href.startsWith('/') && !href.startsWith('/?') && !link.hasAttribute('data-page')) {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    overlay.classList.add('active');
-                    setTimeout(() => { window.location.href = href; }, 100);
-                });
-            }
+        // Re-initialize on Turbo navigation (for new content)
+        document.addEventListener('turbo:load', function() {
+            initSidebar();
+            updateSystemStatus();
         });
     </script>
     
