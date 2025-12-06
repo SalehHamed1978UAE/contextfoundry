@@ -171,6 +171,30 @@ def query():
             response['frontier'] = context_bundle['frontier']
             response['gaps_identified'] = context_bundle.get('gaps_identified', [])
         
+        # NEW: Speculative inferences (AI-inferred relationships) - always include
+        speculative_inferences = context_bundle.get('speculative_inferences', [])
+        response['speculative_inferences'] = speculative_inferences
+        
+        # Build tiered results summary for UI - always include for consistent frontend
+        confirmed_entities = context_bundle.get('blast_radius_entities', [])
+        frontier_nodes = context_bundle.get('frontier', [])
+        
+        tiered_results = {
+            'confirmed': {
+                'entities': confirmed_entities,
+                'count': len(confirmed_entities)
+            },
+            'inferred': {
+                'relationships': speculative_inferences,
+                'count': len(speculative_inferences)
+            },
+            'boundaries': {
+                'frontier_nodes': frontier_nodes,
+                'count': len(frontier_nodes)
+            }
+        }
+        response['tiered_results'] = tiered_results
+        
         return jsonify(response)
     except Exception as e:
         reset_context_foundry()

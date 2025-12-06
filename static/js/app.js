@@ -1251,8 +1251,24 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
+        // Build speculative data from speculative_inferences for backward compatibility
+        const speculativeData = {
+            inferred: (data.speculative_inferences || []).map(inf => ({
+                source_entity_name: inf.source_entity_name,
+                target_entity_name: inf.target_entity_name,
+                confidence: inf.confidence,
+                inferred_relationship_type: inf.relationship_type || 'RELATED_TO',
+                rule_name: inf.rule_name,
+                supporting_evidence: inf.explanation ? [inf.explanation] : []
+            })),
+            similar: (data.speculative?.similar || [])
+        };
+        
         // Render gaps panel if there are gaps identified or speculative results
-        renderGapsPanel(data.gaps_identified || [], data.frontier || [], data.speculative || {});
+        renderGapsPanel(data.gaps_identified || [], data.frontier || [], speculativeData);
+        
+        // Render tiered results summary
+        renderTieredResultsSummary(data);
         
         resetFeedbackUI();
         document.getElementById('feedbackSection').style.display = 'block';
@@ -1421,6 +1437,40 @@ document.addEventListener('DOMContentLoaded', function() {
             ${speculativeHtml}
             ${gapsHtml}
         `;
+    }
+    
+    function renderTieredResultsSummary(data) {
+        const summaryPanel = document.getElementById('tieredResultsSummary');
+        if (!summaryPanel) return;
+        
+        // Calculate counts from tiered_results or individual fields
+        const tieredResults = data.tiered_results || {};
+        
+        const confirmedCount = tieredResults.confirmed?.count || 
+            (data.blast_radius_entities?.length || 0);
+        const inferredCount = tieredResults.inferred?.count || 
+            (data.speculative_inferences?.length || 0);
+        const boundaryCount = tieredResults.boundaries?.count || 
+            (data.frontier?.length || 0);
+        
+        // Only show if we have any tiered data
+        const hasData = confirmedCount > 0 || inferredCount > 0 || boundaryCount > 0;
+        
+        if (!hasData) {
+            summaryPanel.style.display = 'none';
+            return;
+        }
+        
+        summaryPanel.style.display = 'block';
+        
+        // Update counts with animation
+        const confirmedEl = document.getElementById('confirmedCount');
+        const inferredEl = document.getElementById('inferredCount');
+        const boundaryEl = document.getElementById('boundaryCount');
+        
+        if (confirmedEl) confirmedEl.textContent = confirmedCount;
+        if (inferredEl) inferredEl.textContent = inferredCount;
+        if (boundaryEl) boundaryEl.textContent = boundaryCount;
     }
     
     function resetFeedbackUI() {
