@@ -127,6 +127,23 @@ Six base validation rules (stored in `ontology.rules`):
 - ✅ Publishes ORPHAN_PATTERN_DETECTED events at threshold crossings (10/25/50)
 - ✅ Creates feedback loop from Context Foundry to Ontology Foundry
 - ✅ Supports resolve/dismiss workflow for human review
+- ✅ **promote_to_type()**: Converts orphan patterns to PROPOSED types
+- ✅ **finalize_promotion()**: Marks orphans RESOLVED on success, reverts to ACTIVE on failure
+
+### Session 7 Progress ✅
+
+**End-to-End Governance Tests:**
+- ✅ Test 1: Type proposal lifecycle (PROPOSED → Validated → Auto-Approved → ACTIVE)
+- ✅ Test 2: Orphan pattern detection from document processing (5 events published)
+- ✅ Test 3: Complete learning cycle - Orphan → Promote → Validate → Approve → Activate → Resolve
+
+**Learning Cycle Implementation:**
+- ✅ OrphanDetector.promote_to_type() creates PROPOSED types from orphan patterns
+- ✅ Auto-generates properties_schema, extraction_hints, and description
+- ✅ Sets orphan status to PROMOTING during validation
+- ✅ Publishes TYPE_PROPOSED event for TypeLifecycleManager
+- ✅ finalize_promotion() resolves or reverts orphan based on outcome
+- ✅ Ontology grew from 212 to 215+ types through learning
 
 ### Session 5 Progress ✅
 
@@ -196,8 +213,9 @@ Four-pass maintenance system:
 
 ## Next Steps
 
-### Session 7 (Future)
-- End-to-end governance flow testing
+### Session 8 (Future)
 - Schema versioning with query translation
-- Production rollout with RLS
+- Production rollout with Row-Level Security (RLS)
 - Web UI for approval workflows
+- Integrate finalize_promotion() into TypeLifecycleManager callbacks
+- Enrich auto-generated properties_schema with domain-specific data
