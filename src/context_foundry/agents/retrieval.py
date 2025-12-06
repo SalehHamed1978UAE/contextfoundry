@@ -22,6 +22,7 @@ from ..memory.episodic import EpisodicMemory
 from ..memory.symbolic import SymbolicMemory
 from ..utils.logger import logger, QueryLogger
 from ..config.domain_schema import get_schema_loader, DomainSchema, TraversalResult
+from ..memory.inference import InferenceEngine
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -350,6 +351,47 @@ class RetrievalAgent:
             bundle.gaps_identified = semantic_results["gaps_identified"]
         if "traversal_result" in semantic_results:
             bundle.traversal_result = semantic_results["traversal_result"]
+        
+        # Run speculative inference on frontier nodes
+        if bundle.frontier:
+            try:
+                inference_engine = InferenceEngine(self.semantic.session)
+                
+                # Get entity IDs from semantic entities for neighbors context
+                neighbor_ids = [e.get("id") for e in bundle.semantic_entities if e.get("id")]
+                
+                # Run inference for each frontier node
+                all_inferences = []
+                for frontier_node in bundle.frontier:
+                    entity_name = frontier_node.get("entity_name")
+                    if entity_name:
+                        frontier_entity = self.semantic.find_entity_by_name(entity_name)
+                        if frontier_entity:
+                            inferences = inference_engine.run_all_rules(
+                                entity_id=str(frontier_entity.id),
+                                neighbor_ids=neighbor_ids
+                            )
+                            all_inferences.extend(inferences)
+                
+                # Deduplicate by (source, target, rule_name)
+                seen_keys = set()
+                unique_inferences = []
+                for inf in all_inferences:
+                    key = (inf.get("source_entity_id"), inf.get("target_entity_id"), inf.get("rule_name"))
+                    if key not in seen_keys:
+                        seen_keys.add(key)
+                        unique_inferences.append(inf)
+                
+                bundle.speculative_inferences = unique_inferences
+                
+                if query_logger and unique_inferences:
+                    query_logger.log_event("SPECULATIVE_INFERENCES", {
+                        "count": len(unique_inferences),
+                        "frontier_nodes": len(bundle.frontier),
+                        "inferences": [f"{i.get('source_entity_name')} -> {i.get('target_entity_name')}" for i in unique_inferences[:5]]
+                    })
+            except Exception as e:
+                logger.warning(f"Speculative inference failed: {e}")
         
         if property_entities:
             seen_ids = {e.get("id") for e in bundle.semantic_entities}

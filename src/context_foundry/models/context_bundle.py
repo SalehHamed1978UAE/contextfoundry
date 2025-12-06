@@ -136,6 +136,10 @@ class ContextBundle:
     gaps_identified: List[str] = field(default_factory=list)  # Documentation gaps found
     traversal_result: Optional[Dict] = None  # Full structured traversal result
     
+    # Speculative inference - AI-inferred relationships beyond confirmed knowledge
+    # Populated by InferenceEngine using transitive dependency, co-occurrence, and shared dependency rules
+    speculative_inferences: List[Dict] = field(default_factory=list)  # List of inferred relationships with confidence
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""
@@ -338,18 +342,28 @@ class ContextBundle:
             lines.append("- For aggregate analysis, the user should query their incident database directly")
             lines.append("DO NOT attempt to synthesize patterns from partial data - this risks hallucination.\n")
         
-        # IMPACT QUERY: Guide LLM to include ALL cascade services
+        # IMPACT QUERY: Guide LLM to structure response with three tiers
         if self.query_type == 'impact':
             lines.append("=== IMPACT/CASCADE QUERY DETECTED ===")
             lines.append("The user is asking about blast radius, impact, or who needs to be notified if something fails.")
-            lines.append("CRITICAL INSTRUCTIONS:")
-            lines.append("1. Include ALL services in the cascade - both DIRECT dependencies AND DOWNSTREAM dependants")
-            lines.append("2. The relationships below show the full dependency chain - follow ALL edges")
-            lines.append("3. If A depends on B, and B depends on C (the failing entity), then BOTH A and B are affected")
-            lines.append("4. Present a COMPLETE list of affected services, grouped by direct vs cascade if helpful")
-            lines.append("5. Do NOT stop at just direct dependencies - the full blast radius includes transitive dependants")
-            lines.append("Example: If User Database fails, and Auth Service depends on User Database, and API Gateway depends on Auth Service,")
-            lines.append("         then BOTH Auth Service (direct) AND API Gateway (cascade) must be listed.\n")
+            lines.append("")
+            lines.append("STRUCTURE YOUR RESPONSE IN THREE TIERS:")
+            lines.append("")
+            lines.append("**CONFIRMED IMPACT:** (High confidence)")
+            lines.append("  - Direct dependencies from the knowledge graph with high confidence")
+            lines.append("  - These are KNOWN relationships we are certain about")
+            lines.append("")
+            lines.append("**INFERRED IMPACT:** (Lower confidence)")
+            lines.append("  - Transitive/indirect dependencies inferred through chains")
+            lines.append("  - Include the confidence percentage for each inferred item")
+            lines.append("  - Example: 'User Database (inferred via Auth Gateway, 57% confidence)'")
+            lines.append("")
+            lines.append("**KNOWLEDGE BOUNDARY:** (Unknown)")
+            lines.append("  - Where our knowledge ends - downstream consumers we don't have visibility into")
+            lines.append("  - Explicitly state what we DON'T know")
+            lines.append("  - Example: 'No visibility into downstream consumers of User Database'")
+            lines.append("")
+            lines.append("CRITICAL: Be explicit about uncertainty. Do NOT present inferred impacts as confirmed facts.\n")
         
         # SEQUENCE INTENT: Guide LLM to provide ordered steps from runbooks
         if self.sequence_intent:
@@ -415,6 +429,37 @@ class ContextBundle:
                 lines.append(f"    Action: {rule.get('action')}")
         else:
             lines.append("  No specific rules apply.")
+        
+        # SPECULATIVE INFERENCES: AI-inferred relationships beyond confirmed facts
+        if self.speculative_inferences:
+            lines.append("\n=== SPECULATIVE INFERENCES (AI-INFERRED) ===")
+            lines.append("These are relationships INFERRED by analysis rules, NOT confirmed in the knowledge graph.")
+            lines.append("You MUST clearly label these as inferred with their confidence percentage.\n")
+            for inf in self.speculative_inferences:
+                rule_name = inf.get("rule_name", "unknown")
+                source = inf.get("source_entity_name", "unknown")
+                target = inf.get("target_entity_name", "unknown")
+                rel_type = inf.get("relationship_type", "RELATED_TO")
+                confidence = inf.get("confidence", 0)
+                explanation = inf.get("explanation", "")
+                lines.append(f"  - {source} --[{rel_type}]--> {target}")
+                lines.append(f"    Inferred by: {rule_name} ({confidence:.0%} confidence)")
+                if explanation:
+                    lines.append(f"    Reason: {explanation}")
+        
+        # KNOWLEDGE BOUNDARIES: Where graph traversal stopped
+        if self.frontier:
+            lines.append("\n=== KNOWLEDGE BOUNDARIES (FRONTIER NODES) ===")
+            lines.append("These mark where our knowledge ends. Traversal stopped at these points.\n")
+            for frontier_node in self.frontier:
+                entity_name = frontier_node.get("entity_name", "unknown")
+                entity_type = frontier_node.get("entity_type", "unknown")
+                reason = frontier_node.get("reason", "Unknown reason")
+                reason_details = frontier_node.get("reason_details", "")
+                lines.append(f"  - {entity_name} [{entity_type}]")
+                lines.append(f"    Boundary reason: {reason}")
+                if reason_details:
+                    lines.append(f"    Details: {reason_details}")
         
         if self.uncertainty:
             lines.append(f"\n=== UNCERTAINTY REPORT ===")

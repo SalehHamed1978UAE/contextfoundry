@@ -1942,3 +1942,114 @@ body {
 .detail-tab.active {
     font-weight: 600;
 }
+
+/* Tiered Results Summary */
+.tiered-results-summary {
+    margin: 20px 0;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.tiered-results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.tier-card {
+    padding: 16px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.tier-card.confirmed {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.tier-card.confirmed .tier-icon {
+    color: #10b981;
+}
+
+.tier-card.confirmed .tier-count {
+    color: #10b981;
+}
+
+.tier-card.inferred {
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.tier-card.inferred .tier-icon {
+    color: #a855f7;
+}
+
+.tier-card.inferred .tier-count {
+    color: #a855f7;
+}
+
+.tier-card.boundary {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.tier-card.boundary .tier-icon {
+    color: #f59e0b;
+}
+
+.tier-card.boundary .tier-count {
+    color: #f59e0b;
+}
+
+.tier-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.tier-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.tier-count {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.tier-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* Responsive tiered results */
+@media (max-width: 768px) {
+    .tiered-results-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .tier-card {
+        padding: 12px 8px;
+    }
+    
+    .tier-count {
+        font-size: 24px;
+    }
+    
+    .tier-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+}
