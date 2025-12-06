@@ -79,7 +79,7 @@ INSERT INTO ontology.meta_ontology (id, meta_type, meta_name, definition) VALUES
  '{
     "description": "Valid states for governed entities",
     "ontology_states": ["PROPOSED", "VALIDATING", "CONTESTED", "APPROVED", "ACTIVE", "DEPRECATED"],
-    "context_states": ["STAGING", "CORROBORATED", "TRUSTED", "CONTESTED", "RETRACTED"],
+    "context_states": ["STAGING", "TRUSTED", "ARCHIVED"],
     "governance": "system"
  }')
 
