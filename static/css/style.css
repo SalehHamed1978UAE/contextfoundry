@@ -2053,3 +2053,24 @@ body {
         height: 16px;
     }
 }
+
+/* Tier card hover states for clickable cards */
+.tier-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tier-card.confirmed:hover {
+    border-color: rgba(16, 185, 129, 0.6);
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.tier-card.inferred:hover {
+    border-color: rgba(168, 85, 247, 0.6);
+    background: rgba(168, 85, 247, 0.15);
+}
+
+.tier-card.boundary:hover {
+    border-color: rgba(245, 158, 11, 0.6);
+    background: rgba(245, 158, 11, 0.15);
+}
