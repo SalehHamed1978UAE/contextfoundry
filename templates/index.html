@@ -15,15 +15,15 @@
             padding: 0;
         }
     </style>
+    <script type="module" src="https://cdn.skypack.dev/@hotwired/turbo"></script>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
 </head>
 <body>
-    <div class="page-transition-overlay" id="pageTransitionOverlay"></div>
-    <div class="scanline"></div>
+    <div class="scanline" data-turbo-permanent id="scanline"></div>
     
-    <!-- Mobile Header -->
-    <header class="mobile-header">
+    <!-- Mobile Header - kept permanent during Turbo navigation -->
+    <header class="mobile-header" data-turbo-permanent id="mobileHeader">
         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
             <span></span>
             <span></span>
@@ -43,10 +43,10 @@
     </header>
     
     <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-overlay" id="mobileOverlay" data-turbo-permanent></div>
     
     <div class="app">
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar" data-turbo-permanent>
             <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M15 18l-6-6 6-6"/>
@@ -550,19 +550,5 @@
     </div>
 
     <script src="/static/js/app.js?v=1733477000"></script>
-    <script>
-        // Page transition - show overlay before navigation to other pages
-        const overlay = document.getElementById('pageTransitionOverlay');
-        document.querySelectorAll('a[href]').forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && href.startsWith('/') && !href.startsWith('/?') && !link.hasAttribute('data-page')) {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    overlay.classList.add('active');
-                    setTimeout(() => { window.location.href = href; }, 100);
-                });
-            }
-        });
-    </script>
 </body>
 </html>
