@@ -1471,6 +1471,35 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirmedEl) confirmedEl.textContent = confirmedCount;
         if (inferredEl) inferredEl.textContent = inferredCount;
         if (boundaryEl) boundaryEl.textContent = boundaryCount;
+        
+        // Add click handlers for tier cards
+        const confirmedCard = summaryPanel.querySelector('.tier-card.confirmed');
+        const inferredCard = summaryPanel.querySelector('.tier-card.inferred');
+        const boundaryCard = summaryPanel.querySelector('.tier-card.boundary');
+        
+        if (confirmedCard && confirmedCount > 0) {
+            confirmedCard.style.cursor = 'pointer';
+            confirmedCard.onclick = () => {
+                const evidenceSection = document.querySelector('.evidence-section');
+                if (evidenceSection) evidenceSection.scrollIntoView({ behavior: 'smooth' });
+            };
+        }
+        
+        if (inferredCard && inferredCount > 0) {
+            inferredCard.style.cursor = 'pointer';
+            inferredCard.onclick = () => {
+                const speculativeSection = document.querySelector('.speculative-section');
+                if (speculativeSection) speculativeSection.scrollIntoView({ behavior: 'smooth' });
+            };
+        }
+        
+        if (boundaryCard && boundaryCount > 0) {
+            boundaryCard.style.cursor = 'pointer';
+            boundaryCard.onclick = () => {
+                const frontierSection = document.querySelector('.frontier-section');
+                if (frontierSection) frontierSection.scrollIntoView({ behavior: 'smooth' });
+            };
+        }
     }
     
     function resetFeedbackUI() {
