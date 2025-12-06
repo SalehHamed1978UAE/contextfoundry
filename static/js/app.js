@@ -77,14 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
             
             if (page === 'dashboard') {
-                document.querySelector('.page-content:not(.page-memory):not(.page-learning):not(.page-rules)').style.display = 'block';
+                document.querySelector('.page-content:not(.page-memory)').style.display = 'block';
             } else if (page === 'memory') {
                 document.querySelector('.page-memory').style.display = 'block';
                 renderMemoryGraph();
-            } else if (page === 'learning') {
-                document.querySelector('.page-learning').style.display = 'block';
-            } else if (page === 'rules') {
-                document.querySelector('.page-rules').style.display = 'block';
             }
         });
     });
