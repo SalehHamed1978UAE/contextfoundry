@@ -64,6 +64,12 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
     - **Co-occurrence**: Detects entities mentioned together in 3+ documents with 36% confidence
     - **Shared Dependency**: Finds entities sharing common targets with 45% confidence
     - Isolated entities (no relationships) are treated as pseudo-frontiers for co-occurrence analysis
+-   **Three-Tier Query Response Pipeline (Phase 3)**: Query responses are structured into three confidence tiers:
+    - **CONFIRMED**: Direct relationships from the knowledge graph with high confidence
+    - **INFERRED**: AI-analyzed connections from speculative inference rules with confidence percentages
+    - **KNOWLEDGE BOUNDARY**: Explicit frontier nodes where traversal stopped, indicating knowledge gaps
+    - UI displays tiered results summary with visual cards (green/purple/amber color coding)
+    - API always returns `tiered_results` and `speculative_inferences` for consistent frontend rendering
 -   **Timeline Slider**: Filters the graph by date, re-expanding the current entity with the new `as_of_date`.
 -   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
 -   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
