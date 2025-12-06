@@ -304,9 +304,36 @@ class BlindEvaluator:
         
         raw_answer = result.get("answer", "")
         if isinstance(raw_answer, dict):
-            answer = raw_answer.get("text", raw_answer.get("content", json.dumps(raw_answer)))
+            if "text" in raw_answer:
+                answer = raw_answer["text"]
+            elif "content" in raw_answer:
+                answer = raw_answer["content"]
+            elif "CONFIRMED IMPACT" in raw_answer or "confirmed_impact" in raw_answer:
+                parts = []
+                confirmed = raw_answer.get("CONFIRMED IMPACT", raw_answer.get("confirmed_impact", []))
+                if confirmed:
+                    parts.append("Confirmed Impact:")
+                    for item in confirmed:
+                        svc = item.get("service", item.get("name", "Unknown"))
+                        desc = item.get("description", "")
+                        parts.append(f"  - {svc}: {desc}" if desc else f"  - {svc}")
+                inferred = raw_answer.get("INFERRED IMPACT", raw_answer.get("inferred_impact", []))
+                if inferred:
+                    parts.append("\nInferred Impact:")
+                    for item in inferred:
+                        svc = item.get("service", item.get("name", "Unknown"))
+                        inference = item.get("inference", "")
+                        parts.append(f"  - {svc}: {inference}" if inference else f"  - {svc}")
+                boundary = raw_answer.get("KNOWLEDGE BOUNDARY", raw_answer.get("knowledge_boundary", []))
+                if boundary:
+                    parts.append("\nKnowledge Boundaries:")
+                    for item in boundary:
+                        parts.append(f"  - {item}" if isinstance(item, str) else f"  - {item}")
+                answer = "\n".join(parts) if parts else json.dumps(raw_answer, indent=2)
+            else:
+                answer = json.dumps(raw_answer, indent=2)
         elif isinstance(raw_answer, list):
-            answer = json.dumps(raw_answer)
+            answer = json.dumps(raw_answer, indent=2)
         else:
             answer = str(raw_answer) if raw_answer else ""
         
