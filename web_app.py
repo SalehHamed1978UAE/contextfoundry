@@ -12,6 +12,15 @@ from src.context_foundry.agents.identity_resolver import IdentityResolutionConfi
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "context-foundry-secret")
 
+@app.after_request
+def add_cache_control(response):
+    """Prevent caching of static files during development."""
+    if 'static' in request.path:
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
+
 cf = None
 scheduler = None
 evaluation_result = None
