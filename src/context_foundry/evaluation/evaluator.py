@@ -322,20 +322,30 @@ class BlindEvaluator:
                 if confirmed:
                     parts.append("Confirmed Impact:")
                     for item in confirmed:
-                        svc = item.get("service", item.get("name", "Unknown"))
-                        desc = item.get("description", "")
-                        conf = item.get("confidence")
-                        conf_str = f" ({int(conf*100)}%)" if conf else ""
-                        parts.append(f"  - {svc}{conf_str}: {desc}" if desc else f"  - {svc}{conf_str}")
+                        if isinstance(item, str):
+                            parts.append(f"  - {item}")
+                        elif isinstance(item, dict):
+                            svc = item.get("service") or item.get("name") or item.get("entity") or item.get("component") or next(iter(item.values()), "Unknown")
+                            desc = item.get("description", item.get("reason", ""))
+                            conf = item.get("confidence")
+                            conf_str = f" ({int(conf*100)}%)" if conf else ""
+                            parts.append(f"  - {svc}{conf_str}: {desc}" if desc else f"  - {svc}{conf_str}")
+                        else:
+                            parts.append(f"  - {item}")
                 inferred = raw_answer.get("INFERRED IMPACT", raw_answer.get("inferred_impact", []))
                 if inferred:
                     parts.append("\nInferred Impact:")
                     for item in inferred:
-                        svc = item.get("service", item.get("name", "Unknown"))
-                        inference = item.get("inference", "")
-                        conf = item.get("confidence")
-                        conf_str = f" ({int(conf*100)}%)" if conf else ""
-                        parts.append(f"  - {svc}{conf_str}: {inference}" if inference else f"  - {svc}{conf_str}")
+                        if isinstance(item, str):
+                            parts.append(f"  - {item}")
+                        elif isinstance(item, dict):
+                            svc = item.get("service") or item.get("name") or item.get("entity") or item.get("component") or next(iter(item.values()), "Unknown")
+                            inference = item.get("inference", item.get("reason", item.get("description", "")))
+                            conf = item.get("confidence")
+                            conf_str = f" ({int(conf*100)}%)" if conf else ""
+                            parts.append(f"  - {svc}{conf_str}: {inference}" if inference else f"  - {svc}{conf_str}")
+                        else:
+                            parts.append(f"  - {item}")
                 boundary = raw_answer.get("KNOWLEDGE BOUNDARY", raw_answer.get("knowledge_boundary", []))
                 if boundary:
                     parts.append("\nKnowledge Boundaries:")
