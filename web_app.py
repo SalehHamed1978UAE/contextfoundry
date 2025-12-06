@@ -638,6 +638,13 @@ def graph_expand(entity_id):
                 )
                 all_inferred.extend(shared_dep_inferred)
                 
+                transitive_inferred = inference_engine.find_transitive_chains(
+                    center_id=entity_id,
+                    neighbor_ids=neighbor_ids,
+                    visited_entities=visited_ids
+                )
+                all_inferred.extend(transitive_inferred)
+                
                 if not neighbors:
                     co_occurrence_inferred = inference_engine.find_co_occurrences_for_entity(
                         entity_id=entity_id,
@@ -648,8 +655,8 @@ def graph_expand(entity_id):
                 seen_pairs = set()
                 unique_inferred = []
                 for inf in all_inferred:
-                    pair = (inf.source_entity_id, inf.target_entity_id)
-                    reverse_pair = (inf.target_entity_id, inf.source_entity_id)
+                    pair = (inf.source_entity_id, inf.target_entity_id, inf.inferred_relationship_type)
+                    reverse_pair = (inf.target_entity_id, inf.source_entity_id, inf.inferred_relationship_type)
                     if pair not in seen_pairs and reverse_pair not in seen_pairs:
                         seen_pairs.add(pair)
                         unique_inferred.append(inf)

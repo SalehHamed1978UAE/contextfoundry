@@ -229,17 +229,27 @@ class TransitiveDependencyRule(InferenceRule):
     
     def _get_transitive_relationship_types(self, schema: DomainSchema) -> List[str]:
         """Get relationship types that support transitive inference."""
+        default_transitive = ['DEPENDS_ON', 'REPORTS_TO', 'PART_OF', 'REQUIRES', 'USES', 'CALLS', 'IMPORTS']
         transitive_types = []
-        for rel_name, rel_config in schema.relationship_types.items():
-            if rel_name in ['DEPENDS_ON', 'REQUIRES', 'USES', 'CALLS', 'IMPORTS']:
-                transitive_types.append(rel_name)
-            elif rel_config.semantics and 'dependency' in rel_config.semantics.modes:
-                transitive_types.append(rel_name)
         
-        if not transitive_types:
-            transitive_types = ['DEPENDS_ON']
+        if hasattr(schema, 'relationship_types'):
+            rel_types = schema.relationship_types
+            if isinstance(rel_types, dict):
+                for rel_name, rel_config in rel_types.items():
+                    if rel_name in default_transitive:
+                        transitive_types.append(rel_name)
+                    elif hasattr(rel_config, 'semantics') and rel_config.semantics:
+                        modes = getattr(rel_config.semantics, 'modes', None) or {}
+                        if 'dependency' in modes:
+                            transitive_types.append(rel_name)
+            elif isinstance(rel_types, list):
+                for rel in rel_types:
+                    if hasattr(rel, 'name') and rel.name in default_transitive:
+                        transitive_types.append(rel.name)
+                    elif isinstance(rel, str) and rel in default_transitive:
+                        transitive_types.append(rel)
         
-        return transitive_types
+        return transitive_types if transitive_types else ['DEPENDS_ON']
 
 
 class CoOccurrenceRule(InferenceRule):
@@ -267,8 +277,13 @@ class CoOccurrenceRule(InferenceRule):
     ) -> List[InferredRelationship]:
         inferred = []
         
+        try:
+            frontier_uuid = uuid.UUID(frontier_node.entity_id) if isinstance(frontier_node.entity_id, str) else frontier_node.entity_id
+        except ValueError:
+            return inferred
+        
         frontier_entity = session.query(Entity).filter(
-            Entity.id == frontier_node.entity_id
+            Entity.id == frontier_uuid
         ).first()
         
         if not frontier_entity:
@@ -282,11 +297,14 @@ class CoOccurrenceRule(InferenceRule):
             return inferred
         
         other_entities = session.query(Entity).filter(
-            Entity.id != frontier_node.entity_id,
+            Entity.id != frontier_uuid,
             Entity.lifecycle_state == LifecycleState.TRUSTED
         ).all()
         
         for other_entity in other_entities:
+            if other_entity.name.lower() == frontier_entity.name.lower():
+                continue
+            
             shared_docs = []
             for doc in docs_mentioning_frontier:
                 if other_entity.name.lower() in doc.content.lower():
@@ -298,12 +316,12 @@ class CoOccurrenceRule(InferenceRule):
             existing = session.query(Relationship).filter(
                 or_(
                     and_(
-                        Relationship.source_id == frontier_node.entity_id,
+                        Relationship.source_id == frontier_uuid,
                         Relationship.target_id == other_entity.id
                     ),
                     and_(
                         Relationship.source_id == other_entity.id,
-                        Relationship.target_id == frontier_node.entity_id
+                        Relationship.target_id == frontier_uuid
                     )
                 ),
                 Relationship.lifecycle_state == LifecycleState.TRUSTED
@@ -489,6 +507,130 @@ class InferenceEngine:
         logger.info(f"Co-occurrence analysis for {entity.name}: {len(inferred)} relationships found")
         
         return inferred
+    
+    def find_transitive_chains(
+        self,
+        center_id: str,
+        neighbor_ids: List[str],
+        visited_entities: Optional[Set[str]] = None
+    ) -> List[InferredRelationship]:
+        """
+        Find transitive chains from center entity through neighbors.
+        
+        For center A with neighbor B, look for B's outgoing edges to C.
+        If A→B and B→C exist, infer A→C (LIKELY_DEPENDS_ON).
+        
+        This runs on the center entity looking FORWARD, rather than
+        waiting for frontiers to look backwards.
+        
+        Args:
+            center_id: ID of the center entity being expanded
+            neighbor_ids: List of neighbor entity IDs (direct targets of center)
+            visited_entities: Set of entity IDs to exclude from results
+            
+        Returns:
+            List of inferred transitive relationships
+        """
+        visited = visited_entities or set()
+        inferred = []
+        schema = self.schema_loader.schema
+        
+        try:
+            center_uuid = center_id if isinstance(center_id, uuid.UUID) else uuid.UUID(center_id)
+        except ValueError:
+            return []
+        
+        center_entity = self.session.query(Entity).filter(Entity.id == center_uuid).first()
+        if not center_entity:
+            return []
+        
+        rel_types = self._get_transitive_relationship_types(schema)
+        
+        for neighbor_id in neighbor_ids:
+            try:
+                neighbor_uuid = neighbor_id if isinstance(neighbor_id, uuid.UUID) else uuid.UUID(neighbor_id)
+            except ValueError:
+                continue
+            
+            center_to_neighbor = self.session.query(Relationship).filter(
+                Relationship.source_id == center_uuid,
+                Relationship.target_id == neighbor_uuid,
+                Relationship.lifecycle_state == LifecycleState.TRUSTED
+            ).first()
+            
+            if not center_to_neighbor:
+                continue
+            
+            if center_to_neighbor.relationship_type not in rel_types:
+                continue
+            
+            neighbor_outgoing = self.session.query(Relationship).filter(
+                Relationship.source_id == neighbor_uuid,
+                Relationship.relationship_type == center_to_neighbor.relationship_type,
+                Relationship.lifecycle_state == LifecycleState.TRUSTED
+            ).all()
+            
+            for rel in neighbor_outgoing:
+                target_id = rel.target_id
+                
+                if str(target_id) in visited or str(target_id) == str(center_uuid):
+                    continue
+                
+                existing = self.session.query(Relationship).filter(
+                    Relationship.source_id == center_uuid,
+                    Relationship.target_id == target_id,
+                    Relationship.lifecycle_state == LifecycleState.TRUSTED
+                ).first()
+                
+                if existing:
+                    continue
+                
+                target_entity = self.session.query(Entity).filter(Entity.id == target_id).first()
+                neighbor_entity = self.session.query(Entity).filter(Entity.id == neighbor_uuid).first()
+                
+                if not target_entity or not neighbor_entity:
+                    continue
+                
+                conf1 = float(center_to_neighbor.confidence) if center_to_neighbor.confidence else 0.9
+                conf2 = float(rel.confidence) if rel.confidence else 0.9
+                combined = conf1 * conf2 * 0.7
+                
+                inferred.append(InferredRelationship(
+                    source_entity_id=str(center_entity.id),
+                    source_entity_name=str(center_entity.name),
+                    source_entity_type=str(center_entity.entity_type),
+                    target_entity_id=str(target_entity.id),
+                    target_entity_name=str(target_entity.name),
+                    target_entity_type=str(target_entity.entity_type),
+                    inferred_relationship_type=f"LIKELY_{center_to_neighbor.relationship_type}",
+                    confidence=combined,
+                    rule_id="transitive_dependency",
+                    rule_name="Transitive Dependency",
+                    supporting_evidence=[
+                        f"{center_entity.name} → {neighbor_entity.name} ({center_to_neighbor.relationship_type})",
+                        f"{neighbor_entity.name} → {target_entity.name} ({rel.relationship_type})"
+                    ]
+                ))
+        
+        logger.info(f"Transitive chain analysis from {center_entity.name}: {len(inferred)} relationships found")
+        
+        return inferred
+    
+    def _get_transitive_relationship_types(self, schema: DomainSchema) -> List[str]:
+        """Get relationship types that support transitive inference."""
+        transitive_types = []
+        for rel in schema.relationship_types:
+            if hasattr(rel, 'semantics'):
+                semantics = rel.semantics or {}
+                if semantics.get('transitive', False) or rel.name in ['DEPENDS_ON', 'REPORTS_TO', 'PART_OF']:
+                    transitive_types.append(rel.name)
+            elif hasattr(rel, 'name'):
+                if rel.name in ['DEPENDS_ON', 'REPORTS_TO', 'PART_OF']:
+                    transitive_types.append(rel.name)
+            elif isinstance(rel, str):
+                if rel in ['DEPENDS_ON', 'REPORTS_TO', 'PART_OF']:
+                    transitive_types.append(rel)
+        return transitive_types if transitive_types else ['DEPENDS_ON', 'REPORTS_TO', 'PART_OF']
     
     def find_shared_dependencies(
         self,
