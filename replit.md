@@ -140,6 +140,22 @@ Six base validation rules (stored in `ontology.rules`):
 - ✅ Fuzzy focal entity matching handles pluralization ("Payment Database" → "Payments Database")
 - ✅ Graceful empty-state handling with explicit knowledge_gaps and low confidence (0.1)
 
+**Schema Versioning & Deprecation (RFC v2 §7-§8):**
+- ✅ Migration 010: ontology.type_versions, type_migrations tables, type_translation view
+- ✅ SchemaVersionManager with recursive CTE for query translation (handles A→B→C chains)
+- ✅ DeprecationManager with deprecate_type(), execute_migration(), get_deprecation_impact()
+- ✅ Proper JSON deserialization for mapping_rules
+- ✅ Type status transitions: ACTIVE → DEPRECATED → ARCHIVED
+- ✅ Audit trail via shared.audit_log for all deprecation events
+
+**Stress Test Results:**
+| Metric | Value | Status |
+|--------|-------|--------|
+| Staging entities | 35 | All valid types |
+| Garbage entities (conf < 0.5) | 0 | PASS |
+| Invalid types in staging | 0 | PASS |
+| Legacy invalid types | 14 | From pre-constrained era |
+
 **API Test Results:**
 | Query | Focal | Related | Confidence | Knowledge Gaps |
 |-------|-------|---------|------------|----------------|

@@ -1,0 +1,139 @@
+**Tell Replit:**
+
+---
+
+Three tasks to complete the RFC v2 implementation:
+
+---
+
+**Task 1: Schema Versioning & Query Translator (RFC v2 §8)**
+
+When types are deprecated/migrated, old queries should still work.
+
+```python
+# schema_version.py
+
+class SchemaVersionManager:
+    """Manages type version history and query translation"""
+    
+    def __init__(self, session):
+        self.session = session
+    
+    def get_type_lineage(self, type_name: str) -> List[TypeVersion]:
+        """Get full version history of a type"""
+        pass
+    
+    def translate_query(self, query_type: str) -> str:
+        """Translate deprecated type to current active type"""
+        # e.g., "SERVER" → "Microservice" if SERVER was deprecated
+        pass
+    
+    def get_migration_path(self, old_type: str, new_type: str) -> MigrationPath:
+        """Get the migration path between type versions"""
+        pass
+```
+
+**Table needed:**
+```sql
+CREATE TABLE ontology.type_versions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    type_id UUID REFERENCES ontology.types(id),
+    version VARCHAR(20) NOT NULL,
+    schema_snapshot JSONB NOT NULL,
+    valid_from TIMESTAMP NOT NULL,
+    valid_until TIMESTAMP,  -- NULL means current
+    migration_notes TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE ontology.type_migrations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    source_type_id UUID NOT NULL,
+    target_type_id UUID NOT NULL,
+    migration_type VARCHAR(20) NOT NULL,  -- RENAME, MERGE, SPLIT
+    mapping_rules JSONB,  -- How to transform entities
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+**Task 2: Deprecation Handling (RFC v2 §7)**
+
+```python
+# deprecation_manager.py
+
+class DeprecationManager:
+    """Handles type deprecation lifecycle"""
+    
+    def deprecate_type(
+        self, 
+        type_id: str, 
+        reason: str,
+        action: str,  # MIGRATE, ARCHIVE, DELETE
+        replacement_type_id: str = None,
+        grace_period_days: int = 30
+    ) -> DeprecationResult:
+        """
+        1. Mark type as DEPRECATED
+        2. Create migration path if replacement specified
+        3. Set grace period deadline
+        4. Notify affected entities
+        """
+        pass
+    
+    def execute_migration(self, deprecation_id: str) -> MigrationResult:
+        """
+        After grace period:
+        - MIGRATE: Move entities to replacement type
+        - ARCHIVE: Mark entities as ARCHIVED
+        - DELETE: Remove entities (with audit trail)
+        """
+        pass
+    
+    def get_deprecation_impact(self, type_id: str) -> ImpactReport:
+        """How many entities/relationships will be affected"""
+        pass
+```
+
+**Status flow:** `ACTIVE → DEPRECATED → (grace period) → ARCHIVED/MIGRATED`
+
+---
+
+**Task 3: Stress Test**
+
+Process 10 different incident reports in sequence:
+
+```python
+test_documents = [
+    {"title": "Network Outage", "content": "The load balancer failed..."},
+    {"title": "Database Corruption", "content": "Primary database experienced..."},
+    {"title": "API Rate Limiting", "content": "Third-party API throttled..."},
+    {"title": "Memory Leak", "content": "User service memory grew to 98%..."},
+    {"title": "Certificate Expiry", "content": "SSL certificate for payment gateway..."},
+    {"title": "DDoS Attack", "content": "Detected 50k req/sec to login endpoint..."},
+    {"title": "Config Drift", "content": "Production config diverged from staging..."},
+    {"title": "Dependency Failure", "content": "NPM package vulnerability discovered..."},
+    {"title": "Data Sync Lag", "content": "Replica database 15 minutes behind..."},
+    {"title": "Capacity Breach", "content": "Order volume exceeded provisioned capacity..."}
+]
+
+# For each document:
+# 1. Extract entities/relationships
+# 2. Verify all constrained to ontology
+# 3. Check for orphan patterns
+# 4. Measure extraction time
+# 5. Show cumulative stats
+```
+
+**Success criteria:**
+- 0 garbage entities
+- 0 invalid type assignments
+- All orphan patterns captured (not leaked as entities)
+- < 5 seconds per document average
+
+---
+
+Start with Task 1 (Schema Versioning), show me the DDL before creating tables.
+
+---
