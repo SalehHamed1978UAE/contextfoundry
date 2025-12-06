@@ -350,13 +350,13 @@
                     <th>Metric</th>
                     <th>Value</th>
                 </tr>
-                <tr>
-                    <td>Avg Confidence (TRUSTED)</td>
-                    <td>{{ "%.2f"|format(memory.avg_confidence) }}</td>
+                <tr title="Average confidence score across TRUSTED entities (target: 0.70+)">
+                    <td>Avg Confidence (TRUSTED) <span style="color:#888;font-size:0.8em;">ⓘ</span></td>
+                    <td>{{ "%.2f"|format(memory.avg_confidence) }}{% if memory.avg_confidence >= 0.7 %} <span style="color:#22c55e;">✓</span>{% else %} <span style="color:#f59e0b;">⚠</span>{% endif %}</td>
                 </tr>
-                <tr>
-                    <td>Orphan Entities</td>
-                    <td>{{ memory.orphan_entities }}</td>
+                <tr title="Entities without relationships - normal during initial ingestion, Gardener will connect them">
+                    <td>Orphan Entities <span style="color:#888;font-size:0.8em;">ⓘ</span></td>
+                    <td>{{ memory.orphan_entities }}{% if memory.orphan_entities > 100 %} <span style="color:#888;font-size:0.8em;">(batch ingest)</span>{% endif %}</td>
                 </tr>
                 <tr>
                     <td>Pending Conflicts</td>
