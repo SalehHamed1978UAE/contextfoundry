@@ -601,6 +601,10 @@ class GardenerAgent:
             
             rel_ids_with_conflicts = self._get_relationship_ids_with_unresolved_conflicts()
             
+            rel_threshold = self.get_threshold("Relationship")
+            rel_min_confidence = rel_threshold.min_confidence
+            rel_min_age = datetime.utcnow() - timedelta(hours=rel_threshold.min_staging_hours)
+            
             for rel in staging_relationships:
                 block_reason = None
                 
@@ -622,9 +626,9 @@ class GardenerAgent:
                 
                 if rel.validation_status != ValidationStatus.VALID:
                     block_reason = "validation_not_valid"
-                elif rel.confidence < min_confidence:
+                elif rel.confidence < rel_min_confidence:
                     block_reason = "confidence_too_low"
-                elif rel.created_at > min_age:
+                elif rel.created_at > rel_min_age:
                     block_reason = "dwell_time_insufficient"
                 elif not (source_trusted and target_trusted):
                     block_reason = "endpoints_not_trusted"
