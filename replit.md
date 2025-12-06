@@ -59,7 +59,11 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
 -   **Schema-Driven Multi-Mode Traversal**: Relationship traversal is fully configurable via YAML schema with `semantics.modes` and `TraversalRules`.
 -   **Deterministic Impact Queries**: LLM calls use `temperature=0.0`. Impact/blast-radius queries use exhaustive graph traversal (BFS with max_depth=10) driven by schema semantics.
 -   **Frontier Detection (Multi-Tier Traversal)**: Graph traversal explicitly identifies where knowledge ends, capturing `FrontierNode` data with classified reasons for stoppage.
--   **Speculative Inference Layer**: Extends beyond confirmed knowledge using 3 schema-driven inference rules (Transitive Dependency, Co-occurrence, Shared Dependency) and vector similarity search to suggest potential connections.
+-   **Speculative Inference Layer**: Extends beyond confirmed knowledge using 3 schema-driven inference rules and vector similarity search to suggest potential connections:
+    - **Transitive Dependency**: Infers multi-hop dependencies (A→B→C ⇒ A→C) with 63% confidence
+    - **Co-occurrence**: Detects entities mentioned together in 3+ documents with 36% confidence
+    - **Shared Dependency**: Finds entities sharing common targets with 45% confidence
+    - Isolated entities (no relationships) are treated as pseudo-frontiers for co-occurrence analysis
 -   **Timeline Slider**: Filters the graph by date, re-expanding the current entity with the new `as_of_date`.
 -   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
 -   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
