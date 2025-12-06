@@ -6,7 +6,7 @@ Governs what TYPES of things can exist in Context Foundry.
 """
 
 from .rule_executor import RuleExecutor, ValidationResult, RuleResult
-from .type_validator import TypeValidator
+from .type_validator import TypeValidator, TypeProposal
 from .hierarchy_enforcer import HierarchyEnforcer
 from .collision_detector import CollisionDetector
 from .approval_manager import (
@@ -18,12 +18,14 @@ from .approval_manager import (
     RequestStatus,
     Decision
 )
+from .type_lifecycle_manager import TypeLifecycleManager, LifecycleResult
 
 __all__ = [
     'RuleExecutor',
     'ValidationResult', 
     'RuleResult',
     'TypeValidator',
+    'TypeProposal',
     'HierarchyEnforcer',
     'CollisionDetector',
     'ApprovalManager',
@@ -33,4 +35,6 @@ __all__ = [
     'ApprovalLevel',
     'RequestStatus',
     'Decision',
+    'TypeLifecycleManager',
+    'LifecycleResult',
 ]
