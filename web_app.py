@@ -122,6 +122,312 @@ def evaluation():
 def health():
     return 'OK', 200
 
+@app.route('/dashboard')
+def dashboard():
+    """Command Center dashboard with 4 quadrants: Perception, Memory, Agents, Context."""
+    from datetime import datetime, timedelta
+    from sqlalchemy import text, func
+    from src.context_foundry.models.schema import get_session, Entity, Relationship, Document, Rule, LifecycleState, GardenerLog
+    
+    session = get_session()
+    now = datetime.utcnow()
+    last_24h = now - timedelta(hours=24)
+    last_10min = now - timedelta(minutes=10)
+    
+    try:
+        # === PERCEPTION QUADRANT ===
+        documents_total = session.query(Document).count()
+        documents_24h = session.query(Document).filter(Document.created_at >= last_24h).count()
+        entities_total = session.query(Entity).count()
+        entities_24h = session.query(Entity).filter(Entity.created_at >= last_24h).count()
+        relationships_total = session.query(Relationship).count()
+        relationships_24h = session.query(Relationship).filter(Relationship.created_at >= last_24h).count()
+        
+        extractors = [
+            {'name': 'EntityExtractor', 'status': 'IDLE', 'last_run': 'On demand'},
+            {'name': 'RelationExtractor', 'status': 'IDLE', 'last_run': 'On demand'},
+            {'name': 'ConstrainedExtractor', 'status': 'IDLE', 'last_run': 'On demand'},
+        ]
+        
+        perception = {
+            'documents_total': documents_total,
+            'documents_24h': documents_24h,
+            'entities_extracted': entities_total,
+            'entities_24h': entities_24h,
+            'relationships_extracted': relationships_total,
+            'relationships_24h': relationships_24h,
+            'extractors': extractors,
+        }
+        
+        # === MEMORY QUADRANT ===
+        entities_staging = session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.STAGING).count()
+        entities_trusted = session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.TRUSTED).count()
+        entities_archived = session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.ARCHIVED).count()
+        
+        avg_conf_result = session.execute(text("""
+            SELECT COALESCE(AVG(confidence), 0) FROM entities WHERE lifecycle_state = 'TRUSTED'
+        """)).scalar()
+        
+        orphan_entities = session.execute(text("""
+            SELECT COUNT(*) FROM entities e
+            WHERE NOT EXISTS (SELECT 1 FROM relationships r WHERE r.source_id = e.id OR r.target_id = e.id)
+        """)).scalar()
+        
+        try:
+            pending_conflicts = session.execute(text("""
+                SELECT COUNT(*) FROM conflicts WHERE status = 'PENDING'
+            """)).scalar() or 0
+        except:
+            session.rollback()
+            pending_conflicts = 0
+        
+        rules_count = session.query(Rule).filter(Rule.is_active == True).count()
+        
+        memory = {
+            'entities_staging': entities_staging,
+            'entities_trusted': entities_trusted,
+            'entities_archived': entities_archived,
+            'total_nodes': entities_total,
+            'total_edges': relationships_total,
+            'documents_indexed': documents_total,
+            'embeddings_count': documents_total,
+            'rules_count': rules_count,
+            'avg_confidence': float(avg_conf_result) if avg_conf_result else 0,
+            'orphan_entities': orphan_entities or 0,
+            'pending_conflicts': pending_conflicts,
+        }
+        
+        # === AGENTS QUADRANT ===
+        agent_list = []
+        
+        gardener_last = session.query(GardenerLog).order_by(GardenerLog.created_at.desc()).first()
+        gardener_status = 'IDLE'
+        gardener_last_action = 'Never'
+        if gardener_last:
+            if gardener_last.created_at >= last_10min:
+                gardener_status = 'ACTIVE'
+            gardener_last_action = gardener_last.created_at.strftime('%H:%M:%S')
+        
+        gardener_promoted = session.execute(text("""
+            SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'PROMOTE' AND created_at >= :since
+        """), {'since': last_24h}).scalar() or 0
+        
+        gardener_demoted = session.execute(text("""
+            SELECT COUNT(*) FROM gardener_logs WHERE action_type IN ('DEMOTE', 'ARCHIVE') AND created_at >= :since
+        """), {'since': last_24h}).scalar() or 0
+        
+        gardener_conflicts = session.execute(text("""
+            SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'RESOLVE_CONFLICT' AND created_at >= :since
+        """), {'since': last_24h}).scalar() or 0
+        
+        orphan_stats = session.execute(text("""
+            SELECT 
+                COUNT(*) FILTER (WHERE status = 'ACTIVE') as pending,
+                COUNT(*) FILTER (WHERE status IN ('ACTIVE', 'PROMOTING')) as surfaced,
+                COUNT(*) FILTER (WHERE status = 'RESOLVED') as promoted
+            FROM context.orphan_patterns
+        """)).fetchone()
+        
+        orphan_pending = orphan_stats[0] if orphan_stats else 0
+        orphan_surfaced = orphan_stats[1] if orphan_stats else 0
+        orphan_promoted = orphan_stats[2] if orphan_stats else 0
+        
+        approval_pending = session.execute(text("""
+            SELECT COUNT(*) FROM ontology.approval_requests WHERE status = 'PENDING'
+        """)).scalar() or 0
+        
+        agent_list = [
+            {'name': 'GardenerAgent', 'status': gardener_status, 'last_action': gardener_last_action, 'next_info': '5min cycle'},
+            {'name': 'IdentityResolver', 'status': 'SCHEDULED', 'last_action': gardener_last_action, 'next_info': 'With Gardener'},
+            {'name': 'OrphanDetector', 'status': 'ACTIVE' if orphan_pending > 0 else 'IDLE', 'last_action': 'Event-driven', 'next_info': f'{orphan_pending} pending'},
+            {'name': 'TypeLifecycleManager', 'status': 'IDLE', 'last_action': 'On demand', 'next_info': 'Validation'},
+            {'name': 'ApprovalManager', 'status': 'ACTIVE' if approval_pending > 0 else 'IDLE', 'last_action': 'On demand', 'next_info': f'{approval_pending} pending'},
+            {'name': 'TypeValidator', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'Schema check'},
+            {'name': 'HierarchyEnforcer', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'Hierarchy check'},
+            {'name': 'CollisionDetector', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'Collision check'},
+            {'name': 'RuleExecutor', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'SHACL rules'},
+            {'name': 'RetrievalAgent', 'status': 'IDLE', 'last_action': 'On query', 'next_info': 'Query-driven'},
+            {'name': 'ReasoningAgent', 'status': 'IDLE', 'last_action': 'On query', 'next_info': 'LLM reasoning'},
+            {'name': 'ValidationAgent', 'status': 'IDLE', 'last_action': 'On query', 'next_info': 'Rule check'},
+            {'name': 'EntityExtractor', 'status': 'IDLE', 'last_action': 'On demand', 'next_info': 'NER extraction'},
+            {'name': 'RelationExtractor', 'status': 'IDLE', 'last_action': 'On demand', 'next_info': 'Relation extraction'},
+            {'name': 'GraphBuilderAgent', 'status': 'IDLE', 'last_action': 'On ingest', 'next_info': 'Doc processing'},
+            {'name': 'MessageBus', 'status': 'ACTIVE', 'last_action': 'Always', 'next_info': f'{total_events if "total_events" in dir() else 0} events'},
+        ]
+        
+        agents = {
+            'agent_list': agent_list,
+            'gardener': {
+                'last_cycle': gardener_last_action,
+                'promoted': gardener_promoted,
+                'demoted': gardener_demoted,
+                'conflicts': gardener_conflicts,
+            },
+            'orphan': {
+                'pending': orphan_pending,
+                'surfaced': orphan_surfaced,
+                'promoted': orphan_promoted,
+            },
+        }
+        
+        # === CONTEXT QUADRANT ===
+        type_counts = session.execute(text("""
+            SELECT status, COUNT(*) FROM ontology.types GROUP BY status
+        """)).fetchall()
+        type_status_map = {row[0]: row[1] for row in type_counts}
+        
+        types_active = type_status_map.get('ACTIVE', 0)
+        types_proposed = type_status_map.get('PROPOSED', 0)
+        types_approved = type_status_map.get('APPROVED', 0)
+        types_deprecated = type_status_map.get('DEPRECATED', 0)
+        
+        orphans_detected = session.execute(text("""
+            SELECT COUNT(*) FROM context.orphan_patterns
+        """)).scalar() or 0
+        
+        orphans_surfaced = session.execute(text("""
+            SELECT COUNT(*) FROM context.orphan_patterns WHERE frequency >= 10
+        """)).scalar() or 0
+        
+        types_promoted_from_orphan = session.execute(text("""
+            SELECT COUNT(*) FROM context.orphan_patterns WHERE status = 'RESOLVED'
+        """)).scalar() or 0
+        
+        approval_queue = []
+        pending_requests = session.execute(text("""
+            SELECT ar.id, t.type_name, ar.assigned_level, ar.sla_deadline, ar.created_at
+            FROM ontology.approval_requests ar
+            JOIN ontology.types t ON ar.target_id = t.id
+            WHERE ar.status = 'PENDING'
+            ORDER BY ar.sla_deadline ASC
+            LIMIT 5
+        """)).fetchall()
+        
+        for req in pending_requests:
+            deadline = req[3]
+            created = req[4]
+            if deadline and created:
+                remaining = deadline - now
+                total_sla = deadline - created
+                total_sla_seconds = total_sla.total_seconds()
+                if total_sla_seconds > 0:
+                    pct_remaining = remaining.total_seconds() / total_sla_seconds
+                else:
+                    pct_remaining = 0.5
+                
+                if pct_remaining > 0.5:
+                    sla_class = 'sla-green'
+                elif pct_remaining > 0.1:
+                    sla_class = 'sla-yellow'
+                else:
+                    sla_class = 'sla-red'
+                
+                hours_left = remaining.total_seconds() / 3600
+                if hours_left < 0:
+                    sla_remaining = 'OVERDUE'
+                    sla_class = 'sla-red'
+                elif hours_left < 24:
+                    sla_remaining = f'{int(hours_left)}h left'
+                else:
+                    sla_remaining = f'{int(hours_left/24)}d left'
+            else:
+                sla_class = 'sla-green'
+                sla_remaining = 'No deadline'
+            
+            approval_queue.append({
+                'type_name': req[1],
+                'level': f'L{req[2]}',
+                'sla_remaining': sla_remaining,
+                'sla_class': sla_class,
+            })
+        
+        recent_decisions = []
+        recent_approvals = session.execute(text("""
+            SELECT t.type_name, ar.decision, ar.decision_at
+            FROM ontology.approval_requests ar
+            JOIN ontology.types t ON ar.target_id = t.id
+            WHERE ar.status != 'PENDING' AND ar.decision_at IS NOT NULL
+            ORDER BY ar.decision_at DESC
+            LIMIT 5
+        """)).fetchall()
+        
+        for dec in recent_approvals:
+            when = dec[2].strftime('%m/%d %H:%M') if dec[2] else 'Unknown'
+            recent_decisions.append({
+                'type_name': dec[0],
+                'decision': dec[1] or 'UNKNOWN',
+                'when': when,
+            })
+        
+        context = {
+            'orphans_detected': orphans_detected,
+            'orphans_surfaced': orphans_surfaced,
+            'types_promoted': types_promoted_from_orphan,
+            'types_active': types_active,
+            'types_proposed': types_proposed,
+            'types_approved': types_approved,
+            'types_deprecated': types_deprecated,
+            'pending_approvals': len(approval_queue),
+            'approval_queue': approval_queue,
+            'recent_decisions': recent_decisions,
+        }
+        
+        # === MESSAGE BUS FOOTER ===
+        recent_events = session.execute(text("""
+            SELECT event_type, source_agent, created_at
+            FROM shared.message_queue
+            ORDER BY created_at DESC
+            LIMIT 10
+        """)).fetchall()
+        
+        event_list = []
+        for ev in recent_events:
+            time_str = ev[2].strftime('%H:%M:%S') if ev[2] else ''
+            event_list.append({
+                'type': ev[0],
+                'source': ev[1],
+                'time': time_str,
+            })
+        
+        try:
+            dead_letter = session.execute(text("""
+                SELECT COUNT(*) FROM shared.dead_letter_queue
+            """)).scalar() or 0
+        except:
+            session.rollback()
+            dead_letter = 0
+        
+        total_events = session.execute(text("""
+            SELECT COUNT(*) FROM shared.message_queue
+        """)).scalar() or 0
+        
+        events_last_min = session.execute(text("""
+            SELECT COUNT(*) FROM shared.message_queue 
+            WHERE created_at >= :since
+        """), {'since': now - timedelta(minutes=1)}).scalar() or 0
+        
+        message_bus = {
+            'recent_events': event_list,
+            'dead_letter': dead_letter,
+            'total_events': total_events,
+            'events_per_minute': events_last_min,
+        }
+        
+        return render_template('dashboard.html',
+            last_updated=now.strftime('%Y-%m-%d %H:%M:%S UTC'),
+            perception=perception,
+            memory=memory,
+            agents=agents,
+            context=context,
+            message_bus=message_bus,
+        )
+        
+    except Exception as e:
+        import traceback
+        return f"Dashboard error: {str(e)}\n\n{traceback.format_exc()}", 500
+    finally:
+        session.close()
+
 @app.route('/api/query', methods=['POST'])
 def query():
     data = request.get_json()
