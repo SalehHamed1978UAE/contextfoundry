@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function expandEntity(entityId) {
         try {
-            const url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}`;
+            const url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=true`;
             const response = await fetch(url);
             const data = await response.json();
             if (data.success) {
@@ -1752,7 +1752,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function expandEntityWithTimeline(entityId) {
         try {
-            let url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}`;
+            let url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=true`;
             if (currentAsOfDate) {
                 url += `&as_of_date=${encodeURIComponent(currentAsOfDate)}`;
             }
