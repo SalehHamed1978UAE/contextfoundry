@@ -112,11 +112,17 @@ atexit.register(shutdown_scheduler)
 
 @app.route('/')
 def index():
-    return render_template('index.html', active_page='dashboard')
+    import time
+    return render_template('index.html', active_page='dashboard', cache_bust=int(time.time()))
 
 @app.route('/evaluation')
 def evaluation():
     return render_template('evaluation.html', active_page='evaluation')
+
+@app.route('/memory-graph')
+def memory_graph():
+    """Memory Graph visualization page."""
+    return render_template('memory_graph.html', active_page='memory_graph')
 
 @app.route('/health')
 def health():
