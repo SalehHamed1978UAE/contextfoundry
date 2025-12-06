@@ -302,11 +302,19 @@ class BlindEvaluator:
         
         evidence_chain = result.get("evidence_chain", [])
         
+        raw_answer = result.get("answer", "")
+        if isinstance(raw_answer, dict):
+            answer = raw_answer.get("text", raw_answer.get("content", json.dumps(raw_answer)))
+        elif isinstance(raw_answer, list):
+            answer = json.dumps(raw_answer)
+        else:
+            answer = str(raw_answer) if raw_answer else ""
+        
         return EvaluationResponse(
             system=SystemType.CONTEXT_FOUNDRY,
             query_id=query.id,
             query_text=query.query_text,
-            answer=result.get("answer", ""),
+            answer=answer,
             latency_ms=latency,
             context_size=len(evidence_chain),
             confidence=result.get("confidence"),
