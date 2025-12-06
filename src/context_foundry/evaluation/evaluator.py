@@ -303,6 +303,14 @@ class BlindEvaluator:
         evidence_chain = result.get("evidence_chain", [])
         
         raw_answer = result.get("answer", "")
+        
+        # Try to parse JSON string into dict
+        if isinstance(raw_answer, str) and raw_answer.strip().startswith("{"):
+            try:
+                raw_answer = json.loads(raw_answer)
+            except json.JSONDecodeError:
+                pass
+        
         if isinstance(raw_answer, dict):
             if "text" in raw_answer:
                 answer = raw_answer["text"]
