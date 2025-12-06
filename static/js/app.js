@@ -213,11 +213,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
-                console.log('Speculative data received:', data.speculative);
                 if (data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
-                    console.log('Processing', data.speculative.inferred.length, 'speculative inferences');
                     data.speculative.inferred.forEach(inf => {
-                        console.log('Adding speculative edge:', inf.source_entity_name, '->', inf.target_entity_name);
                         const targetId = inf.target_entity_id;
                         if (!graphNodes[targetId]) {
                             graphNodes[targetId] = {
@@ -266,10 +263,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         };
                     });
                 }
-                
-                console.log('Before renderGraph - graphNodes:', Object.keys(graphNodes).length, 'graphEdges:', graphEdges.length);
-                const specEdges = graphEdges.filter(e => e.speculative);
-                console.log('Speculative edges in graphEdges:', specEdges.length, specEdges.map(e => `${e.source} -> ${e.target}`));
                 
                 renderGraph();
                 return data;
@@ -555,16 +548,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const nodes = Object.values(graphNodes);
         const edges = graphEdges.filter(e => graphNodes[e.source] && graphNodes[e.target]);
-        
-        const filteredOutEdges = graphEdges.filter(e => !graphNodes[e.source] || !graphNodes[e.target]);
-        if (filteredOutEdges.length > 0) {
-            console.log('Edges filtered out (missing nodes):', filteredOutEdges.map(e => `${e.id}: src=${e.source} (exists: ${!!graphNodes[e.source]}) -> tgt=${e.target} (exists: ${!!graphNodes[e.target]})`));
-        }
-        console.log('renderGraph - rendering', nodes.length, 'nodes and', edges.length, 'edges');
-        const specInRender = edges.filter(e => e.speculative);
-        if (specInRender.length > 0) {
-            console.log('Speculative edges being rendered:', specInRender.length);
-        }
         
         if (nodes.length === 0) {
             if (emptyState) emptyState.style.display = 'block';
@@ -1839,11 +1822,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
-                console.log('Speculative data received:', data.speculative);
                 if (data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
-                    console.log('Processing', data.speculative.inferred.length, 'speculative inferences');
                     data.speculative.inferred.forEach(inf => {
-                        console.log('Adding speculative edge:', inf.source_entity_name, '->', inf.target_entity_name);
                         const targetId = inf.target_entity_id;
                         if (!graphNodes[targetId]) {
                             graphNodes[targetId] = {
