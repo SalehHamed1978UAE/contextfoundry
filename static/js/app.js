@@ -66,7 +66,28 @@ document.addEventListener('DOMContentLoaded', function() {
         await executeQuery(query);
     });
 
-    // Navigation is now handled by page links (href) - no client-side page switching needed
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            
+            const page = this.dataset.page;
+            document.getElementById('pageTitle').textContent = this.textContent.trim();
+            
+            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+            
+            if (page === 'dashboard') {
+                document.querySelector('.page-content:not(.page-memory):not(.page-learning):not(.page-rules)').style.display = 'block';
+            } else if (page === 'memory') {
+                document.querySelector('.page-memory').style.display = 'block';
+                renderMemoryGraph();
+            } else if (page === 'learning') {
+                document.querySelector('.page-learning').style.display = 'block';
+            } else if (page === 'rules') {
+                document.querySelector('.page-rules').style.display = 'block';
+            }
+        });
+    });
 
     let currentLifecycleFilter = 'all';
     let graphNodes = {};
