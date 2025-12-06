@@ -1839,6 +1839,49 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
+                console.log('Speculative data received:', data.speculative);
+                if (data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
+                    console.log('Processing', data.speculative.inferred.length, 'speculative inferences');
+                    data.speculative.inferred.forEach(inf => {
+                        console.log('Adding speculative edge:', inf.source_entity_name, '->', inf.target_entity_name);
+                        const targetId = inf.target_entity_id;
+                        if (!graphNodes[targetId]) {
+                            graphNodes[targetId] = {
+                                id: targetId,
+                                name: inf.target_entity_name,
+                                type: inf.target_entity_type || 'UNKNOWN',
+                                lifecycle_state: 'TRUSTED',
+                                confidence: inf.confidence,
+                                is_speculative_target: true
+                            };
+                        }
+                        const sourceId = inf.source_entity_id;
+                        if (!graphNodes[sourceId]) {
+                            graphNodes[sourceId] = {
+                                id: sourceId,
+                                name: inf.source_entity_name,
+                                type: inf.source_entity_type || 'UNKNOWN',
+                                lifecycle_state: 'TRUSTED',
+                                confidence: inf.confidence,
+                                is_speculative_target: true
+                            };
+                        }
+                        const specEdgeId = `spec-${sourceId}-${targetId}-${inf.rule_name}`;
+                        if (!graphEdges.find(e => e.id === specEdgeId)) {
+                            graphEdges.push({
+                                id: specEdgeId,
+                                source: sourceId,
+                                target: targetId,
+                                type: inf.inferred_relationship_type,
+                                confidence: inf.confidence,
+                                speculative: true,
+                                rule_name: inf.rule_name,
+                                supporting_evidence: inf.supporting_evidence
+                            });
+                        }
+                    });
+                }
+                
                 if (data.frontier && Array.isArray(data.frontier)) {
                     console.log('Frontier nodes received:', data.frontier.length, data.frontier);
                     data.frontier.forEach(f => {
@@ -1851,6 +1894,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     console.log('currentFrontierNodes updated:', Object.keys(currentFrontierNodes));
                 }
+                
+                console.log('Before renderGraph - graphNodes:', Object.keys(graphNodes).length, 'graphEdges:', graphEdges.length);
+                const specEdges = graphEdges.filter(e => e.speculative);
+                console.log('Speculative edges in graphEdges:', specEdges.length, specEdges.map(e => `${e.source} -> ${e.target}`));
                 
                 if (data.is_historical) {
                     updateTimelineEntityCount(data.stats.total_nodes);
