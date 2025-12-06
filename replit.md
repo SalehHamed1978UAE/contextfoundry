@@ -34,7 +34,7 @@ The system is built around a dual-system architecture with distinct governance f
 - **OrphanDetector:** Identifies extraction patterns without matching active ontology types, providing a feedback loop from Context Foundry to Ontology Foundry, and supporting promotion to new PROPOSED types.
 - **Context Bundle API:** Provides a public API for structured truth delivery, translating internal context bundles into Pydantic models. Supports fuzzy matching and graceful empty-state handling.
 - **Schema Versioning & Deprecation:** Manages type versions, migrations, and deprecation processes with an audit trail, supporting multi-hop translation chains.
-- **UI/UX:** A web interface built with `base.html` and a sidebar navigation reflecting the cognitive cycle phases (Ingest, Perceive, Memory, Reason, Express, Learn). Features include a command center reorganized by cognitive phase, a dashboard with metrics, AJAX polling for real-time updates, and agent status displays.
+- **UI/UX:** A web interface built with `base.html` and a simplified 4-page navigation: Dashboard (query interface + metrics), Memory Graph (interactive knowledge graph visualization), Command Center (agent management by cognitive phase), and A/B Evaluation (query comparisons). All pages extend base.html for consistent sidebar and styling. Features include AJAX polling for real-time updates, D3.js force-directed graph visualization, and collapsible sidebar with localStorage persistence.
 
 ## External Dependencies
 - **Database**: PostgreSQL (Neon for Replit)
