@@ -152,10 +152,44 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
 - 13 relations with semantics
 - CREATURE, MONSTER, cat correctly rejected by validation
 
-### Session 3: Week 3 (Next)
-**Objective**: Confidence & provenance system with corroboration scoring
+### Session 3: Week 3 ✅ COMPLETE
+**Objective**: Gardener agent with type-weighted promotion thresholds
 
-### Session 4: Week 4
+**Completed Components**:
+1. **Entity Type Normalization**
+   - `normalize_type_name()` in OntologyRepository and OntologySnapshot
+   - Case-insensitive lookup: "PERSON" → "Person" (database canonical)
+   - ConstrainedExtractor uses normalized types for all outputs
+   
+2. **promotion_thresholds Table** (`migrations/005_promotion_thresholds.sql`)
+   - Per-type configuration: min_confidence, min_corroboration_count, min_staging_hours
+   - Linked to ontology_types for type_id foreign key
+   - `get_promotion_threshold()` function with fallback to default
+   
+3. **Seeded Threshold Data** (from spec):
+   - Person: 0.85 confidence, 2 corroborations, 4 hours (strict)
+   - Incident: 0.80 confidence, 3 corroborations, 2 hours (requires corroboration)
+   - Service: 0.75 confidence, 1 corroboration, 1 hour (fast promotion)
+   - Default: 0.70 confidence, 1 corroboration, 1 hour
+   
+4. **GardenerAgent Updates** (`agents/gardener.py`)
+   - `_load_promotion_thresholds()`: Loads from database at init
+   - `get_threshold()`: Type-specific lookup with fallback
+   - promotion_pass uses type-specific thresholds
+   - Logs which thresholds were used for each promotion
+   
+5. **Supporting Tables**:
+   - gardener_runs: Run history with timing and counts
+   - gardener_metrics: Per-type metrics (promotion rate, avg staging time)
+   - conflict_resolutions: Audit log for conflict resolution
+
+**Verification Passed**:
+- All 8 pytest tests pass
+- Thresholds loaded from database: Person=0.85/2/4h, Incident=0.80/3/2h, Service=0.75/1/1h
+- Unknown types fall back to default 0.70/1/1h
+- promotion_pass uses type-specific thresholds from database
+
+### Session 4: Week 4 (Next)
 **Objective**: Data cleanup scripts (sequential to avoid FK violations)
 
 ### Session 5: Week 5

@@ -123,13 +123,33 @@ class OntologySnapshot(BaseModel):
     relations: List[OntologyRelation] = Field(default_factory=list)
     type_hierarchy: Dict[str, List[str]] = Field(default_factory=dict)
     loaded_at: datetime = Field(default_factory=datetime.utcnow)
+    _type_name_map: Dict[str, str] = {}
+    
+    def model_post_init(self, __context) -> None:
+        """Build case-insensitive type name mapping after initialization."""
+        self._type_name_map = {k.lower(): k for k in self.types.keys()}
     
     def get_valid_type_names(self) -> Set[str]:
         """Get set of all valid entity type names."""
         return set(self.types.keys())
     
+    def normalize_type_name(self, input_type: str) -> Optional[str]:
+        """
+        Normalize type name to exact ontology_types.type_name (case-insensitive).
+        
+        Args:
+            input_type: Type name from LLM output (any casing)
+            
+        Returns:
+            Canonical type_name from ontology, or None if not found
+        """
+        return self._type_name_map.get(input_type.strip().lower())
+    
     def get_type_by_name(self, name: str) -> Optional[OntologyType]:
-        """Get type definition by name."""
+        """Get type definition by name (case-insensitive lookup)."""
+        canonical = self.normalize_type_name(name)
+        if canonical:
+            return self.types.get(canonical)
         return self.types.get(name)
     
     def get_relations_for_types(self, source_type: str, target_type: str) -> List[OntologyRelation]:
