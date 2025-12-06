@@ -108,6 +108,26 @@ Six base validation rules (stored in `ontology.rules`):
 - ✅ Auto-escalation with user reassignment on SLA expiry
 - ✅ Complete audit trail for all approval decisions
 
+**TypeLifecycleManager (Validation Orchestration):**
+- ✅ Orchestrates TypeValidator → HierarchyEnforcer → CollisionDetector
+- ✅ Calculates confidence: 1.0 - (0.1 × errors + 0.05 × warnings)
+- ✅ Routes to ApprovalManager based on confidence thresholds
+- ✅ Handles auto-approve, human review, and rejection workflows
+
+**Message Bus (Agent Coordination):**
+- ✅ Migration 009: message_queue, processed_events, event_subscriptions, dead_letter_queue
+- ✅ PostgreSQL-backed publish/subscribe with exactly-once semantics
+- ✅ 16 event types for governance coordination (TYPE_*, ENTITY_*, ORPHAN_*, etc.)
+- ✅ Dead letter queue with retry logic and exponential backoff
+- ✅ Targeted message support with correct completion semantics
+
+**OrphanDetector (Feedback Channel):**
+- ✅ Detects extraction patterns without matching ACTIVE ontology types
+- ✅ Aggregates frequency with source documents and sample contexts
+- ✅ Publishes ORPHAN_PATTERN_DETECTED events at threshold crossings (10/25/50)
+- ✅ Creates feedback loop from Context Foundry to Ontology Foundry
+- ✅ Supports resolve/dismiss workflow for human review
+
 ### Session 5 Progress ✅
 
 **Phase 1 (P0) - Foundation:**
@@ -131,11 +151,15 @@ Six base validation rules (stored in `ontology.rules`):
 |------|---------|
 | `src/context_foundry/migrations/007_rfc_v2_dual_system.sql` | RFC v2 database migration |
 | `src/context_foundry/migrations/008_approval_workflow.sql` | Approval workflow tables |
+| `src/context_foundry/migrations/009_message_bus.sql` | Message bus infrastructure |
 | `src/context_foundry/ontology_foundry/approval_manager.py` | Decision matrix routing & SLA |
+| `src/context_foundry/ontology_foundry/type_lifecycle_manager.py` | Validation orchestration |
 | `src/context_foundry/ontology_foundry/rule_executor.py` | SHACL-inspired rule execution |
 | `src/context_foundry/ontology_foundry/type_validator.py` | Type validation agent |
 | `src/context_foundry/ontology_foundry/hierarchy_enforcer.py` | Hierarchy enforcement agent |
 | `src/context_foundry/ontology_foundry/collision_detector.py` | Collision detection agent |
+| `src/context_foundry/shared/message_bus.py` | Event-driven agent coordination |
+| `src/context_foundry/context_foundry/orphan_detector.py` | Orphan pattern detection |
 
 ---
 
@@ -172,11 +196,8 @@ Four-pass maintenance system:
 
 ## Next Steps
 
-### Remaining Session 6 Work
-1. Integrate ApprovalManager with TypeValidator lifecycle transitions
-2. Test approval workflow end-to-end
-
 ### Session 7 (Future)
-- OrphanDetector agent for feedback channel
+- End-to-end governance flow testing
 - Schema versioning with query translation
 - Production rollout with RLS
+- Web UI for approval workflows
