@@ -28,10 +28,10 @@ Context Foundry is a proof-of-concept for a tri-memory cognitive architecture (S
 3.  **Symbolic Memory (Rules Engine)**: Employs business rules with priority ordering for response validation.
 
 ### Agent Pipeline
--   **Retrieval Agent**: Gathers information from all three memory layers to form a `ContextBundle`.
+-   **Retrieval Agent**: Gathers information from all three memory layers.
 -   **Reasoning Agent**: Generates responses using an LLM.
 -   **Validation Agent**: Validates generated responses against symbolic rules.
--   **Graph Builder Agent**: Ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to a STAGING area with full provenance. Configurable via YAML schema.
+-   **Graph Builder Agent**: Ingests documents, extracts entities/relationships using schema-driven LLM prompts, and writes to a STAGING area with full provenance.
 -   **Staging Validator Agent**: Validates STAGING data against schema rules, detects conflicts, and creates review items.
 -   **Identity Resolution Agent**: Detects and manages duplicate entities using weighted similarity signals.
 -   **Gardener Agent**: An autonomous agent that runs periodically to maintain graph health through decay, promotion, conflict resolution, demotion, and cleanup passes.
@@ -44,163 +44,32 @@ Available Domain Schemas:
 - `config/investment_schema.yaml` - Investment Portfolio
 
 ### UI/UX Decisions
-The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains.
-**Frontier Detection UI:**
-- Frontier nodes in Memory Graph display with dashed amber borders and a "?" badge.
-- Hover tooltips explain why traversal stopped.
-- "Knowledge Frontier" panel shows knowledge boundaries and documentation gaps.
+The web interface features a "Cybernetic Operations" HUD-style theme with a deep slate background, electric cyan accents, scanline animations, and tech corner visuals. It includes an animated confidence ring and color-coded evidence chains. Frontier detection in the UI highlights knowledge boundaries.
 
 ### Technical Implementations & Design Choices
--   **Type Storage**: Entity and relationship types are stored as VARCHAR and validated against loaded YAML schema.
 -   **Lifecycle States**: Data transitions from STAGING to TRUSTED.
 -   **Confidence Scoring & Provenance**: Every piece of data includes a confidence score and full provenance.
 -   **Temporal Tracking**: Entities and relationships have `valid_from`, `valid_to`, `superseded_by`, and `change_reason` for full temporal history, supporting "as of when?" queries.
 -   **Query Handling**: Includes query classification, impact analysis, hallucination prevention, and detection of analysis/trend queries and ordered sequence requests.
--   **Schema-Driven Multi-Mode Traversal**: Relationship traversal is fully configurable via YAML schema with `semantics.modes` and `TraversalRules`.
+-   **Schema-Driven Multi-Mode Traversal**: Relationship traversal is fully configurable via YAML schema.
 -   **Deterministic Impact Queries**: LLM calls use `temperature=0.0`. Impact/blast-radius queries use exhaustive graph traversal (BFS with max_depth=10) driven by schema semantics.
 -   **Frontier Detection (Multi-Tier Traversal)**: Graph traversal explicitly identifies where knowledge ends, capturing `FrontierNode` data with classified reasons for stoppage.
--   **Speculative Inference Layer**: Extends beyond confirmed knowledge using 3 schema-driven inference rules and vector similarity search to suggest potential connections:
-    - **Transitive Dependency**: Infers multi-hop dependencies (A→B→C ⇒ A→C) with 63% confidence
-    - **Co-occurrence**: Detects entities mentioned together in 3+ documents with 36% confidence
-    - **Shared Dependency**: Finds entities sharing common targets with 45% confidence
-    - Isolated entities (no relationships) are treated as pseudo-frontiers for co-occurrence analysis
--   **Three-Tier Query Response Pipeline (Phase 3)**: Query responses are structured into three confidence tiers:
-    - **CONFIRMED**: Direct relationships from the knowledge graph with high confidence
-    - **INFERRED**: AI-analyzed connections from speculative inference rules with confidence percentages
-    - **KNOWLEDGE BOUNDARY**: Explicit frontier nodes where traversal stopped, indicating knowledge gaps
-    - UI displays tiered results summary with visual cards (green/purple/amber color coding)
-    - API always returns `tiered_results` and `speculative_inferences` for consistent frontend rendering
--   **Timeline Slider**: Filters the graph by date, re-expanding the current entity with the new `as_of_date`.
+-   **Speculative Inference Layer**: Extends beyond confirmed knowledge using 3 schema-driven inference rules and vector similarity search to suggest potential connections (Transitive Dependency, Co-occurrence, Shared Dependency).
+-   **Three-Tier Query Response Pipeline**: Query responses are structured into three confidence tiers: CONFIRMED, INFERRED, and KNOWLEDGE BOUNDARY, with corresponding UI visuals.
+-   **Timeline Slider**: Filters the graph by date.
 -   **Property-Aware Retrieval**: Supports querying entities by JSON properties.
 -   **Evaluation Framework**: Automated evaluation against baselines, A/B testing, and metrics dashboard.
 -   **Data Model**: Utilizes SQLAlchemy for Entity, Relationship, and Document models.
--   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies (e.g., PERSON entities always require human review).
--   **SQLAlchemy JSON Mutations**: Requires explicit flagging for JSON column modifications.
-
-## 6-Week Rebuild Progress (Ontology Architecture)
-
-### Session 1: Week 0-1 ✅ COMPLETE
-**Objective**: Establish shadow mode infrastructure and database-backed ontology foundation
-
-**Completed Components**:
-1. **Feature Flags Module** (`src/context_foundry/config/feature_flags.py`)
-   - ExtractionMode enum: LEGACY, SHADOW, CONSTRAINED
-   - Helper functions: is_shadow_enabled(), is_constrained_enabled()
-   
-2. **Shadow Metrics Module** (`src/context_foundry/monitoring/shadow_metrics.py`)
-   - Persistent JSONL logging for extraction comparison
-   - Overlap/precision metrics computation
-   
-3. **Database Tables Created**:
-   - `entities_v2`: Shadow table with new ontology columns (entity_type_id, corroboration_count, etc.)
-   - `ontology_types`: 4-layer hierarchy with origin tracking
-   - `ontology_relations`: Semantic relationship constraints with extraction_hints
-   - `extraction_events`: Audit trail for extraction pipeline
-   
-4. **Seeded Ontology Data**:
-   - Layer 0: 4 Meta-Core types (Entity, Event, Record, Relation)
-   - Layer 1: 6 Common Core types (Asset, Agent, Location, Person, Organization, Document)
-   - Layer 2: 10 IT Operations types + 13 relationships with semantics
-   
-5. **Validation Triggers**:
-   - `validate_entity_type()`: Rejects unknown types (CREATURE test passed)
-   - `validate_relationship()`: Manus SQL fix for source/target type constraints
-   - `check_extension_name_collision()`: Layer 3 tenant extension guardrails
-   
-6. **RLS Policies**: Created but not yet enabled (staged rollout)
-
-**Verification Passed**:
-- Layer counts: 4/6/10 as expected
-- 13 relationships with correct source/target type pairs
-- CREATURE type correctly rejected by validation trigger
-
-### Session 2: Week 2 ✅ COMPLETE
-**Objective**: Build constrained extraction pipeline with dynamic SchemaPromptGenerator and Pydantic models
-
-**Completed Components**:
-1. **OntologyRepository** (`src/context_foundry/ontology/repository.py`)
-   - Queries ontology_types and ontology_relations from PostgreSQL at extraction time
-   - TTL-backed caching via get_snapshot() for efficiency
-   - Returns fully-typed Pydantic models (OntologyType, OntologyRelation)
-   
-2. **SchemaPromptGenerator** (`src/context_foundry/ontology/prompt_generator.py`)
-   - Dynamically builds LLM prompts from database (NOT hardcoded types)
-   - build_entity_extraction_prompt() includes all Layer 1-2 types
-   - build_relationship_extraction_prompt() includes semantics and trigger phrases
-   - validate_entity_type() checks against database
-   
-3. **ConstrainedExtractor** (`src/context_foundry/ontology/constrained_extractor.py`)
-   - Uses SchemaPromptGenerator for dynamic prompts
-   - Validates extracted entities against ontology before accepting
-   - Rejects invalid types (CREATURE, MONSTER, etc.)
-   - Writes validated entities to entities_v2 shadow table
-   - Logs extraction events for audit trail
-   
-4. **ShadowAdapter** (`src/context_foundry/ontology/shadow_adapter.py`)
-   - Runs both legacy and constrained extraction in SHADOW mode
-   - Logs comparison metrics via ShadowMetrics
-   - Provides cutover readiness check
-   
-5. **Pydantic Models** (`src/context_foundry/ontology/models.py`)
-   - EntityExtraction, RelationshipExtraction with validation
-   - OntologySnapshot for cached ontology state
-   - Strict confidence bounds (0.0-1.0)
-
-**Verification Passed**:
-- All 13 pytest tests pass
-- 20 types loaded dynamically from database
-- 13 relations with semantics
-- CREATURE, MONSTER, cat correctly rejected by validation
-
-### Session 3: Week 3 ✅ COMPLETE
-**Objective**: Gardener agent with type-weighted promotion thresholds
-
-**Completed Components**:
-1. **Entity Type Normalization**
-   - `normalize_type_name()` in OntologyRepository and OntologySnapshot
-   - Case-insensitive lookup: "PERSON" → "Person" (database canonical)
-   - ConstrainedExtractor uses normalized types for all outputs
-   
-2. **promotion_thresholds Table** (`migrations/005_promotion_thresholds.sql`)
-   - Per-type configuration: min_confidence, min_corroboration_count, min_staging_hours
-   - Linked to ontology_types for type_id foreign key
-   - `get_promotion_threshold()` function with fallback to default
-   
-3. **Seeded Threshold Data** (from spec):
-   - Person: 0.85 confidence, 2 corroborations, 4 hours (strict)
-   - Incident: 0.80 confidence, 3 corroborations, 2 hours (requires corroboration)
-   - Service: 0.75 confidence, 1 corroboration, 1 hour (fast promotion)
-   - Default: 0.70 confidence, 1 corroboration, 1 hour
-   
-4. **GardenerAgent Updates** (`agents/gardener.py`)
-   - `_load_promotion_thresholds()`: Loads from database at init
-   - `get_threshold()`: Type-specific lookup with fallback
-   - promotion_pass uses type-specific thresholds
-   - Logs which thresholds were used for each promotion
-   
-5. **Supporting Tables**:
-   - gardener_runs: Run history with timing and counts
-   - gardener_metrics: Per-type metrics (promotion rate, avg staging time)
-   - conflict_resolutions: Audit log for conflict resolution
-
-**Verification Passed**:
-- All 8 pytest tests pass
-- Thresholds loaded from database: Person=0.85/2/4h, Incident=0.80/3/2h, Service=0.75/1/1h
-- Unknown types fall back to default 0.70/1/1h
-- promotion_pass uses type-specific thresholds from database
-
-### Session 4: Week 4 (Next)
-**Objective**: Data cleanup scripts (sequential to avoid FK violations)
-
-### Session 5: Week 5
-**Objective**: Staged cutover from YAML to database-backed ontology
-
-### Session 6: Week 6
-**Objective**: Production rollout with RLS enabled
+-   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies.
+-   **Ontology Architecture (6-Week Rebuild)**: Migration to a database-backed ontology for dynamic schema management, including:
+    - Shadow mode infrastructure and database-backed ontology foundation (`entities_v2`, `ontology_types`, `ontology_relations`).
+    - Constrained extraction pipeline with dynamic `SchemaPromptGenerator` and Pydantic models.
+    - `GardenerAgent` with type-weighted promotion thresholds from the database.
+    - Data cleanup scripts for orphans and stale staging, supporting infrastructure domain templates and risk-based threshold seeding.
 
 ## External Dependencies
 -   **Database**: PostgreSQL (specifically Neon for Replit deployment).
 -   **LLM**: OpenAI (gpt-4o-mini for reasoning via Replit AI Integrations, direct OpenAI API for embeddings).
--   **Vector Embeddings**: pgvector with OpenAI `text-embedding-3-small` (1536 dimensions).
+-   **Vector Embeddings**: pgvector with OpenAI `text-embedding-3-small`.
 -   **Web Framework**: Flask.
 -   **Deployment**: Gunicorn.
