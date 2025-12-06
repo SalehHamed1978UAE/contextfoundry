@@ -213,6 +213,46 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
+                if (data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
+                    data.speculative.inferred.forEach(inf => {
+                        const targetId = inf.target_entity_id;
+                        if (!graphNodes[targetId]) {
+                            graphNodes[targetId] = {
+                                id: targetId,
+                                name: inf.target_entity_name,
+                                type: inf.target_entity_type || 'UNKNOWN',
+                                lifecycle_state: 'TRUSTED',
+                                confidence: inf.confidence,
+                                is_speculative_target: true
+                            };
+                        }
+                        const sourceId = inf.source_entity_id;
+                        if (!graphNodes[sourceId]) {
+                            graphNodes[sourceId] = {
+                                id: sourceId,
+                                name: inf.source_entity_name,
+                                type: inf.source_entity_type || 'UNKNOWN',
+                                lifecycle_state: 'TRUSTED',
+                                confidence: inf.confidence,
+                                is_speculative_target: true
+                            };
+                        }
+                        const specEdgeId = `spec-${sourceId}-${targetId}-${inf.rule_name}`;
+                        if (!graphEdges.find(e => e.id === specEdgeId)) {
+                            graphEdges.push({
+                                id: specEdgeId,
+                                source: sourceId,
+                                target: targetId,
+                                type: inf.inferred_relationship_type,
+                                confidence: inf.confidence,
+                                speculative: true,
+                                rule_name: inf.rule_name,
+                                supporting_evidence: inf.supporting_evidence
+                            });
+                        }
+                    });
+                }
+                
                 if (data.frontier && Array.isArray(data.frontier)) {
                     data.frontier.forEach(f => {
                         currentFrontierNodes[f.entity_name] = {
@@ -566,8 +606,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const markerColors = new Set();
         edges.forEach(edge => {
-            const color = getRelationshipTypeColor(edge.type);
-            markerColors.add(color);
+            if (edge.speculative) {
+                markerColors.add('#a855f7');
+            } else {
+                const color = getRelationshipTypeColor(edge.type);
+                markerColors.add(color);
+            }
         });
         
         markerColors.forEach(color => {
@@ -593,7 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const target = nodePositions[edge.target];
             if (!source || !target) return;
             
-            const relColor = getRelationshipTypeColor(edge.type);
+            const relColor = edge.speculative ? '#a855f7' : getRelationshipTypeColor(edge.type);
             const confidence = edge.confidence || 0.5;
             const baseWidth = 1.5;
             const maxWidth = 4;
@@ -626,7 +670,9 @@ document.addEventListener('DOMContentLoaded', function() {
             line.setAttribute('stroke-width', strokeWidth);
             line.setAttribute('marker-end', `url(#${markerId})`);
             
-            if (confidence < 0.5) {
+            if (edge.speculative) {
+                line.setAttribute('stroke-dasharray', '8,4');
+            } else if (confidence < 0.5) {
                 line.setAttribute('stroke-dasharray', '4,2');
             }
             
