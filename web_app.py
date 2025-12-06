@@ -599,31 +599,65 @@ def graph_expand(entity_id):
                 })
         
         speculative = {'inferred': [], 'similar': []}
-        if include_speculative and frontier:
+        if include_speculative:
             try:
                 from src.context_foundry.memory.inference import InferenceEngine
                 
-                frontier_nodes = [
-                    FrontierNode(
-                        entity_id=f['entity_id'],
-                        entity_name=f['entity_name'],
-                        entity_type=f['entity_type'],
-                        reason=FrontierReason(f['reason']),
-                        message=f['message'],
-                        depth=f.get('depth', 1)
-                    )
-                    for f in frontier
-                ]
-                
+                inference_engine = InferenceEngine(session)
                 visited_ids = {str(e.id) for e in all_entities}
                 
-                inference_engine = InferenceEngine(session)
-                speculative_result = inference_engine.get_speculative_results(
-                    frontier_nodes=frontier_nodes,
-                    visited_entities=visited_ids,
-                    include_similar=True
+                all_inferred = []
+                all_similar = []
+                
+                if frontier:
+                    frontier_nodes = [
+                        FrontierNode(
+                            entity_id=f['entity_id'],
+                            entity_name=f['entity_name'],
+                            entity_type=f['entity_type'],
+                            reason=FrontierReason(f['reason']),
+                            message=f['message'],
+                            depth=f.get('depth', 1)
+                        )
+                        for f in frontier
+                    ]
+                    
+                    speculative_result = inference_engine.get_speculative_results(
+                        frontier_nodes=frontier_nodes,
+                        visited_entities=visited_ids,
+                        include_similar=True
+                    )
+                    all_inferred.extend(speculative_result.inferred)
+                    all_similar.extend(speculative_result.similar)
+                
+                neighbor_ids = [str(n.id) for n in neighbors]
+                shared_dep_inferred = inference_engine.find_shared_dependencies(
+                    neighbor_ids=neighbor_ids,
+                    center_id=entity_id,
+                    visited_entities=visited_ids
                 )
-                speculative = speculative_result.to_dict()
+                all_inferred.extend(shared_dep_inferred)
+                
+                if not neighbors:
+                    co_occurrence_inferred = inference_engine.find_co_occurrences_for_entity(
+                        entity_id=entity_id,
+                        visited_entities=visited_ids
+                    )
+                    all_inferred.extend(co_occurrence_inferred)
+                
+                seen_pairs = set()
+                unique_inferred = []
+                for inf in all_inferred:
+                    pair = (inf.source_entity_id, inf.target_entity_id)
+                    reverse_pair = (inf.target_entity_id, inf.source_entity_id)
+                    if pair not in seen_pairs and reverse_pair not in seen_pairs:
+                        seen_pairs.add(pair)
+                        unique_inferred.append(inf)
+                
+                speculative = {
+                    'inferred': [inf.to_dict() for inf in unique_inferred],
+                    'similar': [sim.to_dict() for sim in all_similar]
+                }
             except Exception as spec_error:
                 import traceback
                 traceback.print_exc()
