@@ -96,12 +96,24 @@ Six base validation rules (stored in `ontology.rules`):
 
 ## Implementation Status
 
+### Session 6 Progress ✅
+
+**Approval Workflow (RFC v2 §10-§11):**
+- ✅ Migration 008: shared.users, shared.audit_log, ontology.approval_requests tables
+- ✅ ApprovalManager with decision matrix routing:
+  - Concrete type: ≥0.98 auto-approve, 0.90-0.98 Domain Lead, <0.90 reject
+  - Abstract type: ≥0.98 Domain Lead, 0.90-0.98 Architecture Team, <0.90 reject
+  - Deprecation: Always Architecture Team
+- ✅ SLA deadlines: Level 1 (3 days), Level 2 (5 days), Level 3 (7 days)
+- ✅ Auto-escalation with user reassignment on SLA expiry
+- ✅ Complete audit trail for all approval decisions
+
 ### Session 5 Progress ✅
 
 **Phase 1 (P0) - Foundation:**
 - ✅ Created 3 database schemas (ontology, context, shared)
 - ✅ Seeded Layer 0 meta-ontology (5 immutable meta-types)
-- ⏳ Awaiting 8 validated ontology SQL files (200 types)
+- ✅ Loaded 212 types (9 Layer 1 + 203 Layer 2) across 8 domains
 
 **Phase 2 (P1) - Rules Engine:**
 - ✅ Created ontology.rules table with SHACL-inspired schema
@@ -118,6 +130,8 @@ Six base validation rules (stored in `ontology.rules`):
 | File | Purpose |
 |------|---------|
 | `src/context_foundry/migrations/007_rfc_v2_dual_system.sql` | RFC v2 database migration |
+| `src/context_foundry/migrations/008_approval_workflow.sql` | Approval workflow tables |
+| `src/context_foundry/ontology_foundry/approval_manager.py` | Decision matrix routing & SLA |
 | `src/context_foundry/ontology_foundry/rule_executor.py` | SHACL-inspired rule execution |
 | `src/context_foundry/ontology_foundry/type_validator.py` | Type validation agent |
 | `src/context_foundry/ontology_foundry/hierarchy_enforcer.py` | Hierarchy enforcement agent |
@@ -158,12 +172,11 @@ Four-pass maintenance system:
 
 ## Next Steps
 
-### Remaining Session 5 Work
-1. Load 8 validated ontology SQL files (200 types with status='ACTIVE')
-2. Test full validation pipeline with proposed types
+### Remaining Session 6 Work
+1. Integrate ApprovalManager with TypeValidator lifecycle transitions
+2. Test approval workflow end-to-end
 
-### Session 6 (Future)
+### Session 7 (Future)
 - OrphanDetector agent for feedback channel
-- Approval workflow with human-in-the-loop
 - Schema versioning with query translation
 - Production rollout with RLS
