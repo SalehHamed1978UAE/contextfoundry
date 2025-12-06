@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Initialize app - supports both DOMContentLoaded and turbo:load for Turbo.js navigation
+function initApp() {
     const queryForm = document.getElementById('queryForm');
     const queryInput = document.getElementById('queryInput');
     const queryBtn = document.getElementById('queryBtn');
@@ -6,13 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const recentQueries = document.getElementById('recentQueries');
     const queryList = document.getElementById('queryList');
     
-    // Mobile menu elements
+    // Mobile menu elements (permanent across Turbo navigations)
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const sidebar = document.getElementById('sidebar');
     const mobileOverlay = document.getElementById('mobileOverlay');
     
-    // Mobile menu toggle
-    if (hamburgerBtn && sidebar && mobileOverlay) {
+    // Mobile menu toggle - only attach once (check for _initialized flag)
+    if (hamburgerBtn && sidebar && mobileOverlay && !hamburgerBtn._appInitialized) {
+        hamburgerBtn._appInitialized = true;
+        
         hamburgerBtn.addEventListener('click', function() {
             hamburgerBtn.classList.toggle('active');
             sidebar.classList.toggle('open');
@@ -24,22 +27,13 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.classList.remove('open');
             mobileOverlay.classList.remove('visible');
         });
-        
-        // Close menu when nav item is clicked
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                if (window.innerWidth <= 768) {
-                    hamburgerBtn.classList.remove('active');
-                    sidebar.classList.remove('open');
-                    mobileOverlay.classList.remove('visible');
-                }
-            });
-        });
     }
     
-    // Desktop sidebar toggle (collapsible)
+    // Desktop sidebar toggle (collapsible) - only attach once
     const sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle && sidebar) {
+    if (sidebarToggle && sidebar && !sidebarToggle._appInitialized) {
+        sidebarToggle._appInitialized = true;
+        
         // Restore sidebar state from localStorage
         const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (sidebarCollapsed) {
@@ -2037,4 +2031,10 @@ document.addEventListener('DOMContentLoaded', function() {
         originalRenderMemoryGraph();
         initTimeline();
     };
-});
+}
+
+// Initialize on first page load
+document.addEventListener('DOMContentLoaded', initApp);
+
+// Re-initialize on Turbo navigations (for Turbo.js seamless page transitions)
+document.addEventListener('turbo:load', initApp);
