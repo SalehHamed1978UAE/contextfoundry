@@ -147,6 +147,10 @@ Six base validation rules (stored in `ontology.rules`):
 - ✅ Proper JSON deserialization for mapping_rules
 - ✅ Type status transitions: ACTIVE → DEPRECATED → ARCHIVED
 - ✅ Audit trail via shared.audit_log for all deprecation events
+- ✅ type_translation view includes DEPRECATED and ARCHIVED (translations persist post-migration)
+- ✅ All deprecation actions (MIGRATE/ARCHIVE/DELETE) create migration records
+- ✅ Dependent type discovery uses proper array unnesting with ANY() operator
+- ✅ Relationship migration tracks history via properties metadata
 
 **Stress Test Results:**
 | Metric | Value | Status |
