@@ -77,6 +77,58 @@ The web interface features a "Cybernetic Operations" HUD-style theme with a deep
 -   **Identity Resolution**: Employs 7 weighted similarity signals and specific merge policies (e.g., PERSON entities always require human review).
 -   **SQLAlchemy JSON Mutations**: Requires explicit flagging for JSON column modifications.
 
+## 6-Week Rebuild Progress (Ontology Architecture)
+
+### Session 1: Week 0-1 ✅ COMPLETE
+**Objective**: Establish shadow mode infrastructure and database-backed ontology foundation
+
+**Completed Components**:
+1. **Feature Flags Module** (`src/context_foundry/config/feature_flags.py`)
+   - ExtractionMode enum: LEGACY, SHADOW, CONSTRAINED
+   - Helper functions: is_shadow_enabled(), is_constrained_enabled()
+   
+2. **Shadow Metrics Module** (`src/context_foundry/monitoring/shadow_metrics.py`)
+   - Persistent JSONL logging for extraction comparison
+   - Overlap/precision metrics computation
+   
+3. **Database Tables Created**:
+   - `entities_v2`: Shadow table with new ontology columns (entity_type_id, corroboration_count, etc.)
+   - `ontology_types`: 4-layer hierarchy with origin tracking
+   - `ontology_relations`: Semantic relationship constraints with extraction_hints
+   - `extraction_events`: Audit trail for extraction pipeline
+   
+4. **Seeded Ontology Data**:
+   - Layer 0: 4 Meta-Core types (Entity, Event, Record, Relation)
+   - Layer 1: 6 Common Core types (Asset, Agent, Location, Person, Organization, Document)
+   - Layer 2: 10 IT Operations types + 13 relationships with semantics
+   
+5. **Validation Triggers**:
+   - `validate_entity_type()`: Rejects unknown types (CREATURE test passed)
+   - `validate_relationship()`: Manus SQL fix for source/target type constraints
+   - `check_extension_name_collision()`: Layer 3 tenant extension guardrails
+   
+6. **RLS Policies**: Created but not yet enabled (staged rollout)
+
+**Verification Passed**:
+- Layer counts: 4/6/10 as expected
+- 13 relationships with correct source/target type pairs
+- CREATURE type correctly rejected by validation trigger
+
+### Session 2: Week 2 (Next)
+**Objective**: Build constrained extraction pipeline with dynamic SchemaPromptGenerator and Pydantic models
+
+### Session 3: Week 3
+**Objective**: Confidence & provenance system with corroboration scoring
+
+### Session 4: Week 4
+**Objective**: Data cleanup scripts (sequential to avoid FK violations)
+
+### Session 5: Week 5
+**Objective**: Staged cutover from YAML to database-backed ontology
+
+### Session 6: Week 6
+**Objective**: Production rollout with RLS enabled
+
 ## External Dependencies
 -   **Database**: PostgreSQL (specifically Neon for Replit deployment).
 -   **LLM**: OpenAI (gpt-4o-mini for reasoning via Replit AI Integrations, direct OpenAI API for embeddings).
