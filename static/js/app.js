@@ -66,23 +66,57 @@ document.addEventListener('DOMContentLoaded', function() {
         await executeQuery(query);
     });
 
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-            
-            const page = this.dataset.page;
-            document.getElementById('pageTitle').textContent = this.textContent.trim();
-            
-            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-            
-            if (page === 'dashboard') {
-                document.querySelector('.page-content:not(.page-memory)').style.display = 'block';
-            } else if (page === 'memory') {
-                document.querySelector('.page-memory').style.display = 'block';
-                renderMemoryGraph();
+    // Handle page switching
+    function switchToPage(page, updateUrl = false) {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+        
+        if (page === 'memory') {
+            document.querySelector('.nav-item[data-page="memory"]')?.classList.add('active');
+            document.querySelector('.page-memory').style.display = 'block';
+            document.getElementById('pageTitle').textContent = 'Memory Graph';
+            renderMemoryGraph();
+            if (updateUrl) {
+                history.pushState({page: 'memory'}, '', '/?page=memory');
             }
+        } else {
+            document.querySelector('.nav-item[data-page="dashboard"]')?.classList.add('active');
+            document.querySelector('.page-content:not(.page-memory)').style.display = 'block';
+            document.getElementById('pageTitle').textContent = 'Dashboard';
+            if (updateUrl) {
+                history.pushState({page: 'dashboard'}, '', '/');
+            }
+        }
+    }
+    
+    // Check URL for page parameter on load
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialPage = urlParams.get('page');
+    if (initialPage === 'memory') {
+        switchToPage('memory', false);
+    }
+    
+    // Handle nav item clicks
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            const page = this.dataset.page;
+            // Only handle client-side navigation for pages with data-page attribute
+            if (page) {
+                e.preventDefault();
+                switchToPage(page, true);
+            }
+            // Let other links (Command Center, A/B Eval) navigate normally
         });
+    });
+    
+    // Handle browser back/forward
+    window.addEventListener('popstate', function(e) {
+        if (e.state && e.state.page) {
+            switchToPage(e.state.page, false);
+        } else {
+            const params = new URLSearchParams(window.location.search);
+            switchToPage(params.get('page') || 'dashboard', false);
+        }
     });
 
     let currentLifecycleFilter = 'all';
