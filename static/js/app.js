@@ -69,34 +69,71 @@ document.addEventListener('DOMContentLoaded', function() {
         await executeQuery(query);
     });
 
-    // Handle page switching
+    // Page titles for SPA navigation
+    const pageTitles = {
+        'dashboard': 'Dashboard',
+        'memory': 'Memory Graph',
+        'command': 'Command Center',
+        'evaluation': 'A/B Evaluation'
+    };
+    
+    // Handle page switching for all 4 pages
     function switchToPage(page, updateUrl = false) {
+        const pageTitle = document.getElementById('pageTitle');
+        
+        // Hide all pages and deactivate all nav items
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
         
+        // Activate the correct nav item
+        document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add('active');
+        
+        // Show the correct page and set title
+        let pageSelector;
+        switch(page) {
+            case 'memory':
+                pageSelector = '.page-memory';
+                break;
+            case 'command':
+                pageSelector = '.page-command';
+                loadCommandCenterData();
+                break;
+            case 'evaluation':
+                pageSelector = '.page-evaluation';
+                loadEvaluationData();
+                break;
+            default: // dashboard
+                page = 'dashboard';
+                pageSelector = '.page-content:not(.page-memory):not(.page-command):not(.page-evaluation)';
+                break;
+        }
+        
+        const pageElement = document.querySelector(pageSelector);
+        if (pageElement) {
+            pageElement.style.display = 'block';
+        }
+        
+        if (pageTitle) {
+            pageTitle.textContent = pageTitles[page] || 'Dashboard';
+        }
+        
+        // Special actions per page
         if (page === 'memory') {
-            document.querySelector('.nav-item[data-page="memory"]')?.classList.add('active');
-            document.querySelector('.page-memory').style.display = 'block';
-            document.getElementById('pageTitle').textContent = 'Memory Graph';
             renderMemoryGraph();
-            if (updateUrl) {
-                history.pushState({page: 'memory'}, '', '/?page=memory');
-            }
-        } else {
-            document.querySelector('.nav-item[data-page="dashboard"]')?.classList.add('active');
-            document.querySelector('.page-content:not(.page-memory)').style.display = 'block';
-            document.getElementById('pageTitle').textContent = 'Dashboard';
-            if (updateUrl) {
-                history.pushState({page: 'dashboard'}, '', '/');
-            }
+        }
+        
+        // Update URL
+        if (updateUrl) {
+            const url = page === 'dashboard' ? '/' : `/?page=${page}`;
+            history.pushState({page: page}, '', url);
         }
     }
     
     // Check URL for page parameter on load
     const urlParams = new URLSearchParams(window.location.search);
     const initialPage = urlParams.get('page');
-    if (initialPage === 'memory') {
-        switchToPage('memory', false);
+    if (initialPage && ['memory', 'command', 'evaluation'].includes(initialPage)) {
+        switchToPage(initialPage, false);
     }
     
     // Handle nav item clicks
@@ -2040,4 +2077,293 @@ document.addEventListener('DOMContentLoaded', function() {
         originalRenderMemoryGraph();
         initTimeline();
     };
+    
+    // ===== COMMAND CENTER DATA LOADING =====
+    let ccRefreshInterval = null;
+    
+    async function loadCommandCenterData() {
+        try {
+            const response = await fetch('/api/command-center/data');
+            if (!response.ok) return;
+            const data = await response.json();
+            
+            // Update perception stats
+            if (data.perception) {
+                document.getElementById('ccDocsTotal').textContent = data.perception.documents_total || '--';
+                document.getElementById('ccDocs24h').textContent = `+${data.perception.documents_24h || 0} last 24h`;
+                document.getElementById('ccEntitiesExtracted').textContent = data.perception.entities_extracted || '--';
+                document.getElementById('ccEntities24h').textContent = `+${data.perception.entities_24h || 0} last 24h`;
+                document.getElementById('ccRelsExtracted').textContent = data.perception.relationships_extracted || '--';
+                document.getElementById('ccRels24h').textContent = `+${data.perception.relationships_24h || 0} last 24h`;
+                
+                // Extractors table
+                const extractorTable = document.getElementById('ccExtractorTable');
+                if (extractorTable && data.perception.extractors) {
+                    extractorTable.innerHTML = data.perception.extractors.map(ext => `
+                        <tr>
+                            <td>${ext.name}</td>
+                            <td><span class="badge badge-${ext.status.toLowerCase()}">${ext.status}</span></td>
+                            <td class="timestamp">${ext.last_run}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+            
+            // Update memory stats
+            if (data.memory) {
+                document.getElementById('ccStaging').textContent = data.memory.entities_staging || '--';
+                document.getElementById('ccTrusted').textContent = data.memory.entities_trusted || '--';
+                document.getElementById('ccArchived').textContent = data.memory.entities_archived || '--';
+                document.getElementById('ccSemanticStats').textContent = `${data.memory.total_nodes || '--'} nodes, ${data.memory.total_edges || '--'} edges`;
+                document.getElementById('ccEpisodicStats').textContent = `${data.memory.documents_indexed || '--'} docs, ${data.memory.embeddings_count || '--'} embeddings`;
+                document.getElementById('ccSymbolicStats').textContent = `${data.memory.rules_count || '--'} rules`;
+                document.getElementById('ccAvgConf').textContent = (data.memory.avg_confidence || 0).toFixed(2);
+                document.getElementById('ccOrphans').textContent = data.memory.orphan_entities || '--';
+                document.getElementById('ccConflicts').textContent = data.memory.pending_conflicts || '--';
+            }
+            
+            // Update agents
+            if (data.agents) {
+                const agentTable = document.getElementById('ccAgentTable');
+                if (agentTable && data.agents.agent_list) {
+                    agentTable.innerHTML = data.agents.agent_list.map(agent => `
+                        <tr>
+                            <td>${agent.name}</td>
+                            <td><span class="cycle-phase">${agent.phase}</span></td>
+                            <td><span class="badge badge-${agent.status.toLowerCase()}">${agent.status}</span></td>
+                            <td class="timestamp">${agent.last_run_time}</td>
+                        </tr>
+                    `).join('');
+                }
+                if (data.agents.gardener) {
+                    document.getElementById('ccGardenerCycle').textContent = data.agents.gardener.last_cycle || '--';
+                    document.getElementById('ccGardenerPromoted').textContent = data.agents.gardener.promoted || 0;
+                    document.getElementById('ccGardenerDemoted').textContent = data.agents.gardener.demoted || 0;
+                    document.getElementById('ccGardenerConflicts').textContent = data.agents.gardener.conflicts || 0;
+                }
+            }
+            
+            // Update context/learn
+            if (data.context) {
+                document.getElementById('ccOrphansDetected').textContent = data.context.orphans_detected || '--';
+                document.getElementById('ccOrphansSurfaced').textContent = data.context.orphans_surfaced || '--';
+                document.getElementById('ccTypesPromoted').textContent = data.context.types_promoted || '--';
+                document.getElementById('ccTypesActive').textContent = data.context.types_active || '--';
+                document.getElementById('ccTypesProposed').textContent = data.context.types_proposed || '--';
+                document.getElementById('ccTypesApproved').textContent = data.context.types_approved || '--';
+                document.getElementById('ccTypesDeprecated').textContent = data.context.types_deprecated || '--';
+                document.getElementById('ccPendingApprovals').textContent = data.context.pending_approvals || 0;
+                
+                const approvalQueue = document.getElementById('ccApprovalQueue');
+                if (approvalQueue && data.context.approval_queue) {
+                    approvalQueue.innerHTML = data.context.approval_queue.length > 0 
+                        ? data.context.approval_queue.map(req => `
+                            <tr>
+                                <td>${req.type_name}</td>
+                                <td>${req.level}</td>
+                                <td class="${req.sla_class}">${req.sla_remaining}</td>
+                            </tr>
+                        `).join('')
+                        : '<tr><td colspan="3" style="color: var(--text-muted);">No pending approvals</td></tr>';
+                }
+            }
+            
+            // Update message bus
+            if (data.message_bus) {
+                document.getElementById('ccDeadLetter').textContent = data.message_bus.dead_letter || 0;
+                document.getElementById('ccEventsMin').textContent = data.message_bus.events_per_minute || 0;
+                document.getElementById('ccTotalEvents').textContent = data.message_bus.total_events || 0;
+                
+                const eventFeed = document.getElementById('ccEventFeed');
+                if (eventFeed && data.message_bus.recent_events) {
+                    eventFeed.innerHTML = data.message_bus.recent_events.length > 0
+                        ? data.message_bus.recent_events.map(event => `
+                            <div class="event-item">
+                                <span class="event-type">${event.type}</span>
+                                <span>${event.source}</span>
+                                <span class="event-time">${event.time}</span>
+                            </div>
+                        `).join('')
+                        : '<div class="event-item" style="color: var(--text-muted);">No recent events</div>';
+                }
+            }
+            
+            // Start auto-refresh if not already running
+            if (!ccRefreshInterval) {
+                ccRefreshInterval = setInterval(() => {
+                    if (document.querySelector('.page-command')?.style.display !== 'none') {
+                        loadCommandCenterData();
+                    }
+                }, 30000);
+            }
+        } catch (error) {
+            console.error('Failed to load Command Center data:', error);
+        }
+    }
+    
+    // ===== A/B EVALUATION DATA LOADING =====
+    let evalQueries = [];
+    let evalCurrentPairId = null;
+    let evalCurrentQueryId = null;
+    let evalReviewedQueries = new Set();
+    let evalMetrics = { cf_wins: 0, graphrag_wins: 0, ties: 0, reviewed: 0 };
+    
+    async function loadEvaluationData() {
+        await loadEvalMetrics();
+        await loadEvalQueries();
+        setupEvalEventListeners();
+    }
+    
+    async function loadEvalMetrics() {
+        try {
+            const response = await fetch('/api/evaluation/metrics');
+            const data = await response.json();
+            if (data.success && data.metrics) {
+                evalMetrics = data.metrics;
+                updateEvalMetricsUI();
+            }
+        } catch (error) {
+            console.error('Failed to load eval metrics:', error);
+        }
+    }
+    
+    async function loadEvalQueries() {
+        try {
+            const response = await fetch('/api/evaluation/query-set');
+            const data = await response.json();
+            if (data.success) {
+                evalQueries = data.queries;
+                renderEvalQueryList();
+            }
+        } catch (error) {
+            console.error('Failed to load eval queries:', error);
+        }
+    }
+    
+    function updateEvalMetricsUI() {
+        document.getElementById('evalReviewedCount').textContent = evalMetrics.reviewed || 0;
+        document.getElementById('evalCfWins').textContent = evalMetrics.cf_wins || 0;
+        document.getElementById('evalGrWins').textContent = evalMetrics.graphrag_wins || 0;
+        document.getElementById('evalTieCount').textContent = evalMetrics.ties || 0;
+    }
+    
+    function renderEvalQueryList(category = 'all') {
+        const list = document.getElementById('evalQueryList');
+        if (!list) return;
+        
+        const filtered = category === 'all' 
+            ? evalQueries 
+            : evalQueries.filter(q => q.category === category);
+        
+        list.innerHTML = filtered.map(q => `
+            <div class="query-item ${evalReviewedQueries.has(q.id) ? 'reviewed' : ''} ${evalCurrentQueryId === q.id ? 'selected' : ''}" 
+                 data-id="${q.id}">
+                <div class="query-id">${q.id}</div>
+                <div class="query-text">${q.query_text}</div>
+                <div class="query-meta">
+                    <span class="query-tag tag-${q.difficulty}">${q.difficulty}</span>
+                    <span class="query-tag tag-${q.hop_count === 'single_hop' ? 'single' : 'multi'}">${q.hop_count === 'single_hop' ? 'single' : 'multi'}-hop</span>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add click handlers
+        list.querySelectorAll('.query-item').forEach(item => {
+            item.addEventListener('click', () => selectEvalQuery(item.dataset.id));
+        });
+    }
+    
+    async function selectEvalQuery(queryId) {
+        evalCurrentQueryId = queryId;
+        
+        document.querySelectorAll('#evalQueryList .query-item').forEach(el => {
+            el.classList.toggle('selected', el.dataset.id === queryId);
+        });
+        
+        document.getElementById('evalEmptyState').style.display = 'none';
+        document.getElementById('evalComparisonContent').style.display = 'flex';
+        
+        const query = evalQueries.find(q => q.id === queryId);
+        document.getElementById('evalQuestionText').textContent = query.query_text;
+        document.getElementById('evalResponseA').innerHTML = '<div class="loading-spinner"></div>';
+        document.getElementById('evalResponseB').innerHTML = '<div class="loading-spinner"></div>';
+        document.getElementById('evalLatencyA').textContent = '--ms';
+        document.getElementById('evalLatencyB').textContent = '--ms';
+        
+        document.querySelectorAll('.vote-btn').forEach(btn => {
+            btn.disabled = true;
+            btn.classList.remove('selected');
+        });
+        
+        try {
+            const response = await fetch('/api/evaluation/compare', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query_id: queryId })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                evalCurrentPairId = data.pair_id;
+                document.getElementById('evalResponseA').textContent = data.response_a.answer;
+                document.getElementById('evalResponseB').textContent = data.response_b.answer;
+                document.getElementById('evalLatencyA').textContent = `${Math.round(data.response_a.latency_ms)}ms`;
+                document.getElementById('evalLatencyB').textContent = `${Math.round(data.response_b.latency_ms)}ms`;
+                
+                document.querySelectorAll('.vote-btn').forEach(btn => btn.disabled = false);
+            } else {
+                document.getElementById('evalResponseA').textContent = 'Error: ' + data.error;
+                document.getElementById('evalResponseB').textContent = 'Error: ' + data.error;
+            }
+        } catch (error) {
+            document.getElementById('evalResponseA').textContent = 'Error loading response';
+            document.getElementById('evalResponseB').textContent = 'Error loading response';
+        }
+    }
+    
+    async function submitEvalVote(preference) {
+        if (!evalCurrentPairId) return;
+        
+        try {
+            const response = await fetch('/api/evaluation/preference', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pair_id: evalCurrentPairId, preference: preference })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                evalReviewedQueries.add(evalCurrentQueryId);
+                evalMetrics = data.metrics;
+                updateEvalMetricsUI();
+                renderEvalQueryList(document.querySelector('.page-evaluation .category-btn.active')?.dataset.category || 'all');
+                
+                document.querySelectorAll('.vote-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                    btn.disabled = true;
+                });
+                document.querySelector(`.vote-btn.vote-${preference === 'A' ? 'a' : preference === 'B' ? 'b' : 'tie'}`).classList.add('selected');
+            }
+        } catch (error) {
+            console.error('Failed to submit vote:', error);
+        }
+    }
+    
+    let evalListenersSetup = false;
+    function setupEvalEventListeners() {
+        if (evalListenersSetup) return;
+        evalListenersSetup = true;
+        
+        document.getElementById('evalVoteA')?.addEventListener('click', () => submitEvalVote('A'));
+        document.getElementById('evalVoteB')?.addEventListener('click', () => submitEvalVote('B'));
+        document.getElementById('evalVoteTie')?.addEventListener('click', () => submitEvalVote('TIE'));
+        
+        document.querySelectorAll('.page-evaluation .category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.page-evaluation .category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderEvalQueryList(btn.dataset.category);
+            });
+        });
+    }
 });
