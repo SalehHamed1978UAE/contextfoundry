@@ -2404,6 +2404,197 @@ def get_review_queue():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+# =============================================================================
+# Context Bundle API v1 - Pillar 4: Deliver structured, trustworthy truth to AI
+# =============================================================================
+
+@app.route('/api/v1/context', methods=['POST'])
+def context_bundle_api():
+    """
+    Context Bundle API - The formal delivery mechanism for structured, trustworthy context.
+    
+    This is Pillar 4 of the Context Foundry vision: "Deliver structured, trustworthy truth to AI."
+    
+    Request body:
+    {
+        "query": "What services are affected if Payment Database goes down?",
+        "focal_entity": "Payment Database",  // optional
+        "max_hops": 2,
+        "include_episodic": true,
+        "include_symbolic": true,
+        "include_speculative": true,
+        "min_confidence": 0.5,
+        "max_entities": 50,
+        "max_documents": 10
+    }
+    
+    Response:
+    {
+        "success": true,
+        "bundle": { ... APIContextBundle ... },
+        "meta": { ... RetrievalMeta ... }
+    }
+    """
+    from pydantic import ValidationError
+    from src.context_foundry.api.context_bundle import ContextBundleRequest, ContextBundleResponse
+    from src.context_foundry.api.bundle_builder import BundleBuilder
+    
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': 'No JSON body provided',
+                'bundle': None,
+                'meta': None
+            }), 400
+        
+        try:
+            req = ContextBundleRequest(**data)
+        except ValidationError as e:
+            return jsonify({
+                'success': False,
+                'error': f'Invalid request: {str(e)}',
+                'bundle': None,
+                'meta': None
+            }), 400
+        
+        builder = BundleBuilder()
+        bundle = builder.build(req)
+        
+        response = ContextBundleResponse(
+            success=True,
+            bundle=bundle,
+            error=None,
+            meta=bundle.retrieval_meta
+        )
+        
+        return jsonify(response.model_dump(mode='json'))
+        
+    except Exception as e:
+        import traceback
+        error_detail = f"{str(e)}\n{traceback.format_exc()}"
+        print(f"[Context Bundle API Error] {error_detail}")
+        
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'bundle': None,
+            'meta': None
+        }), 500
+
+
+@app.route('/api/v1/context/schema')
+def context_bundle_schema():
+    """
+    Returns the OpenAPI schema for the Context Bundle API.
+    
+    This provides documentation for AI applications consuming Context Foundry.
+    """
+    from src.context_foundry.api.context_bundle import (
+        ContextBundleRequest,
+        ContextBundleResponse,
+        APIContextBundle,
+    )
+    
+    schema = {
+        'openapi': '3.0.0',
+        'info': {
+            'title': 'Context Foundry - Context Bundle API',
+            'description': 'Pillar 4: Deliver structured, trustworthy truth to AI applications.',
+            'version': '1.0.0'
+        },
+        'paths': {
+            '/api/v1/context': {
+                'post': {
+                    'summary': 'Get Context Bundle',
+                    'description': 'Retrieves a context bundle for a natural language query. The bundle contains focal entities, related entities, relationships, source documents, applicable rules, speculative inferences, and explicit knowledge boundaries.',
+                    'requestBody': {
+                        'required': True,
+                        'content': {
+                            'application/json': {
+                                'schema': ContextBundleRequest.model_json_schema(),
+                                'example': {
+                                    'query': 'What services are affected if Payment Database goes down?',
+                                    'focal_entity': 'Payment Database',
+                                    'max_hops': 2,
+                                    'include_episodic': True,
+                                    'include_symbolic': True
+                                }
+                            }
+                        }
+                    },
+                    'responses': {
+                        '200': {
+                            'description': 'Successful response with context bundle',
+                            'content': {
+                                'application/json': {
+                                    'schema': ContextBundleResponse.model_json_schema(),
+                                    'example': {
+                                        'success': True,
+                                        'bundle': {
+                                            'version': '1.0.0',
+                                            'query': 'What services are affected if Payment Database goes down?',
+                                            'focal_entities': [
+                                                {
+                                                    'id': 'uuid-1',
+                                                    'name': 'Payment Database',
+                                                    'entity_type': 'DATABASE',
+                                                    'confidence': 0.95,
+                                                    'lifecycle_state': 'TRUSTED'
+                                                }
+                                            ],
+                                            'related_entities': [
+                                                {
+                                                    'id': 'uuid-2',
+                                                    'name': 'Payment Service',
+                                                    'entity_type': 'SERVICE',
+                                                    'confidence': 0.92,
+                                                    'lifecycle_state': 'TRUSTED',
+                                                    'hop_distance': 1,
+                                                    'path_confidence': 0.92
+                                                }
+                                            ],
+                                            'knowledge_gaps': [
+                                                'No visibility into downstream consumers of External API Gateway'
+                                            ],
+                                            'overall_confidence': 0.87
+                                        },
+                                        'meta': {
+                                            'semantic_query_time_ms': 45.2,
+                                            'episodic_query_time_ms': 12.8,
+                                            'symbolic_query_time_ms': 3.4,
+                                            'total_time_ms': 61.4,
+                                            'entities_considered': 25,
+                                            'entities_included': 12
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        '400': {
+                            'description': 'Invalid request'
+                        },
+                        '500': {
+                            'description': 'Server error'
+                        }
+                    }
+                }
+            }
+        },
+        'components': {
+            'schemas': {
+                'ContextBundleRequest': ContextBundleRequest.model_json_schema(),
+                'ContextBundleResponse': ContextBundleResponse.model_json_schema(),
+                'APIContextBundle': APIContextBundle.model_json_schema(),
+            }
+        }
+    }
+    
+    return jsonify(schema)
+
+
 if __name__ == '__main__':
     init_scheduler()
     app.run(host='0.0.0.0', port=5000, debug=True)
