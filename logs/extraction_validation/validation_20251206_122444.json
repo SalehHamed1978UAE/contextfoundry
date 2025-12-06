@@ -1,0 +1,1823 @@
+{
+  "timestamp": "2025-12-06T12:24:44.124148",
+  "summary": {
+    "documents_tested": 5,
+    "total_legacy_entities": 65,
+    "total_constrained_entities": 72,
+    "total_rejected": 0,
+    "average_overlap": 0.4331818181818182
+  },
+  "per_document_metrics": [
+    {
+      "document_name": "Platform Team Standup",
+      "legacy_count": 17,
+      "constrained_count": 18,
+      "count_difference": -1,
+      "legacy_types": [
+        "PERSON",
+        "COMPONENT",
+        "SERVICE",
+        "DATABASE"
+      ],
+      "constrained_types": [
+        "Service",
+        "Database",
+        "Infrastructure",
+        "Person",
+        "Deployment",
+        "Runbook",
+        "Team",
+        "Document",
+        "Change"
+      ],
+      "types_only_in_legacy": [
+        "PERSON",
+        "COMPONENT",
+        "SERVICE",
+        "DATABASE"
+      ],
+      "types_only_in_constrained": [
+        "Service",
+        "Database",
+        "Infrastructure",
+        "Person",
+        "Deployment",
+        "Runbook",
+        "Team",
+        "Document",
+        "Change"
+      ],
+      "rejected_entities": [],
+      "overlap_ratio": 0.4583333333333333,
+      "legacy_type_distribution": {
+        "PERSON": 12,
+        "SERVICE": 3,
+        "COMPONENT": 1,
+        "DATABASE": 1
+      },
+      "constrained_type_distribution": {
+        "Person": 10,
+        "Service": 1,
+        "Document": 1,
+        "Change": 1,
+        "Infrastructure": 1,
+        "Deployment": 1,
+        "Database": 1,
+        "Runbook": 1,
+        "Team": 1
+      }
+    },
+    {
+      "document_name": "Incidents Channel",
+      "legacy_count": 13,
+      "constrained_count": 11,
+      "count_difference": 2,
+      "legacy_types": [
+        "PERSON",
+        "SERVICE",
+        "INCIDENT"
+      ],
+      "constrained_types": [
+        "Person",
+        "Incident",
+        "Change",
+        "Postmortem"
+      ],
+      "types_only_in_legacy": [
+        "PERSON",
+        "SERVICE",
+        "INCIDENT"
+      ],
+      "types_only_in_constrained": [
+        "Person",
+        "Incident",
+        "Change",
+        "Postmortem"
+      ],
+      "rejected_entities": [],
+      "overlap_ratio": 0.09090909090909091,
+      "legacy_type_distribution": {
+        "INCIDENT": 2,
+        "SERVICE": 3,
+        "PERSON": 8
+      },
+      "constrained_type_distribution": {
+        "Incident": 2,
+        "Person": 6,
+        "Change": 1,
+        "Postmortem": 2
+      }
+    },
+    {
+      "document_name": "Cloud Migration Plan",
+      "legacy_count": 13,
+      "constrained_count": 16,
+      "count_difference": -3,
+      "legacy_types": [
+        "PERSON",
+        "SERVICE",
+        "DATABASE",
+        "INCIDENT"
+      ],
+      "constrained_types": [
+        "Service",
+        "Infrastructure",
+        "Person",
+        "Deployment",
+        "Document",
+        "Organization",
+        "Asset",
+        "Change"
+      ],
+      "types_only_in_legacy": [
+        "PERSON",
+        "SERVICE",
+        "DATABASE",
+        "INCIDENT"
+      ],
+      "types_only_in_constrained": [
+        "Service",
+        "Infrastructure",
+        "Person",
+        "Deployment",
+        "Document",
+        "Organization",
+        "Asset",
+        "Change"
+      ],
+      "rejected_entities": [],
+      "overlap_ratio": 0.45,
+      "legacy_type_distribution": {
+        "SERVICE": 4,
+        "PERSON": 6,
+        "DATABASE": 1,
+        "INCIDENT": 2
+      },
+      "constrained_type_distribution": {
+        "Document": 1,
+        "Person": 7,
+        "Change": 1,
+        "Asset": 1,
+        "Infrastructure": 1,
+        "Service": 3,
+        "Organization": 1,
+        "Deployment": 1
+      }
+    },
+    {
+      "document_name": "Vendor Evaluation",
+      "legacy_count": 11,
+      "constrained_count": 14,
+      "count_difference": -3,
+      "legacy_types": [
+        "PERSON",
+        "DATABASE",
+        "COMPONENT",
+        "SERVICE",
+        "INCIDENT"
+      ],
+      "constrained_types": [
+        "Service",
+        "Database",
+        "Person",
+        "Team",
+        "Organization",
+        "Incident",
+        "Asset"
+      ],
+      "types_only_in_legacy": [
+        "PERSON",
+        "DATABASE",
+        "COMPONENT",
+        "SERVICE",
+        "INCIDENT"
+      ],
+      "types_only_in_constrained": [
+        "Service",
+        "Database",
+        "Person",
+        "Team",
+        "Organization",
+        "Incident",
+        "Asset"
+      ],
+      "rejected_entities": [],
+      "overlap_ratio": 0.6666666666666666,
+      "legacy_type_distribution": {
+        "SERVICE": 2,
+        "COMPONENT": 2,
+        "DATABASE": 1,
+        "PERSON": 5,
+        "INCIDENT": 1
+      },
+      "constrained_type_distribution": {
+        "Person": 5,
+        "Organization": 1,
+        "Service": 2,
+        "Database": 2,
+        "Incident": 1,
+        "Asset": 2,
+        "Team": 1
+      }
+    },
+    {
+      "document_name": "Payment Service Escalation",
+      "legacy_count": 11,
+      "constrained_count": 13,
+      "count_difference": -2,
+      "legacy_types": [
+        "PERSON",
+        "DATABASE",
+        "COMPONENT",
+        "SERVICE",
+        "INCIDENT",
+        "TEAM"
+      ],
+      "constrained_types": [
+        "Service",
+        "Database",
+        "Person",
+        "Deployment",
+        "Incident",
+        "Change"
+      ],
+      "types_only_in_legacy": [
+        "PERSON",
+        "TEAM",
+        "DATABASE",
+        "COMPONENT",
+        "SERVICE",
+        "INCIDENT"
+      ],
+      "types_only_in_constrained": [
+        "Service",
+        "Database",
+        "Person",
+        "Deployment",
+        "Incident",
+        "Change"
+      ],
+      "rejected_entities": [],
+      "overlap_ratio": 0.5,
+      "legacy_type_distribution": {
+        "SERVICE": 2,
+        "COMPONENT": 1,
+        "TEAM": 1,
+        "PERSON": 5,
+        "DATABASE": 1,
+        "INCIDENT": 1
+      },
+      "constrained_type_distribution": {
+        "Person": 6,
+        "Service": 2,
+        "Database": 1,
+        "Change": 2,
+        "Incident": 1,
+        "Deployment": 1
+      }
+    }
+  ],
+  "legacy_results": [
+    {
+      "path_name": "legacy",
+      "document_name": "Platform Team Standup",
+      "entity_count": 17,
+      "entities": [
+        {
+          "id": "1dd6ea8c18b1eb1726d2fe5823fa7ba1",
+          "entity_type": "PERSON",
+          "canonical_name": "Alex Rivera",
+          "properties": {},
+          "source_span": "Alex Rivera",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922895"
+        },
+        {
+          "id": "b70aeac33a866784b4f921781530d624",
+          "entity_type": "PERSON",
+          "canonical_name": "Sarah Chen",
+          "properties": {},
+          "source_span": "Sarah Chen",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922910"
+        },
+        {
+          "id": "29a3cfcca47c05836cf1ed2909941b2b",
+          "entity_type": "PERSON",
+          "canonical_name": "Brian Taylor",
+          "properties": {},
+          "source_span": "Brian Taylor",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922917"
+        },
+        {
+          "id": "bb7842cdc1095e252ffab6ec87b97a8e",
+          "entity_type": "PERSON",
+          "canonical_name": "Amy Chen",
+          "properties": {},
+          "source_span": "Amy Chen",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922924"
+        },
+        {
+          "id": "14f89e458b967d03a40064dd6b2df778",
+          "entity_type": "PERSON",
+          "canonical_name": "George Brown",
+          "properties": {},
+          "source_span": "George Brown",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922930"
+        },
+        {
+          "id": "73bc936d8a6659bb8c289ab871237e23",
+          "entity_type": "PERSON",
+          "canonical_name": "Ryan Adams",
+          "properties": {},
+          "source_span": "Ryan Adams",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922937"
+        },
+        {
+          "id": "34ec2ff036712dcecaec9b76033e9771",
+          "entity_type": "PERSON",
+          "canonical_name": "Kevin Lee",
+          "properties": {},
+          "source_span": "Kevin Lee",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922943"
+        },
+        {
+          "id": "cadb5315ded53a9a3bcbdeb318537349",
+          "entity_type": "PERSON",
+          "canonical_name": "Alex Thompson",
+          "properties": {},
+          "source_span": "Alex Thompson",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922957"
+        },
+        {
+          "id": "5579165d1b0373921c4f2badbd02c343",
+          "entity_type": "PERSON",
+          "canonical_name": "Emily Zhang",
+          "properties": {},
+          "source_span": "Emily Zhang",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922964"
+        },
+        {
+          "id": "fbc4589300d9dbadcdecb5c04f6dc2b9",
+          "entity_type": "PERSON",
+          "canonical_name": "Hannah White",
+          "properties": {},
+          "source_span": "Hannah White",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922970"
+        },
+        {
+          "id": "575b4bcfc201ae3094aea798b5e4180c",
+          "entity_type": "PERSON",
+          "canonical_name": "Mia White",
+          "properties": {},
+          "source_span": "Mia White",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922975"
+        },
+        {
+          "id": "9a6833df3118f6811def13c2b06f1ff5",
+          "entity_type": "PERSON",
+          "canonical_name": "Priya Sharma",
+          "properties": {},
+          "source_span": "Priya Sharma",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922980"
+        },
+        {
+          "id": "09a7985fe471a7e2f95a1eddb06d36a1",
+          "entity_type": "SERVICE",
+          "canonical_name": "Auth Service",
+          "properties": {},
+          "source_span": "Auth Service",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922986"
+        },
+        {
+          "id": "41d113bc25919429925174d9f2effffd",
+          "entity_type": "COMPONENT",
+          "canonical_name": "API Gateway",
+          "properties": {},
+          "source_span": "API Gateway",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922991"
+        },
+        {
+          "id": "1cbd616d4b9ca8b55104a7a654ea1379",
+          "entity_type": "SERVICE",
+          "canonical_name": "MigrateX",
+          "properties": {},
+          "source_span": "MigrateX",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.922996"
+        },
+        {
+          "id": "fa69a6092da1f7764a8489eeb847a38a",
+          "entity_type": "SERVICE",
+          "canonical_name": "CloudShift",
+          "properties": {},
+          "source_span": "CloudShift",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 1.0,
+          "extracted_at": "2025-12-06T12:22:35.923001"
+        },
+        {
+          "id": "5b4a1c879d322dc00cae4ed69784e554",
+          "entity_type": "DATABASE",
+          "canonical_name": "database",
+          "properties": {
+            "db_type": "cloud"
+          },
+          "source_span": "database backup scripts for the cloud environment",
+          "source_document_id": "validation-Platform Team Standup",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.8,
+          "extracted_at": "2025-12-06T12:22:35.923006"
+        }
+      ],
+      "type_distribution": {
+        "PERSON": 12,
+        "SERVICE": 3,
+        "COMPONENT": 1,
+        "DATABASE": 1
+      },
+      "execution_time_ms": 6428.512096405029
+    },
+    {
+      "path_name": "legacy",
+      "document_name": "Incidents Channel",
+      "entity_count": 13,
+      "entities": [
+        {
+          "id": "c7e99b13e691f7a37767020a1cac54b2",
+          "entity_type": "INCIDENT",
+          "canonical_name": "Auth Service latency spike",
+          "properties": {
+            "severity": "unknown",
+            "status": "Investigating"
+          },
+          "source_span": "\ud83d\udea8 INCIDENT: Auth Service latency spike detected. Investigating.",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803469"
+        },
+        {
+          "id": "09a7985fe471a7e2f95a1eddb06d36a1",
+          "entity_type": "SERVICE",
+          "canonical_name": "Auth Service",
+          "properties": {},
+          "source_span": "Auth Service latency spike detected.",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803479"
+        },
+        {
+          "id": "4ee73e021960db2e69e2fcbbf2e727fa",
+          "entity_type": "SERVICE",
+          "canonical_name": "Notification Service",
+          "properties": {},
+          "source_span": "\u26a0\ufe0f WARNING: Notification Service queue depth increasing.",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803484"
+        },
+        {
+          "id": "fe339b64a02ad6155c2bc94b99e6a5f9",
+          "entity_type": "INCIDENT",
+          "canonical_name": "API Gateway production elevated error rates",
+          "properties": {
+            "severity": "unknown",
+            "status": "Investigating"
+          },
+          "source_span": "\ud83d\udea8 INCIDENT: API Gateway production - elevated error rates (0.5%). Investigating.",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803489"
+        },
+        {
+          "id": "7b6cc3cf463f8bb2f7c6efef7d5a0f47",
+          "entity_type": "SERVICE",
+          "canonical_name": "API Gateway",
+          "properties": {},
+          "source_span": "API Gateway production - elevated error rates (0.5%).",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803493"
+        },
+        {
+          "id": "de94b394d99f9b0eb1751a54212a0afc",
+          "entity_type": "PERSON",
+          "canonical_name": "alex.thompson",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@alex.thompson:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803498"
+        },
+        {
+          "id": "eddf4697c726f33b8081a1aed07fe96c",
+          "entity_type": "PERSON",
+          "canonical_name": "brian.taylor",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@brian.taylor:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803502"
+        },
+        {
+          "id": "942a0703b96e207aca445423351a34b0",
+          "entity_type": "PERSON",
+          "canonical_name": "george.brown",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@george.brown:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803507"
+        },
+        {
+          "id": "f2ff5c06a68fcf281f430647c5d69a7c",
+          "entity_type": "PERSON",
+          "canonical_name": "sarah.chen",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@sarah.chen:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803511"
+        },
+        {
+          "id": "be9e85b190a7e1a341323177847211b2",
+          "entity_type": "PERSON",
+          "canonical_name": "mia.white",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@mia.white:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803516"
+        },
+        {
+          "id": "31458157390e9745c2132c844a271550",
+          "entity_type": "PERSON",
+          "canonical_name": "amy.chen",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@amy.chen:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803520"
+        },
+        {
+          "id": "414469963b30dbb7e0f81916c171b461",
+          "entity_type": "PERSON",
+          "canonical_name": "lisa.park",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@lisa.park:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803524"
+        },
+        {
+          "id": "d2ddbf8cc96ef79fb52ab162f48d8d9a",
+          "entity_type": "PERSON",
+          "canonical_name": "ryan.adams",
+          "properties": {
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "@ryan.adams:",
+          "source_document_id": "validation-Incidents Channel",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:06.803529"
+        }
+      ],
+      "type_distribution": {
+        "INCIDENT": 2,
+        "SERVICE": 3,
+        "PERSON": 8
+      },
+      "execution_time_ms": 6627.087116241455
+    },
+    {
+      "path_name": "legacy",
+      "document_name": "Cloud Migration Plan",
+      "entity_count": 13,
+      "entities": [
+        {
+          "id": "09a7985fe471a7e2f95a1eddb06d36a1",
+          "entity_type": "SERVICE",
+          "canonical_name": "Auth Service",
+          "properties": {
+            "owner_team": "Sarah Chen",
+            "description": "User authentication endpoints, Session management, OAuth integrations, User Database replication",
+            "tier": "Phase 1"
+          },
+          "source_span": "Auth Service",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151530"
+        },
+        {
+          "id": "7b6cc3cf463f8bb2f7c6efef7d5a0f47",
+          "entity_type": "SERVICE",
+          "canonical_name": "API Gateway",
+          "properties": {
+            "owner_team": "Brian Taylor",
+            "description": "Request routing, Rate limiting, SSL termination, Logging and metrics",
+            "tier": "Phase 2"
+          },
+          "source_span": "API Gateway",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151539"
+        },
+        {
+          "id": "4ee73e021960db2e69e2fcbbf2e727fa",
+          "entity_type": "SERVICE",
+          "canonical_name": "Notification Service",
+          "properties": {
+            "owner_team": "Alex Thompson",
+            "description": "Email delivery pipeline, SMS gateway integration, Push notification service, Queue management",
+            "tier": "Phase 3"
+          },
+          "source_span": "Notification Service",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151544"
+        },
+        {
+          "id": "c14c9aab49a8844d8e6ce9d6f766965a",
+          "entity_type": "SERVICE",
+          "canonical_name": "Payment Service",
+          "properties": {
+            "owner_team": "Emily Rodriguez / Lisa Park",
+            "description": "Transaction processing, Fraud Detection Service integration, PCI-compliant data handling, Financial reconciliation",
+            "tier": "Phase 4"
+          },
+          "source_span": "Payment Service",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151549"
+        },
+        {
+          "id": "1dd6ea8c18b1eb1726d2fe5823fa7ba1",
+          "entity_type": "PERSON",
+          "canonical_name": "Alex Rivera",
+          "properties": {
+            "role": "Director of Platform"
+          },
+          "source_span": "Alex Rivera, Director of Platform",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151554"
+        },
+        {
+          "id": "b70aeac33a866784b4f921781530d624",
+          "entity_type": "PERSON",
+          "canonical_name": "Sarah Chen",
+          "properties": {
+            "role": "Lead",
+            "team": "Phase 1"
+          },
+          "source_span": "Sarah Chen",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151558"
+        },
+        {
+          "id": "29a3cfcca47c05836cf1ed2909941b2b",
+          "entity_type": "PERSON",
+          "canonical_name": "Brian Taylor",
+          "properties": {
+            "role": "Lead",
+            "team": "Phase 2"
+          },
+          "source_span": "Brian Taylor",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151562"
+        },
+        {
+          "id": "cadb5315ded53a9a3bcbdeb318537349",
+          "entity_type": "PERSON",
+          "canonical_name": "Alex Thompson",
+          "properties": {
+            "role": "Lead",
+            "team": "Phase 3"
+          },
+          "source_span": "Alex Thompson",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151567"
+        },
+        {
+          "id": "ec32efb34d274b82d962d732c1cc16ee",
+          "entity_type": "PERSON",
+          "canonical_name": "Emily Rodriguez",
+          "properties": {
+            "role": "Owner",
+            "team": "Phase 4"
+          },
+          "source_span": "Emily Rodriguez",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151571"
+        },
+        {
+          "id": "257dfa105b2137db7dcc2dfe2818f1c3",
+          "entity_type": "PERSON",
+          "canonical_name": "Lisa Park",
+          "properties": {
+            "role": "Owner",
+            "team": "Phase 4"
+          },
+          "source_span": "Lisa Park",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:23:32.151576"
+        },
+        {
+          "id": "844efd43733b0decf668d6092b535691",
+          "entity_type": "DATABASE",
+          "canonical_name": "PostgreSQL",
+          "properties": {
+            "db_type": "RDS",
+            "version": "12 TB"
+          },
+          "source_span": "12 TB PostgreSQL databases",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.9,
+          "extracted_at": "2025-12-06T12:23:32.151580"
+        },
+        {
+          "id": "9a3ed2a2d71cf081da0d96986bb6f677",
+          "entity_type": "INCIDENT",
+          "canonical_name": "CloudShift Support Issues",
+          "properties": {
+            "severity": "High",
+            "status": "Resolved"
+          },
+          "source_span": "Concerns raised about CloudShift support responsiveness",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.8,
+          "extracted_at": "2025-12-06T12:23:32.151585"
+        },
+        {
+          "id": "e180bcff3d0a14023b29d2449ae68165",
+          "entity_type": "INCIDENT",
+          "canonical_name": "MigrateX Decision Change",
+          "properties": {
+            "status": "Resolved"
+          },
+          "source_span": "DECISION CHANGED - Switched to MigrateX",
+          "source_document_id": "validation-Cloud Migration Plan",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.9,
+          "extracted_at": "2025-12-06T12:23:32.151590"
+        }
+      ],
+      "type_distribution": {
+        "SERVICE": 4,
+        "PERSON": 6,
+        "DATABASE": 1,
+        "INCIDENT": 2
+      },
+      "execution_time_ms": 7304.4092655181885
+    },
+    {
+      "path_name": "legacy",
+      "document_name": "Vendor Evaluation",
+      "entity_count": 11,
+      "entities": [
+        {
+          "id": "1cbd616d4b9ca8b55104a7a654ea1379",
+          "entity_type": "SERVICE",
+          "canonical_name": "MigrateX",
+          "properties": {
+            "tier": "enterprise",
+            "owner_team": "MigrateX Team",
+            "description": "specializes in enterprise cloud migrations",
+            "language": "unknown",
+            "repository": "unknown"
+          },
+          "source_span": "MigrateX specializes in enterprise cloud migrations.",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407170"
+        },
+        {
+          "id": "fa69a6092da1f7764a8489eeb847a38a",
+          "entity_type": "SERVICE",
+          "canonical_name": "CloudShift",
+          "properties": {
+            "tier": "business",
+            "owner_team": "CloudShift Team",
+            "description": "cloud migration tooling",
+            "language": "unknown",
+            "repository": "unknown"
+          },
+          "source_span": "concerns about CloudShift responsiveness",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407178"
+        },
+        {
+          "id": "8d4f277a78c722c23469343c29c3b260",
+          "entity_type": "COMPONENT",
+          "canonical_name": "Payment Service",
+          "properties": {
+            "parent_service": "CloudShift",
+            "version": "unknown"
+          },
+          "source_span": "Our biggest pain point is Payment Service.",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407184"
+        },
+        {
+          "id": "d8e44692320ce305d6963f50b4aa24e1",
+          "entity_type": "COMPONENT",
+          "canonical_name": "Fraud Detection Service",
+          "properties": {
+            "parent_service": "CloudShift",
+            "version": "unknown"
+          },
+          "source_span": "legacy integrations with Fraud Detection Service",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407189"
+        },
+        {
+          "id": "844efd43733b0decf668d6092b535691",
+          "entity_type": "DATABASE",
+          "canonical_name": "PostgreSQL",
+          "properties": {
+            "db_type": "relational",
+            "host": "unknown",
+            "version": "unknown"
+          },
+          "source_span": "issues with CloudShift's database replication. Their tool couldn't handle our PostgreSQL extensions.",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407194"
+        },
+        {
+          "id": "1dd6ea8c18b1eb1726d2fe5823fa7ba1",
+          "entity_type": "PERSON",
+          "canonical_name": "Alex Rivera",
+          "properties": {
+            "email": "unknown",
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "Alex Rivera arranged this discovery call",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407198"
+        },
+        {
+          "id": "29a3cfcca47c05836cf1ed2909941b2b",
+          "entity_type": "PERSON",
+          "canonical_name": "Brian Taylor",
+          "properties": {
+            "email": "unknown",
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "Brian Taylor: What about rollback capabilities?",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407203"
+        },
+        {
+          "id": "257dfa105b2137db7dcc2dfe2818f1c3",
+          "entity_type": "PERSON",
+          "canonical_name": "Lisa Park",
+          "properties": {
+            "email": "unknown",
+            "role": "unknown",
+            "team": "unknown",
+            "level": "unknown"
+          },
+          "source_span": "Lisa Park: We had issues with CloudShift's database replication.",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407207"
+        },
+        {
+          "id": "b82ab8215486109fdc5ba1db09ee0a79",
+          "entity_type": "PERSON",
+          "canonical_name": "Jennifer Walsh",
+          "properties": {
+            "email": "unknown",
+            "role": "Account Executive",
+            "team": "MigrateX Team",
+            "level": "unknown"
+          },
+          "source_span": "Jennifer Walsh (MigrateX Account Executive)",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407212"
+        },
+        {
+          "id": "0c328f9699ad034ccdf5bd7d4ab4bd61",
+          "entity_type": "PERSON",
+          "canonical_name": "Mark Stevens",
+          "properties": {
+            "email": "unknown",
+            "role": "Solutions Architect",
+            "team": "MigrateX Team",
+            "level": "unknown"
+          },
+          "source_span": "Mark Stevens (Solutions Architect)",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:00.407234"
+        },
+        {
+          "id": "d7fccfb0897642b9865de533af210e74",
+          "entity_type": "INCIDENT",
+          "canonical_name": "CloudShift Friday Night Issue",
+          "properties": {
+            "severity": "unknown",
+            "status": "unknown",
+            "start_time": "unknown",
+            "end_time": "unknown"
+          },
+          "source_span": "We had a Friday night issue with CloudShift and didn't get a response until Monday.",
+          "source_document_id": "validation-Vendor Evaluation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.85,
+          "extracted_at": "2025-12-06T12:24:00.407239"
+        }
+      ],
+      "type_distribution": {
+        "SERVICE": 2,
+        "COMPONENT": 2,
+        "DATABASE": 1,
+        "PERSON": 5,
+        "INCIDENT": 1
+      },
+      "execution_time_ms": 6252.052307128906
+    },
+    {
+      "path_name": "legacy",
+      "document_name": "Payment Service Escalation",
+      "entity_count": 11,
+      "entities": [
+        {
+          "id": "c14c9aab49a8844d8e6ce9d6f766965a",
+          "entity_type": "SERVICE",
+          "canonical_name": "Payment Service",
+          "properties": {
+            "owner_team": "Payments Team",
+            "description": "Service responsible for processing payments",
+            "tier": "cloud"
+          },
+          "source_span": "Payment Service cloud migration",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543020"
+        },
+        {
+          "id": "193b33d845c80c0c7b89bce8026149b2",
+          "entity_type": "SERVICE",
+          "canonical_name": "Fraud Detection Service",
+          "properties": {
+            "owner_team": "Fraud Team",
+            "description": "Service for detecting fraudulent activities"
+          },
+          "source_span": "The Fraud Detection Service integration",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543030"
+        },
+        {
+          "id": "ed74b3d3face26827c5ed50930fa45f7",
+          "entity_type": "COMPONENT",
+          "canonical_name": "Fraud Detection API",
+          "properties": {
+            "parent_service": "Fraud Detection Service",
+            "version": "deprecated"
+          },
+          "source_span": "Fraud Detection API modernization",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543036"
+        },
+        {
+          "id": "ab2f56c6bc929b4585e7db86c9841d84",
+          "entity_type": "TEAM",
+          "canonical_name": "Payments Team",
+          "properties": {
+            "manager": "Emily Rodriguez"
+          },
+          "source_span": "Payments Team Manager",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543041"
+        },
+        {
+          "id": "ec32efb34d274b82d962d732c1cc16ee",
+          "entity_type": "PERSON",
+          "canonical_name": "Emily Rodriguez",
+          "properties": {
+            "email": "emily.rodriguez@company.com",
+            "role": "Manager",
+            "team": "Payments Team"
+          },
+          "source_span": "Emily Rodriguez <emily.rodriguez@company.com>",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543046"
+        },
+        {
+          "id": "575b4bcfc201ae3094aea798b5e4180c",
+          "entity_type": "PERSON",
+          "canonical_name": "Mia White",
+          "properties": {
+            "email": "mia.white@company.com",
+            "role": "Manager",
+            "team": "Payments Team"
+          },
+          "source_span": "Mia White <mia.white@company.com>",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543051"
+        },
+        {
+          "id": "b70aeac33a866784b4f921781530d624",
+          "entity_type": "PERSON",
+          "canonical_name": "Sarah Chen",
+          "properties": {
+            "email": "sarah.chen@company.com",
+            "role": "Analyst",
+            "team": "Payments Team"
+          },
+          "source_span": "Sarah Chen <sarah.chen@company.com>",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543055"
+        },
+        {
+          "id": "1dd6ea8c18b1eb1726d2fe5823fa7ba1",
+          "entity_type": "PERSON",
+          "canonical_name": "Alex Rivera",
+          "properties": {
+            "email": "alex.rivera@company.com",
+            "role": "Team Member",
+            "team": "Payments Team"
+          },
+          "source_span": "Alex Rivera <alex.rivera@company.com>",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543060"
+        },
+        {
+          "id": "257dfa105b2137db7dcc2dfe2818f1c3",
+          "entity_type": "PERSON",
+          "canonical_name": "Lisa Park",
+          "properties": {
+            "email": "lisa.park@company.com",
+            "role": "Team Member",
+            "team": "Payments Team"
+          },
+          "source_span": "Lisa Park <lisa.park@company.com>",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.95,
+          "extracted_at": "2025-12-06T12:24:25.543066"
+        },
+        {
+          "id": "950e9fe7f8f08e9b4d28ebfff2d07816",
+          "entity_type": "DATABASE",
+          "canonical_name": "Database Replication Strategy",
+          "properties": {
+            "db_type": "replication",
+            "version": "needs revision"
+          },
+          "source_span": "database replication strategy needs revision",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.7,
+          "extracted_at": "2025-12-06T12:24:25.543071"
+        },
+        {
+          "id": "7ce8545c2a00722ab81bacb2cbe97e41",
+          "entity_type": "INCIDENT",
+          "canonical_name": "Payment Service Migration Delay",
+          "properties": {
+            "severity": "high",
+            "status": "escalated"
+          },
+          "source_span": "ESCALATION: Payment Service Cloud Migration - Significant Delay Risk",
+          "source_document_id": "validation-Payment Service Escalation",
+          "source_chunk_id": "chunk-0",
+          "source_sentence_idx": 0,
+          "confidence": 0.9,
+          "extracted_at": "2025-12-06T12:24:25.543076"
+        }
+      ],
+      "type_distribution": {
+        "SERVICE": 2,
+        "COMPONENT": 1,
+        "TEAM": 1,
+        "PERSON": 5,
+        "DATABASE": 1,
+        "INCIDENT": 1
+      },
+      "execution_time_ms": 6666.455507278442
+    }
+  ],
+  "constrained_results": [
+    {
+      "path_name": "constrained",
+      "document_name": "Platform Team Standup",
+      "entity_count": 18,
+      "entities": [
+        {
+          "entity_type": "Person",
+          "canonical_name": "Alex Rivera",
+          "confidence": 0.9,
+          "source_span": "Alex Rivera"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Sarah Chen",
+          "confidence": 0.9,
+          "source_span": "Sarah Chen"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Brian Taylor",
+          "confidence": 0.9,
+          "source_span": "Brian Taylor"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Amy Chen",
+          "confidence": 0.9,
+          "source_span": "Amy Chen"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "George Brown",
+          "confidence": 0.9,
+          "source_span": "George Brown"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Ryan Adams",
+          "confidence": 0.9,
+          "source_span": "Ryan Adams"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Kevin Lee",
+          "confidence": 0.9,
+          "source_span": "Kevin Lee"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Emily Zhang",
+          "confidence": 0.8,
+          "source_span": "Emily Zhang"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Mia White",
+          "confidence": 0.8,
+          "source_span": "Mia White"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Priya Sharma",
+          "confidence": 0.8,
+          "source_span": "Priya Sharma"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "Auth Service",
+          "confidence": 0.9,
+          "source_span": "Auth Service"
+        },
+        {
+          "entity_type": "Document",
+          "canonical_name": "DNS cutover documentation",
+          "confidence": 0.9,
+          "source_span": "DNS cutover documentation"
+        },
+        {
+          "entity_type": "Change",
+          "canonical_name": "API endpoint migration",
+          "confidence": 0.9,
+          "source_span": "API endpoint migration"
+        },
+        {
+          "entity_type": "Infrastructure",
+          "canonical_name": "cloud infrastructure",
+          "confidence": 0.9,
+          "source_span": "cloud infrastructure"
+        },
+        {
+          "entity_type": "Deployment",
+          "canonical_name": "Kubernetes rollout",
+          "confidence": 0.8,
+          "source_span": "Kubernetes rollout"
+        },
+        {
+          "entity_type": "Database",
+          "canonical_name": "database backup scripts",
+          "confidence": 0.8,
+          "source_span": "database backup scripts"
+        },
+        {
+          "entity_type": "Runbook",
+          "canonical_name": "runbooks that reference CloudShift",
+          "confidence": 0.8,
+          "source_span": "runbooks that reference CloudShift"
+        },
+        {
+          "entity_type": "Team",
+          "canonical_name": "Platform Team",
+          "confidence": 0.9,
+          "source_span": "Platform Team"
+        }
+      ],
+      "type_distribution": {
+        "Person": 10,
+        "Service": 1,
+        "Document": 1,
+        "Change": 1,
+        "Infrastructure": 1,
+        "Deployment": 1,
+        "Database": 1,
+        "Runbook": 1,
+        "Team": 1
+      },
+      "execution_time_ms": 24251.939058303833
+    },
+    {
+      "path_name": "constrained",
+      "document_name": "Incidents Channel",
+      "entity_count": 11,
+      "entities": [
+        {
+          "entity_type": "Incident",
+          "canonical_name": "Auth Service latency spike",
+          "confidence": 0.9,
+          "source_span": "\ud83d\udea8 INCIDENT: Auth Service latency spike detected. Investigating."
+        },
+        {
+          "entity_type": "Incident",
+          "canonical_name": "API Gateway production elevated error rates",
+          "confidence": 0.9,
+          "source_span": "\ud83d\udea8 INCIDENT: API Gateway production - elevated error rates (0.5%). Investigating."
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Alex Thompson",
+          "confidence": 0.8,
+          "source_span": "@alex.thompson"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Brian Taylor",
+          "confidence": 0.8,
+          "source_span": "@brian.taylor"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "George Brown",
+          "confidence": 0.8,
+          "source_span": "@george.brown"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Mia White",
+          "confidence": 0.8,
+          "source_span": "@mia.white"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Lisa Park",
+          "confidence": 0.8,
+          "source_span": "@lisa.park"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Amy Chen",
+          "confidence": 0.8,
+          "source_span": "@amy.chen"
+        },
+        {
+          "entity_type": "Change",
+          "canonical_name": "CloudShift migration tool debug mode",
+          "confidence": 0.9,
+          "source_span": "CloudShift migration tool left a debug mode enabled."
+        },
+        {
+          "entity_type": "Postmortem",
+          "canonical_name": "Postmortem for Auth Service latency spike",
+          "confidence": 0.9,
+          "source_span": "Postmortem scheduled for Tuesday 2pm."
+        },
+        {
+          "entity_type": "Postmortem",
+          "canonical_name": "Postmortem for API Gateway incident",
+          "confidence": 0.9,
+          "source_span": "Postmortem scheduled for Nov 8."
+        }
+      ],
+      "type_distribution": {
+        "Incident": 2,
+        "Person": 6,
+        "Change": 1,
+        "Postmortem": 2
+      },
+      "execution_time_ms": 18042.2580242157
+    },
+    {
+      "path_name": "constrained",
+      "document_name": "Cloud Migration Plan",
+      "entity_count": 16,
+      "entities": [
+        {
+          "entity_type": "Document",
+          "canonical_name": "Cloud Migration Plan - 2024/2025",
+          "confidence": 0.9,
+          "source_span": "Cloud Migration Plan - 2024/2025"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Alex Rivera",
+          "confidence": 0.95,
+          "source_span": "Alex Rivera, Director of Platform"
+        },
+        {
+          "entity_type": "Change",
+          "canonical_name": "Migration to AWS cloud",
+          "confidence": 0.9,
+          "source_span": "migrating critical infrastructure from on-premise data centers to AWS cloud"
+        },
+        {
+          "entity_type": "Asset",
+          "canonical_name": "PostgreSQL databases",
+          "confidence": 0.9,
+          "source_span": "12 TB PostgreSQL databases"
+        },
+        {
+          "entity_type": "Infrastructure",
+          "canonical_name": "AWS Cloud Infrastructure",
+          "confidence": 0.9,
+          "source_span": "AWS Cloud Infrastructure"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "Auth Service",
+          "confidence": 0.95,
+          "source_span": "Auth Service"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "API Gateway",
+          "confidence": 0.95,
+          "source_span": "API Gateway"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "Payment Service",
+          "confidence": 0.95,
+          "source_span": "Payment Service"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Sarah Chen",
+          "confidence": 0.95,
+          "source_span": "Sarah Chen"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Brian Taylor",
+          "confidence": 0.95,
+          "source_span": "Brian Taylor"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Alex Thompson",
+          "confidence": 0.95,
+          "source_span": "Alex Thompson"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Emily Rodriguez",
+          "confidence": 0.8,
+          "source_span": "Emily Rodriguez"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Lisa Park",
+          "confidence": 0.95,
+          "source_span": "Lisa Park"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Ryan Adams",
+          "confidence": 0.8,
+          "source_span": "Ryan Adams"
+        },
+        {
+          "entity_type": "Organization",
+          "canonical_name": "FinanceApp Inc",
+          "confidence": 0.9,
+          "source_span": "FinanceApp Inc"
+        },
+        {
+          "entity_type": "Deployment",
+          "canonical_name": "Migration Phases",
+          "confidence": 0.8,
+          "source_span": "Migration Phases"
+        }
+      ],
+      "type_distribution": {
+        "Document": 1,
+        "Person": 7,
+        "Change": 1,
+        "Asset": 1,
+        "Infrastructure": 1,
+        "Service": 3,
+        "Organization": 1,
+        "Deployment": 1
+      },
+      "execution_time_ms": 22002.09927558899
+    },
+    {
+      "path_name": "constrained",
+      "document_name": "Vendor Evaluation",
+      "entity_count": 14,
+      "entities": [
+        {
+          "entity_type": "Person",
+          "canonical_name": "Alex Rivera",
+          "confidence": 1.0,
+          "source_span": "Alex Rivera"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Brian Taylor",
+          "confidence": 1.0,
+          "source_span": "Brian Taylor"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Lisa Park",
+          "confidence": 1.0,
+          "source_span": "Lisa Park"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Jennifer Walsh",
+          "confidence": 1.0,
+          "source_span": "Jennifer Walsh (MigrateX Account Executive)"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Mark Stevens",
+          "confidence": 1.0,
+          "source_span": "Mark Stevens (Solutions Architect)"
+        },
+        {
+          "entity_type": "Organization",
+          "canonical_name": "MigrateX",
+          "confidence": 1.0,
+          "source_span": "MigrateX"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "Payment Service",
+          "confidence": 0.9,
+          "source_span": "Payment Service"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "Fraud Detection Service",
+          "confidence": 0.9,
+          "source_span": "Fraud Detection Service"
+        },
+        {
+          "entity_type": "Database",
+          "canonical_name": "PostgreSQL",
+          "confidence": 0.9,
+          "source_span": "PostgreSQL"
+        },
+        {
+          "entity_type": "Database",
+          "canonical_name": "pgvector",
+          "confidence": 0.9,
+          "source_span": "pgvector"
+        },
+        {
+          "entity_type": "Incident",
+          "canonical_name": "CloudShift Support Delay",
+          "confidence": 0.8,
+          "source_span": "Friday night issue with CloudShift and didn't get a response until Monday"
+        },
+        {
+          "entity_type": "Asset",
+          "canonical_name": "CloudShift",
+          "confidence": 0.9,
+          "source_span": "CloudShift"
+        },
+        {
+          "entity_type": "Asset",
+          "canonical_name": "MigrateX Platform",
+          "confidence": 0.9,
+          "source_span": "MigrateX specializes in enterprise cloud migrations"
+        },
+        {
+          "entity_type": "Team",
+          "canonical_name": "Migration Specialist Team",
+          "confidence": 0.8,
+          "source_span": "Dedicated migration specialist for first 90 days"
+        }
+      ],
+      "type_distribution": {
+        "Person": 5,
+        "Organization": 1,
+        "Service": 2,
+        "Database": 2,
+        "Incident": 1,
+        "Asset": 2,
+        "Team": 1
+      },
+      "execution_time_ms": 18468.146324157715
+    },
+    {
+      "path_name": "constrained",
+      "document_name": "Payment Service Escalation",
+      "entity_count": 13,
+      "entities": [
+        {
+          "entity_type": "Person",
+          "canonical_name": "Emily Rodriguez",
+          "confidence": 1.0,
+          "source_span": "Emily Rodriguez <emily.rodriguez@company.com>"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Mia White",
+          "confidence": 1.0,
+          "source_span": "Mia White <mia.white@company.com>"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Alex Rivera",
+          "confidence": 1.0,
+          "source_span": "Alex Rivera <alex.rivera@company.com>"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Sarah Chen",
+          "confidence": 1.0,
+          "source_span": "Sarah Chen <sarah.chen@company.com>"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Ryan Adams",
+          "confidence": 0.9,
+          "source_span": "Ryan Adams discovered the database replication strategy needs revision for cross-region failover"
+        },
+        {
+          "entity_type": "Person",
+          "canonical_name": "Lisa Park",
+          "confidence": 1.0,
+          "source_span": "Lisa Park <lisa.park@company.com>"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "Payment Service",
+          "confidence": 1.0,
+          "source_span": "Payment Service cloud migration"
+        },
+        {
+          "entity_type": "Service",
+          "canonical_name": "Fraud Detection Service",
+          "confidence": 1.0,
+          "source_span": "The Fraud Detection Service integration uses a deprecated API"
+        },
+        {
+          "entity_type": "Database",
+          "canonical_name": "Database Replication Strategy",
+          "confidence": 0.9,
+          "source_span": "database replication strategy needs revision for cross-region failover"
+        },
+        {
+          "entity_type": "Change",
+          "canonical_name": "Fraud Detection API Modernization",
+          "confidence": 0.9,
+          "source_span": "Fraud Detection API modernization"
+        },
+        {
+          "entity_type": "Change",
+          "canonical_name": "Payment Service Migration",
+          "confidence": 0.9,
+          "source_span": "Payment Service migration"
+        },
+        {
+          "entity_type": "Incident",
+          "canonical_name": "PCI Compliance Audit",
+          "confidence": 0.8,
+          "source_span": "Our PCI compliance audit is scheduled for January 15"
+        },
+        {
+          "entity_type": "Deployment",
+          "canonical_name": "Payment Service Deployment",
+          "confidence": 0.9,
+          "source_span": "Payment Service migration"
+        }
+      ],
+      "type_distribution": {
+        "Person": 6,
+        "Service": 2,
+        "Database": 1,
+        "Change": 2,
+        "Incident": 1,
+        "Deployment": 1
+      },
+      "execution_time_ms": 18573.15182685852
+    }
+  ]
+}
