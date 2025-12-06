@@ -149,6 +149,27 @@ body {
     border-color: var(--border-color);
 }
 
+.nav-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    padding: 16px 16px 8px;
+    margin-top: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.nav-item.nav-sub {
+    padding-left: 24px;
+    font-size: 13px;
+}
+
+.nav-item.nav-sub svg {
+    width: 16px;
+    height: 16px;
+}
+
 .nav-item svg {
     width: 18px;
     height: 18px;
@@ -305,6 +326,19 @@ body {
 
 .card-body {
     padding: 24px;
+}
+
+.dashboard-hero {
+    max-width: 100%;
+    margin-bottom: 32px;
+}
+
+.dashboard-hero .metrics-grid {
+    margin-bottom: 24px;
+}
+
+.dashboard-hero .query-input-container {
+    margin-bottom: 0;
 }
 
 .metrics-grid {

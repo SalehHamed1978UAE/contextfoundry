@@ -112,11 +112,11 @@ atexit.register(shutdown_scheduler)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', active_page='dashboard')
 
 @app.route('/evaluation')
 def evaluation():
-    return render_template('evaluation.html')
+    return render_template('evaluation.html', active_page='evaluation')
 
 @app.route('/health')
 def health():
@@ -237,22 +237,18 @@ def dashboard():
         """)).scalar() or 0
         
         agent_list = [
-            {'name': 'GardenerAgent', 'status': gardener_status, 'last_action': gardener_last_action, 'next_info': '5min cycle'},
-            {'name': 'IdentityResolver', 'status': 'SCHEDULED', 'last_action': gardener_last_action, 'next_info': 'With Gardener'},
-            {'name': 'OrphanDetector', 'status': 'ACTIVE' if orphan_pending > 0 else 'IDLE', 'last_action': 'Event-driven', 'next_info': f'{orphan_pending} pending'},
-            {'name': 'TypeLifecycleManager', 'status': 'IDLE', 'last_action': 'On demand', 'next_info': 'Validation'},
-            {'name': 'ApprovalManager', 'status': 'ACTIVE' if approval_pending > 0 else 'IDLE', 'last_action': 'On demand', 'next_info': f'{approval_pending} pending'},
-            {'name': 'TypeValidator', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'Schema check'},
-            {'name': 'HierarchyEnforcer', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'Hierarchy check'},
-            {'name': 'CollisionDetector', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'Collision check'},
-            {'name': 'RuleExecutor', 'status': 'IDLE', 'last_action': 'On validation', 'next_info': 'SHACL rules'},
-            {'name': 'RetrievalAgent', 'status': 'IDLE', 'last_action': 'On query', 'next_info': 'Query-driven'},
-            {'name': 'ReasoningAgent', 'status': 'IDLE', 'last_action': 'On query', 'next_info': 'LLM reasoning'},
-            {'name': 'ValidationAgent', 'status': 'IDLE', 'last_action': 'On query', 'next_info': 'Rule check'},
-            {'name': 'EntityExtractor', 'status': 'IDLE', 'last_action': 'On demand', 'next_info': 'NER extraction'},
-            {'name': 'RelationExtractor', 'status': 'IDLE', 'last_action': 'On demand', 'next_info': 'Relation extraction'},
-            {'name': 'GraphBuilderAgent', 'status': 'IDLE', 'last_action': 'On ingest', 'next_info': 'Doc processing'},
-            {'name': 'MessageBus', 'status': 'ACTIVE', 'last_action': 'Always', 'next_info': f'{total_events if "total_events" in dir() else 0} events'},
+            {'name': 'GraphBuilder', 'phase': 'Ingest', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On document'},
+            {'name': 'EntityExtractor', 'phase': 'Perceive', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On ingest'},
+            {'name': 'RelationExtractor', 'phase': 'Perceive', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On ingest'},
+            {'name': 'GardenerAgent', 'phase': 'Memory', 'status': gardener_status, 'last_run_time': gardener_last_action, 'trigger_mode': '5min cycle'},
+            {'name': 'IdentityResolver', 'phase': 'Memory', 'status': 'SCHEDULED', 'last_run_time': gardener_last_action, 'trigger_mode': 'With Gardener'},
+            {'name': 'RetrievalAgent', 'phase': 'Reason', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On query'},
+            {'name': 'ReasoningAgent', 'phase': 'Reason', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On query'},
+            {'name': 'ValidationAgent', 'phase': 'Reason', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On query'},
+            {'name': 'BundleBuilder', 'phase': 'Express', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On query'},
+            {'name': 'OrphanDetector', 'phase': 'Learn', 'status': 'ACTIVE' if orphan_pending > 0 else 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'Event-driven'},
+            {'name': 'TypeLifecycleManager', 'phase': 'Learn', 'status': 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On proposal'},
+            {'name': 'ApprovalManager', 'phase': 'Learn', 'status': 'ACTIVE' if approval_pending > 0 else 'IDLE', 'last_run_time': 'N/A', 'trigger_mode': 'On validation'},
         ]
         
         agents = {
@@ -414,6 +410,7 @@ def dashboard():
         }
         
         return render_template('dashboard.html',
+            active_page='command_center',
             last_updated=now.strftime('%Y-%m-%d %H:%M:%S UTC'),
             perception=perception,
             memory=memory,
@@ -515,6 +512,73 @@ def stats():
     except Exception as e:
         reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
+
+
+@app.route('/api/command-center/data')
+def command_center_data():
+    """API endpoint for AJAX refresh of Command Center dashboard."""
+    from datetime import datetime, timedelta
+    from sqlalchemy import text
+    from src.context_foundry.models.schema import get_session, Entity, Relationship, Document, LifecycleState, GardenerLog
+    
+    session = get_session()
+    now = datetime.utcnow()
+    last_24h = now - timedelta(hours=24)
+    
+    try:
+        perception = {
+            'documents_total': session.query(Document).count(),
+            'documents_24h': session.query(Document).filter(Document.created_at >= last_24h).count(),
+            'entities_extracted': session.query(Entity).count(),
+            'entities_24h': session.query(Entity).filter(Entity.created_at >= last_24h).count(),
+            'relationships_extracted': session.query(Relationship).count(),
+            'relationships_24h': session.query(Relationship).filter(Relationship.created_at >= last_24h).count(),
+        }
+        
+        memory = {
+            'entities_staging': session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.STAGING).count(),
+            'entities_trusted': session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.TRUSTED).count(),
+            'entities_archived': session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.ARCHIVED).count(),
+        }
+        
+        gardener_last = session.query(GardenerLog).order_by(GardenerLog.created_at.desc()).first()
+        gardener_last_action = gardener_last.created_at.strftime('%H:%M:%S') if gardener_last else 'Never'
+        
+        gardener_stats = {
+            'last_cycle': gardener_last_action,
+            'promoted': session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'PROMOTE' AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
+            'demoted': session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type IN ('DEMOTE', 'ARCHIVE') AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
+            'conflicts': session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'RESOLVE_CONFLICT' AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
+        }
+        
+        context = {
+            'orphans_detected': session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns")).scalar() or 0,
+            'orphans_surfaced': session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE frequency >= 10")).scalar() or 0,
+            'types_promoted': session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE status = 'RESOLVED'")).scalar() or 0,
+            'types_active': session.execute(text("SELECT COUNT(*) FROM ontology.types WHERE status = 'ACTIVE'")).scalar() or 0,
+        }
+        
+        message_bus = {
+            'dead_letter': session.execute(text("SELECT COUNT(*) FROM shared.dead_letter_queue")).scalar() or 0,
+            'events_per_minute': session.execute(text("SELECT COUNT(*) FROM shared.message_queue WHERE created_at >= :since"), {'since': now - timedelta(minutes=1)}).scalar() or 0,
+            'total_events': session.execute(text("SELECT COUNT(*) FROM shared.message_queue")).scalar() or 0,
+        }
+        
+        return jsonify({
+            'success': True,
+            'last_updated': now.strftime('%Y-%m-%d %H:%M:%S UTC'),
+            'perception': perception,
+            'memory': memory,
+            'agents': {'gardener': gardener_stats},
+            'context': context,
+            'message_bus': message_bus,
+        })
+    except Exception as e:
+        session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
+
 
 @app.route('/api/graph/visualization')
 def graph_visualization():
