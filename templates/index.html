@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
     <title>Context Foundry</title>
-    <style>html,body{background:#0f172a;color:#f1f5f9;margin:0;}</style>
+    <style>
+        html,body{background:#0f172a !important;color:#f1f5f9;margin:0;}
+        .page-transition-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#0f172a;z-index:9999;opacity:0;pointer-events:none;transition:opacity 0.15s ease;}
+        .page-transition-overlay.active{opacity:1;pointer-events:all;}
+    </style>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
 </head>
 <body>
+    <div class="page-transition-overlay" id="pageTransitionOverlay"></div>
     <div class="scanline"></div>
     
     <!-- Mobile Header -->
@@ -539,5 +545,19 @@
     </div>
 
     <script src="/static/js/app.js?v=1733477000"></script>
+    <script>
+        // Page transition - show overlay before navigation to other pages
+        const overlay = document.getElementById('pageTransitionOverlay');
+        document.querySelectorAll('a[href]').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('/') && !href.startsWith('/?') && !link.hasAttribute('data-page')) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    overlay.classList.add('active');
+                    setTimeout(() => { window.location.href = href; }, 100);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
