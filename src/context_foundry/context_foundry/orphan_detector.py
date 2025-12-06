@@ -24,7 +24,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional, Tuple
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -373,6 +373,154 @@ class OrphanDetector:
         except Exception as e:
             self.session.rollback()
             logger.error(f"[OrphanDetector] Failed to resolve pattern: {e}")
+            return False
+    
+    def promote_to_type(
+        self,
+        pattern_id: UUID,
+        parent_type_id: Optional[UUID] = None,
+        layer: int = 2,
+        description: Optional[str] = None,
+        properties_schema: Optional[Dict[str, Any]] = None,
+        proposed_by: str = "OrphanDetector"
+    ) -> Optional[UUID]:
+        """
+        Promote an orphan pattern to a proposed type in the ontology.
+        
+        This completes the learning cycle:
+        1. OrphanDetector records patterns from extraction
+        2. This method creates a PROPOSED type from the pattern
+        3. TypeLifecycleManager validates and routes for approval
+        4. Once approved and activated, the pattern is resolved
+        
+        Returns the new type_id if successful, None otherwise.
+        """
+        try:
+            pattern = self.session.execute(text("""
+                SELECT id, pattern_text, suggested_type, frequency, sample_contexts
+                FROM context.orphan_patterns
+                WHERE id = :id AND status = 'ACTIVE'
+            """), {"id": str(pattern_id)}).fetchone()
+            
+            if not pattern:
+                logger.warning(f"[OrphanDetector] Pattern {pattern_id} not found or not ACTIVE")
+                return None
+            
+            type_name = pattern.pattern_text
+            new_type_id = uuid4()
+            
+            if parent_type_id is None:
+                default_parent = self.session.execute(text("""
+                    SELECT id FROM ontology.types 
+                    WHERE type_name = 'Thing' AND layer = 1 AND status = 'ACTIVE'
+                    LIMIT 1
+                """)).fetchone()
+                parent_type_id = default_parent.id if default_parent else None
+            
+            if description is None:
+                contexts = pattern.sample_contexts
+                if isinstance(contexts, str):
+                    contexts = json.loads(contexts)
+                sample = contexts[0][:200] if contexts else ""
+                description = f"Type learned from {pattern.frequency} extraction occurrences. Sample: {sample}"
+            
+            if properties_schema is None:
+                properties_schema = {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"}
+                    },
+                    "required": ["name"]
+                }
+            
+            extraction_hints = {
+                "keywords": [type_name.lower()],
+                "patterns": [f"\\b{type_name}\\b"]
+            }
+            
+            self.session.execute(text("""
+                INSERT INTO ontology.types 
+                    (id, type_name, display_name, layer, parent_type_id, description, 
+                     properties_schema, extraction_hints, status, proposed_by)
+                VALUES 
+                    (:id, :type_name, :display_name, :layer, :parent_type_id, :description,
+                     CAST(:properties AS jsonb), CAST(:hints AS jsonb), 'PROPOSED', :proposed_by)
+            """), {
+                "id": str(new_type_id),
+                "type_name": type_name,
+                "display_name": type_name,
+                "layer": layer,
+                "parent_type_id": str(parent_type_id) if parent_type_id else None,
+                "description": description,
+                "properties": json.dumps(properties_schema),
+                "hints": json.dumps(extraction_hints),
+                "proposed_by": proposed_by
+            })
+            
+            self.session.execute(text("""
+                UPDATE context.orphan_patterns
+                SET status = 'PROMOTING',
+                    resolved_type_id = :type_id
+                WHERE id = :id
+            """), {"id": str(pattern_id), "type_id": str(new_type_id)})
+            
+            self.session.commit()
+            
+            self.message_bus.publish(
+                event_type=EventType.TYPE_PROPOSED,
+                source_agent="OrphanDetector",
+                payload={
+                    "type_id": str(new_type_id),
+                    "type_name": type_name,
+                    "source": "orphan_promotion",
+                    "orphan_pattern_id": str(pattern_id),
+                    "frequency": pattern.frequency
+                }
+            )
+            
+            logger.info(f"[OrphanDetector] Promoted pattern '{type_name}' to type {new_type_id}")
+            return new_type_id
+            
+        except Exception as e:
+            self.session.rollback()
+            logger.error(f"[OrphanDetector] Failed to promote pattern: {e}")
+            return None
+    
+    def finalize_promotion(
+        self,
+        pattern_id: UUID,
+        type_id: UUID,
+        success: bool
+    ) -> bool:
+        """
+        Finalize the promotion after TypeLifecycleManager completes.
+        
+        Called after the type has been validated and activated (or rejected).
+        Updates the orphan pattern status accordingly.
+        """
+        try:
+            if success:
+                self.session.execute(text("""
+                    UPDATE context.orphan_patterns
+                    SET status = 'RESOLVED'
+                    WHERE id = :id
+                """), {"id": str(pattern_id)})
+                logger.info(f"[OrphanDetector] Pattern {pattern_id} promotion finalized as RESOLVED")
+            else:
+                self.session.execute(text("""
+                    UPDATE context.orphan_patterns
+                    SET status = 'ACTIVE',
+                        resolved_type_id = NULL
+                    WHERE id = :id
+                """), {"id": str(pattern_id)})
+                logger.info(f"[OrphanDetector] Pattern {pattern_id} promotion failed, reverted to ACTIVE")
+            
+            self.session.commit()
+            return True
+            
+        except Exception as e:
+            self.session.rollback()
+            logger.error(f"[OrphanDetector] Failed to finalize promotion: {e}")
             return False
     
     def dismiss_pattern(
