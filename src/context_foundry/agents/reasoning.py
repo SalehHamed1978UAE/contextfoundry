@@ -394,6 +394,9 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
         """
         if "answer" not in result:
             result["answer"] = "Unable to generate answer from context."
+        elif not isinstance(result["answer"], str):
+            import json as json_module
+            result["answer"] = json_module.dumps(result["answer"]) if isinstance(result["answer"], (dict, list)) else str(result["answer"])
         
         result["confidence"] = calibrated_confidence
         
