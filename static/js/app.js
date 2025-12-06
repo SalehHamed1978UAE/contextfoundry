@@ -1,5 +1,4 @@
-// Initialize app - supports both DOMContentLoaded and turbo:load for Turbo.js navigation
-function initApp() {
+document.addEventListener('DOMContentLoaded', function() {
     const queryForm = document.getElementById('queryForm');
     const queryInput = document.getElementById('queryInput');
     const queryBtn = document.getElementById('queryBtn');
@@ -7,15 +6,13 @@ function initApp() {
     const recentQueries = document.getElementById('recentQueries');
     const queryList = document.getElementById('queryList');
     
-    // Mobile menu elements (permanent across Turbo navigations)
+    // Mobile menu elements
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const sidebar = document.getElementById('sidebar');
     const mobileOverlay = document.getElementById('mobileOverlay');
     
-    // Mobile menu toggle - only attach once (check for _initialized flag)
-    if (hamburgerBtn && sidebar && mobileOverlay && !hamburgerBtn._appInitialized) {
-        hamburgerBtn._appInitialized = true;
-        
+    // Mobile menu toggle
+    if (hamburgerBtn && sidebar && mobileOverlay) {
         hamburgerBtn.addEventListener('click', function() {
             hamburgerBtn.classList.toggle('active');
             sidebar.classList.toggle('open');
@@ -27,13 +24,22 @@ function initApp() {
             sidebar.classList.remove('open');
             mobileOverlay.classList.remove('visible');
         });
+        
+        // Close menu when nav item is clicked
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    hamburgerBtn.classList.remove('active');
+                    sidebar.classList.remove('open');
+                    mobileOverlay.classList.remove('visible');
+                }
+            });
+        });
     }
     
-    // Desktop sidebar toggle (collapsible) - only attach once
+    // Desktop sidebar toggle (collapsible)
     const sidebarToggle = document.getElementById('sidebarToggle');
-    if (sidebarToggle && sidebar && !sidebarToggle._appInitialized) {
-        sidebarToggle._appInitialized = true;
-        
+    if (sidebarToggle && sidebar) {
         // Restore sidebar state from localStorage
         const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (sidebarCollapsed) {
@@ -49,6 +55,9 @@ function initApp() {
     
     let queryHistory = [];
     let startTime = Date.now();
+
+    // Only run dashboard-specific code if queryForm exists (index.html only)
+    if (!queryForm) return;
 
     loadStats();
     updateSystemStatus();
@@ -2031,10 +2040,4 @@ function initApp() {
         originalRenderMemoryGraph();
         initTimeline();
     };
-}
-
-// Initialize on first page load
-document.addEventListener('DOMContentLoaded', initApp);
-
-// Re-initialize on Turbo navigations (for Turbo.js seamless page transitions)
-document.addEventListener('turbo:load', initApp);
+});

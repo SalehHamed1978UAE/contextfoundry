@@ -14,17 +14,25 @@
             margin: 0;
             padding: 0;
         }
+        /* Hide content until styles are fully loaded */
+        body { opacity: 0; transition: opacity 0.15s ease-in; }
+        body.loaded { opacity: 1; }
     </style>
-    <script type="module" src="https://cdn.skypack.dev/@hotwired/turbo"></script>
     <link rel="stylesheet" href="/static/css/style.css">
+    <script>
+        // Show body as soon as DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('loaded');
+        });
+    </script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
     {% block head %}{% endblock %}
 </head>
 <body>
-    <div class="scanline" data-turbo-permanent id="scanline"></div>
+    <div class="scanline"></div>
     
-    <!-- Mobile Header - kept permanent during Turbo navigation -->
-    <header class="mobile-header" data-turbo-permanent id="mobileHeader">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
             <span></span>
             <span></span>
@@ -44,10 +52,10 @@
     </header>
     
     <!-- Mobile Overlay -->
-    <div class="mobile-overlay" id="mobileOverlay" data-turbo-permanent></div>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
     
     <div class="app">
-        <aside class="sidebar" id="sidebar" data-turbo-permanent>
+        <aside class="sidebar" id="sidebar">
             <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M15 18l-6-6 6-6"/>
