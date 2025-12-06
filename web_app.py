@@ -122,7 +122,7 @@ def evaluation():
 def health():
     return 'OK', 200
 
-@app.route('/dashboard')
+@app.route('/CommandCenter')
 def dashboard():
     """Command Center dashboard with 4 quadrants: Perception, Memory, Agents, Context."""
     from datetime import datetime, timedelta
