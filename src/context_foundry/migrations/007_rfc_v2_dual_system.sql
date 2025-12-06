@@ -175,7 +175,7 @@ CREATE TABLE IF NOT EXISTS ontology.relations (
     CONSTRAINT valid_cardinality CHECK (cardinality IN (
         'ONE_TO_ONE', 'ONE_TO_MANY', 'MANY_TO_ONE', 'MANY_TO_MANY'
     )),
-    CONSTRAINT unique_relation_type UNIQUE (relation_type)
+    CONSTRAINT unique_relation_type UNIQUE (relation_type, source_type_id, target_type_id)
 );
 
 -- =============================================================================
