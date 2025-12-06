@@ -94,7 +94,7 @@
                     </svg>
                     Memory Graph
                 </a>
-                <a class="nav-item" href="/CommandCenter">
+                <a class="nav-item" href="/?page=command" data-page="command">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <rect x="2" y="3" width="20" height="14" rx="2"/>
                         <path d="M8 21h8"/>
@@ -105,7 +105,7 @@
                     </svg>
                     Command Center
                 </a>
-                <a class="nav-item" href="/evaluation">
+                <a class="nav-item" href="/?page=evaluation" data-page="evaluation">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
                         <rect x="9" y="3" width="6" height="4" rx="1"/>
@@ -550,6 +550,240 @@
                                 </button>
                             </div>
                             <div id="detailsContent" class="card-body" style="flex: 1; overflow-y: auto; font-size: 12px; padding: 12px 16px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Command Center Page -->
+            <div class="page-content page-command" style="display: none;">
+                <div class="cc-grid">
+                    <!-- INGEST & PERCEIVE QUADRANT -->
+                    <div class="quadrant" id="quadrantPerception">
+                        <div class="quadrant-header">
+                            <div class="quadrant-title">
+                                <span class="icon">&#128065;</span> INGEST & PERCEIVE
+                            </div>
+                        </div>
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccDocsTotal">--</div>
+                                <div class="stat-label">Documents</div>
+                                <div class="stat-sublabel" id="ccDocs24h">+-- last 24h</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccEntitiesExtracted">--</div>
+                                <div class="stat-label">Entities Extracted</div>
+                                <div class="stat-sublabel" id="ccEntities24h">+-- last 24h</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccRelsExtracted">--</div>
+                                <div class="stat-label">Relationships</div>
+                                <div class="stat-sublabel" id="ccRels24h">+-- last 24h</div>
+                            </div>
+                        </div>
+                        <div class="section-title">Active Extractors</div>
+                        <table class="cc-table">
+                            <tr><th>Extractor</th><th>Status</th><th>Last Run</th></tr>
+                            <tbody id="ccExtractorTable"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- MEMORY QUADRANT -->
+                    <div class="quadrant" id="quadrantMemory">
+                        <div class="quadrant-header">
+                            <div class="quadrant-title">
+                                <span class="icon">&#129504;</span> MEMORY
+                            </div>
+                        </div>
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccStaging">--</div>
+                                <div class="stat-label">STAGING</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccTrusted">--</div>
+                                <div class="stat-label">TRUSTED</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccArchived">--</div>
+                                <div class="stat-label">ARCHIVED</div>
+                            </div>
+                        </div>
+                        <div class="section-title">Memory Layers</div>
+                        <div class="mini-stat">Semantic: <span class="mini-stat-value" id="ccSemanticStats">-- nodes, -- edges</span></div>
+                        <div class="mini-stat">Episodic: <span class="mini-stat-value" id="ccEpisodicStats">-- docs, -- embeddings</span></div>
+                        <div class="mini-stat">Symbolic: <span class="mini-stat-value" id="ccSymbolicStats">-- rules</span></div>
+                        <div class="section-title">Graph Health</div>
+                        <table class="cc-table">
+                            <tr><th>Metric</th><th>Value</th></tr>
+                            <tr><td>Avg Confidence (TRUSTED)</td><td id="ccAvgConf">--</td></tr>
+                            <tr><td>Orphan Entities</td><td id="ccOrphans">--</td></tr>
+                            <tr><td>Pending Conflicts</td><td id="ccConflicts">--</td></tr>
+                        </table>
+                    </div>
+
+                    <!-- REASON & EXPRESS QUADRANT -->
+                    <div class="quadrant" id="quadrantAgents">
+                        <div class="quadrant-header">
+                            <div class="quadrant-title">
+                                <span class="icon">&#129302;</span> REASON & EXPRESS
+                            </div>
+                        </div>
+                        <table class="cc-table">
+                            <tr><th>Agent</th><th>Phase</th><th>Status</th><th>Last Run</th></tr>
+                            <tbody id="ccAgentTable"></tbody>
+                        </table>
+                        <div class="section-title">Gardener Stats</div>
+                        <div class="mini-stat">Last Cycle: <span class="mini-stat-value" id="ccGardenerCycle">--</span></div>
+                        <div class="mini-stat">Promoted: <span class="mini-stat-value" id="ccGardenerPromoted">0</span></div>
+                        <div class="mini-stat">Demoted: <span class="mini-stat-value" id="ccGardenerDemoted">0</span></div>
+                        <div class="mini-stat">Conflicts: <span class="mini-stat-value" id="ccGardenerConflicts">0</span></div>
+                    </div>
+
+                    <!-- LEARN QUADRANT -->
+                    <div class="quadrant" id="quadrantLearn">
+                        <div class="quadrant-header">
+                            <div class="quadrant-title">
+                                <span class="icon">&#128200;</span> LEARN
+                            </div>
+                        </div>
+                        <div class="learning-flow">
+                            <div class="flow-step">
+                                <div class="flow-value" id="ccOrphansDetected">--</div>
+                                <div class="flow-label">Orphans Detected</div>
+                            </div>
+                            <div class="flow-arrow">&#8594;</div>
+                            <div class="flow-step">
+                                <div class="flow-value" id="ccOrphansSurfaced">--</div>
+                                <div class="flow-label">Surfaced</div>
+                            </div>
+                            <div class="flow-arrow">&#8594;</div>
+                            <div class="flow-step">
+                                <div class="flow-value" id="ccTypesPromoted">--</div>
+                                <div class="flow-label">Promoted</div>
+                            </div>
+                            <div class="flow-arrow">&#8594;</div>
+                            <div class="flow-step">
+                                <div class="flow-value" id="ccTypesActive" style="color: var(--accent-success);">--</div>
+                                <div class="flow-label">ACTIVE Types</div>
+                            </div>
+                        </div>
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccTypesProposed">--</div>
+                                <div class="stat-label">PROPOSED</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccTypesApproved">--</div>
+                                <div class="stat-label">APPROVED</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="ccTypesDeprecated">--</div>
+                                <div class="stat-label">DEPRECATED</div>
+                            </div>
+                        </div>
+                        <div class="section-title">Approval Queue (<span id="ccPendingApprovals">0</span> pending)</div>
+                        <table class="cc-table">
+                            <tr><th>Type</th><th>Level</th><th>SLA</th></tr>
+                            <tbody id="ccApprovalQueue"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="cc-footer">
+                    <div class="footer-header">
+                        <div class="footer-title">Message Bus Activity</div>
+                        <div class="footer-stats">
+                            <div class="footer-stat">Dead Letter: <span id="ccDeadLetter">0</span></div>
+                            <div class="footer-stat">Events/min: <span id="ccEventsMin">0</span></div>
+                            <div class="footer-stat">Total Events: <span id="ccTotalEvents">0</span></div>
+                        </div>
+                    </div>
+                    <div class="event-feed" id="ccEventFeed"></div>
+                </div>
+            </div>
+
+            <!-- A/B Evaluation Page -->
+            <div class="page-content page-evaluation" style="display: none;">
+                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                    Compare Context Foundry vs GraphRAG baseline without knowing which is which
+                </p>
+                <div class="metrics-bar" style="margin-bottom: 1rem;">
+                    <div class="metric-box">
+                        <div class="metric-box-label">Reviewed</div>
+                        <div class="metric-box-value" id="evalReviewedCount">0</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-box-label">Context Foundry Wins</div>
+                        <div class="metric-box-value cf-wins" id="evalCfWins">0</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-box-label">GraphRAG Wins</div>
+                        <div class="metric-box-value gr-wins" id="evalGrWins">0</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-box-label">Ties</div>
+                        <div class="metric-box-value" id="evalTieCount">0</div>
+                    </div>
+                </div>
+                <div class="eval-container">
+                    <div class="query-browser">
+                        <div class="browser-header">
+                            <h3>Query Set (100 queries)</h3>
+                            <div class="category-filters">
+                                <button class="category-btn active" data-category="all">All</button>
+                                <button class="category-btn" data-category="impact_analysis">Impact</button>
+                                <button class="category-btn" data-category="escalation">Escalation</button>
+                                <button class="category-btn" data-category="ownership">Ownership</button>
+                                <button class="category-btn" data-category="dependencies">Dependencies</button>
+                                <button class="category-btn" data-category="incidents">Incidents</button>
+                                <button class="category-btn" data-category="expertise">Expertise</button>
+                            </div>
+                        </div>
+                        <div class="query-list eval-query-list" id="evalQueryList">
+                            <div class="loading-spinner" style="margin: 2rem auto; display: block;"></div>
+                        </div>
+                    </div>
+                    <div class="comparison-panel">
+                        <div class="comparison-area" id="evalComparisonArea">
+                            <div class="empty-state" id="evalEmptyState">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 64px; height: 64px; margin-bottom: 1rem; opacity: 0.5;">
+                                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                                    <rect x="9" y="3" width="6" height="4" rx="1"/>
+                                    <path d="M9 12h6M9 16h6"/>
+                                </svg>
+                                <h3>Select a Query</h3>
+                                <p>Choose a query from the left panel to run a blind comparison</p>
+                            </div>
+                            <div id="evalComparisonContent" style="display: none; height: 100%; flex-direction: column;">
+                                <div class="question-display">
+                                    <div class="question-label">Question</div>
+                                    <div class="question-text" id="evalQuestionText"></div>
+                                </div>
+                                <div class="responses-grid">
+                                    <div class="response-card">
+                                        <div class="response-header">
+                                            <span class="response-label label-a">A</span>
+                                            <span class="response-latency" id="evalLatencyA">--ms</span>
+                                        </div>
+                                        <div class="response-content" id="evalResponseA">Loading...</div>
+                                        <div class="response-source" id="evalSourceA"></div>
+                                    </div>
+                                    <div class="response-card">
+                                        <div class="response-header">
+                                            <span class="response-label label-b">B</span>
+                                            <span class="response-latency" id="evalLatencyB">--ms</span>
+                                        </div>
+                                        <div class="response-content" id="evalResponseB">Loading...</div>
+                                        <div class="response-source" id="evalSourceB"></div>
+                                    </div>
+                                </div>
+                                <div class="voting-bar">
+                                    <button class="vote-btn vote-a" id="evalVoteA" disabled>Choose A</button>
+                                    <button class="vote-btn vote-tie" id="evalVoteTie" disabled>Tie</button>
+                                    <button class="vote-btn vote-b" id="evalVoteB" disabled>Choose B</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
