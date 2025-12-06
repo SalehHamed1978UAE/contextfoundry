@@ -1,198 +1,716 @@
-{% extends "base.html" %}
-
-{% block title %}Dashboard - Context Foundry{% endblock %}
-
-{% block page_title %}Dashboard{% endblock %}
-
-{% block header_actions %}
-<button class="btn" id="refreshBtn">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M23 4v6h-6"/>
-        <path d="M1 20v-6h6"/>
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-    </svg>
-</button>
-<button class="btn btn-primary" id="newQueryBtn">New Query</button>
-{% endblock %}
-
-{% block content %}
-<div class="dashboard-hero">
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-label">Multi-hop Accuracy</div>
-            <div class="metric-value" id="accuracyValue">--<span class="unit">%</span></div>
-            <div class="metric-trend positive" id="accuracyTrend">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 15l-6-6-6 6"/>
-                </svg>
-                +5% vs baseline
-            </div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-label">Knowledge Fidelity</div>
-            <div class="metric-value" id="fidelityValue">--<span class="unit">%</span></div>
-            <div class="metric-trend positive">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 15l-6-6-6 6"/>
-                </svg>
-                Stable
-            </div>
-        </div>
-        <div class="metric-card">
-            <div class="metric-label">Confidence Calibration</div>
-            <div class="metric-value" id="confidenceValue">--<span class="unit">%</span></div>
-            <div class="metric-trend positive">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 15l-6-6-6 6"/>
-                </svg>
-                Within target
-            </div>
-        </div>
-    </div>
-
-    <div class="query-input-container">
-        <form id="queryForm">
-            <div class="query-input-wrapper">
-                <input 
-                    type="text" 
-                    class="query-input"
-                    id="queryInput" 
-                    placeholder="Ask Context Foundry about incidents, services, or runbooks..."
-                    autocomplete="off"
-                >
-                <button type="submit" class="query-btn" id="queryBtn">
-                    <span class="btn-text">Query</span>
-                    <span class="loader"></span>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="results-container" id="resultsContainer">
-    <div class="card">
-        <div class="result-header">
-            <div class="confidence-display">
-                <div class="confidence-ring">
-                    <svg viewBox="0 0 80 80" width="80" height="80">
-                        <circle class="confidence-bg" cx="40" cy="40" r="36"/>
-                        <circle class="confidence-fill" id="confidenceFill" cx="40" cy="40" r="36"/>
-                    </svg>
-                    <div class="confidence-value">
-                        <div class="confidence-percent" id="resultConfidence">--</div>
-                        <div class="confidence-label">confidence</div>
-                    </div>
-                </div>
-            </div>
-            <div class="result-meta">
-                <div class="result-id" id="resultId">Query ID: --</div>
-                <div class="result-duration" id="resultDuration">-- seconds</div>
-            </div>
-        </div>
-        
-        <div class="answer-section">
-            <div class="answer-label">Answer</div>
-            <div class="answer-content" id="answerContent"></div>
-        </div>
-
-        <div class="tiered-results-summary" id="tieredResultsSummary" style="display: none;">
-            <div class="answer-label">Response Tiers</div>
-            <div class="tiered-results-grid">
-                <div class="tier-card confirmed">
-                    <div class="tier-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                            <polyline points="22 4 12 14.01 9 11.01"/>
-                        </svg>
-                    </div>
-                    <div class="tier-label">Confirmed</div>
-                    <div class="tier-count" id="confirmedCount">0</div>
-                    <div class="tier-desc">High confidence facts</div>
-                </div>
-                <div class="tier-card inferred">
-                    <div class="tier-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10" stroke-dasharray="5,5"/>
-                            <path d="M12 8l4 4-4 4"/>
-                        </svg>
-                    </div>
-                    <div class="tier-label">Inferred</div>
-                    <div class="tier-count" id="inferredCount">0</div>
-                    <div class="tier-desc">AI-analyzed connections</div>
-                </div>
-                <div class="tier-card boundary">
-                    <div class="tier-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 16v-4"/>
-                            <path d="M12 8h.01"/>
-                        </svg>
-                    </div>
-                    <div class="tier-label">Boundaries</div>
-                    <div class="tier-count" id="boundaryCount">0</div>
-                    <div class="tier-desc">Knowledge frontiers</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="feedback-section" id="feedbackSection" style="display: none;">
-            <div class="answer-label">Was this answer helpful?</div>
-            <div class="feedback-buttons">
-                <button class="feedback-btn correct" data-judgment="correct" title="Correct">
-                    <span class="feedback-icon">&#128077;</span>
-                    <span class="feedback-text">Correct</span>
-                </button>
-                <button class="feedback-btn partial" data-judgment="partial" title="Partially Correct">
-                    <span class="feedback-icon">&#129300;</span>
-                    <span class="feedback-text">Partial</span>
-                </button>
-                <button class="feedback-btn incorrect" data-judgment="incorrect" title="Incorrect">
-                    <span class="feedback-icon">&#128078;</span>
-                    <span class="feedback-text">Incorrect</span>
-                </button>
-            </div>
-            <div class="error-type-selector" id="errorTypeSelector" style="display: none;">
-                <div class="answer-label" style="margin-top: 12px;">What was wrong?</div>
-                <div class="error-type-buttons">
-                    <button class="error-type-btn" data-error="hallucination">Hallucination</button>
-                    <button class="error-type-btn" data-error="incomplete">Incomplete</button>
-                    <button class="error-type-btn" data-error="wrong_entity">Wrong Entity</button>
-                    <button class="error-type-btn" data-error="outdated">Outdated Info</button>
-                </div>
-            </div>
-            <div class="feedback-status" id="feedbackStatus" style="display: none;"></div>
-        </div>
-
-        <div class="evidence-section">
-            <div class="answer-label">Evidence Chain</div>
-            <div class="evidence-list" id="evidenceList"></div>
-        </div>
-
-        <div class="rules-section">
-            <div class="answer-label">Rules Applied</div>
-            <div class="rules-list" id="rulesList"></div>
-        </div>
-    </div>
-</div>
-
-<div class="recent-queries" id="recentQueries">
-    <div class="section-title">Recent Queries</div>
-    <div class="query-list" id="queryList">
-        <div class="empty-state">
-            <div class="empty-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Foundry</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
+</head>
+<body>
+    <div class="scanline"></div>
+    
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="mobile-logo">
+            <div class="mobile-logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                     <path d="M2 17l10 5 10-5"/>
                     <path d="M2 12l10 5 10-5"/>
                 </svg>
             </div>
-            <div class="empty-title">System Ready. Waiting for input.</div>
-            <div class="empty-description">Enter a query above to begin multi-hop reasoning.</div>
+            <span class="mobile-logo-text">CONTEXT FOUNDRY</span>
         </div>
-    </div>
-</div>
-{% endblock %}
+        <div style="width: 36px;"></div>
+    </header>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-title">CONTEXT</span>
+                        <span class="logo-subtitle">FOUNDRY</span>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a class="nav-item active" data-page="dashboard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a class="nav-item" data-page="memory">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="6"/>
+                        <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                    Memory Graph
+                </a>
+                <a class="nav-item" data-page="learning">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 20V10"/>
+                        <path d="M18 20V4"/>
+                        <path d="M6 20v-4"/>
+                    </svg>
+                    Learning Loop
+                </a>
+                <a class="nav-item" data-page="rules">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    System Rules
+                </a>
+                <a class="nav-item" href="/CommandCenter" style="margin-top: 1rem; border-top: 1px solid rgba(6, 182, 212, 0.2); padding-top: 1rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <path d="M8 21h8"/>
+                        <path d="M12 17v4"/>
+                        <circle cx="7" cy="10" r="1.5"/>
+                        <circle cx="12" cy="10" r="1.5"/>
+                        <circle cx="17" cy="10" r="1.5"/>
+                    </svg>
+                    Command Center
+                </a>
+                <a class="nav-item" href="/evaluation">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+                        <rect x="9" y="3" width="6" height="4" rx="1"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                    A/B Evaluation
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-row">
+                        <span class="status-label"><span class="status-dot"></span>SYSTEM</span>
+                        <span class="status-value">ONLINE</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">API</span>
+                        <span class="status-value" id="apiStatus">v1.0</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Memory</span>
+                        <span class="status-value" id="memoryUsage">--</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">Latency</span>
+                        <span class="status-value" id="latencyValue">--</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
 
-{% block scripts %}
-<script src="/static/js/app.js?v={{ cache_bust }}"></script>
-{% endblock %}
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn" id="refreshBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"/>
+                            <path d="M1 20v-6h6"/>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn-primary" id="newQueryBtn">New Query</button>
+                </div>
+            </header>
+
+            <div class="page-content">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Multi-hop Accuracy</div>
+                        <div class="metric-value" id="accuracyValue">--<span class="unit">%</span></div>
+                        <div class="metric-trend positive" id="accuracyTrend">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            +5% vs baseline
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Knowledge Fidelity</div>
+                        <div class="metric-value" id="fidelityValue">--<span class="unit">%</span></div>
+                        <div class="metric-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            Stable
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Confidence Calibration</div>
+                        <div class="metric-value" id="confidenceValue">--<span class="unit">%</span></div>
+                        <div class="metric-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            Within target
+                        </div>
+                    </div>
+                </div>
+
+                <div class="query-input-container">
+                    <form id="queryForm">
+                        <div class="query-input-wrapper">
+                            <input 
+                                type="text" 
+                                class="query-input"
+                                id="queryInput" 
+                                placeholder="Ask Context Foundry about incidents, services, or runbooks..."
+                                autocomplete="off"
+                            >
+                            <button type="submit" class="query-btn" id="queryBtn">
+                                <span class="btn-text">Query</span>
+                                <span class="loader"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="results-container" id="resultsContainer">
+                    <div class="card">
+                        <div class="result-header">
+                            <div class="confidence-display">
+                                <div class="confidence-ring">
+                                    <svg viewBox="0 0 80 80" width="80" height="80">
+                                        <circle class="confidence-bg" cx="40" cy="40" r="36"/>
+                                        <circle class="confidence-fill" id="confidenceFill" cx="40" cy="40" r="36"/>
+                                    </svg>
+                                    <div class="confidence-value">
+                                        <div class="confidence-percent" id="resultConfidence">--</div>
+                                        <div class="confidence-label">confidence</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-meta">
+                                <div class="result-id" id="resultId">Query ID: --</div>
+                                <div class="result-duration" id="resultDuration">-- seconds</div>
+                            </div>
+                        </div>
+                        
+                        <div class="answer-section">
+                            <div class="answer-label">Answer</div>
+                            <div class="answer-content" id="answerContent"></div>
+                        </div>
+
+                        <!-- Tiered Results Summary -->
+                        <div class="tiered-results-summary" id="tieredResultsSummary" style="display: none;">
+                            <div class="answer-label">Response Tiers</div>
+                            <div class="tiered-results-grid">
+                                <div class="tier-card confirmed">
+                                    <div class="tier-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                            <polyline points="22 4 12 14.01 9 11.01"/>
+                                        </svg>
+                                    </div>
+                                    <div class="tier-label">Confirmed</div>
+                                    <div class="tier-count" id="confirmedCount">0</div>
+                                    <div class="tier-desc">High confidence facts</div>
+                                </div>
+                                <div class="tier-card inferred">
+                                    <div class="tier-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10" stroke-dasharray="5,5"/>
+                                            <path d="M12 8l4 4-4 4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="tier-label">Inferred</div>
+                                    <div class="tier-count" id="inferredCount">0</div>
+                                    <div class="tier-desc">AI-analyzed connections</div>
+                                </div>
+                                <div class="tier-card boundary">
+                                    <div class="tier-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <path d="M12 16v-4"/>
+                                            <path d="M12 8h.01"/>
+                                        </svg>
+                                    </div>
+                                    <div class="tier-label">Boundaries</div>
+                                    <div class="tier-count" id="boundaryCount">0</div>
+                                    <div class="tier-desc">Knowledge frontiers</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="feedback-section" id="feedbackSection" style="display: none;">
+                            <div class="answer-label">Was this answer helpful?</div>
+                            <div class="feedback-buttons">
+                                <button class="feedback-btn correct" data-judgment="correct" title="Correct">
+                                    <span class="feedback-icon">&#128077;</span>
+                                    <span class="feedback-text">Correct</span>
+                                </button>
+                                <button class="feedback-btn partial" data-judgment="partial" title="Partially Correct">
+                                    <span class="feedback-icon">&#129300;</span>
+                                    <span class="feedback-text">Partial</span>
+                                </button>
+                                <button class="feedback-btn incorrect" data-judgment="incorrect" title="Incorrect">
+                                    <span class="feedback-icon">&#128078;</span>
+                                    <span class="feedback-text">Incorrect</span>
+                                </button>
+                            </div>
+                            <div class="error-type-selector" id="errorTypeSelector" style="display: none;">
+                                <div class="answer-label" style="margin-top: 12px;">What was wrong?</div>
+                                <div class="error-type-buttons">
+                                    <button class="error-type-btn" data-error="hallucination">Hallucination</button>
+                                    <button class="error-type-btn" data-error="incomplete">Incomplete</button>
+                                    <button class="error-type-btn" data-error="wrong_entity">Wrong Entity</button>
+                                    <button class="error-type-btn" data-error="outdated">Outdated Info</button>
+                                </div>
+                            </div>
+                            <div class="feedback-status" id="feedbackStatus" style="display: none;"></div>
+                        </div>
+
+                        <div class="evidence-section">
+                            <div class="answer-label">Evidence Chain</div>
+                            <div class="evidence-list" id="evidenceList"></div>
+                        </div>
+
+                        <div class="rules-section">
+                            <div class="answer-label">Rules Applied</div>
+                            <div class="rules-list" id="rulesList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-queries" id="recentQueries">
+                    <div class="section-title">Recent Queries</div>
+                    <div class="query-list" id="queryList">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                    <path d="M2 17l10 5 10-5"/>
+                                    <path d="M2 12l10 5 10-5"/>
+                                </svg>
+                            </div>
+                            <div class="empty-title">System Ready. Waiting for input.</div>
+                            <div class="empty-description">Enter a query above to begin multi-hop reasoning.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-content page-memory" style="display: none;">
+                <div class="graph-explorer-container">
+                    <div class="graph-main-panel">
+                        <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                                <h2 class="card-title" style="font-size: 14px;">Knowledge Graph Explorer</h2>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <select id="lifecycleFilter" class="graph-filter-select" style="padding: 4px 8px; font-size: 11px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); cursor: pointer;">
+                                        <option value="all">All States</option>
+                                        <option value="TRUSTED">TRUSTED</option>
+                                        <option value="STAGING">STAGING</option>
+                                        <option value="ARCHIVED">ARCHIVED</option>
+                                    </select>
+                                    <button id="graphClearBtn" class="btn" style="padding: 4px 8px; font-size: 11px;" title="Clear graph">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 6L6 18M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body" style="padding: 0; flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                                <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color);">
+                                    <div style="position: relative;">
+                                        <input type="text" id="graphSearchInput" placeholder="Search entities..." 
+                                            style="width: 100%; padding: 10px 14px; padding-left: 38px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary); font-size: 13px; box-sizing: border-box;"
+                                            autocomplete="off">
+                                        <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path d="M21 21l-4.35-4.35"/>
+                                        </svg>
+                                    </div>
+                                    <div id="searchResults" style="display: none; position: absolute; z-index: 100; left: 16px; right: 16px; margin-top: 4px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); max-height: 200px; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.4);"></div>
+                                </div>
+                                <div id="graphStats" style="padding: 6px 16px; display: flex; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--border-color); font-size: 10px; font-family: 'JetBrains Mono', monospace;">
+                                    <span class="graph-stat" style="color: #10b981;">TRUSTED: <span id="statTrusted">--</span></span>
+                                    <span class="graph-stat" style="color: #f59e0b;">STAGING: <span id="statStaging">--</span></span>
+                                    <span class="graph-stat" style="color: #6b7280;">ARCHIVED: <span id="statArchived">--</span></span>
+                                    <span style="color: var(--text-muted); margin-left: auto;">Visible: <span id="statVisible">0</span></span>
+                                </div>
+                                
+                                <div id="timelineBanner" style="display: none; padding: 8px 16px; background: linear-gradient(90deg, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.05)); border-bottom: 1px solid rgba(249, 115, 22, 0.3); color: #f97316; font-size: 12px; font-family: 'JetBrains Mono', monospace; display: none; align-items: center; gap: 12px;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 6v6l4 2"/>
+                                    </svg>
+                                    <span>Viewing knowledge as of <strong id="timelineBannerDate">--</strong></span>
+                                    <span style="margin-left: auto; color: var(--text-muted);" id="timelineEntityCount">-- entities</span>
+                                    <button id="returnToPresentBtn" style="padding: 4px 10px; font-size: 10px; background: rgba(249, 115, 22, 0.2); border: 1px solid rgba(249, 115, 22, 0.5); border-radius: 4px; color: #f97316; cursor: pointer; transition: all 0.2s;">
+                                        Return to Present
+                                    </button>
+                                </div>
+                                
+                                <div id="timelineSliderContainer" style="padding: 10px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary);">
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <path d="M12 6v6l4 2"/>
+                                        </svg>
+                                        <span style="color: var(--text-muted); font-size: 11px; font-family: 'JetBrains Mono', monospace;">TIMELINE</span>
+                                        <span id="timelineCurrentLabel" style="color: var(--accent-primary); font-size: 11px; font-family: 'JetBrains Mono', monospace; margin-left: auto;">Today</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span id="timelineEarliestLabel" style="color: var(--text-muted); font-size: 10px; min-width: 60px;">--</span>
+                                        <input type="range" id="timelineSlider" min="0" max="100" value="100" 
+                                            style="flex: 1; height: 6px; -webkit-appearance: none; appearance: none; background: linear-gradient(90deg, var(--border-color), var(--accent-primary)); border-radius: 3px; cursor: pointer;">
+                                        <span id="timelineLatestLabel" style="color: var(--text-muted); font-size: 10px; min-width: 60px; text-align: right;">Today</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                                        <input type="date" id="timelineDatePicker" style="padding: 4px 8px; font-size: 11px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">
+                                        <button id="timelineResetBtn" style="padding: 4px 10px; font-size: 10px; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-muted); cursor: pointer; transition: all 0.2s;">
+                                            Reset to Now
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="memory-graph-container" id="graphCanvasContainer" style="position: relative; flex: 1; min-height: 250px; overflow: hidden; background: radial-gradient(ellipse at center, rgba(6, 182, 212, 0.03) 0%, transparent 70%);">
+                                    <svg id="memoryGraph" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                                        <defs>
+                                            <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:0.6" />
+                                                <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0" />
+                                            </radialGradient>
+                                        </defs>
+                                        <g class="links" id="graphLinks"></g>
+                                    </svg>
+                                    <div id="graphNodesHtml" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+                                    <div id="graphEmptyState" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); padding: 20px;">
+                                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 12px; opacity: 0.5;">
+                                            <circle cx="11" cy="11" r="8"/>
+                                            <path d="M21 21l-4.35-4.35"/>
+                                        </svg>
+                                        <div style="font-size: 13px; margin-bottom: 6px;">Search to explore</div>
+                                        <div style="font-size: 11px; opacity: 0.7;">Type an entity name above</div>
+                                    </div>
+                                </div>
+                                <div class="graph-legend" style="display: flex; flex-direction: column; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border-color); font-size: 10px;">
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                        <span style="color: var(--text-muted); font-weight: 500; min-width: 45px;">Types:</span>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #3B82F6; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">SERVICE</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #8B5CF6; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">COMPONENT</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #10B981; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">TEAM</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #F59E0B; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">PERSON</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #06B6D4; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">DATABASE</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; background: #EF4444; border-radius: 50%;"></span>
+                                            <span style="color: var(--text-muted);">INCIDENT</span>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                        <span style="color: var(--text-muted); font-weight: 500; min-width: 45px;">Relations:</span>
+                                        <div style="display: flex; align-items: center; gap: 3px;">
+                                            <svg width="18" height="10" viewBox="0 0 18 10"><line x1="0" y1="5" x2="13" y2="5" stroke="#3B82F6" stroke-width="2"/><polygon points="13,2 18,5 13,8" fill="#3B82F6"/></svg>
+                                            <span style="color: #3B82F6; font-size: 9px;">DEPENDS_ON</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 3px;">
+                                            <svg width="18" height="10" viewBox="0 0 18 10"><line x1="0" y1="5" x2="13" y2="5" stroke="#10B981" stroke-width="2"/><polygon points="13,2 18,5 13,8" fill="#10B981"/></svg>
+                                            <span style="color: #10B981; font-size: 9px;">OWNS</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 3px;">
+                                            <svg width="18" height="10" viewBox="0 0 18 10"><line x1="0" y1="5" x2="13" y2="5" stroke="#F97316" stroke-width="2"/><polygon points="13,2 18,5 13,8" fill="#F97316"/></svg>
+                                            <span style="color: #F97316; font-size: 9px;">AFFECTS</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 3px;">
+                                            <svg width="18" height="10" viewBox="0 0 18 10"><line x1="0" y1="5" x2="13" y2="5" stroke="#8B5CF6" stroke-width="2"/><polygon points="13,2 18,5 13,8" fill="#8B5CF6"/></svg>
+                                            <span style="color: #8B5CF6; font-size: 9px;">SUPPORTS</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 3px;">
+                                            <svg width="18" height="10" viewBox="0 0 18 10"><line x1="0" y1="5" x2="13" y2="5" stroke="#EAB308" stroke-width="2"/><polygon points="13,2 18,5 13,8" fill="#EAB308"/></svg>
+                                            <span style="color: #EAB308; font-size: 9px;">MEMBER_OF</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 3px;">
+                                            <svg width="18" height="10" viewBox="0 0 18 10"><line x1="0" y1="5" x2="13" y2="5" stroke="#EF4444" stroke-width="2"/><polygon points="13,2 18,5 13,8" fill="#EF4444"/></svg>
+                                            <span style="color: #EF4444; font-size: 9px;">CAUSED_BY</span>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                        <span style="color: var(--text-muted); font-weight: 500; min-width: 45px;">State:</span>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; border: 2px solid #10b981; border-radius: 50%; background: transparent;"></span>
+                                            <span style="color: var(--text-muted);">TRUSTED</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; border: 2px dashed #f59e0b; border-radius: 50%; background: transparent;"></span>
+                                            <span style="color: var(--text-muted);">STAGING</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 4px;">
+                                            <span style="width: 10px; height: 10px; border: 2px solid #6b7280; border-radius: 50%; background: transparent; opacity: 0.4;"></span>
+                                            <span style="color: var(--text-muted);">ARCHIVED</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 3px; margin-left: 12px;">
+                                            <svg width="20" height="10" viewBox="0 0 20 10"><line x1="0" y1="5" x2="15" y2="5" stroke="#94A3B8" stroke-width="3"/><polygon points="15,2 20,5 15,8" fill="#94A3B8"/></svg>
+                                            <span style="color: var(--text-muted); font-size: 9px;">= High confidence</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 3px;">
+                                            <svg width="20" height="10" viewBox="0 0 20 10"><line x1="0" y1="5" x2="15" y2="5" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="3,2"/><polygon points="15,2 20,5 15,8" fill="#94A3B8"/></svg>
+                                            <span style="color: var(--text-muted); font-size: 9px;">= Low confidence</span>
+                                        </div>
+                                        <div style="margin-left: auto; display: flex; gap: 6px;">
+                                            <button id="graphSpreadBtn" class="btn" style="padding: 4px 8px; font-size: 10px;" title="Spread nodes apart">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M8 3L4 7l4 4"/>
+                                                    <path d="M16 3l4 4-4 4"/>
+                                                    <path d="M4 7h16"/>
+                                                    <path d="M8 21l-4-4 4-4"/>
+                                                    <path d="M16 21l4-4-4-4"/>
+                                                    <path d="M4 17h16"/>
+                                                </svg>
+                                                Spread
+                                            </button>
+                                            <button id="graphCompactBtn" class="btn" style="padding: 4px 8px; font-size: 10px;" title="Compact nodes together">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M4 3l4 4-4 4"/>
+                                                    <path d="M20 3l-4 4 4 4"/>
+                                                    <path d="M8 7h8"/>
+                                                    <path d="M4 21l4-4-4-4"/>
+                                                    <path d="M20 21l-4-4 4-4"/>
+                                                    <path d="M8 17h8"/>
+                                                </svg>
+                                                Compact
+                                            </button>
+                                            <button id="graphResetBtn" class="btn" style="padding: 4px 8px; font-size: 10px;" title="Reset layout">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                                    <path d="M3 3v5h5"/>
+                                                </svg>
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="detailsPanel" class="graph-details-panel">
+                        <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+                            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;">
+                                <h3 class="card-title" style="font-size: 13px;">Entity Details</h3>
+                                <button id="closePanelBtn" class="btn" style="padding: 4px 8px; font-size: 11px;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div id="detailsContent" class="card-body" style="flex: 1; overflow-y: auto; font-size: 12px; padding: 12px 16px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-content page-learning" style="display: none;">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <h2 class="card-title">Learning Center</h2>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-secondary); margin-bottom: 24px;">Manage the feedback loop and calibration cycles.</p>
+                        <div class="metrics-grid" style="margin-bottom: 0;">
+                            <div class="metric-card">
+                                <div class="metric-label">Feedback Capture Rate</div>
+                                <div class="metric-value">84<span class="unit">%</span></div>
+                                <div style="margin-top: 12px; height: 4px; background: var(--bg-tertiary); border-radius: 2px;">
+                                    <div style="width: 84%; height: 100%; background: var(--accent-primary); border-radius: 2px;"></div>
+                                </div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">Target: 90% of test queries</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Calibration Error</div>
+                                <div class="metric-value">4.2<span class="unit">%</span></div>
+                                <div style="font-size: 11px; color: var(--accent-success); margin-top: 8px;">Well within &lt;5% target</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Pending Reviews</div>
+                                <div class="metric-value">2</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Requires human attention</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Feedback Review Queue</h2>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">Items marked as 'Incorrect' or 'Uncertain' by users needing resolution.</p>
+                        <div class="feedback-queue">
+                            <div class="feedback-item" style="background: var(--bg-secondary); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; border-left: 3px solid #ef4444;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                    <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">USER INCORRECT</span>
+                                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">Conf: 89%</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">QUERY</span>
+                                    <p style="color: var(--text-primary); font-size: 14px; margin-top: 4px;">Restart the production database.</p>
+                                </div>
+                                <div style="margin-bottom: 12px;">
+                                    <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">REPLY</span>
+                                    <p style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">I cannot perform this action. My safety protocols prohibit modifying production state directly.</p>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn" style="padding: 6px 12px; font-size: 12px;">Dismiss</button>
+                                    <button class="btn" style="padding: 6px 12px; font-size: 12px;">Adjust Rule</button>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Update Knowledge Base</button>
+                                </div>
+                            </div>
+                            <div class="feedback-item" style="background: var(--bg-secondary); border-radius: var(--radius-md); padding: 16px; border-left: 3px solid #f59e0b;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                    <span style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">USER INCORRECT</span>
+                                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);">Conf: 65%</span>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">QUERY</span>
+                                    <p style="color: var(--text-primary); font-size: 14px; margin-top: 4px;">What is the IP of the load balancer?</p>
+                                </div>
+                                <div style="margin-bottom: 8px;">
+                                    <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">REPLY</span>
+                                    <p style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">The load balancer IP is publicly 10.0.4.21.</p>
+                                </div>
+                                <div style="background: rgba(6, 182, 212, 0.1); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px;">
+                                    <span style="font-size: 11px; color: var(--accent-primary);">FIX: It's 10.0.6.22; the old one was decommissioned.</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn" style="padding: 6px 12px; font-size: 12px;">Dismiss</button>
+                                    <button class="btn" style="padding: 6px 12px; font-size: 12px;">Adjust Rule</button>
+                                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Update Knowledge Base</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-content page-rules" style="display: none;">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Multi-hop Accuracy</div>
+                        <div class="metric-value" id="rulesAccuracy">82<span class="unit">%</span></div>
+                        <div class="metric-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            +5% vs baseline
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Knowledge Fidelity</div>
+                        <div class="metric-value">91<span class="unit">%</span></div>
+                        <div class="metric-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            Stable
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Confidence Calibration</div>
+                        <div class="metric-value">94<span class="unit">%</span></div>
+                        <div class="metric-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 15l-6-6-6 6"/>
+                            </svg>
+                            Within target
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-queries">
+                    <div class="section-title">Recent Queries</div>
+                    <div class="query-list" id="rulesQueryList">
+                        <div class="query-item">
+                            <div class="query-item-left">
+                                <span class="query-id">e-181</span>
+                                <span class="query-text">Why is the payment-service throwing 503 errors?</span>
+                            </div>
+                            <div class="query-meta">
+                                <span class="query-time">2 min ago</span>
+                            </div>
+                        </div>
+                        <div class="query-item">
+                            <div class="query-item-left">
+                                <span class="query-id">e-180</span>
+                                <span class="query-text">List all services dependent on the auth-gateway.</span>
+                            </div>
+                            <div class="query-meta">
+                                <span class="query-time">14 min ago</span>
+                            </div>
+                        </div>
+                        <div class="query-item">
+                            <div class="query-item-left">
+                                <span class="query-id">e-179</span>
+                                <span class="query-text">Who owns the legacy-reporting pipeline?</span>
+                            </div>
+                            <div class="query-meta">
+                                <span class="query-time">1 hour ago</span>
+                                <span class="query-confidence">Reviewed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-state" style="padding: 40px;">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <div class="empty-title">System Rules: Waiting for input.</div>
+                    <div class="empty-description">Return to Dashboard to execute queries and view rule validations.</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js?v=1733477000"></script>
+</body>
+</html>
