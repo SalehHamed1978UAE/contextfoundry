@@ -13,8 +13,14 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "context-foundry-secret")
 
 @app.after_request
-def add_cache_control(response):
-    """Prevent caching of static files during development."""
+def add_headers(response):
+    """Add dark theme headers and cache control."""
+    # CRITICAL: Declare dark theme at HTTP level - sent BEFORE any HTML renders
+    # This prevents the browser's default white background
+    response.headers['Color-Scheme'] = 'dark'
+    response.headers['Prefer-Color-Scheme'] = 'dark'
+    
+    # Cache control for static files
     if 'static' in request.path:
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         response.headers['Pragma'] = 'no-cache'
