@@ -147,40 +147,41 @@
             </header>
 
             <div class="page-content">
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-label">Multi-hop Accuracy</div>
-                        <div class="metric-value" id="accuracyValue">--<span class="unit">%</span></div>
-                        <div class="metric-trend positive" id="accuracyTrend">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 15l-6-6-6 6"/>
-                            </svg>
-                            +5% vs baseline
+                <div class="dashboard-hero">
+                    <div class="metrics-grid" style="margin-bottom: 24px;">
+                        <div class="metric-card">
+                            <div class="metric-label">Multi-hop Accuracy</div>
+                            <div class="metric-value" id="accuracyValue">--<span class="unit">%</span></div>
+                            <div class="metric-trend positive" id="accuracyTrend">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 15l-6-6-6 6"/>
+                                </svg>
+                                +5% vs baseline
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Knowledge Fidelity</div>
+                            <div class="metric-value" id="fidelityValue">--<span class="unit">%</span></div>
+                            <div class="metric-trend positive">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 15l-6-6-6 6"/>
+                                </svg>
+                                Stable
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Confidence Calibration</div>
+                            <div class="metric-value" id="confidenceValue">--<span class="unit">%</span></div>
+                            <div class="metric-trend positive">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 15l-6-6-6 6"/>
+                                </svg>
+                                Within target
+                            </div>
                         </div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Knowledge Fidelity</div>
-                        <div class="metric-value" id="fidelityValue">--<span class="unit">%</span></div>
-                        <div class="metric-trend positive">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 15l-6-6-6 6"/>
-                            </svg>
-                            Stable
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">Confidence Calibration</div>
-                        <div class="metric-value" id="confidenceValue">--<span class="unit">%</span></div>
-                        <div class="metric-trend positive">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 15l-6-6-6 6"/>
-                            </svg>
-                            Within target
-                        </div>
-                    </div>
-                </div>
 
-                <div class="query-input-container">
+                    <div class="query-input-container" style="margin-bottom: 0;">
                     <form id="queryForm">
                         <div class="query-input-wrapper">
                             <input 
@@ -196,6 +197,7 @@
                             </button>
                         </div>
                     </form>
+                    </div>
                 </div>
 
                 <div class="results-container" id="resultsContainer">

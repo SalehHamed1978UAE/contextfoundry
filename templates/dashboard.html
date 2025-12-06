@@ -1,287 +1,330 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="30">
-    <title>Context Foundry - Command Center</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #0d1117;
-            color: #c9d1d9;
-            min-height: 100vh;
-        }
-        .header {
-            background: linear-gradient(135deg, #161b22 0%, #21262d 100%);
-            padding: 16px 24px;
-            border-bottom: 1px solid #30363d;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            font-size: 1.5rem;
-            color: #58a6ff;
-        }
-        .header-meta {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-            font-size: 0.875rem;
-            color: #8b949e;
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-        }
-        .status-active { background: #3fb950; }
-        .status-idle { background: #8b949e; }
-        .status-error { background: #f85149; }
-        .status-scheduled { background: #a371f7; }
-        
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 16px;
-            padding: 16px;
-            height: calc(100vh - 180px);
-        }
-        .quadrant {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            padding: 16px;
-            overflow: auto;
-        }
-        .quadrant-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #30363d;
-        }
-        .quadrant-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #58a6ff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .quadrant-title .icon {
-            font-size: 1.2rem;
-        }
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .stat-card {
-            background: #21262d;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-        }
-        .stat-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #f0f6fc;
-        }
-        .stat-label {
-            font-size: 0.75rem;
-            color: #8b949e;
-            margin-top: 4px;
-        }
-        .stat-sublabel {
-            font-size: 0.65rem;
-            color: #6e7681;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #21262d;
-        }
-        th {
-            color: #8b949e;
-            font-weight: 500;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-        }
-        tr:hover {
-            background: #21262d;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-        .badge-active { background: #238636; color: #fff; }
-        .badge-idle { background: #484f58; color: #c9d1d9; }
-        .badge-error { background: #da3633; color: #fff; }
-        .badge-scheduled { background: #8957e5; color: #fff; }
-        .badge-proposed { background: #1f6feb; color: #fff; }
-        .badge-validating { background: #a371f7; color: #fff; }
-        .badge-approved { background: #238636; color: #fff; }
-        .badge-deprecated { background: #6e7681; color: #fff; }
-        
-        .sla-green { color: #3fb950; }
-        .sla-yellow { color: #d29922; }
-        .sla-red { color: #f85149; }
-        
-        .learning-flow {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #21262d;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-        .flow-step {
-            text-align: center;
-            flex: 1;
-        }
-        .flow-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #58a6ff;
-        }
-        .flow-label {
-            font-size: 0.7rem;
-            color: #8b949e;
-        }
-        .flow-arrow {
-            color: #484f58;
-            font-size: 1.2rem;
-        }
-        
-        .footer {
-            background: #161b22;
-            border-top: 1px solid #30363d;
-            padding: 12px 24px;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
-        .footer-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .footer-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #8b949e;
-        }
-        .footer-stats {
-            display: flex;
-            gap: 24px;
-            font-size: 0.75rem;
-        }
-        .footer-stat {
-            color: #8b949e;
-        }
-        .footer-stat span {
-            color: #f0f6fc;
-            font-weight: 600;
-        }
-        .event-feed {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-        .event-item {
-            background: #21262d;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-        .event-type {
-            color: #a371f7;
-            font-weight: 500;
-        }
-        .event-time {
-            color: #6e7681;
-            margin-left: 8px;
-        }
-        
-        .section-title {
-            font-size: 0.8rem;
-            color: #8b949e;
-            margin: 12px 0 8px 0;
-            font-weight: 500;
-        }
-        .mini-stat {
-            display: inline-block;
-            margin-right: 16px;
-            font-size: 0.75rem;
-        }
-        .mini-stat-value {
-            font-weight: 600;
-            color: #f0f6fc;
-        }
-        
-        .refresh-indicator {
-            font-size: 0.75rem;
-            color: #6e7681;
-        }
-        .refresh-indicator::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background: #3fb950;
-            border-radius: 50%;
-            margin-right: 6px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>Context Foundry Command Center</h1>
-        <div class="header-meta">
-            <span class="refresh-indicator">Auto-refresh 30s</span>
-            <span>Updated: {{ last_updated }}</span>
-        </div>
-    </div>
+{% extends "base.html" %}
 
-    <div class="grid-container">
-        <!-- PERCEPTION QUADRANT -->
-        <div class="quadrant">
+{% block title %}Context Foundry - Command Center{% endblock %}
+
+{% block head %}
+<style>
+    .cc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 16px;
+        height: calc(100vh - 200px);
+        min-height: 500px;
+    }
+    
+    @media (max-width: 1024px) {
+        .cc-grid {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto;
+            height: auto;
+        }
+    }
+    
+    .quadrant {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 16px;
+        overflow: auto;
+    }
+    
+    .quadrant-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .quadrant-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--accent-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .quadrant-title .icon {
+        font-size: 1.2rem;
+    }
+    
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .stat-card {
+        background: var(--bg-card);
+        padding: 12px;
+        border-radius: var(--radius-md);
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+    
+    .stat-sublabel {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        opacity: 0.7;
+    }
+    
+    .cc-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+    }
+    
+    .cc-table th, .cc-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .cc-table th {
+        color: var(--text-muted);
+        font-weight: 500;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+    }
+    
+    .cc-table tr:hover {
+        background: var(--bg-card);
+    }
+    
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 500;
+    }
+    
+    .badge-active { background: var(--accent-success); color: #fff; }
+    .badge-idle { background: var(--bg-tertiary); color: var(--text-secondary); }
+    .badge-error { background: var(--accent-error); color: #fff; }
+    .badge-scheduled { background: #8957e5; color: #fff; }
+    .badge-proposed { background: #1f6feb; color: #fff; }
+    .badge-validating { background: #a371f7; color: #fff; }
+    .badge-approved { background: var(--accent-success); color: #fff; }
+    .badge-deprecated { background: var(--text-muted); color: #fff; }
+    
+    .sla-green { color: var(--accent-success); }
+    .sla-yellow { color: var(--accent-warning); }
+    .sla-red { color: var(--accent-error); }
+    
+    .learning-flow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--bg-card);
+        padding: 16px;
+        border-radius: var(--radius-md);
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .flow-step {
+        text-align: center;
+        flex: 1;
+        min-width: 60px;
+    }
+    
+    .flow-value {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-primary);
+    }
+    
+    .flow-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+    
+    .flow-arrow {
+        color: var(--text-muted);
+        font-size: 1.2rem;
+    }
+    
+    .section-title {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: 12px 0 8px 0;
+        font-weight: 500;
+    }
+    
+    .mini-stat {
+        display: inline-block;
+        margin-right: 16px;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+    
+    .mini-stat-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .cc-footer {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 12px 16px;
+        margin-top: 16px;
+    }
+    
+    .footer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .footer-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+    
+    .footer-stats {
+        display: flex;
+        gap: 24px;
+        font-size: 0.75rem;
+        flex-wrap: wrap;
+    }
+    
+    .footer-stat {
+        color: var(--text-muted);
+    }
+    
+    .footer-stat span {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .event-feed {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+    
+    .event-item {
+        background: var(--bg-card);
+        padding: 6px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 0.7rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .event-type {
+        color: #a371f7;
+        font-weight: 500;
+    }
+    
+    .event-time {
+        color: var(--text-muted);
+        margin-left: 8px;
+    }
+    
+    .refresh-indicator {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .refresh-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--accent-success);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+    
+    .cycle-phase {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .phase-icon {
+        width: 14px;
+        height: 14px;
+        opacity: 0.7;
+    }
+    
+    .timestamp {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.7rem;
+    }
+    
+    .trigger-mode {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        font-style: italic;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Command Center{% endblock %}
+
+{% block header_actions %}
+<div class="refresh-indicator">
+    <span class="refresh-dot"></span>
+    <span>Auto-refresh 30s</span>
+</div>
+<span style="color: var(--text-muted); font-size: 0.8rem; margin-left: 16px;" id="lastUpdated">Updated: {{ last_updated }}</span>
+{% endblock %}
+
+{% block content_class %}command-center-content{% endblock %}
+
+{% block content %}
+<div id="dashboardContent">
+    <div class="cc-grid">
+        <!-- INGEST & PERCEIVE QUADRANT -->
+        <div class="quadrant" id="quadrantPerception">
             <div class="quadrant-header">
                 <div class="quadrant-title">
-                    <span class="icon">👁</span> PERCEPTION
+                    <span class="icon">&#128065;</span> INGEST & PERCEIVE
+                </div>
+                <div class="cycle-phase">
+                    <svg class="phase-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Sensing + Interpreting
                 </div>
             </div>
             <div class="stat-grid">
@@ -302,7 +345,7 @@
                 </div>
             </div>
             <div class="section-title">Active Extractors</div>
-            <table>
+            <table class="cc-table">
                 <tr>
                     <th>Extractor</th>
                     <th>Status</th>
@@ -312,17 +355,25 @@
                 <tr>
                     <td>{{ ext.name }}</td>
                     <td><span class="badge badge-{{ ext.status|lower }}">{{ ext.status }}</span></td>
-                    <td>{{ ext.last_run }}</td>
+                    <td class="timestamp">{{ ext.last_run }}</td>
                 </tr>
                 {% endfor %}
             </table>
         </div>
 
         <!-- MEMORY QUADRANT -->
-        <div class="quadrant">
+        <div class="quadrant" id="quadrantMemory">
             <div class="quadrant-header">
                 <div class="quadrant-title">
-                    <span class="icon">🧠</span> MEMORY
+                    <span class="icon">&#129504;</span> MEMORY
+                </div>
+                <div class="cycle-phase">
+                    <svg class="phase-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="6"/>
+                        <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                    Understanding
                 </div>
             </div>
             <div class="stat-grid">
@@ -345,18 +396,18 @@
             <div class="mini-stat">Symbolic: <span class="mini-stat-value">{{ memory.rules_count }} rules</span></div>
             
             <div class="section-title">Graph Health</div>
-            <table>
+            <table class="cc-table">
                 <tr>
                     <th>Metric</th>
                     <th>Value</th>
                 </tr>
                 <tr title="Average confidence score across TRUSTED entities (target: 0.70+)">
-                    <td>Avg Confidence (TRUSTED) <span style="color:#888;font-size:0.8em;">ⓘ</span></td>
-                    <td>{{ "%.2f"|format(memory.avg_confidence) }}{% if memory.avg_confidence >= 0.7 %} <span style="color:#22c55e;">✓</span>{% else %} <span style="color:#f59e0b;">⚠</span>{% endif %}</td>
+                    <td>Avg Confidence (TRUSTED)</td>
+                    <td>{{ "%.2f"|format(memory.avg_confidence) }}{% if memory.avg_confidence >= 0.7 %} <span style="color:var(--accent-success);">&#10003;</span>{% else %} <span style="color:var(--accent-warning);">&#9888;</span>{% endif %}</td>
                 </tr>
-                <tr title="Entities without relationships - normal during initial ingestion, Gardener will connect them">
-                    <td>Orphan Entities <span style="color:#888;font-size:0.8em;">ⓘ</span></td>
-                    <td>{{ memory.orphan_entities }}{% if memory.orphan_entities > 100 %} <span style="color:#888;font-size:0.8em;">(batch ingest)</span>{% endif %}</td>
+                <tr title="Entities without relationships">
+                    <td>Orphan Entities</td>
+                    <td>{{ memory.orphan_entities }}{% if memory.orphan_entities > 100 %} <span style="color:var(--text-muted);font-size:0.8em;">(batch ingest)</span>{% endif %}</td>
                 </tr>
                 <tr>
                     <td>Pending Conflicts</td>
@@ -365,47 +416,58 @@
             </table>
         </div>
 
-        <!-- AGENTS QUADRANT -->
-        <div class="quadrant">
+        <!-- REASON & EXPRESS QUADRANT (Agents) -->
+        <div class="quadrant" id="quadrantAgents">
             <div class="quadrant-header">
                 <div class="quadrant-title">
-                    <span class="icon">🤖</span> AGENTS
+                    <span class="icon">&#129302;</span> REASON & EXPRESS
+                </div>
+                <div class="cycle-phase">
+                    <svg class="phase-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9.663 17h4.674M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    Thinking + Communicating
                 </div>
             </div>
-            <table>
+            <table class="cc-table">
                 <tr>
                     <th>Agent</th>
+                    <th>Phase</th>
                     <th>Status</th>
-                    <th>Last Action</th>
-                    <th>Next/Info</th>
+                    <th>Last Run</th>
+                    <th>Trigger</th>
                 </tr>
                 {% for agent in agents.agent_list %}
                 <tr>
                     <td>{{ agent.name }}</td>
+                    <td><span class="cycle-phase">{{ agent.phase }}</span></td>
                     <td><span class="badge badge-{{ agent.status|lower }}">{{ agent.status }}</span></td>
-                    <td>{{ agent.last_action }}</td>
-                    <td>{{ agent.next_info }}</td>
+                    <td class="timestamp">{{ agent.last_run_time }}</td>
+                    <td class="trigger-mode">{{ agent.trigger_mode }}</td>
                 </tr>
                 {% endfor %}
             </table>
             
-            <div class="section-title">Gardener Stats</div>
+            <div class="section-title">Gardener Stats (Reason)</div>
             <div class="mini-stat">Last Cycle: <span class="mini-stat-value">{{ agents.gardener.last_cycle }}</span></div>
             <div class="mini-stat">Promoted: <span class="mini-stat-value">{{ agents.gardener.promoted }}</span></div>
             <div class="mini-stat">Demoted: <span class="mini-stat-value">{{ agents.gardener.demoted }}</span></div>
             <div class="mini-stat">Conflicts: <span class="mini-stat-value">{{ agents.gardener.conflicts }}</span></div>
-            
-            <div class="section-title">OrphanDetector</div>
-            <div class="mini-stat">Pending: <span class="mini-stat-value">{{ agents.orphan.pending }}</span></div>
-            <div class="mini-stat">Surfaced: <span class="mini-stat-value">{{ agents.orphan.surfaced }}</span></div>
-            <div class="mini-stat">Promoted: <span class="mini-stat-value">{{ agents.orphan.promoted }}</span></div>
         </div>
 
-        <!-- CONTEXT QUADRANT -->
-        <div class="quadrant">
+        <!-- LEARN QUADRANT (Ontology) -->
+        <div class="quadrant" id="quadrantLearn">
             <div class="quadrant-header">
                 <div class="quadrant-title">
-                    <span class="icon">📊</span> CONTEXT (Ontology)
+                    <span class="icon">&#128200;</span> LEARN
+                </div>
+                <div class="cycle-phase">
+                    <svg class="phase-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20V10"/>
+                        <path d="M18 20V4"/>
+                        <path d="M6 20v-4"/>
+                    </svg>
+                    Ontology Evolution
                 </div>
             </div>
             
@@ -414,19 +476,19 @@
                     <div class="flow-value">{{ context.orphans_detected }}</div>
                     <div class="flow-label">Orphans Detected</div>
                 </div>
-                <div class="flow-arrow">→</div>
+                <div class="flow-arrow">&#8594;</div>
                 <div class="flow-step">
                     <div class="flow-value">{{ context.orphans_surfaced }}</div>
                     <div class="flow-label">Surfaced</div>
                 </div>
-                <div class="flow-arrow">→</div>
+                <div class="flow-arrow">&#8594;</div>
                 <div class="flow-step">
                     <div class="flow-value">{{ context.types_promoted }}</div>
                     <div class="flow-label">Promoted</div>
                 </div>
-                <div class="flow-arrow">→</div>
+                <div class="flow-arrow">&#8594;</div>
                 <div class="flow-step">
-                    <div class="flow-value" style="color: #3fb950;">{{ context.types_active }}</div>
+                    <div class="flow-value" style="color: var(--accent-success);">{{ context.types_active }}</div>
                     <div class="flow-label">ACTIVE Types</div>
                 </div>
             </div>
@@ -447,7 +509,7 @@
             </div>
             
             <div class="section-title">Approval Queue ({{ context.pending_approvals }} pending)</div>
-            <table>
+            <table class="cc-table">
                 <tr>
                     <th>Type</th>
                     <th>Level</th>
@@ -461,36 +523,17 @@
                 </tr>
                 {% endfor %}
                 {% if not context.approval_queue %}
-                <tr><td colspan="3" style="color: #6e7681;">No pending approvals</td></tr>
-                {% endif %}
-            </table>
-            
-            <div class="section-title">Recent Decisions</div>
-            <table>
-                <tr>
-                    <th>Type</th>
-                    <th>Decision</th>
-                    <th>When</th>
-                </tr>
-                {% for dec in context.recent_decisions %}
-                <tr>
-                    <td>{{ dec.type_name }}</td>
-                    <td><span class="badge badge-{{ dec.decision|lower }}">{{ dec.decision }}</span></td>
-                    <td>{{ dec.when }}</td>
-                </tr>
-                {% endfor %}
-                {% if not context.recent_decisions %}
-                <tr><td colspan="3" style="color: #6e7681;">No recent decisions</td></tr>
+                <tr><td colspan="3" style="color: var(--text-muted);">No pending approvals</td></tr>
                 {% endif %}
             </table>
         </div>
     </div>
 
-    <div class="footer">
+    <div class="cc-footer">
         <div class="footer-header">
             <div class="footer-title">Message Bus Activity</div>
             <div class="footer-stats">
-                <div class="footer-stat">Dead Letter: <span {% if message_bus.dead_letter > 0 %}style="color: #f85149;"{% endif %}>{{ message_bus.dead_letter }}</span></div>
+                <div class="footer-stat">Dead Letter: <span {% if message_bus.dead_letter > 0 %}style="color: var(--accent-error);"{% endif %}>{{ message_bus.dead_letter }}</span></div>
                 <div class="footer-stat">Events/min: <span>{{ message_bus.events_per_minute }}</span></div>
                 <div class="footer-stat">Total Events: <span>{{ message_bus.total_events }}</span></div>
             </div>
@@ -504,9 +547,108 @@
             </div>
             {% endfor %}
             {% if not message_bus.recent_events %}
-            <div class="event-item" style="color: #6e7681;">No recent events</div>
+            <div class="event-item" style="color: var(--text-muted);">No recent events</div>
             {% endif %}
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let refreshInterval = null;
+    
+    async function refreshDashboard() {
+        try {
+            const response = await fetch('/api/command-center/data');
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            
+            // Update last updated timestamp
+            document.getElementById('lastUpdated').textContent = 'Updated: ' + data.last_updated;
+            
+            // Update perception stats
+            if (data.perception) {
+                updateQuadrantStats('quadrantPerception', data.perception);
+            }
+            
+            // Update memory stats
+            if (data.memory) {
+                updateQuadrantStats('quadrantMemory', data.memory);
+            }
+            
+            // Update agent table
+            if (data.agents) {
+                updateAgentTable(data.agents);
+            }
+            
+            // Update context/learn stats
+            if (data.context) {
+                updateLearnQuadrant(data.context);
+            }
+            
+            // Update message bus
+            if (data.message_bus) {
+                updateMessageBus(data.message_bus);
+            }
+            
+        } catch (error) {
+            console.error('Failed to refresh dashboard:', error);
+        }
+    }
+    
+    function updateQuadrantStats(quadrantId, stats) {
+        const quadrant = document.getElementById(quadrantId);
+        if (!quadrant) return;
+        
+        const statValues = quadrant.querySelectorAll('.stat-value');
+        const keys = Object.keys(stats).filter(k => !k.includes('_24h') && !k.includes('extractors'));
+        
+        statValues.forEach((el, i) => {
+            if (keys[i] && stats[keys[i]] !== undefined) {
+                el.textContent = stats[keys[i]];
+            }
+        });
+    }
+    
+    function updateAgentTable(agents) {
+        // Agent table updates handled by full data refresh
+        // For now, just update mini-stats
+        const gardenerStats = document.querySelectorAll('#quadrantAgents .mini-stat-value');
+        if (gardenerStats.length >= 4 && agents.gardener) {
+            gardenerStats[0].textContent = agents.gardener.last_cycle || '--';
+            gardenerStats[1].textContent = agents.gardener.promoted || 0;
+            gardenerStats[2].textContent = agents.gardener.demoted || 0;
+            gardenerStats[3].textContent = agents.gardener.conflicts || 0;
+        }
+    }
+    
+    function updateLearnQuadrant(context) {
+        const flowValues = document.querySelectorAll('#quadrantLearn .flow-value');
+        if (flowValues.length >= 4) {
+            flowValues[0].textContent = context.orphans_detected || 0;
+            flowValues[1].textContent = context.orphans_surfaced || 0;
+            flowValues[2].textContent = context.types_promoted || 0;
+            flowValues[3].textContent = context.types_active || 0;
+        }
+    }
+    
+    function updateMessageBus(bus) {
+        const stats = document.querySelectorAll('.footer-stat span');
+        if (stats.length >= 3) {
+            stats[0].textContent = bus.dead_letter || 0;
+            stats[1].textContent = bus.events_per_minute || 0;
+            stats[2].textContent = bus.total_events || 0;
+        }
+    }
+    
+    // Start auto-refresh
+    refreshInterval = setInterval(refreshDashboard, 30000);
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+        if (refreshInterval) clearInterval(refreshInterval);
+    });
+</script>
+{% endblock %}
