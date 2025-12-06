@@ -55,6 +55,16 @@ class DecayConfig:
 
 
 @dataclass
+class PromotionThreshold:
+    """Database-backed promotion threshold for entity type."""
+    entity_type_name: str
+    min_confidence: float
+    min_corroboration_count: int
+    min_staging_hours: int
+    entity_type_id: Optional[str] = None
+
+
+@dataclass
 class GardenerConfig:
     """Configuration for Gardener agent with type-specific decay rates."""
     
@@ -84,6 +94,8 @@ class GardenerConfig:
     auto_merge_threshold: float = 0.95
     review_merge_threshold: float = 0.70
     never_auto_merge_types: List[str] = field(default_factory=lambda: ["PERSON"])
+    
+    use_database_thresholds: bool = True
 
 
 @dataclass 
@@ -239,10 +251,16 @@ class GardenerAgent:
     
     Runs 5 passes in order:
     1. Decay: Apply type-specific confidence decay
-    2. Promotion: Move qualified STAGING facts to TRUSTED
+    2. Promotion: Move qualified STAGING facts to TRUSTED (uses database thresholds)
     3. Conflict Resolution: Resolve conflicts with type-specific strategies
     4. Demotion: Archive low-confidence or superseded facts
     5. Cleanup: Delete old STAGING data and resolved conflicts
+    
+    Promotion thresholds are loaded from the promotion_thresholds table:
+    - Person: 0.85 confidence, 2 corroborations, 4 hours
+    - Incident: 0.80 confidence, 3 corroborations, 2 hours  
+    - Service: 0.75 confidence, 1 corroboration, 1 hour
+    - Default: 0.70 confidence, 1 corroboration, 1 hour
     """
     
     def __init__(
@@ -254,6 +272,61 @@ class GardenerAgent:
         self.config = config or GardenerConfig()
         self._cycle_count = 0
         self._promoted_entity_ids: Set[str] = set()
+        self._promotion_thresholds: Dict[str, PromotionThreshold] = {}
+        self._default_threshold: Optional[PromotionThreshold] = None
+        
+        if self.config.use_database_thresholds:
+            self._load_promotion_thresholds()
+    
+    def _load_promotion_thresholds(self) -> None:
+        """Load type-specific promotion thresholds from database."""
+        try:
+            from sqlalchemy import text
+            result = self.session.execute(text("""
+                SELECT entity_type_id, entity_type_name, 
+                       min_confidence, min_corroboration_count, min_staging_hours,
+                       is_default
+                FROM promotion_thresholds
+            """))
+            
+            for row in result.fetchall():
+                threshold = PromotionThreshold(
+                    entity_type_name=row[1],
+                    min_confidence=float(row[2]),
+                    min_corroboration_count=int(row[3]),
+                    min_staging_hours=int(row[4]),
+                    entity_type_id=str(row[0]) if row[0] else None
+                )
+                
+                if row[5]:
+                    self._default_threshold = threshold
+                else:
+                    self._promotion_thresholds[row[1]] = threshold
+            
+            logger.info(
+                f"[Gardener] Loaded {len(self._promotion_thresholds)} type-specific thresholds "
+                f"(default: conf={self._default_threshold.min_confidence if self._default_threshold else 'N/A'})"
+            )
+        except Exception as e:
+            logger.warning(f"[Gardener] Failed to load DB thresholds, using defaults: {e}")
+            self._default_threshold = PromotionThreshold(
+                entity_type_name="_default",
+                min_confidence=self.config.min_confidence_for_promotion,
+                min_corroboration_count=1,
+                min_staging_hours=int(self.config.min_dwell_time_hours)
+            )
+    
+    def get_threshold(self, entity_type: str) -> PromotionThreshold:
+        """Get promotion threshold for entity type (falls back to default)."""
+        return self._promotion_thresholds.get(
+            entity_type, 
+            self._default_threshold or PromotionThreshold(
+                entity_type_name="_default",
+                min_confidence=self.config.min_confidence_for_promotion,
+                min_corroboration_count=1,
+                min_staging_hours=int(self.config.min_dwell_time_hours)
+            )
+        )
     
     def run_cycle(self) -> GardenerCycleResult:
         """
@@ -437,10 +510,16 @@ class GardenerAgent:
     
     def promotion_pass(self, cycle_id: str = "") -> PromotionResult:
         """
-        Pass 2: Promote STAGING facts to TRUSTED when ALL criteria met:
+        Pass 2: Promote STAGING facts to TRUSTED when ALL criteria met.
+        
+        Uses type-specific thresholds from promotion_thresholds table:
+        - Person: confidence >= 0.85, corroborations >= 2, staging >= 4 hours
+        - Incident: confidence >= 0.80, corroborations >= 3, staging >= 2 hours
+        - Service: confidence >= 0.75, corroborations >= 1, staging >= 1 hour
+        - Default: confidence >= 0.70, corroborations >= 1, staging >= 1 hour
+        
+        Also requires:
         - validation_status = VALID
-        - confidence >= 0.75
-        - dwell_time >= 1 hour
         - no unresolved conflicts
         - identity resolution complete (no pending duplicates)
         """
@@ -448,9 +527,6 @@ class GardenerAgent:
         result = PromotionResult()
         
         try:
-            min_confidence = self.config.min_confidence_for_promotion
-            min_age = datetime.utcnow() - timedelta(hours=self.config.min_dwell_time_hours)
-            
             staging_entities = self.session.query(Entity).filter(
                 Entity.lifecycle_state == LifecycleState.STAGING
             ).all()
@@ -461,12 +537,22 @@ class GardenerAgent:
             for entity in staging_entities:
                 block_reason = None
                 
+                threshold = self.get_threshold(entity.entity_type)
+                
+                min_age = datetime.utcnow() - timedelta(hours=threshold.min_staging_hours)
+                
+                corroboration_count = 1
+                if hasattr(entity, 'properties') and entity.properties:
+                    corroboration_count = entity.properties.get('_corroboration_count', 1)
+                
                 if entity.validation_status != ValidationStatus.VALID:
                     block_reason = "validation_not_valid"
-                elif entity.confidence < min_confidence:
-                    block_reason = "confidence_too_low"
+                elif entity.confidence < threshold.min_confidence:
+                    block_reason = f"confidence_too_low_{entity.entity_type}"
                 elif entity.created_at > min_age:
-                    block_reason = "dwell_time_insufficient"
+                    block_reason = f"dwell_time_insufficient_{entity.entity_type}"
+                elif corroboration_count < threshold.min_corroboration_count:
+                    block_reason = f"corroboration_insufficient_{entity.entity_type}"
                 elif str(entity.id) in entity_ids_with_conflicts:
                     block_reason = "unresolved_conflict"
                 elif str(entity.id) in entity_ids_with_pending_duplicates:
@@ -483,6 +569,12 @@ class GardenerAgent:
                 props = entity.properties or {}
                 props["_promoted_at"] = datetime.utcnow().isoformat()
                 props["_promoted_from"] = "STAGING"
+                props["_promoted_threshold"] = {
+                    "type": entity.entity_type,
+                    "min_confidence": threshold.min_confidence,
+                    "min_corroboration": threshold.min_corroboration_count,
+                    "min_hours": threshold.min_staging_hours
+                }
                 entity.properties = props
                 flag_modified(entity, "properties")
                 
@@ -499,7 +591,8 @@ class GardenerAgent:
                     new_state=LifecycleState.TRUSTED.value,
                     old_confidence=entity.confidence,
                     new_confidence=entity.confidence,
-                    reason="Met all promotion criteria",
+                    reason=f"Met {entity.entity_type} thresholds: conf>={threshold.min_confidence}, "
+                           f"corrob>={threshold.min_corroboration_count}, hours>={threshold.min_staging_hours}",
                 )
             
             staging_relationships = self.session.query(Relationship).filter(

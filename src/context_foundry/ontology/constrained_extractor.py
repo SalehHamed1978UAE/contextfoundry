@@ -127,24 +127,26 @@ class ConstrainedExtractor:
             raw_extractions = self._call_llm(system_prompt, prompt)
             
             for raw in raw_extractions:
-                entity_type = raw.get("entity_type", "").strip()
+                raw_entity_type = raw.get("entity_type", "").strip()
                 
-                if entity_type not in valid_types:
+                normalized_type = snapshot.normalize_type_name(raw_entity_type)
+                
+                if not normalized_type:
                     result.rejected_entities.append({
                         "raw": raw,
-                        "reason": f"Invalid entity_type '{entity_type}' not in ontology",
+                        "reason": f"Invalid entity_type '{raw_entity_type}' not in ontology",
                         "valid_types": list(valid_types)
                     })
                     result.validation_errors.append(
                         f"Rejected entity '{raw.get('canonical_name', 'unknown')}' - "
-                        f"type '{entity_type}' is not defined in the ontology"
+                        f"type '{raw_entity_type}' is not defined in the ontology"
                     )
                     continue
                 
                 try:
-                    type_obj = snapshot.get_type_by_name(entity_type)
+                    type_obj = snapshot.get_type_by_name(normalized_type)
                     entity = EntityExtraction(
-                        entity_type=entity_type,
+                        entity_type=normalized_type,
                         canonical_name=raw.get("canonical_name", ""),
                         properties=raw.get("properties", {}),
                         source_span=raw.get("source_span", ""),

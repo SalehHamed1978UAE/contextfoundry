@@ -200,6 +200,37 @@ class OntologyRepository:
             logger.error(f"Error fetching relations for {source_type_name} -> {target_type_name}: {e}")
             raise
     
+    def normalize_type_name(self, input_type: str) -> Optional[str]:
+        """
+        Normalize type name to match exact ontology_types.type_name.
+        
+        Performs case-insensitive lookup and returns the canonical type name
+        from the database. This ensures all outputs match the ontology exactly.
+        
+        Args:
+            input_type: The type name from LLM output (may be any casing)
+            
+        Returns:
+            Canonical type_name from database, or None if not found
+        """
+        conn = self._get_connection()
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT type_name
+                    FROM ontology_types
+                    WHERE LOWER(type_name) = LOWER(%s)
+                    AND NOT is_deprecated
+                    AND (tenant_id IS NULL OR tenant_id = %s)
+                    LIMIT 1
+                """, (input_type.strip(), str(self.tenant_id) if self.tenant_id else None))
+                
+                row = cur.fetchone()
+                return row["type_name"] if row else None
+        except Exception as e:
+            logger.error(f"Error normalizing type {input_type}: {e}")
+            return None
+    
     def is_valid_type(self, type_name: str) -> bool:
         """Check if a type name exists in the ontology."""
         return self.get_type_by_name(type_name) is not None
