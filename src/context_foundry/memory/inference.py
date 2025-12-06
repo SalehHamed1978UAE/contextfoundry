@@ -21,6 +21,7 @@ from ..models.schema import Entity, Relationship, Document, LifecycleState, get_
 from ..config.domain_schema import (
     get_schema_loader, 
     FrontierNode, 
+    FrontierReason,
     DomainSchema
 )
 from ..utils.logger import logger
@@ -125,14 +126,14 @@ class InferenceRule:
 
 class TransitiveDependencyRule(InferenceRule):
     """
-    Transitive Dependency Rule: A→B and B→C implies A→C
+    Transitive Dependency Rule: A→B→C implies A→C
     
-    If we're at frontier node B, and we know:
-    - A depends on B (A→B)
-    - B depends on C (B→C)
-    Then we infer: A likely depends on C (A→C)
+    When at frontier node C (which has no outgoing edges), look backwards:
+    - Find B where B→C (direct incoming edge to frontier)
+    - Find A where A→B (indirect edge, one hop back)
+    - Infer: A likely depends on C (A→C)
     
-    This works for any relationship type with similar semantics.
+    This correctly handles frontiers which by definition have no outgoing edges.
     """
     
     def __init__(self):
@@ -154,41 +155,46 @@ class TransitiveDependencyRule(InferenceRule):
         rel_types_to_check = self._get_transitive_relationship_types(schema)
         
         for rel_type in rel_types_to_check:
-            incoming = session.query(Relationship).filter(
+            direct_incoming = session.query(Relationship).filter(
                 Relationship.target_id == frontier_node.entity_id,
                 Relationship.relationship_type == rel_type,
                 Relationship.lifecycle_state == LifecycleState.TRUSTED
             ).all()
             
-            outgoing = session.query(Relationship).filter(
-                Relationship.source_id == frontier_node.entity_id,
-                Relationship.relationship_type == rel_type,
-                Relationship.lifecycle_state == LifecycleState.TRUSTED
-            ).all()
-            
-            for inc in incoming:
-                for out in outgoing:
+            for direct_rel in direct_incoming:
+                middle_entity_id = direct_rel.source_id
+                
+                indirect_incoming = session.query(Relationship).filter(
+                    Relationship.target_id == middle_entity_id,
+                    Relationship.relationship_type == rel_type,
+                    Relationship.lifecycle_state == LifecycleState.TRUSTED
+                ).all()
+                
+                for indirect_rel in indirect_incoming:
                     source_entity = session.query(Entity).filter(
-                        Entity.id == inc.source_id,
-                        Entity.lifecycle_state == LifecycleState.TRUSTED
-                    ).first()
-                    target_entity = session.query(Entity).filter(
-                        Entity.id == out.target_id,
+                        Entity.id == indirect_rel.source_id,
                         Entity.lifecycle_state == LifecycleState.TRUSTED
                     ).first()
                     
-                    if not source_entity or not target_entity:
+                    frontier_entity = session.query(Entity).filter(
+                        Entity.id == frontier_node.entity_id,
+                        Entity.lifecycle_state == LifecycleState.TRUSTED
+                    ).first()
+                    
+                    middle_entity = session.query(Entity).filter(
+                        Entity.id == middle_entity_id,
+                        Entity.lifecycle_state == LifecycleState.TRUSTED
+                    ).first()
+                    
+                    if not source_entity or not frontier_entity:
                         continue
                     
-                    if str(source_entity.id) == str(target_entity.id):
-                        continue
-                    
-                    if str(target_entity.id) in visited_entities:
+                    if str(source_entity.id) == str(frontier_entity.id):
                         continue
                     
                     existing = session.query(Relationship).filter(
                         Relationship.source_id == source_entity.id,
-                        Relationship.target_id == target_entity.id,
+                        Relationship.target_id == frontier_entity.id,
                         Relationship.relationship_type == rel_type,
                         Relationship.lifecycle_state == LifecycleState.TRUSTED
                     ).first()
@@ -196,24 +202,26 @@ class TransitiveDependencyRule(InferenceRule):
                     if existing:
                         continue
                     
-                    inc_conf = float(inc.confidence) if inc.confidence else 0.0
-                    out_conf = float(out.confidence) if out.confidence else 0.0
-                    combined_confidence = min(inc_conf, out_conf) * self.confidence_modifier
+                    direct_conf = float(direct_rel.confidence) if direct_rel.confidence else 0.0
+                    indirect_conf = float(indirect_rel.confidence) if indirect_rel.confidence else 0.0
+                    combined_confidence = min(direct_conf, indirect_conf) * self.confidence_modifier
+                    
+                    middle_name = middle_entity.name if middle_entity else "unknown"
                     
                     inferred.append(InferredRelationship(
                         source_entity_id=str(source_entity.id),
                         source_entity_name=str(source_entity.name),
                         source_entity_type=str(source_entity.entity_type),
-                        target_entity_id=str(target_entity.id),
-                        target_entity_name=str(target_entity.name),
-                        target_entity_type=str(target_entity.entity_type),
+                        target_entity_id=str(frontier_entity.id),
+                        target_entity_name=str(frontier_entity.name),
+                        target_entity_type=str(frontier_entity.entity_type),
                         inferred_relationship_type=f"LIKELY_{rel_type}",
                         confidence=combined_confidence,
                         rule_id=self.rule_id,
                         rule_name=self.name,
                         supporting_evidence=[
-                            f"{source_entity.name} → {frontier_node.entity_name} ({rel_type})",
-                            f"{frontier_node.entity_name} → {target_entity.name} ({rel_type})"
+                            f"{source_entity.name} → {middle_name} ({rel_type})",
+                            f"{middle_name} → {frontier_entity.name} ({rel_type})"
                         ]
                     ))
         
@@ -238,8 +246,7 @@ class CoOccurrenceRule(InferenceRule):
     """
     Co-occurrence Rule: Entities mentioned together in 3+ documents may be related.
     
-    If frontier node A and entity B are mentioned together in multiple documents,
-    they likely have an undocumented relationship.
+    Searches Document content for entity name mentions to find co-occurring entities.
     """
     
     MIN_CO_OCCURRENCE = 3
@@ -260,39 +267,30 @@ class CoOccurrenceRule(InferenceRule):
     ) -> List[InferredRelationship]:
         inferred = []
         
-        frontier_docs = session.query(Entity.source_document_id).filter(
-            Entity.id == frontier_node.entity_id
-        ).all()
-        frontier_doc_ids = {doc[0] for doc in frontier_docs if doc[0]}
-        
         frontier_entity = session.query(Entity).filter(
             Entity.id == frontier_node.entity_id
         ).first()
         
-        if not frontier_entity or not frontier_doc_ids:
+        if not frontier_entity:
             return inferred
         
-        co_occurring = session.query(
-            Entity,
-            func.count(Entity.source_document_id).label('doc_count')
-        ).filter(
-            Entity.source_document_id.in_(frontier_doc_ids),
-            Entity.id != frontier_node.entity_id,
-            Entity.lifecycle_state == LifecycleState.TRUSTED
-        ).group_by(Entity.id).having(
-            func.count(Entity.source_document_id) >= 1
+        docs_mentioning_frontier = session.query(Document).filter(
+            Document.content.ilike(f"%{frontier_entity.name}%")
         ).all()
         
-        for entity, doc_count in co_occurring:
-            if str(entity.id) in visited_entities:
-                continue
-            
-            entity_docs = session.query(Entity.source_document_id).filter(
-                Entity.id == entity.id
-            ).all()
-            entity_doc_ids = {doc[0] for doc in entity_docs if doc[0]}
-            
-            shared_docs = frontier_doc_ids & entity_doc_ids
+        if len(docs_mentioning_frontier) < self.MIN_CO_OCCURRENCE:
+            return inferred
+        
+        other_entities = session.query(Entity).filter(
+            Entity.id != frontier_node.entity_id,
+            Entity.lifecycle_state == LifecycleState.TRUSTED
+        ).all()
+        
+        for other_entity in other_entities:
+            shared_docs = []
+            for doc in docs_mentioning_frontier:
+                if other_entity.name.lower() in doc.content.lower():
+                    shared_docs.append(doc)
             
             if len(shared_docs) < self.MIN_CO_OCCURRENCE:
                 continue
@@ -301,10 +299,10 @@ class CoOccurrenceRule(InferenceRule):
                 or_(
                     and_(
                         Relationship.source_id == frontier_node.entity_id,
-                        Relationship.target_id == entity.id
+                        Relationship.target_id == other_entity.id
                     ),
                     and_(
-                        Relationship.source_id == entity.id,
+                        Relationship.source_id == other_entity.id,
                         Relationship.target_id == frontier_node.entity_id
                     )
                 ),
@@ -320,14 +318,17 @@ class CoOccurrenceRule(InferenceRule):
                 source_entity_id=str(frontier_entity.id),
                 source_entity_name=str(frontier_entity.name),
                 source_entity_type=str(frontier_entity.entity_type),
-                target_entity_id=str(entity.id),
-                target_entity_name=str(entity.name),
-                target_entity_type=str(entity.entity_type),
+                target_entity_id=str(other_entity.id),
+                target_entity_name=str(other_entity.name),
+                target_entity_type=str(other_entity.entity_type),
                 inferred_relationship_type="POTENTIALLY_RELATES_TO",
                 confidence=doc_confidence,
                 rule_id=self.rule_id,
                 rule_name=self.name,
-                supporting_evidence=[f"Co-mentioned in {len(shared_docs)} documents"]
+                supporting_evidence=[
+                    f"Co-mentioned in {len(shared_docs)} documents",
+                    *[f"- {doc.title}" for doc in shared_docs[:3]]
+                ]
             ))
         
         return inferred
@@ -376,7 +377,7 @@ class SharedDependencyRule(InferenceRule):
         
         for i, (entity_a, rel_type_a, conf_a) in enumerate(dependents):
             for entity_b, rel_type_b, conf_b in dependents[i+1:]:
-                if str(entity_a.id) in visited_entities or str(entity_b.id) in visited_entities:
+                if str(entity_a.id) in visited_entities and str(entity_b.id) in visited_entities:
                     continue
                 
                 existing = session.query(Relationship).filter(
@@ -439,7 +440,156 @@ class InferenceEngine:
             SharedDependencyRule()
         ]
         
+        self.shared_dependency_rule = SharedDependencyRule()
+        self.co_occurrence_rule = CoOccurrenceRule()
+        
         logger.info(f"InferenceEngine initialized with {len(self.rules)} rules")
+    
+    def find_co_occurrences_for_entity(
+        self,
+        entity_id: str,
+        visited_entities: Optional[Set[str]] = None
+    ) -> List[InferredRelationship]:
+        """
+        Find co-occurrence relationships for a specific entity.
+        
+        Used when an entity has no neighbors (and thus no frontiers),
+        to still apply co-occurrence analysis based on document content.
+        
+        Args:
+            entity_id: ID of the entity to analyze
+            visited_entities: Set of entity IDs to exclude
+            
+        Returns:
+            List of inferred relationships via co-occurrence
+        """
+        visited = visited_entities or set()
+        schema = self.schema_loader.schema
+        
+        try:
+            entity_uuid = entity_id if isinstance(entity_id, uuid.UUID) else uuid.UUID(entity_id)
+        except ValueError:
+            return []
+        
+        entity = self.session.query(Entity).filter(Entity.id == entity_uuid).first()
+        if not entity:
+            return []
+        
+        pseudo_frontier = FrontierNode(
+            entity_id=str(entity.id),
+            entity_name=entity.name,
+            entity_type=entity.entity_type,
+            reason=FrontierReason.NO_RELATIONSHIPS,
+            message="Entity has no relationships - checking co-occurrence",
+            depth=0
+        )
+        
+        inferred = self.co_occurrence_rule.apply(pseudo_frontier, self.session, schema, visited)
+        
+        logger.info(f"Co-occurrence analysis for {entity.name}: {len(inferred)} relationships found")
+        
+        return inferred
+    
+    def find_shared_dependencies(
+        self,
+        neighbor_ids: List[str],
+        center_id: str,
+        visited_entities: Optional[Set[str]] = None
+    ) -> List[InferredRelationship]:
+        """
+        Find shared dependency relationships among neighbors.
+        
+        This handles the case where a neighbor has multiple incoming edges
+        (making it NOT a frontier, but still useful for inference).
+        
+        Args:
+            neighbor_ids: List of neighbor entity IDs to analyze
+            center_id: ID of the center entity being expanded
+            visited_entities: Set of entity IDs to exclude from results
+            
+        Returns:
+            List of inferred relationships via shared dependencies
+        """
+        visited = visited_entities or set()
+        inferred = []
+        schema = self.schema_loader.schema
+        
+        for neighbor_id in neighbor_ids:
+            try:
+                neighbor_uuid = neighbor_id if isinstance(neighbor_id, uuid.UUID) else uuid.UUID(neighbor_id)
+            except ValueError:
+                continue
+            
+            incoming_rels = self.session.query(Relationship).filter(
+                Relationship.target_id == neighbor_uuid,
+                Relationship.lifecycle_state == LifecycleState.TRUSTED
+            ).all()
+            
+            if len(incoming_rels) < 2:
+                continue
+            
+            dependents = []
+            for rel in incoming_rels:
+                entity = self.session.query(Entity).filter(
+                    Entity.id == rel.source_id,
+                    Entity.lifecycle_state == LifecycleState.TRUSTED
+                ).first()
+                if entity:
+                    dependents.append((entity, rel.relationship_type, rel.confidence))
+            
+            neighbor_entity = self.session.query(Entity).filter(
+                Entity.id == neighbor_uuid
+            ).first()
+            neighbor_name = neighbor_entity.name if neighbor_entity else "unknown"
+            
+            for i, (entity_a, rel_type_a, conf_a) in enumerate(dependents):
+                for entity_b, rel_type_b, conf_b in dependents[i+1:]:
+                    if str(entity_a.id) in visited and str(entity_b.id) in visited:
+                        continue
+                    
+                    existing = self.session.query(Relationship).filter(
+                        or_(
+                            and_(
+                                Relationship.source_id == entity_a.id,
+                                Relationship.target_id == entity_b.id
+                            ),
+                            and_(
+                                Relationship.source_id == entity_b.id,
+                                Relationship.target_id == entity_a.id
+                            )
+                        ),
+                        Relationship.lifecycle_state == LifecycleState.TRUSTED
+                    ).first()
+                    
+                    if existing:
+                        continue
+                    
+                    conf_a_val = float(conf_a) if conf_a else 0.0
+                    conf_b_val = float(conf_b) if conf_b else 0.0
+                    combined_confidence = min(conf_a_val, conf_b_val) * 0.5
+                    
+                    inferred.append(InferredRelationship(
+                        source_entity_id=str(entity_a.id),
+                        source_entity_name=str(entity_a.name),
+                        source_entity_type=str(entity_a.entity_type),
+                        target_entity_id=str(entity_b.id),
+                        target_entity_name=str(entity_b.name),
+                        target_entity_type=str(entity_b.entity_type),
+                        inferred_relationship_type="POTENTIALLY_RELATED_VIA",
+                        confidence=combined_confidence,
+                        rule_id="shared_dependency",
+                        rule_name="Shared Dependency",
+                        supporting_evidence=[
+                            f"Both depend on {neighbor_name}",
+                            f"{entity_a.name} → {neighbor_name} ({rel_type_a})",
+                            f"{entity_b.name} → {neighbor_name} ({rel_type_b})"
+                        ]
+                    ))
+        
+        logger.info(f"Shared dependency analysis: {len(inferred)} relationships found "
+                   f"from {len(neighbor_ids)} neighbors")
+        
+        return inferred
     
     def infer_from_frontiers(
         self,
