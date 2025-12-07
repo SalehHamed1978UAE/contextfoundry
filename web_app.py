@@ -687,13 +687,18 @@ def dashboard_documents():
 @app.route('/dashboard/upload', methods=['POST'])
 def dashboard_upload():
     """Upload a document for authenticated user."""
+    print("=== SINGLE UPLOAD STARTED ===")
+    print(f"Session: user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
     if not session.get('user_id') or not session.get('tenant_id'):
+        print("=== UPLOAD FAILED: No auth ===")
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
     if 'file' not in request.files:
+        print("=== UPLOAD FAILED: No file in request ===")
         return jsonify({'success': False, 'error': 'No file provided'}), 400
     
     file = request.files['file']
+    print(f"File received: {file.filename}")
     if not file.filename:
         return jsonify({'success': False, 'error': 'No file selected'}), 400
     
@@ -742,13 +747,18 @@ def dashboard_upload():
         })
         
     except Exception as e:
-        logger.error(f"Dashboard upload failed: {e}")
-        return jsonify({'success': False, 'error': 'Upload failed'}), 500
+        print(f"=== SINGLE UPLOAD FAILED: {e} ===")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/dashboard/upload/multi', methods=['POST'])
 def dashboard_upload_multi():
     """Upload multiple files at once."""
+    print("=== MULTI UPLOAD STARTED ===")
+    print(f"Session: user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
     if not session.get('user_id') or not session.get('tenant_id'):
+        print("=== MULTI UPLOAD FAILED: No auth ===")
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
     files = request.files.getlist('files')
@@ -975,7 +985,10 @@ def dashboard_upload_zip():
 @app.route('/dashboard/api-keys', methods=['GET'])
 def dashboard_list_api_keys():
     """List API keys for authenticated user."""
+    print("=== API KEYS LIST CALLED ===")
+    print(f"Session: user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
     if not session.get('user_id') or not session.get('tenant_id'):
+        print("=== API KEYS LIST FAILED: No auth ===")
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
     try:
@@ -2714,7 +2727,10 @@ def entity_history(entity_id):
 @app.route('/api/knowledge/stats')
 def knowledge_stats():
     """Get knowledge graph statistics for the authenticated user's tenant."""
+    print("=== KNOWLEDGE STATS CALLED ===")
+    print(f"Session: user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
     if not session.get('user_id') or not session.get('tenant_id'):
+        print("=== KNOWLEDGE STATS FAILED: No auth ===")
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
     try:
