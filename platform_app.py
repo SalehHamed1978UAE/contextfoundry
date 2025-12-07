@@ -23,6 +23,20 @@ def brain_health():
 
 
 if __name__ == '__main__':
+    import time
+    import socket
+    
     port = int(os.environ.get('PLATFORM_PORT', 5000))
+    
+    # Wait for port to be available
+    for attempt in range(5):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('127.0.0.1', port))
+        sock.close()
+        if result != 0:
+            break
+        print(f"[Platform] Port {port} in use, waiting...")
+        time.sleep(2)
+    
     print(f"[Platform] Starting on port {port}")
     web_app.app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)

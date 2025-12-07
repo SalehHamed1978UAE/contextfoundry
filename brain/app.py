@@ -313,8 +313,22 @@ def health():
 
 
 if __name__ == '__main__':
+    import time
+    import socket
+    
+    port = int(os.environ.get('BRAIN_PORT', 3000))
+    
+    # Wait for port to be available
+    for attempt in range(5):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('127.0.0.1', port))
+        sock.close()
+        if result != 0:
+            break
+        logger.info(f"[Brain] Port {port} in use, waiting...")
+        time.sleep(2)
+    
     init_scheduler()
     start_extraction_worker()
-    port = int(os.environ.get('BRAIN_PORT', 3000))
     logger.info(f"[Brain] Starting on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
