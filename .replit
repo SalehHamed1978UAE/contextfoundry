@@ -17,43 +17,39 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Context Foundry Web"
+args = "Brain Service"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Brain Service"
-
-[[workflows.workflow]]
-name = "Context Foundry Web"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python platform_app.py"
-waitForPort = 5000
+args = "Context Foundry Web"
 
 [[workflows.workflow]]
 name = "Brain Service"
 author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python brain/app.py"
 waitForPort = 3000
 
-[[ports]]
-localPort = 3000
-externalPort = 9000
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Context Foundry Web"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python platform_app.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[ports]]
-localPort = 5000
-externalPort = 80
+localPort = 3000
+externalPort = 3000
 
 [[ports]]
 localPort = 33091
@@ -110,6 +106,10 @@ externalPort = 8099
 [[ports]]
 localPort = 44307
 externalPort = 8081
+
+[[ports]]
+localPort = 5000
+externalPort = 80
 
 [deployment]
 deploymentTarget = "autoscale"
