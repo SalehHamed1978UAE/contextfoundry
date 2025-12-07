@@ -16,25 +16,22 @@
             background: #1a1a2e;
             color: #e0e0e0;
             min-height: 100vh;
+            font-size: 16px;
         }
         
         .header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem;
+            padding: 0.75rem 1rem;
             background: rgba(255, 255, 255, 0.03);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
+            gap: 0.5rem;
         }
         
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
@@ -42,46 +39,29 @@
             background-clip: text;
         }
         
-        .space-selector {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            color: #fff;
-            font-size: 0.9rem;
-            cursor: default;
-        }
-        
-        .space-selector::after {
-            content: '▼';
-            font-size: 0.7rem;
-            color: #888;
-        }
-        
         .header-right {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
         }
         
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .user-name {
+            font-size: 0.875rem;
             color: #a0a0a0;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .logout-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.75rem;
             background: transparent;
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 6px;
             color: #e0e0e0;
             text-decoration: none;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             transition: all 0.2s ease;
         }
         
@@ -89,45 +69,53 @@
             background: rgba(255, 255, 255, 0.1);
         }
         
+        .space-bar {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+            font-size: 0.8rem;
+            color: #667eea;
+        }
+        
         .main-content {
-            max-width: 1000px;
+            padding: 1rem;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 2rem;
         }
         
         .section {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
         
         .section-header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+            gap: 0.5rem;
         }
         
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #fff;
         }
         
-        .search-container {
-            margin-bottom: 1rem;
-        }
-        
         .search-form {
             display: flex;
+            flex-direction: column;
             gap: 0.5rem;
         }
         
         .search-input {
-            flex: 1;
-            padding: 0.875rem 1rem;
+            width: 100%;
+            padding: 0.75rem;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
@@ -145,7 +133,7 @@
         }
         
         .btn {
-            padding: 0.875rem 1.5rem;
+            padding: 0.75rem 1.25rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
             border-radius: 8px;
@@ -154,11 +142,16 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         
         .btn:hover {
             opacity: 0.9;
-            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .btn-secondary {
@@ -170,12 +163,16 @@
             background: rgba(255, 255, 255, 0.15);
         }
         
+        .btn-small {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        
         .search-results {
-            min-height: 100px;
-            padding: 1rem;
+            margin-top: 0.75rem;
+            padding: 0.75rem;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            color: #888;
             display: none;
         }
         
@@ -184,32 +181,32 @@
         }
         
         .result-item {
-            padding: 1rem;
+            padding: 0.75rem;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            margin-bottom: 0.5rem;
         }
         
         .result-answer {
             color: #fff;
             margin-bottom: 0.5rem;
             line-height: 1.5;
+            font-size: 0.9rem;
         }
         
         .result-confidence {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: #667eea;
         }
         
         .result-sources {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #666;
             margin-top: 0.5rem;
         }
         
         .document-list {
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
         }
         
@@ -217,40 +214,44 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.75rem;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
             margin-bottom: 0.5rem;
+            gap: 0.5rem;
         }
         
         .document-info {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
+            min-width: 0;
+            flex: 1;
         }
         
         .document-icon {
-            font-size: 1.2rem;
+            font-size: 1rem;
+            flex-shrink: 0;
         }
         
         .document-name {
             font-weight: 500;
             color: #fff;
+            font-size: 0.85rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .document-status {
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
             border-radius: 4px;
+            flex-shrink: 0;
         }
         
-        .status-extracted {
-            background: rgba(52, 211, 153, 0.2);
-            color: #34d399;
-        }
-        
-        .status-completed {
+        .status-extracted, .status-completed {
             background: rgba(52, 211, 153, 0.2);
             color: #34d399;
         }
@@ -272,51 +273,45 @@
         
         .empty-state {
             text-align: center;
-            padding: 2rem;
+            padding: 1.5rem 1rem;
             color: #666;
+            font-size: 0.9rem;
         }
         
-        .api-key-display {
+        .api-key-item {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.75rem;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            margin-bottom: 1rem;
-            font-family: monospace;
+            margin-bottom: 0.5rem;
         }
         
         .api-key-value {
             flex: 1;
+            font-family: monospace;
+            font-size: 0.8rem;
             color: #888;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-        
-        .api-key-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .btn-small {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8rem;
+            min-width: 100px;
         }
         
         .api-info {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: #666;
-            margin-top: 1rem;
-            line-height: 1.5;
+            margin-top: 0.75rem;
+            line-height: 1.4;
         }
         
         .upload-form {
             display: none;
-            padding: 1rem;
+            padding: 0.75rem;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 8px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         
         .upload-form.visible {
@@ -325,18 +320,29 @@
         
         .file-input-wrapper {
             display: flex;
+            flex-direction: column;
             gap: 0.5rem;
-            align-items: center;
         }
         
         .file-input {
-            flex: 1;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+        
+        .file-input::file-selector-button {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            margin-right: 0.5rem;
         }
         
         .loading {
             display: inline-block;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: #fff;
@@ -349,14 +355,17 @@
         
         .toast {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 1rem 1.5rem;
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+            padding: 0.75rem 1rem;
             background: #333;
             border-radius: 8px;
             color: #fff;
             display: none;
             z-index: 1000;
+            font-size: 0.9rem;
+            text-align: center;
         }
         
         .toast.success {
@@ -370,42 +379,81 @@
         .toast.visible {
             display: block;
         }
+        
+        @media (min-width: 480px) {
+            .search-form {
+                flex-direction: row;
+            }
+            
+            .search-input {
+                flex: 1;
+            }
+            
+            .file-input-wrapper {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .toast {
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+                max-width: 400px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .header {
+                padding: 1rem 2rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .main-content {
+                padding: 1.5rem;
+            }
+            
+            .section {
+                padding: 1.25rem;
+            }
+            
+            .user-name {
+                max-width: none;
+            }
+        }
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="header-left">
-            <span class="logo">Context Foundry</span>
-            <div class="space-selector" id="spaceSelector">{{ tenant_name }}</div>
-        </div>
+        <span class="logo">Context Foundry</span>
         <div class="header-right">
-            <div class="user-info">
-                <span>{{ user_name }}</span>
-            </div>
+            <span class="user-name">{{ user_name }}</span>
             <a href="/logout" class="logout-btn">Logout</a>
         </div>
     </header>
     
+    <div class="space-bar">{{ tenant_name }}</div>
+    
     <main class="main-content">
         <section class="section">
             <h2 class="section-title">Search your knowledge</h2>
-            <div class="search-container">
-                <form class="search-form" id="searchForm" onsubmit="handleSearch(event)">
-                    <input type="text" class="search-input" id="searchQuery" 
-                           placeholder="Ask a question about your documents..." 
-                           autocomplete="off">
-                    <button type="submit" class="btn" id="searchBtn">Search</button>
-                </form>
-            </div>
+            <form class="search-form" id="searchForm" onsubmit="handleSearch(event)">
+                <input type="text" class="search-input" id="searchQuery" 
+                       placeholder="Ask a question..." 
+                       autocomplete="off">
+                <button type="submit" class="btn" id="searchBtn">Search</button>
+            </form>
             <div class="search-results" id="searchResults">
-                <div class="empty-state">Search results will appear here</div>
+                <div class="empty-state">Results will appear here</div>
             </div>
         </section>
         
         <section class="section">
             <div class="section-header">
                 <h2 class="section-title">Documents</h2>
-                <button class="btn btn-secondary" onclick="toggleUpload()">Upload</button>
+                <button class="btn btn-secondary btn-small" onclick="toggleUpload()">Upload</button>
             </div>
             
             <div class="upload-form" id="uploadForm">
@@ -413,28 +461,28 @@
                     <div class="file-input-wrapper">
                         <input type="file" id="fileInput" class="file-input" 
                                accept=".pdf,.doc,.docx,.txt,.md,.json">
-                        <button type="submit" class="btn" id="uploadBtn">Upload File</button>
+                        <button type="submit" class="btn btn-small" id="uploadBtn">Upload</button>
                     </div>
                 </form>
             </div>
             
             <div class="document-list" id="documentList">
-                <div class="empty-state">Loading documents...</div>
+                <div class="empty-state">Loading...</div>
             </div>
         </section>
         
         <section class="section">
             <div class="section-header">
                 <h2 class="section-title">API Access</h2>
-                <button class="btn btn-secondary btn-small" onclick="createApiKey()">Create New Key</button>
+                <button class="btn btn-secondary btn-small" onclick="createApiKey()">New Key</button>
             </div>
             
             <div id="apiKeysList">
-                <div class="empty-state">Loading API keys...</div>
+                <div class="empty-state">Loading...</div>
             </div>
             
             <p class="api-info">
-                Use your API key with Claude, ChatGPT, or any MCP-compatible AI agent to give them access to your knowledge space.
+                Use API keys with Claude, ChatGPT, or any MCP-compatible AI agent.
             </p>
         </section>
     </main>
@@ -449,6 +497,12 @@
             toast.textContent = message;
             toast.className = 'toast visible ' + type;
             setTimeout(() => toast.classList.remove('visible'), 3000);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
         
         async function handleSearch(event) {
@@ -483,28 +537,21 @@
                             </div>
                         `;
                     } else {
-                        results.innerHTML = '<div class="empty-state">No results found for your query.</div>';
+                        results.innerHTML = '<div class="empty-state">No results found.</div>';
                     }
                 } else {
-                    results.innerHTML = `<div class="empty-state">Error: ${escapeHtml(data.error || 'Search failed')}</div>`;
+                    results.innerHTML = `<div class="empty-state">${escapeHtml(data.error || 'Search failed')}</div>`;
                 }
             } catch (err) {
-                results.innerHTML = '<div class="empty-state">Search failed. Please try again.</div>';
+                results.innerHTML = '<div class="empty-state">Search failed.</div>';
             } finally {
                 btn.innerHTML = 'Search';
                 btn.disabled = false;
             }
         }
         
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
         function toggleUpload() {
-            const form = document.getElementById('uploadForm');
-            form.classList.toggle('visible');
+            document.getElementById('uploadForm').classList.toggle('visible');
         }
         
         async function handleUpload(event) {
@@ -513,7 +560,7 @@
             const file = fileInput.files[0];
             
             if (!file) {
-                showToast('Please select a file', 'error');
+                showToast('Select a file', 'error');
                 return;
             }
             
@@ -533,7 +580,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showToast('Document uploaded successfully', 'success');
+                    showToast('Uploaded!', 'success');
                     document.getElementById('uploadForm').classList.remove('visible');
                     fileInput.value = '';
                     loadDocuments();
@@ -541,9 +588,9 @@
                     showToast(data.error || 'Upload failed', 'error');
                 }
             } catch (err) {
-                showToast('Upload failed. Please try again.', 'error');
+                showToast('Upload failed', 'error');
             } finally {
-                btn.innerHTML = 'Upload File';
+                btn.innerHTML = 'Upload';
                 btn.disabled = false;
             }
         }
@@ -560,13 +607,13 @@
                         <div class="document-item">
                             <div class="document-info">
                                 <span class="document-icon">📄</span>
-                                <span class="document-name">${escapeHtml(doc.name || doc.original_filename || 'Unknown')}</span>
+                                <span class="document-name">${escapeHtml(doc.name || 'Unknown')}</span>
                             </div>
                             <span class="document-status status-${doc.status || 'pending'}">${formatStatus(doc.status)}</span>
                         </div>
                     `).join('');
                 } else {
-                    list.innerHTML = '<div class="empty-state">No documents yet. Upload your first document to get started.</div>';
+                    list.innerHTML = '<div class="empty-state">No documents yet. Upload your first!</div>';
                 }
             } catch (err) {
                 list.innerHTML = '<div class="empty-state">Failed to load documents.</div>';
@@ -574,14 +621,14 @@
         }
         
         function formatStatus(status) {
-            const statusMap = {
-                'extracted': '✅ Extracted',
-                'completed': '✅ Extracted',
-                'processing': '⏳ Processing',
-                'pending': '⏳ Pending',
-                'failed': '❌ Failed'
+            const map = {
+                'extracted': 'Done',
+                'completed': 'Done',
+                'processing': 'Processing',
+                'pending': 'Pending',
+                'failed': 'Failed'
             };
-            return statusMap[status] || status || 'Pending';
+            return map[status] || status || 'Pending';
         }
         
         async function loadApiKeys() {
@@ -593,18 +640,16 @@
                 
                 if (data.success && data.keys && data.keys.length > 0) {
                     list.innerHTML = data.keys.map(key => `
-                        <div class="api-key-display">
-                            <span class="api-key-value">${escapeHtml(key.key_prefix || key.name)}••••••••</span>
-                            <div class="api-key-actions">
-                                <button class="btn btn-secondary btn-small" onclick="revokeKey('${key.id}')">Revoke</button>
-                            </div>
+                        <div class="api-key-item">
+                            <span class="api-key-value">${escapeHtml(key.key_prefix || key.name)}...</span>
+                            <button class="btn btn-secondary btn-small" onclick="revokeKey('${key.id}')">Revoke</button>
                         </div>
                     `).join('');
                 } else {
-                    list.innerHTML = '<div class="empty-state">No API keys. Create one to give AI agents access.</div>';
+                    list.innerHTML = '<div class="empty-state">No API keys yet.</div>';
                 }
             } catch (err) {
-                list.innerHTML = '<div class="empty-state">Failed to load API keys.</div>';
+                list.innerHTML = '<div class="empty-state">Failed to load keys.</div>';
             }
         }
         
@@ -619,35 +664,32 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showToast('API key created! Copy it now - it won\'t be shown again.', 'success');
-                    alert('Your new API key (copy it now, it won\'t be shown again):\n\n' + data.api_key);
+                    showToast('Key created!', 'success');
+                    prompt('Copy your API key (won\'t be shown again):', data.api_key);
                     loadApiKeys();
                 } else {
-                    showToast(data.error || 'Failed to create key', 'error');
+                    showToast(data.error || 'Failed', 'error');
                 }
             } catch (err) {
-                showToast('Failed to create API key', 'error');
+                showToast('Failed to create key', 'error');
             }
         }
         
         async function revokeKey(keyId) {
-            if (!confirm('Are you sure you want to revoke this API key?')) return;
+            if (!confirm('Revoke this key?')) return;
             
             try {
-                const response = await fetch(`/dashboard/api-keys/${keyId}`, {
-                    method: 'DELETE'
-                });
-                
+                const response = await fetch(`/dashboard/api-keys/${keyId}`, { method: 'DELETE' });
                 const data = await response.json();
                 
                 if (data.success) {
-                    showToast('API key revoked', 'success');
+                    showToast('Key revoked', 'success');
                     loadApiKeys();
                 } else {
-                    showToast(data.error || 'Failed to revoke key', 'error');
+                    showToast(data.error || 'Failed', 'error');
                 }
             } catch (err) {
-                showToast('Failed to revoke API key', 'error');
+                showToast('Failed to revoke', 'error');
             }
         }
         
