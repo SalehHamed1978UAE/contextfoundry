@@ -43,7 +43,47 @@ def health():
         components['core'] = {'status': 'unhealthy', 'error': str(e)}
         overall_healthy = False
     
-    components['extraction_worker'] = {'status': 'available'}
+    try:
+        session = get_db_session()
+        
+        stuck_result = session.execute(text("""
+            SELECT COUNT(*) FROM platform.extraction_requests 
+            WHERE status = 'pending' 
+            AND created_at < NOW() - INTERVAL '5 minutes'
+        """))
+        stuck_count = stuck_result.scalar()
+        
+        recent_result = session.execute(text("""
+            SELECT COUNT(*) FROM platform.extraction_requests 
+            WHERE status = 'completed' 
+            AND completed_at > NOW() - INTERVAL '10 minutes'
+        """))
+        recent_completed = recent_result.scalar()
+        
+        processing_result = session.execute(text("""
+            SELECT COUNT(*) FROM platform.extraction_requests 
+            WHERE status = 'processing' 
+            AND claimed_at < NOW() - INTERVAL '5 minutes'
+        """))
+        stale_processing = processing_result.scalar()
+        
+        session.close()
+        
+        if stuck_count > 5 or stale_processing > 2:
+            components['extraction_worker'] = {
+                'status': 'degraded',
+                'reason': f'{stuck_count} stuck, {stale_processing} stale processing',
+                'recent_completed': recent_completed
+            }
+        else:
+            components['extraction_worker'] = {
+                'status': 'healthy',
+                'pending_count': stuck_count,
+                'recent_completed': recent_completed
+            }
+    except Exception as e:
+        components['extraction_worker'] = {'status': 'unknown', 'error': str(e)}
+    
     components['query_endpoint'] = {'status': 'healthy'}
     
     return jsonify({
@@ -251,13 +291,13 @@ def get_entity(entity_id):
         rel_result = session.execute(
             text("""
                 SELECT r.id, r.relationship_type, r.properties, r.confidence,
-                       r.source_entity_id, r.target_entity_id,
+                       r.source_id as source_entity_id, r.target_id as target_entity_id,
                        se.name as source_name, se.entity_type as source_type,
                        te.name as target_name, te.entity_type as target_type
                 FROM public.relationships r
-                JOIN public.entities se ON r.source_entity_id = se.id
-                JOIN public.entities te ON r.target_entity_id = te.id
-                WHERE (r.source_entity_id = :entity_id OR r.target_entity_id = :entity_id)
+                JOIN public.entities se ON r.source_id = se.id
+                JOIN public.entities te ON r.target_id = te.id
+                WHERE (r.source_id = :entity_id OR r.target_id = :entity_id)
                   AND r.tenant_id = :tenant_id
             """),
             {'entity_id': entity_id, 'tenant_id': tenant_id}
@@ -301,8 +341,8 @@ def list_relationships():
                        te.id as target_id, te.name as target_name, te.entity_type as target_type,
                        r.created_at
                 FROM public.relationships r
-                JOIN public.entities se ON r.source_entity_id = se.id
-                JOIN public.entities te ON r.target_entity_id = te.id
+                JOIN public.entities se ON r.source_id = se.id
+                JOIN public.entities te ON r.target_id = te.id
                 WHERE r.tenant_id = :tenant_id
                 ORDER BY r.created_at DESC
                 LIMIT :limit OFFSET :offset
@@ -367,7 +407,7 @@ def get_graph():
                         SELECT e.id, COUNT(r.id) as connection_count
                         FROM public.entities e
                         LEFT JOIN public.relationships r 
-                            ON e.id = r.source_entity_id OR e.id = r.target_entity_id
+                            ON e.id = r.source_id OR e.id = r.target_id
                         WHERE e.tenant_id = :tenant_id
                         GROUP BY e.id
                         ORDER BY connection_count DESC
@@ -375,14 +415,14 @@ def get_graph():
                     ),
                     neighbor_entities AS (
                         SELECT DISTINCT 
-                            CASE WHEN r.source_entity_id IN (SELECT id FROM hub_entities) 
-                                 THEN r.target_entity_id 
-                                 ELSE r.source_entity_id 
+                            CASE WHEN r.source_id IN (SELECT id FROM hub_entities) 
+                                 THEN r.target_id 
+                                 ELSE r.source_id 
                             END as id
                         FROM public.relationships r
                         WHERE r.tenant_id = :tenant_id
-                          AND (r.source_entity_id IN (SELECT id FROM hub_entities)
-                               OR r.target_entity_id IN (SELECT id FROM hub_entities))
+                          AND (r.source_id IN (SELECT id FROM hub_entities)
+                               OR r.target_id IN (SELECT id FROM hub_entities))
                     ),
                     all_relevant_ids AS (
                         SELECT id FROM hub_entities
@@ -403,11 +443,11 @@ def get_graph():
         if entity_ids:
             rel_result = session.execute(
                 text("""
-                    SELECT id, source_entity_id, target_entity_id, relationship_type
+                    SELECT id, source_id as source_entity_id, target_id as target_entity_id, relationship_type
                     FROM public.relationships
                     WHERE tenant_id = :tenant_id
-                      AND source_entity_id = ANY(:entity_ids::uuid[])
-                      AND target_entity_id = ANY(:entity_ids::uuid[])
+                      AND source_id = ANY(:entity_ids::uuid[])
+                      AND target_id = ANY(:entity_ids::uuid[])
                 """),
                 {'tenant_id': tenant_id, 'entity_ids': entity_ids}
             )

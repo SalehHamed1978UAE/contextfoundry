@@ -56,13 +56,15 @@ class StagingLoader:
     - Provenance tracking (source document, sentence)
     - Duplicate detection
     - Error handling with rollback
+    - Tenant isolation via tenant_id
     """
     
     def __init__(
         self, 
         session: Session,
         enable_deduplication: bool = True,
-        similarity_threshold: float = 0.8
+        similarity_threshold: float = 0.8,
+        tenant_id: Optional[str] = None
     ):
         """
         Initialize the staging loader.
@@ -71,11 +73,13 @@ class StagingLoader:
             session: SQLAlchemy session for database operations
             enable_deduplication: Whether to deduplicate entities before loading
             similarity_threshold: Minimum similarity for fuzzy duplicate detection
+            tenant_id: Tenant ID for multi-tenancy isolation
         """
         self.session = session
         self._entity_cache = {}
         self.enable_deduplication = enable_deduplication
         self.duplicate_detector = DuplicateDetector(session, similarity_threshold)
+        self.tenant_id = tenant_id
     
     def _normalize_entity_type(self, entity_type: str) -> str:
         """Normalize entity type string for database storage.
@@ -98,8 +102,8 @@ class StagingLoader:
         name: str, 
         entity_type: Optional[str] = None
     ) -> Optional[Entity]:
-        """Find an entity by name, optionally filtered by type."""
-        cache_key = (name.lower(), entity_type if entity_type else None)
+        """Find an entity by name within the current tenant, optionally filtered by type."""
+        cache_key = (name.lower(), entity_type if entity_type else None, self.tenant_id)
         
         if cache_key in self._entity_cache:
             return self._entity_cache[cache_key]
@@ -107,6 +111,8 @@ class StagingLoader:
         query = self.session.query(Entity).filter(
             Entity.name.ilike(name)
         )
+        if self.tenant_id:
+            query = query.filter(Entity.tenant_id == uuid.UUID(self.tenant_id))
         if entity_type:
             query = query.filter(Entity.entity_type == entity_type)
         
@@ -117,19 +123,23 @@ class StagingLoader:
         return entity
     
     def _find_entity_by_name_any_type(self, name: str) -> Optional[Entity]:
-        """Find an entity by name regardless of type."""
-        cache_key = (name.lower(), None)
+        """Find an entity by name within the current tenant, regardless of type."""
+        cache_key = (name.lower(), None, self.tenant_id)
         
         if cache_key in self._entity_cache:
             return self._entity_cache[cache_key]
         
-        entity = self.session.query(Entity).filter(
+        query = self.session.query(Entity).filter(
             Entity.name.ilike(name)
-        ).first()
+        )
+        if self.tenant_id:
+            query = query.filter(Entity.tenant_id == uuid.UUID(self.tenant_id))
+        
+        entity = query.first()
         
         if entity:
             self._entity_cache[cache_key] = entity
-            specific_key = (name.lower(), entity.entity_type)
+            specific_key = (name.lower(), entity.entity_type, self.tenant_id)
             self._entity_cache[specific_key] = entity
         
         return entity
@@ -171,6 +181,7 @@ class StagingLoader:
         
         entity = Entity(
             id=uuid.uuid4(),
+            tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
             name=extracted.canonical_name,
             entity_type=entity_type,
             lifecycle_state=LifecycleState.STAGING,
@@ -184,7 +195,7 @@ class StagingLoader:
         
         self.session.add(entity)
         
-        cache_key = (extracted.canonical_name.lower(), entity_type)
+        cache_key = (extracted.canonical_name.lower(), entity_type, self.tenant_id)
         self._entity_cache[cache_key] = entity
         
         return entity, "created"
@@ -212,12 +223,16 @@ class StagingLoader:
         if not source_entity or not target_entity:
             return None, "error"
         
+        filters = [
+            Relationship.source_id == source_entity.id,
+            Relationship.target_id == target_entity.id,
+            Relationship.relationship_type == relation_type,
+        ]
+        if self.tenant_id:
+            filters.append(Relationship.tenant_id == uuid.UUID(self.tenant_id))
+        
         existing = self.session.query(Relationship).filter(
-            and_(
-                Relationship.source_id == source_entity.id,
-                Relationship.target_id == target_entity.id,
-                Relationship.relationship_type == relation_type,
-            )
+            and_(*filters)
         ).first()
         
         if existing:
@@ -233,6 +248,7 @@ class StagingLoader:
         
         relationship = Relationship(
             id=uuid.uuid4(),
+            tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
             source_id=source_entity.id,
             target_id=target_entity.id,
             relationship_type=relation_type,
