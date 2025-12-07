@@ -1271,7 +1271,7 @@
             const list = document.getElementById('connectorsList');
             
             try {
-                const response = await fetch('/dashboard/connectors');
+                const response = await fetch('/dashboard/connectors', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.connectors && data.connectors.length > 0) {
@@ -1303,7 +1303,7 @@
             btn.disabled = true;
             
             try {
-                const response = await fetch(`/dashboard/connectors/${connectorId}/sync`, { method: 'POST' });
+                const response = await fetch(`/dashboard/connectors/${connectorId}/sync`, { method: 'POST', credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -1325,7 +1325,7 @@
             if (!confirm('Remove this connector?')) return;
             
             try {
-                const response = await fetch(`/dashboard/connectors/${connectorId}`, { method: 'DELETE' });
+                const response = await fetch(`/dashboard/connectors/${connectorId}`, { method: 'DELETE', credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -1343,7 +1343,7 @@
             const list = document.getElementById('documentList');
             
             try {
-                const response = await fetch('/dashboard/documents');
+                const response = await fetch('/dashboard/documents', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.documents && data.documents.length > 0) {
@@ -1379,7 +1379,7 @@
             const list = document.getElementById('apiKeysList');
             
             try {
-                const response = await fetch('/dashboard/api-keys');
+                const response = await fetch('/dashboard/api-keys', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.keys && data.keys.length > 0) {
@@ -1402,7 +1402,8 @@
                 const response = await fetch('/dashboard/api-keys', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'Dashboard Key', scopes: ['read', 'write'] })
+                    body: JSON.stringify({ name: 'Dashboard Key', scopes: ['read', 'write'] }),
+                    credentials: 'include'
                 });
                 
                 const data = await response.json();
@@ -1423,7 +1424,7 @@
             if (!confirm('Revoke this key?')) return;
             
             try {
-                const response = await fetch(`/dashboard/api-keys/${keyId}`, { method: 'DELETE' });
+                const response = await fetch(`/dashboard/api-keys/${keyId}`, { method: 'DELETE', credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -1453,7 +1454,7 @@
         
         async function loadStats() {
             try {
-                const response = await fetch('/api/knowledge/stats');
+                const response = await fetch('/api/knowledge/stats', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -1471,7 +1472,7 @@
             const loading = document.getElementById('graphLoading');
             
             try {
-                const response = await fetch('/api/knowledge/graph');
+                const response = await fetch('/api/knowledge/graph', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.data.nodes && data.data.nodes.length > 0) {
@@ -1544,7 +1545,7 @@
             const list = document.getElementById('entityList');
             
             try {
-                const response = await fetch('/api/knowledge/entities?per_page=50');
+                const response = await fetch('/api/knowledge/entities?per_page=50', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.data.entities && data.data.entities.length > 0) {
@@ -1570,7 +1571,7 @@
             const list = document.getElementById('relationshipList');
             
             try {
-                const response = await fetch('/api/knowledge/relationships?per_page=50');
+                const response = await fetch('/api/knowledge/relationships?per_page=50', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.data.relationships && data.data.relationships.length > 0) {
@@ -1603,7 +1604,7 @@
             body.innerHTML = '<div class="empty-state">Loading...</div>';
             
             try {
-                const response = await fetch(`/api/knowledge/entities/${entityId}`);
+                const response = await fetch(`/api/knowledge/entities/${entityId}`, { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success && data.data.entity) {
