@@ -1,7 +1,8 @@
 import os
 import json
 import atexit
-from flask import Flask, render_template, request, jsonify
+from datetime import timedelta
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, g
 from src.context_foundry.core import ContextFoundry
 from src.context_foundry.agents.scheduler import (
     GardenerScheduler, SchedulerConfig, start_scheduler, stop_scheduler, get_scheduler
@@ -11,6 +12,11 @@ from src.context_foundry.agents.identity_resolver import IdentityResolutionConfi
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "context-foundry-secret")
+app.permanent_session_lifetime = timedelta(days=7)
+
+if os.environ.get("GOOGLE_OAUTH_CLIENT_ID"):
+    from google_auth import google_auth
+    app.register_blueprint(google_auth)
 
 @app.after_request
 def add_headers(response):
@@ -561,15 +567,298 @@ def get_document_extraction_status(document_id):
 
 
 @app.route('/')
+def landing():
+    """Landing page - shows sign in or redirects to dashboard if authenticated."""
+    if session.get('user_id') and session.get('tenant_id'):
+        return redirect(url_for('user_dashboard'))
+    return render_template('landing.html')
+
+@app.route('/app')
 def index():
+    """Internal admin app (Command Center SPA)."""
     import time
     return render_template('index.html', active_page='dashboard', cache_bust=int(time.time()))
+
+@app.route('/dashboard')
+def user_dashboard():
+    """User dashboard for authenticated users."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return redirect(url_for('landing'))
+    
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    tenant_name = session.get('user_name', 'My') + "'s Space"
+    
+    try:
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT name FROM platform.tenants WHERE id = %s", (session['tenant_id'],))
+                tenant = cur.fetchone()
+                if tenant:
+                    tenant_name = tenant['name']
+    except Exception as e:
+        logger.warning(f"Could not fetch tenant name: {e}")
+    
+    return render_template('user_dashboard.html',
+                         tenant_id=session['tenant_id'],
+                         tenant_name=tenant_name,
+                         user_name=session.get('user_name', 'User'),
+                         user_email=session.get('user_email', ''))
+
+@app.route('/logout')
+def logout():
+    """Clear session and redirect to landing."""
+    session.clear()
+    return redirect(url_for('landing'))
+
+@app.route('/dashboard/search', methods=['POST'])
+def dashboard_search():
+    """Search knowledge graph for authenticated user."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    data = request.get_json() or {}
+    query = data.get('query', '').strip()
+    
+    if not query:
+        return jsonify({'success': False, 'error': 'Query is required'}), 400
+    
+    try:
+        from uuid import UUID
+        foundry = get_context_foundry()
+        tenant_id = UUID(session['tenant_id'])
+        
+        result = foundry.query_context(
+            query=query,
+            tenant_id=tenant_id,
+            include_context=True
+        )
+        
+        return jsonify({
+            'success': True,
+            'answer': result.get('answer', ''),
+            'confidence': result.get('confidence', 0),
+            'sources': result.get('sources', [])
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard search failed: {e}")
+        return jsonify({'success': False, 'error': 'Search failed'}), 500
+
+@app.route('/dashboard/documents', methods=['GET'])
+def dashboard_documents():
+    """List documents for authenticated user."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, original_filename, mime_type, status, created_at
+                    FROM platform.documents
+                    WHERE tenant_id = %s
+                    ORDER BY created_at DESC
+                    LIMIT 100
+                """, (session['tenant_id'],))
+                docs = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'documents': [{
+                'id': str(doc['id']),
+                'name': doc['original_filename'],
+                'mime_type': doc['mime_type'],
+                'status': doc['status'] or 'pending',
+                'created_at': doc['created_at'].isoformat() if doc['created_at'] else None
+            } for doc in docs]
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard documents failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to load documents'}), 500
+
+@app.route('/dashboard/upload', methods=['POST'])
+def dashboard_upload():
+    """Upload a document for authenticated user."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'success': False, 'error': 'No file selected'}), 400
+    
+    try:
+        from uuid import UUID, uuid4
+        import psycopg2
+        
+        tenant_id = UUID(session['tenant_id'])
+        user_id = UUID(session['user_id'])
+        
+        doc_id = uuid4()
+        version = 1
+        storage_dir = f"./storage/tenants/{tenant_id}/documents/{doc_id}/v{version}"
+        os.makedirs(storage_dir, exist_ok=True)
+        storage_path = f"{storage_dir}/content"
+        
+        file.save(storage_path)
+        file_size = os.path.getsize(storage_path)
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO platform.documents (
+                        id, tenant_id, original_filename, mime_type, 
+                        storage_path, file_size, current_version, status, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', NOW())
+                """, (str(doc_id), str(tenant_id), file.filename, 
+                      file.content_type or 'application/octet-stream',
+                      storage_path, file_size, version))
+                
+                cur.execute("""
+                    INSERT INTO platform.usage_events (
+                        tenant_id, user_id, event_type, resource_type, 
+                        resource_id, units, metadata, created_at
+                    ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                """, (str(tenant_id), str(user_id), str(doc_id), file_size,
+                      json.dumps({'filename': file.filename})))
+                
+                conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'document_id': str(doc_id),
+            'filename': file.filename
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard upload failed: {e}")
+        return jsonify({'success': False, 'error': 'Upload failed'}), 500
+
+@app.route('/dashboard/api-keys', methods=['GET'])
+def dashboard_list_api_keys():
+    """List API keys for authenticated user."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, name, key_prefix, scopes, created_at
+                    FROM platform.api_keys
+                    WHERE tenant_id = %s AND status = 'active'
+                    ORDER BY created_at DESC
+                """, (session['tenant_id'],))
+                keys = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'keys': [{
+                'id': str(key['id']),
+                'name': key['name'],
+                'key_prefix': key['key_prefix'],
+                'scopes': key['scopes'],
+                'created_at': key['created_at'].isoformat() if key['created_at'] else None
+            } for key in keys]
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard list API keys failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to load API keys'}), 500
+
+@app.route('/dashboard/api-keys', methods=['POST'])
+def dashboard_create_api_key():
+    """Create a new API key for authenticated user."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import secrets
+        import bcrypt
+        from uuid import UUID, uuid4
+        import psycopg2
+        
+        data = request.get_json() or {}
+        key_name = data.get('name', 'Dashboard Key')
+        scopes = data.get('scopes', ['read'])
+        
+        tenant_id = UUID(session['tenant_id'])
+        user_id = UUID(session['user_id'])
+        
+        key_id = uuid4()
+        raw_secret = secrets.token_urlsafe(32)
+        key_prefix = f"cf_live_{secrets.token_hex(4)}"
+        full_key = f"{key_prefix}_{raw_secret}"
+        
+        key_hash = bcrypt.hashpw(full_key.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO platform.api_keys (
+                        id, tenant_id, created_by, name, key_prefix, 
+                        key_hash, scopes, status, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'active', NOW())
+                """, (str(key_id), str(tenant_id), str(user_id), key_name,
+                      key_prefix, key_hash, scopes))
+                conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'key_id': str(key_id),
+            'api_key': full_key
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard create API key failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to create API key'}), 500
+
+@app.route('/dashboard/api-keys/<key_id>', methods=['DELETE'])
+def dashboard_revoke_api_key(key_id):
+    """Revoke an API key."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE platform.api_keys
+                    SET status = 'revoked'
+                    WHERE id = %s AND tenant_id = %s
+                """, (key_id, session['tenant_id']))
+                conn.commit()
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        logger.error(f"Dashboard revoke API key failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to revoke API key'}), 500
 
 @app.route('/evaluation')
 def evaluation():
     # Redirect to SPA
     from flask import redirect
-    return redirect('/?page=evaluation')
+    return redirect('/app?page=evaluation')
 
 @app.route('/health')
 def health():
