@@ -718,10 +718,10 @@ def dashboard_upload():
             with conn.cursor() as cur:
                 cur.execute("""
                     INSERT INTO platform.documents (
-                        id, tenant_id, original_filename, mime_type, 
-                        storage_path, file_size, current_version, status, created_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', NOW())
-                """, (str(doc_id), str(tenant_id), file.filename, 
+                        id, tenant_id, name, original_filename, mime_type, 
+                        storage_path, size_bytes, current_version, status, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', NOW())
+                """, (str(doc_id), str(tenant_id), file.filename, file.filename, 
                       file.content_type or 'application/octet-stream',
                       storage_path, file_size, version))
                 
@@ -814,10 +814,10 @@ def dashboard_upload_multi():
                     
                     cur.execute("""
                         INSERT INTO platform.documents (
-                            id, tenant_id, original_filename, mime_type, 
-                            storage_path, file_size, current_version, status, content_hash, created_at
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
-                    """, (str(doc_id), str(tenant_id), filename, 
+                            id, tenant_id, name, original_filename, mime_type, 
+                            storage_path, size_bytes, current_version, status, content_hash, created_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+                    """, (str(doc_id), str(tenant_id), filename, filename, 
                           file.content_type or 'application/octet-stream',
                           storage_path, file_size, version, content_hash))
                     
@@ -935,10 +935,10 @@ def dashboard_upload_zip():
                             
                             cur.execute("""
                                 INSERT INTO platform.documents (
-                                    id, tenant_id, original_filename, mime_type, 
-                                    storage_path, file_size, current_version, status, content_hash, created_at
-                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
-                            """, (str(doc_id), str(tenant_id), filename, 
+                                    id, tenant_id, name, original_filename, mime_type, 
+                                    storage_path, size_bytes, current_version, status, content_hash, created_at
+                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+                            """, (str(doc_id), str(tenant_id), filename, filename, 
                                   mime_type or 'application/octet-stream',
                                   storage_path, len(content), version, content_hash))
                             
@@ -1283,11 +1283,11 @@ def dashboard_sync_connector(connector_id):
                         
                         cur.execute("""
                             INSERT INTO platform.documents (
-                                id, tenant_id, original_filename, mime_type, storage_path,
-                                file_size, current_version, status, source_connector_id,
+                                id, tenant_id, name, original_filename, mime_type, storage_path,
+                                size_bytes, current_version, status, source_connector_id,
                                 external_id, content_hash, created_at
-                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s, NOW())
-                        """, (str(doc_id), str(tenant_id), file_info['name'], file_info['mime_type'],
+                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s, NOW())
+                        """, (str(doc_id), str(tenant_id), file_info['name'], file_info['name'], file_info['mime_type'],
                               storage_path, file_info['size'], version, connector_id,
                               file_info['external_id'], content_hash))
                         
