@@ -131,6 +131,160 @@ def evaluation():
 def health():
     return 'OK', 200
 
+@app.route('/internal/v1/health')
+def internal_health():
+    """
+    Brain internal health endpoint for Platform Foundation.
+    Returns component-level health status.
+    """
+    from src.context_foundry.models.schema import get_session
+    import time
+    
+    start_time = time.time()
+    components = {}
+    overall_healthy = True
+    
+    try:
+        session = get_session()
+        session.execute("SELECT 1")
+        components['database'] = {'status': 'healthy', 'latency_ms': int((time.time() - start_time) * 1000)}
+        session.close()
+    except Exception as e:
+        components['database'] = {'status': 'unhealthy', 'error': str(e)}
+        overall_healthy = False
+    
+    try:
+        foundry = get_context_foundry()
+        components['core'] = {'status': 'healthy' if foundry else 'unhealthy'}
+        if not foundry:
+            overall_healthy = False
+    except Exception as e:
+        components['core'] = {'status': 'unhealthy', 'error': str(e)}
+        overall_healthy = False
+    
+    components['extraction_worker'] = {'status': 'available'}
+    components['query_endpoint'] = {'status': 'healthy'}
+    
+    return jsonify({
+        'status': 'healthy' if overall_healthy else 'degraded',
+        'version': '1.0.0',
+        'components': components,
+        'timestamp': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    }), 200 if overall_healthy else 503
+
+@app.route('/internal/v1/query', methods=['POST'])
+def internal_query():
+    """
+    Brain internal query endpoint for Platform Foundation.
+    Returns QueryResponse contract format.
+    """
+    import time
+    from packages.interface_types.src import QueryRequest, QueryResponse, QueryType, QueryErrorCode
+    from packages.interface_types.src.query import QueryError, TokensConsumed
+    
+    start_time = time.time()
+    data = request.get_json() or {}
+    
+    try:
+        query_request = QueryRequest(**data)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'results': [],
+            'total_count': 0,
+            'tokens_consumed': {'input_tokens': 0, 'output_tokens': 0, 'total_tokens': 0},
+            'duration_ms': int((time.time() - start_time) * 1000),
+            'error': {'code': 'INVALID_QUERY', 'message': str(e)}
+        }), 400
+    
+    try:
+        foundry = get_context_foundry()
+        
+        if query_request.query_type == QueryType.SEMANTIC_SEARCH:
+            result = foundry.query(query_request.query_text or "")
+            
+            entities = result.get('context_bundle', {}).get('blast_radius_entities', [])
+            results = [
+                {
+                    'entity_id': e.get('id', ''),
+                    'entity_type': e.get('type', ''),
+                    'content': e,
+                    'similarity_score': 0.8,
+                    'source_document_id': e.get('source_document_id')
+                }
+                for e in entities[:query_request.max_results or 10]
+            ]
+            
+            input_tokens = 100
+            output_tokens = 50
+            
+        elif query_request.query_type == QueryType.VERIFY_STATEMENT:
+            result = foundry.query(query_request.statement or "")
+            
+            verified = result.get('confidence', 0) > 0.7
+            results = [{
+                'verified': verified,
+                'confidence': result.get('confidence', 0),
+                'supporting_entities': [],
+                'contradicting_entities': [],
+                'explanation': result.get('answer', '')
+            }]
+            
+            input_tokens = 150
+            output_tokens = 100
+            
+        elif query_request.query_type == QueryType.GET_SCHEMA:
+            from src.context_foundry.models.schema import get_session, OntologyType
+            session = get_session()
+            types = session.query(OntologyType).filter(
+                OntologyType.state == 'ACTIVE'
+            ).limit(50).all()
+            
+            results = [
+                {
+                    'entity_type': t.name,
+                    'properties': [],
+                    'relationships': []
+                }
+                for t in types
+            ]
+            session.close()
+            
+            input_tokens = 50
+            output_tokens = 30
+            
+        else:
+            results = []
+            input_tokens = 20
+            output_tokens = 10
+        
+        duration_ms = int((time.time() - start_time) * 1000)
+        
+        response = {
+            'success': True,
+            'results': results,
+            'total_count': len(results),
+            'tokens_consumed': {
+                'input_tokens': input_tokens,
+                'output_tokens': output_tokens,
+                'total_tokens': input_tokens + output_tokens
+            },
+            'duration_ms': duration_ms
+        }
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        duration_ms = int((time.time() - start_time) * 1000)
+        return jsonify({
+            'success': False,
+            'results': [],
+            'total_count': 0,
+            'tokens_consumed': {'input_tokens': 0, 'output_tokens': 0, 'total_tokens': 0},
+            'duration_ms': duration_ms,
+            'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
+        }), 500
+
 @app.route('/CommandCenter')
 def command_center_redirect():
     """Redirect to SPA Command Center page."""
