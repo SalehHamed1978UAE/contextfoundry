@@ -32,6 +32,7 @@ class ExtractedEntity:
     source_chunk_id: str
     source_sentence_idx: int
     confidence: float
+    tenant_id: Optional[str] = None
     extracted_at: datetime = field(default_factory=datetime.now)
     
     def to_dict(self) -> Dict:
@@ -45,6 +46,7 @@ class ExtractedEntity:
             "source_chunk_id": self.source_chunk_id,
             "source_sentence_idx": self.source_sentence_idx,
             "confidence": self.confidence,
+            "tenant_id": self.tenant_id,
             "extracted_at": self.extracted_at.isoformat(),
         }
 

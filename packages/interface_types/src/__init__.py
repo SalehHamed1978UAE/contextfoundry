@@ -9,6 +9,8 @@ from .extraction import (
     ExtractionRequest,
     ExtractionResult,
     ExtractionErrorCode,
+    ExtractionMode,
+    Priority,
     TokensConsumed,
 )
 from .query import (
@@ -27,6 +29,8 @@ __all__ = [
     "ExtractionRequest",
     "ExtractionResult",
     "ExtractionErrorCode",
+    "ExtractionMode",
+    "Priority",
     "TokensConsumed",
     # Query types
     "QueryRequest",

@@ -116,6 +116,221 @@ def shutdown_scheduler():
 
 atexit.register(shutdown_scheduler)
 
+auth_service = None
+
+def get_auth_service():
+    """Get or create the AuthService instance."""
+    global auth_service
+    if auth_service is None:
+        from platform_foundation.src.auth_service import AuthService
+        auth_service = AuthService()
+    return auth_service
+
+@app.before_request
+def set_tenant_context():
+    """
+    Set tenant context for RLS on authenticated requests.
+    Stores tenant_id/role in Flask g for use by request handlers.
+    Handlers that need tenant isolation should use g.tenant_id directly.
+    """
+    from flask import g
+    g.tenant_id = None
+    g.user_id = None
+    g.user_role = None
+    
+    auth_header = request.headers.get('Authorization', '')
+    
+    if auth_header.startswith('Bearer '):
+        token = auth_header[7:]
+        auth = get_auth_service()
+        payload = auth.validate_token(token)
+        if payload:
+            g.tenant_id = payload.get('tenant_id')
+            g.user_id = payload.get('sub')
+            g.user_role = payload.get('role')
+    
+    elif auth_header.startswith('ApiKey ') or auth_header.startswith('cf_'):
+        api_key = auth_header.replace('ApiKey ', '') if auth_header.startswith('ApiKey ') else auth_header
+        auth = get_auth_service()
+        key_data = auth.validate_api_key(api_key)
+        if key_data:
+            g.tenant_id = key_data.get('tenant_id')
+            g.user_role = 'api_key'
+
+
+def set_tenant_on_session(session, tenant_id: str, role: str = None):
+    """
+    Set tenant context on a specific database session for RLS.
+    Call this at the start of any handler that needs tenant isolation.
+    
+    Args:
+        session: SQLAlchemy session to configure
+        tenant_id: UUID string of tenant
+        role: Optional user role
+    """
+    from sqlalchemy import text
+    if tenant_id:
+        session.execute(text("SELECT platform.set_current_tenant(:tid)"), {'tid': tenant_id})
+        if role:
+            session.execute(text("SELECT platform.set_current_user_role(:role)"), {'role': role})
+
+@app.route('/auth/magic-link', methods=['POST'])
+def request_magic_link():
+    """Request a magic link for passwordless authentication."""
+    data = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    
+    if not email:
+        return jsonify({'error': 'Email required'}), 400
+    
+    auth = get_auth_service()
+    result = auth.create_magic_link(
+        email=email,
+        ip_address=request.remote_addr,
+        user_agent=request.headers.get('User-Agent')
+    )
+    
+    if result.success:
+        return jsonify({
+            'success': True,
+            'message': 'Magic link sent to your email',
+            'expires_at': result.expires_at.isoformat() if result.expires_at else None,
+            '_dev_link': result.link
+        })
+    else:
+        return jsonify({'error': result.error}), 400
+
+@app.route('/auth/verify')
+def verify_magic_link():
+    """Verify a magic link token and authenticate user."""
+    token = request.args.get('token')
+    
+    if not token:
+        return jsonify({'error': 'Token required'}), 400
+    
+    auth = get_auth_service()
+    result = auth.verify_magic_link(token)
+    
+    if result.success:
+        response_data = {
+            'success': True,
+            'user': {
+                'id': result.user.id,
+                'email': result.user.email,
+                'name': result.user.name,
+                'role': result.user.role,
+                'tenant_id': result.user.tenant_id
+            },
+            'access_token': result.access_token,
+            'refresh_token': result.refresh_token,
+            'expires_at': result.expires_at.isoformat() if result.expires_at else None
+        }
+        return jsonify(response_data)
+    else:
+        return jsonify({'error': result.error}), 401
+
+@app.route('/auth/refresh', methods=['POST'])
+def refresh_token():
+    """Refresh an access token using a refresh token."""
+    data = request.get_json() or {}
+    refresh_token = data.get('refresh_token')
+    
+    if not refresh_token:
+        return jsonify({'error': 'Refresh token required'}), 400
+    
+    auth = get_auth_service()
+    result = auth.refresh_access_token(refresh_token)
+    
+    if result.success:
+        return jsonify({
+            'success': True,
+            'access_token': result.access_token,
+            'expires_at': result.expires_at.isoformat() if result.expires_at else None
+        })
+    else:
+        return jsonify({'error': result.error}), 401
+
+@app.route('/auth/me')
+def get_current_user():
+    """Get the current authenticated user."""
+    from flask import g
+    
+    if not g.get('user_id'):
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    auth = get_auth_service()
+    user = auth._get_user_by_id(g.user_id)
+    
+    if user:
+        return jsonify({
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'name': user.name,
+                'role': user.role,
+                'tenant_id': user.tenant_id
+            }
+        })
+    else:
+        return jsonify({'error': 'User not found'}), 404
+
+@app.route('/api/keys', methods=['GET', 'POST'])
+def api_keys():
+    """List or create API keys for the current tenant."""
+    from flask import g
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Tenant context required'}), 401
+    
+    auth = get_auth_service()
+    
+    if request.method == 'GET':
+        keys = auth.list_api_keys(g.tenant_id)
+        return jsonify({'keys': keys})
+    
+    elif request.method == 'POST':
+        data = request.get_json() or {}
+        name = data.get('name', 'API Key')
+        scopes = data.get('scopes', ['read'])
+        rate_limit = data.get('rate_limit', 60)
+        expires_in_days = data.get('expires_in_days')
+        
+        result = auth.create_api_key(
+            tenant_id=g.tenant_id,
+            name=name,
+            scopes=scopes,
+            created_by=g.get('user_id'),
+            rate_limit=rate_limit,
+            expires_in_days=expires_in_days
+        )
+        
+        if result.success:
+            return jsonify({
+                'success': True,
+                'key_id': result.key_id,
+                'api_key': result.api_key,
+                'key_prefix': result.key_prefix,
+                'message': 'Save this key now - it cannot be retrieved later'
+            }), 201
+        else:
+            return jsonify({'error': result.error}), 400
+
+@app.route('/api/keys/<key_id>', methods=['DELETE'])
+def revoke_api_key(key_id):
+    """Revoke an API key."""
+    from flask import g
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Tenant context required'}), 401
+    
+    auth = get_auth_service()
+    success = auth.revoke_api_key(key_id, g.tenant_id)
+    
+    if success:
+        return jsonify({'success': True, 'message': 'API key revoked'})
+    else:
+        return jsonify({'error': 'API key not found or already revoked'}), 404
+
 @app.route('/')
 def index():
     import time
