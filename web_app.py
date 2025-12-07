@@ -730,6 +730,180 @@ def internal_query():
             'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}
         }), 500
 
+
+mcp_server = None
+
+def get_mcp_server():
+    """Lazy-load MCPServer singleton."""
+    global mcp_server
+    if mcp_server is None:
+        from platform_foundation.src.mcp_server import MCPServer
+        mcp_server = MCPServer()
+    return mcp_server
+
+
+@app.route('/mcp/v1/tools/<tool_name>', methods=['POST'])
+def mcp_tool_call(tool_name):
+    """
+    MCP tool call endpoint.
+    
+    Requires API key authentication via Authorization header:
+    - Authorization: ApiKey cf_live_xxxxx
+    - Authorization: cf_live_xxxxx
+    """
+    api_key = None
+    auth_header = request.headers.get('Authorization', '')
+    
+    if auth_header.startswith('ApiKey '):
+        api_key = auth_header[7:]
+    elif auth_header.startswith('cf_'):
+        api_key = auth_header
+    
+    if not api_key:
+        return jsonify({
+            'success': False,
+            'error': {'code': 'MISSING_API_KEY', 'message': 'API key required in Authorization header'}
+        }), 401
+    
+    arguments = request.get_json() or {}
+    
+    mcp = get_mcp_server()
+    result = mcp.handle_tool_call(api_key, tool_name, arguments)
+    
+    status_code = 200
+    if not result.get('success'):
+        error_code = result.get('error', {}).get('code', '')
+        if error_code in ['MISSING_API_KEY', 'INVALID_API_KEY', 'INVALID_API_KEY_FORMAT']:
+            status_code = 401
+        elif error_code == 'INSUFFICIENT_SCOPE':
+            status_code = 403
+        elif error_code in ['DAILY_QUOTA_EXCEEDED', 'MONTHLY_QUOTA_EXCEEDED']:
+            status_code = 429
+        elif error_code in ['NOT_FOUND', 'UNKNOWN_TOOL']:
+            status_code = 404
+        else:
+            status_code = 400
+    
+    return jsonify(result), status_code
+
+
+@app.route('/mcp/v1/resources', methods=['GET'])
+def mcp_resource():
+    """
+    MCP resource request endpoint.
+    
+    Query params:
+    - uri: Resource URI (e.g., context://schema/default, context://usage)
+    """
+    api_key = None
+    auth_header = request.headers.get('Authorization', '')
+    
+    if auth_header.startswith('ApiKey '):
+        api_key = auth_header[7:]
+    elif auth_header.startswith('cf_'):
+        api_key = auth_header
+    
+    if not api_key:
+        return jsonify({
+            'success': False,
+            'error': {'code': 'MISSING_API_KEY', 'message': 'API key required'}
+        }), 401
+    
+    resource_uri = request.args.get('uri', '')
+    if not resource_uri:
+        return jsonify({
+            'success': False,
+            'error': {'code': 'MISSING_URI', 'message': 'Resource URI required'}
+        }), 400
+    
+    mcp = get_mcp_server()
+    result = mcp.handle_resource_request(api_key, resource_uri)
+    
+    status_code = 200 if result.get('success') else 400
+    return jsonify(result), status_code
+
+
+@app.route('/mcp/v1/tools', methods=['GET'])
+def mcp_list_tools():
+    """List available MCP tools."""
+    tools = [
+        {
+            "name": "query_context",
+            "description": "Query the knowledge graph for relevant context using semantic search",
+            "parameters": {
+                "query": {"type": "string", "description": "Natural language query", "required": True},
+                "entity_types": {"type": "array", "description": "Filter by entity types"},
+                "limit": {"type": "integer", "description": "Max results (default 10)"},
+                "include_relationships": {"type": "boolean", "description": "Include relationships (default true)"}
+            },
+            "required_scope": "read"
+        },
+        {
+            "name": "verify_statement",
+            "description": "Verify a statement against the knowledge base",
+            "parameters": {
+                "statement": {"type": "string", "description": "Statement to verify", "required": True},
+                "confidence_threshold": {"type": "number", "description": "Min confidence (default 0.7)"}
+            },
+            "required_scope": "read"
+        },
+        {
+            "name": "ingest_document",
+            "description": "Upload and queue a document for extraction",
+            "parameters": {
+                "filename": {"type": "string", "description": "Document filename", "required": True},
+                "content": {"type": "string", "description": "Document content", "required": True},
+                "mime_type": {"type": "string", "description": "MIME type (default text/plain)"},
+                "priority": {"type": "string", "description": "Extraction priority (low, normal, high)"}
+            },
+            "required_scope": "write"
+        },
+        {
+            "name": "get_document_status",
+            "description": "Get document extraction status",
+            "parameters": {
+                "document_id": {"type": "string", "description": "Document UUID", "required": True}
+            },
+            "required_scope": "read"
+        },
+        {
+            "name": "list_entity_types",
+            "description": "List available entity types from ontology",
+            "parameters": {},
+            "required_scope": "read"
+        }
+    ]
+    
+    return jsonify({
+        "tools": tools,
+        "version": "1.0"
+    })
+
+
+@app.route('/mcp/v1/resources/list', methods=['GET'])
+def mcp_list_resources():
+    """List available MCP resources."""
+    resources = [
+        {
+            "uri": "context://schema/{domain}",
+            "description": "Get ontology schema for a domain",
+            "parameters": {
+                "domain": {"type": "string", "description": "Domain name (optional)"}
+            }
+        },
+        {
+            "uri": "context://usage",
+            "description": "Get current quota usage for the tenant",
+            "parameters": {}
+        }
+    ]
+    
+    return jsonify({
+        "resources": resources,
+        "version": "1.0"
+    })
+
+
 @app.route('/CommandCenter')
 def command_center_redirect():
     """Redirect to SPA Command Center page."""
