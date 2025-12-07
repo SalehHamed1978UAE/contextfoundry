@@ -134,7 +134,20 @@ context-foundry/
 - **Tools**: query_context, verify_statement, ingest_document, get_document_status, list_entity_types
 - **Resources**: context://schema/{domain}, context://usage
 
+### Integration Testing (Phase 5 Complete)
+- **Test Suite**: 14 comprehensive tests across 5 categories (all passing)
+- **Full Flow Tests**: Complete user journey from tenant creation through MCP query
+- **Tenant Isolation Tests**: Verifies entities and queries are properly isolated per tenant
+- **Token Metering Tests**: Confirms usage_events track tokens for query_context and verify_statement
+- **Quota Enforcement Tests**: Validates quota pre-flight checks prevent over-consumption
+- **RLS Enforcement Tests**: Confirms tenant_id columns exist and isolation works at DB level
+- **API Key Authentication Tests**: Validates key format (cf_test_{hex4}_{random}), scope validation, rejection of invalid keys
+- **Test Helpers**: TestDatabaseHelper class for tenant/user/key creation and cleanup
+
 ## Recent Changes (December 2025)
+- Completed Phase 5: Integration testing with 14 tests covering full user journey, tenant isolation, token metering, quota enforcement, RLS, and API key auth
+- Fixed MCP Server query format to use QueryRequest contract (added query_type field)
+- Fixed request_id to use proper UUIDs for usage_events logging
 - Completed Phase 4: MCP server with 5 tools, 2 resources, API key auth, quota enforcement, usage logging
 - Completed Phase 3: Document upload, storage, queue submission, status tracking, usage logging
 - Completed Phase 2: Authentication with magic links, API keys, JWT sessions

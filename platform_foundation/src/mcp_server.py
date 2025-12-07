@@ -273,14 +273,16 @@ class MCPServer:
             return MCPResponse(success=False, error=quota_error)
         
         try:
+            import uuid
+            query_id = str(uuid.uuid4())
             query_request = {
-                "query_id": f"mcp-{datetime.utcnow().strftime('%Y%m%d%H%M%S%f')}",
+                "query_id": query_id,
                 "tenant_id": auth.tenant_id,
+                "query_type": "semantic_search",
                 "query_text": query,
-                "entity_type_filter": entity_types,
+                "entity_type": entity_types[0] if entity_types else None,
                 "max_results": limit,
-                "include_relationships": include_relationships,
-                "include_reasoning": False
+                "include_provenance": include_relationships,
             }
             
             response = requests.post(
@@ -308,7 +310,7 @@ class MCPServer:
                 event_type="query",
                 tokens_consumed=tokens_consumed,
                 tool_name="query_context",
-                request_id=query_request['query_id'],
+                request_id=query_id,
                 metadata={"query_length": len(query), "results": len(result.get('entities', []))}
             )
             
@@ -317,7 +319,7 @@ class MCPServer:
                 data={
                     "entities": result.get('entities', []),
                     "relationships": result.get('relationships', []),
-                    "query_id": query_request['query_id']
+                    "query_id": query_id
                 },
                 tokens_consumed=tokens_consumed
             )
@@ -360,13 +362,16 @@ class MCPServer:
             return MCPResponse(success=False, error=quota_error)
         
         try:
+            import uuid
+            query_id = str(uuid.uuid4())
             query_request = {
-                "query_id": f"verify-{datetime.utcnow().strftime('%Y%m%d%H%M%S%f')}",
+                "query_id": query_id,
                 "tenant_id": auth.tenant_id,
-                "query_text": f"Verify: {statement}",
+                "query_type": "verify_statement",
+                "statement": statement,
                 "max_results": 5,
-                "include_relationships": True,
-                "include_reasoning": True
+                "include_provenance": True,
+                "include_confidence": True
             }
             
             response = requests.post(
@@ -407,7 +412,7 @@ class MCPServer:
                 event_type="query",
                 tokens_consumed=tokens_consumed,
                 tool_name="verify_statement",
-                request_id=query_request['query_id'],
+                request_id=query_id,
                 metadata={"verified": verified, "confidence": max_confidence}
             )
             
