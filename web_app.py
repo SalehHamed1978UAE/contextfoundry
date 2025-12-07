@@ -1,8 +1,11 @@
 import os
 import json
 import atexit
+import logging
 from datetime import timedelta
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, g
+
+logger = logging.getLogger(__name__)
 from src.context_foundry.core import ContextFoundry
 from src.context_foundry.agents.scheduler import (
     GardenerScheduler, SchedulerConfig, start_scheduler, stop_scheduler, get_scheduler
@@ -1015,7 +1018,7 @@ def dashboard_list_api_keys():
                 cur.execute("""
                     SELECT id, name, key_prefix, scopes, created_at
                     FROM platform.api_keys
-                    WHERE tenant_id = %s AND status = 'active'
+                    WHERE tenant_id = %s AND revoked_at IS NULL
                     ORDER BY created_at DESC
                 """, (session['tenant_id'],))
                 keys = cur.fetchall()
@@ -1032,7 +1035,9 @@ def dashboard_list_api_keys():
         })
         
     except Exception as e:
-        logger.error(f"Dashboard list API keys failed: {e}")
+        print(f"Dashboard list API keys failed: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'error': 'Failed to load API keys'}), 500
 
 @app.route('/dashboard/api-keys', methods=['POST'])
@@ -1067,8 +1072,8 @@ def dashboard_create_api_key():
                 cur.execute("""
                     INSERT INTO platform.api_keys (
                         id, tenant_id, created_by, name, key_prefix, 
-                        key_hash, scopes, status, created_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'active', NOW())
+                        key_hash, scopes, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, NOW())
                 """, (str(key_id), str(tenant_id), str(user_id), key_name,
                       key_prefix, key_hash, scopes))
                 conn.commit()
@@ -1080,7 +1085,9 @@ def dashboard_create_api_key():
         })
         
     except Exception as e:
-        logger.error(f"Dashboard create API key failed: {e}")
+        print(f"Dashboard create API key failed: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'error': 'Failed to create API key'}), 500
 
 @app.route('/dashboard/api-keys/<key_id>', methods=['DELETE'])
