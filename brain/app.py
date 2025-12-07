@@ -87,7 +87,7 @@ def process_extraction_queue():
             
             from src.context_foundry.extraction import ExtractionPipeline
             from src.context_foundry.extraction.staging_loader import StagingLoader
-            from src.context_foundry.models.schema import get_session
+            from src.context_foundry.models.schema import tenant_session
             
             pipeline = ExtractionPipeline(model="gpt-4o-mini", temperature=0.0)
             
@@ -97,37 +97,36 @@ def process_extraction_queue():
                 document_title=file_name or "Uploaded Document"
             )
             
-            session = get_session()
-            try:
-                loader = StagingLoader(
-                    session=session,
-                    enable_deduplication=False,
-                    similarity_threshold=0.8,
-                    tenant_id=tenant_id
-                )
-                
-                staging_result = loader.load_all(
-                    entities=extraction_result.entities,
-                    relations=extraction_result.relations,
-                    commit=True
-                )
-                
-                entities_count = staging_result.entities_created + staging_result.entities_updated
-                relations_count = staging_result.relations_created + staging_result.relations_updated
-                
-                logger.info(
-                    f"[ExtractionWorker] Extraction complete: "
-                    f"{entities_count} entities, {relations_count} relationships "
-                    f"for tenant {tenant_id}"
-                )
-                
-            except Exception as e:
-                logger.error(f"[ExtractionWorker] Staging error: {e}")
-                session.rollback()
-                entities_count = 0
-                relations_count = 0
-            finally:
-                session.close()
+            entities_count = 0
+            relations_count = 0
+            
+            with tenant_session(tenant_id) as session:
+                try:
+                    loader = StagingLoader(
+                        session=session,
+                        enable_deduplication=True,
+                        similarity_threshold=0.8,
+                        tenant_id=tenant_id
+                    )
+                    
+                    staging_result = loader.load_all(
+                        entities=extraction_result.entities,
+                        relations=extraction_result.relations,
+                        commit=True
+                    )
+                    
+                    entities_count = staging_result.entities_created + staging_result.entities_updated
+                    relations_count = staging_result.relations_created + staging_result.relations_updated
+                    
+                    logger.info(
+                        f"[ExtractionWorker] Extraction complete: "
+                        f"{entities_count} entities, {relations_count} relationships "
+                        f"for tenant {tenant_id}"
+                    )
+                    
+                except Exception as e:
+                    logger.error(f"[ExtractionWorker] Staging error: {e}")
+                    session.rollback()
             
             end_time = datetime.utcnow()
             duration_ms = int((end_time - start_time).total_seconds() * 1000)
