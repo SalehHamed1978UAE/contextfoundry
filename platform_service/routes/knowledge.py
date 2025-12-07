@@ -35,7 +35,7 @@ def list_entities():
 @knowledge_bp.route('/entities/<entity_id>')
 @login_required
 def get_entity(entity_id):
-    data, status = call_brain(f'/internal/v1/entities/{entity_id}')
+    data, status = call_brain(f'/internal/v1/entities/{entity_id}', {})
     return jsonify(data), status
 
 
