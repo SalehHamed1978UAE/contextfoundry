@@ -2711,6 +2711,47 @@ def entity_history(entity_id):
     finally:
         session.close()
 
+@app.route('/api/knowledge/stats')
+def knowledge_stats():
+    """Get knowledge graph statistics for the authenticated user's tenant."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        tenant_id = session['tenant_id']
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT COUNT(*) as count FROM public.entities WHERE tenant_id = %s
+                """, (tenant_id,))
+                entity_count = cur.fetchone()['count']
+                
+                cur.execute("""
+                    SELECT COUNT(*) as count FROM public.relationships WHERE tenant_id = %s
+                """, (tenant_id,))
+                relationship_count = cur.fetchone()['count']
+                
+                cur.execute("""
+                    SELECT COUNT(DISTINCT entity_type) as count FROM public.entities WHERE tenant_id = %s
+                """, (tenant_id,))
+                type_count = cur.fetchone()['count']
+        
+        return jsonify({
+            'success': True,
+            'entities': entity_count,
+            'relationships': relationship_count,
+            'types': type_count
+        })
+        
+    except Exception as e:
+        logger.error(f"Knowledge stats failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to load stats'}), 500
+
 @app.route('/api/knowledge/diff')
 def knowledge_diff():
     """Get differences in the knowledge graph between two dates.
