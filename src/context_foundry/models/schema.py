@@ -93,6 +93,7 @@ class Entity(Base):
     __tablename__ = "entities"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), index=True)
     name = Column(String(255), nullable=False, index=True)
     entity_type = Column(String(100), nullable=False, index=True)
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
@@ -154,6 +155,7 @@ class Relationship(Base):
     __tablename__ = "relationships"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), index=True)
     source_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
     target_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
     relationship_type = Column(String(100), nullable=False, index=True)
@@ -206,6 +208,7 @@ class Document(Base):
     __tablename__ = "documents"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), index=True)
     title = Column(String(255), nullable=False, index=True)
     doc_type = Column(String(50), nullable=False, index=True)
     content = Column(Text, nullable=False)

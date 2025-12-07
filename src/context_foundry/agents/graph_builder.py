@@ -256,7 +256,8 @@ class GraphBuilderAgent:
         return rel_type.upper()
     
     def ingest_document(self, doc_path: str = None, text: str = None, 
-                        doc_type: str = "DOCUMENT", title: str = None) -> ExtractionResult:
+                        doc_type: str = "DOCUMENT", title: str = None,
+                        tenant_id: str = None) -> ExtractionResult:
         """
         Main entry point: Ingest a document and extract entities/relationships.
         
@@ -332,7 +333,8 @@ class GraphBuilderAgent:
             source_document_id=doc_id,
             document_title=title,
             document_type=doc_type,
-            document_text=text
+            document_text=text,
+            tenant_id=tenant_id
         )
         
         result = ExtractionResult(
@@ -560,7 +562,8 @@ class GraphBuilderAgent:
                          source_document_id: str,
                          document_title: str,
                          document_type: str,
-                         document_text: str) -> Tuple[int, int]:
+                         document_text: str,
+                         tenant_id: str = None) -> Tuple[int, int]:
         """
         Write extracted entities and relationships to STAGING (not TRUSTED).
         
@@ -576,6 +579,7 @@ class GraphBuilderAgent:
         try:
             doc = Document(
                 id=uuid.uuid4(),
+                tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
                 title=document_title,
                 doc_type=document_type,
                 content=document_text[:5000],
@@ -622,6 +626,7 @@ class GraphBuilderAgent:
                 
                 db_entity = Entity(
                     id=uuid.uuid4(),
+                    tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
                     name=entity.canonical_name,
                     entity_type=db_entity_type,
                     lifecycle_state=LifecycleState.STAGING,
@@ -677,6 +682,7 @@ class GraphBuilderAgent:
                 
                 db_rel = Relationship(
                     id=uuid.uuid4(),
+                    tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
                     source_id=source_id,
                     target_id=target_id,
                     relationship_type=db_rel_type,
