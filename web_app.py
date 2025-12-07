@@ -145,8 +145,9 @@ def internal_health():
     overall_healthy = True
     
     try:
+        from sqlalchemy import text
         session = get_session()
-        session.execute("SELECT 1")
+        session.execute(text("SELECT 1"))
         components['database'] = {'status': 'healthy', 'latency_ms': int((time.time() - start_time) * 1000)}
         session.close()
     except Exception as e:
