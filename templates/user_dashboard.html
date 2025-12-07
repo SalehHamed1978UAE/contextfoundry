@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ tenant_name }} - Context Foundry</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/dist/vis-network.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -423,6 +424,214 @@
         .stat-skipped { color: #fbbf24; }
         .stat-duplicate { color: #9ca3af; }
         
+        .knowledge-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .knowledge-stat {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .knowledge-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .knowledge-stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 0.25rem;
+        }
+        
+        .graph-container {
+            height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .graph-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .entity-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .entity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .entity-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .entity-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 0;
+            flex: 1;
+        }
+        
+        .entity-type-badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+            flex-shrink: 0;
+        }
+        
+        .entity-name {
+            font-weight: 500;
+            color: #fff;
+            font-size: 0.85rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .entity-confidence {
+            font-size: 0.7rem;
+            color: #666;
+            flex-shrink: 0;
+        }
+        
+        .relationship-item {
+            padding: 0.6rem 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .relationship-arrow {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+        
+        .relationship-arrow .source,
+        .relationship-arrow .target {
+            color: #fff;
+        }
+        
+        .relationship-arrow .rel-type {
+            color: #667eea;
+            font-style: italic;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 1000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.visible {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 5vh;
+        }
+        
+        .modal {
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .modal-body {
+            padding: 1rem;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-label {
+            width: 100px;
+            font-size: 0.8rem;
+            color: #888;
+            flex-shrink: 0;
+        }
+        
+        .detail-value {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+        
+        .related-list {
+            margin-top: 1rem;
+        }
+        
+        .related-list-title {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.5rem;
+        }
+        
         .tabs {
             display: flex;
             gap: 0.5rem;
@@ -747,6 +956,49 @@
         
         <section class="section">
             <div class="section-header">
+                <h2 class="section-title">Knowledge Graph</h2>
+                <button class="btn btn-secondary btn-small" onclick="loadKnowledge()">Refresh</button>
+            </div>
+            
+            <div class="knowledge-stats" id="knowledgeStats">
+                <div class="knowledge-stat">
+                    <div class="knowledge-stat-value" id="statEntities">-</div>
+                    <div class="knowledge-stat-label">Entities</div>
+                </div>
+                <div class="knowledge-stat">
+                    <div class="knowledge-stat-value" id="statRelationships">-</div>
+                    <div class="knowledge-stat-label">Relationships</div>
+                </div>
+                <div class="knowledge-stat">
+                    <div class="knowledge-stat-value" id="statTypes">-</div>
+                    <div class="knowledge-stat-label">Entity Types</div>
+                </div>
+            </div>
+            
+            <div class="graph-container" id="graphContainer">
+                <div class="graph-loading" id="graphLoading">Loading graph...</div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchKnowledgeTab('entities')">Entities</button>
+                <button class="tab" onclick="switchKnowledgeTab('relationships')">Relationships</button>
+            </div>
+            
+            <div class="tab-content active" id="tab-knowledge-entities">
+                <div class="entity-list" id="entityList">
+                    <div class="empty-state">Loading entities...</div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-knowledge-relationships">
+                <div class="entity-list" id="relationshipList">
+                    <div class="empty-state">Loading relationships...</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <div class="section-header">
                 <h2 class="section-title">API Access</h2>
                 <button class="btn btn-secondary btn-small" onclick="createApiKey()">New Key</button>
             </div>
@@ -762,6 +1014,18 @@
     </main>
     
     <div class="toast" id="toast"></div>
+    
+    <div class="modal-overlay" id="entityModal" onclick="closeEntityModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">Entity Details</span>
+                <button class="modal-close" onclick="closeEntityModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="empty-state">Loading...</div>
+            </div>
+        </div>
+    </div>
     
     <script>
         const tenantId = '{{ tenant_id }}';
@@ -1171,9 +1435,242 @@
             }
         }
         
+        let graphNetwork = null;
+        
+        function switchKnowledgeTab(tabName) {
+            document.querySelectorAll('.tabs:last-of-type .tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-knowledge-entities').classList.remove('active');
+            document.getElementById('tab-knowledge-relationships').classList.remove('active');
+            document.getElementById('tab-knowledge-' + tabName).classList.add('active');
+        }
+        
+        async function loadKnowledge() {
+            await Promise.all([loadStats(), loadGraph(), loadEntities(), loadRelationships()]);
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/knowledge/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('statEntities').textContent = data.data.entities || 0;
+                    document.getElementById('statRelationships').textContent = data.data.relationships || 0;
+                    document.getElementById('statTypes').textContent = data.data.entity_types || 0;
+                }
+            } catch (err) {
+                console.error('Failed to load stats:', err);
+            }
+        }
+        
+        async function loadGraph() {
+            const container = document.getElementById('graphContainer');
+            const loading = document.getElementById('graphLoading');
+            
+            try {
+                const response = await fetch('/api/knowledge/graph');
+                const data = await response.json();
+                
+                if (data.success && data.data.nodes && data.data.nodes.length > 0) {
+                    loading.style.display = 'none';
+                    
+                    const nodes = new vis.DataSet(data.data.nodes.map(n => ({
+                        id: n.id,
+                        label: n.label,
+                        group: n.group,
+                        title: n.title,
+                        font: { color: '#fff', size: 12 }
+                    })));
+                    
+                    const edges = new vis.DataSet(data.data.edges.map(e => ({
+                        from: e.from,
+                        to: e.to,
+                        label: e.label,
+                        arrows: 'to',
+                        font: { color: '#888', size: 10 },
+                        color: { color: '#555' }
+                    })));
+                    
+                    const options = {
+                        nodes: {
+                            shape: 'dot',
+                            size: 16,
+                            borderWidth: 2,
+                            shadow: true
+                        },
+                        edges: {
+                            width: 1,
+                            smooth: { type: 'continuous' }
+                        },
+                        physics: {
+                            stabilization: { iterations: 150 },
+                            barnesHut: { gravitationalConstant: -2000 }
+                        },
+                        interaction: {
+                            hover: true,
+                            tooltipDelay: 200
+                        },
+                        groups: {
+                            Person: { color: { background: '#667eea', border: '#5a6fd6' } },
+                            Organization: { color: { background: '#34d399', border: '#2db886' } },
+                            Product: { color: { background: '#fbbf24', border: '#e5ab1f' } },
+                            Location: { color: { background: '#f87171', border: '#e55e5e' } },
+                            Event: { color: { background: '#a78bfa', border: '#9575e8' } },
+                            Technology: { color: { background: '#22d3ee', border: '#1dbdd4' } },
+                            Concept: { color: { background: '#fb923c', border: '#e68334' } }
+                        }
+                    };
+                    
+                    graphNetwork = new vis.Network(container, { nodes, edges }, options);
+                    
+                    graphNetwork.on('click', function(params) {
+                        if (params.nodes.length > 0) {
+                            showEntityDetails(params.nodes[0]);
+                        }
+                    });
+                } else {
+                    loading.textContent = 'No knowledge graph data yet. Upload documents to start!';
+                }
+            } catch (err) {
+                loading.textContent = 'Failed to load graph.';
+                console.error('Graph error:', err);
+            }
+        }
+        
+        async function loadEntities() {
+            const list = document.getElementById('entityList');
+            
+            try {
+                const response = await fetch('/api/knowledge/entities?per_page=50');
+                const data = await response.json();
+                
+                if (data.success && data.data.entities && data.data.entities.length > 0) {
+                    list.innerHTML = data.data.entities.map(e => `
+                        <div class="entity-item" onclick="showEntityDetails('${e.id}')">
+                            <div class="entity-info">
+                                <span class="entity-type-badge">${escapeHtml(e.entity_type || 'Unknown')}</span>
+                                <span class="entity-name">${escapeHtml(e.name)}</span>
+                            </div>
+                            <span class="entity-confidence">${Math.round((e.confidence || 0) * 100)}%</span>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<div class="empty-state">No entities yet. Upload documents to extract knowledge!</div>';
+                }
+            } catch (err) {
+                list.innerHTML = '<div class="empty-state">Failed to load entities.</div>';
+                console.error('Entities error:', err);
+            }
+        }
+        
+        async function loadRelationships() {
+            const list = document.getElementById('relationshipList');
+            
+            try {
+                const response = await fetch('/api/knowledge/relationships?per_page=50');
+                const data = await response.json();
+                
+                if (data.success && data.data.relationships && data.data.relationships.length > 0) {
+                    list.innerHTML = data.data.relationships.map(r => `
+                        <div class="relationship-item">
+                            <div class="relationship-arrow">
+                                <span class="source">${escapeHtml(r.source_name || 'Unknown')}</span>
+                                <span>→</span>
+                                <span class="rel-type">${escapeHtml(r.relationship_type)}</span>
+                                <span>→</span>
+                                <span class="target">${escapeHtml(r.target_name || 'Unknown')}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<div class="empty-state">No relationships yet.</div>';
+                }
+            } catch (err) {
+                list.innerHTML = '<div class="empty-state">Failed to load relationships.</div>';
+                console.error('Relationships error:', err);
+            }
+        }
+        
+        async function showEntityDetails(entityId) {
+            const modal = document.getElementById('entityModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            modal.classList.add('visible');
+            body.innerHTML = '<div class="empty-state">Loading...</div>';
+            
+            try {
+                const response = await fetch(`/api/knowledge/entities/${entityId}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.entity) {
+                    const e = data.data.entity;
+                    const rels = data.data.relationships || [];
+                    
+                    title.textContent = e.name;
+                    
+                    let propsHtml = '';
+                    if (e.properties && typeof e.properties === 'object') {
+                        propsHtml = Object.entries(e.properties).map(([k, v]) => `
+                            <div class="detail-row">
+                                <span class="detail-label">${escapeHtml(k)}</span>
+                                <span class="detail-value">${escapeHtml(String(v))}</span>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    let relsHtml = '';
+                    if (rels.length > 0) {
+                        relsHtml = `
+                            <div class="related-list">
+                                <div class="related-list-title">Relationships (${rels.length})</div>
+                                ${rels.map(r => `
+                                    <div class="relationship-item">
+                                        <div class="relationship-arrow">
+                                            <span class="source">${escapeHtml(r.source_name)}</span>
+                                            <span>→</span>
+                                            <span class="rel-type">${escapeHtml(r.relationship_type)}</span>
+                                            <span>→</span>
+                                            <span class="target">${escapeHtml(r.target_name)}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                    
+                    body.innerHTML = `
+                        <div class="detail-row">
+                            <span class="detail-label">Type</span>
+                            <span class="detail-value"><span class="entity-type-badge">${escapeHtml(e.entity_type)}</span></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Confidence</span>
+                            <span class="detail-value">${Math.round((e.confidence || 0) * 100)}%</span>
+                        </div>
+                        ${propsHtml}
+                        ${relsHtml}
+                    `;
+                } else {
+                    body.innerHTML = '<div class="empty-state">Entity not found.</div>';
+                }
+            } catch (err) {
+                body.innerHTML = '<div class="empty-state">Failed to load details.</div>';
+                console.error('Entity detail error:', err);
+            }
+        }
+        
+        function closeEntityModal(event) {
+            if (!event || event.target === document.getElementById('entityModal')) {
+                document.getElementById('entityModal').classList.remove('visible');
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             loadDocuments();
             loadApiKeys();
+            loadKnowledge();
         });
     </script>
 </body>
