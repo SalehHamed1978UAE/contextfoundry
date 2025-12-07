@@ -328,7 +328,10 @@ class BlindEvaluator:
                             svc = item.get("service") or item.get("name") or item.get("entity") or item.get("component") or next(iter(item.values()), "Unknown")
                             desc = item.get("description", item.get("reason", ""))
                             conf = item.get("confidence")
-                            conf_str = f" ({int(conf*100)}%)" if conf else ""
+                            if conf:
+                                conf_str = f" ({int(conf)}%)" if conf > 1 else f" ({int(conf*100)}%)"
+                            else:
+                                conf_str = ""
                             parts.append(f"  - {svc}{conf_str}: {desc}" if desc else f"  - {svc}{conf_str}")
                         else:
                             parts.append(f"  - {item}")
@@ -342,7 +345,10 @@ class BlindEvaluator:
                             svc = item.get("service") or item.get("name") or item.get("entity") or item.get("component") or next(iter(item.values()), "Unknown")
                             inference = item.get("inference", item.get("reason", item.get("description", "")))
                             conf = item.get("confidence")
-                            conf_str = f" ({int(conf*100)}%)" if conf else ""
+                            if conf:
+                                conf_str = f" ({int(conf)}%)" if conf > 1 else f" ({int(conf*100)}%)"
+                            else:
+                                conf_str = ""
                             parts.append(f"  - {svc}{conf_str}: {inference}" if inference else f"  - {svc}{conf_str}")
                         else:
                             parts.append(f"  - {item}")
