@@ -331,6 +331,235 @@ def revoke_api_key(key_id):
     else:
         return jsonify({'error': 'API key not found or already revoked'}), 404
 
+
+doc_service = None
+
+def get_document_service():
+    """Lazy-load DocumentService singleton."""
+    global doc_service
+    if doc_service is None:
+        from platform_foundation.src.document_service import DocumentService
+        doc_service = DocumentService()
+    return doc_service
+
+
+@app.route('/documents', methods=['POST'])
+def upload_document():
+    """Upload a new document for extraction."""
+    from flask import g
+    from uuid import UUID
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'error': 'No file selected'}), 400
+    
+    try:
+        tenant_id = UUID(g.tenant_id)
+        user_id = UUID(g.user_id) if g.get('user_id') else None
+        
+        folder_id = request.form.get('folder_id')
+        auto_extract = request.form.get('auto_extract', 'true').lower() == 'true'
+        priority = request.form.get('priority', 'normal')
+        
+        doc_svc = get_document_service()
+        document = doc_svc.upload_document(
+            tenant_id=tenant_id,
+            filename=file.filename,
+            mime_type=file.content_type or 'application/octet-stream',
+            file_content=file.read(),
+            folder_id=UUID(folder_id) if folder_id else None,
+            created_by=user_id,
+            auto_extract=auto_extract,
+            priority=priority
+        )
+        
+        response = {
+            'id': str(document['id']),
+            'name': document['name'],
+            'status': document['status'],
+            'mime_type': document['mime_type'],
+            'size_bytes': document['size_bytes'],
+            'created_at': document['created_at'].isoformat() if document.get('created_at') else None
+        }
+        
+        if 'extraction_request_id' in document:
+            response['extraction_request_id'] = document['extraction_request_id']
+        
+        return jsonify(response), 201
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Upload failed: {e}")
+        return jsonify({'error': 'Upload failed'}), 500
+
+
+@app.route('/documents', methods=['GET'])
+def list_documents():
+    """List documents for the current tenant."""
+    from flask import g
+    from uuid import UUID
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = UUID(g.tenant_id)
+        folder_id = request.args.get('folder_id')
+        status = request.args.get('status')
+        limit = min(int(request.args.get('limit', 50)), 100)
+        offset = int(request.args.get('offset', 0))
+        
+        doc_svc = get_document_service()
+        documents = doc_svc.list_documents(
+            tenant_id=tenant_id,
+            folder_id=UUID(folder_id) if folder_id else None,
+            status=status,
+            limit=limit,
+            offset=offset
+        )
+        
+        return jsonify({
+            'documents': [
+                {
+                    'id': str(d['id']),
+                    'name': d['name'],
+                    'status': d['status'],
+                    'mime_type': d['mime_type'],
+                    'size_bytes': d['size_bytes'],
+                    'created_at': d['created_at'].isoformat() if d.get('created_at') else None,
+                    'updated_at': d['updated_at'].isoformat() if d.get('updated_at') else None
+                }
+                for d in documents
+            ],
+            'limit': limit,
+            'offset': offset
+        })
+        
+    except Exception as e:
+        logger.error(f"List documents failed: {e}")
+        return jsonify({'error': 'Failed to list documents'}), 500
+
+
+@app.route('/documents/<document_id>', methods=['GET'])
+def get_document(document_id):
+    """Get document details and extraction status."""
+    from flask import g
+    from uuid import UUID
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = UUID(g.tenant_id)
+        doc_id = UUID(document_id)
+        
+        doc_svc = get_document_service()
+        document = doc_svc.get_document(doc_id, tenant_id)
+        
+        if not document:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        response = {
+            'id': str(document['id']),
+            'name': document['name'],
+            'original_filename': document['original_filename'],
+            'status': document['status'],
+            'mime_type': document['mime_type'],
+            'size_bytes': document['size_bytes'],
+            'current_version': document['current_version'],
+            'created_at': document['created_at'].isoformat() if document.get('created_at') else None,
+            'updated_at': document['updated_at'].isoformat() if document.get('updated_at') else None
+        }
+        
+        return jsonify(response)
+        
+    except ValueError:
+        return jsonify({'error': 'Invalid document ID'}), 400
+    except Exception as e:
+        logger.error(f"Get document failed: {e}")
+        return jsonify({'error': 'Failed to get document'}), 500
+
+
+@app.route('/documents/<document_id>/extraction', methods=['POST'])
+def requeue_extraction(document_id):
+    """Re-queue a document for extraction."""
+    from flask import g
+    from uuid import UUID
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = UUID(g.tenant_id)
+        doc_id = UUID(document_id)
+        
+        data = request.get_json() or {}
+        priority = data.get('priority', 'normal')
+        ontology_hints = data.get('ontology_hints')
+        extraction_mode = data.get('extraction_mode', 'full')
+        
+        doc_svc = get_document_service()
+        extraction_request = doc_svc.queue_for_extraction(
+            document_id=doc_id,
+            tenant_id=tenant_id,
+            priority=priority,
+            ontology_hints=ontology_hints,
+            extraction_mode=extraction_mode
+        )
+        
+        return jsonify({
+            'request_id': extraction_request['request_id'],
+            'status': extraction_request['status'],
+            'message': 'Document queued for extraction'
+        })
+        
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        logger.error(f"Queue extraction failed: {e}")
+        return jsonify({'error': 'Failed to queue extraction'}), 500
+
+
+@app.route('/documents/<document_id>/status', methods=['GET'])
+def get_document_extraction_status(document_id):
+    """Get extraction status for a document."""
+    from flask import g
+    from uuid import UUID
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = UUID(g.tenant_id)
+        doc_id = UUID(document_id)
+        
+        doc_svc = get_document_service()
+        document = doc_svc.get_document(doc_id, tenant_id)
+        
+        if not document:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        response = {
+            'document_id': str(document['id']),
+            'document_status': document['status']
+        }
+        
+        return jsonify(response)
+        
+    except ValueError:
+        return jsonify({'error': 'Invalid document ID'}), 400
+    except Exception as e:
+        logger.error(f"Get status failed: {e}")
+        return jsonify({'error': 'Failed to get status'}), 500
+
+
 @app.route('/')
 def index():
     import time
