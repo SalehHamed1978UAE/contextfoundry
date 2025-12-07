@@ -19,25 +19,41 @@ author = "agent"
 task = "workflow.run"
 args = "Context Foundry Web"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Brain Service"
+
 [[workflows.workflow]]
 name = "Context Foundry Web"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python web_app.py"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python platform_app.py"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Brain Service"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python brain/app.py"
+waitForPort = 3000
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 33091
-externalPort = 8080
 
 [[ports]]
 localPort = 34239
@@ -58,6 +74,10 @@ externalPort = 5173
 [[ports]]
 localPort = 37569
 externalPort = 3002
+
+[[ports]]
+localPort = 39269
+externalPort = 9000
 
 [[ports]]
 localPort = 40045
@@ -94,3 +114,8 @@ externalPort = 8081
 [deployment]
 deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "--reuse-port", "--workers", "2", "web_app:app"]
+
+[userenv]
+
+[userenv.shared]
+BRAIN_INTERNAL_URL = "http://localhost:3000"
