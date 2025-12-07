@@ -684,6 +684,20 @@ def dashboard_documents():
         logger.error(f"Dashboard documents failed: {e}")
         return jsonify({'success': False, 'error': 'Failed to load documents'}), 500
 
+@app.route('/test-upload', methods=['POST'])
+def test_upload():
+    try:
+        print("=== TEST UPLOAD HIT ===")
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file'}), 400
+        f = request.files['file']
+        print(f"File: {f.filename}, Size: {f.content_length}")
+        return jsonify({'success': True, 'filename': f.filename})
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/dashboard/upload', methods=['POST'])
 def dashboard_upload():
     """Upload a document for authenticated user."""
