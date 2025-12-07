@@ -114,7 +114,18 @@ context-foundry/
 - GraphBuilder stamps tenant_id on all Entity, Relationship, Document records during extraction
 - RLS policies exist but not enabled until backfill of existing records
 
+### Document Management (Phase 3 Complete)
+- **POST /documents**: Upload with multipart/form-data, validates MIME/size, checks quota, stores to tenant-isolated path
+- **GET /documents**: List tenant documents with pagination and filters
+- **GET /documents/{id}**: Get document details (status, version, metadata)
+- **POST /documents/{id}/extraction**: Re-queue document for extraction
+- **GET /documents/{id}/status**: Get current extraction status
+- **Storage Path**: ./storage/tenants/{tenant_id}/documents/{doc_id}/v{version}/content
+- **Usage Logging**: Tracks upload and extraction events in platform.usage_events
+- **Result Processing**: process_extraction_results() updates document status and logs token usage
+
 ## Recent Changes (December 2025)
+- Completed Phase 3: Document upload, storage, queue submission, status tracking, usage logging
 - Completed Phase 2: Authentication with magic links, API keys, JWT sessions
 - Completed Track B: Tenant isolation with tenant_id columns and extraction stamping
 - Added set_tenant_on_session() helper for handlers needing RLS
