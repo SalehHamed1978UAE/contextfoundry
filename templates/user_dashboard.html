@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ tenant_name }} - Context Foundry</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
     <style>
         * {
             margin: 0;
@@ -339,6 +340,218 @@
             margin-right: 0.5rem;
         }
         
+        .drop-zone {
+            border: 2px dashed rgba(102, 126, 234, 0.5);
+            border-radius: 12px;
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .drop-zone-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .drop-zone-text {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .drop-zone-hint {
+            color: #666;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        
+        .upload-progress {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            display: none;
+        }
+        
+        .upload-progress.visible {
+            display: block;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+        }
+        
+        .upload-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .stat-item {
+            color: #a0a0a0;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+        }
+        
+        .stat-queued { color: #34d399; }
+        .stat-skipped { color: #fbbf24; }
+        .stat-duplicate { color: #9ca3af; }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: #a0a0a0;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+        
+        .tab.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .connector-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            gap: 0.5rem;
+        }
+        
+        .connector-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .connector-icon {
+            font-size: 1.5rem;
+        }
+        
+        .connector-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .connector-name {
+            font-weight: 500;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        
+        .connector-meta {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .connector-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .connector-form {
+            display: none;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .connector-form.visible {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            color: #a0a0a0;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.6rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .coming-soon {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .coming-soon-badge {
+            font-size: 0.65rem;
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+        }
+        
         .loading {
             display: inline-block;
             width: 14px;
@@ -452,22 +665,83 @@
         
         <section class="section">
             <div class="section-header">
-                <h2 class="section-title">Documents</h2>
-                <button class="btn btn-secondary btn-small" onclick="toggleUpload()">Upload</button>
+                <h2 class="section-title">Documents & Ingestion</h2>
             </div>
             
-            <div class="upload-form" id="uploadForm">
-                <form onsubmit="handleUpload(event)">
-                    <div class="file-input-wrapper">
-                        <input type="file" id="fileInput" class="file-input" 
-                               accept=".pdf,.doc,.docx,.txt,.md,.json">
-                        <button type="submit" class="btn btn-small" id="uploadBtn">Upload</button>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('upload')">Upload</button>
+                <button class="tab" onclick="switchTab('connectors')">Connectors</button>
+                <button class="tab" onclick="switchTab('documents')">Documents</button>
+            </div>
+            
+            <div class="tab-content active" id="tab-upload">
+                <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
+                    <div class="drop-zone-icon">📁</div>
+                    <div class="drop-zone-text">Drag & drop files here or click to browse</div>
+                    <div class="drop-zone-hint">Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML (max 50MB each)</div>
+                    <div class="drop-zone-hint">You can also drop a ZIP file for bulk import</div>
+                </div>
+                <input type="file" id="multiFileInput" multiple hidden 
+                       accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip">
+                
+                <div class="upload-progress" id="uploadProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
                     </div>
-                </form>
+                    <div class="progress-text" id="progressText">Uploading...</div>
+                    <div class="upload-stats" id="uploadStats"></div>
+                </div>
             </div>
             
-            <div class="document-list" id="documentList">
-                <div class="empty-state">Loading...</div>
+            <div class="tab-content" id="tab-connectors">
+                <div style="margin-bottom: 0.75rem;">
+                    <button class="btn btn-small" onclick="showConnectorForm('s3')">+ AWS S3</button>
+                    <button class="btn btn-small coming-soon" disabled>+ Google Drive<span class="coming-soon-badge">Soon</span></button>
+                    <button class="btn btn-small coming-soon" disabled>+ Dropbox<span class="coming-soon-badge">Soon</span></button>
+                    <button class="btn btn-small coming-soon" disabled>+ OneDrive<span class="coming-soon-badge">Soon</span></button>
+                </div>
+                
+                <div class="connector-form" id="s3ConnectorForm">
+                    <h4 style="color: #fff; font-size: 0.9rem; margin-bottom: 0.75rem;">Connect AWS S3 Bucket</h4>
+                    <div class="form-group">
+                        <label class="form-label">Connector Name</label>
+                        <input type="text" class="form-input" id="s3Name" placeholder="My S3 Bucket">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Access Key ID</label>
+                        <input type="text" class="form-input" id="s3AccessKey" placeholder="AKIA...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Secret Access Key</label>
+                        <input type="password" class="form-input" id="s3SecretKey" placeholder="Secret key">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bucket Name</label>
+                        <input type="text" class="form-input" id="s3Bucket" placeholder="my-bucket">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prefix (optional)</label>
+                        <input type="text" class="form-input" id="s3Prefix" placeholder="documents/">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Region</label>
+                        <input type="text" class="form-input" id="s3Region" placeholder="us-east-1" value="us-east-1">
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-small" onclick="createS3Connector()" id="s3ConnectBtn">Connect</button>
+                        <button class="btn btn-secondary btn-small" onclick="hideConnectorForm()">Cancel</button>
+                    </div>
+                </div>
+                
+                <div id="connectorsList">
+                    <div class="empty-state">Loading connectors...</div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-documents">
+                <div class="document-list" id="documentList">
+                    <div class="empty-state">Loading...</div>
+                </div>
             </div>
         </section>
         
@@ -550,48 +824,252 @@
             }
         }
         
-        function toggleUpload() {
-            document.getElementById('uploadForm').classList.toggle('visible');
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            if (tabName === 'documents') loadDocuments();
+            if (tabName === 'connectors') loadConnectors();
         }
         
-        async function handleUpload(event) {
-            event.preventDefault();
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
+        const dropZone = document.getElementById('dropZone');
+        const multiFileInput = document.getElementById('multiFileInput');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+        });
+        
+        dropZone.addEventListener('drop', handleDrop, false);
+        multiFileInput.addEventListener('change', handleFileSelect, false);
+        
+        function handleDrop(e) {
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        }
+        
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            handleFiles(files);
+        }
+        
+        async function handleFiles(files) {
+            if (!files || files.length === 0) return;
             
-            if (!file) {
-                showToast('Select a file', 'error');
-                return;
+            const progress = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const uploadStats = document.getElementById('uploadStats');
+            
+            progress.classList.add('visible');
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Preparing upload...';
+            uploadStats.innerHTML = '';
+            
+            const fileList = Array.from(files);
+            const isZip = fileList.length === 1 && fileList[0].name.toLowerCase().endsWith('.zip');
+            
+            try {
+                const formData = new FormData();
+                
+                if (isZip) {
+                    formData.append('file', fileList[0]);
+                    progressText.textContent = 'Uploading ZIP file...';
+                    progressFill.style.width = '50%';
+                    
+                    const response = await fetch('/dashboard/upload/zip', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    progressFill.style.width = '100%';
+                    
+                    if (data.success) {
+                        const s = data.summary;
+                        progressText.textContent = 'Upload complete!';
+                        uploadStats.innerHTML = `
+                            <span class="stat-item"><span class="stat-value stat-queued">${s.queued}</span> queued</span>
+                            <span class="stat-item"><span class="stat-value stat-skipped">${s.skipped}</span> skipped</span>
+                            <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
+                        `;
+                        showToast(`Imported ${s.queued} files from ZIP`, 'success');
+                    } else {
+                        progressText.textContent = 'Upload failed';
+                        showToast(data.error || 'Upload failed', 'error');
+                    }
+                } else {
+                    fileList.forEach(file => formData.append('files', file));
+                    progressText.textContent = `Uploading ${fileList.length} file(s)...`;
+                    progressFill.style.width = '50%';
+                    
+                    const response = await fetch('/dashboard/upload/multi', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    progressFill.style.width = '100%';
+                    
+                    if (data.success) {
+                        const s = data.summary;
+                        progressText.textContent = 'Upload complete!';
+                        uploadStats.innerHTML = `
+                            <span class="stat-item"><span class="stat-value stat-queued">${s.queued}</span> queued</span>
+                            <span class="stat-item"><span class="stat-value stat-skipped">${s.skipped}</span> skipped</span>
+                            <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
+                        `;
+                        showToast(`Uploaded ${s.queued} file(s)`, 'success');
+                    } else {
+                        progressText.textContent = 'Upload failed';
+                        showToast(data.error || 'Upload failed', 'error');
+                    }
+                }
+                
+                multiFileInput.value = '';
+                
+            } catch (err) {
+                progressText.textContent = 'Upload failed';
+                showToast('Upload failed', 'error');
             }
             
-            const btn = document.getElementById('uploadBtn');
+            setTimeout(() => progress.classList.remove('visible'), 5000);
+        }
+        
+        function showConnectorForm(type) {
+            document.querySelectorAll('.connector-form').forEach(f => f.classList.remove('visible'));
+            document.getElementById(type + 'ConnectorForm').classList.add('visible');
+        }
+        
+        function hideConnectorForm() {
+            document.querySelectorAll('.connector-form').forEach(f => f.classList.remove('visible'));
+        }
+        
+        async function createS3Connector() {
+            const btn = document.getElementById('s3ConnectBtn');
             btn.innerHTML = '<span class="loading"></span>';
             btn.disabled = true;
             
             try {
-                const formData = new FormData();
-                formData.append('file', file);
-                
-                const response = await fetch('/dashboard/upload', {
+                const response = await fetch('/dashboard/connectors', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 's3',
+                        name: document.getElementById('s3Name').value || 'S3 Bucket',
+                        config: {
+                            access_key_id: document.getElementById('s3AccessKey').value,
+                            secret_access_key: document.getElementById('s3SecretKey').value,
+                            bucket_name: document.getElementById('s3Bucket').value,
+                            prefix: document.getElementById('s3Prefix').value,
+                            region: document.getElementById('s3Region').value || 'us-east-1'
+                        }
+                    })
                 });
                 
                 const data = await response.json();
                 
                 if (data.success) {
-                    showToast('Uploaded!', 'success');
-                    document.getElementById('uploadForm').classList.remove('visible');
-                    fileInput.value = '';
-                    loadDocuments();
+                    showToast('S3 connected!', 'success');
+                    hideConnectorForm();
+                    loadConnectors();
+                    ['s3Name', 's3AccessKey', 's3SecretKey', 's3Bucket', 's3Prefix'].forEach(id => {
+                        document.getElementById(id).value = '';
+                    });
                 } else {
-                    showToast(data.error || 'Upload failed', 'error');
+                    showToast(data.error || 'Connection failed', 'error');
                 }
             } catch (err) {
-                showToast('Upload failed', 'error');
+                showToast('Connection failed', 'error');
             } finally {
-                btn.innerHTML = 'Upload';
+                btn.innerHTML = 'Connect';
                 btn.disabled = false;
+            }
+        }
+        
+        async function loadConnectors() {
+            const list = document.getElementById('connectorsList');
+            
+            try {
+                const response = await fetch('/dashboard/connectors');
+                const data = await response.json();
+                
+                if (data.success && data.connectors && data.connectors.length > 0) {
+                    list.innerHTML = data.connectors.map(c => `
+                        <div class="connector-item">
+                            <div class="connector-info">
+                                <span class="connector-icon">${c.type === 's3' ? '☁️' : '📂'}</span>
+                                <div class="connector-details">
+                                    <div class="connector-name">${escapeHtml(c.name)}</div>
+                                    <div class="connector-meta">${c.documents_processed} docs synced${c.last_sync_at ? ' • Last sync: ' + new Date(c.last_sync_at).toLocaleDateString() : ''}</div>
+                                </div>
+                            </div>
+                            <div class="connector-actions">
+                                <button class="btn btn-small" onclick="syncConnector('${c.id}', this)">Sync</button>
+                                <button class="btn btn-secondary btn-small" onclick="deleteConnector('${c.id}')">Remove</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = '<div class="empty-state">No connectors configured. Add one above to sync documents from cloud storage.</div>';
+                }
+            } catch (err) {
+                list.innerHTML = '<div class="empty-state">Failed to load connectors.</div>';
+            }
+        }
+        
+        async function syncConnector(connectorId, btn) {
+            btn.innerHTML = '<span class="loading"></span>';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch(`/dashboard/connectors/${connectorId}/sync`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const r = data.results;
+                    showToast(`Synced ${r.queued} files (${r.duplicates} duplicates, ${r.failed} failed)`, 'success');
+                    loadConnectors();
+                } else {
+                    showToast(data.error || 'Sync failed', 'error');
+                }
+            } catch (err) {
+                showToast('Sync failed', 'error');
+            } finally {
+                btn.innerHTML = 'Sync';
+                btn.disabled = false;
+            }
+        }
+        
+        async function deleteConnector(connectorId) {
+            if (!confirm('Remove this connector?')) return;
+            
+            try {
+                const response = await fetch(`/dashboard/connectors/${connectorId}`, { method: 'DELETE' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Connector removed', 'success');
+                    loadConnectors();
+                } else {
+                    showToast(data.error || 'Failed', 'error');
+                }
+            } catch (err) {
+                showToast('Failed to remove', 'error');
             }
         }
         

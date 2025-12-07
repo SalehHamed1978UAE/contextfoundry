@@ -745,6 +745,233 @@ def dashboard_upload():
         logger.error(f"Dashboard upload failed: {e}")
         return jsonify({'success': False, 'error': 'Upload failed'}), 500
 
+@app.route('/dashboard/upload/multi', methods=['POST'])
+def dashboard_upload_multi():
+    """Upload multiple files at once."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    files = request.files.getlist('files')
+    if not files or len(files) == 0:
+        return jsonify({'success': False, 'error': 'No files provided'}), 400
+    
+    try:
+        from uuid import UUID, uuid4
+        import psycopg2
+        import hashlib
+        
+        tenant_id = UUID(session['tenant_id'])
+        user_id = UUID(session['user_id'])
+        
+        JUNK_PATTERNS = ['.DS_Store', 'Thumbs.db', 'desktop.ini', '.gitignore', '__pycache__']
+        ALLOWED_EXTENSIONS = ['.txt', '.md', '.json', '.csv', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.rtf', '.html', '.xml']
+        MAX_FILE_SIZE = 50 * 1024 * 1024
+        
+        results = []
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                for file in files:
+                    if not file.filename:
+                        continue
+                    
+                    filename = file.filename
+                    if any(junk in filename for junk in JUNK_PATTERNS):
+                        results.append({'filename': filename, 'status': 'skipped', 'reason': 'Junk file'})
+                        continue
+                    
+                    ext = os.path.splitext(filename)[1].lower()
+                    if ext not in ALLOWED_EXTENSIONS:
+                        results.append({'filename': filename, 'status': 'skipped', 'reason': f'Unsupported type: {ext}'})
+                        continue
+                    
+                    doc_id = uuid4()
+                    version = 1
+                    storage_dir = f"./storage/tenants/{tenant_id}/documents/{doc_id}/v{version}"
+                    os.makedirs(storage_dir, exist_ok=True)
+                    storage_path = f"{storage_dir}/content"
+                    
+                    file.save(storage_path)
+                    file_size = os.path.getsize(storage_path)
+                    
+                    if file_size > MAX_FILE_SIZE:
+                        os.remove(storage_path)
+                        results.append({'filename': filename, 'status': 'skipped', 'reason': 'File too large (>50MB)'})
+                        continue
+                    
+                    with open(storage_path, 'rb') as f:
+                        content_hash = hashlib.sha256(f.read()).hexdigest()
+                    
+                    cur.execute("""
+                        SELECT id FROM platform.documents 
+                        WHERE tenant_id = %s AND content_hash = %s LIMIT 1
+                    """, (str(tenant_id), content_hash))
+                    if cur.fetchone():
+                        os.remove(storage_path)
+                        results.append({'filename': filename, 'status': 'duplicate', 'reason': 'Content already exists'})
+                        continue
+                    
+                    cur.execute("""
+                        INSERT INTO platform.documents (
+                            id, tenant_id, original_filename, mime_type, 
+                            storage_path, file_size, current_version, status, content_hash, created_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+                    """, (str(doc_id), str(tenant_id), filename, 
+                          file.content_type or 'application/octet-stream',
+                          storage_path, file_size, version, content_hash))
+                    
+                    cur.execute("""
+                        INSERT INTO platform.usage_events (
+                            tenant_id, user_id, event_type, resource_type, 
+                            resource_id, units, metadata, created_at
+                        ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                    """, (str(tenant_id), str(user_id), str(doc_id), file_size,
+                          json.dumps({'filename': filename, 'source': 'multi_upload'})))
+                    
+                    results.append({'filename': filename, 'status': 'queued', 'document_id': str(doc_id)})
+                
+                conn.commit()
+        
+        queued = sum(1 for r in results if r['status'] == 'queued')
+        skipped = sum(1 for r in results if r['status'] == 'skipped')
+        duplicates = sum(1 for r in results if r['status'] == 'duplicate')
+        
+        return jsonify({
+            'success': True,
+            'summary': {'queued': queued, 'skipped': skipped, 'duplicates': duplicates},
+            'results': results
+        })
+        
+    except Exception as e:
+        logger.error(f"Multi-file upload failed: {e}")
+        return jsonify({'success': False, 'error': 'Upload failed'}), 500
+
+@app.route('/dashboard/upload/zip', methods=['POST'])
+def dashboard_upload_zip():
+    """Upload a ZIP file and extract its contents."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file.filename or not file.filename.lower().endswith('.zip'):
+        return jsonify({'success': False, 'error': 'Please upload a ZIP file'}), 400
+    
+    try:
+        from uuid import UUID, uuid4
+        import psycopg2
+        import hashlib
+        import zipfile
+        import tempfile
+        
+        tenant_id = UUID(session['tenant_id'])
+        user_id = UUID(session['user_id'])
+        
+        JUNK_PATTERNS = ['.DS_Store', 'Thumbs.db', 'desktop.ini', '.gitignore', '__pycache__', '__MACOSX']
+        ALLOWED_EXTENSIONS = ['.txt', '.md', '.json', '.csv', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.rtf', '.html', '.xml']
+        MAX_FILE_SIZE = 50 * 1024 * 1024
+        MAX_ZIP_SIZE = 200 * 1024 * 1024
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as tmp:
+            file.save(tmp.name)
+            zip_path = tmp.name
+        
+        if os.path.getsize(zip_path) > MAX_ZIP_SIZE:
+            os.remove(zip_path)
+            return jsonify({'success': False, 'error': 'ZIP file too large (>200MB)'}), 400
+        
+        results = []
+        database_url = os.environ.get("DATABASE_URL")
+        
+        try:
+            with zipfile.ZipFile(zip_path, 'r') as zf:
+                with psycopg2.connect(database_url) as conn:
+                    with conn.cursor() as cur:
+                        for zip_info in zf.infolist():
+                            if zip_info.is_dir():
+                                continue
+                            
+                            filename = os.path.basename(zip_info.filename)
+                            if not filename:
+                                continue
+                            
+                            if any(junk in zip_info.filename for junk in JUNK_PATTERNS):
+                                results.append({'filename': filename, 'status': 'skipped', 'reason': 'Junk file'})
+                                continue
+                            
+                            ext = os.path.splitext(filename)[1].lower()
+                            if ext not in ALLOWED_EXTENSIONS:
+                                results.append({'filename': filename, 'status': 'skipped', 'reason': f'Unsupported type: {ext}'})
+                                continue
+                            
+                            if zip_info.file_size > MAX_FILE_SIZE:
+                                results.append({'filename': filename, 'status': 'skipped', 'reason': 'File too large'})
+                                continue
+                            
+                            content = zf.read(zip_info.filename)
+                            content_hash = hashlib.sha256(content).hexdigest()
+                            
+                            cur.execute("""
+                                SELECT id FROM platform.documents 
+                                WHERE tenant_id = %s AND content_hash = %s LIMIT 1
+                            """, (str(tenant_id), content_hash))
+                            if cur.fetchone():
+                                results.append({'filename': filename, 'status': 'duplicate', 'reason': 'Content already exists'})
+                                continue
+                            
+                            doc_id = uuid4()
+                            version = 1
+                            storage_dir = f"./storage/tenants/{tenant_id}/documents/{doc_id}/v{version}"
+                            os.makedirs(storage_dir, exist_ok=True)
+                            storage_path = f"{storage_dir}/content"
+                            
+                            with open(storage_path, 'wb') as out_file:
+                                out_file.write(content)
+                            
+                            mime_type, _ = mimetypes.guess_type(filename)
+                            
+                            cur.execute("""
+                                INSERT INTO platform.documents (
+                                    id, tenant_id, original_filename, mime_type, 
+                                    storage_path, file_size, current_version, status, content_hash, created_at
+                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+                            """, (str(doc_id), str(tenant_id), filename, 
+                                  mime_type or 'application/octet-stream',
+                                  storage_path, len(content), version, content_hash))
+                            
+                            cur.execute("""
+                                INSERT INTO platform.usage_events (
+                                    tenant_id, user_id, event_type, resource_type, 
+                                    resource_id, units, metadata, created_at
+                                ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                            """, (str(tenant_id), str(user_id), str(doc_id), len(content),
+                                  json.dumps({'filename': filename, 'source': 'zip_upload', 'zip_name': file.filename})))
+                            
+                            results.append({'filename': filename, 'status': 'queued', 'document_id': str(doc_id)})
+                        
+                        conn.commit()
+        finally:
+            os.remove(zip_path)
+        
+        queued = sum(1 for r in results if r['status'] == 'queued')
+        skipped = sum(1 for r in results if r['status'] == 'skipped')
+        duplicates = sum(1 for r in results if r['status'] == 'duplicate')
+        
+        return jsonify({
+            'success': True,
+            'summary': {'queued': queued, 'skipped': skipped, 'duplicates': duplicates, 'total': len(results)},
+            'results': results
+        })
+        
+    except zipfile.BadZipFile:
+        return jsonify({'success': False, 'error': 'Invalid or corrupted ZIP file'}), 400
+    except Exception as e:
+        logger.error(f"ZIP upload failed: {e}")
+        return jsonify({'success': False, 'error': 'Upload failed'}), 500
+
 @app.route('/dashboard/api-keys', methods=['GET'])
 def dashboard_list_api_keys():
     """List API keys for authenticated user."""
@@ -853,6 +1080,329 @@ def dashboard_revoke_api_key(key_id):
     except Exception as e:
         logger.error(f"Dashboard revoke API key failed: {e}")
         return jsonify({'success': False, 'error': 'Failed to revoke API key'}), 500
+
+@app.route('/dashboard/connectors', methods=['GET'])
+def dashboard_list_connectors():
+    """List source connectors for authenticated user."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, type, name, status, last_sync_at, 
+                           documents_discovered, documents_processed, created_at
+                    FROM platform.source_connectors
+                    WHERE tenant_id = %s
+                    ORDER BY created_at DESC
+                """, (session['tenant_id'],))
+                connectors = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'connectors': [{
+                'id': str(c['id']),
+                'type': c['type'],
+                'name': c['name'],
+                'status': c['status'],
+                'last_sync_at': c['last_sync_at'].isoformat() if c['last_sync_at'] else None,
+                'documents_discovered': c['documents_discovered'],
+                'documents_processed': c['documents_processed'],
+                'created_at': c['created_at'].isoformat() if c['created_at'] else None
+            } for c in connectors]
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard list connectors failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to load connectors'}), 500
+
+@app.route('/dashboard/connectors', methods=['POST'])
+def dashboard_create_connector():
+    """Create a new source connector."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        from uuid import UUID, uuid4
+        import psycopg2
+        from platform_foundation.src.utils.encryption import get_encryption
+        
+        data = request.get_json() or {}
+        connector_type = data.get('type')
+        connector_name = data.get('name', 'Unnamed Connector')
+        config = data.get('config', {})
+        
+        if connector_type not in ['s3', 'gdrive']:
+            return jsonify({'success': False, 'error': 'Unsupported connector type'}), 400
+        
+        tenant_id = UUID(session['tenant_id'])
+        connector_id = uuid4()
+        
+        encryption = get_encryption()
+        encrypted_config = encryption.encrypt_config(config)
+        
+        if connector_type == 's3':
+            from platform_foundation.src.connectors.s3_connector import S3Connector, S3Config
+            s3_config = S3Config(
+                access_key_id=config.get('access_key_id', ''),
+                secret_access_key=config.get('secret_access_key', ''),
+                bucket_name=config.get('bucket_name', ''),
+                prefix=config.get('prefix', ''),
+                region=config.get('region', 'us-east-1')
+            )
+            connector = S3Connector(s3_config)
+            test_result = connector.test_connection()
+            
+            if not test_result.get('success'):
+                return jsonify({'success': False, 'error': test_result.get('error', 'Connection failed')}), 400
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO platform.source_connectors (
+                        id, tenant_id, type, name, config, status, created_at
+                    ) VALUES (%s, %s, %s, %s, %s, 'active', NOW())
+                """, (str(connector_id), str(tenant_id), connector_type, 
+                      connector_name, psycopg2.Binary(encrypted_config)))
+                conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'connector_id': str(connector_id),
+            'name': connector_name,
+            'type': connector_type
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard create connector failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to create connector'}), 500
+
+@app.route('/dashboard/connectors/<connector_id>/sync', methods=['POST'])
+def dashboard_sync_connector(connector_id):
+    """Trigger a sync for a connector."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        from uuid import UUID, uuid4
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        import hashlib
+        from platform_foundation.src.utils.encryption import get_encryption
+        
+        tenant_id = UUID(session['tenant_id'])
+        user_id = UUID(session['user_id'])
+        
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, type, name, config FROM platform.source_connectors
+                    WHERE id = %s AND tenant_id = %s
+                """, (connector_id, str(tenant_id)))
+                connector = cur.fetchone()
+                
+                if not connector:
+                    return jsonify({'success': False, 'error': 'Connector not found'}), 404
+                
+                job_id = uuid4()
+                cur.execute("""
+                    INSERT INTO platform.sync_jobs (id, connector_id, tenant_id, status, started_at)
+                    VALUES (%s, %s, %s, 'running', NOW())
+                """, (str(job_id), connector_id, str(tenant_id)))
+                conn.commit()
+                
+                encryption = get_encryption()
+                config = encryption.decrypt_config(bytes(connector['config']))
+                
+                if connector['type'] == 's3':
+                    from platform_foundation.src.connectors.s3_connector import S3Connector, S3Config
+                    s3_config = S3Config(
+                        access_key_id=config.get('access_key_id', ''),
+                        secret_access_key=config.get('secret_access_key', ''),
+                        bucket_name=config.get('bucket_name', ''),
+                        prefix=config.get('prefix', ''),
+                        region=config.get('region', 'us-east-1')
+                    )
+                    source = S3Connector(s3_config)
+                else:
+                    cur.execute("""
+                        UPDATE platform.sync_jobs SET status = 'failed', 
+                        error_message = 'Unsupported connector type', completed_at = NOW()
+                        WHERE id = %s
+                    """, (str(job_id),))
+                    conn.commit()
+                    return jsonify({'success': False, 'error': 'Unsupported connector type'}), 400
+                
+                results = {'queued': 0, 'skipped': 0, 'duplicates': 0, 'failed': 0}
+                files_list = list(source.discover_files(max_files=1000))
+                
+                cur.execute("""
+                    UPDATE platform.sync_jobs SET files_total = %s WHERE id = %s
+                """, (len(files_list), str(job_id)))
+                conn.commit()
+                
+                for file_info in files_list:
+                    try:
+                        cur.execute("""
+                            SELECT id FROM platform.documents 
+                            WHERE tenant_id = %s AND source_connector_id = %s AND external_id = %s
+                        """, (str(tenant_id), connector_id, file_info['external_id']))
+                        
+                        if cur.fetchone():
+                            results['duplicates'] += 1
+                            continue
+                        
+                        content = source.get_file_content(file_info['key'])
+                        content_hash = hashlib.sha256(content).hexdigest()
+                        
+                        cur.execute("""
+                            SELECT id FROM platform.documents 
+                            WHERE tenant_id = %s AND content_hash = %s
+                        """, (str(tenant_id), content_hash))
+                        
+                        if cur.fetchone():
+                            results['duplicates'] += 1
+                            continue
+                        
+                        doc_id = uuid4()
+                        version = 1
+                        storage_dir = f"./storage/tenants/{tenant_id}/documents/{doc_id}/v{version}"
+                        os.makedirs(storage_dir, exist_ok=True)
+                        storage_path = f"{storage_dir}/content"
+                        
+                        with open(storage_path, 'wb') as f:
+                            f.write(content)
+                        
+                        cur.execute("""
+                            INSERT INTO platform.documents (
+                                id, tenant_id, original_filename, mime_type, storage_path,
+                                file_size, current_version, status, source_connector_id,
+                                external_id, content_hash, created_at
+                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s, NOW())
+                        """, (str(doc_id), str(tenant_id), file_info['name'], file_info['mime_type'],
+                              storage_path, file_info['size'], version, connector_id,
+                              file_info['external_id'], content_hash))
+                        
+                        cur.execute("""
+                            INSERT INTO platform.usage_events (
+                                tenant_id, user_id, event_type, resource_type,
+                                resource_id, units, metadata, created_at
+                            ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                        """, (str(tenant_id), str(user_id), str(doc_id), file_info['size'],
+                              json.dumps({'filename': file_info['name'], 'source': 's3', 'connector_id': connector_id})))
+                        
+                        results['queued'] += 1
+                        
+                    except Exception as e:
+                        logger.error(f"Failed to sync file {file_info.get('name')}: {e}")
+                        results['failed'] += 1
+                
+                cur.execute("""
+                    UPDATE platform.sync_jobs 
+                    SET status = 'completed', files_processed = %s, files_failed = %s,
+                        files_skipped = %s, completed_at = NOW()
+                    WHERE id = %s
+                """, (results['queued'], results['failed'], 
+                      results['skipped'] + results['duplicates'], str(job_id)))
+                
+                cur.execute("""
+                    UPDATE platform.source_connectors
+                    SET last_sync_at = NOW(), 
+                        documents_discovered = documents_discovered + %s,
+                        documents_processed = documents_processed + %s
+                    WHERE id = %s
+                """, (len(files_list), results['queued'], connector_id))
+                
+                conn.commit()
+        
+        return jsonify({
+            'success': True,
+            'job_id': str(job_id),
+            'results': results
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard sync connector failed: {e}")
+        return jsonify({'success': False, 'error': 'Sync failed'}), 500
+
+@app.route('/dashboard/connectors/<connector_id>', methods=['DELETE'])
+def dashboard_delete_connector(connector_id):
+    """Delete a source connector."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    DELETE FROM platform.source_connectors
+                    WHERE id = %s AND tenant_id = %s
+                """, (connector_id, session['tenant_id']))
+                conn.commit()
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        logger.error(f"Dashboard delete connector failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to delete connector'}), 500
+
+@app.route('/dashboard/sync-jobs', methods=['GET'])
+def dashboard_list_sync_jobs():
+    """List recent sync jobs."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT sj.id, sj.connector_id, sc.name as connector_name, sc.type as connector_type,
+                           sj.status, sj.files_total, sj.files_processed, sj.files_failed,
+                           sj.files_skipped, sj.started_at, sj.completed_at, sj.error_message
+                    FROM platform.sync_jobs sj
+                    LEFT JOIN platform.source_connectors sc ON sj.connector_id = sc.id
+                    WHERE sj.tenant_id = %s
+                    ORDER BY sj.started_at DESC
+                    LIMIT 20
+                """, (session['tenant_id'],))
+                jobs = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'jobs': [{
+                'id': str(j['id']),
+                'connector_id': str(j['connector_id']) if j['connector_id'] else None,
+                'connector_name': j['connector_name'],
+                'connector_type': j['connector_type'],
+                'status': j['status'],
+                'files_total': j['files_total'],
+                'files_processed': j['files_processed'],
+                'files_failed': j['files_failed'],
+                'files_skipped': j['files_skipped'],
+                'started_at': j['started_at'].isoformat() if j['started_at'] else None,
+                'completed_at': j['completed_at'].isoformat() if j['completed_at'] else None,
+                'error_message': j['error_message']
+            } for j in jobs]
+        })
+        
+    except Exception as e:
+        logger.error(f"Dashboard list sync jobs failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to load sync jobs'}), 500
 
 @app.route('/evaluation')
 def evaluation():
