@@ -25,4 +25,4 @@ def brain_health():
 if __name__ == '__main__':
     port = int(os.environ.get('PLATFORM_PORT', 5000))
     print(f"[Platform] Starting on port {port}")
-    web_app.app.run(host='0.0.0.0', port=port, debug=True)
+    web_app.app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
