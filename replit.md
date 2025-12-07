@@ -144,7 +144,38 @@ context-foundry/
 - **API Key Authentication Tests**: Validates key format (cf_test_{hex4}_{random}), scope validation, rejection of invalid keys
 - **Test Helpers**: TestDatabaseHelper class for tenant/user/key creation and cleanup
 
+### Bulk Ingestion System (Phase 6 Complete)
+- **Database Tables**: `platform.source_connectors` (encrypted config), `platform.sync_jobs` (sync status tracking)
+- **Document Tracking**: Added `source_connector_id`, `external_id`, `content_hash`, `sync_job_id` to documents
+- **Sync Worker** (`platform_foundation/src/sync_worker.py`):
+  - Junk file filtering: .DS_Store, thumbs.db, .git/, node_modules/, __pycache__/, desktop.ini
+  - Content deduplication via SHA-256 hashing
+  - Tracks sync statistics (queued, skipped, duplicates, failed)
+- **S3 Connector** (`platform_foundation/src/connectors/s3_connector.py`):
+  - AWS credential-based authentication (access_key_id, secret_access_key)
+  - Bucket sync with optional prefix filtering
+  - Downloads files to tenant-isolated storage, creates documents with external_id
+- **Google Drive Connector** (`platform_foundation/src/connectors/gdrive_connector.py`):
+  - OAuth-based folder sync (OAuth flow via /google_login/callback)
+  - Folder selection support
+- **Encryption Utility** (`platform_foundation/src/utils/encryption.py`):
+  - Fernet encryption for sensitive credentials (AWS keys, OAuth tokens)
+  - Uses FERNET_KEY environment secret
+- **Multi-File Upload**: POST /dashboard/upload/multi accepts multiple files via FormData
+- **ZIP Upload**: POST /dashboard/upload/zip extracts contents, filters junk, creates individual documents
+- **Dashboard UI** (`templates/user_dashboard.html`):
+  - Drag & drop upload zone with visual feedback
+  - Tabbed interface: Documents | Connectors
+  - Upload progress bar with stats (queued, skipped, duplicates)
+  - S3 connector configuration form
+  - Connector list with sync/delete actions
+  - "Coming Soon" badges for Google Drive, Dropbox, OneDrive
+
 ## Recent Changes (December 2025)
+- **Completed Phase 6**: Bulk ingestion with S3/Google Drive connectors, multi-file/ZIP upload, drag & drop UI
+- Added Fernet encryption for connector credentials
+- Implemented sync worker with junk filtering and SHA-256 deduplication
+- Enhanced dashboard with tabbed interface and connector management
 - Completed Phase 5: Integration testing with 14 tests covering full user journey, tenant isolation, token metering, quota enforcement, RLS, and API key auth
 - Fixed MCP Server query format to use QueryRequest contract (added query_type field)
 - Fixed request_id to use proper UUIDs for usage_events logging
