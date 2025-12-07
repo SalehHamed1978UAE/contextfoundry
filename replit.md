@@ -101,11 +101,26 @@ context-foundry/
 - **Web Framework**: Flask
 - **Deployment**: Gunicorn
 
+### Authentication (Phase 2 Complete)
+- **Magic Link Flow**: /auth/magic-link generates 15-minute tokens, /auth/verify validates and returns JWT
+- **API Keys**: cf_live_/cf_test_ prefixes with bcrypt hashing, /api/keys CRUD endpoints
+- **JWT Sessions**: Access tokens (15min) and refresh tokens (7 days) with tenant_id, role, user_id
+- **Tenant Context**: before_request extracts auth, stores in Flask g; set_tenant_on_session() for RLS
+- **RLS Integration**: platform.set_current_tenant() and platform.set_current_user_role() session variables
+
+### Tenant Isolation (Track B Complete)
+- Migration 010 adds tenant_id to context.entities, context.relationships, context.documents
+- SQLAlchemy models include tenant_id columns
+- GraphBuilder stamps tenant_id on all Entity, Relationship, Document records during extraction
+- RLS policies exist but not enabled until backfill of existing records
+
 ## Recent Changes (December 2025)
+- Completed Phase 2: Authentication with magic links, API keys, JWT sessions
+- Completed Track B: Tenant isolation with tenant_id columns and extraction stamping
+- Added set_tenant_on_session() helper for handlers needing RLS
 - Added Platform Foundation module with multi-tenancy support
 - Created interface types package for Platform ↔ Brain contract
 - Added EXTRACTION_REQUESTED event type to MessageBus
 - Created extraction worker for queue consumption
 - Added /internal/v1/health and /internal/v1/query Brain endpoints
-- Created RLS policies for tenant isolation
-- Added auth tenant sync for JWT claims
+- Created RLS policies for tenant isolation (pending enablement after backfill)
