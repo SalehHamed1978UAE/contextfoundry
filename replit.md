@@ -39,7 +39,11 @@ Three logical schemas exist:
 - **Context Bundle API**: Public API for structured truth delivery.
 - **Schema Versioning & Deprecation**: Manages type evolution with audit trails.
 - **UI/UX**: Single Page Application (SPA) with Flask/Jinja2 for client-side rendering, AJAX polling, and SVG-based graph visualization. Navigation is instant, and critical CSS prevents Flash of Unstyled Content.
-- **Tenant Isolation**: Achieved through `tenant_id` columns in relevant tables, RLS policies, and automatic tenant ID injection in API calls.
+- **Tenant Isolation**: Multi-layer security:
+  1. Application-level: All queries filter by `tenant_id` via StagingLoader and DuplicateDetector
+  2. Database-level: RLS policies enabled on `entities` and `relationships` tables
+  3. Session management: `tenant_session()` context manager sets/resets `app.current_tenant_id`
+  - Note: Neon PostgreSQL's `neondb_owner` role has `rolbypassrls=t`, requiring a non-bypass application role for full RLS enforcement
 - **Document Management**: Supports upload, versioning, re-queue for extraction, and status tracking with tenant-isolated storage.
 - **Bulk Ingestion System**: Supports multi-file/ZIP uploads, S3/Google Drive connectors with credential encryption, junk file filtering, and content deduplication.
 
