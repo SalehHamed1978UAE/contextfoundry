@@ -124,7 +124,18 @@ context-foundry/
 - **Usage Logging**: Tracks upload and extraction events in platform.usage_events
 - **Result Processing**: process_extraction_results() updates document status and logs token usage
 
+### MCP Server (Phase 4 Complete)
+- **Endpoints**: POST /mcp/v1/tools/{tool_name}, GET /mcp/v1/resources?uri=...
+- **Discovery**: GET /mcp/v1/tools (list tools), GET /mcp/v1/resources/list (list resources)
+- **Authentication**: API key via Authorization header (ApiKey cf_live_xxx or cf_live_xxx)
+- **Scope Validation**: read/write/admin hierarchy (admin > write > read)
+- **Quota Enforcement**: Pre-flight check_quota() before Brain calls, prevents wasted compute
+- **Usage Logging**: log_usage() after each query_context/verify_statement with tokens_consumed
+- **Tools**: query_context, verify_statement, ingest_document, get_document_status, list_entity_types
+- **Resources**: context://schema/{domain}, context://usage
+
 ## Recent Changes (December 2025)
+- Completed Phase 4: MCP server with 5 tools, 2 resources, API key auth, quota enforcement, usage logging
 - Completed Phase 3: Document upload, storage, queue submission, status tracking, usage logging
 - Completed Phase 2: Authentication with magic links, API keys, JWT sessions
 - Completed Track B: Tenant isolation with tenant_id columns and extraction stamping
