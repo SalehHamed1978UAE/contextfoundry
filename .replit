@@ -5,7 +5,7 @@ integrations = ["python_openai_ai_integrations:1.0.0", "python_database:1.0.0", 
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "libiconv", "libxcrypt", "libyaml", "postgresql", "rustc", "unzip"]
+packages = ["cargo", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "postgresql", "rustc", "unzip"]
 
 [workflows]
 runButton = "Project"
@@ -78,10 +78,6 @@ externalPort = 3003
 [[ports]]
 localPort = 42015
 externalPort = 3001
-
-[[ports]]
-localPort = 43075
-externalPort = 9000
 
 [[ports]]
 localPort = 43175
