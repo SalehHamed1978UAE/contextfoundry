@@ -669,6 +669,58 @@ def get_session():
     return _session_factory()
 
 
+from contextlib import contextmanager
+
+@contextmanager
+def tenant_session(tenant_id: str):
+    """Context manager for tenant-scoped database operations.
+    
+    Sets app.current_tenant_id for Row-Level Security policies.
+    Automatically resets the setting when the context exits.
+    
+    Usage:
+        with tenant_session(tenant_id) as session:
+            # All operations here use tenant context
+            entities = session.query(Entity).all()
+        # Setting is automatically reset when context exits
+    
+    Args:
+        tenant_id: UUID string of the tenant
+        
+    Yields:
+        SQLAlchemy session with tenant context set
+    """
+    session = get_session()
+    try:
+        if tenant_id:
+            session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
+        yield session
+    finally:
+        try:
+            session.execute(text("RESET app.current_tenant_id"))
+        except Exception:
+            pass
+        session.close()
+
+
+def get_tenant_session(tenant_id: str):
+    """Create a database session with RLS tenant_id set.
+    
+    WARNING: This session must be closed and the connection reset manually.
+    Prefer using tenant_session() context manager instead.
+    
+    Args:
+        tenant_id: UUID string of the tenant
+        
+    Returns:
+        SQLAlchemy session with tenant context set
+    """
+    session = get_session()
+    if tenant_id:
+        session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
+    return session
+
+
 def init_database():
     """Initialize database with all tables and extensions."""
     engine = get_engine()

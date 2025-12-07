@@ -78,8 +78,8 @@ class StagingLoader:
         self.session = session
         self._entity_cache = {}
         self.enable_deduplication = enable_deduplication
-        self.duplicate_detector = DuplicateDetector(session, similarity_threshold)
         self.tenant_id = tenant_id
+        self.duplicate_detector = DuplicateDetector(session, similarity_threshold, tenant_id=tenant_id)
     
     def _normalize_entity_type(self, entity_type: str) -> str:
         """Normalize entity type string for database storage.

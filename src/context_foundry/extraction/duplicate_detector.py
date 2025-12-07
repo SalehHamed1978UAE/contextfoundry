@@ -5,9 +5,10 @@ Detects potential duplicate entities using fuzzy matching and normalization.
 from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 import re
+import uuid as uuid_module
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, and_
 
 from ..models.schema import Entity, LifecycleState
 from .entity_extractor import ExtractedEntity
@@ -78,16 +79,18 @@ class DuplicateDetector:
         "mgr": "manager",
     }
     
-    def __init__(self, session: Session, similarity_threshold: float = 0.8):
+    def __init__(self, session: Session, similarity_threshold: float = 0.8, tenant_id: Optional[str] = None):
         """
         Initialize the duplicate detector.
         
         Args:
             session: SQLAlchemy session for database operations
             similarity_threshold: Minimum similarity score for fuzzy matches (0.0-1.0)
+            tenant_id: UUID string of tenant to scope duplicate detection to
         """
         self.session = session
         self.similarity_threshold = similarity_threshold
+        self.tenant_id = tenant_id
         self._existing_entities_cache: Optional[Dict[str, List[Entity]]] = None
     
     def _normalize_name(self, name: str) -> str:
@@ -161,13 +164,15 @@ class DuplicateDetector:
         return 1.0 - (distance / max_len)
     
     def _load_existing_entities(self) -> Dict[str, List[Entity]]:
-        """Load existing entities grouped by normalized name."""
+        """Load existing entities grouped by normalized name (tenant-scoped)."""
         if self._existing_entities_cache is not None:
             return self._existing_entities_cache
         
-        entities = self.session.query(Entity).filter(
-            Entity.lifecycle_state.in_([LifecycleState.STAGING, LifecycleState.TRUSTED])
-        ).all()
+        filters = [Entity.lifecycle_state.in_([LifecycleState.STAGING, LifecycleState.TRUSTED])]
+        if self.tenant_id:
+            filters.append(Entity.tenant_id == uuid_module.UUID(self.tenant_id))
+        
+        entities = self.session.query(Entity).filter(and_(*filters)).all()
         
         grouped: Dict[str, List[Entity]] = {}
         for entity in entities:
@@ -188,14 +193,14 @@ class DuplicateDetector:
         name: str, 
         entity_type: Optional[str] = None
     ) -> Optional[Entity]:
-        """Find exact duplicate (case-insensitive)."""
-        query = self.session.query(Entity).filter(
-            func.lower(Entity.name) == name.lower()
-        )
+        """Find exact duplicate (case-insensitive, tenant-scoped)."""
+        filters = [func.lower(Entity.name) == name.lower()]
         if entity_type:
-            query = query.filter(Entity.entity_type == entity_type.upper())
+            filters.append(Entity.entity_type == entity_type.upper())
+        if self.tenant_id:
+            filters.append(Entity.tenant_id == uuid_module.UUID(self.tenant_id))
         
-        return query.first()
+        return self.session.query(Entity).filter(and_(*filters)).first()
     
     def find_normalized_duplicate(
         self, 
