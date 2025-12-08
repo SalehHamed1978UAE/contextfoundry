@@ -875,7 +875,7 @@ def dashboard_upload_multi():
                         INSERT INTO platform.documents (
                             id, tenant_id, name, original_filename, mime_type, 
                             storage_path, size_bytes, current_version, status, content_hash, created_at
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, NOW())
                     """, (str(doc_id), str(tenant_id), filename, filename, 
                           file.content_type or 'application/octet-stream',
                           storage_path, file_size, version, content_hash))
@@ -2896,8 +2896,8 @@ def knowledge_relationships():
                     SELECT r.id, r.relationship_type, r.confidence, r.created_at,
                            s.name as source_name, t.name as target_name
                     FROM public.relationships r
-                    LEFT JOIN public.entities s ON r.source_entity_id = s.id
-                    LEFT JOIN public.entities t ON r.target_entity_id = t.id
+                    LEFT JOIN public.entities s ON r.source_id = s.id
+                    LEFT JOIN public.entities t ON r.target_id = t.id
                     WHERE r.tenant_id = %s
                     ORDER BY r.created_at DESC
                     LIMIT %s
@@ -2944,14 +2944,14 @@ def knowledge_graph():
                 entities = cur.fetchall()
                 
                 cur.execute("""
-                    SELECT id, source_entity_id, target_entity_id, relationship_type
+                    SELECT id, source_id, target_id, relationship_type
                     FROM public.relationships 
                     WHERE tenant_id = %s LIMIT 200
                 """, (tenant_id,))
                 rels = cur.fetchall()
         
         nodes = [{'id': str(e['id']), 'label': e['name'], 'group': e['entity_type']} for e in entities]
-        edges = [{'from': str(r['source_entity_id']), 'to': str(r['target_entity_id']), 'label': r['relationship_type']} for r in rels]
+        edges = [{'from': str(r['source_id']), 'to': str(r['target_id']), 'label': r['relationship_type']} for r in rels]
         
         return jsonify({'success': True, 'nodes': nodes, 'edges': edges})
     except Exception as e:
