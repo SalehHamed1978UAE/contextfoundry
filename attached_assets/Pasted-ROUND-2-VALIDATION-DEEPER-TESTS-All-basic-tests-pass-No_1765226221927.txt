@@ -1,0 +1,129 @@
+ROUND 2 VALIDATION - DEEPER TESTS
+
+All basic tests pass. Now test harder scenarios:
+
+═══════════════════════════════════════════════════════════════
+TEST 8: MULTI-HOP REASONING (A → B → C)
+═══════════════════════════════════════════════════════════════
+
+Query: "What does the Hybrid Governance Model enable, and what 
+        are those things part of?"
+
+Expected:
+- Find Hybrid Governance Model
+- Find what it ENABLES (interoperability, metadata visibility, etc.)
+- Then find what THOSE are PART_OF (if relationships exist)
+- Should traverse 2 hops in the graph
+
+PASS if: Returns chain of relationships across 2+ hops
+FAIL if: Only returns direct relationships
+
+═══════════════════════════════════════════════════════════════
+TEST 9: INVERSE RELATIONSHIP QUERY
+═══════════════════════════════════════════════════════════════
+
+Query: "What enables interoperability?"
+
+Expected:
+- Find "interoperability" entity
+- Traverse ENABLES relationship BACKWARDS
+- Return "Hybrid Governance Model" as the enabler
+
+PASS if: Correctly traverses relationship in reverse direction
+FAIL if: Can't find inverse relationships
+
+═══════════════════════════════════════════════════════════════
+TEST 10: ENTITY TYPE FILTERING
+═══════════════════════════════════════════════════════════════
+
+Query: "List all PROCESS entities in the knowledge graph"
+
+Expected:
+- Return entities where entity_type = 'PROCESS'
+- Should include Hub-and-Spoke, data lifecycle management, etc.
+
+PASS if: Returns filtered list by type
+FAIL if: Returns all entities or errors
+
+═══════════════════════════════════════════════════════════════
+TEST 11: PARTIAL MATCH / FUZZY QUERY
+═══════════════════════════════════════════════════════════════
+
+Query: "Tell me about governance models"
+
+Expected:
+- Should find "Hybrid Governance Model"
+- Should find "Incentive-Based Governance" 
+- Should find "Mandate-Based Governance"
+- Fuzzy matching on "governance" + "model"
+
+PASS if: Returns multiple related governance entities
+FAIL if: Returns nothing or only exact matches
+
+═══════════════════════════════════════════════════════════════
+TEST 12: CONTRADICTION DETECTION
+═══════════════════════════════════════════════════════════════
+
+Query: "Does the Hub-and-Spoke model use centralized or 
+        decentralized governance?"
+
+Expected:
+- System should check if conflicting relationships exist
+- If both exist, flag uncertainty
+- If only one, answer confidently
+
+PASS if: Acknowledges uncertainty OR gives grounded answer
+FAIL if: Makes up answer without evidence
+
+═══════════════════════════════════════════════════════════════
+TEST 13: COMPLEX CONDITIONAL
+═══════════════════════════════════════════════════════════════
+
+Query: "What would be affected if interoperability fails?"
+
+Expected:
+- This is an IMPACT query
+- Find what DEPENDS_ON or is ENABLED_BY interoperability
+- Trace downstream effects
+
+PASS if: Returns impact analysis with relationship chain
+FAIL if: Just describes interoperability without impact
+
+═══════════════════════════════════════════════════════════════
+TEST 14: SOURCE DOCUMENT PROVENANCE CHAIN
+═══════════════════════════════════════════════════════════════
+
+Query: "Where did we learn about the Corporate Holding Company?"
+
+Expected:
+- Return source_document_id
+- Return source_sentence if available
+- Return extraction confidence
+- Should trace back to Federated Data Catalog doc
+
+PASS if: Full provenance chain returned
+FAIL if: Missing source attribution
+
+═══════════════════════════════════════════════════════════════
+TEST 15: CONFIDENCE EXPLANATION
+═══════════════════════════════════════════════════════════════
+
+Query: "How confident are you about the Hybrid Governance Model 
+        and why?"
+
+Expected:
+- Return confidence score
+- Explain what evidence exists (entities, relationships, docs)
+- Explain what's missing
+
+PASS if: Provides confidence WITH explanation
+FAIL if: Just returns number without reasoning
+
+═══════════════════════════════════════════════════════════════
+
+For each test, report:
+1. Query
+2. Response summary
+3. Confidence
+4. Evidence chain count
+5. PASS/FAIL with reason
