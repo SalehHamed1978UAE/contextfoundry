@@ -764,6 +764,56 @@ def dashboard_search():
         logger.error(f"Dashboard search failed: {e}")
         return jsonify({'success': False, 'error': 'Search failed'}), 500
 
+@app.route('/api/corpus-stats', methods=['GET'])
+def api_corpus_stats():
+    """API: Get corpus statistics for the current tenant."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    tenant_id = session.get('tenant_id')
+    
+    try:
+        import psycopg2
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT COUNT(*) FROM platform.documents WHERE tenant_id = %s",
+                    (tenant_id,)
+                )
+                doc_count = cur.fetchone()[0]
+                
+                cur.execute(
+                    "SELECT COUNT(*) FROM platform.documents WHERE tenant_id = %s AND status IN ('queued', 'processing')",
+                    (tenant_id,)
+                )
+                processing_count = cur.fetchone()[0]
+                
+                cur.execute(
+                    "SELECT COUNT(*) FROM public.entities WHERE tenant_id = %s",
+                    (tenant_id,)
+                )
+                entity_count = cur.fetchone()[0]
+                
+                cur.execute(
+                    "SELECT COUNT(*) FROM public.relationships WHERE tenant_id = %s",
+                    (tenant_id,)
+                )
+                relationship_count = cur.fetchone()[0]
+        
+        return jsonify({
+            'success': True,
+            'documents': doc_count,
+            'entities': entity_count,
+            'relationships': relationship_count,
+            'processing': processing_count
+        })
+        
+    except Exception as e:
+        print(f"[CorpusStats] Error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/documents', methods=['GET'])
 def api_documents():
     """API: List documents for authenticated user with pagination, search, and filtering."""

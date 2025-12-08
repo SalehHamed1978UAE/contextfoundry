@@ -72,6 +72,118 @@
         .sidebar-header {
             padding: 1.25rem 1rem;
             border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        
+        /* Sidebar Toggle */
+        .sidebar-toggle {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-toggle:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+        
+        .icon-expand { display: none; }
+        .sidebar-collapsed .icon-collapse { display: none; }
+        .sidebar-collapsed .icon-expand { display: inline; }
+        
+        /* Sidebar Collapsed State */
+        .sidebar-collapsed .sidebar {
+            width: 60px;
+        }
+        
+        .sidebar-collapsed .sidebar .logo-text,
+        .sidebar-collapsed .sidebar .nav-section-header span:not(.nav-section-icon),
+        .sidebar-collapsed .sidebar .nav-section-arrow,
+        .sidebar-collapsed .sidebar .nav-item span,
+        .sidebar-collapsed .sidebar .status-label,
+        .sidebar-collapsed .sidebar .status-value,
+        .sidebar-collapsed .sidebar .user-name,
+        .sidebar-collapsed .sidebar .system-status,
+        .sidebar-collapsed .sidebar .user-actions {
+            display: none;
+        }
+        
+        .sidebar-collapsed .sidebar .nav-item {
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .sidebar-collapsed .sidebar .nav-item svg {
+            margin-right: 0;
+            width: 22px;
+            height: 22px;
+        }
+        
+        .sidebar-collapsed .sidebar .nav-section-header {
+            justify-content: center;
+            padding: 8px 12px;
+        }
+        
+        .sidebar-collapsed .sidebar .nav-section-icon {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .sidebar-collapsed .main-content {
+            margin-left: 60px;
+        }
+        
+        .sidebar-collapsed .sidebar-footer {
+            padding: 8px;
+        }
+        
+        .sidebar-collapsed .sidebar .user-info {
+            justify-content: center;
+        }
+        
+        .sidebar-collapsed .sidebar .user-avatar {
+            margin-right: 0;
+        }
+        
+        /* Tooltip for collapsed state */
+        .sidebar-collapsed .nav-item {
+            position: relative;
+        }
+        
+        .sidebar-collapsed .nav-item::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            margin-left: 8px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .sidebar-collapsed .nav-item:hover::after {
+            opacity: 1;
         }
         
         .logo {
@@ -434,6 +546,10 @@
                         <span class="logo-subtitle">FOUNDRY</span>
                     </div>
                 </div>
+                <button id="sidebar-toggle" class="sidebar-toggle" title="Toggle sidebar">
+                    <span class="icon-collapse">«</span>
+                    <span class="icon-expand">»</span>
+                </button>
             </div>
             
             <nav class="sidebar-nav">
@@ -447,26 +563,26 @@
                         </svg>
                     </div>
                     <div class="nav-items">
-                        <a class="nav-item {% if active_page == 'documents' %}active{% endif %}" href="/dashboard/documents">
+                        <a class="nav-item {% if active_page == 'documents' %}active{% endif %}" href="/dashboard/documents" data-tooltip="Documents">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
                                 <polyline points="14 2 14 8 20 8"/>
                                 <line x1="16" y1="13" x2="8" y2="13"/>
                                 <line x1="16" y1="17" x2="8" y2="17"/>
                             </svg>
-                            Documents
+                            <span>Documents</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'connectors' %}active{% endif %}" href="/dashboard/connectors">
+                        <a class="nav-item {% if active_page == 'connectors' %}active{% endif %}" href="/dashboard/connectors" data-tooltip="Connectors">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
                             </svg>
-                            Connectors
+                            <span>Connectors</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'api-keys' %}active{% endif %}" href="/dashboard/api-keys">
+                        <a class="nav-item {% if active_page == 'api-keys' %}active{% endif %}" href="/dashboard/api-keys" data-tooltip="API Keys">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
                             </svg>
-                            API Keys
+                            <span>API Keys</span>
                         </a>
                     </div>
                 </div>
@@ -481,38 +597,38 @@
                         </svg>
                     </div>
                     <div class="nav-items">
-                        <a class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" href="/app">
+                        <a class="nav-item {% if active_page == 'dashboard' %}active{% endif %}" href="/app" data-tooltip="Dashboard">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <rect x="3" y="3" width="7" height="7"/>
                                 <rect x="14" y="3" width="7" height="7"/>
                                 <rect x="14" y="14" width="7" height="7"/>
                                 <rect x="3" y="14" width="7" height="7"/>
                             </svg>
-                            Dashboard
+                            <span>Dashboard</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'memory-graph' %}active{% endif %}" href="/app/memory-graph">
+                        <a class="nav-item {% if active_page == 'memory-graph' %}active{% endif %}" href="/app/memory-graph" data-tooltip="Memory Graph">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <circle cx="12" cy="12" r="10"/>
                                 <circle cx="12" cy="12" r="6"/>
                                 <circle cx="12" cy="12" r="2"/>
                             </svg>
-                            Memory Graph
+                            <span>Memory Graph</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'command-center' %}active{% endif %}" href="/app/command-center">
+                        <a class="nav-item {% if active_page == 'command-center' %}active{% endif %}" href="/app/command-center" data-tooltip="Command Center">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <rect x="2" y="3" width="20" height="14" rx="2"/>
                                 <path d="M8 21h8"/>
                                 <path d="M12 17v4"/>
                             </svg>
-                            Command Center
+                            <span>Command Center</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'evaluation' %}active{% endif %}" href="/app/evaluation">
+                        <a class="nav-item {% if active_page == 'evaluation' %}active{% endif %}" href="/app/evaluation" data-tooltip="A/B Evaluation">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
                                 <rect x="9" y="3" width="6" height="4" rx="1"/>
                                 <path d="M9 12l2 2 4-4"/>
                             </svg>
-                            A/B Evaluation
+                            <span>A/B Evaluation</span>
                         </a>
                     </div>
                 </div>
@@ -604,6 +720,21 @@
         
         updateSystemStats();
         setInterval(updateSystemStats, 30000);
+        
+        // Sidebar collapse toggle
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        if (sidebarToggle) {
+            // Restore state on page load
+            if (localStorage.getItem('sidebar-collapsed') === 'true') {
+                document.body.classList.add('sidebar-collapsed');
+            }
+            
+            sidebarToggle.addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-collapsed');
+                const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+                localStorage.setItem('sidebar-collapsed', isCollapsed);
+            });
+        }
         
         {% block extra_scripts %}{% endblock %}
     </script>

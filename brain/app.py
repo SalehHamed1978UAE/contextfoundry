@@ -123,7 +123,28 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> str:
             logger.warning(f"[TextExtractor] pdfplumber failed: {e}")
         
         if not text.strip():
-            logger.warning(f"[TextExtractor] PDF has {page_count} pages but no extractable text. This may be a scanned document requiring OCR.")
+            logger.info(f"[TextExtractor] PDF has {page_count} pages but no extractable text. Attempting OCR...")
+            try:
+                from pdf2image import convert_from_path
+                import pytesseract
+                
+                images = convert_from_path(file_path, dpi=200)
+                ocr_parts = []
+                for i, image in enumerate(images):
+                    page_text = pytesseract.image_to_string(image)
+                    if page_text.strip():
+                        ocr_parts.append(page_text.strip())
+                    logger.debug(f"[TextExtractor] OCR page {i+1}/{len(images)}: {len(page_text)} chars")
+                
+                text = "\n\n".join(ocr_parts)
+                if text.strip():
+                    logger.info(f"[TextExtractor] PDF OCR successful: {len(images)} pages, {len(text)} characters")
+                else:
+                    logger.warning(f"[TextExtractor] OCR produced no text from {len(images)} pages")
+            except ImportError as e:
+                logger.warning(f"[TextExtractor] OCR dependencies not available: {e}")
+            except Exception as e:
+                logger.error(f"[TextExtractor] OCR failed: {e}")
         return text
     
     elif extension in ['doc', 'docx']:

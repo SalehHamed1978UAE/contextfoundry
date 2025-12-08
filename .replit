@@ -5,7 +5,7 @@ integrations = ["python_openai_ai_integrations:1.0.0", "python_database:1.0.0", 
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "postgresql", "rustc", "unzip"]
+packages = ["cargo", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "poppler_utils", "postgresql", "rustc", "tesseract", "unzip", "poppler"]
 
 [workflows]
 runButton = "Project"
@@ -68,12 +68,12 @@ localPort = 42015
 externalPort = 3001
 
 [[ports]]
-localPort = 45259
-externalPort = 3000
+localPort = 44167
+externalPort = 8000
 
 [[ports]]
-localPort = 46175
-externalPort = 8000
+localPort = 45259
+externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"
