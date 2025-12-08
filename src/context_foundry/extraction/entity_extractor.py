@@ -287,7 +287,7 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                         {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,
-                    max_tokens=2000,
+                    max_tokens=4000,
                 )
                 
                 response_text = response.choices[0].message.content or ""
@@ -466,7 +466,7 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                         {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,
-                    max_tokens=2000,
+                    max_tokens=4000,
                 )
                 
                 response_text = response.choices[0].message.content or ""
@@ -600,7 +600,7 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                         {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,
-                    max_tokens=2000,
+                    max_tokens=4000,
                 )
                 
                 response_text = response.choices[0].message.content or ""
