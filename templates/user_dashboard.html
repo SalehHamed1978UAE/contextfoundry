@@ -237,6 +237,155 @@
     line-height: 1.4;
 }
 
+.processing-queue {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.queue-header {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fbbf24;
+    margin-bottom: 0.75rem;
+}
+
+.queue-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.queue-item:last-child {
+    border-bottom: none;
+}
+
+.queue-item-name {
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.queue-item-status {
+    font-size: 0.75rem;
+    color: #fbbf24;
+}
+
+.documents-controls {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-controls select {
+    width: auto;
+    min-width: 120px;
+}
+
+.documents-table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.documents-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.documents-table th {
+    text-align: left;
+    padding: 0.75rem;
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+}
+
+.documents-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.documents-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.doc-name-cell {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.doc-type-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.doc-entity-count {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+}
+
+.pagination button {
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination .page-info {
+    color: var(--text-secondary);
+}
+
+.status-queued {
+    background: rgba(148, 163, 184, 0.2);
+    color: var(--text-muted);
+}
+
 .connector-item {
     display: flex;
     justify-content: space-between;
@@ -390,35 +539,70 @@
 {% endblock %}
 
 {% block content %}
-{% set page_titles = {'upload': 'Upload', 'connectors': 'Connectors', 'status': 'Status', 'api-keys': 'API Keys'} %}
-<h1 class="page-title">{{ page_titles.get(active_page, 'Upload') }}</h1>
+{% set page_titles = {'documents': 'Documents', 'connectors': 'Connectors', 'api-keys': 'API Keys'} %}
+<h1 class="page-title">{{ page_titles.get(active_page, 'Documents') }}</h1>
 
 <section class="section">
-{% if active_page == 'upload' or not active_page %}
-    <div id="tab-upload">
-        <form action="/dashboard/upload/multi" method="POST" enctype="multipart/form-data" style="margin-bottom: 1rem;">
-            <input type="file" name="files" multiple 
-                   accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip"
-                   style="margin-bottom: 0.5rem; color: var(--text-secondary);">
-            <button type="submit" class="btn">Upload</button>
-        </form>
-        
-        <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
-            <div class="drop-zone-icon">📁</div>
-            <div class="drop-zone-text">Or drag & drop files here</div>
-            <div class="drop-zone-hint">Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML (max 50MB each)</div>
+{% if active_page == 'documents' or not active_page %}
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
+        <div class="drop-zone-icon">📁</div>
+        <div class="drop-zone-text">Drop files here to upload</div>
+        <div class="drop-zone-hint">Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML, ZIP (max 50MB each)</div>
+    </div>
+    <input type="file" id="multiFileInput" multiple hidden 
+           accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip">
+    
+    <div class="upload-progress" id="uploadProgress">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
         </div>
-        <input type="file" id="multiFileInput" multiple hidden 
-               accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip">
-        
-        <div class="upload-progress" id="uploadProgress">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">Uploading...</div>
-            <div class="upload-stats" id="uploadStats"></div>
+        <div class="progress-text" id="progressText">Uploading...</div>
+        <div class="upload-stats" id="uploadStats"></div>
+    </div>
+
+    <div id="processingQueue" class="processing-queue" style="display: none;">
+        <h3 class="queue-header">Processing Queue</h3>
+        <div id="queueList"></div>
+    </div>
+
+    <div class="documents-controls">
+        <div class="search-box">
+            <input type="text" id="docSearch" class="form-input" placeholder="Search documents..." oninput="debounceSearch()">
+        </div>
+        <div class="filter-controls">
+            <select id="statusFilter" class="form-input" onchange="loadDocumentsPage(1)">
+                <option value="">All Statuses</option>
+                <option value="extracted">Done</option>
+                <option value="processing">Processing</option>
+                <option value="queued">Queued</option>
+                <option value="failed">Failed</option>
+            </select>
+            <select id="sortBy" class="form-input" onchange="loadDocumentsPage(1)">
+                <option value="created_at">Date Added</option>
+                <option value="original_filename">Name</option>
+                <option value="status">Status</option>
+            </select>
         </div>
     </div>
+
+    <div class="documents-table-container">
+        <table class="documents-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Entities</th>
+                    <th>Added</th>
+                </tr>
+            </thead>
+            <tbody id="documentsTableBody">
+                <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
 {% endif %}
 
 {% if active_page == 'connectors' %}
@@ -468,14 +652,6 @@
     </div>
 {% endif %}
 
-{% if active_page == 'status' %}
-    <div id="tab-status">
-        <div class="document-list" id="documentList">
-            <div class="empty-state">Loading...</div>
-        </div>
-    </div>
-{% endif %}
-
 {% if active_page == 'api-keys' %}
     <div id="tab-apikeys">
         <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem;">
@@ -499,10 +675,15 @@
 {% block extra_scripts %}
 const tenantId = '{{ tenant_id }}';
 const activePage = '{{ active_page }}';
+let currentPage = 1;
+let searchTimeout = null;
+let pollInterval = null;
 
-// Load data for the current page
 document.addEventListener('DOMContentLoaded', function() {
-    if (activePage === 'status') loadDocuments();
+    if (activePage === 'documents' || !activePage) {
+        loadDocumentsPage(1);
+        pollInterval = setInterval(loadDocumentsPage, 5000);
+    }
     if (activePage === 'connectors') loadConnectors();
     if (activePage === 'api-keys') loadApiKeys();
 });
@@ -520,7 +701,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-{% if active_page == 'upload' or not active_page %}
+{% if active_page == 'documents' or not active_page %}
 const dropZone = document.getElementById('dropZone');
 const multiFileInput = document.getElementById('multiFileInput');
 
@@ -596,6 +777,7 @@ async function handleFiles(files) {
                     <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
                 `;
                 showToast(`Imported ${s.queued} files from ZIP`, 'success');
+                loadDocumentsPage(1);
             } else {
                 progressText.textContent = 'Upload failed';
                 showToast(data.error || 'Upload failed', 'error');
@@ -623,6 +805,7 @@ async function handleFiles(files) {
                     <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
                 `;
                 showToast(`Uploaded ${s.queued} file(s)`, 'success');
+                loadDocumentsPage(1);
             } else {
                 progressText.textContent = 'Upload failed';
                 showToast(data.error || 'Upload failed', 'error');
@@ -637,6 +820,150 @@ async function handleFiles(files) {
     }
     
     setTimeout(() => progress.classList.remove('visible'), 5000);
+}
+
+function debounceSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => loadDocumentsPage(1), 300);
+}
+
+async function loadDocumentsPage(page) {
+    if (page !== undefined) currentPage = page;
+    
+    const search = document.getElementById('docSearch')?.value || '';
+    const status = document.getElementById('statusFilter')?.value || '';
+    const sort = document.getElementById('sortBy')?.value || 'created_at';
+    
+    const params = new URLSearchParams({
+        page: currentPage,
+        per_page: 10,
+        search: search,
+        status: status,
+        sort: sort,
+        dir: 'desc'
+    });
+    
+    try {
+        const response = await fetch(`/api/documents?${params}`, { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success) {
+            renderDocumentsTable(data.documents);
+            renderPagination(data.pagination);
+            renderProcessingQueue(data.documents, data.processing_count);
+        }
+    } catch (err) {
+        console.error('Failed to load documents:', err);
+    }
+}
+
+function renderDocumentsTable(docs) {
+    const tbody = document.getElementById('documentsTableBody');
+    if (!docs || docs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No documents yet. Upload your first!</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = docs.map(doc => {
+        const type = getFileType(doc.mime_type, doc.name);
+        const statusClass = getStatusClass(doc.status);
+        const statusText = formatStatus(doc.status);
+        const date = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '-';
+        
+        return `
+            <tr>
+                <td class="doc-name-cell" title="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</td>
+                <td><span class="doc-type-badge">${type}</span></td>
+                <td><span class="document-status ${statusClass}">${statusText}</span></td>
+                <td class="doc-entity-count">${doc.entity_count || 0}</td>
+                <td>${date}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderPagination(pagination) {
+    const div = document.getElementById('pagination');
+    if (!pagination || pagination.total_pages <= 1) {
+        div.innerHTML = '';
+        return;
+    }
+    
+    const { page, total, total_pages } = pagination;
+    div.innerHTML = `
+        <button onclick="loadDocumentsPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>Prev</button>
+        <span class="page-info">Page ${page} of ${total_pages}</span>
+        <button onclick="loadDocumentsPage(${page + 1})" ${page >= total_pages ? 'disabled' : ''}>Next</button>
+    `;
+}
+
+function renderProcessingQueue(docs, processingCount) {
+    const queue = document.getElementById('processingQueue');
+    const queueList = document.getElementById('queueList');
+    
+    const processingDocs = docs.filter(d => d.status === 'queued' || d.status === 'processing');
+    
+    if (processingDocs.length === 0 && processingCount === 0) {
+        queue.style.display = 'none';
+        return;
+    }
+    
+    queue.style.display = 'block';
+    queueList.innerHTML = processingDocs.slice(0, 5).map(doc => `
+        <div class="queue-item">
+            <span class="queue-item-name">${escapeHtml(doc.name)}</span>
+            <span class="queue-item-status">${doc.status === 'processing' ? 'Processing...' : 'Queued'}</span>
+        </div>
+    `).join('');
+    
+    if (processingCount > 5) {
+        queueList.innerHTML += `<div class="queue-item"><span class="queue-item-status">+${processingCount - 5} more...</span></div>`;
+    }
+}
+
+function getFileType(mimeType, name) {
+    if (name) {
+        const ext = name.split('.').pop().toLowerCase();
+        if (['pdf'].includes(ext)) return 'PDF';
+        if (['doc', 'docx'].includes(ext)) return 'DOC';
+        if (['xls', 'xlsx'].includes(ext)) return 'XLS';
+        if (['ppt', 'pptx'].includes(ext)) return 'PPT';
+        if (['txt', 'md'].includes(ext)) return 'TXT';
+        if (['json'].includes(ext)) return 'JSON';
+        if (['csv'].includes(ext)) return 'CSV';
+        if (['html', 'xml'].includes(ext)) return 'HTML';
+    }
+    if (mimeType) {
+        if (mimeType.includes('pdf')) return 'PDF';
+        if (mimeType.includes('word')) return 'DOC';
+        if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'XLS';
+        if (mimeType.includes('powerpoint') || mimeType.includes('presentation')) return 'PPT';
+    }
+    return 'FILE';
+}
+
+function getStatusClass(status) {
+    const map = {
+        'extracted': 'status-extracted',
+        'completed': 'status-completed',
+        'processing': 'status-processing',
+        'queued': 'status-queued',
+        'pending': 'status-pending',
+        'failed': 'status-failed'
+    };
+    return map[status] || 'status-pending';
+}
+
+function formatStatus(status) {
+    const map = {
+        'extracted': 'Done',
+        'completed': 'Done',
+        'processing': 'Processing',
+        'queued': 'Queued',
+        'pending': 'Pending',
+        'failed': 'Failed'
+    };
+    return map[status] || status || 'Pending';
 }
 {% endif %}
 
@@ -762,44 +1089,6 @@ async function deleteConnector(connectorId) {
     } catch (err) {
         showToast('Failed to remove', 'error');
     }
-}
-{% endif %}
-
-{% if active_page == 'status' %}
-async function loadDocuments() {
-    const list = document.getElementById('documentList');
-    
-    try {
-        const response = await fetch('/dashboard/documents', { credentials: 'include' });
-        const data = await response.json();
-        
-        if (data.success && data.documents && data.documents.length > 0) {
-            list.innerHTML = data.documents.map(doc => `
-                <div class="document-item">
-                    <div class="document-info">
-                        <span class="document-icon">📄</span>
-                        <span class="document-name">${escapeHtml(doc.name || 'Unknown')}</span>
-                    </div>
-                    <span class="document-status status-${doc.status || 'pending'}">${formatStatus(doc.status)}</span>
-                </div>
-            `).join('');
-        } else {
-            list.innerHTML = '<div class="empty-state">No documents yet. Upload your first!</div>';
-        }
-    } catch (err) {
-        list.innerHTML = '<div class="empty-state">Failed to load documents.</div>';
-    }
-}
-
-function formatStatus(status) {
-    const map = {
-        'extracted': 'Done',
-        'completed': 'Done',
-        'processing': 'Processing',
-        'pending': 'Pending',
-        'failed': 'Failed'
-    };
-    return map[status] || status || 'Pending';
 }
 {% endif %}
 

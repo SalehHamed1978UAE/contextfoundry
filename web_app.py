@@ -696,12 +696,18 @@ def get_dashboard_context(active_page='upload'):
     }
 
 @app.route('/dashboard')
-@app.route('/dashboard/upload')
+@app.route('/dashboard/documents')
 def user_dashboard():
-    """Sources - Upload page (default dashboard)."""
+    """Sources - Documents page (combined upload + status)."""
     if not session.get('user_id') or not session.get('tenant_id'):
         return redirect(url_for('landing'))
-    return render_template('user_dashboard.html', **get_dashboard_context('upload'))
+    return render_template('user_dashboard.html', **get_dashboard_context('documents'))
+
+@app.route('/dashboard/upload')
+@app.route('/dashboard/status')
+def redirect_old_routes():
+    """Redirect old upload/status routes to documents."""
+    return redirect(url_for('user_dashboard'))
 
 @app.route('/dashboard/connectors')
 def dashboard_connectors_page():
@@ -710,12 +716,6 @@ def dashboard_connectors_page():
         return redirect(url_for('landing'))
     return render_template('user_dashboard.html', **get_dashboard_context('connectors'))
 
-@app.route('/dashboard/status')
-def dashboard_status_page():
-    """Sources - Status page."""
-    if not session.get('user_id') or not session.get('tenant_id'):
-        return redirect(url_for('landing'))
-    return render_template('user_dashboard.html', **get_dashboard_context('status'))
 
 @app.route('/dashboard/api-keys')
 def dashboard_api_keys_page():
@@ -764,9 +764,9 @@ def dashboard_search():
         logger.error(f"Dashboard search failed: {e}")
         return jsonify({'success': False, 'error': 'Search failed'}), 500
 
-@app.route('/dashboard/documents', methods=['GET'])
-def dashboard_documents():
-    """List documents for authenticated user."""
+@app.route('/api/documents', methods=['GET'])
+def api_documents():
+    """API: List documents for authenticated user with pagination, search, and filtering."""
     if not session.get('user_id') or not session.get('tenant_id'):
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
@@ -774,17 +774,61 @@ def dashboard_documents():
         import psycopg2
         from psycopg2.extras import RealDictCursor
         
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 10, type=int)
+        search = request.args.get('search', '').strip()
+        status_filter = request.args.get('status', '').strip()
+        sort_by = request.args.get('sort', 'created_at')
+        sort_dir = request.args.get('dir', 'desc')
+        
+        per_page = min(per_page, 100)
+        offset = (page - 1) * per_page
+        
+        valid_sorts = {'created_at', 'original_filename', 'status'}
+        if sort_by not in valid_sorts:
+            sort_by = 'created_at'
+        sort_dir = 'DESC' if sort_dir.lower() == 'desc' else 'ASC'
+        
         database_url = os.environ.get("DATABASE_URL")
         with psycopg2.connect(database_url) as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT id, original_filename, mime_type, status, created_at
-                    FROM platform.documents
-                    WHERE tenant_id = %s
-                    ORDER BY created_at DESC
-                    LIMIT 100
-                """, (session['tenant_id'],))
+                where_clauses = ["tenant_id = %s"]
+                params = [session['tenant_id']]
+                
+                if search:
+                    where_clauses.append("original_filename ILIKE %s")
+                    params.append(f"%{search}%")
+                
+                if status_filter:
+                    where_clauses.append("status = %s")
+                    params.append(status_filter)
+                
+                where_sql = " AND ".join(where_clauses)
+                
+                cur.execute(f"SELECT COUNT(*) as total FROM platform.documents WHERE {where_sql}", params)
+                total = cur.fetchone()['total']
+                
+                cur.execute(f"""
+                    SELECT d.id, d.original_filename, d.mime_type, d.status, d.created_at,
+                           COALESCE(e.entity_count, 0) as entity_count
+                    FROM platform.documents d
+                    LEFT JOIN (
+                        SELECT source_document_id, COUNT(*) as entity_count
+                        FROM public.entities
+                        WHERE tenant_id = %s
+                        GROUP BY source_document_id
+                    ) e ON d.id::text = e.source_document_id::text
+                    WHERE {where_sql}
+                    ORDER BY {sort_by} {sort_dir}
+                    LIMIT %s OFFSET %s
+                """, [session['tenant_id']] + params + [per_page, offset])
                 docs = cur.fetchall()
+                
+                cur.execute("""
+                    SELECT COUNT(*) as count FROM platform.documents
+                    WHERE tenant_id = %s AND status IN ('queued', 'processing')
+                """, (session['tenant_id'],))
+                processing_count = cur.fetchone()['count']
         
         return jsonify({
             'success': True,
@@ -793,8 +837,16 @@ def dashboard_documents():
                 'name': doc['original_filename'],
                 'mime_type': doc['mime_type'],
                 'status': doc['status'] or 'pending',
-                'created_at': doc['created_at'].isoformat() if doc['created_at'] else None
-            } for doc in docs]
+                'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
+                'entity_count': doc['entity_count']
+            } for doc in docs],
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': total,
+                'total_pages': (total + per_page - 1) // per_page
+            },
+            'processing_count': processing_count
         })
         
     except Exception as e:
