@@ -39,9 +39,12 @@ Three logical schemas exist:
 - **Context Bundle API**: Public API for structured truth delivery.
 - **Schema Versioning & Deprecation**: Manages type evolution with audit trails.
 - **UI/UX**: Single Page Application (SPA) with Flask/Jinja2 for client-side rendering, AJAX polling, and SVG-based graph visualization. Navigation is instant, and critical CSS prevents Flash of Unstyled Content.
-- **Navigation Architecture**: Collapsible sidebar with two modules:
+- **Navigation Architecture**: Retractable sidebar with two modules:
   - **Sources** (Platform): Where users PUT data in. Pages: Documents (combined upload + status with real-time polling), Connectors, API Keys
   - **Knowledge** (Brain): Where users GET insights out. Links to Dashboard, Memory Graph, Command Center, A/B Evaluation
+  - **Collapse/Expand**: Sidebar can collapse to 60px showing only icons with tooltips; state persists in localStorage
+- **Corpus Stats Dashboard**: Documents page displays real-time stats (Documents, Entities, Relationships, Processing) via `/api/corpus-stats` endpoint with 5-second polling
+- **OCR Support**: Scanned PDFs automatically processed with Tesseract OCR when pypdf/pdfplumber return no text (dependencies: tesseract, poppler, pytesseract, pdf2image)
 - **Tenant Isolation**: Multi-layer security:
   1. Application-level: All queries filter by `tenant_id` via StagingLoader and DuplicateDetector
   2. Database-level: RLS policies enabled on `entities` and `relationships` tables
