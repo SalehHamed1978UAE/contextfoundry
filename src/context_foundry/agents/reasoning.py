@@ -259,10 +259,26 @@ class ReasoningAgent:
         elif sufficiency == "PARTIAL":
             confidence = base * 0.85
         else:
+            # INSUFFICIENT sufficiency - but entity existence still counts as evidence
             if quadrant in ["Q1_entity_and_docs", "Q3_docs_grounded"]:
                 confidence = base * 0.55
+            elif quadrant == "Q2_entity_only":
+                # Entity exists but no supporting docs - moderate penalty
+                # The entity's existence IS evidence, so don't drop too low
+                confidence = base * 0.65  # 0.70 * 0.65 = 0.455 → rounds to ~0.45
             else:
+                # Q3_docs_only or Q4_no_evidence with INSUFFICIENT
                 confidence = min(base, 0.20)
+        
+        # CRITICAL: If the query explicitly targets an entity that doesn't exist,
+        # cap confidence low regardless of related document matches.
+        # This prevents hallucination when asking about non-existent entities.
+        if bundle.target_entity_name and not entity_found:
+            max_confidence_when_target_missing = 0.40
+            if confidence > max_confidence_when_target_missing:
+                logger.info(f"Capping confidence: target entity '{bundle.target_entity_name}' not found in graph")
+                confidence = max_confidence_when_target_missing
+                quadrant = f"{quadrant}_TARGET_MISSING"
         
         logger.info(f"Quadrant confidence: {quadrant} base={base:.2f} sufficiency={sufficiency} → {confidence:.2f}")
         return confidence, quadrant

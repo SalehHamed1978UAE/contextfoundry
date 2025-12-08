@@ -5,7 +5,7 @@ Supports temporal queries via as_of_date parameter.
 """
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Set
-from sqlalchemy import or_, and_, text
+from sqlalchemy import or_, and_, text, func
 from sqlalchemy.orm import Session
 from collections import deque
 import uuid
@@ -121,7 +121,7 @@ class SemanticMemory:
         as_of_date: Optional[datetime] = None
     ) -> List[Entity]:
         """
-        Search entities by name (case-insensitive contains).
+        Search entities by name (prioritizes exact match, then case-insensitive contains).
         
         Args:
             query_text: Search term
@@ -131,28 +131,48 @@ class SemanticMemory:
             as_of_date: If provided, filter entities that were valid at this date
                         (valid_from <= as_of_date AND (valid_to IS NULL OR valid_to > as_of_date))
         """
-        q = self.session.query(Entity).filter(
-            Entity.name.ilike(f"%{query_text}%")
+        results = []
+        seen_ids = set()
+        
+        def build_base_query():
+            q = self.session.query(Entity)
+            if trusted_only:
+                q = q.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)
+            if entity_types:
+                normalized_types = [t.upper() if isinstance(t, str) else t for t in entity_types]
+                q = q.filter(Entity.entity_type.in_(normalized_types))
+            if as_of_date:
+                q = q.filter(
+                    Entity.valid_from <= as_of_date,
+                    or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+                )
+            else:
+                q = q.filter(Entity.valid_to.is_(None))
+            return q
+        
+        # Priority 1: Exact case-insensitive match
+        exact_q = build_base_query().filter(
+            func.lower(Entity.name) == func.lower(query_text)
         )
+        for entity in exact_q.order_by(Entity.confidence.desc()).limit(limit).all():
+            if entity.id not in seen_ids:
+                results.append(entity)
+                seen_ids.add(entity.id)
         
-        if trusted_only:
-            q = q.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)
-        
-        if entity_types:
-            normalized_types = [t.upper() if isinstance(t, str) else t for t in entity_types]
-            q = q.filter(Entity.entity_type.in_(normalized_types))
-        
-        if as_of_date:
-            q = q.filter(
-                Entity.valid_from <= as_of_date,
-                or_(Entity.valid_to.is_(None), Entity.valid_to > as_of_date)
+        # Priority 2: Fuzzy contains match (if we need more results)
+        if len(results) < limit:
+            fuzzy_q = build_base_query().filter(
+                Entity.name.ilike(f"%{query_text}%")
             )
-        else:
-            q = q.filter(Entity.valid_to.is_(None))
+            for entity in fuzzy_q.order_by(Entity.confidence.desc()).limit(limit).all():
+                if entity.id not in seen_ids:
+                    results.append(entity)
+                    seen_ids.add(entity.id)
+                    if len(results) >= limit:
+                        break
         
-        results = q.order_by(Entity.confidence.desc()).limit(limit).all()
         logger.debug(f"Entity search '{query_text}': found {len(results)} results (as_of={as_of_date})")
-        return results
+        return results[:limit]
     
     def get_entity_relationships(
         self,
