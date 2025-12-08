@@ -1,0 +1,90 @@
+SIMPLE APPROACH — No dual schema needed.
+
+1. REPLACE the IT Ops schema with Core Foundation
+   (The 705 fixture relationships are test data, not real)
+
+2. Fix the one-line bug (relations=[])
+
+3. Re-extract documents
+
+4. Done.
+
+Don't add complexity to preserve test fixtures.
+
+═══════════════════════════════════════════════════════════════
+
+RELATIONSHIP TYPES TO USE:
+
+relationship_types:
+  # Membership & Hierarchy
+  WORKS_AT:
+    source_types: [PERSON]
+    target_types: [ORGANIZATION]
+  MEMBER_OF:
+    source_types: [PERSON, ORGANIZATION]
+    target_types: [ORGANIZATION]
+  REPORTS_TO:
+    source_types: [PERSON]
+    target_types: [PERSON]
+  PART_OF:
+    source_types: [PROCESS, CONCEPT, ORGANIZATION]
+    target_types: [PROCESS, CONCEPT, ORGANIZATION]
+  
+  # Ownership & Control
+  OWNS:
+    source_types: [ORGANIZATION]
+    target_types: [ORGANIZATION]
+  MANAGES:
+    source_types: [PERSON, ORGANIZATION]
+    target_types: [PROCESS, ORGANIZATION, CONCEPT]
+  GOVERNS:
+    source_types: [ORGANIZATION, CONCEPT]
+    target_types: [ORGANIZATION, PROCESS, CONCEPT]
+  
+  # Conceptual
+  IMPLEMENTS:
+    source_types: [CONCEPT, PROCESS, ORGANIZATION]
+    target_types: [CONCEPT, PROCESS]
+  ENABLES:
+    source_types: [CONCEPT, PROCESS]
+    target_types: [CONCEPT, PROCESS]
+  
+  # Documents & References
+  DESCRIBES:
+    source_types: [DOCUMENT]
+    target_types: [CONCEPT, PROCESS, ORGANIZATION]
+  REFERENCES:
+    source_types: [DOCUMENT, CONCEPT]
+    target_types: [DOCUMENT, CONCEPT, ORGANIZATION]
+  AUTHORED_BY:
+    source_types: [DOCUMENT]
+    target_types: [PERSON, ORGANIZATION]
+  
+  # Location
+  LOCATED_IN:
+    source_types: [ORGANIZATION, PERSON]
+    target_types: [LOCATION]
+  OPERATES_IN:
+    source_types: [ORGANIZATION]
+    target_types: [LOCATION]
+  
+  # Temporal
+  OCCURRED_ON:
+    source_types: [EVENT]
+    target_types: [DATE]
+  
+  # Fallback
+  RELATED_TO:
+    source_types: [PERSON, ORGANIZATION, CONCEPT, PROCESS, DOCUMENT, EVENT, LOCATION, DATE]
+    target_types: [PERSON, ORGANIZATION, CONCEPT, PROCESS, DOCUMENT, EVENT, LOCATION, DATE]
+
+═══════════════════════════════════════════════════════════════
+
+THAT'S IT. 
+
+1. Replace schema
+2. Fix one-line bug
+3. Re-extract
+4. Verify relationships exist
+
+No dual schemas. No backward compatibility for test fixtures.
