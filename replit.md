@@ -39,6 +39,9 @@ Three logical schemas exist:
 - **Context Bundle API**: Public API for structured truth delivery.
 - **Schema Versioning & Deprecation**: Manages type evolution with audit trails.
 - **UI/UX**: Single Page Application (SPA) with Flask/Jinja2 for client-side rendering, AJAX polling, and SVG-based graph visualization. Navigation is instant, and critical CSS prevents Flash of Unstyled Content.
+- **Navigation Architecture**: Unified header with two modules:
+  - **Sources** (Platform): Where users PUT data in. Tabs: Upload, Connectors, Status, API Keys
+  - **Knowledge** (Brain): Where users GET insights out. Links to https://context-foundry.replit.app
 - **Tenant Isolation**: Multi-layer security:
   1. Application-level: All queries filter by `tenant_id` via StagingLoader and DuplicateDetector
   2. Database-level: RLS policies enabled on `entities` and `relationships` tables
