@@ -1,0 +1,39 @@
+One sidebar, two modules, unified colors.
+Final Vision:
++------------------+------------------------------------------------+
+| 🔷 CONTEXT       |                                                |
+|    FOUNDRY       |  [Content Area - changes based on selection]   |
+|                  |                                                |
+| 📥 SOURCES       |                                                |
+|   ├ Upload       |                                                |
+|   ├ Connectors   |                                                |
+|   ├ Status       |                                                |
+|   └ API Keys     |                                                |
+|                  |                                                |
+| 🧠 KNOWLEDGE     |                                                |
+|   ├ Dashboard    |                                                |
+|   ├ Memory Graph |                                                |
+|   ├ Command Ctr  |                                                |
+|   └ A/B Eval     |                                                |
+|                  |                                                |
+|                  |                                                |
+|                  |                                                |
+| ──────────────── |                                                |
+| ● SYSTEM ONLINE  |                                                |
+| API v1.0         |                                                |
+| Memory 8944      |                                                |
+| Latency 25ms     |                                                |
+|                  |                                                |
+| Saleh Hamed      |                                                |
+| [Logout]         |                                                |
++------------------+------------------------------------------------+
+Color scheme: Brain's teal/dark theme throughout
+
+How hard?
+ApproachTimeRiskA: Shared template — Both pages extend same base with sidebar2-3 hoursMediumB: Single Page App — JavaScript swaps content, no page reloads4-6 hoursHigherC: Rebuild sidebar in Platform style — Copy Brain's sidebar into a shared component2-4 hoursMedium
+Recommended: Approach A
+
+Create templates/base_layout.html with the unified sidebar
+Both user_dashboard.html and index.html extend this base
+Active menu item highlighted based on current route
+Content area loads the appropriate view

@@ -1,4 +1,14 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Self-executing init function - handles both direct load and dynamic script injection
+(function initApp() {
+    // If DOM already loaded, run immediately; otherwise wait for DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runApp);
+    } else {
+        runApp();
+    }
+})();
+
+function runApp() {
     const queryForm = document.getElementById('queryForm');
     const queryInput = document.getElementById('queryInput');
     const queryBtn = document.getElementById('queryBtn');
@@ -53,22 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    let queryHistory = [];
-    let startTime = Date.now();
-
-    // Only run dashboard-specific code if queryForm exists (index.html only)
-    if (!queryForm) return;
-
-    loadStats();
-    updateSystemStatus();
-
-    queryForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const query = queryInput.value.trim();
-        if (!query) return;
-        await executeQuery(query);
-    });
-
     // Page titles for SPA navigation
     const pageTitles = {
         'dashboard': 'Dashboard',
@@ -77,8 +71,9 @@ document.addEventListener('DOMContentLoaded', function() {
         'evaluation': 'A/B Evaluation'
     };
     
-    // Handle page switching for all 4 pages
-    function switchToPage(page, updateUrl = false) {
+    // Handle page switching for all 4 pages (exposed globally for server-side routing)
+    // MUST be defined before the queryForm guard so it's available on all pages
+    window.switchToPage = function switchToPage(page, updateUrl = false) {
         const pageTitle = document.getElementById('pageTitle');
         
         // Hide all pages and deactivate all nav items
@@ -96,11 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 'command':
                 pageSelector = '.page-command';
-                loadCommandCenterData();
+                if (typeof loadCommandCenterData === 'function') loadCommandCenterData();
                 break;
             case 'evaluation':
                 pageSelector = '.page-evaluation';
-                loadEvaluationData();
+                if (typeof loadEvaluationData === 'function') loadEvaluationData();
                 break;
             default: // dashboard
                 page = 'dashboard';
@@ -118,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Special actions per page
-        if (page === 'memory') {
+        if (page === 'memory' && typeof renderMemoryGraph === 'function') {
             renderMemoryGraph();
         }
         
@@ -127,23 +122,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const url = page === 'dashboard' ? '/' : `/?page=${page}`;
             history.pushState({page: page}, '', url);
         }
-    }
+    };
     
-    // Check URL for page parameter on load
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialPage = urlParams.get('page');
-    if (initialPage && ['memory', 'command', 'evaluation'].includes(initialPage)) {
-        switchToPage(initialPage, false);
-    }
-    
-    // Handle nav item clicks
+    // Handle nav item clicks (must be set up before queryForm guard)
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', function(e) {
             const page = this.dataset.page;
             // Only handle client-side navigation for pages with data-page attribute
             if (page) {
                 e.preventDefault();
-                switchToPage(page, true);
+                window.switchToPage(page, true);
             }
             // Let other links (Command Center, A/B Eval) navigate normally
         });
@@ -152,12 +140,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle browser back/forward
     window.addEventListener('popstate', function(e) {
         if (e.state && e.state.page) {
-            switchToPage(e.state.page, false);
+            window.switchToPage(e.state.page, false);
         } else {
             const params = new URLSearchParams(window.location.search);
-            switchToPage(params.get('page') || 'dashboard', false);
+            window.switchToPage(params.get('page') || 'dashboard', false);
         }
     });
+
+    let queryHistory = [];
+    let startTime = Date.now();
+
+    // Only run dashboard-specific code if queryForm exists (index.html only)
+    if (!queryForm) return;
+
+    loadStats();
+    updateSystemStatus();
+
+    queryForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const query = queryInput.value.trim();
+        if (!query) return;
+        await executeQuery(query);
+    });
+    
+    // Check URL for page parameter on load (only for dashboard)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialPage = urlParams.get('page');
+    if (initialPage && ['memory', 'command', 'evaluation'].includes(initialPage)) {
+        window.switchToPage(initialPage, false);
+    }
 
     let currentLifecycleFilter = 'all';
     let graphNodes = {};
@@ -2366,4 +2377,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-});
+}
