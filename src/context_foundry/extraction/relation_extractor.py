@@ -193,6 +193,27 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
                 pass
             return []
     
+    def _strip_type_prefix(self, name: str) -> str:
+        """Remove entity type prefix like 'DOCUMENT: ' from a name."""
+        prefixes = ['PERSON:', 'ORGANIZATION:', 'DOCUMENT:', 'LOCATION:', 
+                    'EVENT:', 'CONCEPT:', 'PROCESS:', 'DATE:',
+                    'SERVICE:', 'COMPONENT:', 'TEAM:', 'DATABASE:', 'INCIDENT:']
+        name = name.strip()
+        for prefix in prefixes:
+            if name.upper().startswith(prefix):
+                return name[len(prefix):].strip()
+        return name
+    
+    def _fuzzy_match(self, name: str, entity_names_lower: set) -> bool:
+        """Check if name matches any entity (exact or as substring)."""
+        name_lower = name.lower().strip()
+        if name_lower in entity_names_lower:
+            return True
+        for entity_name in entity_names_lower:
+            if name_lower in entity_name or entity_name in name_lower:
+                return True
+        return False
+    
     def _validate_relation(self, relation: Dict, entity_names: set) -> bool:
         """Validate extracted relation has required fields and valid references."""
         required = ["relation_type", "source_name", "target_name"]
@@ -203,19 +224,19 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
         if relation["relation_type"].upper() not in self.get_valid_relation_types():
             return False
         
-        source_lower = relation["source_name"].lower()
-        target_lower = relation["target_name"].lower()
+        source_name = self._strip_type_prefix(relation["source_name"])
+        target_name = self._strip_type_prefix(relation["target_name"])
         entity_names_lower = {n.lower() for n in entity_names}
         
-        source_found = source_lower in entity_names_lower
-        target_found = target_lower in entity_names_lower
+        source_found = self._fuzzy_match(source_name, entity_names_lower)
+        target_found = self._fuzzy_match(target_name, entity_names_lower)
         
         return source_found and target_found
     
     def _normalize_relation(self, relation: Dict) -> Dict:
         """Normalize relation fields."""
-        relation["source_name"] = relation["source_name"].strip()
-        relation["target_name"] = relation["target_name"].strip()
+        relation["source_name"] = self._strip_type_prefix(relation["source_name"])
+        relation["target_name"] = self._strip_type_prefix(relation["target_name"])
         relation["relation_type"] = relation["relation_type"].upper()
         
         if "confidence" not in relation:
@@ -248,7 +269,10 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
             List of ExtractedRelation objects
         """
         if not text.strip() or not entities:
+            print(f"[RelationExtractor] Skipping: text={bool(text.strip())}, entities={len(entities) if entities else 0}")
             return []
+        
+        print(f"[RelationExtractor] Extracting relations from {len(entities)} entities")
         
         entity_names = {
             e.get("canonical_name", e.get("name", "")) 
@@ -275,9 +299,19 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
                 response_text = response.choices[0].message.content or ""
                 raw_relations = self._parse_llm_response(response_text)
                 
+                print(f"[RelationExtractor] LLM returned {len(raw_relations)} raw relations")
+                
                 relations = []
+                valid_types = self.get_valid_relation_types()
                 for raw in raw_relations:
                     if not self._validate_relation(raw, entity_names):
+                        rel_type = raw.get("relation_type", "UNKNOWN").upper()
+                        source = raw.get("source_name", "?")
+                        target = raw.get("target_name", "?")
+                        source_found = source.lower() in {n.lower() for n in entity_names}
+                        target_found = target.lower() in {n.lower() for n in entity_names}
+                        type_valid = rel_type in valid_types
+                        print(f"[RelationExtractor] Skipped: {source} -{rel_type}-> {target} (type_valid={type_valid}, source_found={source_found}, target_found={target_found})")
                         continue
                     
                     normalized = self._normalize_relation(raw)
