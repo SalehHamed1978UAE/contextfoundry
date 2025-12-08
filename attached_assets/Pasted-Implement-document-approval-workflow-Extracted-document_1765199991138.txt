@@ -1,0 +1,125 @@
+Implement document approval workflow. Extracted documents require approval before entities are trusted.
+
+═══════════════════════════════════════════════════════════════
+PART 1: DATABASE CHANGES
+═══════════════════════════════════════════════════════════════
+
+1. Add published column to documents:
+
+ALTER TABLE platform.documents 
+ADD COLUMN IF NOT EXISTS published BOOLEAN DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS published_at TIMESTAMP,
+ADD COLUMN IF NOT EXISTS published_by TEXT;
+
+2. Mark existing documents as published (so current data still works):
+
+UPDATE platform.documents SET published = TRUE WHERE status = 'extracted';
+
+═══════════════════════════════════════════════════════════════
+PART 2: UPDATE ENTITY STATUS BASED ON DOCUMENT PUBLISH STATE
+═══════════════════════════════════════════════════════════════
+
+When document is published → entities become 'trusted'
+When document is unpublished → entities become 'staging'
+When document is deleted → entities are deleted
+
+Add/update column in entities if needed:
+- entities.status = 'staging' | 'trusted'
+
+═══════════════════════════════════════════════════════════════
+PART 3: API ENDPOINTS
+═══════════════════════════════════════════════════════════════
+
+POST /api/documents/<id>/publish
+- Sets published=TRUE, published_at=NOW(), published_by=user
+- Updates associated entities to status='trusted'
+- Returns success
+
+POST /api/documents/<id>/unpublish  
+- Sets published=FALSE
+- Updates associated entities to status='staging'
+- Returns success
+
+POST /api/documents/<id>/reject
+- Soft delete: Sets status='rejected', published=FALSE
+- Deletes associated entities and relationships
+- Returns success
+
+DELETE /api/documents/<id>
+- Hard delete: Removes document, entities, relationships
+- Returns success
+
+POST /api/documents/<id>/re-extract
+- Sets status='queued', published=FALSE
+- Deletes existing entities/relationships
+- Re-queues for extraction
+- Returns success
+
+GET /api/documents/<id>/details
+- Returns document metadata + list of entities grouped by type
+
+═══════════════════════════════════════════════════════════════
+PART 4: UPDATE UI
+═══════════════════════════════════════════════════════════════
+
+1. Document list shows publish status:
+
+| Name | Type | Status | Published | Entities |
+|------|------|--------|-----------|----------|
+| Report.pdf | PDF | Done | ✅ Yes | 42 |
+| Blueprint.pdf | PDF | Done | 🟡 Review | 1 |
+
+2. Document detail panel (slide-in) shows:
+
+─────────────────────────────────
+📄 AI_Value_Blueprint_Strategy.pdf
+─────────────────────────────────
+Type: PDF
+Uploaded: Dec 8, 2025
+Status: Extracted
+Published: 🟡 No (pending review)
+
+ENTITIES (1)
+├─ ORGANIZATION
+│   └─ AI Value Inc (0.85)
+
+ACTIONS
+[✅ Publish to Brain] [🔄 Re-extract] [❌ Reject]
+─────────────────────────────────
+
+If already published, show:
+[⏸️ Unpublish] [🔄 Re-extract] [🗑️ Delete]
+
+3. Update corpus stats:
+
+| 5 | 3 | 2 | 70 | 15 |
+| DOCS | PUBLISHED | REVIEW | ENTITIES | RELATIONSHIPS |
+
+═══════════════════════════════════════════════════════════════
+PART 5: UPDATE BRAIN QUERIES
+═══════════════════════════════════════════════════════════════
+
+Knowledge queries should default to trusted entities only:
+
+SELECT * FROM public.entities 
+WHERE tenant_id = %s 
+AND status = 'trusted'  -- Only published/trusted entities
+
+Or join through published documents:
+
+SELECT e.* FROM public.entities e
+JOIN platform.documents d ON e.source_document_id = d.id::text
+WHERE d.tenant_id = %s 
+AND d.published = TRUE
+
+═══════════════════════════════════════════════════════════════
+
+Implement in order:
+1. Database changes
+2. API endpoints  
+3. Document detail panel with actions
+4. Update document list to show publish status
+5. Update corpus stats
+6. Update Brain queries to respect publish status
+
+This is critical governance functionality. Take your time, do it right.
