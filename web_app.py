@@ -860,7 +860,7 @@ def api_documents():
                 
                 cur.execute(f"""
                     SELECT d.id, d.original_filename, d.mime_type, d.status, d.created_at,
-                           COALESCE(e.entity_count, 0) as entity_count
+                           d.published, COALESCE(e.entity_count, 0) as entity_count
                     FROM platform.documents d
                     LEFT JOIN (
                         SELECT source_document_id, COUNT(*) as entity_count
@@ -887,6 +887,7 @@ def api_documents():
                 'name': doc['original_filename'],
                 'mime_type': doc['mime_type'],
                 'status': doc['status'] or 'pending',
+                'published': doc['published'] or False,
                 'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
                 'entity_count': doc['entity_count']
             } for doc in docs],
@@ -920,7 +921,7 @@ def api_document_details(doc_id):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
                     SELECT id, original_filename, status, mime_type, created_at,
-                           extraction_method, extraction_metrics
+                           extraction_method, extraction_metrics, published
                     FROM platform.documents 
                     WHERE id = %s AND tenant_id = %s
                 """, [doc_id, tenant_id])
@@ -961,6 +962,7 @@ def api_document_details(doc_id):
             'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
             'extraction_method': doc['extraction_method'] or 'text',
             'extraction_metrics': doc['extraction_metrics'] or {},
+            'published': doc['published'] or False,
             'entity_count': len(entities),
             'entities_by_type': grouped
         })
@@ -968,6 +970,243 @@ def api_document_details(doc_id):
     except Exception as e:
         logger.error(f"Document details failed: {e}")
         return jsonify({'success': False, 'error': 'Failed to load document details'}), 500
+
+@app.route('/api/documents/<doc_id>/publish', methods=['POST'])
+def publish_document(doc_id):
+    """Approve document - entities become trusted."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+    
+    tenant_id = session['tenant_id']
+    user_email = session.get('user_email', 'user')
+    
+    try:
+        import psycopg2
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE platform.documents 
+                    SET published = TRUE, published_at = NOW(), published_by = %s
+                    WHERE id = %s AND tenant_id = %s
+                    RETURNING id
+                """, [user_email, doc_id, tenant_id])
+                
+                if cur.fetchone() is None:
+                    return jsonify({'success': False, 'error': 'Document not found'}), 404
+                
+                cur.execute("""
+                    UPDATE public.entities 
+                    SET status = 'trusted'
+                    WHERE source_document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                conn.commit()
+        
+        logger.info(f"Document {doc_id} published by {user_email}")
+        return jsonify({'success': True, 'published': True})
+        
+    except Exception as e:
+        logger.error(f"Publish failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to publish document'}), 500
+
+@app.route('/api/documents/<doc_id>/unpublish', methods=['POST'])
+def unpublish_document(doc_id):
+    """Retract document - entities back to staging."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+    
+    tenant_id = session['tenant_id']
+    
+    try:
+        import psycopg2
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE platform.documents 
+                    SET published = FALSE, published_at = NULL
+                    WHERE id = %s AND tenant_id = %s
+                    RETURNING id
+                """, [doc_id, tenant_id])
+                
+                if cur.fetchone() is None:
+                    return jsonify({'success': False, 'error': 'Document not found'}), 404
+                
+                cur.execute("""
+                    UPDATE public.entities 
+                    SET status = 'staging'
+                    WHERE source_document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                conn.commit()
+        
+        logger.info(f"Document {doc_id} unpublished")
+        return jsonify({'success': True, 'published': False})
+        
+    except Exception as e:
+        logger.error(f"Unpublish failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to unpublish document'}), 500
+
+@app.route('/api/documents/<doc_id>/reject', methods=['POST'])
+def reject_document(doc_id):
+    """Reject document - delete entities, mark as rejected."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+    
+    tenant_id = session['tenant_id']
+    
+    try:
+        import psycopg2
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    DELETE FROM public.relationships 
+                    WHERE tenant_id = %s AND (
+                        source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                    )
+                """, [tenant_id, doc_id, doc_id])
+                
+                cur.execute("""
+                    DELETE FROM public.entities 
+                    WHERE source_document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                cur.execute("""
+                    UPDATE platform.documents 
+                    SET status = 'rejected', published = FALSE
+                    WHERE id = %s AND tenant_id = %s
+                    RETURNING id
+                """, [doc_id, tenant_id])
+                
+                if cur.fetchone() is None:
+                    return jsonify({'success': False, 'error': 'Document not found'}), 404
+                
+                conn.commit()
+        
+        logger.info(f"Document {doc_id} rejected")
+        return jsonify({'success': True, 'status': 'rejected'})
+        
+    except Exception as e:
+        logger.error(f"Reject failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to reject document'}), 500
+
+@app.route('/api/documents/<doc_id>/re-extract', methods=['POST'])
+def re_extract_document(doc_id):
+    """Re-extract document - delete entities, re-queue for extraction."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+    
+    tenant_id = session['tenant_id']
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, original_filename, mime_type
+                    FROM platform.documents 
+                    WHERE id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                doc = cur.fetchone()
+                
+                if not doc:
+                    return jsonify({'success': False, 'error': 'Document not found'}), 404
+                
+                cur.execute("""
+                    DELETE FROM public.relationships 
+                    WHERE tenant_id = %s AND (
+                        source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                    )
+                """, [tenant_id, doc_id, doc_id])
+                
+                cur.execute("""
+                    DELETE FROM public.entities 
+                    WHERE source_document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                cur.execute("""
+                    UPDATE platform.documents 
+                    SET status = 'queued', published = FALSE, 
+                        extraction_method = NULL, extraction_metrics = NULL
+                    WHERE id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                cur.execute("""
+                    INSERT INTO platform.extraction_requests 
+                    (id, request_id, document_id, tenant_id, file_path, file_name, 
+                     mime_type, file_size_bytes, extraction_mode, priority, status, 
+                     retry_count, max_retries, created_at, submitted_at)
+                    VALUES (
+                        gen_random_uuid(), gen_random_uuid(), %s, %s,
+                        './storage/tenants/' || %s || '/documents/' || %s || '/v1/content',
+                        %s, %s, 0, 'full', 'high', 'pending', 0, 3, NOW(), NOW()
+                    )
+                """, [doc_id, tenant_id, tenant_id, doc_id, 
+                      doc['original_filename'], doc['mime_type'] or 'application/pdf'])
+                
+                conn.commit()
+        
+        logger.info(f"Document {doc_id} queued for re-extraction")
+        return jsonify({'success': True, 'status': 'queued'})
+        
+    except Exception as e:
+        logger.error(f"Re-extract failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to re-extract document'}), 500
+
+@app.route('/api/documents/<doc_id>', methods=['DELETE'])
+def delete_document(doc_id):
+    """Hard delete document and all associated data."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+    
+    tenant_id = session['tenant_id']
+    
+    try:
+        import psycopg2
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    DELETE FROM public.relationships 
+                    WHERE tenant_id = %s AND (
+                        source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                    )
+                """, [tenant_id, doc_id, doc_id])
+                
+                cur.execute("""
+                    DELETE FROM public.entities 
+                    WHERE source_document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                cur.execute("""
+                    DELETE FROM platform.extraction_requests 
+                    WHERE document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                cur.execute("""
+                    DELETE FROM platform.documents 
+                    WHERE id = %s AND tenant_id = %s
+                    RETURNING id
+                """, [doc_id, tenant_id])
+                
+                if cur.fetchone() is None:
+                    return jsonify({'success': False, 'error': 'Document not found'}), 404
+                
+                conn.commit()
+        
+        logger.info(f"Document {doc_id} permanently deleted")
+        return jsonify({'success': True, 'deleted': True})
+        
+    except Exception as e:
+        logger.error(f"Delete failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to delete document'}), 500
 
 @app.route('/test-upload', methods=['POST'])
 def test_upload():

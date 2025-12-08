@@ -222,9 +222,29 @@
     color: var(--success);
 }
 
+.status-published {
+    background: rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.status-review {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.status-rejected {
+    background: rgba(107, 114, 128, 0.2);
+    color: #6b7280;
+}
+
 .status-processing {
-    background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+}
+
+.status-queued {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
 }
 
 .status-pending {
@@ -1174,8 +1194,8 @@ function renderDocumentsTable(docs) {
     
     tbody.innerHTML = docs.map(doc => {
         const type = getFileType(doc.mime_type, doc.name);
-        const statusClass = getStatusClass(doc.status);
-        const statusText = formatStatus(doc.status);
+        const statusClass = getStatusClass(doc.status, doc.published);
+        const statusText = formatStatus(doc.status, doc.published);
         const date = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '-';
         
         return `
@@ -1250,10 +1270,11 @@ function getFileType(mimeType, name) {
     return 'FILE';
 }
 
-function getStatusClass(status) {
+function getStatusClass(status, published) {
+    if (status === 'rejected') return 'status-rejected';
+    if ((status === 'extracted' || status === 'completed') && published) return 'status-published';
+    if (status === 'extracted' || status === 'completed') return 'status-review';
     const map = {
-        'extracted': 'status-extracted',
-        'completed': 'status-completed',
         'processing': 'status-processing',
         'queued': 'status-queued',
         'pending': 'status-pending',
@@ -1262,10 +1283,11 @@ function getStatusClass(status) {
     return map[status] || 'status-pending';
 }
 
-function formatStatus(status) {
+function formatStatus(status, published) {
+    if (status === 'rejected') return 'Rejected';
+    if ((status === 'extracted' || status === 'completed') && published) return 'Published';
+    if (status === 'extracted' || status === 'completed') return 'Review';
     const map = {
-        'extracted': 'Done',
-        'completed': 'Done',
         'processing': 'Processing',
         'queued': 'Queued',
         'pending': 'Pending',
@@ -1289,9 +1311,9 @@ function openDetailPanel(docId) {
             document.getElementById('panel-doc-method').textContent = data.extraction_method || 'text';
             
             const statusEl = document.getElementById('panel-doc-status');
-            const statusText = data.status === 'completed' || data.status === 'extracted' ? 'Done' : (data.status || 'Pending');
+            const statusText = formatStatus(data.status, data.published);
             statusEl.textContent = statusText;
-            statusEl.className = 'meta-value badge ' + getStatusClass(data.status);
+            statusEl.className = 'meta-value badge ' + getStatusClass(data.status, data.published);
             
             document.getElementById('panel-entity-count').textContent = data.entity_count || 0;
             
@@ -1324,6 +1346,8 @@ function openDetailPanel(docId) {
                 entityList.innerHTML = '<div style="color: #9ca3af;">No entities extracted yet.</div>';
             }
             
+            updatePanelActions(data);
+            
             document.getElementById('document-detail-panel').classList.add('open');
             document.getElementById('panel-overlay').classList.add('open');
         })
@@ -1346,19 +1370,121 @@ function formatFileSize(bytes) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-function publishDocument() {
-    if (!currentDocumentId) return;
-    showToast('Publish coming soon', 'success');
+function updatePanelActions(doc) {
+    const actionsDiv = document.querySelector('.panel-actions');
+    if (!actionsDiv) return;
+    
+    if (doc.status === 'rejected') {
+        actionsDiv.innerHTML = `
+            <button class="btn btn-danger" onclick="deleteDocument()">Delete Permanently</button>
+        `;
+    } else if (doc.published) {
+        actionsDiv.innerHTML = `
+            <button class="btn btn-secondary" onclick="unpublishDocument()">Unpublish</button>
+            <button class="btn btn-secondary" onclick="reExtractDocument()">Re-extract</button>
+            <button class="btn btn-danger" onclick="deleteDocument()">Delete</button>
+        `;
+    } else if (doc.status === 'extracted' || doc.status === 'completed') {
+        actionsDiv.innerHTML = `
+            <button class="btn btn-primary" onclick="publishDocument()">Publish to Brain</button>
+            <button class="btn btn-secondary" onclick="reExtractDocument()">Re-extract</button>
+            <button class="btn btn-danger" onclick="rejectDocument()">Reject</button>
+        `;
+    } else {
+        actionsDiv.innerHTML = `
+            <button class="btn btn-secondary" onclick="reExtractDocument()">Re-extract</button>
+            <button class="btn btn-danger" onclick="deleteDocument()">Delete</button>
+        `;
+    }
 }
 
-function reExtractDocument() {
+function publishDocument() {
     if (!currentDocumentId) return;
-    showToast('Re-extraction coming soon', 'success');
+    
+    fetch(`/api/documents/${currentDocumentId}/publish`, { method: 'POST', credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document published to Brain', 'success');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                showToast('Failed to publish: ' + (data.error || 'Unknown error'), 'error');
+            }
+        })
+        .catch(err => showToast('Failed to publish document', 'error'));
+}
+
+function unpublishDocument() {
+    if (!currentDocumentId) return;
+    if (!confirm('Remove this document from the Brain? Entities will move back to staging.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}/unpublish`, { method: 'POST', credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document unpublished', 'success');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                showToast('Failed to unpublish: ' + (data.error || 'Unknown error'), 'error');
+            }
+        })
+        .catch(err => showToast('Failed to unpublish document', 'error'));
 }
 
 function rejectDocument() {
     if (!currentDocumentId) return;
-    showToast('Reject coming soon', 'success');
+    if (!confirm('Reject this document? All extracted entities will be deleted.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}/reject`, { method: 'POST', credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document rejected', 'success');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                showToast('Failed to reject: ' + (data.error || 'Unknown error'), 'error');
+            }
+        })
+        .catch(err => showToast('Failed to reject document', 'error'));
+}
+
+function reExtractDocument() {
+    if (!currentDocumentId) return;
+    if (!confirm('Re-extract this document? Existing entities will be replaced.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}/re-extract`, { method: 'POST', credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document queued for re-extraction', 'success');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                showToast('Failed to re-extract: ' + (data.error || 'Unknown error'), 'error');
+            }
+        })
+        .catch(err => showToast('Failed to re-extract document', 'error'));
+}
+
+function deleteDocument() {
+    if (!currentDocumentId) return;
+    if (!confirm('PERMANENTLY delete this document? This cannot be undone.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}`, { method: 'DELETE', credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document deleted', 'success');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                showToast('Failed to delete: ' + (data.error || 'Unknown error'), 'error');
+            }
+        })
+        .catch(err => showToast('Failed to delete document', 'error'));
 }
 
 document.getElementById('documentsTableBody').addEventListener('click', function(e) {
