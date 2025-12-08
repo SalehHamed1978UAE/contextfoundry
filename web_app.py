@@ -903,6 +903,74 @@ def api_documents():
         logger.error(f"Dashboard documents failed: {e}")
         return jsonify({'success': False, 'error': 'Failed to load documents'}), 500
 
+@app.route('/api/documents/<doc_id>/details', methods=['GET'])
+def api_document_details(doc_id):
+    """API: Get document details including all extracted entities."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    tenant_id = session['tenant_id']
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, original_filename, status, mime_type, file_size, created_at,
+                           extraction_method, extraction_metrics, published
+                    FROM platform.documents 
+                    WHERE id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                doc = cur.fetchone()
+                
+                if not doc:
+                    return jsonify({'success': False, 'error': 'Document not found'}), 404
+                
+                cur.execute("""
+                    SELECT entity_type, name, confidence
+                    FROM public.entities
+                    WHERE source_document_id = %s AND tenant_id = %s
+                    ORDER BY entity_type, confidence DESC, name
+                """, [doc_id, tenant_id])
+                entities = cur.fetchall()
+        
+        grouped = {}
+        for e in entities:
+            etype = e['entity_type']
+            if etype not in grouped:
+                grouped[etype] = []
+            grouped[etype].append({
+                'name': e['name'],
+                'confidence': float(e['confidence']) if e['confidence'] else 0.9
+            })
+        
+        file_type = 'unknown'
+        if doc['original_filename']:
+            ext = doc['original_filename'].split('.')[-1].lower()
+            file_type = ext if ext in ['pdf', 'doc', 'docx', 'txt', 'md', 'json', 'csv', 'xls', 'xlsx', 'ppt', 'pptx', 'html', 'xml'] else 'file'
+        
+        return jsonify({
+            'success': True,
+            'id': str(doc['id']),
+            'name': doc['original_filename'],
+            'status': doc['status'],
+            'file_type': file_type,
+            'file_size': doc['file_size'],
+            'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
+            'extraction_method': doc['extraction_method'] or 'text',
+            'extraction_metrics': doc['extraction_metrics'] or {},
+            'published': doc['published'] or False,
+            'entity_count': len(entities),
+            'entities_by_type': grouped
+        })
+        
+    except Exception as e:
+        logger.error(f"Document details failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to load document details'}), 500
+
 @app.route('/test-upload', methods=['POST'])
 def test_upload():
     try:
