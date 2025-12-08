@@ -1,0 +1,179 @@
+You're right. Replit is treating this as simple text replacement. Let me explain the full picture:
+
+---
+
+**For Replit: Navigation Architecture — Read Completely Before Starting**
+
+---
+
+**CONTEXT FOUNDRY HAS TWO MODULES:**
+
+| Module | URL | Purpose |
+|--------|-----|---------|
+| **Sources** | 4a3m.riker.replit.dev (Platform) | Where users PUT information in |
+| **Knowledge** | context-foundry.replit.app (Brain) | Where users GET insights out |
+
+These are TWO SEPARATE APPLICATIONS that should feel like ONE SYSTEM.
+
+---
+
+**USER JOURNEY 1: New User Onboarding**
+
+```
+User logs in via Google OAuth
+    ↓
+Lands on Sources module (Platform)
+    ↓
+Sees unified header: [📥 Sources*] [🧠 Knowledge]
+    ↓
+"Sources" is highlighted because they're in Sources
+    ↓
+Uploads their first document
+    ↓
+Sees document in Status tab: "Processing..."
+    ↓
+After 60 seconds, status changes to "Extracted"
+    ↓
+Clicks "Knowledge" in header
+    ↓
+Opens Brain (context-foundry.replit.app) in same or new tab
+    ↓
+Sees their extracted entities in Knowledge Graph
+    ↓
+Asks a question, gets answer with citations
+```
+
+---
+
+**USER JOURNEY 2: Daily User — Adding Documents**
+
+```
+User logs in
+    ↓
+Sees header: [📥 Sources*] [🧠 Knowledge]
+    ↓
+Clicks "Upload" sub-tab
+    ↓
+Drags 5 documents
+    ↓
+Clicks "Status" sub-tab to monitor progress
+    ↓
+Sees: doc1.pdf ✅ Extracted, doc2.pdf ⏳ Processing...
+    ↓
+When done, clicks "Knowledge" in header
+    ↓
+Explores new entities in Brain
+```
+
+---
+
+**USER JOURNEY 3: Daily User — Querying Knowledge**
+
+```
+User logs in
+    ↓
+Sees header: [📥 Sources] [🧠 Knowledge*]
+    ↓
+Clicks "Knowledge" immediately (skips Sources)
+    ↓
+Opens Brain dashboard
+    ↓
+"Knowledge" is now highlighted in Brain's header
+    ↓
+Uses Query interface, Memory Graph, etc.
+    ↓
+Needs to add more documents
+    ↓
+Clicks "Sources" in header
+    ↓
+Returns to Platform for upload
+```
+
+---
+
+**THE UNIFIED HEADER (appears on BOTH modules):**
+
+```
++------------------------------------------------------------------------+
+|  🔷 CONTEXT FOUNDRY                                                    |
+|                                                                        |
+|  [📥 Sources]  [🧠 Knowledge]                    Saleh Hamed  [Logout] |
++------------------------------------------------------------------------+
+```
+
+**When user is in SOURCES (Platform):**
+- "Sources" tab is highlighted/active (e.g., white text, underline, or background)
+- "Knowledge" tab is normal (clickable link to Brain URL)
+
+**When user is in KNOWLEDGE (Brain):**
+- "Knowledge" tab is highlighted/active
+- "Sources" tab is normal (clickable link to Platform URL)
+
+---
+
+**SOURCES MODULE STRUCTURE (Platform):**
+
+```
++------------------------------------------------------------------------+
+| 🔷 CONTEXT FOUNDRY                                                     |
+| [📥 Sources*]  [🧠 Knowledge]                     Saleh Hamed  [Logout]|
++------------------------------------------------------------------------+
+| Saleh Hamed's Space                                                    |
++------------------------------------------------------------------------+
+|  [Upload]  [Connectors]  [Status]  [API Keys]                          |
++------------------------------------------------------------------------+
+|                                                                        |
+|  (Content area changes based on selected sub-tab)                      |
+|                                                                        |
+|  Upload tab: Drag & drop area                                          |
+|  Connectors tab: S3, Google Drive, etc.                                |
+|  Status tab: List of all documents with processing state               |
+|  API Keys tab: Create/manage API keys                                  |
+|                                                                        |
++------------------------------------------------------------------------+
+```
+
+---
+
+**WHAT TO REMOVE FROM PLATFORM:**
+
+1. **"Search your knowledge" box** — This belongs in Brain, not here
+2. **"Knowledge Graph" section** — This belongs in Brain, not here
+3. **"Open Knowledge Graph" button** — Replaced by "Knowledge" in header
+
+---
+
+**WHAT THE HEADER LINKS DO:**
+
+| Link | Current Module | Action |
+|------|----------------|--------|
+| Sources | Platform | Stay on page (already here) |
+| Sources | Brain | Navigate to Platform URL |
+| Knowledge | Platform | Navigate to Brain URL |
+| Knowledge | Brain | Stay on page (already here) |
+
+---
+
+**IMPLEMENTATION:**
+
+1. **Create shared header HTML** in Platform's base template
+2. **Pass `current_module='sources'`** to template context
+3. **Header highlights based on current_module**
+4. **"Knowledge" link goes to:** `https://context-foundry.replit.app`
+5. **Remove** search box, knowledge graph section, "Open Knowledge Graph" button
+6. **Rename** "Documents" to "Status" in sub-navigation
+
+---
+
+**SUCCESS CRITERIA:**
+
+- [ ] User can navigate Sources ↔ Knowledge via header
+- [ ] Current module is visually highlighted
+- [ ] No knowledge features in Platform (search, graph, entities)
+- [ ] Sub-tabs: Upload, Connectors, Status, API Keys
+- [ ] Same dark theme, same visual style
+- [ ] Logout works from both modules
+
+---
+
+**Now implement this navigation system.**
