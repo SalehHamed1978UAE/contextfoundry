@@ -1,0 +1,120 @@
+Three fixes needed. Implement in order:
+
+═══════════════════════════════════════════════════════════════
+FIX 1: COMPLETE DOCX EXTRACTION
+═══════════════════════════════════════════════════════════════
+
+Current code (line 338) only reads paragraphs:
+    text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+
+Change to extract ALL text content:
+
+from docx import Document
+from docx.oxml.ns import qn
+
+def extract_docx_text(file_path):
+    doc = Document(file_path)
+    text_parts = []
+    
+    # 1. Core properties (title, subject)
+    if doc.core_properties.title:
+        text_parts.append(doc.core_properties.title)
+    
+    # 2. All paragraphs
+    for para in doc.paragraphs:
+        if para.text.strip():
+            text_parts.append(para.text)
+    
+    # 3. Tables
+    for table in doc.tables:
+        for row in table.rows:
+            row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+            if row_text:
+                text_parts.append(" | ".join(row_text))
+    
+    # 4. Headers and footers
+    for section in doc.sections:
+        if section.header:
+            for para in section.header.paragraphs:
+                if para.text.strip():
+                    text_parts.append(para.text)
+        if section.footer:
+            for para in section.footer.paragraphs:
+                if para.text.strip():
+                    text_parts.append(para.text)
+    
+    return "\n".join(text_parts)
+
+═══════════════════════════════════════════════════════════════
+FIX 2: REWRITE EXTRACTION PROMPT
+═══════════════════════════════════════════════════════════════
+
+Replace lines 158-191 with:
+
+PROMPT = '''
+You are an expert entity extractor for enterprise knowledge graphs.
+
+Extract entities from the following {domain} document. Be COMPREHENSIVE - 
+it's better to extract too many entities than to miss important ones.
+
+ENTITY TYPES:
+
+PERSON: Named individuals, job titles, roles (e.g., "John Smith", "Data Steward", "CFO")
+
+ORGANIZATION: Companies, agencies, departments, ministries, institutions, teams, 
+government bodies, corporate structures (e.g., "Ministry of Health", "Subsidiary A", 
+"Corporate Holding Company" as an organization TYPE)
+
+LOCATION: PHYSICAL places only - cities, countries, buildings, addresses, regions.
+NOT organizational types. NOT contexts or settings.
+
+CONCEPT: Frameworks, methodologies, principles, standards, abstract ideas, named 
+approaches (e.g., "Federated Data Catalog", "Hub-and-Spoke", "Minimum Viable Metadata",
+"Legislative Air Cover", "Commercial Firewalls")
+
+PROCESS: Workflows, procedures, phases, implementation stages 
+(e.g., "Phase 1: Foundation", "Crawl-Walk-Run Approach", "Data Monetization Strategy")
+
+EVENT: Meetings, milestones, occurrences (e.g., "Board Meeting", "Q3 Review")
+
+DATE: Temporal references (e.g., "December 2025", "Months 1-3", "Q4")
+
+DOCUMENT: Referenced reports, policies, forms (e.g., "Form 1099-B", "Annual Report")
+
+EXTRACTION RULES:
+1. Extract ALL named concepts, frameworks, and methodologies - these are high value
+2. When a term is capitalized or appears as a section header, it's likely an entity
+3. Include the main subject/title of the document
+4. If unsure whether something is an entity, INCLUDE IT with lower confidence (0.7)
+5. Use confidence 0.9-1.0 for clearly named entities
+6. Use confidence 0.7-0.85 for inferred or ambiguous entities
+
+Return JSON format:
+{
+  "entities": [
+    {"name": "...", "type": "...", "confidence": 0.9}
+  ]
+}
+'''
+
+═══════════════════════════════════════════════════════════════
+FIX 3: TEST
+═══════════════════════════════════════════════════════════════
+
+After implementing both fixes, re-extract:
+Gemini_-_Consolidated_Critical_Success_Factors_for_Federated_Data_Catalogs.docx
+
+Expected improvements:
+- "Federated Data Catalog" extracted as CONCEPT ✓
+- "Hub-and-Spoke" extracted as CONCEPT ✓
+- "Corporate Holding Company" as ORGANIZATION (not LOCATION) ✓
+- "Ministry of Health" as ORGANIZATION ✓
+- "Data Steward" as PERSON/ROLE ✓
+- Total entities: 40+ (up from 12)
+
+Show me:
+1. Characters extracted (should be higher with tables/headers)
+2. Full entity list after re-extraction
+3. Comparison: before vs after
+
+═══════════════════════════════════════════════════════════════
