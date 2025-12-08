@@ -71,12 +71,185 @@ extraction_worker_stats = {
     "is_running": False
 }
 
+VISION_CHARS_PER_PAGE_THRESHOLD = 800
+VISION_GARBAGE_RATIO_THRESHOLD = 0.3
+VISION_MAX_PAGES = 20
+VISION_DPI = 150
 
-def extract_text_from_file(file_path: str, file_name: str = None) -> str:
-    """Extract text from various file types (PDF, DOCX, plain text)."""
+
+def should_use_vision(text: str, page_count: int) -> bool:
+    """
+    Determine if we should fall back to Claude Vision for extraction.
+    Returns True if text extraction is insufficient.
+    """
+    if page_count == 0:
+        return False
+    
+    if not text or not text.strip():
+        return True
+    
+    chars_per_page = len(text) / page_count
+    
+    if chars_per_page < VISION_CHARS_PER_PAGE_THRESHOLD:
+        logger.info(f"[VisionCheck] Low text yield: {chars_per_page:.0f} chars/page < {VISION_CHARS_PER_PAGE_THRESHOLD} threshold")
+        return True
+    
+    non_ascii_count = sum(1 for c in text if ord(c) > 127 or (ord(c) < 32 and c not in '\n\r\t'))
+    garbage_ratio = non_ascii_count / len(text) if text else 0
+    
+    if garbage_ratio > VISION_GARBAGE_RATIO_THRESHOLD:
+        logger.info(f"[VisionCheck] High garbage ratio: {garbage_ratio:.2%} > {VISION_GARBAGE_RATIO_THRESHOLD:.0%} threshold")
+        return True
+    
+    return False
+
+
+def render_pdf_pages(file_path: str, max_pages: int = VISION_MAX_PAGES, dpi: int = VISION_DPI) -> list:
+    """
+    Convert PDF pages to base64-encoded JPEG images for Vision processing.
+    """
+    import base64
+    from io import BytesIO
+    from pdf2image import convert_from_path
+    
+    poppler_path = "/nix/store/ibb9lajxj2jr8z0bmriqyc43648b7fql-poppler-utils-25.05.0/bin"
+    
+    try:
+        images = convert_from_path(
+            file_path,
+            dpi=dpi,
+            first_page=1,
+            last_page=max_pages,
+            poppler_path=poppler_path
+        )
+        
+        base64_images = []
+        for i, img in enumerate(images):
+            buffer = BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            b64 = base64.standard_b64encode(buffer.getvalue()).decode('utf-8')
+            base64_images.append(b64)
+            logger.debug(f"[VisionRenderer] Rendered page {i+1}/{len(images)}")
+        
+        logger.info(f"[VisionRenderer] Rendered {len(base64_images)} pages as JPEG images")
+        return base64_images
+        
+    except Exception as e:
+        logger.error(f"[VisionRenderer] Failed to render PDF pages: {e}")
+        return []
+
+
+def extract_with_vision(images: list, entity_types: list) -> dict:
+    """
+    Extract entities directly from page images using Claude Vision.
+    
+    Args:
+        images: List of base64-encoded JPEG images
+        entity_types: List of entity type names to extract
+        
+    Returns:
+        Dict with 'entities' list and 'document_summary'
+    """
+    import anthropic
+    import json
+    
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        logger.error("[VisionExtractor] ANTHROPIC_API_KEY not set")
+        return {"entities": [], "document_summary": "API key not configured"}
+    
+    client = anthropic.Anthropic(api_key=api_key)
+    
+    content = []
+    
+    for i, img_b64 in enumerate(images):
+        content.append({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": "image/jpeg",
+                "data": img_b64
+            }
+        })
+        content.append({
+            "type": "text",
+            "text": f"[Page {i+1}]"
+        })
+    
+    entity_type_str = ', '.join(entity_types)
+    content.append({
+        "type": "text",
+        "text": f"""Analyze all pages above and extract entities. This is a knowledge extraction task.
+
+Entity types to extract: {entity_type_str}
+
+For each entity found, provide:
+- name: The entity name exactly as it appears in the document
+- type: One of the entity types listed above (use UPPERCASE)
+- confidence: Your confidence in this extraction (0.0-1.0)
+- context: Brief context where it appears (1 sentence)
+
+IMPORTANT EXTRACTION RULES:
+- Extract ALL relevant entities - do not limit yourself
+- Capture EVERY concept, framework, methodology, metric, process, person, organization
+- Include financial terms (NPV, IRR, EBITDA, etc.)
+- Include risk categories (Technical Risk, Financial Risk, Operational Risk, etc.)
+- Include strategic frameworks and pillars
+- Include commercialization stages and phases
+- Be thorough - this document contains valuable knowledge
+
+Return JSON format only, no markdown:
+{{
+    "entities": [
+        {{"name": "Entity Name", "type": "CONCEPT", "confidence": 0.9, "context": "Brief context"}},
+        ...
+    ],
+    "document_summary": "Brief 2-3 sentence summary of document content"
+}}"""
+    })
+    
+    try:
+        logger.info(f"[VisionExtractor] Sending {len(images)} pages to Claude Vision...")
+        
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=8000,
+            messages=[{"role": "user", "content": content}]
+        )
+        
+        response_text = response.content[0].text
+        
+        response_text = response_text.strip()
+        if response_text.startswith("```"):
+            import re
+            response_text = re.sub(r"```json?\n?", "", response_text)
+            response_text = re.sub(r"\n?```$", "", response_text)
+        
+        result = json.loads(response_text)
+        
+        entity_count = len(result.get("entities", []))
+        logger.info(f"[VisionExtractor] Extracted {entity_count} entities from {len(images)} pages")
+        
+        return result
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"[VisionExtractor] JSON parse error: {e}")
+        logger.debug(f"[VisionExtractor] Raw response: {response_text[:500]}...")
+        return {"entities": [], "document_summary": "Failed to parse response"}
+    except Exception as e:
+        logger.error(f"[VisionExtractor] Vision API error: {e}")
+        return {"entities": [], "document_summary": str(e)}
+
+
+def extract_text_from_file(file_path: str, file_name: str = None) -> tuple:
+    """
+    Extract text from various file types (PDF, DOCX, plain text).
+    Returns: (text, method, page_count)
+    method: 'text' | 'ocr' | 'vision_required'
+    """
     if not file_path or not os.path.exists(file_path):
         logger.warning(f"[TextExtractor] File not found: {file_path}")
-        return ""
+        return "", "text", 0
     
     extension = ""
     if file_name:
@@ -89,6 +262,7 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> str:
     if extension == 'pdf':
         text = ""
         page_count = 0
+        method = "text"
         
         try:
             from pypdf import PdfReader
@@ -100,9 +274,9 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> str:
                 if page_text:
                     text_parts.append(page_text)
             text = "\n\n".join(text_parts)
-            if text.strip():
+            if text.strip() and not should_use_vision(text, page_count):
                 logger.info(f"[TextExtractor] PDF parsed with pypdf: {page_count} pages, {len(text)} characters")
-                return text
+                return text, "text", page_count
         except Exception as e:
             logger.warning(f"[TextExtractor] pypdf failed: {e}")
         
@@ -116,14 +290,14 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> str:
                     if page_text:
                         text_parts.append(page_text)
                 text = "\n\n".join(text_parts)
-                if text.strip():
+                if text.strip() and not should_use_vision(text, page_count):
                     logger.info(f"[TextExtractor] PDF parsed with pdfplumber: {page_count} pages, {len(text)} characters")
-                    return text
+                    return text, "text", page_count
         except Exception as e:
             logger.warning(f"[TextExtractor] pdfplumber failed: {e}")
         
-        if not text.strip():
-            logger.info(f"[TextExtractor] PDF has {page_count} pages but no extractable text. Attempting OCR...")
+        if not text.strip() or should_use_vision(text, page_count):
+            logger.info(f"[TextExtractor] PDF has {page_count} pages but insufficient text. Attempting OCR...")
             try:
                 from pdf2image import convert_from_path
                 import pytesseract
@@ -138,15 +312,24 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> str:
                     logger.debug(f"[TextExtractor] OCR page {i+1}/{len(images)}: {len(page_text)} chars")
                 
                 text = "\n\n".join(ocr_parts)
-                if text.strip():
+                method = "ocr"
+                
+                if text.strip() and not should_use_vision(text, page_count):
                     logger.info(f"[TextExtractor] PDF OCR successful: {len(images)} pages, {len(text)} characters")
+                    return text, "ocr", page_count
                 else:
-                    logger.warning(f"[TextExtractor] OCR produced no text from {len(images)} pages")
+                    chars_per_page = len(text) / page_count if page_count > 0 else 0
+                    logger.info(f"[TextExtractor] OCR insufficient ({len(text)} chars, {chars_per_page:.0f}/page), Vision required")
+                    return text, "vision_required", page_count
+                    
             except ImportError as e:
                 logger.warning(f"[TextExtractor] OCR dependencies not available: {e}")
             except Exception as e:
                 logger.error(f"[TextExtractor] OCR failed: {e}")
-        return text
+        
+        if should_use_vision(text, page_count):
+            return text, "vision_required", page_count
+        return text, method, page_count
     
     elif extension in ['doc', 'docx']:
         try:
@@ -154,20 +337,20 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> str:
             doc = Document(file_path)
             text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
             logger.info(f"[TextExtractor] DOCX parsed: {len(text)} characters")
-            return text
+            return text, "text", 0
         except Exception as e:
             logger.error(f"[TextExtractor] DOCX extraction error: {e}")
-            return ""
+            return "", "text", 0
     
     else:
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 text = f.read()
             logger.info(f"[TextExtractor] Plain text read: {len(text)} characters")
-            return text
+            return text, "text", 0
         except Exception as e:
             logger.error(f"[TextExtractor] Text read error: {e}")
-            return ""
+            return "", "text", 0
 
 
 def process_extraction_queue():
@@ -215,28 +398,68 @@ def process_extraction_queue():
             document_id = str(request.get('document_id'))
             request_id = str(request.get('request_id'))
             
-            text_content = extract_text_from_file(file_path, file_name)
-            
-            if not text_content:
-                logger.warning(f"[ExtractionWorker] No text extracted from {file_name}")
-                text_content = f"Document: {file_name}\n\nContent could not be extracted."
+            text_content, extraction_method, page_count = extract_text_from_file(file_path, file_name)
             
             start_time = datetime.utcnow()
             
             from src.context_foundry.extraction import ExtractionPipeline
             from src.context_foundry.extraction.staging_loader import StagingLoader
+            from src.context_foundry.extraction.entity_extractor import ExtractedEntity
             from src.context_foundry.models.schema import tenant_session
-            
-            pipeline = ExtractionPipeline(model="gpt-4o-mini", temperature=0.0)
-            
-            extraction_result = pipeline.extract_with_fallback(
-                text=text_content,
-                document_id=document_id,
-                document_title=file_name or "Uploaded Document"
-            )
+            from brain.classifier import CORE_FOUNDATION_TYPES
             
             entities_count = 0
             relations_count = 0
+            model_used = 'gpt-4o-mini'
+            extraction_success = False
+            extracted_entities = []
+            
+            if extraction_method == "vision_required":
+                logger.info(f"[ExtractionWorker] Using Vision extraction for {file_name}")
+                
+                images = render_pdf_pages(file_path, max_pages=VISION_MAX_PAGES, dpi=VISION_DPI)
+                
+                if images:
+                    entity_types = CORE_FOUNDATION_TYPES
+                    vision_result = extract_with_vision(images, entity_types)
+                    
+                    for ve in vision_result.get("entities", []):
+                        entity = ExtractedEntity(
+                            id=f"vision-{ve.get('name', 'unknown').lower().replace(' ', '-')}",
+                            entity_type=ve.get("type", "CONCEPT").upper(),
+                            canonical_name=ve.get("name", "Unknown"),
+                            properties={"context": ve.get("context", "")},
+                            source_span=ve.get("name", ""),
+                            source_document_id=document_id,
+                            source_chunk_id=f"{document_id}:vision",
+                            source_sentence_idx=0,
+                            confidence=float(ve.get("confidence", 0.8)),
+                        )
+                        extracted_entities.append(entity)
+                    
+                    logger.info(f"[VisionExtractor] Created {len(extracted_entities)} ExtractedEntity objects")
+                    extraction_method = "vision"
+                    model_used = "claude-sonnet-4-20250514"
+                    extraction_success = len(extracted_entities) > 0
+                else:
+                    logger.error(f"[ExtractionWorker] Failed to render PDF pages for Vision")
+                    extraction_method = "vision_failed"
+                    extraction_success = False
+            else:
+                if not text_content:
+                    logger.warning(f"[ExtractionWorker] No text extracted from {file_name}")
+                    text_content = f"Document: {file_name}\n\nContent could not be extracted."
+                
+                pipeline = ExtractionPipeline(model="gpt-4o-mini", temperature=0.0)
+                
+                extraction_result = pipeline.extract_with_fallback(
+                    text=text_content,
+                    document_id=document_id,
+                    document_title=file_name or "Uploaded Document"
+                )
+                
+                extracted_entities = extraction_result.entities
+                extraction_success = extraction_result.success
             
             with tenant_session(tenant_id) as session:
                 try:
@@ -247,11 +470,11 @@ def process_extraction_queue():
                         tenant_id=tenant_id
                     )
                     
-                    logger.info(f"[ExtractionWorker] Loading {len(extraction_result.entities)} entities to staging...")
+                    logger.info(f"[ExtractionWorker] Loading {len(extracted_entities)} entities to staging...")
                     
                     staging_result = loader.load_all(
-                        entities=extraction_result.entities,
-                        relations=extraction_result.relations,
+                        entities=extracted_entities,
+                        relations=[],
                         commit=True
                     )
                     
@@ -262,7 +485,7 @@ def process_extraction_queue():
                         logger.warning(f"[ExtractionWorker] Staging errors: {staging_result.errors}")
                     
                     logger.info(
-                        f"[ExtractionWorker] Extraction complete: "
+                        f"[ExtractionWorker] Extraction complete ({extraction_method}): "
                         f"{entities_count} entities ({staging_result.entities_created} created, {staging_result.entities_updated} updated, {staging_result.entities_skipped} skipped), "
                         f"{relations_count} relationships for tenant {tenant_id}"
                     )
@@ -276,46 +499,71 @@ def process_extraction_queue():
             end_time = datetime.utcnow()
             duration_ms = int((end_time - start_time).total_seconds() * 1000)
             
-            cur = conn.cursor()
-            cur.execute("""
-                INSERT INTO platform.extraction_results
-                (request_id, document_id, tenant_id, status,
-                 entities_extracted, relationships_extracted,
-                 input_tokens, output_tokens, total_tokens,
-                 started_at, completed_at, duration_ms,
-                 extraction_version, model_used)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                request_id,
-                document_id,
-                tenant_id,
-                'success' if extraction_result.success else 'failed',
-                entities_count,
-                relations_count,
-                500,
-                300,
-                800,
-                start_time.isoformat() + 'Z',
-                end_time.isoformat() + 'Z',
-                duration_ms,
-                '1.0.0',
-                'gpt-4o-mini'
-            ))
+            try:
+                conn.close()
+            except:
+                pass
             
-            cur.execute("""
-                UPDATE platform.extraction_requests
-                SET status = 'completed', completed_at = NOW()
-                WHERE id = %s
-            """, (request['id'],))
+            result_conn = psycopg2.connect(database_url)
+            result_cur = result_conn.cursor()
             
-            cur.execute("""
-                UPDATE platform.documents
-                SET status = 'extracted', updated_at = NOW()
-                WHERE id = %s
-            """, (request['document_id'],))
+            import json as json_lib
+            extraction_metrics = json_lib.dumps({
+                "chars_extracted": len(text_content) if text_content else 0,
+                "chars_per_page": len(text_content) / page_count if page_count > 0 and text_content else 0,
+                "page_count": page_count,
+                "entities_extracted": entities_count,
+                "vision_fallback": extraction_method == "vision"
+            })
             
-            conn.commit()
-            cur.close()
+            try:
+                result_cur.execute("""
+                    INSERT INTO platform.extraction_results
+                    (request_id, document_id, tenant_id, status,
+                     entities_extracted, relationships_extracted,
+                     input_tokens, output_tokens, total_tokens,
+                     started_at, completed_at, duration_ms,
+                     extraction_version, model_used)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    request_id,
+                    document_id,
+                    tenant_id,
+                    'success' if extraction_success else 'failed',
+                    entities_count,
+                    relations_count,
+                    500,
+                    300,
+                    800,
+                    start_time.isoformat() + 'Z',
+                    end_time.isoformat() + 'Z',
+                    duration_ms,
+                    '1.0.0',
+                    model_used
+                ))
+                
+                result_cur.execute("""
+                    UPDATE platform.extraction_requests
+                    SET status = 'completed', completed_at = NOW()
+                    WHERE id = %s
+                """, (request['id'],))
+                
+                result_cur.execute("""
+                    UPDATE platform.documents
+                    SET status = 'extracted', updated_at = NOW(),
+                        extraction_method = %s, extraction_metrics = %s
+                    WHERE id = %s
+                """, (extraction_method, extraction_metrics, request['document_id'],))
+                
+                result_conn.commit()
+                logger.info(f"[ExtractionWorker] Successfully persisted extraction results for {request['document_id']}")
+                
+            except Exception as db_error:
+                logger.error(f"[ExtractionWorker] Failed to persist results: {db_error}")
+                result_conn.rollback()
+            finally:
+                result_cur.close()
+                result_conn.close()
             
             processed = 1
             extraction_worker_stats["requests_processed"] += 1
@@ -324,16 +572,24 @@ def process_extraction_queue():
             logger.error(f"[ExtractionWorker] Processing error: {e}")
             extraction_worker_stats["last_error"] = str(e)
             
-            cur = conn.cursor()
-            cur.execute("""
-                UPDATE platform.extraction_requests
-                SET status = 'failed'
-                WHERE id = %s
-            """, (request['id'],))
-            conn.commit()
-            cur.close()
+            try:
+                fail_conn = psycopg2.connect(database_url)
+                fail_cur = fail_conn.cursor()
+                fail_cur.execute("""
+                    UPDATE platform.extraction_requests
+                    SET status = 'failed'
+                    WHERE id = %s
+                """, (request['id'],))
+                fail_conn.commit()
+                fail_cur.close()
+                fail_conn.close()
+            except Exception as fail_error:
+                logger.error(f"[ExtractionWorker] Failed to mark request as failed: {fail_error}")
         
-        conn.close()
+        try:
+            conn.close()
+        except:
+            pass
         
     except Exception as e:
         logger.error(f"[ExtractionWorker] Database error: {e}")
