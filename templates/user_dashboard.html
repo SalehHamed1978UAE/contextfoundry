@@ -1282,9 +1282,9 @@ function openDetailPanel(docId) {
     fetch(`/api/documents/${docId}/details`)
         .then(r => r.json())
         .then(data => {
-            document.getElementById('panel-doc-name').textContent = data.name;
+            document.getElementById('panel-doc-name').textContent = data.name || 'Unknown';
             document.getElementById('panel-doc-type').textContent = data.file_type?.toUpperCase() || 'Unknown';
-            document.getElementById('panel-doc-size').textContent = formatFileSize(data.file_size);
+            document.getElementById('panel-doc-size').textContent = '-';
             document.getElementById('panel-doc-date').textContent = data.created_at ? new Date(data.created_at).toLocaleDateString() : '-';
             document.getElementById('panel-doc-method').textContent = data.extraction_method || 'text';
             
