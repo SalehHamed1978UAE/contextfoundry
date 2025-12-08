@@ -128,7 +128,8 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> str:
                 from pdf2image import convert_from_path
                 import pytesseract
                 
-                images = convert_from_path(file_path, dpi=200)
+                poppler_path = "/nix/store/ibb9lajxj2jr8z0bmriqyc43648b7fql-poppler-utils-25.05.0/bin"
+                images = convert_from_path(file_path, dpi=200, poppler_path=poppler_path)
                 ocr_parts = []
                 for i, image in enumerate(images):
                     page_text = pytesseract.image_to_string(image)
