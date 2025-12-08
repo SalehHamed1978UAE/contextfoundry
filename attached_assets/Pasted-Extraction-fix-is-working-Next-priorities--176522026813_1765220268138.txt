@@ -1,0 +1,83 @@
+Extraction fix is working. Next priorities:
+
+═══════════════════════════════════════════════════════════════
+PRIORITY 1: VALIDATE ON MORE DOCUMENTS
+═══════════════════════════════════════════════════════════════
+
+We've only tested on the Federated Data Catalog doc.
+
+Test chunked extraction on 3-5 different documents:
+- Different lengths (short, medium, long)
+- Different domains (finance, healthcare, governance)
+- Different formats (prose-heavy, table-heavy)
+
+Confirm we consistently get 40+ entities per document.
+
+═══════════════════════════════════════════════════════════════
+PRIORITY 2: CHECK TYPE DISTRIBUTION
+═══════════════════════════════════════════════════════════════
+
+Current results show:
+- ORGANIZATION: only 3 entities
+- PERSON: only 1 entity
+
+This seems low. Are ministries/departments being misclassified?
+
+Run this check:
+SELECT entity_type, name 
+FROM entities 
+WHERE source_document_id = '30ea874d-0ab0-404c-9d59-1e4c056e0ffb'
+  AND (name ILIKE '%ministry%' 
+       OR name ILIKE '%department%'
+       OR name ILIKE '%government%'
+       OR name ILIKE '%committee%')
+ORDER BY entity_type;
+
+If these show as LOCATION or CONCEPT instead of ORGANIZATION, 
+the type confusion still needs fixing.
+
+═══════════════════════════════════════════════════════════════
+PRIORITY 3: ADD GLEANING PASS (Optional but valuable)
+═══════════════════════════════════════════════════════════════
+
+Research shows gleaning adds 15-20% more entities.
+
+After extracting from each chunk, run a second pass:
+
+GLEANING_PROMPT = """
+You extracted these entities:
+{already_extracted}
+
+Review the text again. Extract ONLY entities you MISSED.
+Focus on: organization names, role titles, framework names.
+
+Text:
+{chunk_text}
+
+Return JSON array of NEW entities only.
+"""
+
+Test on one document first. If it finds 10%+ new entities, 
+implement in production.
+
+═══════════════════════════════════════════════════════════════
+PRIORITY 4: MONITOR DEDUPLICATION
+═══════════════════════════════════════════════════════════════
+
+We went from 68 raw → 55 stored (13 deduped).
+
+Check that deduplication is working correctly:
+- Same entity in overlapping chunks should merge
+- Slight variations ("Ministry of Health" vs "Ministry of Health and Prevention") 
+  should be handled
+- No false merges (different entities with similar names)
+
+═══════════════════════════════════════════════════════════════
+NOT YET (save for later):
+═══════════════════════════════════════════════════════════════
+
+- Domain-specific few-shot examples (Phase 5) - marginal gain now that chunking works
+- Reference graph pre-seeding - nice to have
+- Constrained decoding - nice to have
+
+Focus on validation first. The core fix is in.
