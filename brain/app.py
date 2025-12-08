@@ -335,8 +335,62 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> tuple:
         try:
             from docx import Document
             doc = Document(file_path)
-            text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
-            logger.info(f"[TextExtractor] DOCX parsed: {len(text)} characters")
+            text_parts = []
+            
+            # 1. Document properties (often contains the title)
+            try:
+                if doc.core_properties.title:
+                    text_parts.append(f"DOCUMENT TITLE: {doc.core_properties.title}")
+                if doc.core_properties.subject:
+                    text_parts.append(f"SUBJECT: {doc.core_properties.subject}")
+            except Exception:
+                pass
+            
+            # 2. Headers from all sections (put at start for visibility)
+            for section in doc.sections:
+                try:
+                    if section.header:
+                        for para in section.header.paragraphs:
+                            header_text = para.text.strip()
+                            if header_text:
+                                text_parts.append(f"HEADER: {header_text}")
+                except Exception:
+                    pass
+            
+            # 3. All paragraphs (main body)
+            for para in doc.paragraphs:
+                para_text = para.text.strip()
+                if para_text:
+                    # Check if it's a heading (likely important entity)
+                    if para.style and para.style.name and 'Heading' in para.style.name:
+                        text_parts.append(f"SECTION: {para_text}")
+                    else:
+                        text_parts.append(para_text)
+            
+            # 4. All tables
+            for table in doc.tables:
+                table_rows = []
+                for row in table.rows:
+                    row_cells = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                    if row_cells:
+                        table_rows.append(" | ".join(row_cells))
+                if table_rows:
+                    text_parts.append("TABLE CONTENT:")
+                    text_parts.extend(table_rows)
+            
+            # 5. Footers from all sections
+            for section in doc.sections:
+                try:
+                    if section.footer:
+                        for para in section.footer.paragraphs:
+                            footer_text = para.text.strip()
+                            if footer_text:
+                                text_parts.append(f"FOOTER: {footer_text}")
+                except Exception:
+                    pass
+            
+            text = "\n".join(text_parts)
+            logger.info(f"[TextExtractor] DOCX parsed (complete): {len(text)} characters")
             return text, "text", 0
         except Exception as e:
             logger.error(f"[TextExtractor] DOCX extraction error: {e}")

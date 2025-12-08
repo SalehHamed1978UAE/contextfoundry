@@ -1,0 +1,53 @@
+{
+  "domain": "core",
+  "description": "Generic business document examples for Core Foundation types",
+  "examples": [
+    {
+      "input": "The Federated Data Catalog enables cross-entity data discovery while maintaining local autonomy. Data Stewards in each department manage their local metadata according to the Hub-and-Spoke governance model.",
+      "output": [
+        {"name": "Federated Data Catalog", "type": "CONCEPT", "confidence": 0.95, "reasoning": "Named system/methodology for data management"},
+        {"name": "Data Steward", "type": "PERSON", "confidence": 0.95, "reasoning": "Named role/position representing a distinct function"},
+        {"name": "Hub-and-Spoke", "type": "CONCEPT", "confidence": 0.95, "reasoning": "Named governance model/framework"},
+        {"name": "department", "type": "ORGANIZATION", "confidence": 0.80, "reasoning": "Organizational unit (generic reference)"}
+      ]
+    },
+    {
+      "input": "Corporate Holding Company acquired the Government Services Division. The Government issued new regulations affecting all subsidiaries.",
+      "output": [
+        {"name": "Corporate Holding Company", "type": "ORGANIZATION", "confidence": 0.90, "reasoning": "Entity that ACTS (acquired) - action verb indicates organization"},
+        {"name": "Government Services Division", "type": "ORGANIZATION", "confidence": 0.95, "reasoning": "Named organizational unit"},
+        {"name": "Government", "type": "ORGANIZATION", "confidence": 0.90, "reasoning": "Entity that ACTS (issued regulations) - not a location"},
+        {"name": "subsidiaries", "type": "ORGANIZATION", "confidence": 0.80, "reasoning": "Organizational entities (generic reference)"}
+      ]
+    },
+    {
+      "input": "Phase 1: The Foundation covers months 1-3 and focuses on proving interoperability. The Crawl, Walk, Run Approach ensures gradual scaling.",
+      "output": [
+        {"name": "Phase 1: The Foundation", "type": "PROCESS", "confidence": 0.95, "reasoning": "Named implementation phase"},
+        {"name": "months 1-3", "type": "DATE", "confidence": 0.90, "reasoning": "Time period reference"},
+        {"name": "Crawl, Walk, Run Approach", "type": "CONCEPT", "confidence": 0.95, "reasoning": "Named methodology/framework"},
+        {"name": "interoperability", "type": "CONCEPT", "confidence": 0.85, "reasoning": "Technical concept being measured"}
+      ]
+    },
+    {
+      "input": "The Ministry of Health and Ministry of Transport must align on unified security classifications. Dr. Sarah Chen leads the cross-agency working group.",
+      "output": [
+        {"name": "Ministry of Health", "type": "ORGANIZATION", "confidence": 1.0, "reasoning": "Named government agency"},
+        {"name": "Ministry of Transport", "type": "ORGANIZATION", "confidence": 1.0, "reasoning": "Named government agency"},
+        {"name": "unified security classifications", "type": "CONCEPT", "confidence": 0.85, "reasoning": "Named standard/framework"},
+        {"name": "Dr. Sarah Chen", "type": "PERSON", "confidence": 1.0, "reasoning": "Named individual"},
+        {"name": "cross-agency working group", "type": "ORGANIZATION", "confidence": 0.85, "reasoning": "Organizational unit"}
+      ]
+    },
+    {
+      "input": "The Enterprise Risk Framework was documented in the Q3 Board Report. The CFO presented findings to the Investment Committee in Abu Dhabi.",
+      "output": [
+        {"name": "Enterprise Risk Framework", "type": "CONCEPT", "confidence": 0.95, "reasoning": "Named framework"},
+        {"name": "Q3 Board Report", "type": "DOCUMENT", "confidence": 0.95, "reasoning": "Named document"},
+        {"name": "CFO", "type": "PERSON", "confidence": 0.95, "reasoning": "Named role/title representing a position"},
+        {"name": "Investment Committee", "type": "ORGANIZATION", "confidence": 0.90, "reasoning": "Organizational body"},
+        {"name": "Abu Dhabi", "type": "LOCATION", "confidence": 1.0, "reasoning": "Physical location - city"}
+      ]
+    }
+  ]
+}
