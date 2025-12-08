@@ -1289,8 +1289,9 @@ function openDetailPanel(docId) {
             document.getElementById('panel-doc-method').textContent = data.extraction_method || 'text';
             
             const statusEl = document.getElementById('panel-doc-status');
-            statusEl.textContent = data.published ? 'Published' : 'Review';
-            statusEl.className = 'meta-value badge ' + (data.published ? 'published' : 'review');
+            const statusText = data.status === 'completed' || data.status === 'extracted' ? 'Done' : (data.status || 'Pending');
+            statusEl.textContent = statusText;
+            statusEl.className = 'meta-value badge ' + getStatusClass(data.status);
             
             document.getElementById('panel-entity-count').textContent = data.entity_count || 0;
             
