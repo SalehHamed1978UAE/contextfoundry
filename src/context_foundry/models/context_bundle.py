@@ -118,6 +118,11 @@ class ContextBundle:
     # Analysis query detection - requires aggregation beyond retrieval
     is_analysis_query: bool = False
     
+    # Entity listing/aggregation query fields
+    is_aggregation_query: bool = False  # True if listing entities by type
+    aggregation_type: Optional[str] = None  # The entity type being listed (e.g., "PROCESS")
+    aggregation_count: int = 0  # Number of entities found
+    
     # Property-based query detection - queries about entity attributes (expertise, role, level, department)
     is_property_query: bool = False
     property_filters: List[Dict] = field(default_factory=list)
@@ -331,8 +336,17 @@ class ContextBundle:
             lines.append("DO NOT fabricate relationships or information about non-existent entities.")
             lines.append("The entities shown below are NOT related to the query target.\n")
         
-        # ANALYSIS QUERY: Honest limitation - requires aggregation
-        if self.is_analysis_query:
+        # AGGREGATION QUERY: We have the entity list - present it confidently
+        if self.is_aggregation_query and self.aggregation_type:
+            lines.append(f"=== ENTITY LISTING QUERY: {self.aggregation_type} ===")
+            lines.append(f"Found {self.aggregation_count} entities of type {self.aggregation_type}.")
+            lines.append("INSTRUCTIONS:")
+            lines.append("1. List ALL the entities shown below in your response")
+            lines.append("2. Include each entity's name and description if available")
+            lines.append("3. Organize the list in a clear, readable format")
+            lines.append("4. This is a complete list of TRUSTED entities of this type\n")
+        # ANALYSIS QUERY: Honest limitation - requires aggregation (only if NOT an aggregation query)
+        elif self.is_analysis_query:
             lines.append("=== ANALYSIS QUERY DETECTED ===")
             lines.append("The user is asking for pattern analysis, trends, or aggregated statistics.")
             lines.append("This type of query requires aggregation capabilities beyond simple retrieval.")

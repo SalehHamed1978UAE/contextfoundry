@@ -217,12 +217,19 @@ class RetrievalAgent:
             target_entity_name = None
             bundle.target_entity_found = True
         elif query_type == 'analysis':
-            logger.info(f"ANALYSIS QUERY detected: skipping entity extraction (requires aggregation)")
+            logger.info(f"ANALYSIS QUERY detected: checking for entity listing pattern")
             keywords = []
             entity_types = []
             target_entity_name = None
-            bundle.target_entity_found = True
             bundle.is_analysis_query = True
+            
+            # Check if this is an entity listing query (e.g., "List all PROCESS entities")
+            if self._handle_entity_listing_query(query_text, bundle, query_logger):
+                # Entity listing handled - bundle populated with entities
+                bundle.target_entity_found = True
+            else:
+                # General analysis query - no specific entities to list
+                bundle.target_entity_found = True
         else:
             keywords = self._extract_keywords(query_text)
             entity_types = self._infer_entity_types(query_text)
@@ -336,14 +343,19 @@ class RetrievalAgent:
                 bundle.target_entity_found = True
             # else: preserve the existing value from _verify_target_entity_exists
         
-        semantic_results = self._query_semantic_memory(
-            keywords, entity_types, traverse_depth, max_entities, query_logger,
-            is_impact_query=is_impact,
-            target_entity_name=target_entity_name,
-            as_of_date=parsed_as_of_date
-        )
-        bundle.semantic_entities = semantic_results["entities"]
-        bundle.semantic_relationships = semantic_results["relationships"]
+        # Skip semantic memory query for aggregation queries - entities already populated
+        if not bundle.is_aggregation_query:
+            semantic_results = self._query_semantic_memory(
+                keywords, entity_types, traverse_depth, max_entities, query_logger,
+                is_impact_query=is_impact,
+                target_entity_name=target_entity_name,
+                as_of_date=parsed_as_of_date
+            )
+            bundle.semantic_entities = semantic_results["entities"]
+            bundle.semantic_relationships = semantic_results["relationships"]
+        else:
+            # For aggregation queries, semantic_entities was populated by _handle_entity_listing_query
+            semantic_results = {"entities": bundle.semantic_entities, "relationships": []}
         
         # Set blast radius entities for deterministic impact queries
         if "blast_radius_entities" in semantic_results:
@@ -617,7 +629,112 @@ class RetrievalAgent:
             if re.search(pattern, query_lower):
                 return True
         
+        # Entity listing/aggregation patterns - route to aggregation handler
+        if self._is_entity_listing_query(query_text):
+            return True
+        
         return False
+    
+    def _is_entity_listing_query(self, query_text: str) -> bool:
+        """
+        Detect if query is asking to list entities by type.
+        E.g., "List all PROCESS entities", "Show all ORGANIZATION entities"
+        """
+        query_lower = query_text.lower()
+        
+        listing_patterns = [
+            r'\b(list|show|display|get|find)\s+(all|the|every)\s+(\w+)\s+(entities|entity)',
+            r'\bwhat\s+(\w+)\s+(entities|entity)\s+(exist|are there|do we have)',
+            r'\bhow many\s+(\w+)\s+(entities|entity)',
+            r'\b(all|every)\s+(\w+)\s+(entities|entity)\s+in',
+        ]
+        
+        for pattern in listing_patterns:
+            if re.search(pattern, query_lower):
+                return True
+        
+        return False
+    
+    def _extract_entity_type_from_listing_query(self, query_text: str) -> Optional[str]:
+        """
+        Extract the entity type from a listing query.
+        E.g., "List all PROCESS entities" -> "PROCESS"
+        """
+        query_lower = query_text.lower()
+        
+        # Each pattern has the entity type in the last capturing group before 'entities'
+        patterns_with_type_index = [
+            # "list all PROCESS entities" - entity type is group 3
+            (r'\b(list|show|display|get|find)\s+(all|the|every)\s+(\w+)\s+(entities|entity)', 3),
+            # "what PROCESS entities exist" - entity type is group 1
+            (r'\bwhat\s+(\w+)\s+(entities|entity)\s+(exist|are there|do we have)', 1),
+            # "how many PROCESS entities" - entity type is group 1
+            (r'\bhow many\s+(\w+)\s+(entities|entity)', 1),
+            # "all PROCESS entities in" - entity type is group 2
+            (r'\b(all|every)\s+(\w+)\s+(entities|entity)\s+in', 2),
+        ]
+        
+        known_types = ['PERSON', 'ORGANIZATION', 'DOCUMENT', 'LOCATION', 
+                      'EVENT', 'CONCEPT', 'PROCESS', 'DATE', 'SERVICE',
+                      'DATABASE', 'TEAM', 'SYSTEM']
+        
+        for pattern, type_group_index in patterns_with_type_index:
+            match = re.search(pattern, query_lower)
+            if match:
+                entity_type = match.group(type_group_index).upper()
+                if entity_type in known_types:
+                    return entity_type
+        
+        return None
+    
+    def _handle_entity_listing_query(self, query_text: str, bundle: ContextBundle, 
+                                     query_logger: Optional[QueryLogger] = None) -> bool:
+        """
+        Handle entity listing queries by querying database directly.
+        Returns True if handled, False otherwise.
+        """
+        entity_type = self._extract_entity_type_from_listing_query(query_text)
+        if not entity_type:
+            return False
+        
+        try:
+            # Entity is already imported at module level from ..models.schema
+            entities = self.semantic.session.query(Entity).filter(
+                Entity.entity_type == entity_type,
+                Entity.lifecycle_state == 'TRUSTED'
+            ).order_by(Entity.name).limit(50).all()
+            
+            # Build semantic entities list for the bundle
+            entity_list = []
+            for e in entities:
+                entity_list.append({
+                    "id": str(e.id),
+                    "name": e.name,
+                    "entity_type": e.entity_type,
+                    "description": e.description or "",
+                    "lifecycle_state": e.lifecycle_state,
+                    "confidence": float(e.confidence) if e.confidence else 0.85
+                })
+            
+            bundle.semantic_entities = entity_list
+            bundle.is_aggregation_query = True
+            bundle.aggregation_type = entity_type
+            bundle.aggregation_count = len(entity_list)
+            bundle.target_entity_found = True  # We have results
+            
+            if query_logger:
+                query_logger.log_event("ENTITY_LISTING_QUERY", {
+                    "entity_type": entity_type,
+                    "count": len(entity_list),
+                    "entities": [e["name"] for e in entity_list[:10]]
+                })
+            
+            logger.info(f"Entity listing query: found {len(entity_list)} {entity_type} entities")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error in entity listing query: {e}")
+            return False
     
     def _is_edge_facing_entity(self, entity_name: str) -> bool:
         """Check if entity is edge-facing (receives external traffic)."""
