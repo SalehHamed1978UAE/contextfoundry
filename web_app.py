@@ -628,17 +628,48 @@ def landing():
     return render_template('landing.html')
 
 @app.route('/app')
+@app.route('/app/dashboard')
 def index():
-    """Internal admin app (Command Center SPA)."""
+    """Knowledge dashboard - main knowledge exploration interface."""
     import time
-    return render_template('index.html', active_page='dashboard', cache_bust=int(time.time()))
+    return render_template('index.html', 
+                         active_section='knowledge',
+                         active_page='dashboard',
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
 
-@app.route('/dashboard')
-def user_dashboard():
-    """User dashboard for authenticated users."""
-    if not session.get('user_id') or not session.get('tenant_id'):
-        return redirect(url_for('landing'))
-    
+@app.route('/app/memory-graph')
+def app_memory_graph():
+    """Knowledge - Memory Graph page."""
+    import time
+    return render_template('index.html',
+                         active_section='knowledge', 
+                         active_page='memory-graph',
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
+@app.route('/app/command-center')
+def app_command_center():
+    """Knowledge - Command Center page."""
+    import time
+    return render_template('index.html',
+                         active_section='knowledge',
+                         active_page='command-center',
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
+@app.route('/app/evaluation')
+def app_evaluation():
+    """Knowledge - A/B Evaluation page."""
+    import time
+    return render_template('index.html',
+                         active_section='knowledge',
+                         active_page='evaluation',
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
+def get_dashboard_context(active_page='upload'):
+    """Helper to get dashboard context with tenant info."""
     import psycopg2
     from psycopg2.extras import RealDictCursor
     
@@ -655,11 +686,43 @@ def user_dashboard():
     except Exception as e:
         logger.warning(f"Could not fetch tenant name: {e}")
     
-    return render_template('user_dashboard.html',
-                         tenant_id=session['tenant_id'],
-                         tenant_name=tenant_name,
-                         user_name=session.get('user_name', 'User'),
-                         user_email=session.get('user_email', ''))
+    return {
+        'tenant_id': session['tenant_id'],
+        'tenant_name': tenant_name,
+        'user_name': session.get('user_name', 'User'),
+        'user_email': session.get('user_email', ''),
+        'active_section': 'sources',
+        'active_page': active_page
+    }
+
+@app.route('/dashboard')
+@app.route('/dashboard/upload')
+def user_dashboard():
+    """Sources - Upload page (default dashboard)."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return redirect(url_for('landing'))
+    return render_template('user_dashboard.html', **get_dashboard_context('upload'))
+
+@app.route('/dashboard/connectors')
+def dashboard_connectors_page():
+    """Sources - Connectors page."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return redirect(url_for('landing'))
+    return render_template('user_dashboard.html', **get_dashboard_context('connectors'))
+
+@app.route('/dashboard/status')
+def dashboard_status_page():
+    """Sources - Status page."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return redirect(url_for('landing'))
+    return render_template('user_dashboard.html', **get_dashboard_context('status'))
+
+@app.route('/dashboard/api-keys')
+def dashboard_api_keys_page():
+    """Sources - API Keys page."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return redirect(url_for('landing'))
+    return render_template('user_dashboard.html', **get_dashboard_context('api-keys'))
 
 @app.route('/logout')
 def logout():

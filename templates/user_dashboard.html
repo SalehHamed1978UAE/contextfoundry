@@ -1,1485 +1,942 @@
-<!DOCTYPE html>
-<html lang="en" style="background-color: #1a1a2e; color-scheme: dark;">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="dark">
-    <meta name="theme-color" content="#1a1a2e">
-    <title>{{ tenant_name }} - Context Foundry</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
-    <style>
-        html, body {
-            background-color: #1a1a2e !important;
-            margin: 0;
-            padding: 0;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #1a1a2e;
-            color: #e0e0e0;
-            min-height: 100vh;
-            font-size: 16px;
-        }
-        
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            gap: 0.5rem;
-        }
-        
-        .unified-header {
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, rgba(26, 26, 46, 1) 100%);
-            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .logo-icon {
-            font-size: 1.5rem;
-        }
-        
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 0.05em;
-        }
-        
-        .module-nav {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .module-tab {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.5rem 1rem;
-            color: #a0a0a0;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .module-tab:hover {
-            color: #fff;
-            background: rgba(102, 126, 234, 0.15);
-        }
-        
-        .module-tab.active {
-            color: #fff;
-            background: rgba(102, 126, 234, 0.25);
-            border-bottom: 2px solid #667eea;
-        }
-        
-        .module-icon {
-            font-size: 1rem;
-        }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .user-name {
-            font-size: 0.875rem;
-            color: #a0a0a0;
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .logout-btn {
-            padding: 0.4rem 0.75rem;
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            color: #e0e0e0;
-            text-decoration: none;
-            font-size: 0.8rem;
-            transition: all 0.2s ease;
-        }
-        
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .space-bar {
-            width: 100%;
-            padding: 0.5rem 1rem;
-            background: rgba(102, 126, 234, 0.1);
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-            font-size: 0.8rem;
-            color: #667eea;
-        }
-        
-        .main-content {
-            padding: 1rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .section {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .section-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-            gap: 0.5rem;
-        }
-        
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #fff;
-        }
-        
-        .search-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1rem;
-        }
-        
-        .search-input::placeholder {
-            color: #666;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.25rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-        
-        .btn:hover {
-            opacity: 0.9;
-        }
-        
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        .btn-small {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8rem;
-        }
-        
-        .search-results {
-            margin-top: 0.75rem;
-            padding: 0.75rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .search-results.visible {
-            display: block;
-        }
-        
-        .result-item {
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
-        
-        .result-answer {
-            color: #fff;
-            margin-bottom: 0.5rem;
-            line-height: 1.5;
-            font-size: 0.9rem;
-        }
-        
-        .result-confidence {
-            font-size: 0.8rem;
-            color: #667eea;
-        }
-        
-        .result-sources {
-            font-size: 0.75rem;
-            color: #666;
-            margin-top: 0.5rem;
-        }
-        
-        .document-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        
-        .document-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.6rem 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            gap: 0.5rem;
-        }
-        
-        .document-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 0;
-            flex: 1;
-        }
-        
-        .document-icon {
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-        
-        .document-name {
-            font-weight: 500;
-            color: #fff;
-            font-size: 0.85rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .document-status {
-            font-size: 0.7rem;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-        
-        .status-extracted, .status-completed {
-            background: rgba(52, 211, 153, 0.2);
-            color: #34d399;
-        }
-        
-        .status-processing {
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-        }
-        
-        .status-pending {
-            background: rgba(156, 163, 175, 0.2);
-            color: #9ca3af;
-        }
-        
-        .status-failed {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 1.5rem 1rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .api-key-item {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.6rem 0.75rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-        
-        .api-key-value {
-            flex: 1;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: #888;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-width: 100px;
-        }
-        
-        .api-info {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 0.75rem;
-            line-height: 1.4;
-        }
-        
-        .upload-form {
-            display: none;
-            padding: 0.75rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-        }
-        
-        .upload-form.visible {
-            display: block;
-        }
-        
-        .file-input-wrapper {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .file-input {
-            font-size: 0.85rem;
-            color: #a0a0a0;
-        }
-        
-        .file-input::file-selector-button {
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            color: #fff;
-            cursor: pointer;
-            margin-right: 0.5rem;
-        }
-        
-        .drop-zone {
-            border: 2px dashed rgba(102, 126, 234, 0.5);
-            border-radius: 12px;
-            padding: 2rem 1rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 1rem;
-        }
-        
-        .drop-zone.drag-over {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-        
-        .drop-zone-icon {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .drop-zone-text {
-            color: #a0a0a0;
-            font-size: 0.9rem;
-        }
-        
-        .drop-zone-hint {
-            color: #666;
-            font-size: 0.75rem;
-            margin-top: 0.5rem;
-        }
-        
-        .upload-progress {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            padding: 0.75rem;
-            margin-top: 0.75rem;
-            display: none;
-        }
-        
-        .upload-progress.visible {
-            display: block;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-            width: 0%;
-        }
-        
-        .progress-text {
-            font-size: 0.8rem;
-            color: #a0a0a0;
-        }
-        
-        .upload-stats {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
-        }
-        
-        .stat-item {
-            color: #a0a0a0;
-        }
-        
-        .stat-value {
-            font-weight: 600;
-        }
-        
-        .stat-queued { color: #34d399; }
-        .stat-skipped { color: #fbbf24; }
-        .stat-duplicate { color: #9ca3af; }
-        
-        .knowledge-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .knowledge-stat {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 0.75rem;
-            text-align: center;
-        }
-        
-        .knowledge-stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #667eea;
-        }
-        
-        .knowledge-stat-label {
-            font-size: 0.75rem;
-            color: #888;
-            margin-top: 0.25rem;
-        }
-        
-        .graph-container {
-            height: 300px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            position: relative;
-        }
-        
-        .graph-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #888;
-            font-size: 0.9rem;
-        }
-        
-        .entity-list {
-            max-height: 250px;
-            overflow-y: auto;
-        }
-        
-        .entity-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.6rem 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .entity-item:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-        
-        .entity-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 0;
-            flex: 1;
-        }
-        
-        .entity-type-badge {
-            font-size: 0.65rem;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            background: rgba(102, 126, 234, 0.2);
-            color: #667eea;
-            flex-shrink: 0;
-        }
-        
-        .entity-name {
-            font-weight: 500;
-            color: #fff;
-            font-size: 0.85rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .entity-confidence {
-            font-size: 0.7rem;
-            color: #666;
-            flex-shrink: 0;
-        }
-        
-        .relationship-item {
-            padding: 0.6rem 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-        
-        .relationship-arrow {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #a0a0a0;
-        }
-        
-        .relationship-arrow .source,
-        .relationship-arrow .target {
-            color: #fff;
-        }
-        
-        .relationship-arrow .rel-type {
-            color: #667eea;
-            font-style: italic;
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            z-index: 1000;
-            padding: 1rem;
-            overflow-y: auto;
-        }
-        
-        .modal-overlay.visible {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding-top: 5vh;
-        }
-        
-        .modal {
-            background: #1a1a2e;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            max-width: 500px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .modal-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 1.5rem;
-            cursor: pointer;
-            line-height: 1;
-        }
-        
-        .modal-body {
-            padding: 1rem;
-        }
-        
-        .detail-row {
-            display: flex;
-            margin-bottom: 0.75rem;
-        }
-        
-        .detail-label {
-            width: 100px;
-            font-size: 0.8rem;
-            color: #888;
-            flex-shrink: 0;
-        }
-        
-        .detail-value {
-            flex: 1;
-            font-size: 0.9rem;
-            color: #fff;
-        }
-        
-        .related-list {
-            margin-top: 1rem;
-        }
-        
-        .related-list-title {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 0.5rem;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.5rem;
-        }
-        
-        .tab {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: none;
-            border-radius: 6px;
-            color: #a0a0a0;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-        
-        .tab.active {
-            background: rgba(102, 126, 234, 0.2);
-            color: #667eea;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .connector-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            gap: 0.5rem;
-        }
-        
-        .connector-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .connector-icon {
-            font-size: 1.5rem;
-        }
-        
-        .connector-details {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .connector-name {
-            font-weight: 500;
-            color: #fff;
-            font-size: 0.9rem;
-        }
-        
-        .connector-meta {
-            font-size: 0.75rem;
-            color: #666;
-        }
-        
-        .connector-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .connector-form {
-            display: none;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            margin-bottom: 1rem;
-        }
-        
-        .connector-form.visible {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 0.75rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 0.8rem;
-            color: #a0a0a0;
-            margin-bottom: 0.25rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.6rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            color: #fff;
-            font-size: 0.9rem;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .coming-soon {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .coming-soon-badge {
-            font-size: 0.65rem;
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            padding: 0.15rem 0.4rem;
-            border-radius: 4px;
-            margin-left: 0.5rem;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 1rem;
-            left: 1rem;
-            right: 1rem;
-            padding: 0.75rem 1rem;
-            background: #333;
-            border-radius: 8px;
-            color: #fff;
-            display: none;
-            z-index: 1000;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-        
-        .toast.success {
-            background: #10b981;
-        }
-        
-        .toast.error {
-            background: #ef4444;
-        }
-        
-        .toast.visible {
-            display: block;
-        }
-        
-        @media (min-width: 480px) {
-            .search-form {
-                flex-direction: row;
-            }
-            
-            .search-input {
-                flex: 1;
-            }
-            
-            .file-input-wrapper {
-                flex-direction: row;
-                align-items: center;
-            }
-            
-            .toast {
-                left: 50%;
-                right: auto;
-                transform: translateX(-50%);
-                max-width: 400px;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .unified-header {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
-                padding: 0.75rem 1rem;
-            }
-            
-            .header-left {
-                justify-content: center;
-            }
-            
-            .module-nav {
-                justify-content: center;
-                order: 3;
-            }
-            
-            .header-right {
-                justify-content: center;
-            }
-            
-            .module-tab {
-                padding: 0.4rem 0.75rem;
-                font-size: 0.85rem;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .header {
-                padding: 1rem 2rem;
-            }
-            
-            .logo {
-                font-size: 1.5rem;
-            }
-            
-            .main-content {
-                padding: 1.5rem;
-            }
-            
-            .section {
-                padding: 1.25rem;
-            }
-            
-            .user-name {
-                max-width: none;
-            }
-        }
-    </style>
-</head>
-<body style="background-color: #1a1a2e; margin: 0; padding: 0;">
-    <!-- Unified Header -->
-    <header class="header unified-header">
-        <div class="header-left">
-            <span class="logo-icon">&#x1F537;</span>
-            <span class="logo">CONTEXT FOUNDRY</span>
+{% extends "base_layout.html" %}
+
+{% block title %}{{ tenant_name }} - Context Foundry{% endblock %}
+
+{% block extra_styles %}
+.section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    color: var(--text-primary);
+    background: var(--accent-dim);
+}
+
+.tab.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.btn {
+    padding: 0.625rem 1rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: var(--bg-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-small {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.drop-zone {
+    border: 2px dashed var(--accent-glow);
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.drop-zone-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.drop-zone-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.drop-zone-hint {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.upload-progress {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+    display: none;
+}
+
+.upload-progress.visible {
+    display: block;
+}
+
+.progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.progress-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.upload-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.stat-item {
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+.stat-queued { color: var(--success); }
+.stat-skipped { color: #fbbf24; }
+.stat-duplicate { color: var(--text-muted); }
+
+.document-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.document-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.document-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
+}
+
+.document-icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.document-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.document-status {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.status-extracted, .status-completed {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--success);
+}
+
+.status-processing {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+}
+
+.status-pending {
+    background: rgba(148, 163, 184, 0.2);
+    color: var(--text-muted);
+}
+
+.status-failed {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.api-key-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.api-key-value {
+    flex: 1;
+    font-family: 'SF Mono', 'Consolas', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 100px;
+}
+
+.api-info {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    line-height: 1.4;
+}
+
+.connector-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.connector-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.connector-icon {
+    font-size: 1.5rem;
+}
+
+.connector-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.connector-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.connector-meta {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.connector-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.connector-form {
+    display: none;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.connector-form.visible {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 0.75rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.6rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.form-input::placeholder {
+    color: var(--text-muted);
+}
+
+.coming-soon {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.coming-soon-badge {
+    font-size: 0.65rem;
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+}
+
+.loading {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.toast {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.75rem 1.5rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    color: var(--text-primary);
+    display: none;
+    z-index: 1000;
+    font-size: 0.9rem;
+    text-align: center;
+    max-width: 400px;
+}
+
+.toast.success {
+    background: var(--success);
+}
+
+.toast.error {
+    background: #ef4444;
+}
+
+.toast.visible {
+    display: block;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+.space-bar {
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--accent-dim);
+    border-radius: 6px;
+    display: inline-block;
+}
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Sources</h1>
+<div class="space-bar">{{ tenant_name }}'s Space</div>
+
+<section class="section">
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('upload')">Upload</button>
+        <button class="tab" onclick="switchTab('connectors')">Connectors</button>
+        <button class="tab" onclick="switchTab('status')">Status</button>
+        <button class="tab" onclick="switchTab('apikeys')">API Keys</button>
+    </div>
+    
+    <div class="tab-content active" id="tab-upload">
+        <form action="/dashboard/upload/multi" method="POST" enctype="multipart/form-data" style="margin-bottom: 1rem;">
+            <input type="file" name="files" multiple 
+                   accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip"
+                   style="margin-bottom: 0.5rem; color: var(--text-secondary);">
+            <button type="submit" class="btn">Upload</button>
+        </form>
+        
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
+            <div class="drop-zone-icon">📁</div>
+            <div class="drop-zone-text">Or drag & drop files here</div>
+            <div class="drop-zone-hint">Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML (max 50MB each)</div>
         </div>
-        <nav class="module-nav">
-            <a href="/dashboard" class="module-tab active" title="Sources - Upload and manage your documents">
-                <span class="module-icon">&#x1F4E5;</span>
-                <span class="module-name">Sources</span>
-            </a>
-            <a href="https://context-foundry.replit.app" class="module-tab" title="Knowledge - Explore your knowledge graph">
-                <span class="module-icon">&#x1F9E0;</span>
-                <span class="module-name">Knowledge</span>
-            </a>
-        </nav>
-        <div class="header-right">
-            <span class="user-name">{{ user_name }}</span>
-            <a href="/logout" class="logout-btn">Logout</a>
+        <input type="file" id="multiFileInput" multiple hidden 
+               accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip">
+        
+        <div class="upload-progress" id="uploadProgress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Uploading...</div>
+            <div class="upload-stats" id="uploadStats"></div>
         </div>
-    </header>
+    </div>
     
-    <div class="space-bar">{{ tenant_name }}'s Space</div>
+    <div class="tab-content" id="tab-connectors">
+        <div style="margin-bottom: 0.75rem;">
+            <button class="btn btn-small" onclick="showConnectorForm('s3')">+ AWS S3</button>
+            <button class="btn btn-small coming-soon" disabled>+ Google Drive<span class="coming-soon-badge">Soon</span></button>
+            <button class="btn btn-small coming-soon" disabled>+ Dropbox<span class="coming-soon-badge">Soon</span></button>
+            <button class="btn btn-small coming-soon" disabled>+ OneDrive<span class="coming-soon-badge">Soon</span></button>
+        </div>
+        
+        <div class="connector-form" id="s3ConnectorForm">
+            <h4 style="color: var(--text-primary); font-size: 0.9rem; margin-bottom: 0.75rem;">Connect AWS S3 Bucket</h4>
+            <div class="form-group">
+                <label class="form-label">Connector Name</label>
+                <input type="text" class="form-input" id="s3Name" placeholder="My S3 Bucket">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Access Key ID</label>
+                <input type="text" class="form-input" id="s3AccessKey" placeholder="AKIA...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Secret Access Key</label>
+                <input type="password" class="form-input" id="s3SecretKey" placeholder="Secret key">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Bucket Name</label>
+                <input type="text" class="form-input" id="s3Bucket" placeholder="my-bucket">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Prefix (optional)</label>
+                <input type="text" class="form-input" id="s3Prefix" placeholder="documents/">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Region</label>
+                <input type="text" class="form-input" id="s3Region" placeholder="us-east-1" value="us-east-1">
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-small" onclick="createS3Connector()" id="s3ConnectBtn">Connect</button>
+                <button class="btn btn-secondary btn-small" onclick="hideConnectorForm()">Cancel</button>
+            </div>
+        </div>
+        
+        <div id="connectorsList">
+            <div class="empty-state">Loading connectors...</div>
+        </div>
+    </div>
     
-    <main class="main-content">
-        <section class="section">
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('upload')">Upload</button>
-                <button class="tab" onclick="switchTab('connectors')">Connectors</button>
-                <button class="tab" onclick="switchTab('status')">Status</button>
-                <button class="tab" onclick="switchTab('apikeys')">API Keys</button>
-            </div>
-            
-            <div class="tab-content active" id="tab-upload">
-                <!-- Simple HTML form for mobile compatibility -->
-                <form action="/dashboard/upload/multi" method="POST" enctype="multipart/form-data" style="margin-bottom: 1rem;">
-                    <input type="file" name="files" multiple 
-                           accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip"
-                           style="margin-bottom: 0.5rem;">
-                    <button type="submit" class="btn">Upload</button>
-                </form>
-                
-                <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
-                    <div class="drop-zone-icon">📁</div>
-                    <div class="drop-zone-text">Or drag & drop files here</div>
-                    <div class="drop-zone-hint">Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML (max 50MB each)</div>
-                </div>
-                <input type="file" id="multiFileInput" multiple hidden 
-                       accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip">
-                
-                <div class="upload-progress" id="uploadProgress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-text" id="progressText">Uploading...</div>
-                    <div class="upload-stats" id="uploadStats"></div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="tab-connectors">
-                <div style="margin-bottom: 0.75rem;">
-                    <button class="btn btn-small" onclick="showConnectorForm('s3')">+ AWS S3</button>
-                    <button class="btn btn-small coming-soon" disabled>+ Google Drive<span class="coming-soon-badge">Soon</span></button>
-                    <button class="btn btn-small coming-soon" disabled>+ Dropbox<span class="coming-soon-badge">Soon</span></button>
-                    <button class="btn btn-small coming-soon" disabled>+ OneDrive<span class="coming-soon-badge">Soon</span></button>
-                </div>
-                
-                <div class="connector-form" id="s3ConnectorForm">
-                    <h4 style="color: #fff; font-size: 0.9rem; margin-bottom: 0.75rem;">Connect AWS S3 Bucket</h4>
-                    <div class="form-group">
-                        <label class="form-label">Connector Name</label>
-                        <input type="text" class="form-input" id="s3Name" placeholder="My S3 Bucket">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Access Key ID</label>
-                        <input type="text" class="form-input" id="s3AccessKey" placeholder="AKIA...">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Secret Access Key</label>
-                        <input type="password" class="form-input" id="s3SecretKey" placeholder="Secret key">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Bucket Name</label>
-                        <input type="text" class="form-input" id="s3Bucket" placeholder="my-bucket">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Prefix (optional)</label>
-                        <input type="text" class="form-input" id="s3Prefix" placeholder="documents/">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Region</label>
-                        <input type="text" class="form-input" id="s3Region" placeholder="us-east-1" value="us-east-1">
-                    </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-small" onclick="createS3Connector()" id="s3ConnectBtn">Connect</button>
-                        <button class="btn btn-secondary btn-small" onclick="hideConnectorForm()">Cancel</button>
-                    </div>
-                </div>
-                
-                <div id="connectorsList">
-                    <div class="empty-state">Loading connectors...</div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="tab-status">
-                <div class="document-list" id="documentList">
-                    <div class="empty-state">Loading...</div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="tab-apikeys">
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem;">
-                    <button class="btn btn-secondary btn-small" onclick="createApiKey()">+ New Key</button>
-                </div>
-                
-                <div id="apiKeysList">
-                    <div class="empty-state">Loading...</div>
-                </div>
-                
-                <p class="api-info">
-                    Use API keys with Claude, ChatGPT, or any MCP-compatible AI agent.
-                </p>
-            </div>
-        </section>
-    </main>
+    <div class="tab-content" id="tab-status">
+        <div class="document-list" id="documentList">
+            <div class="empty-state">Loading...</div>
+        </div>
+    </div>
     
-    <div class="toast" id="toast"></div>
+    <div class="tab-content" id="tab-apikeys">
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem;">
+            <button class="btn btn-secondary btn-small" onclick="createApiKey()">+ New Key</button>
+        </div>
+        
+        <div id="apiKeysList">
+            <div class="empty-state">Loading...</div>
+        </div>
+        
+        <p class="api-info">
+            Use API keys with Claude, ChatGPT, or any MCP-compatible AI agent.
+        </p>
+    </div>
+</section>
+
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+const tenantId = '{{ tenant_id }}';
+const activePage = '{{ active_page }}';
+
+// Auto-switch to correct tab based on active_page from route
+document.addEventListener('DOMContentLoaded', function() {
+    const tabMap = {
+        'upload': 'tab-upload',
+        'connectors': 'tab-connectors', 
+        'status': 'tab-status',
+        'api-keys': 'tab-apikeys'
+    };
     
+    const tabName = activePage || 'upload';
+    const tabId = tabMap[tabName];
     
-    <script>
-        const tenantId = '{{ tenant_id }}';
+    if (tabId) {
+        // Activate the correct tab
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast visible ' + type;
-            setTimeout(() => toast.classList.remove('visible'), 3000);
-        }
+        // Find and activate the matching tab button
+        const tabButton = document.querySelector(`.tab[onclick*="${tabName === 'api-keys' ? 'apikeys' : tabName}"]`);
+        if (tabButton) tabButton.classList.add('active');
         
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        const tabContent = document.getElementById(tabId);
+        if (tabContent) tabContent.classList.add('active');
         
-        async function handleSearch(event) {
-            event.preventDefault();
-            const query = document.getElementById('searchQuery').value.trim();
-            if (!query) return;
+        // Load data for the tab
+        if (tabName === 'status') loadDocuments();
+        if (tabName === 'connectors') loadConnectors();
+        if (tabName === 'api-keys') loadApiKeys();
+    }
+});
+
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast visible ' + type;
+    setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+    
+    if (tabName === 'status') loadDocuments();
+    if (tabName === 'connectors') loadConnectors();
+    if (tabName === 'apikeys') loadApiKeys();
+}
+
+const dropZone = document.getElementById('dropZone');
+const multiFileInput = document.getElementById('multiFileInput');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+});
+
+dropZone.addEventListener('drop', handleDrop, false);
+multiFileInput.addEventListener('change', handleFileSelect, false);
+
+function handleDrop(e) {
+    const files = e.dataTransfer.files;
+    handleFiles(files);
+}
+
+function handleFileSelect(e) {
+    const files = e.target.files;
+    handleFiles(files);
+}
+
+async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    
+    const progress = document.getElementById('uploadProgress');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const uploadStats = document.getElementById('uploadStats');
+    
+    progress.classList.add('visible');
+    progressFill.style.width = '0%';
+    progressText.textContent = 'Preparing upload...';
+    uploadStats.innerHTML = '';
+    
+    const fileList = Array.from(files);
+    const isZip = fileList.length === 1 && fileList[0].name.toLowerCase().endsWith('.zip');
+    
+    try {
+        const formData = new FormData();
+        
+        if (isZip) {
+            formData.append('file', fileList[0]);
+            progressText.textContent = 'Uploading ZIP file...';
+            progressFill.style.width = '50%';
             
-            const btn = document.getElementById('searchBtn');
-            const results = document.getElementById('searchResults');
+            const response = await fetch('/dashboard/upload/zip', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
             
-            btn.innerHTML = '<span class="loading"></span>';
-            btn.disabled = true;
-            results.classList.add('visible');
-            results.innerHTML = '<div class="empty-state">Searching...</div>';
+            const data = await response.json();
+            progressFill.style.width = '100%';
             
-            try {
-                const response = await fetch('/dashboard/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    if (data.answer) {
-                        results.innerHTML = `
-                            <div class="result-item">
-                                <div class="result-answer">${escapeHtml(data.answer)}</div>
-                                <div class="result-confidence">Confidence: ${Math.round((data.confidence || 0) * 100)}%</div>
-                                ${data.sources && data.sources.length ? `<div class="result-sources">Sources: ${data.sources.map(s => escapeHtml(s)).join(', ')}</div>` : ''}
-                            </div>
-                        `;
-                    } else {
-                        results.innerHTML = '<div class="empty-state">No results found.</div>';
-                    }
-                } else {
-                    results.innerHTML = `<div class="empty-state">${escapeHtml(data.error || 'Search failed')}</div>`;
-                }
-            } catch (err) {
-                results.innerHTML = '<div class="empty-state">Search failed.</div>';
-            } finally {
-                btn.innerHTML = 'Search';
-                btn.disabled = false;
-            }
-        }
-        
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('tab-' + tabName).classList.add('active');
-            
-            if (tabName === 'status') loadDocuments();
-            if (tabName === 'connectors') loadConnectors();
-            if (tabName === 'apikeys') loadApiKeys();
-        }
-        
-        const dropZone = document.getElementById('dropZone');
-        const multiFileInput = document.getElementById('multiFileInput');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
-        });
-        
-        dropZone.addEventListener('drop', handleDrop, false);
-        multiFileInput.addEventListener('change', handleFileSelect, false);
-        
-        function handleDrop(e) {
-            const files = e.dataTransfer.files;
-            handleFiles(files);
-        }
-        
-        function handleFileSelect(e) {
-            const files = e.target.files;
-            handleFiles(files);
-        }
-        
-        async function handleFiles(files) {
-            if (!files || files.length === 0) return;
-            
-            const progress = document.getElementById('uploadProgress');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            const uploadStats = document.getElementById('uploadStats');
-            
-            progress.classList.add('visible');
-            progressFill.style.width = '0%';
-            progressText.textContent = 'Preparing upload...';
-            uploadStats.innerHTML = '';
-            
-            const fileList = Array.from(files);
-            const isZip = fileList.length === 1 && fileList[0].name.toLowerCase().endsWith('.zip');
-            
-            try {
-                const formData = new FormData();
-                
-                if (isZip) {
-                    formData.append('file', fileList[0]);
-                    progressText.textContent = 'Uploading ZIP file...';
-                    progressFill.style.width = '50%';
-                    
-                    const response = await fetch('/dashboard/upload/zip', {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'include'
-                    });
-                    
-                    const data = await response.json();
-                    progressFill.style.width = '100%';
-                    
-                    if (data.success) {
-                        const s = data.summary;
-                        progressText.textContent = 'Upload complete!';
-                        uploadStats.innerHTML = `
-                            <span class="stat-item"><span class="stat-value stat-queued">${s.queued}</span> queued</span>
-                            <span class="stat-item"><span class="stat-value stat-skipped">${s.skipped}</span> skipped</span>
-                            <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
-                        `;
-                        showToast(`Imported ${s.queued} files from ZIP`, 'success');
-                    } else {
-                        progressText.textContent = 'Upload failed';
-                        showToast(data.error || 'Upload failed', 'error');
-                    }
-                } else {
-                    fileList.forEach(file => formData.append('files', file));
-                    progressText.textContent = `Uploading ${fileList.length} file(s)...`;
-                    progressFill.style.width = '50%';
-                    
-                    const response = await fetch('/dashboard/upload/multi', {
-                        method: 'POST',
-                        body: formData,
-                        credentials: 'include'
-                    });
-                    
-                    const data = await response.json();
-                    progressFill.style.width = '100%';
-                    
-                    if (data.success) {
-                        const s = data.summary;
-                        progressText.textContent = 'Upload complete!';
-                        uploadStats.innerHTML = `
-                            <span class="stat-item"><span class="stat-value stat-queued">${s.queued}</span> queued</span>
-                            <span class="stat-item"><span class="stat-value stat-skipped">${s.skipped}</span> skipped</span>
-                            <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
-                        `;
-                        showToast(`Uploaded ${s.queued} file(s)`, 'success');
-                    } else {
-                        progressText.textContent = 'Upload failed';
-                        showToast(data.error || 'Upload failed', 'error');
-                    }
-                }
-                
-                multiFileInput.value = '';
-                
-            } catch (err) {
+            if (data.success) {
+                const s = data.summary;
+                progressText.textContent = 'Upload complete!';
+                uploadStats.innerHTML = `
+                    <span class="stat-item"><span class="stat-value stat-queued">${s.queued}</span> queued</span>
+                    <span class="stat-item"><span class="stat-value stat-skipped">${s.skipped}</span> skipped</span>
+                    <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
+                `;
+                showToast(`Imported ${s.queued} files from ZIP`, 'success');
+            } else {
                 progressText.textContent = 'Upload failed';
-                showToast('Upload failed', 'error');
+                showToast(data.error || 'Upload failed', 'error');
             }
+        } else {
+            fileList.forEach(file => formData.append('files', file));
+            progressText.textContent = `Uploading ${fileList.length} file(s)...`;
+            progressFill.style.width = '50%';
             
-            setTimeout(() => progress.classList.remove('visible'), 5000);
-        }
-        
-        function showConnectorForm(type) {
-            document.querySelectorAll('.connector-form').forEach(f => f.classList.remove('visible'));
-            document.getElementById(type + 'ConnectorForm').classList.add('visible');
-        }
-        
-        function hideConnectorForm() {
-            document.querySelectorAll('.connector-form').forEach(f => f.classList.remove('visible'));
-        }
-        
-        async function createS3Connector() {
-            const btn = document.getElementById('s3ConnectBtn');
-            btn.innerHTML = '<span class="loading"></span>';
-            btn.disabled = true;
+            const response = await fetch('/dashboard/upload/multi', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
             
-            try {
-                const response = await fetch('/dashboard/connectors', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 's3',
-                        name: document.getElementById('s3Name').value || 'S3 Bucket',
-                        config: {
-                            access_key_id: document.getElementById('s3AccessKey').value,
-                            secret_access_key: document.getElementById('s3SecretKey').value,
-                            bucket_name: document.getElementById('s3Bucket').value,
-                            prefix: document.getElementById('s3Prefix').value,
-                            region: document.getElementById('s3Region').value || 'us-east-1'
-                        }
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showToast('S3 connected!', 'success');
-                    hideConnectorForm();
-                    loadConnectors();
-                    ['s3Name', 's3AccessKey', 's3SecretKey', 's3Bucket', 's3Prefix'].forEach(id => {
-                        document.getElementById(id).value = '';
-                    });
-                } else {
-                    showToast(data.error || 'Connection failed', 'error');
-                }
-            } catch (err) {
-                showToast('Connection failed', 'error');
-            } finally {
-                btn.innerHTML = 'Connect';
-                btn.disabled = false;
-            }
-        }
-        
-        async function loadConnectors() {
-            const list = document.getElementById('connectorsList');
+            const data = await response.json();
+            progressFill.style.width = '100%';
             
-            try {
-                const response = await fetch('/dashboard/connectors', { credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success && data.connectors && data.connectors.length > 0) {
-                    list.innerHTML = data.connectors.map(c => `
-                        <div class="connector-item">
-                            <div class="connector-info">
-                                <span class="connector-icon">${c.type === 's3' ? '☁️' : '📂'}</span>
-                                <div class="connector-details">
-                                    <div class="connector-name">${escapeHtml(c.name)}</div>
-                                    <div class="connector-meta">${c.documents_processed} docs synced${c.last_sync_at ? ' • Last sync: ' + new Date(c.last_sync_at).toLocaleDateString() : ''}</div>
-                                </div>
-                            </div>
-                            <div class="connector-actions">
-                                <button class="btn btn-small" onclick="syncConnector('${c.id}', this)">Sync</button>
-                                <button class="btn btn-secondary btn-small" onclick="deleteConnector('${c.id}')">Remove</button>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    list.innerHTML = '<div class="empty-state">No connectors configured. Add one above to sync documents from cloud storage.</div>';
-                }
-            } catch (err) {
-                list.innerHTML = '<div class="empty-state">Failed to load connectors.</div>';
+            if (data.success) {
+                const s = data.summary;
+                progressText.textContent = 'Upload complete!';
+                uploadStats.innerHTML = `
+                    <span class="stat-item"><span class="stat-value stat-queued">${s.queued}</span> queued</span>
+                    <span class="stat-item"><span class="stat-value stat-skipped">${s.skipped}</span> skipped</span>
+                    <span class="stat-item"><span class="stat-value stat-duplicate">${s.duplicates}</span> duplicates</span>
+                `;
+                showToast(`Uploaded ${s.queued} file(s)`, 'success');
+            } else {
+                progressText.textContent = 'Upload failed';
+                showToast(data.error || 'Upload failed', 'error');
             }
         }
         
-        async function syncConnector(connectorId, btn) {
-            btn.innerHTML = '<span class="loading"></span>';
-            btn.disabled = true;
-            
-            try {
-                const response = await fetch(`/dashboard/connectors/${connectorId}/sync`, { method: 'POST', credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success) {
-                    const r = data.results;
-                    showToast(`Synced ${r.queued} files (${r.duplicates} duplicates, ${r.failed} failed)`, 'success');
-                    loadConnectors();
-                } else {
-                    showToast(data.error || 'Sync failed', 'error');
+        multiFileInput.value = '';
+        
+    } catch (err) {
+        progressText.textContent = 'Upload failed';
+        showToast('Upload failed', 'error');
+    }
+    
+    setTimeout(() => progress.classList.remove('visible'), 5000);
+}
+
+function showConnectorForm(type) {
+    document.querySelectorAll('.connector-form').forEach(f => f.classList.remove('visible'));
+    document.getElementById(type + 'ConnectorForm').classList.add('visible');
+}
+
+function hideConnectorForm() {
+    document.querySelectorAll('.connector-form').forEach(f => f.classList.remove('visible'));
+}
+
+async function createS3Connector() {
+    const btn = document.getElementById('s3ConnectBtn');
+    btn.innerHTML = '<span class="loading"></span>';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch('/dashboard/connectors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 's3',
+                name: document.getElementById('s3Name').value || 'S3 Bucket',
+                config: {
+                    access_key_id: document.getElementById('s3AccessKey').value,
+                    secret_access_key: document.getElementById('s3SecretKey').value,
+                    bucket_name: document.getElementById('s3Bucket').value,
+                    prefix: document.getElementById('s3Prefix').value,
+                    region: document.getElementById('s3Region').value || 'us-east-1'
                 }
-            } catch (err) {
-                showToast('Sync failed', 'error');
-            } finally {
-                btn.innerHTML = 'Sync';
-                btn.disabled = false;
-            }
-        }
-        
-        async function deleteConnector(connectorId) {
-            if (!confirm('Remove this connector?')) return;
-            
-            try {
-                const response = await fetch(`/dashboard/connectors/${connectorId}`, { method: 'DELETE', credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showToast('Connector removed', 'success');
-                    loadConnectors();
-                } else {
-                    showToast(data.error || 'Failed', 'error');
-                }
-            } catch (err) {
-                showToast('Failed to remove', 'error');
-            }
-        }
-        
-        async function loadDocuments() {
-            const list = document.getElementById('documentList');
-            
-            try {
-                const response = await fetch('/dashboard/documents', { credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success && data.documents && data.documents.length > 0) {
-                    list.innerHTML = data.documents.map(doc => `
-                        <div class="document-item">
-                            <div class="document-info">
-                                <span class="document-icon">📄</span>
-                                <span class="document-name">${escapeHtml(doc.name || 'Unknown')}</span>
-                            </div>
-                            <span class="document-status status-${doc.status || 'pending'}">${formatStatus(doc.status)}</span>
-                        </div>
-                    `).join('');
-                } else {
-                    list.innerHTML = '<div class="empty-state">No documents yet. Upload your first!</div>';
-                }
-            } catch (err) {
-                list.innerHTML = '<div class="empty-state">Failed to load documents.</div>';
-            }
-        }
-        
-        function formatStatus(status) {
-            const map = {
-                'extracted': 'Done',
-                'completed': 'Done',
-                'processing': 'Processing',
-                'pending': 'Pending',
-                'failed': 'Failed'
-            };
-            return map[status] || status || 'Pending';
-        }
-        
-        async function loadApiKeys() {
-            const list = document.getElementById('apiKeysList');
-            
-            try {
-                const response = await fetch('/dashboard/api-keys', { credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success && data.keys && data.keys.length > 0) {
-                    list.innerHTML = data.keys.map(key => `
-                        <div class="api-key-item">
-                            <span class="api-key-value">${escapeHtml(key.key_prefix || key.name)}...</span>
-                            <button class="btn btn-secondary btn-small" onclick="revokeKey('${key.id}')">Revoke</button>
-                        </div>
-                    `).join('');
-                } else {
-                    list.innerHTML = '<div class="empty-state">No API keys yet.</div>';
-                }
-            } catch (err) {
-                list.innerHTML = '<div class="empty-state">Failed to load keys.</div>';
-            }
-        }
-        
-        async function createApiKey() {
-            try {
-                const response = await fetch('/dashboard/api-keys', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'Dashboard Key', scopes: ['read', 'write'] }),
-                    credentials: 'include'
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showToast('Key created!', 'success');
-                    prompt('Copy your API key (won\'t be shown again):', data.api_key);
-                    loadApiKeys();
-                } else {
-                    showToast(data.error || 'Failed', 'error');
-                }
-            } catch (err) {
-                showToast('Failed to create key', 'error');
-            }
-        }
-        
-        async function revokeKey(keyId) {
-            if (!confirm('Revoke this key?')) return;
-            
-            try {
-                const response = await fetch(`/dashboard/api-keys/${keyId}`, { method: 'DELETE', credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success) {
-                    showToast('Key revoked', 'success');
-                    loadApiKeys();
-                } else {
-                    showToast(data.error || 'Failed', 'error');
-                }
-            } catch (err) {
-                showToast('Failed to revoke', 'error');
-            }
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            loadDocuments();
-            loadApiKeys();
+            })
         });
-    </script>
-</body>
-</html>
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('S3 connected!', 'success');
+            hideConnectorForm();
+            loadConnectors();
+            ['s3Name', 's3AccessKey', 's3SecretKey', 's3Bucket', 's3Prefix'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+        } else {
+            showToast(data.error || 'Connection failed', 'error');
+        }
+    } catch (err) {
+        showToast('Connection failed', 'error');
+    } finally {
+        btn.innerHTML = 'Connect';
+        btn.disabled = false;
+    }
+}
+
+async function loadConnectors() {
+    const list = document.getElementById('connectorsList');
+    
+    try {
+        const response = await fetch('/dashboard/connectors', { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success && data.connectors && data.connectors.length > 0) {
+            list.innerHTML = data.connectors.map(c => `
+                <div class="connector-item">
+                    <div class="connector-info">
+                        <span class="connector-icon">${c.type === 's3' ? '☁️' : '📂'}</span>
+                        <div class="connector-details">
+                            <div class="connector-name">${escapeHtml(c.name)}</div>
+                            <div class="connector-meta">${c.documents_processed} docs synced${c.last_sync_at ? ' • Last sync: ' + new Date(c.last_sync_at).toLocaleDateString() : ''}</div>
+                        </div>
+                    </div>
+                    <div class="connector-actions">
+                        <button class="btn btn-small" onclick="syncConnector('${c.id}', this)">Sync</button>
+                        <button class="btn btn-secondary btn-small" onclick="deleteConnector('${c.id}')">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            list.innerHTML = '<div class="empty-state">No connectors configured. Add one above to sync documents from cloud storage.</div>';
+        }
+    } catch (err) {
+        list.innerHTML = '<div class="empty-state">Failed to load connectors.</div>';
+    }
+}
+
+async function syncConnector(connectorId, btn) {
+    btn.innerHTML = '<span class="loading"></span>';
+    btn.disabled = true;
+    
+    try {
+        const response = await fetch(`/dashboard/connectors/${connectorId}/sync`, { method: 'POST', credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success) {
+            const r = data.results;
+            showToast(`Synced ${r.queued} files (${r.duplicates} duplicates, ${r.failed} failed)`, 'success');
+            loadConnectors();
+        } else {
+            showToast(data.error || 'Sync failed', 'error');
+        }
+    } catch (err) {
+        showToast('Sync failed', 'error');
+    } finally {
+        btn.innerHTML = 'Sync';
+        btn.disabled = false;
+    }
+}
+
+async function deleteConnector(connectorId) {
+    if (!confirm('Remove this connector?')) return;
+    
+    try {
+        const response = await fetch(`/dashboard/connectors/${connectorId}`, { method: 'DELETE', credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Connector removed', 'success');
+            loadConnectors();
+        } else {
+            showToast(data.error || 'Failed', 'error');
+        }
+    } catch (err) {
+        showToast('Failed to remove', 'error');
+    }
+}
+
+async function loadDocuments() {
+    const list = document.getElementById('documentList');
+    
+    try {
+        const response = await fetch('/dashboard/documents', { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success && data.documents && data.documents.length > 0) {
+            list.innerHTML = data.documents.map(doc => `
+                <div class="document-item">
+                    <div class="document-info">
+                        <span class="document-icon">📄</span>
+                        <span class="document-name">${escapeHtml(doc.name || 'Unknown')}</span>
+                    </div>
+                    <span class="document-status status-${doc.status || 'pending'}">${formatStatus(doc.status)}</span>
+                </div>
+            `).join('');
+        } else {
+            list.innerHTML = '<div class="empty-state">No documents yet. Upload your first!</div>';
+        }
+    } catch (err) {
+        list.innerHTML = '<div class="empty-state">Failed to load documents.</div>';
+    }
+}
+
+function formatStatus(status) {
+    const map = {
+        'extracted': 'Done',
+        'completed': 'Done',
+        'processing': 'Processing',
+        'pending': 'Pending',
+        'failed': 'Failed'
+    };
+    return map[status] || status || 'Pending';
+}
+
+async function loadApiKeys() {
+    const list = document.getElementById('apiKeysList');
+    
+    try {
+        const response = await fetch('/dashboard/api-keys', { credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success && data.keys && data.keys.length > 0) {
+            list.innerHTML = data.keys.map(key => `
+                <div class="api-key-item">
+                    <span class="api-key-value">${escapeHtml(key.key_prefix || key.name)}...</span>
+                    <button class="btn btn-secondary btn-small" onclick="revokeKey('${key.id}')">Revoke</button>
+                </div>
+            `).join('');
+        } else {
+            list.innerHTML = '<div class="empty-state">No API keys yet.</div>';
+        }
+    } catch (err) {
+        list.innerHTML = '<div class="empty-state">Failed to load keys.</div>';
+    }
+}
+
+async function createApiKey() {
+    try {
+        const response = await fetch('/dashboard/api-keys', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: 'Dashboard Key', scopes: ['read', 'write'] }),
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Key created!', 'success');
+            prompt('Copy your API key (won\'t be shown again):', data.api_key);
+            loadApiKeys();
+        } else {
+            showToast(data.error || 'Failed', 'error');
+        }
+    } catch (err) {
+        showToast('Failed to create key', 'error');
+    }
+}
+
+async function revokeKey(keyId) {
+    if (!confirm('Revoke this key?')) return;
+    
+    try {
+        const response = await fetch(`/dashboard/api-keys/${keyId}`, { method: 'DELETE', credentials: 'include' });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('Key revoked', 'success');
+            loadApiKeys();
+        } else {
+            showToast(data.error || 'Failed', 'error');
+        }
+    } catch (err) {
+        showToast('Failed to revoke', 'error');
+    }
+}
+{% endblock %}
