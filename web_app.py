@@ -919,7 +919,7 @@ def api_document_details(doc_id):
         with psycopg2.connect(database_url) as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
-                    SELECT id, original_filename, status, mime_type, file_size, created_at,
+                    SELECT id, original_filename, status, mime_type, created_at,
                            extraction_method, extraction_metrics, published
                     FROM platform.documents 
                     WHERE id = %s AND tenant_id = %s
@@ -958,7 +958,6 @@ def api_document_details(doc_id):
             'name': doc['original_filename'],
             'status': doc['status'],
             'file_type': file_type,
-            'file_size': doc['file_size'],
             'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
             'extraction_method': doc['extraction_method'] or 'text',
             'extraction_metrics': doc['extraction_metrics'] or {},
