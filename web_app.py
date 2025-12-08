@@ -661,6 +661,34 @@ def user_dashboard():
                          user_name=session.get('user_name', 'User'),
                          user_email=session.get('user_email', ''))
 
+@app.route('/knowledge')
+def knowledge_dashboard():
+    """Knowledge dashboard for exploring entities, relationships, and querying."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return redirect(url_for('landing'))
+    
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    tenant_name = session.get('user_name', 'My') + "'s Space"
+    
+    try:
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT name FROM platform.tenants WHERE id = %s", (session['tenant_id'],))
+                tenant = cur.fetchone()
+                if tenant:
+                    tenant_name = tenant['name']
+    except Exception as e:
+        logger.warning(f"Could not fetch tenant name: {e}")
+    
+    return render_template('knowledge_dashboard.html',
+                         tenant_id=session['tenant_id'],
+                         tenant_name=tenant_name,
+                         user_name=session.get('user_name', 'User'),
+                         user_email=session.get('user_email', ''))
+
 @app.route('/logout')
 def logout():
     """Clear session and redirect to landing."""
