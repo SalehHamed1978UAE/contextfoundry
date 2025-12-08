@@ -790,7 +790,10 @@ async function handleFiles(files) {
             const response = await fetch('/dashboard/upload/multi', {
                 method: 'POST',
                 body: formData,
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
             });
             
             const data = await response.json();

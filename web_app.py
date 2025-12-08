@@ -951,14 +951,14 @@ def dashboard_upload_multi():
     print("=== MULTI UPLOAD STARTED ===")
     print(f"Step 0: Session check - user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
     
-    # Detect if this is a form submission (not AJAX)
-    is_form_submit = request.headers.get('Accept', '').startswith('text/html') or \
-                     'XMLHttpRequest' not in request.headers.get('X-Requested-With', '')
-    print(f"Step 0: is_form_submit={is_form_submit}")
+    # Detect if this is an AJAX request (expects JSON response)
+    is_ajax = 'application/json' in request.headers.get('Accept', '') or \
+              request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    print(f"Step 0: is_ajax={is_ajax}")
     
     if not session.get('user_id') or not session.get('tenant_id'):
         print("=== MULTI UPLOAD FAILED: No auth ===")
-        if is_form_submit:
+        if not is_ajax:
             return redirect('/dashboard?error=auth')
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
@@ -1082,7 +1082,7 @@ def dashboard_upload_multi():
         
         print(f"=== MULTI UPLOAD SUCCESS: queued={queued}, skipped={skipped}, duplicates={duplicates} ===")
         
-        if is_form_submit:
+        if not is_ajax:
             return redirect(f'/dashboard?uploaded={queued}&skipped={skipped}&duplicates={duplicates}')
         
         return jsonify({
@@ -1094,7 +1094,7 @@ def dashboard_upload_multi():
     except Exception as e:
         print(f"=== MULTI UPLOAD EXCEPTION: {e} ===")
         traceback.print_exc()
-        if is_form_submit:
+        if not is_ajax:
             return redirect(f'/dashboard?error={str(e)[:50]}')
         return jsonify({'success': False, 'error': str(e)}), 500
 
