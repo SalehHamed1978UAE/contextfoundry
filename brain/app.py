@@ -526,9 +526,11 @@ def process_extraction_queue():
                     
                     logger.info(f"[ExtractionWorker] Loading {len(extracted_entities)} entities to staging...")
                     
+                    extracted_relations = extraction_result.relations if hasattr(extraction_result, 'relations') else []
+                    
                     staging_result = loader.load_all(
                         entities=extracted_entities,
-                        relations=[],
+                        relations=extracted_relations,
                         commit=True
                     )
                     
