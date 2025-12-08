@@ -183,43 +183,28 @@ class EntityExtractor:
         schema = self.schema_loader.schema
         entity_type_names = ", ".join(schema.entity_types.keys())
         
-        prompt = f"""Extract ALL entities from this text. Valid types: {entity_type_names}
+        prompt = f"""Extract ALL entities from this text. Be EXHAUSTIVE - a short list is a FAILED extraction.
+
+Valid types: {entity_type_names}
 
 ## ENTITY TYPE DEFINITIONS
 
 CONCEPT: Named frameworks, methodologies, models, systems, approaches, architectures
-- "Federated Data Catalog", "Hub-and-Spoke", "Minimum Viable Metadata", "GDPR"
-
-PERSON: Named individuals AND job roles/titles
-- "Dr. Sarah Chen", "Data Steward", "CEO", "Chief Data Officer"
-
-ORGANIZATION: Companies, agencies, departments, ministries, divisions, groups that can ACT
-- "Government", "Ministry of Health", "Corporate Holding Company", "Investment Committee"
-- Key test: If it issues, decides, manages, approves → ORGANIZATION
-
-LOCATION: PHYSICAL places ONLY - cities, countries, buildings
-- "Abu Dhabi", "New York", "Headquarters Building"
-- NOT "Government", NOT "Ministry of X" (those are ORGANIZATION)
-
-PROCESS: Workflows, procedures, phases, stages, approaches
-- "Crawl, Walk, Run Approach", "Phase 1: Foundation", "data governance"
-
+PERSON: Named individuals AND job roles/titles (Data Steward, CEO, CFO)
+ORGANIZATION: Companies, agencies, departments, ministries, groups that ACT
+LOCATION: PHYSICAL places ONLY (cities, countries, buildings)
+PROCESS: Workflows, procedures, phases, stages
 EVENT: Meetings, milestones, occurrences
-- "Board Meeting", "Q3 Review", "project approval"
-
-DATE: Time references
-- "December 2025", "Q4", "Months 1-6", "Year 1"
-
+DATE: Time references (December 2025, Q4, Months 1-6)
 DOCUMENT: Referenced reports, policies, forms
-- "Annual Report", "Governance Policy", "Critical Success Factors"
 
 ## EXTRACTION RULES
 
 1. Extract ALL capitalized multi-word terms and named concepts
-2. Extract document titles, section headers, and acronyms
+2. Extract document titles, section headers, and acronyms  
 3. Extract job titles and roles as PERSON
-4. When uncertain, INCLUDE with confidence 0.7-0.8
-5. Be THOROUGH - completeness is more important than precision
+4. Be EXHAUSTIVE - do not stop until every entity is captured
+5. When uncertain, INCLUDE with confidence 0.7-0.8
 
 ## OUTPUT FORMAT
 
@@ -230,6 +215,31 @@ Return valid JSON array only (no markdown):
 
 {text}"""
         return prompt
+    
+    def _chunk_text(self, text: str, chunk_size: int = 2000, overlap: int = 400) -> List[str]:
+        """Split text into overlapping chunks to avoid output saturation."""
+        if len(text) <= chunk_size:
+            return [text]
+        
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = start + chunk_size
+            chunk = text[start:end]
+            
+            # Try to break at sentence boundary
+            if end < len(text):
+                last_period = chunk.rfind('. ')
+                if last_period > chunk_size * 0.6:
+                    end = start + last_period + 2
+                    chunk = text[start:end]
+            
+            chunks.append(chunk)
+            start = end - overlap
+            if start >= len(text):
+                break
+        
+        return chunks
     
     def _build_system_prompt(self) -> str:
         """Build dynamic system prompt from active schema."""
@@ -401,6 +411,21 @@ TEXT:
         
         return []
 
+    def _extract_from_single_chunk(
+        self,
+        text: str,
+        document_id: str,
+        chunk_id: str,
+        sentence_idx: int,
+    ) -> List[ExtractedEntity]:
+        """Extract entities from a single text chunk."""
+        prompt = self._build_entity_extraction_prompt(text)
+        system_prompt = self._build_system_prompt()
+        
+        return self._run_extraction_pass(
+            prompt, system_prompt, document_id, chunk_id, sentence_idx
+        )
+
     def extract_from_text(
         self,
         text: str,
@@ -409,10 +434,10 @@ TEXT:
         sentence_idx: int = 0,
     ) -> List[ExtractedEntity]:
         """
-        Extract entities from text using LLM with multi-pass extraction.
+        Extract entities from text using chunked extraction to avoid output saturation.
         
-        Pass 1: General entity extraction
-        Pass 2: Gap-check for missed concepts and frameworks
+        Long documents are split into ~2000 char chunks with overlap to ensure
+        the LLM doesn't hit the "lazy list" effect (RLHF-induced output saturation).
         
         Args:
             text: Text to extract entities from
@@ -426,26 +451,24 @@ TEXT:
         if not text.strip():
             return []
         
-        prompt = self._build_entity_extraction_prompt(text)
-        system_prompt = self._build_system_prompt()
+        # Split into chunks to avoid output saturation
+        chunks = self._chunk_text(text, chunk_size=2000, overlap=400)
+        print(f"[EntityExtractor] Processing {len(chunks)} chunks from {len(text)} chars")
         
-        pass1_entities = self._run_extraction_pass(
-            prompt, system_prompt, document_id, chunk_id, sentence_idx
-        )
-        print(f"[EntityExtractor] Pass 1: {len(pass1_entities)} entities")
+        all_entities = []
+        for i, chunk in enumerate(chunks):
+            if not chunk.strip():
+                continue
+            
+            chunk_entities = self._extract_from_single_chunk(
+                chunk, document_id, f"{chunk_id}_c{i}", sentence_idx
+            )
+            print(f"[EntityExtractor] Chunk {i+1}/{len(chunks)}: {len(chunk_entities)} entities")
+            all_entities.extend(chunk_entities)
         
-        already_extracted = [e.canonical_name for e in pass1_entities]
-        gap_prompt = self._build_concept_gap_check_prompt(text, already_extracted)
-        gap_system = "You are finding entities that were MISSED in the first extraction pass. Be thorough. Respond only with valid JSON array."
-        
-        pass2_entities = self._run_extraction_pass(
-            gap_prompt, gap_system, document_id, chunk_id, sentence_idx
-        )
-        print(f"[EntityExtractor] Pass 2 (gap-check): {len(pass2_entities)} new entities")
-        
-        all_entities = pass1_entities + pass2_entities
+        # Deduplicate across all chunks
         deduped = self._deduplicate_entities(all_entities)
-        print(f"[EntityExtractor] After dedup: {len(deduped)} entities (dropped {len(all_entities) - len(deduped)})")
+        print(f"[EntityExtractor] Total: {len(all_entities)} raw, {len(deduped)} after dedup")
         return deduped
     
     def extract_from_chunks(
@@ -551,32 +574,17 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
 ]"""
         return prompt
 
-    def extract_with_types(
+    def _extract_single_chunk_with_types(
         self,
         text: str,
         entity_types: List[str],
         document_id: str,
-        chunk_id: str = "",
-        sentence_idx: int = 0,
+        chunk_id: str,
+        sentence_idx: int,
     ) -> List[ExtractedEntity]:
-        """
-        Extract entities using a custom list of entity types.
-        
-        Args:
-            text: Text to extract entities from
-            entity_types: List of entity type names to extract
-            document_id: ID of the source document
-            chunk_id: ID of the source chunk
-            sentence_idx: Index of the source sentence
-            
-        Returns:
-            List of ExtractedEntity objects
-        """
-        if not text.strip():
-            return []
-        
+        """Extract entities from a single chunk using custom types."""
         prompt = self._build_dynamic_prompt(text, entity_types)
-        system_prompt = "You are an expert at extracting entities. Respond only with valid JSON."
+        system_prompt = "You are an expert at extracting entities. Be EXHAUSTIVE. Respond only with valid JSON."
         
         valid_types = set(t.upper() for t in entity_types)
         
@@ -630,7 +638,6 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                     )
                     entities.append(entity)
                 
-                print(f"[EntityExtractor] Extracted {len(entities)} entities with types: {entity_types[:5]}...")
                 return entities
                 
             except Exception as e:
@@ -639,6 +646,43 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                     return []
         
         return []
+
+    def extract_with_types(
+        self,
+        text: str,
+        entity_types: List[str],
+        document_id: str,
+        chunk_id: str = "",
+        sentence_idx: int = 0,
+    ) -> List[ExtractedEntity]:
+        """
+        Extract entities using custom types with chunking to avoid output saturation.
+        
+        Long documents are split into ~2000 char chunks to prevent the LLM from
+        hitting the "lazy list" effect (RLHF-induced output saturation).
+        """
+        if not text.strip():
+            return []
+        
+        # Split into chunks to avoid output saturation
+        chunks = self._chunk_text(text, chunk_size=2000, overlap=400)
+        print(f"[EntityExtractor] Processing {len(chunks)} chunks from {len(text)} chars")
+        
+        all_entities = []
+        for i, chunk in enumerate(chunks):
+            if not chunk.strip():
+                continue
+            
+            chunk_entities = self._extract_single_chunk_with_types(
+                chunk, entity_types, document_id, f"{chunk_id}_c{i}", sentence_idx
+            )
+            print(f"[EntityExtractor] Chunk {i+1}/{len(chunks)}: {len(chunk_entities)} entities")
+            all_entities.extend(chunk_entities)
+        
+        # Deduplicate across all chunks
+        deduped = self._deduplicate_entities(all_entities)
+        print(f"[EntityExtractor] Total: {len(all_entities)} raw, {len(deduped)} after dedup")
+        return deduped
 
     def _build_core_foundation_prompt(self, text: str) -> str:
         """Build extraction prompt using Core Foundation types (fallback)."""

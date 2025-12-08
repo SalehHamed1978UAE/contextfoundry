@@ -74,7 +74,22 @@ The extraction pipeline uses **semantic routing** for automatic domain detection
 2. Compare against cached domain embeddings
 3. If domain detected → use Core + Domain types
 4. If no domain → use Core types only
-5. Extract entities with combined type list
+5. **Chunk document** into ~2000 char segments with 400 char overlap
+6. Extract entities from each chunk separately (avoids LLM output saturation)
+7. Deduplicate entities across all chunks
+8. Load to staging with duplicate detection
+
+### Chunked Extraction (Output Saturation Fix)
+**Problem**: LLMs exhibit "output saturation" (lazy list effect) due to RLHF training - they stop extracting after ~12-15 entities regardless of document length.
+
+**Solution**: Split documents into overlapping chunks (~2000 chars each) and extract from each chunk separately.
+
+**Results**: 
+- Single chunk: ~12 entities
+- Chunked (5 chunks): 55-60 entities
+- **Improvement: +358%**
+
+Implementation: `src/context_foundry/extraction/entity_extractor.py` - `_chunk_text()` and `extract_with_types()`
 
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
