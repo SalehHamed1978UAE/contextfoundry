@@ -447,25 +447,20 @@
                         </svg>
                     </div>
                     <div class="nav-items">
-                        <a class="nav-item {% if active_page == 'upload' %}active{% endif %}" href="/dashboard/upload">
+                        <a class="nav-item {% if active_page == 'documents' %}active{% endif %}" href="/dashboard/documents">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                                <polyline points="17 8 12 3 7 8"/>
-                                <line x1="12" y1="3" x2="12" y2="15"/>
+                                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
                             </svg>
-                            Upload
+                            Documents
                         </a>
                         <a class="nav-item {% if active_page == 'connectors' %}active{% endif %}" href="/dashboard/connectors">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
                             </svg>
                             Connectors
-                        </a>
-                        <a class="nav-item {% if active_page == 'status' %}active{% endif %}" href="/dashboard/status">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                            </svg>
-                            Status
                         </a>
                         <a class="nav-item {% if active_page == 'api-keys' %}active{% endif %}" href="/dashboard/api-keys">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
