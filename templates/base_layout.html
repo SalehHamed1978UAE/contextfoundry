@@ -103,6 +103,33 @@
         .sidebar-collapsed .icon-collapse { display: none; }
         .sidebar-collapsed .icon-expand { display: inline; }
         
+        /* Toggle button in collapsed state - more visible */
+        .sidebar-collapsed .sidebar-toggle {
+            position: relative;
+            right: auto;
+            top: auto;
+            transform: none;
+            margin: 8px auto 0;
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            width: 36px;
+            height: 28px;
+        }
+        
+        .sidebar-collapsed .sidebar-toggle:hover {
+            background: #0ea5e9;
+            border-color: #0ea5e9;
+            color: white;
+        }
+        
+        .sidebar-collapsed .sidebar-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 8px;
+        }
+        
         /* Sidebar Collapsed State */
         .sidebar-collapsed .sidebar {
             width: 60px;
