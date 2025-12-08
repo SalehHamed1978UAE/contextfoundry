@@ -376,6 +376,147 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
         
         return list(entity_map.values())
     
+    def _build_dynamic_prompt(self, text: str, entity_types: List[str]) -> str:
+        """Build extraction prompt using a dynamic list of entity types."""
+        entity_descriptions = []
+        
+        for type_name in entity_types:
+            upper_name = type_name.upper()
+            if upper_name in CORE_FOUNDATION_TYPES:
+                config = CORE_FOUNDATION_TYPES[upper_name]
+                desc = config["description"]
+                entity_descriptions.append(f"- {upper_name}: {desc}")
+            else:
+                entity_descriptions.append(f"- {type_name}: Entity of type {type_name}")
+        
+        entity_list = "\n".join(entity_descriptions)
+        entity_type_names = ", ".join(entity_types)
+        
+        prompt = f"""You are an expert at extracting entities from documents.
+
+Given the following text, extract all entities of these types:
+{entity_list}
+
+For each entity, provide:
+1. entity_type: One of {entity_type_names}
+2. canonical_name: The standardized name of the entity
+3. properties: Additional properties relevant to the entity type
+4. source_span: The exact text span where this entity appears
+5. confidence: Your confidence in this extraction (0.0 to 1.0)
+
+IMPORTANT RULES:
+- Extract ALL meaningful entities from the text
+- Use the MOST SPECIFIC type that applies (prefer domain types over general types)
+- Include people, organizations, concepts, processes, dates mentioned
+- Use the exact text span where the entity appears
+- Assign confidence based on how clearly the entity type is indicated
+
+Return the result as a JSON array of objects.
+
+TEXT:
+{text}
+
+Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
+[
+  {{
+    "entity_type": "ENTITY_TYPE",
+    "canonical_name": "Entity Name",
+    "properties": {{}},
+    "source_span": "exact text",
+    "confidence": 0.95
+  }}
+]"""
+        return prompt
+
+    def extract_with_types(
+        self,
+        text: str,
+        entity_types: List[str],
+        document_id: str,
+        chunk_id: str = "",
+        sentence_idx: int = 0,
+    ) -> List[ExtractedEntity]:
+        """
+        Extract entities using a custom list of entity types.
+        
+        Args:
+            text: Text to extract entities from
+            entity_types: List of entity type names to extract
+            document_id: ID of the source document
+            chunk_id: ID of the source chunk
+            sentence_idx: Index of the source sentence
+            
+        Returns:
+            List of ExtractedEntity objects
+        """
+        if not text.strip():
+            return []
+        
+        prompt = self._build_dynamic_prompt(text, entity_types)
+        system_prompt = "You are an expert at extracting entities. Respond only with valid JSON."
+        
+        valid_types = set(t.upper() for t in entity_types)
+        
+        for attempt in range(self.max_retries):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=self.temperature,
+                    max_tokens=2000,
+                )
+                
+                response_text = response.choices[0].message.content or ""
+                raw_entities = self._parse_llm_response(response_text)
+                
+                entities = []
+                
+                for raw in raw_entities:
+                    if "entity_type" not in raw:
+                        continue
+                    if "canonical_name" not in raw and "name" not in raw:
+                        continue
+                    
+                    raw_type = raw["entity_type"].upper()
+                    if raw_type not in valid_types:
+                        for valid_type in valid_types:
+                            if valid_type.upper() == raw_type:
+                                raw["entity_type"] = valid_type
+                                break
+                        else:
+                            continue
+                    
+                    normalized = self._normalize_entity(raw)
+                    
+                    entity = ExtractedEntity(
+                        id=self._generate_entity_id(
+                            normalized["entity_type"],
+                            normalized["canonical_name"]
+                        ),
+                        entity_type=normalized["entity_type"],
+                        canonical_name=normalized["canonical_name"],
+                        properties=normalized["properties"],
+                        source_span=normalized["source_span"],
+                        source_document_id=document_id,
+                        source_chunk_id=chunk_id,
+                        source_sentence_idx=sentence_idx,
+                        confidence=normalized["confidence"],
+                    )
+                    entities.append(entity)
+                
+                print(f"[EntityExtractor] Extracted {len(entities)} entities with types: {entity_types[:5]}...")
+                return entities
+                
+            except Exception as e:
+                if attempt == self.max_retries - 1:
+                    print(f"Entity extraction failed after {self.max_retries} attempts: {e}")
+                    return []
+        
+        return []
+
     def _build_core_foundation_prompt(self, text: str) -> str:
         """Build extraction prompt using Core Foundation types (fallback)."""
         entity_descriptions = []

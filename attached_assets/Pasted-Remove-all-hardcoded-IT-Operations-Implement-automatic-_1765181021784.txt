@@ -1,0 +1,66 @@
+Remove all hardcoded IT Operations. Implement automatic domain detection.
+
+STEP 1: Remove hardcoded defaults
+
+In config/domain_schema.yaml:
+- Delete the file or set domain: null
+
+In src/context_foundry/ontology/prompt_generator.py:
+- Change domain_name default from "IT Operations" to None
+
+STEP 2: Add domain classifier function
+
+Before extraction, classify the document:
+
+def classify_domain(content: str) -> str:
+    """Classify document into a domain based on content."""
+    prompt = f"""Classify this document into ONE domain.
+
+Document:
+{content[:2000]}
+
+Domains:
+- it_infrastructure: servers, databases, deployments, incidents, APIs
+- healthcare: patients, diagnoses, procedures, medications, hospitals
+- aviation: flights, aircraft, airports, crew, routes
+- finance: bonds, equities, transactions, accounts, portfolios
+- supply_chain: suppliers, shipments, inventory, warehouses
+- manufacturing: products, machines, factories, quality control
+- construction: projects, sites, contractors, materials, permits
+- general: none of the above
+
+Reply with ONLY the domain code, nothing else."""
+
+    response = call_llm(prompt)
+    return response.strip().lower()
+
+STEP 3: Update extraction worker in brain/app.py
+
+For every document:
+
+# 1. Classify domain
+domain = classify_domain(file_content)
+
+# 2. Load appropriate schema
+if domain == 'general':
+    entity_types = CORE_FOUNDATION_TYPES
+else:
+    entity_types = DOMAIN_TO_TYPES.get(domain, CORE_FOUNDATION_TYPES)
+
+# 3. Extract with schema
+entities, relationships = extract_with_schema(content, entity_types)
+
+# 4. Fallback if empty
+if len(entities) == 0 and domain != 'general':
+    entities, relationships = extract_with_schema(content, CORE_FOUNDATION_TYPES)
+
+# 5. Log what happened
+print(f"Document classified as: {domain}, extracted {len(entities)} entities")
+
+STEP 4: Test with different document types
+
+Upload IT document → should detect it_infrastructure, extract SERVICE, INCIDENT, etc.
+Upload medical document → should detect healthcare, extract PATIENT, PROCEDURE, etc.
+Upload random document → should detect general, extract PERSON, ORGANIZATION, etc.
+
+No configuration. No options. System figures it out.

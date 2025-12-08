@@ -1,0 +1,165 @@
+**For Replit: Per-Tenant Domain Selection**
+
+The ontologies are already loaded. 8 domains exist. The problem is hardcoded IT Operations. Fix it:
+
+---
+
+**1. Add domain_preference column to tenants:**
+
+```sql
+ALTER TABLE platform.tenants 
+ADD COLUMN IF NOT EXISTS domain_preference TEXT DEFAULT NULL;
+
+COMMENT ON COLUMN platform.tenants.domain_preference IS 
+'Domain schema for extraction. NULL = Core Foundation (universal). 
+Valid values: it_infrastructure, healthcare, aviation, finance, 
+supply_chain, manufacturing, construction';
+```
+
+---
+
+**2. Update extraction to use tenant's domain_preference:**
+
+In `brain/app.py` extraction worker:
+
+```python
+# Get tenant's domain preference
+tenant = db.execute(
+    "SELECT domain_preference FROM platform.tenants WHERE id = %s",
+    [tenant_id]
+).fetchone()
+
+domain_preference = tenant['domain_preference'] if tenant else None
+
+if domain_preference:
+    # Load domain-specific schema
+    schema = load_domain_schema(domain_preference)
+    entities, relationships = extract_with_schema(content, schema)
+    
+    # Fallback to Core Foundation if domain returns 0
+    if len(entities) == 0:
+        schema = load_core_foundation_schema()
+        entities, relationships = extract_with_schema(content, schema)
+else:
+    # NULL = Core Foundation (universal types)
+    schema = load_core_foundation_schema()
+    entities, relationships = extract_with_schema(content, schema)
+```
+
+---
+
+**3. Create domain-to-types mapping:**
+
+```python
+DOMAIN_TO_TYPES = {
+    'it_infrastructure': ['SERVICE', 'INCIDENT', 'DATABASE', 'COMPONENT', 'TEAM', 'DEPLOYMENT'],
+    'healthcare': ['PATIENT', 'HOSPITAL', 'PROCEDURE', 'DIAGNOSIS', 'MEDICATION'],
+    'aviation': ['FLIGHT', 'AIRCRAFT', 'AIRPORT', 'CREW', 'ROUTE'],
+    'finance': ['BOND', 'EQUITY', 'TRANSACTION', 'ACCOUNT', 'PORTFOLIO'],
+    'supply_chain': ['SUPPLIER', 'SHIPMENT', 'WAREHOUSE', 'INVENTORY', 'ORDER'],
+    'manufacturing': ['PRODUCT', 'MACHINE', 'FACTORY', 'BATCH', 'QUALITY'],
+    'construction': ['PROJECT', 'SITE', 'CONTRACTOR', 'MATERIAL', 'PERMIT'],
+}
+
+CORE_FOUNDATION_TYPES = ['PERSON', 'ORGANIZATION', 'DOCUMENT', 'LOCATION', 'EVENT', 'CONCEPT', 'PROCESS', 'DATE']
+
+def load_domain_schema(domain_preference):
+    if domain_preference in DOMAIN_TO_TYPES:
+        return DOMAIN_TO_TYPES[domain_preference]
+    return CORE_FOUNDATION_TYPES
+
+def load_core_foundation_schema():
+    return CORE_FOUNDATION_TYPES
+```
+
+Or query from database:
+
+```python
+def load_domain_schema(domain_preference):
+    # Query ontology.types for this domain's types
+    types = db.execute("""
+        SELECT type_name FROM ontology.types 
+        WHERE status = 'ACTIVE' 
+        AND (domain_id = %s OR layer = 1)
+        ORDER BY layer, type_name
+    """, [domain_preference]).fetchall()
+    return [t['type_name'] for t in types]
+```
+
+---
+
+**4. Remove hardcoded IT Operations defaults:**
+
+In `config/domain_schema.yaml`:
+- Either delete the file, or change `domain: "IT Operations"` to `domain: null`
+
+In `src/context_foundry/ontology/prompt_generator.py` line 26:
+- Change `domain_name: str = "IT Operations"` to `domain_name: str = None`
+
+---
+
+**5. Add UI in Platform Settings (optional but recommended):**
+
+In Platform dashboard Settings tab:
+
+```html
+<div class="setting-row">
+    <label>Extraction Domain</label>
+    <select id="domainPreference" onchange="updateDomainPreference(this.value)">
+        <option value="">Universal (recommended)</option>
+        <option value="it_infrastructure">IT Infrastructure</option>
+        <option value="healthcare">Healthcare</option>
+        <option value="aviation">Aviation</option>
+        <option value="finance">Finance</option>
+        <option value="supply_chain">Supply Chain</option>
+        <option value="manufacturing">Manufacturing</option>
+        <option value="construction">Construction</option>
+    </select>
+    <p class="hint">Select the domain that best matches your documents. Universal works for all content.</p>
+</div>
+```
+
+API endpoint:
+```python
+@app.route('/api/settings/domain', methods=['POST'])
+@login_required
+def update_domain_preference():
+    domain = request.json.get('domain_preference')
+    db.execute(
+        "UPDATE platform.tenants SET domain_preference = %s WHERE id = %s",
+        [domain if domain else None, g.tenant_id]
+    )
+    return jsonify({'success': True})
+```
+
+---
+
+**6. Test:**
+
+```sql
+-- Set tenant to universal (Core Foundation)
+UPDATE platform.tenants SET domain_preference = NULL WHERE id = 'your-tenant-id';
+
+-- Upload any document → should extract PERSON, ORGANIZATION, DOCUMENT, etc.
+
+-- Set tenant to healthcare
+UPDATE platform.tenants SET domain_preference = 'healthcare' WHERE id = 'your-tenant-id';
+
+-- Upload medical document → should extract PATIENT, HOSPITAL, PROCEDURE, etc.
+```
+
+---
+
+**Summary:**
+
+| domain_preference | Extraction Behavior |
+|-------------------|---------------------|
+| NULL | Core Foundation types (universal) |
+| 'it_infrastructure' | IT types, fallback to Core |
+| 'healthcare' | Healthcare types, fallback to Core |
+| 'finance' | Finance types, fallback to Core |
+| etc. | Domain types, fallback to Core |
+
+**Core Foundation is the safe default. Domain-specific is opt-in.**
+
+Execute all steps.

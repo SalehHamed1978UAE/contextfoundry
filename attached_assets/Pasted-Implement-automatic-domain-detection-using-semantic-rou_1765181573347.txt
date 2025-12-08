@@ -1,0 +1,91 @@
+Implement automatic domain detection using semantic routing.
+
+STEP 1: Create domain embeddings (one-time setup)
+
+# brain/classifier.py
+
+DOMAIN_DESCRIPTIONS = {
+    'it_infrastructure': 'Servers, databases, deployments, incidents, APIs, microservices, cloud infrastructure',
+    'healthcare': 'Patients, diagnoses, treatments, medications, procedures, clinical trials, hospitals',
+    'finance': 'Bonds, equities, transactions, accounts, portfolios, financial instruments, investments',
+    'aviation': 'Flights, aircraft, airports, crew, routes, maintenance, safety',
+    'supply_chain': 'Suppliers, shipments, warehouses, inventory, logistics, procurement',
+    'manufacturing': 'Products, machines, factories, quality control, production, assembly',
+    'construction': 'Projects, sites, contractors, materials, permits, safety incidents',
+}
+
+# Generate and cache embeddings for each domain description
+# Use text-embedding-3-small or similar
+
+STEP 2: Create classify_document function
+
+def classify_document(text_sample: str) -> tuple[str, float]:
+    """Classify document using semantic routing."""
+    
+    # Embed first 1000 chars of document
+    sample = text_sample[:1000]
+    doc_embedding = get_embedding(sample)
+    
+    # Cosine similarity against all domain embeddings
+    scores = {}
+    for domain, domain_embedding in DOMAIN_EMBEDDINGS.items():
+        scores[domain] = cosine_similarity(doc_embedding, domain_embedding)
+    
+    best_domain = max(scores, key=scores.get)
+    best_score = scores[best_domain]
+    
+    # Return domain only if high confidence
+    if best_score >= 0.85:
+        return best_domain, best_score
+    else:
+        return 'core', best_score
+
+STEP 3: Update extraction to use classifier
+
+CORE_TYPES = ['PERSON', 'ORGANIZATION', 'DOCUMENT', 'LOCATION', 'EVENT', 'CONCEPT', 'PROCESS', 'DATE']
+
+DOMAIN_TYPES = {
+    'it_infrastructure': ['SERVICE', 'INCIDENT', 'DATABASE', 'COMPONENT', 'TEAM', 'DEPLOYMENT'],
+    'healthcare': ['PATIENT', 'DIAGNOSIS', 'PROCEDURE', 'MEDICATION', 'HOSPITAL'],
+    'finance': ['BOND', 'EQUITY', 'TRANSACTION', 'ACCOUNT', 'PORTFOLIO'],
+    'aviation': ['FLIGHT', 'AIRCRAFT', 'AIRPORT', 'CREW', 'ROUTE'],
+    'supply_chain': ['SUPPLIER', 'SHIPMENT', 'WAREHOUSE', 'INVENTORY', 'ORDER'],
+    'manufacturing': ['PRODUCT', 'MACHINE', 'FACTORY', 'BATCH', 'QUALITY'],
+    'construction': ['PROJECT', 'SITE', 'CONTRACTOR', 'MATERIAL', 'PERMIT'],
+}
+
+def extract_entities(document_text: str, tenant_id: str):
+    # 1. Classify document (cheap embedding call)
+    domain, confidence = classify_document(document_text)
+    
+    # 2. Build composite type list (Core + Domain)
+    entity_types = CORE_TYPES.copy()
+    if domain != 'core':
+        entity_types += DOMAIN_TYPES.get(domain, [])
+    
+    # Cap at 25 types max
+    entity_types = entity_types[:25]
+    
+    # 3. Single extraction call
+    entities, relationships = run_extraction(document_text, entity_types)
+    
+    # 4. Log for telemetry
+    print(f"Document classified as: {domain} (confidence: {confidence:.2f})")
+    print(f"Types used: {entity_types}")
+    print(f"Extracted: {len(entities)} entities")
+    
+    return entities, relationships
+
+STEP 4: Remove all hardcoded IT Operations
+
+- Delete or neutralize config/domain_schema.yaml
+- Remove default "IT Operations" from prompt_generator.py
+
+STEP 5: Test
+
+Upload IT incident report → should detect it_infrastructure, extract SERVICE, INCIDENT + Core types
+Upload medical record → should detect healthcare, extract PATIENT, DIAGNOSIS + Core types
+Upload random business doc → should detect core, extract PERSON, ORGANIZATION, DATE
+Upload construction contract → should detect construction, extract PROJECT, CONTRACTOR + Core types
+
+Every document should extract entities. No document should return 0.
