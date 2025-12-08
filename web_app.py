@@ -2062,6 +2062,30 @@ def stats():
         return jsonify({'error': str(e), 'success': False}), 500
 
 
+@app.route('/api/v1/health')
+def api_health():
+    """Health check endpoint for system status monitoring."""
+    from datetime import datetime, timezone
+    from sqlalchemy import text
+    from src.context_foundry.models.schema import get_session
+    
+    session = get_session()
+    try:
+        # Check database connectivity
+        session.execute(text("SELECT 1"))
+        db_status = 'healthy'
+    except Exception:
+        db_status = 'unhealthy'
+    finally:
+        session.close()
+    
+    return jsonify({
+        'status': 'healthy' if db_status == 'healthy' else 'degraded',
+        'database': db_status,
+        'timestamp': datetime.now(timezone.utc).isoformat()
+    })
+
+
 @app.route('/api/command-center/data')
 def command_center_data():
     """API endpoint for AJAX refresh of Command Center dashboard."""
@@ -2264,6 +2288,50 @@ def command_center_data():
             'agents': {'agent_list': agent_list, 'gardener': gardener_stats},
             'context': context,
             'message_bus': message_bus,
+        })
+    except Exception as e:
+        session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        session.close()
+
+
+@app.route('/api/knowledge/date-range')
+def knowledge_date_range():
+    """Get the temporal range of knowledge for timeline slider."""
+    from src.context_foundry.models.schema import get_session, Entity
+    from sqlalchemy import func, text
+    from datetime import datetime, timezone
+    
+    session = get_session()
+    try:
+        # Get min/max valid_from dates from entities
+        result = session.execute(
+            text("""
+                SELECT 
+                    MIN(valid_from) as earliest,
+                    MAX(valid_from) as latest
+                FROM public.entities
+            """)
+        ).fetchone()
+        
+        now = datetime.now(timezone.utc)
+        earliest = result[0] if result and result[0] else now.replace(tzinfo=None)
+        latest = result[1] if result and result[1] else now.replace(tzinfo=None)
+        
+        # Format dates consistently - naive datetimes get 'Z' appended
+        def format_iso(dt):
+            if dt is None:
+                return None
+            if dt.tzinfo is not None:
+                return dt.strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
+            return dt.isoformat() + 'Z'
+        
+        return jsonify({
+            'success': True,
+            'earliest': format_iso(earliest),
+            'latest': format_iso(latest),
+            'today': format_iso(now)
         })
     except Exception as e:
         session.rollback()
