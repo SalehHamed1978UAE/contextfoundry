@@ -77,8 +77,21 @@ def process_extraction_queue():
             
             text_content = ""
             if file_path and os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    text_content = f.read()
+                mime_type = request.get('mime_type', '')
+                
+                if mime_type and 'wordprocessingml' in mime_type or (file_name and file_name.endswith('.docx')):
+                    try:
+                        from docx import Document
+                        doc = Document(file_path)
+                        text_content = '\n'.join([p.text for p in doc.paragraphs if p.text.strip()])
+                        logger.info(f"[ExtractionWorker] Parsed DOCX: {len(text_content)} characters")
+                    except Exception as e:
+                        logger.warning(f"[ExtractionWorker] Failed to parse DOCX: {e}")
+                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                            text_content = f.read()
+                else:
+                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        text_content = f.read()
             else:
                 logger.warning(f"[ExtractionWorker] File not found: {file_path}")
                 text_content = f"Document: {file_name}\n\nContent not available."
@@ -91,7 +104,7 @@ def process_extraction_queue():
             
             pipeline = ExtractionPipeline(model="gpt-4o-mini", temperature=0.0)
             
-            extraction_result = pipeline.extract_from_text(
+            extraction_result = pipeline.extract_with_fallback(
                 text=text_content,
                 document_id=document_id,
                 document_title=file_name or "Uploaded Document"
@@ -109,6 +122,8 @@ def process_extraction_queue():
                         tenant_id=tenant_id
                     )
                     
+                    logger.info(f"[ExtractionWorker] Loading {len(extraction_result.entities)} entities to staging...")
+                    
                     staging_result = loader.load_all(
                         entities=extraction_result.entities,
                         relations=extraction_result.relations,
@@ -118,14 +133,19 @@ def process_extraction_queue():
                     entities_count = staging_result.entities_created + staging_result.entities_updated
                     relations_count = staging_result.relations_created + staging_result.relations_updated
                     
+                    if staging_result.errors:
+                        logger.warning(f"[ExtractionWorker] Staging errors: {staging_result.errors}")
+                    
                     logger.info(
                         f"[ExtractionWorker] Extraction complete: "
-                        f"{entities_count} entities, {relations_count} relationships "
-                        f"for tenant {tenant_id}"
+                        f"{entities_count} entities ({staging_result.entities_created} created, {staging_result.entities_updated} updated, {staging_result.entities_skipped} skipped), "
+                        f"{relations_count} relationships for tenant {tenant_id}"
                     )
                     
                 except Exception as e:
                     logger.error(f"[ExtractionWorker] Staging error: {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
                     session.rollback()
             
             end_time = datetime.utcnow()

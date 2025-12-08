@@ -219,6 +219,76 @@ class ExtractionPipeline:
                 error=str(e),
             )
     
+    def extract_with_fallback(
+        self,
+        text: str,
+        document_id: str = "inline",
+        document_title: str = "Inline Text",
+    ) -> ExtractionResult:
+        """
+        Extract entities with automatic fallback to Core Foundation types.
+        
+        First tries domain-specific extraction (IT Operations, etc).
+        If 0 entities found, retries with universal Core Foundation types.
+        
+        Args:
+            text: Text to extract from
+            document_id: ID to assign to this document
+            document_title: Title for this document
+            
+        Returns:
+            ExtractionResult with extracted entities and relations
+        """
+        result = self.extract_from_text(
+            text=text,
+            document_id=document_id,
+            document_title=document_title,
+        )
+        
+        if result.entity_count > 0:
+            return result
+        
+        print(f"[ExtractionPipeline] Domain extraction found 0 entities, trying Core Foundation fallback...")
+        
+        try:
+            entities = self.entity_extractor.extract_with_core_foundation(
+                text=text,
+                document_id=document_id,
+                chunk_id=f"{document_id}:chunk:0",
+                sentence_idx=0,
+            )
+            
+            entities_data = [e.to_dict() for e in entities]
+            
+            relations = self.relation_extractor.extract_from_text(
+                text=text,
+                entities=entities_data,
+                document_id=document_id,
+                chunk_id=f"{document_id}:chunk:0",
+            )
+            
+            return ExtractionResult(
+                document_id=document_id,
+                document_title=document_title,
+                entities=entities,
+                relations=relations,
+                entity_count=len(entities),
+                relation_count=len(relations),
+                success=True,
+            )
+            
+        except Exception as e:
+            return ExtractionResult(
+                document_id=document_id,
+                document_title=document_title,
+                entities=[],
+                relations=[],
+                entity_count=0,
+                relation_count=0,
+                success=False,
+                error=str(e),
+            )
+    
     def extract_from_documents(
         self,
         documents: List[IngestedDocument],

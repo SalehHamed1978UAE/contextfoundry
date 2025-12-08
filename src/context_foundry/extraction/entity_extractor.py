@@ -19,6 +19,49 @@ from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
 
+CORE_FOUNDATION_TYPES = {
+    "PERSON": {
+        "description": "A human individual - any named person, role, or position",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["role", "title", "organization", "email"]
+    },
+    "ORGANIZATION": {
+        "description": "A company, team, department, institution, or any organized group",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["org_type", "industry", "location", "parent_org"]
+    },
+    "DOCUMENT": {
+        "description": "A document, report, file, policy, or written artifact",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["document_type", "author", "date", "version"]
+    },
+    "LOCATION": {
+        "description": "A physical or logical place - city, region, address, or venue",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["location_type", "address", "parent_location"]
+    },
+    "EVENT": {
+        "description": "An occurrence, meeting, incident, milestone, or happening",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["event_type", "date", "duration", "participants"]
+    },
+    "CONCEPT": {
+        "description": "An abstract idea, topic, theme, principle, or methodology",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["category", "related_concepts", "definition"]
+    },
+    "PROCESS": {
+        "description": "A workflow, procedure, method, or sequence of steps",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["process_type", "steps", "owner", "status"]
+    },
+    "DATE": {
+        "description": "A specific date, time period, deadline, or temporal reference",
+        "required_fields": ["canonical_name"],
+        "optional_fields": ["date_value", "date_type", "timezone"]
+    }
+}
+
 
 @dataclass
 class ExtractedEntity:
@@ -332,3 +375,131 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                 entity_map[key] = entity
         
         return list(entity_map.values())
+    
+    def _build_core_foundation_prompt(self, text: str) -> str:
+        """Build extraction prompt using Core Foundation types (fallback)."""
+        entity_descriptions = []
+        for name, config in CORE_FOUNDATION_TYPES.items():
+            desc = config["description"]
+            entity_descriptions.append(f"- {name}: {desc}")
+            if config.get("required_fields"):
+                entity_descriptions.append(f"  Required: {', '.join(config['required_fields'])}")
+            if config.get("optional_fields"):
+                entity_descriptions.append(f"  Optional: {', '.join(config['optional_fields'])}")
+        
+        entity_list = "\n".join(entity_descriptions)
+        entity_type_names = ", ".join(CORE_FOUNDATION_TYPES.keys())
+        
+        prompt = f"""You are an expert at extracting entities from documents.
+
+Given the following text, extract all entities of these UNIVERSAL types:
+{entity_list}
+
+For each entity, provide:
+1. entity_type: One of {entity_type_names}
+2. canonical_name: The standardized name of the entity
+3. properties: Additional properties (as listed above for each type)
+4. source_span: The exact text span where this entity appears
+5. confidence: Your confidence in this extraction (0.0 to 1.0)
+
+IMPORTANT RULES:
+- Extract ALL meaningful entities from the text
+- Include people, organizations, concepts, processes, dates mentioned
+- Use the exact text span where the entity appears
+- Assign confidence based on how clearly the entity type is indicated
+
+Return the result as a JSON array of objects.
+
+TEXT:
+{text}
+
+Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
+[
+  {{
+    "entity_type": "ENTITY_TYPE",
+    "canonical_name": "Entity Name",
+    "properties": {{}},
+    "source_span": "exact text",
+    "confidence": 0.95
+  }}
+]"""
+        return prompt
+    
+    def extract_with_core_foundation(
+        self,
+        text: str,
+        document_id: str,
+        chunk_id: str = "",
+        sentence_idx: int = 0,
+    ) -> List[ExtractedEntity]:
+        """
+        Extract entities using Core Foundation types (fallback for domain-agnostic extraction).
+        
+        Args:
+            text: Text to extract entities from
+            document_id: ID of the source document
+            chunk_id: ID of the source chunk
+            sentence_idx: Index of the source sentence
+            
+        Returns:
+            List of ExtractedEntity objects
+        """
+        if not text.strip():
+            return []
+        
+        prompt = self._build_core_foundation_prompt(text)
+        system_prompt = "You are an expert at extracting universal entities. Respond only with valid JSON."
+        
+        for attempt in range(self.max_retries):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=self.temperature,
+                    max_tokens=2000,
+                )
+                
+                response_text = response.choices[0].message.content or ""
+                raw_entities = self._parse_llm_response(response_text)
+                
+                entities = []
+                valid_types = set(CORE_FOUNDATION_TYPES.keys())
+                
+                for raw in raw_entities:
+                    if "entity_type" not in raw:
+                        continue
+                    if "canonical_name" not in raw and "name" not in raw:
+                        continue
+                    if raw["entity_type"].upper() not in valid_types:
+                        continue
+                    
+                    normalized = self._normalize_entity(raw)
+                    
+                    entity = ExtractedEntity(
+                        id=self._generate_entity_id(
+                            normalized["entity_type"],
+                            normalized["canonical_name"]
+                        ),
+                        entity_type=normalized["entity_type"],
+                        canonical_name=normalized["canonical_name"],
+                        properties=normalized["properties"],
+                        source_span=normalized["source_span"],
+                        source_document_id=document_id,
+                        source_chunk_id=chunk_id,
+                        source_sentence_idx=sentence_idx,
+                        confidence=normalized["confidence"],
+                    )
+                    entities.append(entity)
+                
+                print(f"[CoreFoundation] Extracted {len(entities)} entities using fallback types")
+                return entities
+                
+            except Exception as e:
+                if attempt == self.max_retries - 1:
+                    print(f"Core Foundation extraction failed after {self.max_retries} attempts: {e}")
+                    return []
+        
+        return []
