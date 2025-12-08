@@ -45,6 +45,7 @@ Three logical schemas exist:
   - **Collapse/Expand**: Sidebar can collapse to 60px showing only icons with tooltips; state persists in localStorage
 - **Corpus Stats Dashboard**: Documents page displays real-time stats (Documents, Entities, Relationships, Processing) via `/api/corpus-stats` endpoint with 5-second polling
 - **OCR Support**: Scanned PDFs automatically processed with Tesseract OCR when pypdf/pdfplumber return no text (dependencies: tesseract, poppler, pytesseract, pdf2image)
+- **Claude Vision Fallback**: When OCR produces insufficient text (< 800 chars/page), the system automatically falls back to Claude Vision (Sonnet 4) for designed PDFs. Vision renders pages as JPEG images and extracts entities directly from visual content, achieving 4x+ better extraction on strategy documents, presentations, and designed materials. Connection handling is optimized to reconnect after long Vision API calls.
 - **Tenant Isolation**: Multi-layer security:
   1. Application-level: All queries filter by `tenant_id` via StagingLoader and DuplicateDetector
   2. Database-level: RLS policies enabled on `entities` and `relationships` tables
@@ -78,6 +79,7 @@ The extraction pipeline uses **semantic routing** for automatic domain detection
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
 - **LLM**: OpenAI `gpt-4o-mini`
+- **Vision LLM**: Anthropic Claude Sonnet 4 (for designed PDFs where OCR yields < 800 chars/page)
 - **Vector Embeddings**: `text-embedding-3-small`
 - **Web Framework**: Flask
 - **Deployment**: Gunicorn
