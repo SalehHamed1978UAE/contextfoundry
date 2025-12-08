@@ -46,6 +46,28 @@ Three logical schemas exist:
   - Note: Neon PostgreSQL's `neondb_owner` role has `rolbypassrls=t`, requiring a non-bypass application role for full RLS enforcement
 - **Document Management**: Supports upload, versioning, re-queue for extraction, and status tracking with tenant-isolated storage.
 - **Bulk Ingestion System**: Supports multi-file/ZIP uploads, S3/Google Drive connectors with credential encryption, junk file filtering, and content deduplication.
+- **Automatic Domain Detection**: Semantic routing using embedding similarity classifies documents into domains (IT, healthcare, finance, aviation, etc.) and combines Core Foundation types with domain-specific types for comprehensive extraction. See `brain/classifier.py`.
+
+## Extraction Architecture
+
+### Domain-Agnostic Extraction
+The extraction pipeline uses **semantic routing** for automatic domain detection:
+
+1. **Core Foundation Types** (always included): PERSON, ORGANIZATION, DOCUMENT, LOCATION, EVENT, CONCEPT, PROCESS, DATE
+2. **Domain-Specific Types** (auto-detected): Added when document matches a domain with confidence >= 0.30
+
+### Semantic Router (`brain/classifier.py`)
+- Pre-computed embeddings for 7 domains: it_infrastructure, healthcare, finance, aviation, supply_chain, manufacturing, construction
+- Cosine similarity compares document embedding against domain embeddings
+- Threshold: 0.30 confidence for domain detection
+- Fallback: Core Foundation types only if no domain matches
+
+### Extraction Flow
+1. Embed first 2000 chars of document
+2. Compare against cached domain embeddings
+3. If domain detected → use Core + Domain types
+4. If no domain → use Core types only
+5. Extract entities with combined type list
 
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)

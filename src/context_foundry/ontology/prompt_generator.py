@@ -23,14 +23,14 @@ class SchemaPromptGenerator:
     def __init__(
         self, 
         repository: Optional[OntologyRepository] = None,
-        domain_name: str = "IT Operations"
+        domain_name: str = "Core Foundation"
     ):
         """
         Initialize the prompt generator.
         
         Args:
             repository: OntologyRepository instance (uses singleton if not provided)
-            domain_name: Human-readable domain name for prompts
+            domain_name: Human-readable domain name for prompts (auto-detected if not set)
         """
         self._repository = repository
         self.domain_name = domain_name

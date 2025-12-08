@@ -226,10 +226,10 @@ class ExtractionPipeline:
         document_title: str = "Inline Text",
     ) -> ExtractionResult:
         """
-        Extract entities with automatic fallback to Core Foundation types.
+        Extract entities using automatic domain detection with semantic routing.
         
-        First tries domain-specific extraction (IT Operations, etc).
-        If 0 entities found, retries with universal Core Foundation types.
+        Uses classifier to detect document domain, combines Core Foundation types
+        with domain-specific types for comprehensive extraction.
         
         Args:
             text: Text to extract from
@@ -239,20 +239,16 @@ class ExtractionPipeline:
         Returns:
             ExtractionResult with extracted entities and relations
         """
-        result = self.extract_from_text(
-            text=text,
-            document_id=document_id,
-            document_title=document_title,
-        )
-        
-        if result.entity_count > 0:
-            return result
-        
-        print(f"[ExtractionPipeline] Domain extraction found 0 entities, trying Core Foundation fallback...")
-        
         try:
-            entities = self.entity_extractor.extract_with_core_foundation(
+            from brain.classifier import classify_and_get_types
+            
+            domain, confidence, entity_types = classify_and_get_types(text)
+            
+            print(f"[ExtractionPipeline] Domain: {domain} (confidence: {confidence:.3f}), using {len(entity_types)} types")
+            
+            entities = self.entity_extractor.extract_with_types(
                 text=text,
+                entity_types=entity_types,
                 document_id=document_id,
                 chunk_id=f"{document_id}:chunk:0",
                 sentence_idx=0,
@@ -278,16 +274,46 @@ class ExtractionPipeline:
             )
             
         except Exception as e:
-            return ExtractionResult(
-                document_id=document_id,
-                document_title=document_title,
-                entities=[],
-                relations=[],
-                entity_count=0,
-                relation_count=0,
-                success=False,
-                error=str(e),
-            )
+            print(f"[ExtractionPipeline] Domain classification failed: {e}, using Core Foundation fallback")
+            
+            try:
+                entities = self.entity_extractor.extract_with_core_foundation(
+                    text=text,
+                    document_id=document_id,
+                    chunk_id=f"{document_id}:chunk:0",
+                    sentence_idx=0,
+                )
+                
+                entities_data = [e.to_dict() for e in entities]
+                
+                relations = self.relation_extractor.extract_from_text(
+                    text=text,
+                    entities=entities_data,
+                    document_id=document_id,
+                    chunk_id=f"{document_id}:chunk:0",
+                )
+                
+                return ExtractionResult(
+                    document_id=document_id,
+                    document_title=document_title,
+                    entities=entities,
+                    relations=relations,
+                    entity_count=len(entities),
+                    relation_count=len(relations),
+                    success=True,
+                )
+                
+            except Exception as fallback_error:
+                return ExtractionResult(
+                    document_id=document_id,
+                    document_title=document_title,
+                    entities=[],
+                    relations=[],
+                    entity_count=0,
+                    relation_count=0,
+                    success=False,
+                    error=str(fallback_error),
+                )
     
     def extract_from_documents(
         self,
