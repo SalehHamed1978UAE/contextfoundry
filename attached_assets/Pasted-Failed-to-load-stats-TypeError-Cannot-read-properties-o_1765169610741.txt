@@ -1,0 +1,37 @@
+Failed to load stats: TypeError: Cannot read properties of undefined (reading 'entities')
+    at loadStats (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1468:85)
+    at async Promise.all (/index 0)
+    at async loadKnowledge (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459:13)
+loadStats @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1473
+await in loadStats
+loadKnowledge @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459
+(anonymous) @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1683
+[NEW] Explain Console errors by using Copilot in Edge: click
+         
+         to explain an error. 
+        Learn more
+        Don't show again
+dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1601  Relationships error: TypeError: Cannot read properties of undefined (reading 'relationships')
+    at loadRelationships (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1584:47)
+    at async Promise.all (/index 3)
+    at async loadKnowledge (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459:13)
+loadRelationships @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1601
+await in loadRelationships
+loadKnowledge @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459
+(anonymous) @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1683
+dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1547  Graph error: TypeError: Cannot read properties of undefined (reading 'nodes')
+    at loadGraph (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1485:47)
+    at async Promise.all (/index 1)
+    at async loadKnowledge (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459:13)
+loadGraph @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1547
+await in loadGraph
+loadKnowledge @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459
+(anonymous) @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1683
+dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1573  Entities error: TypeError: Cannot read properties of undefined (reading 'entities')
+    at loadEntities (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1558:47)
+    at async Promise.all (/index 2)
+    at async loadKnowledge (dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459:13)
+loadEntities @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1573
+await in loadEntities
+loadKnowledge @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1459
+(anonymous) @ dashboard?error=column%20%22resource_type%22%20of%20relation%20%22usage_events%22%20:1683

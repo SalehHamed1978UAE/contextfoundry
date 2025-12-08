@@ -1,0 +1,129 @@
+You're right. Let me give Replit the complete picture:
+
+---
+
+**For Replit: READ THIS ENTIRE MESSAGE BEFORE DOING ANYTHING**
+
+**THE BIG PICTURE:**
+
+There are TWO completely separate systems. They have separate codebases, separate URLs, separate purposes. They must NEVER be mixed.
+
+---
+
+**SYSTEM 1: BRAIN**
+- **URL:** context-foundry.replit.app
+- **Purpose:** AI-powered knowledge graph, query engine, extraction
+- **Status:** WORKING. TESTED. DO NOT TOUCH.
+- **Has its own dashboard** with:
+  - Memory Graph
+  - Command Center
+  - A/B Evaluation
+  - Query interface
+  - Stats (82% multi-hop accuracy, 91% knowledge fidelity, etc.)
+
+**DO NOT:**
+- Delete Brain dashboard code
+- Modify Brain dashboard
+- Add Platform features to Brain
+- Reference Brain dashboard in Platform code
+
+---
+
+**SYSTEM 2: PLATFORM**
+- **URL:** 4a3m.riker.replit.dev
+- **Purpose:** Multi-tenant document management, user accounts, API keys
+- **Status:** BROKEN. Upload doesn't work.
+- **Should have its own simple dashboard** with ONLY:
+  - Documents section (upload, list, status)
+  - Connectors section (S3, Google Drive)
+  - API Keys section
+  - Settings section
+  - **"Open Knowledge Graph →" button** that links to Brain URL
+
+**DO NOT:**
+- Build Knowledge Graph visualization in Platform
+- Build entity explorer in Platform
+- Build relationship browser in Platform
+- Duplicate ANY Brain functionality in Platform
+
+---
+
+**THE CURRENT PROBLEM:**
+
+Someone added Knowledge Graph code to Platform dashboard. This is WRONG.
+
+Platform is calling `/api/knowledge/stats`, `/api/knowledge/graph`, `/api/knowledge/entities` — these should NOT EXIST in Platform.
+
+The JavaScript in Platform dashboard has `loadGraph()`, `loadStats()`, `loadEntities()`, `loadRelationships()` — these should NOT EXIST in Platform.
+
+---
+
+**WHAT TO DO NOW:**
+
+**Step 1: Remove ALL Knowledge Graph code from Platform**
+
+In the Platform codebase (4a3m.riker), delete:
+- All `/api/knowledge/*` routes
+- All Knowledge Graph HTML sections
+- All `loadGraph`, `loadStats`, `loadEntities`, `loadRelationships` JavaScript
+- The vis-network.js import
+- Any reference to entities, relationships, or graph visualization
+
+**Step 2: Make Platform dashboard simple**
+
+Platform dashboard should ONLY have:
+```
++------------------------------------------+
+| Context Foundry Platform                 |
++------------------------------------------+
+| [Documents] [Connectors] [API Keys]      |
++------------------------------------------+
+|                                          |
+| Upload Documents                         |
+| [Drag & drop or click to upload]         |
+|                                          |
+| Your Documents                           |
+| - report.pdf      ✅ Extracted           |
+| - notes.docx      ⏳ Processing          |
+|                                          |
+| [Open Knowledge Graph →]  ← Links to Brain
+|                                          |
++------------------------------------------+
+```
+
+**Step 3: Fix the upload**
+
+The upload is failing because of column mismatches. Get the actual schema:
+
+```sql
+SELECT table_name, column_name 
+FROM information_schema.columns 
+WHERE table_schema = 'platform' 
+AND table_name IN ('documents', 'extraction_requests', 'usage_events')
+ORDER BY table_name, ordinal_position;
+```
+
+Fix ALL INSERT statements to match actual columns.
+
+---
+
+**REMEMBER:**
+
+| Feature | Platform | Brain |
+|---------|----------|-------|
+| User login | ✅ | ❌ |
+| Document upload | ✅ | ❌ |
+| Document list | ✅ | ❌ |
+| Connectors | ✅ | ❌ |
+| API keys | ✅ | ❌ |
+| Knowledge Graph | ❌ | ✅ |
+| Entity explorer | ❌ | ✅ |
+| Query interface | ❌ | ✅ |
+| Command Center | ❌ | ✅ |
+| A/B Evaluation | ❌ | ✅ |
+
+**Platform manages documents. Brain manages knowledge. They link to each other. They do not duplicate each other.**
+
+---
+
+Now fix Platform. Do not touch Brain.

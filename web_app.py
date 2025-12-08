@@ -748,17 +748,16 @@ def dashboard_upload():
                 cur.execute("""
                     INSERT INTO platform.documents (
                         id, tenant_id, name, original_filename, mime_type, 
-                        storage_path, size_bytes, current_version, status, created_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', NOW())
+                        storage_path, size_bytes, current_version, status, created_by, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, NOW(), NOW())
                 """, (str(doc_id), str(tenant_id), file.filename, file.filename, 
                       file.content_type or 'application/octet-stream',
-                      storage_path, file_size, version))
+                      storage_path, file_size, version, str(user_id)))
                 
                 cur.execute("""
                     INSERT INTO platform.usage_events (
-                        tenant_id, user_id, event_type, resource_type, 
-                        resource_id, units, metadata, created_at
-                    ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                        tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
+                    ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                 """, (str(tenant_id), str(user_id), str(doc_id), file_size,
                       json.dumps({'filename': file.filename})))
                 
@@ -874,19 +873,18 @@ def dashboard_upload_multi():
                     cur.execute("""
                         INSERT INTO platform.documents (
                             id, tenant_id, name, original_filename, mime_type, 
-                            storage_path, size_bytes, current_version, status, content_hash, created_at
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, NOW())
+                            storage_path, size_bytes, current_version, status, content_hash, created_by, created_at, updated_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, %s, NOW(), NOW())
                     """, (str(doc_id), str(tenant_id), filename, filename, 
                           file.content_type or 'application/octet-stream',
-                          storage_path, file_size, version, content_hash))
+                          storage_path, file_size, version, content_hash, str(user_id)))
                     print("Step 9: Document inserted")
                     
                     print("Step 10: Inserting usage event")
                     cur.execute("""
                         INSERT INTO platform.usage_events (
-                            tenant_id, user_id, event_type, resource_type, 
-                            resource_id, units, metadata, created_at
-                        ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                            tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
+                        ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                     """, (str(tenant_id), str(user_id), str(doc_id), file_size,
                           json.dumps({'filename': filename, 'source': 'multi_upload'})))
                     print("Step 10: Usage event inserted")
@@ -1008,17 +1006,16 @@ def dashboard_upload_zip():
                             cur.execute("""
                                 INSERT INTO platform.documents (
                                     id, tenant_id, name, original_filename, mime_type, 
-                                    storage_path, size_bytes, current_version, status, content_hash, created_at
-                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, NOW())
+                                    storage_path, size_bytes, current_version, status, content_hash, created_by, created_at, updated_at
+                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, %s, NOW(), NOW())
                             """, (str(doc_id), str(tenant_id), filename, filename, 
                                   mime_type or 'application/octet-stream',
-                                  storage_path, len(content), version, content_hash))
+                                  storage_path, len(content), version, content_hash, str(user_id)))
                             
                             cur.execute("""
                                 INSERT INTO platform.usage_events (
-                                    tenant_id, user_id, event_type, resource_type, 
-                                    resource_id, units, metadata, created_at
-                                ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                                    tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
+                                ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                             """, (str(tenant_id), str(user_id), str(doc_id), len(content),
                                   json.dumps({'filename': filename, 'source': 'zip_upload', 'zip_name': file.filename})))
                             
@@ -1364,17 +1361,16 @@ def dashboard_sync_connector(connector_id):
                             INSERT INTO platform.documents (
                                 id, tenant_id, name, original_filename, mime_type, storage_path,
                                 size_bytes, current_version, status, source_connector_id,
-                                external_id, content_hash, created_at
-                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s, NOW())
+                                external_id, content_hash, created_by, created_at, updated_at
+                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, %s, %s, %s, NOW(), NOW())
                         """, (str(doc_id), str(tenant_id), file_info['name'], file_info['name'], file_info['mime_type'],
                               storage_path, file_info['size'], version, connector_id,
-                              file_info['external_id'], content_hash))
+                              file_info['external_id'], content_hash, str(user_id)))
                         
                         cur.execute("""
                             INSERT INTO platform.usage_events (
-                                tenant_id, user_id, event_type, resource_type,
-                                resource_id, units, metadata, created_at
-                            ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
+                                tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
+                            ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                         """, (str(tenant_id), str(user_id), str(doc_id), file_info['size'],
                               json.dumps({'filename': file_info['name'], 'source': 's3', 'connector_id': connector_id})))
                         
@@ -2784,348 +2780,6 @@ def entity_history(entity_id):
             'current_name': current.name,
             'history_count': len(history),
             'history': history
-        })
-    except Exception as e:
-        return jsonify({'error': str(e), 'success': False}), 500
-    finally:
-        session.close()
-
-@app.route('/api/knowledge/stats')
-def knowledge_stats():
-    """Get knowledge graph statistics for the authenticated user's tenant."""
-    print("=== KNOWLEDGE STATS CALLED ===")
-    print(f"Session: user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
-    if not session.get('user_id') or not session.get('tenant_id'):
-        print("=== KNOWLEDGE STATS FAILED: No auth ===")
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
-    try:
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
-        
-        tenant_id = session['tenant_id']
-        database_url = os.environ.get("DATABASE_URL")
-        
-        with psycopg2.connect(database_url) as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT COUNT(*) as count FROM public.entities WHERE tenant_id = %s
-                """, (tenant_id,))
-                entity_count = cur.fetchone()['count']
-                
-                cur.execute("""
-                    SELECT COUNT(*) as count FROM public.relationships WHERE tenant_id = %s
-                """, (tenant_id,))
-                relationship_count = cur.fetchone()['count']
-                
-                cur.execute("""
-                    SELECT COUNT(DISTINCT entity_type) as count FROM public.entities WHERE tenant_id = %s
-                """, (tenant_id,))
-                type_count = cur.fetchone()['count']
-        
-        return jsonify({
-            'success': True,
-            'entities': entity_count,
-            'relationships': relationship_count,
-            'types': type_count
-        })
-        
-    except Exception as e:
-        logger.error(f"Knowledge stats failed: {e}")
-        return jsonify({'success': False, 'error': 'Failed to load stats'}), 500
-
-@app.route('/api/knowledge/entities')
-def knowledge_entities():
-    """Get entities for the authenticated user's tenant."""
-    if not session.get('user_id') or not session.get('tenant_id'):
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
-    try:
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
-        
-        tenant_id = session['tenant_id']
-        per_page = request.args.get('per_page', 50, type=int)
-        database_url = os.environ.get("DATABASE_URL")
-        
-        with psycopg2.connect(database_url) as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT id, name, entity_type, confidence, created_at
-                    FROM public.entities 
-                    WHERE tenant_id = %s
-                    ORDER BY created_at DESC
-                    LIMIT %s
-                """, (tenant_id, per_page))
-                entities = cur.fetchall()
-        
-        return jsonify({
-            'success': True,
-            'entities': [
-                {
-                    'id': str(e['id']),
-                    'name': e['name'],
-                    'type': e['entity_type'],
-                    'confidence': float(e['confidence']) if e['confidence'] else 0,
-                    'created_at': e['created_at'].isoformat() if e['created_at'] else None
-                }
-                for e in entities
-            ]
-        })
-    except Exception as e:
-        logger.error(f"Knowledge entities failed: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/knowledge/relationships')
-def knowledge_relationships():
-    """Get relationships for the authenticated user's tenant."""
-    if not session.get('user_id') or not session.get('tenant_id'):
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
-    try:
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
-        
-        tenant_id = session['tenant_id']
-        per_page = request.args.get('per_page', 50, type=int)
-        database_url = os.environ.get("DATABASE_URL")
-        
-        with psycopg2.connect(database_url) as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT r.id, r.relationship_type, r.confidence, r.created_at,
-                           s.name as source_name, t.name as target_name
-                    FROM public.relationships r
-                    LEFT JOIN public.entities s ON r.source_id = s.id
-                    LEFT JOIN public.entities t ON r.target_id = t.id
-                    WHERE r.tenant_id = %s
-                    ORDER BY r.created_at DESC
-                    LIMIT %s
-                """, (tenant_id, per_page))
-                rels = cur.fetchall()
-        
-        return jsonify({
-            'success': True,
-            'relationships': [
-                {
-                    'id': str(r['id']),
-                    'type': r['relationship_type'],
-                    'source': r['source_name'],
-                    'target': r['target_name'],
-                    'confidence': float(r['confidence']) if r['confidence'] else 0,
-                    'created_at': r['created_at'].isoformat() if r['created_at'] else None
-                }
-                for r in rels
-            ]
-        })
-    except Exception as e:
-        logger.error(f"Knowledge relationships failed: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/knowledge/graph')
-def knowledge_graph():
-    """Get graph data for visualization."""
-    if not session.get('user_id') or not session.get('tenant_id'):
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
-    try:
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
-        
-        tenant_id = session['tenant_id']
-        database_url = os.environ.get("DATABASE_URL")
-        
-        with psycopg2.connect(database_url) as conn:
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT id, name, entity_type FROM public.entities 
-                    WHERE tenant_id = %s LIMIT 100
-                """, (tenant_id,))
-                entities = cur.fetchall()
-                
-                cur.execute("""
-                    SELECT id, source_id, target_id, relationship_type
-                    FROM public.relationships 
-                    WHERE tenant_id = %s LIMIT 200
-                """, (tenant_id,))
-                rels = cur.fetchall()
-        
-        nodes = [{'id': str(e['id']), 'label': e['name'], 'group': e['entity_type']} for e in entities]
-        edges = [{'from': str(r['source_id']), 'to': str(r['target_id']), 'label': r['relationship_type']} for r in rels]
-        
-        return jsonify({'success': True, 'nodes': nodes, 'edges': edges})
-    except Exception as e:
-        logger.error(f"Knowledge graph failed: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/knowledge/diff')
-def knowledge_diff():
-    """Get differences in the knowledge graph between two dates.
-    
-    Query parameters:
-    - from_date: ISO format date string (required)
-    - to_date: ISO format date string (required)
-    - entity_type: Optional filter by entity type
-    
-    Returns entities and relationships that:
-    - Were added (valid_from between from_date and to_date)
-    - Were removed (valid_to between from_date and to_date)
-    - Were modified (has superseded_by link)
-    """
-    from src.context_foundry.models.schema import get_session, Entity, Relationship
-    from datetime import datetime
-    
-    from_date_str = request.args.get('from_date')
-    to_date_str = request.args.get('to_date')
-    entity_type_filter = request.args.get('entity_type')
-    
-    if not from_date_str or not to_date_str:
-        return jsonify({'error': 'Both from_date and to_date are required', 'success': False}), 400
-    
-    try:
-        from_date = datetime.fromisoformat(from_date_str.replace('Z', '+00:00'))
-    except ValueError:
-        try:
-            from_date = datetime.strptime(from_date_str, '%Y-%m-%d')
-        except ValueError:
-            return jsonify({'error': 'Invalid from_date format', 'success': False}), 400
-    
-    try:
-        to_date = datetime.fromisoformat(to_date_str.replace('Z', '+00:00'))
-    except ValueError:
-        try:
-            to_date = datetime.strptime(to_date_str, '%Y-%m-%d')
-        except ValueError:
-            return jsonify({'error': 'Invalid to_date format', 'success': False}), 400
-    
-    session = get_session()
-    try:
-        added_query = session.query(Entity).filter(
-            Entity.valid_from >= from_date,
-            Entity.valid_from <= to_date
-        )
-        if entity_type_filter:
-            added_query = added_query.filter(Entity.entity_type == entity_type_filter.upper())
-        added_entities = added_query.all()
-        
-        removed_query = session.query(Entity).filter(
-            Entity.valid_to >= from_date,
-            Entity.valid_to <= to_date
-        )
-        if entity_type_filter:
-            removed_query = removed_query.filter(Entity.entity_type == entity_type_filter.upper())
-        removed_entities = removed_query.all()
-        
-        modified_query = session.query(Entity).filter(
-            Entity.superseded_by.isnot(None),
-            Entity.valid_to >= from_date,
-            Entity.valid_to <= to_date
-        )
-        if entity_type_filter:
-            modified_query = modified_query.filter(Entity.entity_type == entity_type_filter.upper())
-        modified_entities = modified_query.all()
-        
-        added_rels = session.query(Relationship).filter(
-            Relationship.valid_from >= from_date,
-            Relationship.valid_from <= to_date
-        ).all()
-        
-        removed_rels = session.query(Relationship).filter(
-            Relationship.valid_to >= from_date,
-            Relationship.valid_to <= to_date
-        ).all()
-        
-        def entity_to_dict(e):
-            return {
-                'id': str(e.id),
-                'name': e.name,
-                'entity_type': e.entity_type,
-                'confidence': e.confidence or 0.5,
-                'valid_from': e.valid_from.isoformat() if e.valid_from else None,
-                'valid_to': e.valid_to.isoformat() if e.valid_to else None,
-                'change_reason': e.change_reason,
-                'superseded_by': str(e.superseded_by) if e.superseded_by else None
-            }
-        
-        def rel_to_dict(r):
-            source = session.query(Entity).filter(Entity.id == r.source_id).first()
-            target = session.query(Entity).filter(Entity.id == r.target_id).first()
-            return {
-                'id': str(r.id),
-                'relationship_type': r.relationship_type,
-                'source_id': str(r.source_id),
-                'source_name': source.name if source else 'Unknown',
-                'target_id': str(r.target_id),
-                'target_name': target.name if target else 'Unknown',
-                'confidence': r.confidence or 0.5,
-                'valid_from': r.valid_from.isoformat() if r.valid_from else None,
-                'valid_to': r.valid_to.isoformat() if r.valid_to else None,
-                'change_reason': r.change_reason
-            }
-        
-        return jsonify({
-            'success': True,
-            'from_date': from_date_str,
-            'to_date': to_date_str,
-            'diff': {
-                'entities': {
-                    'added': [entity_to_dict(e) for e in added_entities],
-                    'removed': [entity_to_dict(e) for e in removed_entities],
-                    'modified': [entity_to_dict(e) for e in modified_entities]
-                },
-                'relationships': {
-                    'added': [rel_to_dict(r) for r in added_rels],
-                    'removed': [rel_to_dict(r) for r in removed_rels]
-                }
-            },
-            'summary': {
-                'entities_added': len(added_entities),
-                'entities_removed': len(removed_entities),
-                'entities_modified': len(modified_entities),
-                'relationships_added': len(added_rels),
-                'relationships_removed': len(removed_rels)
-            }
-        })
-    except Exception as e:
-        return jsonify({'error': str(e), 'success': False}), 500
-    finally:
-        session.close()
-
-@app.route('/api/knowledge/date-range')
-def knowledge_date_range():
-    """Get the temporal range of knowledge in the database for timeline slider.
-    
-    Returns:
-    - earliest: ISO date string of oldest valid_from
-    - latest: ISO date string of today (or most recent valid_from)
-    - total_snapshots: Number of distinct valid_from dates
-    """
-    from src.context_foundry.models.schema import get_session, Entity
-    from sqlalchemy import func
-    from datetime import datetime, timezone
-    
-    session = get_session()
-    try:
-        earliest_date = session.query(func.min(Entity.valid_from)).scalar()
-        latest_date = session.query(func.max(Entity.valid_from)).scalar()
-        
-        distinct_dates = session.query(func.count(func.distinct(func.date(Entity.valid_from)))).scalar()
-        
-        now = datetime.now(timezone.utc)
-        
-        if not earliest_date:
-            earliest_date = now
-        if not latest_date:
-            latest_date = now
-        
-        latest_date = max(latest_date, now.replace(tzinfo=None))
-        
-        return jsonify({
-            'success': True,
-            'earliest': earliest_date.strftime('%Y-%m-%dT%H:%M:%SZ') if earliest_date else None,
-            'latest': latest_date.strftime('%Y-%m-%dT%H:%M:%SZ') if latest_date else None,
-            'today': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
-            'total_snapshots': distinct_dates or 0
         })
     except Exception as e:
         return jsonify({'error': str(e), 'success': False}), 500
