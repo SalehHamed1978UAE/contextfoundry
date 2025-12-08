@@ -2834,6 +2834,130 @@ def knowledge_stats():
         logger.error(f"Knowledge stats failed: {e}")
         return jsonify({'success': False, 'error': 'Failed to load stats'}), 500
 
+@app.route('/api/knowledge/entities')
+def knowledge_entities():
+    """Get entities for the authenticated user's tenant."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        tenant_id = session['tenant_id']
+        per_page = request.args.get('per_page', 50, type=int)
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, name, entity_type, confidence, created_at
+                    FROM public.entities 
+                    WHERE tenant_id = %s
+                    ORDER BY created_at DESC
+                    LIMIT %s
+                """, (tenant_id, per_page))
+                entities = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'entities': [
+                {
+                    'id': str(e['id']),
+                    'name': e['name'],
+                    'type': e['entity_type'],
+                    'confidence': float(e['confidence']) if e['confidence'] else 0,
+                    'created_at': e['created_at'].isoformat() if e['created_at'] else None
+                }
+                for e in entities
+            ]
+        })
+    except Exception as e:
+        logger.error(f"Knowledge entities failed: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/knowledge/relationships')
+def knowledge_relationships():
+    """Get relationships for the authenticated user's tenant."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        tenant_id = session['tenant_id']
+        per_page = request.args.get('per_page', 50, type=int)
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT r.id, r.relationship_type, r.confidence, r.created_at,
+                           s.name as source_name, t.name as target_name
+                    FROM public.relationships r
+                    LEFT JOIN public.entities s ON r.source_entity_id = s.id
+                    LEFT JOIN public.entities t ON r.target_entity_id = t.id
+                    WHERE r.tenant_id = %s
+                    ORDER BY r.created_at DESC
+                    LIMIT %s
+                """, (tenant_id, per_page))
+                rels = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'relationships': [
+                {
+                    'id': str(r['id']),
+                    'type': r['relationship_type'],
+                    'source': r['source_name'],
+                    'target': r['target_name'],
+                    'confidence': float(r['confidence']) if r['confidence'] else 0,
+                    'created_at': r['created_at'].isoformat() if r['created_at'] else None
+                }
+                for r in rels
+            ]
+        })
+    except Exception as e:
+        logger.error(f"Knowledge relationships failed: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/knowledge/graph')
+def knowledge_graph():
+    """Get graph data for visualization."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        tenant_id = session['tenant_id']
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, name, entity_type FROM public.entities 
+                    WHERE tenant_id = %s LIMIT 100
+                """, (tenant_id,))
+                entities = cur.fetchall()
+                
+                cur.execute("""
+                    SELECT id, source_entity_id, target_entity_id, relationship_type
+                    FROM public.relationships 
+                    WHERE tenant_id = %s LIMIT 200
+                """, (tenant_id,))
+                rels = cur.fetchall()
+        
+        nodes = [{'id': str(e['id']), 'label': e['name'], 'group': e['entity_type']} for e in entities]
+        edges = [{'from': str(r['source_entity_id']), 'to': str(r['target_entity_id']), 'label': r['relationship_type']} for r in rels]
+        
+        return jsonify({'success': True, 'nodes': nodes, 'edges': edges})
+    except Exception as e:
+        logger.error(f"Knowledge graph failed: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/knowledge/diff')
 def knowledge_diff():
     """Get differences in the knowledge graph between two dates.
