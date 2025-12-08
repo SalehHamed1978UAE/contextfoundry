@@ -7,8 +7,15 @@
     <meta name="theme-color" content="#0f172a">
     <title>{% block title %}Context Foundry{% endblock %}</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2306b6d4' stroke-width='2'><path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/></svg>">
+    <script type="module">
+        import * as Turbo from 'https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js';
+    </script>
     {% block extra_head %}{% endblock %}
     <style>
+        .turbo-progress-bar {
+            background-color: #00d4ff;
+            height: 3px;
+        }
         :root {
             color-scheme: dark;
             --bg-primary: #0f172a;
