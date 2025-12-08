@@ -216,7 +216,7 @@ def list_entities():
         
         query = """
             SELECT e.id, e.name, e.entity_type, e.properties, e.confidence,
-                   e.document_id, e.created_at
+                   e.source_document_id, e.created_at
             FROM public.entities e
             WHERE e.tenant_id = :tenant_id
         """
@@ -226,7 +226,7 @@ def list_entities():
             query += " AND e.entity_type = :entity_type"
             params['entity_type'] = entity_type
         if document_id:
-            query += " AND e.document_id = :document_id"
+            query += " AND e.source_document_id = :document_id"
             params['document_id'] = document_id
         
         query += " ORDER BY e.created_at DESC LIMIT :limit OFFSET :offset"
@@ -246,7 +246,7 @@ def list_entities():
         
         for e in entities:
             e['id'] = str(e['id'])
-            e['document_id'] = str(e['document_id']) if e['document_id'] else None
+            e['document_id'] = str(e['source_document_id']) if e.get('source_document_id') else None
             e['created_at'] = e['created_at'].isoformat() if e['created_at'] else None
         
         return jsonify({
@@ -441,15 +441,17 @@ def get_graph():
         entity_ids = [str(e['id']) for e in entities]
         
         if entity_ids:
+            # Build IN clause with explicit UUIDs
+            entity_ids_str = ','.join([f"'{eid}'" for eid in entity_ids])
             rel_result = session.execute(
-                text("""
+                text(f"""
                     SELECT id, source_id as source_entity_id, target_id as target_entity_id, relationship_type
                     FROM public.relationships
                     WHERE tenant_id = :tenant_id
-                      AND source_id = ANY(:entity_ids::uuid[])
-                      AND target_id = ANY(:entity_ids::uuid[])
+                      AND source_id::text IN ({entity_ids_str})
+                      AND target_id::text IN ({entity_ids_str})
                 """),
-                {'tenant_id': tenant_id, 'entity_ids': entity_ids}
+                {'tenant_id': tenant_id}
             )
             relationships = [dict(row._mapping) for row in rel_result]
         else:
