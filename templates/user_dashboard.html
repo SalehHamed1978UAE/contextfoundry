@@ -31,6 +31,25 @@
             gap: 0.5rem;
         }
         
+        .unified-header {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(180deg, rgba(102, 126, 234, 0.1) 0%, rgba(26, 26, 46, 1) 100%);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+        
         .logo {
             font-size: 1.25rem;
             font-weight: 700;
@@ -38,6 +57,41 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 0.05em;
+        }
+        
+        .module-nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .module-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            color: #a0a0a0;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .module-tab:hover {
+            color: #fff;
+            background: rgba(102, 126, 234, 0.15);
+        }
+        
+        .module-tab.active {
+            color: #fff;
+            background: rgba(102, 126, 234, 0.25);
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .module-icon {
+            font-size: 1rem;
         }
         
         .header-right {
@@ -823,6 +877,32 @@
             }
         }
         
+        @media (max-width: 600px) {
+            .unified-header {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+                padding: 0.75rem 1rem;
+            }
+            
+            .header-left {
+                justify-content: center;
+            }
+            
+            .module-nav {
+                justify-content: center;
+                order: 3;
+            }
+            
+            .header-right {
+                justify-content: center;
+            }
+            
+            .module-tab {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.85rem;
+            }
+        }
+        
         @media (min-width: 768px) {
             .header {
                 padding: 1rem 2rem;
@@ -847,39 +927,37 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <span class="logo">Context Foundry</span>
+    <!-- Unified Header -->
+    <header class="header unified-header">
+        <div class="header-left">
+            <span class="logo-icon">&#x1F537;</span>
+            <span class="logo">CONTEXT FOUNDRY</span>
+        </div>
+        <nav class="module-nav">
+            <a href="/dashboard" class="module-tab active" title="Sources - Upload and manage your documents">
+                <span class="module-icon">&#x1F4E5;</span>
+                <span class="module-name">Sources</span>
+            </a>
+            <a href="https://context-foundry.replit.app" class="module-tab" title="Knowledge - Explore your knowledge graph" target="_blank">
+                <span class="module-icon">&#x1F9E0;</span>
+                <span class="module-name">Knowledge</span>
+            </a>
+        </nav>
         <div class="header-right">
             <span class="user-name">{{ user_name }}</span>
             <a href="/logout" class="logout-btn">Logout</a>
         </div>
     </header>
     
-    <div class="space-bar">{{ tenant_name }}</div>
+    <div class="space-bar">{{ tenant_name }}'s Space</div>
     
     <main class="main-content">
         <section class="section">
-            <h2 class="section-title">Search your knowledge</h2>
-            <form class="search-form" id="searchForm" onsubmit="handleSearch(event)">
-                <input type="text" class="search-input" id="searchQuery" 
-                       placeholder="Ask a question..." 
-                       autocomplete="off">
-                <button type="submit" class="btn" id="searchBtn">Search</button>
-            </form>
-            <div class="search-results" id="searchResults">
-                <div class="empty-state">Results will appear here</div>
-            </div>
-        </section>
-        
-        <section class="section">
-            <div class="section-header">
-                <h2 class="section-title">Documents & Ingestion</h2>
-            </div>
-            
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('upload')">Upload</button>
                 <button class="tab" onclick="switchTab('connectors')">Connectors</button>
-                <button class="tab" onclick="switchTab('documents')">Documents</button>
+                <button class="tab" onclick="switchTab('status')">Status</button>
+                <button class="tab" onclick="switchTab('apikeys')">API Keys</button>
             </div>
             
             <div class="tab-content active" id="tab-upload">
@@ -953,38 +1031,25 @@
                 </div>
             </div>
             
-            <div class="tab-content" id="tab-documents">
+            <div class="tab-content" id="tab-status">
                 <div class="document-list" id="documentList">
                     <div class="empty-state">Loading...</div>
                 </div>
             </div>
-        </section>
-        
-        <section class="section">
-            <div class="section-header">
-                <h2 class="section-title">Knowledge Graph</h2>
-            </div>
-            <p style="color: #a0a0a0; margin-bottom: 1rem; font-size: 0.9rem;">
-                View and explore your extracted knowledge graph, entities, relationships, and run queries.
-            </p>
-            <a href="https://context-foundry.replit.app" target="_blank" class="btn" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-                Open Knowledge Graph <span style="font-size: 1.1rem;">→</span>
-            </a>
-        </section>
-        
-        <section class="section">
-            <div class="section-header">
-                <h2 class="section-title">API Access</h2>
-                <button class="btn btn-secondary btn-small" onclick="createApiKey()">New Key</button>
-            </div>
             
-            <div id="apiKeysList">
-                <div class="empty-state">Loading...</div>
+            <div class="tab-content" id="tab-apikeys">
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 0.75rem;">
+                    <button class="btn btn-secondary btn-small" onclick="createApiKey()">+ New Key</button>
+                </div>
+                
+                <div id="apiKeysList">
+                    <div class="empty-state">Loading...</div>
+                </div>
+                
+                <p class="api-info">
+                    Use API keys with Claude, ChatGPT, or any MCP-compatible AI agent.
+                </p>
             </div>
-            
-            <p class="api-info">
-                Use API keys with Claude, ChatGPT, or any MCP-compatible AI agent.
-            </p>
         </section>
     </main>
     
@@ -1058,8 +1123,9 @@
             event.target.classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
             
-            if (tabName === 'documents') loadDocuments();
+            if (tabName === 'status') loadDocuments();
             if (tabName === 'connectors') loadConnectors();
+            if (tabName === 'apikeys') loadApiKeys();
         }
         
         const dropZone = document.getElementById('dropZone');
