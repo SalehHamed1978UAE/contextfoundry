@@ -179,76 +179,54 @@ class EntityExtractor:
         return self.schema_loader.get_valid_entity_types()
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
-        """Build comprehensive entity extraction prompt with few-shot examples."""
+        """Build simplified entity extraction prompt optimized for completeness."""
         schema = self.schema_loader.schema
-        domain = schema.domain
         entity_type_names = ", ".join(schema.entity_types.keys())
         
-        examples = load_few_shot_examples(domain)
-        formatted_examples = format_few_shot_examples(examples)
-        
-        prompt = f"""You are an expert entity extractor for enterprise knowledge graphs.
+        prompt = f"""Extract ALL entities from this text. Valid types: {entity_type_names}
 
-Your PRIMARY goal is COMPLETENESS - missing an entity is worse than including a borderline case.
+## ENTITY TYPE DEFINITIONS
 
-Extract ALL entities from the following {domain} document.
+CONCEPT: Named frameworks, methodologies, models, systems, approaches, architectures
+- "Federated Data Catalog", "Hub-and-Spoke", "Minimum Viable Metadata", "GDPR"
 
-## ENTITY TYPES
+PERSON: Named individuals AND job roles/titles
+- "Dr. Sarah Chen", "Data Steward", "CEO", "Chief Data Officer"
 
-PERSON: Named individuals AND named roles/titles (e.g., "Dr. Sarah Chen", "Data Steward", "CFO", "Project Manager")
-- Includes job titles and functional roles when they represent distinct concepts
+ORGANIZATION: Companies, agencies, departments, ministries, divisions, groups that can ACT
+- "Government", "Ministry of Health", "Corporate Holding Company", "Investment Committee"
+- Key test: If it issues, decides, manages, approves → ORGANIZATION
 
-ORGANIZATION: Companies, agencies, departments, ministries, teams, committees, government bodies
-- Key test: If it can PERFORM ACTIONS (decide, issue, approve, manage), it's ORGANIZATION
-- Examples: "Ministry of Health", "Investment Committee", "Government", "Corporate Holding Company"
+LOCATION: PHYSICAL places ONLY - cities, countries, buildings
+- "Abu Dhabi", "New York", "Headquarters Building"
+- NOT "Government", NOT "Ministry of X" (those are ORGANIZATION)
 
-LOCATION: PHYSICAL places only - cities, countries, buildings, addresses
-- NOT organizational types
-- NOT contexts or settings
-- Example: "Abu Dhabi" is LOCATION; "Government" is ORGANIZATION
+PROCESS: Workflows, procedures, phases, stages, approaches
+- "Crawl, Walk, Run Approach", "Phase 1: Foundation", "data governance"
 
-CONCEPT: Frameworks, methodologies, principles, standards, named approaches
-- Examples: "Federated Data Catalog", "Hub-and-Spoke", "Zero Trust Model", "GDPR"
-- Include document titles that name concepts
+EVENT: Meetings, milestones, occurrences
+- "Board Meeting", "Q3 Review", "project approval"
 
-PROCESS: Workflows, procedures, phases, implementation stages
-- Examples: "Phase 1: Foundation", "Crawl-Walk-Run Approach", "Quarterly Review"
+DATE: Time references
+- "December 2025", "Q4", "Months 1-6", "Year 1"
 
-EVENT: Meetings, milestones, occurrences (e.g., "Board Meeting", "Q3 Review")
-
-DATE: Time references (e.g., "December 2025", "Months 1-3", "Q4")
-
-DOCUMENT: Referenced reports, policies, forms (e.g., "Annual Report", "Governance Policy")
-
-## DISAMBIGUATION RULE
-
-If an entity can PERFORM ACTIONS in the text (issues, decides, manages, owns, approves):
--> It is ORGANIZATION, not LOCATION
-
-Example: "The Government issued regulations" -> "Government" is ORGANIZATION (it acted)
-
-## FEW-SHOT EXAMPLES
-
-{formatted_examples}
+DOCUMENT: Referenced reports, policies, forms
+- "Annual Report", "Governance Policy", "Critical Success Factors"
 
 ## EXTRACTION RULES
 
-1. Extract ALL named concepts, frameworks, and methodologies - these are high value
-2. Include the document title and section headers as entities
-3. When a term is capitalized or appears as a heading, it's likely an entity
-4. If unsure, INCLUDE IT with confidence 0.7-0.8
-5. Use confidence 0.9-1.0 for clearly named entities
+1. Extract ALL capitalized multi-word terms and named concepts
+2. Extract document titles, section headers, and acronyms
+3. Extract job titles and roles as PERSON
+4. When uncertain, INCLUDE with confidence 0.7-0.8
+5. Be THOROUGH - completeness is more important than precision
 
 ## OUTPUT FORMAT
 
-Return valid JSON array only, no markdown:
-[
-  {{"entity_type": "TYPE", "canonical_name": "exact text", "properties": {{}}, "source_span": "text where found", "confidence": 0.9}}
-]
+Return valid JSON array only (no markdown):
+[{{"entity_type": "TYPE", "canonical_name": "exact text", "confidence": 0.9}}]
 
-Valid types: {entity_type_names}
-
-## TEXT TO EXTRACT FROM
+## TEXT TO EXTRACT
 
 {text}"""
         return prompt
@@ -454,6 +432,7 @@ TEXT:
         pass1_entities = self._run_extraction_pass(
             prompt, system_prompt, document_id, chunk_id, sentence_idx
         )
+        print(f"[EntityExtractor] Pass 1: {len(pass1_entities)} entities")
         
         already_extracted = [e.canonical_name for e in pass1_entities]
         gap_prompt = self._build_concept_gap_check_prompt(text, already_extracted)
@@ -462,9 +441,12 @@ TEXT:
         pass2_entities = self._run_extraction_pass(
             gap_prompt, gap_system, document_id, chunk_id, sentence_idx
         )
+        print(f"[EntityExtractor] Pass 2 (gap-check): {len(pass2_entities)} new entities")
         
         all_entities = pass1_entities + pass2_entities
-        return self._deduplicate_entities(all_entities)
+        deduped = self._deduplicate_entities(all_entities)
+        print(f"[EntityExtractor] After dedup: {len(deduped)} entities (dropped {len(all_entities) - len(deduped)})")
+        return deduped
     
     def extract_from_chunks(
         self,
