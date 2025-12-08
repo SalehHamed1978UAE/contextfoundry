@@ -779,23 +779,28 @@ def dashboard_upload():
 @app.route('/dashboard/upload/multi', methods=['POST'])
 def dashboard_upload_multi():
     """Upload multiple files at once."""
+    import traceback
     print("=== MULTI UPLOAD STARTED ===")
-    print(f"Session: user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
+    print(f"Step 0: Session check - user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
     if not session.get('user_id') or not session.get('tenant_id'):
         print("=== MULTI UPLOAD FAILED: No auth ===")
         return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
-    files = request.files.getlist('files')
-    if not files or len(files) == 0:
-        return jsonify({'success': False, 'error': 'No files provided'}), 400
-    
     try:
+        print("Step 1: Getting files from request")
+        files = request.files.getlist('files')
+        print(f"Step 1: Got {len(files) if files else 0} files")
+        if not files or len(files) == 0:
+            return jsonify({'success': False, 'error': 'No files provided'}), 400
+        
         from uuid import UUID, uuid4
         import psycopg2
         import hashlib
         
+        print("Step 2: Parsing tenant_id and user_id from session")
         tenant_id = UUID(session['tenant_id'])
         user_id = UUID(session['user_id'])
+        print(f"Step 2: tenant_id={tenant_id}, user_id={user_id}")
         
         JUNK_PATTERNS = ['.DS_Store', 'Thumbs.db', 'desktop.ini', '.gitignore', '__pycache__']
         ALLOWED_EXTENSIONS = ['.txt', '.md', '.json', '.csv', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.rtf', '.html', '.xml']
@@ -803,10 +808,13 @@ def dashboard_upload_multi():
         
         results = []
         database_url = os.environ.get("DATABASE_URL")
+        print(f"Step 3: Connecting to database (URL exists: {bool(database_url)})")
         
         with psycopg2.connect(database_url) as conn:
+            print("Step 3: Database connected")
             with conn.cursor() as cur:
-                for file in files:
+                for idx, file in enumerate(files):
+                    print(f"Step 4: Processing file {idx+1}: {file.filename}")
                     if not file.filename:
                         continue
                     
@@ -823,20 +831,26 @@ def dashboard_upload_multi():
                     doc_id = uuid4()
                     version = 1
                     storage_dir = f"./storage/tenants/{tenant_id}/documents/{doc_id}/v{version}"
+                    print(f"Step 5: Creating storage dir: {storage_dir}")
                     os.makedirs(storage_dir, exist_ok=True)
                     storage_path = f"{storage_dir}/content"
                     
+                    print(f"Step 6: Saving file to {storage_path}")
                     file.save(storage_path)
                     file_size = os.path.getsize(storage_path)
+                    print(f"Step 6: File saved, size={file_size}")
                     
                     if file_size > MAX_FILE_SIZE:
                         os.remove(storage_path)
                         results.append({'filename': filename, 'status': 'skipped', 'reason': 'File too large (>50MB)'})
                         continue
                     
+                    print("Step 7: Computing content hash")
                     with open(storage_path, 'rb') as f:
                         content_hash = hashlib.sha256(f.read()).hexdigest()
+                    print(f"Step 7: Hash={content_hash[:16]}...")
                     
+                    print("Step 8: Checking for duplicates")
                     cur.execute("""
                         SELECT id FROM platform.documents 
                         WHERE tenant_id = %s AND content_hash = %s LIMIT 1
@@ -844,8 +858,11 @@ def dashboard_upload_multi():
                     if cur.fetchone():
                         os.remove(storage_path)
                         results.append({'filename': filename, 'status': 'duplicate', 'reason': 'Content already exists'})
+                        print("Step 8: Duplicate found, skipping")
                         continue
+                    print("Step 8: No duplicate")
                     
+                    print("Step 9: Inserting into platform.documents")
                     cur.execute("""
                         INSERT INTO platform.documents (
                             id, tenant_id, name, original_filename, mime_type, 
@@ -854,7 +871,9 @@ def dashboard_upload_multi():
                     """, (str(doc_id), str(tenant_id), filename, filename, 
                           file.content_type or 'application/octet-stream',
                           storage_path, file_size, version, content_hash))
+                    print("Step 9: Document inserted")
                     
+                    print("Step 10: Inserting usage event")
                     cur.execute("""
                         INSERT INTO platform.usage_events (
                             tenant_id, user_id, event_type, resource_type, 
@@ -862,15 +881,19 @@ def dashboard_upload_multi():
                         ) VALUES (%s, %s, 'upload', 'document', %s, %s, %s, NOW())
                     """, (str(tenant_id), str(user_id), str(doc_id), file_size,
                           json.dumps({'filename': filename, 'source': 'multi_upload'})))
+                    print("Step 10: Usage event inserted")
                     
                     results.append({'filename': filename, 'status': 'queued', 'document_id': str(doc_id)})
                 
+                print("Step 11: Committing transaction")
                 conn.commit()
+                print("Step 11: Committed")
         
         queued = sum(1 for r in results if r['status'] == 'queued')
         skipped = sum(1 for r in results if r['status'] == 'skipped')
         duplicates = sum(1 for r in results if r['status'] == 'duplicate')
         
+        print(f"=== MULTI UPLOAD SUCCESS: queued={queued}, skipped={skipped}, duplicates={duplicates} ===")
         return jsonify({
             'success': True,
             'summary': {'queued': queued, 'skipped': skipped, 'duplicates': duplicates},
@@ -878,8 +901,9 @@ def dashboard_upload_multi():
         })
         
     except Exception as e:
-        logger.error(f"Multi-file upload failed: {e}")
-        return jsonify({'success': False, 'error': 'Upload failed'}), 500
+        print(f"=== MULTI UPLOAD EXCEPTION: {e} ===")
+        traceback.print_exc()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/dashboard/upload/zip', methods=['POST'])
 def dashboard_upload_zip():
