@@ -147,6 +147,13 @@ def set_tenant_context():
     g.user_id = None
     g.user_role = None
     
+    # First check session-based auth (Google OAuth)
+    if session.get('user_id') and session.get('tenant_id'):
+        g.tenant_id = session.get('tenant_id')
+        g.user_id = session.get('user_id')
+        g.user_role = session.get('role', 'user')
+        return
+    
     auth_header = request.headers.get('Authorization', '')
     
     if auth_header.startswith('Bearer '):
