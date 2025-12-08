@@ -15,7 +15,7 @@ from openai import OpenAI
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_DIM = 1536
-DOMAIN_CONFIDENCE_THRESHOLD = 0.30
+DOMAIN_CONFIDENCE_THRESHOLD = 0.50
 
 EMBEDDINGS_CACHE_PATH = Path(__file__).parent / "domain_embeddings.json"
 
