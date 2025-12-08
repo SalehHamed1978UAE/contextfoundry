@@ -28,9 +28,12 @@ def is_port_available(port, retries=3, delay=1):
 
 def kill_port_process(port, max_attempts=3):
     """Kill any process using the specified port with retries."""
+    import subprocess
     for attempt in range(max_attempts):
         try:
-            os.system(f'fuser -k {port}/tcp 2>/dev/null')
+            subprocess.run(['fuser', '-k', f'{port}/tcp'], 
+                          stderr=subprocess.DEVNULL, 
+                          check=False)
             time.sleep(2)
             if is_port_available(port, retries=1):
                 return True
@@ -58,7 +61,9 @@ from src.context_foundry.agents.gardener import GardenerConfig
 from src.context_foundry.agents.identity_resolver import IdentityResolutionConfig
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SESSION_SECRET", "context-foundry-secret")
+app.secret_key = os.environ.get("SESSION_SECRET")
+if not app.secret_key:
+    raise RuntimeError("SESSION_SECRET environment variable required")
 app.permanent_session_lifetime = timedelta(days=7)
 
 if os.environ.get("GOOGLE_OAUTH_CLIENT_ID"):
