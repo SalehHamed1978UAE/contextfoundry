@@ -920,7 +920,7 @@ def api_document_details(doc_id):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
                     SELECT id, original_filename, status, mime_type, created_at,
-                           extraction_method, extraction_metrics, published
+                           extraction_method, extraction_metrics
                     FROM platform.documents 
                     WHERE id = %s AND tenant_id = %s
                 """, [doc_id, tenant_id])
@@ -961,7 +961,6 @@ def api_document_details(doc_id):
             'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
             'extraction_method': doc['extraction_method'] or 'text',
             'extraction_metrics': doc['extraction_metrics'] or {},
-            'published': doc['published'] or False,
             'entity_count': len(entities),
             'entities_by_type': grouped
         })
