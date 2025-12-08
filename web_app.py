@@ -339,6 +339,74 @@ def get_current_user():
     else:
         return jsonify({'error': 'User not found'}), 404
 
+@app.route('/api/dev/auth', methods=['POST'])
+def dev_auth():
+    """Development-only auth endpoint for stress testing.
+    Creates or gets a test user/tenant for automated testing.
+    """
+    import os
+    import uuid
+    if os.environ.get('REPLIT_DEPLOYMENT') == '1':
+        return jsonify({'error': 'Not available in production'}), 403
+    
+    data = request.get_json() or {}
+    email = data.get('email', 'stress-test@context-foundry.local')
+    
+    auth = get_auth_service()
+    result = auth.create_magic_link(
+        email=email,
+        ip_address=request.remote_addr,
+        user_agent='StressTest/1.0'
+    )
+    
+    if not result.success:
+        return jsonify({'error': result.error}), 400
+    
+    import re
+    token_match = re.search(r'token=([^&]+)', result.link)
+    if not token_match:
+        return jsonify({'error': 'Failed to extract token'}), 500
+    
+    verify_result = auth.verify_magic_link(token_match.group(1))
+    if not verify_result.success:
+        return jsonify({'error': verify_result.error}), 400
+    
+    user_id = verify_result.user.id
+    tenant_id = verify_result.user.tenant_id
+    
+    if not tenant_id:
+        from src.context_foundry.models.schema import get_session
+        db_session = get_session()
+        try:
+            new_tenant_id = str(uuid.uuid4())
+            tenant_name = f"Stress Test Tenant ({email.split('@')[0]})"
+            tenant_slug = f"stress-test-{email.split('@')[0].replace('.', '-')}-{new_tenant_id[:8]}"
+            
+            from sqlalchemy import text
+            db_session.execute(text("""
+                INSERT INTO platform.tenants (id, name, slug, type, status, settings, created_at)
+                VALUES (:id, :name, :slug, 'demo', 'active', '{}', NOW())
+                ON CONFLICT (id) DO NOTHING
+            """), {'id': new_tenant_id, 'name': tenant_name, 'slug': tenant_slug})
+            
+            db_session.commit()
+            tenant_id = new_tenant_id
+        finally:
+            db_session.close()
+    
+    session['user_id'] = user_id
+    session['user_name'] = verify_result.user.name or email.split('@')[0]
+    session['tenant_id'] = tenant_id
+    session['role'] = verify_result.user.role or 'user'
+    session.permanent = True
+    
+    return jsonify({
+        'success': True,
+        'user_id': user_id,
+        'tenant_id': tenant_id,
+        'access_token': verify_result.access_token
+    })
+
 @app.route('/api/keys', methods=['GET', 'POST'])
 def api_keys():
     """List or create API keys for the current tenant."""

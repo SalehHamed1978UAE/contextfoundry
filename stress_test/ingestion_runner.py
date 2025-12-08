@@ -43,6 +43,7 @@ class IngestionRunner:
         self.session = requests.Session()
         self.results = []
         self.lock = threading.Lock()
+        self.authenticated = False
         
         self.total_docs = 0
         self.successful_docs = 0
@@ -50,39 +51,52 @@ class IngestionRunner:
         self.total_entities = 0
         self.total_relationships = 0
         
-    def _get_session_cookie(self) -> bool:
-        """Get or create a session by logging in as test user"""
+    def _ensure_authenticated(self) -> bool:
+        """Ensure we have a valid session with tenant context"""
+        if self.authenticated:
+            return True
+            
         try:
+            response = self.session.post(
+                f"{self.base_url}/api/dev/auth",
+                json={"email": "stress-test@context-foundry.local"},
+                timeout=10
+            )
+            if response.status_code == 200:
+                self.authenticated = True
+                logger.info("Authenticated as stress test user")
+                return True
+                
             response = self.session.get(f"{self.base_url}/", timeout=10)
-            return response.status_code == 200
+            if response.status_code == 200:
+                self.authenticated = True
+                return True
+                
         except Exception as e:
-            logger.error(f"Failed to initialize session: {e}")
-            return False
+            logger.error(f"Failed to authenticate: {e}")
+        
+        return False
     
     def upload_document(self, doc: GeneratedDocument) -> IngestionResult:
         """Upload a single document and trigger extraction"""
         start_time = time.time()
         
+        self._ensure_authenticated()
+        
         try:
-            upload_data = {
-                "filename": f"{doc.doc_id}.txt",
-                "content": doc.content,
-                "metadata": {
-                    "domain": doc.domain,
-                    "format_type": doc.format_type,
-                    "is_adversarial": doc.is_adversarial,
-                    "adversarial_type": doc.adversarial_type,
-                    "stress_test": True
-                }
-            }
-            
             files = {
                 'file': (f"{doc.doc_id}.txt", doc.content, 'text/plain')
             }
             
+            data = {
+                'auto_extract': 'true',
+                'priority': 'normal'
+            }
+            
             response = self.session.post(
-                f"{self.base_url}/api/documents/upload",
+                f"{self.base_url}/documents",
                 files=files,
+                data=data,
                 timeout=60
             )
             
@@ -142,21 +156,22 @@ class IngestionRunner:
                 error=str(e)
             )
     
-    def _wait_for_extraction(self, document_id: int, max_wait: int = 120) -> Dict:
+    def _wait_for_extraction(self, document_id: str, max_wait: int = 120) -> Dict:
         """Wait for extraction to complete and return results"""
         start_time = time.time()
         
         while time.time() - start_time < max_wait:
             try:
                 response = self.session.get(
-                    f"{self.base_url}/api/documents/{document_id}/status",
+                    f"{self.base_url}/documents/{document_id}/status",
                     timeout=10
                 )
                 
                 if response.status_code == 200:
                     status = response.json()
-                    if status.get('extraction_status') in ['completed', 'failed', 'error']:
-                        if status.get('extraction_status') == 'completed':
+                    doc_status = status.get('document_status', '')
+                    if doc_status in ['completed', 'extracted', 'failed', 'error']:
+                        if doc_status in ['completed', 'extracted']:
                             entities = self._get_document_entities(document_id)
                             return {
                                 'entity_count': len(entities),
@@ -167,19 +182,19 @@ class IngestionRunner:
                         else:
                             return {'entity_count': 0, 'relationship_count': 0, 'entities': [], 'relationships': []}
                 
-                time.sleep(2)
+                time.sleep(3)
                 
             except Exception as e:
                 logger.warning(f"Error checking extraction status: {e}")
-                time.sleep(2)
+                time.sleep(3)
         
         return {'entity_count': 0, 'relationship_count': 0, 'entities': [], 'relationships': [], 'timeout': True}
     
-    def _get_document_entities(self, document_id: int) -> List[Dict]:
+    def _get_document_entities(self, document_id: str) -> List[Dict]:
         """Get entities extracted from a document"""
         try:
             response = self.session.get(
-                f"{self.base_url}/api/documents/{document_id}/entities",
+                f"{self.base_url}/documents/{document_id}/entities",
                 timeout=10
             )
             if response.status_code == 200:
