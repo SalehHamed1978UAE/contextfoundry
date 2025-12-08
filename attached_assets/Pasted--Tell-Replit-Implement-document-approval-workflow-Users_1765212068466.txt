@@ -1,0 +1,449 @@
+**Tell Replit:**
+
+```
+Implement document approval workflow. Users must approve documents before entities enter the Brain.
+
+═══════════════════════════════════════════════════════════════
+PART 1: DATABASE CHANGES
+═══════════════════════════════════════════════════════════════
+
+Run these SQL commands:
+
+-- Document publish tracking (if not already added)
+ALTER TABLE platform.documents 
+ADD COLUMN IF NOT EXISTS published BOOLEAN DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS published_at TIMESTAMP,
+ADD COLUMN IF NOT EXISTS published_by TEXT;
+
+-- Entity status for staging vs trusted
+ALTER TABLE public.entities
+ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'staging';
+
+-- Mark ALL existing extracted documents as published (so current data still works)
+UPDATE platform.documents SET published = TRUE WHERE status = 'extracted';
+UPDATE public.entities SET status = 'trusted' WHERE status IS NULL OR status = 'staging';
+
+-- NEW documents should default to published=FALSE (staging)
+
+═══════════════════════════════════════════════════════════════
+PART 2: API ENDPOINTS (add to web_app.py)
+═══════════════════════════════════════════════════════════════
+
+@app.route('/api/documents/<doc_id>/publish', methods=['POST'])
+def publish_document(doc_id):
+    """Approve document - entities become trusted."""
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Update document
+        cur.execute("""
+            UPDATE platform.documents 
+            SET published = TRUE, published_at = NOW(), published_by = %s
+            WHERE id = %s AND tenant_id = %s
+            RETURNING id
+        """, [session.get('user_email', 'user'), doc_id, tenant_id])
+        
+        if cur.fetchone() is None:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        # Update entities to trusted
+        cur.execute("""
+            UPDATE public.entities 
+            SET status = 'trusted'
+            WHERE source_document_id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        
+        conn.commit()
+        return jsonify({'success': True, 'published': True})
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.route('/api/documents/<doc_id>/unpublish', methods=['POST'])
+def unpublish_document(doc_id):
+    """Retract document - entities back to staging."""
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            UPDATE platform.documents 
+            SET published = FALSE, published_at = NULL
+            WHERE id = %s AND tenant_id = %s
+            RETURNING id
+        """, [doc_id, tenant_id])
+        
+        if cur.fetchone() is None:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        cur.execute("""
+            UPDATE public.entities 
+            SET status = 'staging'
+            WHERE source_document_id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        
+        conn.commit()
+        return jsonify({'success': True, 'published': False})
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.route('/api/documents/<doc_id>/reject', methods=['POST'])
+def reject_document(doc_id):
+    """Reject document - delete entities, mark as rejected."""
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Delete relationships first (foreign key constraint)
+        cur.execute("""
+            DELETE FROM public.relationships 
+            WHERE tenant_id = %s AND (
+                source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+            )
+        """, [tenant_id, doc_id, doc_id])
+        
+        # Delete entities
+        cur.execute("""
+            DELETE FROM public.entities 
+            WHERE source_document_id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        
+        # Mark document as rejected
+        cur.execute("""
+            UPDATE platform.documents 
+            SET status = 'rejected', published = FALSE
+            WHERE id = %s AND tenant_id = %s
+            RETURNING id
+        """, [doc_id, tenant_id])
+        
+        if cur.fetchone() is None:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        conn.commit()
+        return jsonify({'success': True, 'status': 'rejected'})
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.route('/api/documents/<doc_id>/re-extract', methods=['POST'])
+def re_extract_document(doc_id):
+    """Re-extract document - delete entities, re-queue for extraction."""
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Get document info
+        cur.execute("""
+            SELECT id, name, file_type, file_size 
+            FROM platform.documents 
+            WHERE id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        doc = cur.fetchone()
+        
+        if not doc:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        # Delete existing relationships
+        cur.execute("""
+            DELETE FROM public.relationships 
+            WHERE tenant_id = %s AND (
+                source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+            )
+        """, [tenant_id, doc_id, doc_id])
+        
+        # Delete existing entities
+        cur.execute("""
+            DELETE FROM public.entities 
+            WHERE source_document_id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        
+        # Reset document status
+        cur.execute("""
+            UPDATE platform.documents 
+            SET status = 'queued', published = FALSE, 
+                extraction_method = NULL, extraction_metrics = NULL
+            WHERE id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        
+        # Create new extraction request
+        cur.execute("""
+            INSERT INTO platform.extraction_requests 
+            (id, request_id, document_id, tenant_id, file_path, file_name, 
+             mime_type, file_size_bytes, extraction_mode, priority, status, 
+             retry_count, max_retries, created_at, submitted_at)
+            VALUES (
+                gen_random_uuid(), gen_random_uuid(), %s, %s,
+                './storage/tenants/' || %s || '/documents/' || %s || '/v1/content',
+                %s, %s, %s, 'full', 'high', 'pending', 0, 3, NOW(), NOW()
+            )
+        """, [doc_id, tenant_id, tenant_id, doc_id, 
+              doc[1], 'application/pdf', doc[3]])
+        
+        conn.commit()
+        return jsonify({'success': True, 'status': 'queued'})
+    finally:
+        cur.close()
+        conn.close()
+
+
+@app.route('/api/documents/<doc_id>', methods=['DELETE'])
+def delete_document(doc_id):
+    """Hard delete document and all associated data."""
+    tenant_id = session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        # Delete relationships
+        cur.execute("""
+            DELETE FROM public.relationships 
+            WHERE tenant_id = %s AND (
+                source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+            )
+        """, [tenant_id, doc_id, doc_id])
+        
+        # Delete entities
+        cur.execute("""
+            DELETE FROM public.entities 
+            WHERE source_document_id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        
+        # Delete extraction requests
+        cur.execute("""
+            DELETE FROM platform.extraction_requests 
+            WHERE document_id = %s AND tenant_id = %s
+        """, [doc_id, tenant_id])
+        
+        # Delete document
+        cur.execute("""
+            DELETE FROM platform.documents 
+            WHERE id = %s AND tenant_id = %s
+            RETURNING id
+        """, [doc_id, tenant_id])
+        
+        if cur.fetchone() is None:
+            return jsonify({'error': 'Document not found'}), 404
+        
+        conn.commit()
+        return jsonify({'success': True, 'deleted': True})
+    finally:
+        cur.close()
+        conn.close()
+
+═══════════════════════════════════════════════════════════════
+PART 3: UPDATE DETAIL PANEL BUTTONS (JavaScript)
+═══════════════════════════════════════════════════════════════
+
+Replace the panel-actions section and add these functions:
+
+// Update panel actions based on document status
+function updatePanelActions(doc) {
+    const actionsDiv = document.querySelector('.panel-actions');
+    
+    if (doc.status === 'rejected') {
+        actionsDiv.innerHTML = `
+            <button class="btn btn-danger" onclick="deleteDocument()">🗑️ Delete Permanently</button>
+        `;
+    } else if (doc.published) {
+        actionsDiv.innerHTML = `
+            <button class="btn btn-secondary" onclick="unpublishDocument()">⏸️ Unpublish</button>
+            <button class="btn btn-secondary" onclick="reExtractDocument()">🔄 Re-extract</button>
+            <button class="btn btn-danger" onclick="deleteDocument()">🗑️ Delete</button>
+        `;
+    } else {
+        actionsDiv.innerHTML = `
+            <button class="btn btn-primary" onclick="publishDocument()">✅ Publish to Brain</button>
+            <button class="btn btn-secondary" onclick="reExtractDocument()">🔄 Re-extract</button>
+            <button class="btn btn-danger" onclick="rejectDocument()">❌ Reject</button>
+        `;
+    }
+}
+
+function publishDocument() {
+    if (!currentDocumentId) return;
+    
+    fetch(`/api/documents/${currentDocumentId}/publish`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document published to Brain');
+                closeDetailPanel();
+                loadDocuments(); // Refresh list
+            } else {
+                alert('Failed to publish: ' + (data.error || 'Unknown error'));
+            }
+        });
+}
+
+function unpublishDocument() {
+    if (!currentDocumentId) return;
+    if (!confirm('Remove this document from the Brain? Entities will move back to staging.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}/unpublish`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document unpublished');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                alert('Failed to unpublish: ' + (data.error || 'Unknown error'));
+            }
+        });
+}
+
+function rejectDocument() {
+    if (!currentDocumentId) return;
+    if (!confirm('Reject this document? All extracted entities will be deleted.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}/reject`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document rejected');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                alert('Failed to reject: ' + (data.error || 'Unknown error'));
+            }
+        });
+}
+
+function reExtractDocument() {
+    if (!currentDocumentId) return;
+    if (!confirm('Re-extract this document? Existing entities will be replaced.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}/re-extract`, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document queued for re-extraction');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                alert('Failed to re-extract: ' + (data.error || 'Unknown error'));
+            }
+        });
+}
+
+function deleteDocument() {
+    if (!currentDocumentId) return;
+    if (!confirm('PERMANENTLY delete this document? This cannot be undone.')) return;
+    
+    fetch(`/api/documents/${currentDocumentId}`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Document deleted');
+                closeDetailPanel();
+                loadDocuments();
+            } else {
+                alert('Failed to delete: ' + (data.error || 'Unknown error'));
+            }
+        });
+}
+
+function showToast(message) {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px; 
+        background: #10b981; color: white; padding: 12px 24px;
+        border-radius: 8px; z-index: 9999; animation: fadeIn 0.3s;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Call updatePanelActions in openDetailPanel after loading data:
+// Add this line after populating the panel:
+updatePanelActions(data);
+
+═══════════════════════════════════════════════════════════════
+PART 4: UPDATE DOCUMENT LIST STATUS DISPLAY
+═══════════════════════════════════════════════════════════════
+
+In renderDocumentsTable, update the status column to show publish state:
+
+function getStatusBadge(doc) {
+    if (doc.status === 'rejected') {
+        return '<span class="badge badge-rejected">⚫ Rejected</span>';
+    } else if (doc.status === 'extracted') {
+        if (doc.published) {
+            return '<span class="badge badge-published">✅ Published</span>';
+        } else {
+            return '<span class="badge badge-review">🟡 Review</span>';
+        }
+    } else if (doc.status === 'processing') {
+        return '<span class="badge badge-processing">⏳ Processing</span>';
+    } else if (doc.status === 'queued') {
+        return '<span class="badge badge-queued">📋 Queued</span>';
+    } else if (doc.status === 'failed') {
+        return '<span class="badge badge-failed">❌ Failed</span>';
+    }
+    return '<span class="badge">' + doc.status + '</span>';
+}
+
+Add CSS for badges:
+.badge-published { background: #10b981; color: white; }
+.badge-review { background: #f59e0b; color: black; }
+.badge-rejected { background: #6b7280; color: white; }
+.badge-processing { background: #3b82f6; color: white; }
+.badge-queued { background: #8b5cf6; color: white; }
+.badge-failed { background: #ef4444; color: white; }
+
+═══════════════════════════════════════════════════════════════
+PART 5: UPDATE /api/documents TO RETURN published FIELD
+═══════════════════════════════════════════════════════════════
+
+Make sure the documents list API returns the published field:
+
+SELECT id, name, status, file_type, file_size, created_at, 
+       extraction_method, published
+FROM platform.documents 
+WHERE tenant_id = %s
+ORDER BY created_at DESC
+
+═══════════════════════════════════════════════════════════════
+PART 6: NEW DOCUMENTS DEFAULT TO published=FALSE
+═══════════════════════════════════════════════════════════════
+
+In the document upload handler, ensure:
+published = FALSE (default)
+
+So new documents require explicit approval.
+
+═══════════════════════════════════════════════════════════════
+
+Implement all 6 parts. Test:
+1. Upload a new document → Should show as "Review" 
+2. Click it → See entities → Click "Publish" → Should show as "Published"
+3. Click published doc → Click "Unpublish" → Back to "Review"
+4. Click "Reject" on a review doc → Should show as "Rejected", entities deleted
+
+Show me the document list with different statuses when done.
+```
