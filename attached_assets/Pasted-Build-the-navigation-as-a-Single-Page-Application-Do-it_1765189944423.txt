@@ -1,0 +1,72 @@
+Build the navigation as a Single Page Application. Do it right.
+
+ARCHITECTURE:
+
+1. base_layout.html loads ONCE and never reloads
+   - Sidebar always visible
+   - Content area is a container that gets updated via JavaScript
+   - Dark background, no flash ever
+
+2. Menu clicks do NOT navigate to new pages. Instead:
+   - JavaScript intercepts click
+   - Fetches content from API endpoint
+   - Injects HTML into content area
+   - Updates URL with history.pushState (so back button works)
+   - Updates active state in sidebar
+
+3. Create content endpoints that return HTML fragments:
+   GET /api/content/upload → Returns upload form HTML
+   GET /api/content/connectors → Returns connectors HTML
+   GET /api/content/status → Returns status table HTML
+   GET /api/content/api-keys → Returns API keys HTML
+   GET /api/content/dashboard → Returns Knowledge dashboard HTML
+   GET /api/content/memory-graph → Returns memory graph HTML
+   GET /api/content/command-center → Returns command center HTML
+   GET /api/content/evaluation → Returns A/B evaluation HTML
+
+4. JavaScript router:
+   
+   document.querySelectorAll('.sidebar-link').forEach(link => {
+       link.addEventListener('click', async (e) => {
+           e.preventDefault();
+           const path = link.getAttribute('href');
+           
+           // Update URL without reload
+           history.pushState({}, '', path);
+           
+           // Fetch content
+           const response = await fetch('/api/content' + path);
+           const html = await response.text();
+           
+           // Update content area
+           document.getElementById('content-area').innerHTML = html;
+           
+           // Update active state in sidebar
+           document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+           link.classList.add('active');
+       });
+   });
+   
+   // Handle browser back/forward buttons
+   window.addEventListener('popstate', () => {
+       loadContent(window.location.pathname);
+   });
+
+5. Initial page load:
+   - Server renders full page with correct content based on URL
+   - After that, navigation is client-side only
+
+6. Sidebar state:
+   - Both sections always expanded (simplest)
+   - OR use localStorage for collapse preference
+   - Either way, state is preserved because page never reloads
+
+RESULT:
+- Zero flash on any navigation
+- Instant content switching
+- Sidebar state always preserved
+- Back/forward buttons work
+- Bookmarkable URLs
+- Professional UX
+
+This is the proper way to build it. No technical debt.
