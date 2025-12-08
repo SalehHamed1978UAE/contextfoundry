@@ -1,0 +1,341 @@
+**Claude Vision Fallback for Designed PDFs — Technical Specification**
+
+---
+
+## Problem Statement
+
+Designed PDFs (presentations, strategy decks, infographics) contain valuable text that:
+- Is embedded as vector graphics or styled text
+- OCR tools (Tesseract, pypdf, pdfplumber) fail to extract
+- Claude Vision can read perfectly
+
+**Current state:** AI_Value_Blueprint_Strategy.pdf has 14 pages but OCR only extracted 10,382 characters (~740 chars/page). Key terms like "EBITDA", "Monte Carlo", "Four Pillars" were not captured.
+
+---
+
+## Solution: Vision Fallback Pipeline
+
+```
+PDF Upload
+    ↓
+Try standard extraction (pypdf → pdfplumber)
+    ↓
+If text extracted > 500 chars/page average → Use text extraction
+    ↓
+If text extracted < 500 chars/page average → Try OCR (Tesseract)
+    ↓
+If OCR still < 500 chars/page average → Trigger Vision Fallback
+    ↓
+Render pages as images → Send to Claude Vision → Extract entities directly
+```
+
+---
+
+## Decision Logic
+
+```python
+def should_use_vision(text: str, page_count: int) -> bool:
+    """Determine if we should fall back to Claude Vision."""
+    
+    if page_count == 0:
+        return False
+    
+    chars_per_page = len(text) / page_count
+    
+    # Threshold: 500 chars/page minimum for adequate extraction
+    # A typical text page has 2000-3000 chars
+    # Designed PDFs often yield < 200 chars/page from OCR
+    
+    if chars_per_page < 500:
+        return True
+    
+    # Also check for "garbage" text (OCR artifacts)
+    garbage_ratio = count_non_ascii(text) / len(text) if text else 0
+    if garbage_ratio > 0.3:  # 30%+ garbage characters
+        return True
+    
+    return False
+```
+
+---
+
+## Implementation
+
+### Step 1: Render PDF Pages to Images
+
+```python
+from pdf2image import convert_from_path
+import base64
+from io import BytesIO
+
+def render_pdf_pages(file_path: str, max_pages: int = 20, dpi: int = 150) -> list[str]:
+    """Convert PDF pages to base64-encoded images."""
+    
+    images = convert_from_path(
+        file_path, 
+        dpi=dpi, 
+        first_page=1, 
+        last_page=max_pages
+    )
+    
+    base64_images = []
+    for img in images:
+        buffer = BytesIO()
+        img.save(buffer, format='JPEG', quality=85)
+        b64 = base64.standard_b64encode(buffer.getvalue()).decode('utf-8')
+        base64_images.append(b64)
+    
+    return base64_images
+```
+
+### Step 2: Send to Claude Vision for Extraction
+
+```python
+import anthropic
+
+def extract_with_vision(
+    images: list[str], 
+    entity_types: list[str],
+    client: anthropic.Anthropic
+) -> dict:
+    """Extract entities directly from page images using Claude Vision."""
+    
+    # Build message content with all images
+    content = []
+    
+    for i, img_b64 in enumerate(images):
+        content.append({
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": "image/jpeg",
+                "data": img_b64
+            }
+        })
+        content.append({
+            "type": "text",
+            "text": f"[Page {i+1}]"
+        })
+    
+    # Add extraction prompt
+    content.append({
+        "type": "text",
+        "text": f"""Analyze all pages above and extract entities.
+
+Entity types to extract: {', '.join(entity_types)}
+
+For each entity found, provide:
+- name: The entity name as it appears
+- type: One of the entity types listed above
+- confidence: Your confidence (0.0-1.0)
+- context: Brief context where it appears
+
+Return JSON format:
+{{
+    "entities": [
+        {{"name": "...", "type": "...", "confidence": 0.9, "context": "..."}},
+        ...
+    ],
+    "document_summary": "Brief summary of document content"
+}}
+
+Extract ALL relevant entities. This is a knowledge extraction task.
+Do not limit yourself — capture every concept, person, organization, process, etc."""
+    })
+    
+    response = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=8000,
+        messages=[{"role": "user", "content": content}]
+    )
+    
+    # Parse JSON response
+    return parse_extraction_response(response.content[0].text)
+```
+
+### Step 3: Integrate into Extraction Pipeline
+
+```python
+def extract_text_from_file(file_path: str, page_count: int = None) -> tuple[str, str]:
+    """
+    Extract text from file. Returns (text, method_used).
+    method_used: 'text' | 'ocr' | 'vision'
+    """
+    
+    extension = file_path.lower().split('.')[-1]
+    
+    if extension != 'pdf':
+        # Non-PDF: use existing logic
+        return extract_non_pdf(file_path), 'text'
+    
+    # Try standard PDF text extraction
+    text = extract_pdf_text(file_path)  # pypdf + pdfplumber
+    page_count = get_pdf_page_count(file_path)
+    
+    if not should_use_vision(text, page_count):
+        return text, 'text'
+    
+    # Try OCR
+    print(f"[TextExtractor] Low text yield, attempting OCR...")
+    text = extract_pdf_ocr(file_path)
+    
+    if not should_use_vision(text, page_count):
+        return text, 'ocr'
+    
+    # Fall back to Vision
+    print(f"[TextExtractor] OCR insufficient ({len(text)} chars for {page_count} pages), using Vision...")
+    return "VISION_REQUIRED", 'vision'
+
+
+def run_extraction(file_path: str, tenant_id: str, document_id: str):
+    """Main extraction pipeline."""
+    
+    text, method = extract_text_from_file(file_path)
+    
+    if method == 'vision':
+        # Vision extraction: skip text, go directly to entity extraction from images
+        images = render_pdf_pages(file_path, max_pages=20)
+        entity_types = get_entity_types_for_document(text, tenant_id)  # Uses Core Foundation
+        
+        result = extract_with_vision(images, entity_types, anthropic_client)
+        entities = result['entities']
+        
+        # Store extraction metadata
+        save_extraction_metadata(document_id, {
+            'method': 'vision',
+            'pages_processed': len(images),
+            'entities_extracted': len(entities)
+        })
+    else:
+        # Standard text-based extraction
+        entities = extract_entities_from_text(text, entity_types)
+        
+        save_extraction_metadata(document_id, {
+            'method': method,
+            'text_length': len(text),
+            'entities_extracted': len(entities)
+        })
+    
+    return entities
+```
+
+---
+
+## Cost Analysis
+
+| Method | Cost per Page | 14-Page PDF Cost |
+|--------|---------------|------------------|
+| Text extraction | $0 | $0 |
+| OCR (Tesseract) | $0 | $0 |
+| Claude Vision | ~$0.01-0.02 | ~$0.15-0.30 |
+| Entity extraction (text) | ~$0.01 | ~$0.01 |
+
+**Vision is 10-30x more expensive per document**, but:
+- Only triggers for problem PDFs (< 500 chars/page)
+- Produces dramatically better results for designed documents
+- These documents are often the most valuable (strategy, exec content)
+
+**Cost control:**
+- Max 20 pages per Vision call
+- For longer documents: Process first 20 pages, summarize rest
+- Cache results: Don't re-extract unless requested
+
+---
+
+## Database Changes
+
+```sql
+-- Track extraction method
+ALTER TABLE platform.documents 
+ADD COLUMN IF NOT EXISTS extraction_method TEXT DEFAULT 'text';
+-- Values: 'text', 'ocr', 'vision'
+
+-- Track extraction quality metrics
+ALTER TABLE platform.documents
+ADD COLUMN IF NOT EXISTS extraction_metrics JSONB;
+-- Example: {"chars_extracted": 10382, "chars_per_page": 741, "vision_fallback": true}
+```
+
+---
+
+## UI Changes
+
+**Document detail panel shows extraction method:**
+
+```
+AI_Value_Blueprint_Strategy.pdf
+─────────────────────────────────
+Type: PDF (14 pages)
+Uploaded: Dec 8, 2025
+Extraction: 🔍 Vision (designed PDF)   ← Shows method used
+Status: 🟡 Review
+
+ENTITIES (35)
+├─ CONCEPT (12)
+│   └─ EBITDA, NPV, IRR, Monte Carlo Simulation, Four Pillars...
+├─ PROCESS (8)
+│   └─ Risk Assessment, Financial Modeling, Data Monetization...
+...
+```
+
+---
+
+## Rollout Plan
+
+| Phase | Scope | Risk |
+|-------|-------|------|
+| 1. Build & test | Vision extraction on AI_Value_Blueprint.pdf | Low |
+| 2. Manual trigger | Add "Re-extract with Vision" button | Low |
+| 3. Auto-fallback | Automatic Vision when OCR < 500 chars/page | Medium |
+| 4. Monitor & tune | Adjust threshold based on real usage | Low |
+
+---
+
+## Success Criteria
+
+For AI_Value_Blueprint_Strategy.pdf:
+
+| Metric | Current (OCR) | Target (Vision) |
+|--------|---------------|-----------------|
+| Entities extracted | 17 | 35-45 |
+| Key terms captured | ~60% | 95%+ |
+| EBITDA found | ❌ | ✅ |
+| Monte Carlo found | ❌ | ✅ |
+| Four Pillars found | ❌ | ✅ |
+| Five Risk types | ❌ | ✅ |
+
+---
+
+**Tell Replit:**
+
+```
+Implement Claude Vision fallback for designed PDFs.
+
+PHASE 1: Build the foundation
+
+1. Add should_use_vision() function in brain/app.py:
+   - Returns True if chars_per_page < 500
+   - Returns True if garbage_ratio > 0.3
+
+2. Add render_pdf_pages() function:
+   - Uses pdf2image to convert pages to JPEG
+   - Returns list of base64-encoded images
+   - Max 20 pages, 150 DPI
+
+3. Add extract_with_vision() function:
+   - Sends images to Claude claude-sonnet-4-20250514 (or claude-sonnet-4-20250514)
+   - Prompts for entity extraction with JSON output
+   - Returns parsed entities
+
+4. Update extraction pipeline:
+   - After OCR, check should_use_vision()
+   - If True, call Vision extraction instead of text extraction
+
+5. Add extraction_method column to documents table
+
+6. Test with AI_Value_Blueprint_Strategy.pdf
+   - Should extract 35+ entities
+   - Should find EBITDA, Monte Carlo, Four Pillars, Risk types
+
+Start with Phase 1. Show me results on the test PDF.
+```
