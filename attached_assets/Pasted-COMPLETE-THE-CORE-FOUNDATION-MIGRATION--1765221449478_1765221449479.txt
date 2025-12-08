@@ -1,0 +1,78 @@
+COMPLETE THE CORE FOUNDATION MIGRATION
+
+═══════════════════════════════════════════════════════════════
+FIX 1: Update relationship schema (5 min)
+═══════════════════════════════════════════════════════════════
+
+Edit brain/config/domain_schema.yaml
+
+REPLACE the IT Ops relationship types (DEPENDS_ON, ROUTES_TO, etc.)
+WITH Core Foundation types:
+
+relationship_types:
+  WORKS_AT:
+    source_types: [PERSON]
+    target_types: [ORGANIZATION]
+  OWNS:
+    source_types: [ORGANIZATION]
+    target_types: [ORGANIZATION]
+  IMPLEMENTS:
+    source_types: [CONCEPT, PROCESS, ORGANIZATION]
+    target_types: [CONCEPT, PROCESS]
+  PART_OF:
+    source_types: [PROCESS, CONCEPT, ORGANIZATION]
+    target_types: [PROCESS, CONCEPT, ORGANIZATION]
+  GOVERNS:
+    source_types: [ORGANIZATION, CONCEPT]
+    target_types: [ORGANIZATION, PROCESS, CONCEPT]
+  DESCRIBES:
+    source_types: [DOCUMENT]
+    target_types: [CONCEPT, PROCESS, ORGANIZATION]
+  MANAGES:
+    source_types: [PERSON, ORGANIZATION]
+    target_types: [PROCESS, ORGANIZATION, CONCEPT]
+  PRODUCES:
+    source_types: [PROCESS, ORGANIZATION]
+    target_types: [DOCUMENT, CONCEPT]
+  RELATED_TO:
+    source_types: [PERSON, ORGANIZATION, CONCEPT, PROCESS, DOCUMENT, EVENT, LOCATION, DATE]
+    target_types: [PERSON, ORGANIZATION, CONCEPT, PROCESS, DOCUMENT, EVENT, LOCATION, DATE]
+
+═══════════════════════════════════════════════════════════════
+FIX 2: Wire up relationship extraction (1 line)
+═══════════════════════════════════════════════════════════════
+
+brain/app.py line 531:
+
+CHANGE:
+    relations=[],
+
+TO:
+    relations=extraction_result.relations if hasattr(extraction_result, 'relations') else [],
+
+═══════════════════════════════════════════════════════════════
+FIX 3: Remove any other IT Ops remnants
+═══════════════════════════════════════════════════════════════
+
+Search for and remove/update:
+    rg -n 'SERVICE|COMPONENT|INCIDENT|DATABASE|TEAM' brain/config/
+
+Replace IT entity types if they exist in the schema.
+
+═══════════════════════════════════════════════════════════════
+FIX 4: Test
+═══════════════════════════════════════════════════════════════
+
+1. Restart workflow
+2. Re-extract Federated Data Catalog doc
+3. Check relationships were created:
+   
+   SELECT relationship_type, COUNT(*) 
+   FROM relationships 
+   WHERE source_document_id = '30ea874d-0ab0-404c-9d59-1e4c056e0ffb'
+   GROUP BY relationship_type;
+
+4. Should see: IMPLEMENTS, PART_OF, DESCRIBES, etc.
+   Should NOT see: DEPENDS_ON, ROUTES_TO, AFFECTS
+
+═══════════════════════════════════════════════════════════════
