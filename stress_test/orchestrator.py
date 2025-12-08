@@ -81,18 +81,24 @@ class StressTestOrchestrator:
         logger.info(f"Results Directory: {self.config.results_dir}")
         logger.info("=" * 70)
         
-        logger.info("Generating edge case documents first...")
+        logger.info("Authenticating...")
+        self.ingestion_runner._ensure_authenticated()
+        
+        logger.info("Generating edge case documents...")
         edge_cases = self.doc_generator.generate_edge_case_documents()
         logger.info(f"Generated {len(edge_cases)} edge case documents")
         
         edge_results = self.ingestion_runner.ingest_batch(edge_cases)
+        successful_edge = sum(1 for r in edge_results if r.success)
+        logger.info(f"Edge case ingestion: {successful_edge}/{len(edge_cases)} successful")
+        
         self.metrics.record_ingestion_results(edge_results)
         self.report.write_documents_log(edge_results)
         self.report.write_errors_log(edge_results, [])
         
         logger.info("Starting main test loop...")
         
-        docs_generated = len(edge_cases)
+        docs_generated = 0
         queries_executed = 0
         last_hour_logged = -1
         last_hourly_checkpoint = time.time()
