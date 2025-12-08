@@ -328,7 +328,13 @@ class RetrievalAgent:
             
             bundle.is_property_query = True
             bundle.property_filters = filters
-            bundle.target_entity_found = True
+            # Only set target_entity_found=True if we haven't already verified
+            # that the target entity is missing. This prevents hallucination 
+            # when queries ask about non-existent entities with property-like syntax.
+            if bundle.target_entity_name is None:
+                # No specific target entity to verify - property search is valid
+                bundle.target_entity_found = True
+            # else: preserve the existing value from _verify_target_entity_exists
         
         semantic_results = self._query_semantic_memory(
             keywords, entity_types, traverse_depth, max_entities, query_logger,
