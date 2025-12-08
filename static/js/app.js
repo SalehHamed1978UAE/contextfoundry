@@ -1252,7 +1252,24 @@ function runApp() {
                 body: JSON.stringify({ query })
             });
 
-            const data = await response.json();
+            // Check if response is OK before trying to parse JSON
+            if (!response.ok) {
+                const errorText = await response.text();
+                // Check if it's HTML (server error page)
+                if (errorText.startsWith('<!') || errorText.startsWith('<html')) {
+                    throw new Error(`Server error (${response.status}). Please try again.`);
+                }
+                throw new Error(errorText || `Request failed with status ${response.status}`);
+            }
+
+            // Try to parse JSON, handle parse errors gracefully
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                throw new Error('Invalid response from server. Please try again.');
+            }
+
             const duration = ((Date.now() - queryStartTime) / 1000).toFixed(2);
             
             if (data.success) {
@@ -1738,9 +1755,86 @@ function runApp() {
 
     function formatAnswer(answer) {
         if (!answer) return '';
+        
+        // Check if answer contains structured JSON with impact analysis
+        if (answer.includes('"CONFIRMED IMPACT"') || answer.includes('"CONFIRMED_IMPACT"') ||
+            answer.includes('"INFERRED IMPACT"') || answer.includes('"INFERRED_IMPACT"')) {
+            try {
+                // Try to parse as JSON
+                const parsed = JSON.parse(answer);
+                return formatStructuredAnswer(parsed);
+            } catch (e) {
+                // If parsing fails, try to extract JSON from the text
+                const jsonMatch = answer.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    try {
+                        const parsed = JSON.parse(jsonMatch[0]);
+                        return formatStructuredAnswer(parsed);
+                    } catch (e2) {
+                        // Fall through to default formatting
+                    }
+                }
+            }
+        }
+        
+        // Default formatting for plain text answers
         return escapeHtml(answer)
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
+    }
+    
+    function formatStructuredAnswer(data) {
+        let html = '';
+        
+        // Format Confirmed Impact
+        const confirmedKey = data['CONFIRMED IMPACT'] || data['CONFIRMED_IMPACT'];
+        if (confirmedKey && Array.isArray(confirmedKey) && confirmedKey.length > 0) {
+            html += '<div class="answer-section-formatted confirmed">';
+            html += '<h4>Confirmed Impact</h4>';
+            html += '<ul>';
+            confirmedKey.forEach(item => {
+                const name = escapeHtml(item.service || item.name || item.entity || 'Unknown');
+                const desc = escapeHtml(item.description || '');
+                const conf = item.confidence ? ` (${Math.round(item.confidence * 100)}% confidence)` : '';
+                const rel = item.relationship ? ` - ${escapeHtml(item.relationship)}` : '';
+                html += `<li><strong>${name}</strong>${rel}${desc ? ': ' + desc : ''}${conf}</li>`;
+            });
+            html += '</ul></div>';
+        }
+        
+        // Format Inferred Impact
+        const inferredKey = data['INFERRED IMPACT'] || data['INFERRED_IMPACT'];
+        if (inferredKey && Array.isArray(inferredKey) && inferredKey.length > 0) {
+            html += '<div class="answer-section-formatted inferred">';
+            html += '<h4>Inferred Impact</h4>';
+            html += '<ul>';
+            inferredKey.forEach(item => {
+                const name = escapeHtml(item.service || item.name || item.entity || 'Unknown');
+                const inference = escapeHtml(item.inference || '');
+                const conf = item.confidence ? ` (${Math.round(item.confidence * 100)}% confidence)` : '';
+                html += `<li><strong>${name}</strong>${inference ? ': ' + inference : ''}${conf}</li>`;
+            });
+            html += '</ul></div>';
+        }
+        
+        // Format Knowledge Boundary
+        const boundaryKey = data['KNOWLEDGE BOUNDARY'] || data['KNOWLEDGE_BOUNDARY'];
+        if (boundaryKey && Array.isArray(boundaryKey) && boundaryKey.length > 0) {
+            html += '<div class="answer-section-formatted boundary">';
+            html += '<h4>Knowledge Boundaries</h4>';
+            html += '<ul>';
+            boundaryKey.forEach(item => {
+                html += `<li>${escapeHtml(typeof item === 'string' ? item : JSON.stringify(item))}</li>`;
+            });
+            html += '</ul></div>';
+        }
+        
+        // If we couldn't format anything, return a simple version
+        if (!html) {
+            return escapeHtml(JSON.stringify(data, null, 2)).replace(/\n/g, '<br>');
+        }
+        
+        return html;
     }
 
     function escapeHtml(text) {
