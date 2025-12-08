@@ -884,11 +884,18 @@
             </div>
             
             <div class="tab-content active" id="tab-upload">
+                <!-- Simple HTML form for mobile compatibility -->
+                <form action="/dashboard/upload/multi" method="POST" enctype="multipart/form-data" style="margin-bottom: 1rem;">
+                    <input type="file" name="files" multiple 
+                           accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip"
+                           style="margin-bottom: 0.5rem;">
+                    <button type="submit" class="btn">Upload</button>
+                </form>
+                
                 <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
                     <div class="drop-zone-icon">📁</div>
-                    <div class="drop-zone-text">Drag & drop files here or click to browse</div>
+                    <div class="drop-zone-text">Or drag & drop files here</div>
                     <div class="drop-zone-hint">Supports PDF, DOC, TXT, MD, JSON, CSV, XLS, PPT, HTML, XML (max 50MB each)</div>
-                    <div class="drop-zone-hint">You can also drop a ZIP file for bulk import</div>
                 </div>
                 <input type="file" id="multiFileInput" multiple hidden 
                        accept=".pdf,.doc,.docx,.txt,.md,.json,.csv,.xls,.xlsx,.ppt,.pptx,.rtf,.html,.xml,.zip">
