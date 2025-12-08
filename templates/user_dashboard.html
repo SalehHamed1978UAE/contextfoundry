@@ -3,6 +3,41 @@
 {% block title %}{{ tenant_name }} - Context Foundry{% endblock %}
 
 {% block extra_styles %}
+.corpus-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 16px 24px;
+    flex: 1;
+    text-align: center;
+    transition: border-color 0.2s ease;
+}
+
+.stat-card:hover {
+    border-color: #00d4ff;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00d4ff;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
 .section {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
@@ -544,6 +579,25 @@
 
 <section class="section">
 {% if active_page == 'documents' or not active_page %}
+    <div class="corpus-stats">
+        <div class="stat-card">
+            <div class="stat-value" id="stat-documents">--</div>
+            <div class="stat-label">Documents</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-entities">--</div>
+            <div class="stat-label">Entities</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-relationships">--</div>
+            <div class="stat-label">Relationships</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-processing">--</div>
+            <div class="stat-label">Processing</div>
+        </div>
+    </div>
+    
     <div class="drop-zone" id="dropZone" onclick="document.getElementById('multiFileInput').click()">
         <div class="drop-zone-icon">📁</div>
         <div class="drop-zone-text">Drop files here to upload</div>
@@ -681,12 +735,31 @@ let pollInterval = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     if (activePage === 'documents' || !activePage) {
+        loadCorpusStats();
         loadDocumentsPage(1);
-        pollInterval = setInterval(loadDocumentsPage, 5000);
+        pollInterval = setInterval(() => {
+            loadDocumentsPage();
+            loadCorpusStats();
+        }, 5000);
     }
     if (activePage === 'connectors') loadConnectors();
     if (activePage === 'api-keys') loadApiKeys();
 });
+
+async function loadCorpusStats() {
+    try {
+        const response = await fetch('/api/corpus-stats', { credentials: 'include' });
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('stat-documents').textContent = data.documents.toLocaleString();
+            document.getElementById('stat-entities').textContent = data.entities.toLocaleString();
+            document.getElementById('stat-relationships').textContent = data.relationships.toLocaleString();
+            document.getElementById('stat-processing').textContent = data.processing.toLocaleString();
+        }
+    } catch (e) {
+        console.error('Failed to load corpus stats', e);
+    }
+}
 
 function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
