@@ -2,35 +2,40 @@
 # Startup script with port cleanup for Context Foundry
 # Prevents port conflicts by ensuring clean startup
 
-set -e
-
 echo "============================================"
 echo "Context Foundry Startup Script"
 echo "============================================"
 
-# Kill any existing processes on our ports
-echo "[Cleanup] Killing existing processes on ports 3000 and 5000..."
+# Kill any existing Python processes for our services
+echo "[Cleanup] Killing existing service processes..."
+pkill -f "python.*brain.app" 2>/dev/null || true
+pkill -f "python.*web_app" 2>/dev/null || true
+sleep 1
+
+# Kill any processes on our ports
+echo "[Cleanup] Killing processes on ports 3000 and 5000..."
 fuser -k 3000/tcp 2>/dev/null || true
 fuser -k 5000/tcp 2>/dev/null || true
-sleep 2
+sleep 3
 
 # Verify ports are free
 echo "[Check] Verifying ports are available..."
-if fuser 3000/tcp 2>/dev/null; then
-    echo "[Error] Port 3000 still in use after cleanup!"
-    exit 1
-fi
-if fuser 5000/tcp 2>/dev/null; then
-    echo "[Error] Port 5000 still in use after cleanup!"
-    exit 1
-fi
-echo "[Check] Ports 3000 and 5000 are available"
+for i in 1 2 3; do
+    if ! fuser 3000/tcp 2>/dev/null && ! fuser 5000/tcp 2>/dev/null; then
+        echo "[Check] Ports 3000 and 5000 are available"
+        break
+    fi
+    echo "[Check] Waiting for ports to free (attempt $i)..."
+    sleep 2
+done
 
 # Start Brain Service on port 3000
 echo "[Start] Starting Brain Service on port 3000..."
-cd /home/runner/workspace && python -m brain.app &
+cd /home/runner/workspace
+export SKIP_PORT_CHECK=1
+python brain/app.py &
 BRAIN_PID=$!
-sleep 3
+sleep 5
 
 # Verify Brain started
 if ! kill -0 $BRAIN_PID 2>/dev/null; then
@@ -41,9 +46,9 @@ echo "[Start] Brain Service started (PID: $BRAIN_PID)"
 
 # Start Platform Service on port 5000
 echo "[Start] Starting Platform Service on port 5000..."
-cd /home/runner/workspace && python web_app.py &
+python web_app.py &
 PLATFORM_PID=$!
-sleep 3
+sleep 5
 
 # Verify Platform started
 if ! kill -0 $PLATFORM_PID 2>/dev/null; then
@@ -67,6 +72,7 @@ cleanup() {
     kill $BRAIN_PID 2>/dev/null || true
     echo "[Shutdown] Stopping Platform Service (PID: $PLATFORM_PID)..."
     kill $PLATFORM_PID 2>/dev/null || true
+    sleep 2
     echo "[Shutdown] All services stopped"
     exit 0
 }

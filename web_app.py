@@ -12,24 +12,32 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 logger = logging.getLogger(__name__)
 
 
-def is_port_available(port):
-    """Check if a port is available for binding."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+def is_port_available(port, retries=3, delay=1):
+    """Check if a port is available for binding with retries."""
+    for attempt in range(retries):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                s.bind(('0.0.0.0', port))
+                return True
+            except OSError:
+                if attempt < retries - 1:
+                    time.sleep(delay)
+    return False
+
+
+def kill_port_process(port, max_attempts=3):
+    """Kill any process using the specified port with retries."""
+    for attempt in range(max_attempts):
         try:
-            s.bind(('0.0.0.0', port))
-            return True
-        except OSError:
-            return False
-
-
-def kill_port_process(port):
-    """Kill any process using the specified port."""
-    try:
-        os.system(f'fuser -k {port}/tcp 2>/dev/null')
-        time.sleep(2)
-        return is_port_available(port)
-    except Exception:
-        return False
+            os.system(f'fuser -k {port}/tcp 2>/dev/null')
+            time.sleep(2)
+            if is_port_available(port, retries=1):
+                return True
+            print(f"[Platform] Port {port} still in use, attempt {attempt + 1}/{max_attempts}")
+        except Exception:
+            pass
+    return False
 
 
 def shutdown_handler(signum, frame):
@@ -4109,14 +4117,17 @@ def context_bundle_schema():
 if __name__ == '__main__':
     port = 5000
     
-    # Check if port is available, kill existing process if needed
-    if not is_port_available(port):
-        print(f"[Platform] Port {port} in use, attempting to kill existing process...")
-        if kill_port_process(port):
-            print(f"[Platform] Successfully freed port {port}")
-        else:
-            print(f"[Platform] Failed to free port {port}, exiting")
-            sys.exit(1)
+    # Check if port is available (skip if started via start.sh)
+    if not os.environ.get('SKIP_PORT_CHECK'):
+        if not is_port_available(port):
+            print(f"[Platform] Port {port} in use, attempting to kill existing process...")
+            if kill_port_process(port):
+                print(f"[Platform] Successfully freed port {port}")
+            else:
+                print(f"[Platform] Failed to free port {port}, exiting")
+                sys.exit(1)
+    else:
+        print(f"[Platform] Port check skipped (started via start.sh)")
     
     init_scheduler()
     print(f"[Platform] Starting on port {port}")

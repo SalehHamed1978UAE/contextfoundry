@@ -11,24 +11,32 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-def is_port_available(port):
-    """Check if a port is available for binding."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+def is_port_available(port, retries=3, delay=1):
+    """Check if a port is available for binding with retries."""
+    for attempt in range(retries):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            try:
+                s.bind(('0.0.0.0', port))
+                return True
+            except OSError:
+                if attempt < retries - 1:
+                    time.sleep(delay)
+    return False
+
+
+def kill_port_process(port, max_attempts=3):
+    """Kill any process using the specified port with retries."""
+    for attempt in range(max_attempts):
         try:
-            s.bind(('0.0.0.0', port))
-            return True
-        except OSError:
-            return False
-
-
-def kill_port_process(port):
-    """Kill any process using the specified port."""
-    try:
-        os.system(f'fuser -k {port}/tcp 2>/dev/null')
-        time.sleep(2)
-        return is_port_available(port)
-    except Exception:
-        return False
+            os.system(f'fuser -k {port}/tcp 2>/dev/null')
+            time.sleep(2)
+            if is_port_available(port, retries=1):
+                return True
+            logging.info(f"[Brain] Port {port} still in use, attempt {attempt + 1}/{max_attempts}")
+        except Exception:
+            pass
+    return False
 
 
 def shutdown_handler(signum, frame):
@@ -369,14 +377,17 @@ def health():
 if __name__ == '__main__':
     port = int(os.environ.get('BRAIN_PORT', 3000))
     
-    # Check if port is available, kill existing process if needed
-    if not is_port_available(port):
-        logger.warning(f"[Brain] Port {port} in use, attempting to kill existing process...")
-        if kill_port_process(port):
-            logger.info(f"[Brain] Successfully freed port {port}")
-        else:
-            logger.error(f"[Brain] Failed to free port {port}, exiting")
-            sys.exit(1)
+    # Check if port is available (skip if started via start.sh)
+    if not os.environ.get('SKIP_PORT_CHECK'):
+        if not is_port_available(port):
+            logger.warning(f"[Brain] Port {port} in use, attempting to kill existing process...")
+            if kill_port_process(port):
+                logger.info(f"[Brain] Successfully freed port {port}")
+            else:
+                logger.error(f"[Brain] Failed to free port {port}, exiting")
+                sys.exit(1)
+    else:
+        logger.info(f"[Brain] Port check skipped (started via start.sh)")
     
     init_scheduler()
     start_extraction_worker()

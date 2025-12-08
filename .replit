@@ -17,31 +17,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Brain Service"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Context Foundry Web"
+args = "Start All"
 
 [[workflows.workflow]]
-name = "Brain Service"
+name = "Start All"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m brain.app"
-waitForPort = 3000
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "Context Foundry Web"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python web_app.py"
+args = "bash start.sh"
 waitForPort = 5000
 
 [workflows.workflow.metadata]
@@ -56,16 +40,16 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 34787
-externalPort = 3000
-
-[[ports]]
 localPort = 35381
 externalPort = 5000
 
 [[ports]]
 localPort = 35709
 externalPort = 5173
+
+[[ports]]
+localPort = 36673
+externalPort = 3000
 
 [[ports]]
 localPort = 37569
