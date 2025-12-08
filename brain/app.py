@@ -72,6 +72,82 @@ extraction_worker_stats = {
 }
 
 
+def extract_text_from_file(file_path: str, file_name: str = None) -> str:
+    """Extract text from various file types (PDF, DOCX, plain text)."""
+    if not file_path or not os.path.exists(file_path):
+        logger.warning(f"[TextExtractor] File not found: {file_path}")
+        return ""
+    
+    extension = ""
+    if file_name:
+        extension = os.path.splitext(file_name)[1].lower().lstrip('.')
+    if not extension:
+        extension = os.path.splitext(file_path)[1].lower().lstrip('.')
+    
+    logger.info(f"[TextExtractor] Extracting text from {file_name or file_path} (type: {extension})")
+    
+    if extension == 'pdf':
+        text = ""
+        page_count = 0
+        
+        try:
+            from pypdf import PdfReader
+            reader = PdfReader(file_path)
+            page_count = len(reader.pages)
+            text_parts = []
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text_parts.append(page_text)
+            text = "\n\n".join(text_parts)
+            if text.strip():
+                logger.info(f"[TextExtractor] PDF parsed with pypdf: {page_count} pages, {len(text)} characters")
+                return text
+        except Exception as e:
+            logger.warning(f"[TextExtractor] pypdf failed: {e}")
+        
+        try:
+            import pdfplumber
+            with pdfplumber.open(file_path) as pdf:
+                page_count = len(pdf.pages)
+                text_parts = []
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text_parts.append(page_text)
+                text = "\n\n".join(text_parts)
+                if text.strip():
+                    logger.info(f"[TextExtractor] PDF parsed with pdfplumber: {page_count} pages, {len(text)} characters")
+                    return text
+        except Exception as e:
+            logger.warning(f"[TextExtractor] pdfplumber failed: {e}")
+        
+        if not text.strip():
+            logger.warning(f"[TextExtractor] PDF has {page_count} pages but no extractable text. This may be a scanned document requiring OCR.")
+        return text
+    
+    elif extension in ['doc', 'docx']:
+        try:
+            from docx import Document
+            doc = Document(file_path)
+            text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+            logger.info(f"[TextExtractor] DOCX parsed: {len(text)} characters")
+            return text
+        except Exception as e:
+            logger.error(f"[TextExtractor] DOCX extraction error: {e}")
+            return ""
+    
+    else:
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                text = f.read()
+            logger.info(f"[TextExtractor] Plain text read: {len(text)} characters")
+            return text
+        except Exception as e:
+            logger.error(f"[TextExtractor] Text read error: {e}")
+            return ""
+
+
 def process_extraction_queue():
     """
     Process pending extraction requests from the queue.
@@ -117,26 +193,11 @@ def process_extraction_queue():
             document_id = str(request.get('document_id'))
             request_id = str(request.get('request_id'))
             
-            text_content = ""
-            if file_path and os.path.exists(file_path):
-                mime_type = request.get('mime_type', '')
-                
-                if mime_type and 'wordprocessingml' in mime_type or (file_name and file_name.endswith('.docx')):
-                    try:
-                        from docx import Document
-                        doc = Document(file_path)
-                        text_content = '\n'.join([p.text for p in doc.paragraphs if p.text.strip()])
-                        logger.info(f"[ExtractionWorker] Parsed DOCX: {len(text_content)} characters")
-                    except Exception as e:
-                        logger.warning(f"[ExtractionWorker] Failed to parse DOCX: {e}")
-                        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                            text_content = f.read()
-                else:
-                    with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                        text_content = f.read()
-            else:
-                logger.warning(f"[ExtractionWorker] File not found: {file_path}")
-                text_content = f"Document: {file_name}\n\nContent not available."
+            text_content = extract_text_from_file(file_path, file_name)
+            
+            if not text_content:
+                logger.warning(f"[ExtractionWorker] No text extracted from {file_name}")
+                text_content = f"Document: {file_name}\n\nContent could not be extracted."
             
             start_time = datetime.utcnow()
             
