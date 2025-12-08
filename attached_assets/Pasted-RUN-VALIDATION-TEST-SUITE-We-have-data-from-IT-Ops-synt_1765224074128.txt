@@ -1,0 +1,106 @@
+RUN VALIDATION TEST SUITE
+
+We have data from:
+- IT Ops synthetic data (80 SERVICE entities, evaluation data)
+- Real documents (Federated Data Catalog: 55 entities, 14 relationships)
+
+Run these 5 tests and report results:
+
+═══════════════════════════════════════════════════════════════
+TEST 1: HALLUCINATION REFUSAL (The Core Promise)
+═══════════════════════════════════════════════════════════════
+
+Query: "What is the disaster recovery procedure for the Quantum Database?"
+
+Expected: 
+- "Quantum Database" does NOT exist in our graph
+- System should NOT make up an answer
+- Should return low confidence (< 50%)
+- Should say something like "No entity found" or "I don't have information"
+
+FAIL if: System invents a disaster recovery procedure
+
+═══════════════════════════════════════════════════════════════
+TEST 2: GROUNDED ANSWER WITH EVIDENCE
+═══════════════════════════════════════════════════════════════
+
+Query: "What does the Federated Data Catalog enable?"
+
+Expected:
+- System finds "Federated Data Catalog" entity (CONCEPT)
+- Returns relationships (ENABLES → interoperability, etc.)
+- Cites source document
+- High confidence (> 80%)
+
+FAIL if: Answer has no citations or mentions things not in the graph
+
+═══════════════════════════════════════════════════════════════
+TEST 3: RELATIONSHIP TRAVERSAL (Graph Reasoning)
+═══════════════════════════════════════════════════════════════
+
+Query: "What concepts are part of the Hub-and-Spoke model?"
+
+Expected:
+- Finds "Hub-and-Spoke" entity
+- Traverses PART_OF relationships
+- Returns connected entities
+- Shows the relationship path
+
+FAIL if: Just returns the entity without relationships
+
+═══════════════════════════════════════════════════════════════
+TEST 4: CONFIDENCE CALIBRATION
+═══════════════════════════════════════════════════════════════
+
+Run TWO queries:
+
+Query A: "Who owns the Corporate Holding Company?"
+(This IS in our data)
+
+Query B: "Who is the CEO of Acme Corporation?"
+(This may or may not be in data with full details)
+
+Expected:
+- Query A: Higher confidence (we have this relationship)
+- Query B: Lower confidence OR honest "partial information"
+- Confidence scores should DIFFER based on evidence quality
+
+FAIL if: Both queries return same high confidence
+
+═══════════════════════════════════════════════════════════════
+TEST 5: PROVENANCE TRACKING
+═══════════════════════════════════════════════════════════════
+
+Query: "Tell me about the Hybrid Governance Model"
+
+Expected:
+- Returns entity information
+- Includes source_document_id
+- Can trace back to "Federated Data Catalog" document
+- Shows extraction confidence
+
+FAIL if: No provenance information in response
+
+═══════════════════════════════════════════════════════════════
+BONUS TEST: MISSING ENTITY HONESTY
+═══════════════════════════════════════════════════════════════
+
+Query: "What is the relationship between Microsoft and Google in our organization?"
+
+Expected:
+- Neither entity exists in our graph (unless in test data)
+- System should say "These entities are not in the knowledge graph"
+- Should NOT invent a relationship
+
+FAIL if: System makes up a relationship between them
+
+═══════════════════════════════════════════════════════════════
+
+For each test, report:
+1. Query sent
+2. Response received
+3. Confidence score
+4. Evidence/citations provided
+5. PASS or FAIL
+
+This validates Context Foundry does what it promises WITHOUT needing real ADQ documents.

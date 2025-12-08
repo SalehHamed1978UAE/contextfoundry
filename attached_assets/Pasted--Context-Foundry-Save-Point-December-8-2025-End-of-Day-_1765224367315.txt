@@ -1,0 +1,256 @@
+# Context Foundry Save Point
+## December 8, 2025 (End of Day)
+
+**CRITICAL: Read this before making ANY changes to Context Foundry**
+
+---
+
+## 🎯 WHY CONTEXT FOUNDRY EXISTS
+
+### The Problem
+ADQ has **50+ portfolio companies** across healthcare, maritime, energy, aviation, infrastructure, manufacturing, and financial services. When you ask an LLM a question about ADQ operations, it either:
+1. **Hallucinates** — makes up plausible-sounding but wrong answers
+2. **Fails** — says "I don't have that information"
+
+Neither is acceptable for a sovereign wealth fund making billion-dollar decisions.
+
+### The Solution
+> **"Organizational Object Permanence for AI Applications"**
+
+Context Foundry gives AI applications **persistent awareness** of your organization — entities, relationships, rules, and history — so they can reason accurately instead of hallucinating.
+
+### The Core Innovation
+**Context Foundry refuses to hallucinate.**
+
+When data doesn't exist, it:
+- Admits uncertainty with explicit knowledge boundaries
+- Says "I don't know" with 70% confidence instead of making things up
+- Shows exactly what it DOES know and where the gaps are
+
+### Tri-Memory Architecture
+| Memory Layer | What It Stores | Purpose |
+|--------------|----------------|---------|
+| **Semantic** | Vector embeddings (1536-dim) | What concepts are SIMILAR |
+| **Episodic** | Provenance, source docs, timestamps | WHERE knowledge came from, WHEN |
+| **Symbolic** | Knowledge graph (entities + relationships) | What things ARE and how they CONNECT |
+
+### The 11 Agents
+
+**Ingestion Agents (Getting Data In)**
+| Agent | Job |
+|-------|-----|
+| Graph Builder | Extract entities/relationships from documents → STAGING |
+| Graph Loader | Load structured data into all three memory layers |
+
+**Validation Agents (Quality Control)**
+| Agent | Job |
+|-------|-----|
+| Staging Validator | Check STAGING data against schema rules |
+| Identity Resolution | Find duplicates using weighted signals + fuzzy matching |
+| Orphan Detector | Find patterns that don't fit current ontology |
+
+**Maintenance Agents (Keeping It Healthy)**
+| Agent | Job |
+|-------|-----|
+| Gardener | 5 passes: Decay, Promotion, Conflict Resolution, Demotion, Cleanup |
+
+**Query Agents (Getting Knowledge Out)**
+| Agent | Job |
+|-------|-----|
+| Retrieval | Gather context from all three memories |
+| Reasoning | Generate answers, check sufficiency, detect hallucination |
+| Validation | Check answers against symbolic rules |
+
+**Ontology Agents (Schema Management)**
+| Agent | Job |
+|-------|-----|
+| Schema Prompt Generator | Build dynamic LLM prompts from current ontology |
+| Constrained Extractor | Extract only types defined in active schema |
+
+### The Pipeline
+```
+Document → Graph Builder → Staging Validator → Identity Resolution
+                                    ↓
+                              Gardener (maintenance)
+                                    ↓
+              Query → Retrieval → Reasoning → Validation → Response
+```
+
+### What It Enables
+- **Any AI application** can query it for grounded context
+- **Board advisors** get answers with citations and confidence scores
+- **Portfolio analysis** spans 50+ companies with unified understanding
+- **Premisia** integration for strategic consulting with real organizational data
+- **No hallucination** — if the data isn't there, the system says so
+
+### The Vision
+> "This isn't a database that returns data. It's a system that builds understanding."
+
+Context Foundry is the **nervous system** for ADQ's AI applications.
+
+---
+
+## ✅ COMPLETED - DO NOT ROLL BACK
+
+### A/B Evaluation (December 2-4, 2025)
+- **Status:** COMPLETE
+- **Result:** Context Foundry won 12-3 against GraphRAG
+- **Data:** 100-query blind evaluation on IT Ops synthetic data
+- **Files preserved:**
+  - `exports/evaluation_results_20251202_175048.json`
+  - 80 SERVICE entities in database (IT Ops test data)
+- **Key findings:**
+  - CF: 18x better provenance (2.32 vs 0.13)
+  - CF: 100% rule citations vs GraphRAG 3%
+  - CF: Faster on hard/multi-hop queries
+  - CF: Correctly refuses to hallucinate
+
+### Core System Architecture (December 1-6, 2025)
+- **Status:** COMPLETE
+- **Components:**
+  - Tri-memory architecture (Semantic + Episodic + Symbolic)
+  - 6 agents implemented
+  - Database governance with triggers
+  - Learning loop validated ("Microservice" promoted through ontology)
+  - Query classification (entity/impact/rule/sequence/analysis/property)
+- **Reference docs:**
+  - `Context_Foundry_Development_Summary_6th_Dec_2025.docx`
+  - `Context_Foundry_-_Logic_Improvements_Reference_4th_Dec_2025.docx`
+
+### 9 Logic Improvements (December 4, 2025)
+1. Blast radius direction fix (downstream not upstream)
+2. Query type classification
+3. Rule query routing
+4. Sequence intent detection
+5. Cross-memory synthesis
+6. Analysis query handling (honest limitations)
+7. Notification + failure = impact query
+8. Impact query LLM guidance
+9. Property-aware retrieval
+
+### Entity Extraction Fix (December 8, 2025)
+- **Problem:** Output Saturation — LLMs stop after 10-15 entities
+- **Solution:** Chunked extraction (~2,000 char chunks)
+- **Result:** 12 entities → 55 entities (+358%)
+- **Files changed:**
+  - `src/context_foundry/extraction/entity_extractor.py`
+
+### Relationship Extraction Fix (December 8, 2025)
+- **Problem:** `relations=[]` hardcoded — relationships were extracted but discarded
+- **Solution:** Wire up `extraction_result.relations`
+- **Result:** 0 relationships → 14 relationships per document
+- **Files changed:**
+  - `brain/app.py` line 531
+  - `src/context_foundry/extraction/relation_extractor.py` (fuzzy matching)
+
+### Schema Migration (December 8, 2025)
+- **Change:** Added Core Foundation relationship types
+- **Types added:** WORKS_AT, MEMBER_OF, REPORTS_TO, PART_OF, OWNS, MANAGES, GOVERNS, IMPLEMENTS, ENABLES, DESCRIBES, REFERENCES, AUTHORED_BY, LOCATED_IN, OPERATES_IN, OCCURRED_ON, RELATED_TO
+- **File:** `config/domain_schema.yaml`
+- **Note:** IT Ops types (SERVICE, TEAM, INCIDENT) still exist for evaluation data
+
+---
+
+## 🏗️ TWO SCHEMAS COEXIST
+
+| Schema | Entity Types | Purpose |
+|--------|--------------|---------|
+| IT Ops | SERVICE, TEAM, INCIDENT, COMPONENT | A/B evaluation (synthetic test data) |
+| Core Foundation | PERSON, ORGANIZATION, CONCEPT, PROCESS, DOCUMENT, LOCATION, EVENT, DATE | Real ADQ documents |
+
+**IMPORTANT:** Both schemas are valid. IT Ops for testing, Core Foundation for production.
+
+---
+
+## 📊 CURRENT METRICS
+
+### Extraction Quality (Real Documents)
+| Document | Entities | Relationships |
+|----------|----------|---------------|
+| Federated Data Catalog | 55 | 14 |
+| Perplexity confidence doc | 119 | TBD |
+| AI Value Blueprint | 91 | TBD |
+
+### Evaluation Results (Preserved)
+| Metric | Context Foundry | GraphRAG |
+|--------|-----------------|----------|
+| Provenance Score | 2.32/3 | 0.13/3 |
+| Rule Citations | 100% | 3% |
+| Relationship Citations | 32% | 10% |
+| Hard Query Latency | 1,963ms | 2,647ms |
+
+---
+
+## 🚫 DO NOT
+
+1. **Delete IT Ops test data** — needed for future evaluation runs
+2. **Remove evaluation results JSON** — proof of A/B testing
+3. **Revert chunking fix** — this solved Output Saturation
+4. **Re-introduce `relations=[]`** — this was a bug
+5. **Assume evaluation needs to be re-run** — it's COMPLETE
+
+---
+
+## ✅ SAFE TO DO
+
+1. Extract more real documents with improved pipeline
+2. Add more relationship types to Core Foundation schema
+3. Improve extraction prompts
+4. Add gleaning pass for +15-20% more entities
+5. Build on top of existing architecture
+
+---
+
+## 📁 KEY FILES
+
+### Evaluation (DO NOT MODIFY)
+- `exports/evaluation_results_20251202_175048.json`
+- `src/context_foundry/evaluation/evaluator.py`
+- `src/context_foundry/evaluation/query_set.py`
+- `src/context_foundry/evaluation/graphrag_baseline.py`
+
+### Extraction (Recently Fixed)
+- `src/context_foundry/extraction/entity_extractor.py` — chunking
+- `src/context_foundry/extraction/relation_extractor.py` — fuzzy matching
+- `brain/app.py` — relationship wiring fix
+
+### Schema
+- `config/domain_schema.yaml` — Core Foundation + IT Ops types
+
+### Reference Documents
+- `Context_Foundry_Development_Summary_6th_Dec_2025.docx`
+- `Context_Foundry_-_Logic_Improvements_Reference_4th_Dec_2025.docx`
+- `Context_Foundry_MVP_Validation_Report.docx`
+
+---
+
+## 🎯 NEXT PRIORITIES (As of Dec 8)
+
+1. **Re-extract all documents** — apply chunking fix to historical data
+2. **Validate relationship quality** — check extracted relationships make sense
+3. **Context Bundle API** — Pillar 4 delivery mechanism (from Dec 6 summary)
+4. **Real ADQ document testing** — process actual portfolio company documents
+
+---
+
+## 📝 CONVERSATION PROTOCOL
+
+### At Start of New Conversation
+1. Claude should search past conversations for "Context Foundry save point"
+2. Reference this document before suggesting changes
+3. Confirm understanding of what's COMPLETE vs IN PROGRESS
+
+### Before Making Changes
+1. Check if change affects completed work
+2. If touching evaluation code → STOP and confirm
+3. If touching extraction code → understand current state first
+
+### At End of Session
+1. Update save point with new completions
+2. Note any regressions or issues
+3. Confirm IT Ops test data still intact
+
+---
+
+*Last updated: December 8, 2025, end of session*
+*Next review: Start of next Context Foundry session*
