@@ -7,6 +7,7 @@ Uses Replit AI Integrations for OpenAI access (no API key required, billed to cr
 import json
 import os
 import re
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -15,6 +16,46 @@ import hashlib
 from openai import OpenAI
 
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
+
+
+def load_few_shot_examples(domain: str = "core") -> list:
+    """Load few-shot examples for the specified domain."""
+    examples_dir = Path(__file__).parent.parent.parent.parent / "brain" / "examples"
+    
+    domain_file = examples_dir / f"{domain}_examples.json"
+    core_file = examples_dir / "core_examples.json"
+    
+    file_to_load = domain_file if domain_file.exists() else core_file
+    
+    if not file_to_load.exists():
+        return []
+    
+    try:
+        with open(file_to_load, 'r') as f:
+            data = json.load(f)
+            return data.get('examples', [])
+    except Exception:
+        return []
+
+
+def format_few_shot_examples(examples: list) -> str:
+    """Format few-shot examples for inclusion in prompt."""
+    if not examples:
+        return "No examples available."
+    
+    formatted = []
+    for i, ex in enumerate(examples, 1):
+        input_text = ex.get('input', '')
+        output = ex.get('output', [])
+        
+        output_str = "\n".join([
+            f"  - \"{e['name']}\" -> {e['type']} ({e.get('reasoning', '')})"
+            for e in output
+        ])
+        
+        formatted.append(f"Example {i}:\nInput: \"{input_text}\"\nOutput:\n{output_str}")
+    
+    return "\n\n".join(formatted)
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -103,7 +144,7 @@ class EntityExtractor:
     
     def __init__(
         self,
-        model: str = "gpt-4o-mini",
+        model: str = "gpt-4o",  # Using GPT-4o for better entity extraction (4o-mini has ~21% omission rate)
         temperature: float = 0.0,  # Deterministic for consistent extraction
         max_retries: int = 3,
         schema_loader: Optional[DomainSchemaLoader] = None,
@@ -138,63 +179,84 @@ class EntityExtractor:
         return self.schema_loader.get_valid_entity_types()
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
-        """Build dynamic entity extraction prompt from active schema."""
+        """Build comprehensive entity extraction prompt with few-shot examples."""
         schema = self.schema_loader.schema
         domain = schema.domain
-        
-        entity_descriptions = []
-        for name, entity_config in schema.entity_types.items():
-            desc = entity_config.description or f"A {name.lower()}"
-            entity_descriptions.append(f"- {name}: {desc}")
-            
-            if entity_config.required_fields:
-                entity_descriptions.append(f"  Required: {', '.join(entity_config.required_fields)}")
-            if entity_config.optional_fields:
-                entity_descriptions.append(f"  Optional: {', '.join(entity_config.optional_fields)}")
-        
-        entity_list = "\n".join(entity_descriptions)
         entity_type_names = ", ".join(schema.entity_types.keys())
         
-        prompt = f"""You are an expert at extracting entities from documents in the {domain} domain.
+        examples = load_few_shot_examples(domain)
+        formatted_examples = format_few_shot_examples(examples)
+        
+        prompt = f"""You are an expert entity extractor for enterprise knowledge graphs.
 
-Given the following text, extract all entities of these types:
-{entity_list}
+Your PRIMARY goal is COMPLETENESS - missing an entity is worse than including a borderline case.
 
-For each entity, provide:
-1. entity_type: One of {entity_type_names}
-2. canonical_name: The standardized name of the entity
-3. properties: Additional properties (as listed above for each type)
-4. source_span: The exact text span where this entity appears
-5. confidence: Your confidence in this extraction (0.0 to 1.0)
+Extract ALL entities from the following {domain} document.
 
-IMPORTANT RULES:
-- Only extract entities that are EXPLICITLY mentioned in the text
-- Do NOT infer or hallucinate entities that aren't mentioned
-- Use the exact text span where the entity appears
-- Assign lower confidence (0.6-0.8) if the entity type is ambiguous
-- Assign higher confidence (0.9-1.0) if the entity type is clearly stated
+## ENTITY TYPES
 
-Return the result as a JSON array of objects.
+PERSON: Named individuals AND named roles/titles (e.g., "Dr. Sarah Chen", "Data Steward", "CFO", "Project Manager")
+- Includes job titles and functional roles when they represent distinct concepts
 
-TEXT:
-{text}
+ORGANIZATION: Companies, agencies, departments, ministries, teams, committees, government bodies
+- Key test: If it can PERFORM ACTIONS (decide, issue, approve, manage), it's ORGANIZATION
+- Examples: "Ministry of Health", "Investment Committee", "Government", "Corporate Holding Company"
 
-Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
+LOCATION: PHYSICAL places only - cities, countries, buildings, addresses
+- NOT organizational types
+- NOT contexts or settings
+- Example: "Abu Dhabi" is LOCATION; "Government" is ORGANIZATION
+
+CONCEPT: Frameworks, methodologies, principles, standards, named approaches
+- Examples: "Federated Data Catalog", "Hub-and-Spoke", "Zero Trust Model", "GDPR"
+- Include document titles that name concepts
+
+PROCESS: Workflows, procedures, phases, implementation stages
+- Examples: "Phase 1: Foundation", "Crawl-Walk-Run Approach", "Quarterly Review"
+
+EVENT: Meetings, milestones, occurrences (e.g., "Board Meeting", "Q3 Review")
+
+DATE: Time references (e.g., "December 2025", "Months 1-3", "Q4")
+
+DOCUMENT: Referenced reports, policies, forms (e.g., "Annual Report", "Governance Policy")
+
+## DISAMBIGUATION RULE
+
+If an entity can PERFORM ACTIONS in the text (issues, decides, manages, owns, approves):
+-> It is ORGANIZATION, not LOCATION
+
+Example: "The Government issued regulations" -> "Government" is ORGANIZATION (it acted)
+
+## FEW-SHOT EXAMPLES
+
+{formatted_examples}
+
+## EXTRACTION RULES
+
+1. Extract ALL named concepts, frameworks, and methodologies - these are high value
+2. Include the document title and section headers as entities
+3. When a term is capitalized or appears as a heading, it's likely an entity
+4. If unsure, INCLUDE IT with confidence 0.7-0.8
+5. Use confidence 0.9-1.0 for clearly named entities
+
+## OUTPUT FORMAT
+
+Return valid JSON array only, no markdown:
 [
-  {{
-    "entity_type": "ENTITY_TYPE",
-    "canonical_name": "Entity Name",
-    "properties": {{}},
-    "source_span": "exact text",
-    "confidence": 0.95
-  }}
-]"""
+  {{"entity_type": "TYPE", "canonical_name": "exact text", "properties": {{}}, "source_span": "text where found", "confidence": 0.9}}
+]
+
+Valid types: {entity_type_names}
+
+## TEXT TO EXTRACT FROM
+
+{text}"""
         return prompt
     
     def _build_system_prompt(self) -> str:
         """Build dynamic system prompt from active schema."""
         schema = self.schema_loader.schema
-        return f"You are an expert at extracting {schema.domain} entities. Respond only with valid JSON."
+        return f"You are an expert entity extractor. Your goal is COMPLETENESS - extract ALL entities from {schema.domain} documents. Respond only with valid JSON."
     
     def _generate_entity_id(self, entity_type: str, canonical_name: str) -> str:
         """Generate deterministic entity ID."""
@@ -232,6 +294,26 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
             return False
         return True
     
+    def _correct_entity_type(self, entity: Dict) -> Dict:
+        """Apply ACT test to correct common LOCATION/ORGANIZATION misclassifications."""
+        entity_type = entity.get("entity_type", "").upper()
+        name = entity.get("canonical_name", entity.get("name", "")).lower()
+        
+        if entity_type == "LOCATION":
+            org_patterns = [
+                "government", "ministry", "department", "agency", "committee",
+                "corporation", "company", "holding", "subsidiary", "division",
+                "board", "council", "authority", "office", "bureau", "institute",
+                "foundation", "association", "federation", "organization", "team",
+                "group", "unit", "branch", "sector", "regime", "administration"
+            ]
+            for pattern in org_patterns:
+                if pattern in name:
+                    entity["entity_type"] = "ORGANIZATION"
+                    break
+        
+        return entity
+    
     def _normalize_entity(self, entity: Dict) -> Dict:
         """Normalize entity fields."""
         if "name" in entity and "canonical_name" not in entity:
@@ -239,6 +321,8 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
         
         entity["canonical_name"] = entity["canonical_name"].strip()
         entity["entity_type"] = entity["entity_type"].upper()
+        
+        entity = self._correct_entity_type(entity)
         
         if "properties" not in entity:
             entity["properties"] = {}
@@ -253,33 +337,47 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
         
         return entity
     
-    def extract_from_text(
+    def _build_concept_gap_check_prompt(self, text: str, already_extracted: List[str]) -> str:
+        """Build prompt for second-pass concept extraction."""
+        already_list = ", ".join(already_extracted[:30]) if already_extracted else "none"
+        
+        return f"""You already extracted these entities: {already_list}
+
+Now find ADDITIONAL entities we MISSED. Focus on:
+
+1. CONCEPT: Named frameworks, methodologies, standards, approaches, models, systems, architectures
+   - Look for capitalized multi-word terms: "Federated Data Catalog", "Hub-and-Spoke Model"
+   - Look for acronyms and their full names: "KPI", "ROI", "GDPR", "API"
+   - Section titles and document headers are often CONCEPT entities
+
+2. PERSON: Job titles and named roles: "Data Steward", "Chief Data Officer", "Executive Sponsor"
+
+3. DOCUMENT: Referenced documents, reports, policies, guidelines
+
+4. DATE: All time references: "Q1 2025", "Phase 1", "Year 1", "Months 1-6"
+
+5. PROCESS: Named processes, workflows, phases, stages, approaches
+
+Return ONLY entities NOT in the already-extracted list above.
+
+Return valid JSON array:
+[{{"entity_type": "TYPE", "canonical_name": "name", "properties": {{}}, "source_span": "context", "confidence": 0.85}}]
+
+TEXT:
+{text}"""
+
+    def _run_extraction_pass(
         self,
-        text: str,
+        prompt: str,
+        system_prompt: str,
         document_id: str,
-        chunk_id: str = "",
-        sentence_idx: int = 0,
+        chunk_id: str,
+        sentence_idx: int,
     ) -> List[ExtractedEntity]:
-        """
-        Extract entities from text using LLM.
-        
-        Args:
-            text: Text to extract entities from
-            document_id: ID of the source document
-            chunk_id: ID of the source chunk
-            sentence_idx: Index of the source sentence
-            
-        Returns:
-            List of ExtractedEntity objects
-        """
-        if not text.strip():
-            return []
-        
-        prompt = self._build_entity_extraction_prompt(text)
-        system_prompt = self._build_system_prompt()
-        
+        """Run a single extraction pass and return entities."""
         for attempt in range(self.max_retries):
             try:
+                print(f"[EntityExtractor] Using model: {self.model}")
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
@@ -320,10 +418,53 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
                 
             except Exception as e:
                 if attempt == self.max_retries - 1:
-                    print(f"Entity extraction failed after {self.max_retries} attempts: {e}")
+                    print(f"Extraction pass failed after {self.max_retries} attempts: {e}")
                     return []
         
         return []
+
+    def extract_from_text(
+        self,
+        text: str,
+        document_id: str,
+        chunk_id: str = "",
+        sentence_idx: int = 0,
+    ) -> List[ExtractedEntity]:
+        """
+        Extract entities from text using LLM with multi-pass extraction.
+        
+        Pass 1: General entity extraction
+        Pass 2: Gap-check for missed concepts and frameworks
+        
+        Args:
+            text: Text to extract entities from
+            document_id: ID of the source document
+            chunk_id: ID of the source chunk
+            sentence_idx: Index of the source sentence
+            
+        Returns:
+            List of ExtractedEntity objects
+        """
+        if not text.strip():
+            return []
+        
+        prompt = self._build_entity_extraction_prompt(text)
+        system_prompt = self._build_system_prompt()
+        
+        pass1_entities = self._run_extraction_pass(
+            prompt, system_prompt, document_id, chunk_id, sentence_idx
+        )
+        
+        already_extracted = [e.canonical_name for e in pass1_entities]
+        gap_prompt = self._build_concept_gap_check_prompt(text, already_extracted)
+        gap_system = "You are finding entities that were MISSED in the first extraction pass. Be thorough. Respond only with valid JSON array."
+        
+        pass2_entities = self._run_extraction_pass(
+            gap_prompt, gap_system, document_id, chunk_id, sentence_idx
+        )
+        
+        all_entities = pass1_entities + pass2_entities
+        return self._deduplicate_entities(all_entities)
     
     def extract_from_chunks(
         self,
