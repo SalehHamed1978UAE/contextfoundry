@@ -761,6 +761,16 @@ def dashboard_upload():
                 """, (str(tenant_id), str(user_id), str(doc_id), file_size,
                       json.dumps({'filename': file.filename})))
                 
+                cur.execute("""
+                    INSERT INTO platform.extraction_requests (
+                        id, request_id, document_id, tenant_id, file_path, file_name, 
+                        mime_type, file_size_bytes, extraction_mode, priority, status,
+                        submitted_at, retry_count, max_retries, created_at
+                    ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s, 
+                              'full', 'normal', 'pending', NOW(), 0, 3, NOW())
+                """, (str(doc_id), str(tenant_id), storage_path, file.filename,
+                      file.content_type or 'application/octet-stream', file_size))
+                
                 conn.commit()
         
         return jsonify({
@@ -888,6 +898,18 @@ def dashboard_upload_multi():
                     """, (str(tenant_id), str(user_id), str(doc_id), file_size,
                           json.dumps({'filename': filename, 'source': 'multi_upload'})))
                     print("Step 10: Usage event inserted")
+                    
+                    print("Step 10b: Inserting extraction request")
+                    cur.execute("""
+                        INSERT INTO platform.extraction_requests (
+                            id, request_id, document_id, tenant_id, file_path, file_name,
+                            mime_type, file_size_bytes, extraction_mode, priority, status,
+                            submitted_at, retry_count, max_retries, created_at
+                        ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s,
+                                  'full', 'normal', 'pending', NOW(), 0, 3, NOW())
+                    """, (str(doc_id), str(tenant_id), storage_path, filename,
+                          file.content_type or 'application/octet-stream', file_size))
+                    print("Step 10b: Extraction request inserted")
                     
                     results.append({'filename': filename, 'status': 'queued', 'document_id': str(doc_id)})
                 
@@ -1018,6 +1040,16 @@ def dashboard_upload_zip():
                                 ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                             """, (str(tenant_id), str(user_id), str(doc_id), len(content),
                                   json.dumps({'filename': filename, 'source': 'zip_upload', 'zip_name': file.filename})))
+                            
+                            cur.execute("""
+                                INSERT INTO platform.extraction_requests (
+                                    id, request_id, document_id, tenant_id, file_path, file_name,
+                                    mime_type, file_size_bytes, extraction_mode, priority, status,
+                                    submitted_at, retry_count, max_retries, created_at
+                                ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s,
+                                          'full', 'normal', 'pending', NOW(), 0, 3, NOW())
+                            """, (str(doc_id), str(tenant_id), storage_path, filename,
+                                  mime_type or 'application/octet-stream', len(content)))
                             
                             results.append({'filename': filename, 'status': 'queued', 'document_id': str(doc_id)})
                         
@@ -1373,6 +1405,16 @@ def dashboard_sync_connector(connector_id):
                             ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                         """, (str(tenant_id), str(user_id), str(doc_id), file_info['size'],
                               json.dumps({'filename': file_info['name'], 'source': 's3', 'connector_id': connector_id})))
+                        
+                        cur.execute("""
+                            INSERT INTO platform.extraction_requests (
+                                id, request_id, document_id, tenant_id, file_path, file_name,
+                                mime_type, file_size_bytes, extraction_mode, priority, status,
+                                submitted_at, retry_count, max_retries, created_at
+                            ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s,
+                                      'full', 'normal', 'pending', NOW(), 0, 3, NOW())
+                        """, (str(doc_id), str(tenant_id), storage_path, file_info['name'],
+                              file_info['mime_type'], file_info['size']))
                         
                         results['queued'] += 1
                         
