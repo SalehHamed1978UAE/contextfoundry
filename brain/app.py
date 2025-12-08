@@ -4,9 +4,43 @@ import logging
 import atexit
 import threading
 import time
+import signal
+import socket
 from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def is_port_available(port):
+    """Check if a port is available for binding."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(('0.0.0.0', port))
+            return True
+        except OSError:
+            return False
+
+
+def kill_port_process(port):
+    """Kill any process using the specified port."""
+    try:
+        os.system(f'fuser -k {port}/tcp 2>/dev/null')
+        time.sleep(2)
+        return is_port_available(port)
+    except Exception:
+        return False
+
+
+def shutdown_handler(signum, frame):
+    """Handle graceful shutdown on SIGTERM/SIGINT."""
+    sig_name = signal.Signals(signum).name
+    logging.info(f"[Brain] Received {sig_name}, shutting down gracefully...")
+    shutdown_all()
+    sys.exit(0)
+
+
+signal.signal(signal.SIGTERM, shutdown_handler)
+signal.signal(signal.SIGINT, shutdown_handler)
 
 from flask import Flask
 from brain.routes.internal import internal_bp
@@ -333,20 +367,16 @@ def health():
 
 
 if __name__ == '__main__':
-    import time
-    import socket
-    
     port = int(os.environ.get('BRAIN_PORT', 3000))
     
-    # Wait for port to be available
-    for attempt in range(5):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        result = sock.connect_ex(('127.0.0.1', port))
-        sock.close()
-        if result != 0:
-            break
-        logger.info(f"[Brain] Port {port} in use, waiting...")
-        time.sleep(2)
+    # Check if port is available, kill existing process if needed
+    if not is_port_available(port):
+        logger.warning(f"[Brain] Port {port} in use, attempting to kill existing process...")
+        if kill_port_process(port):
+            logger.info(f"[Brain] Successfully freed port {port}")
+        else:
+            logger.error(f"[Brain] Failed to free port {port}, exiting")
+            sys.exit(1)
     
     init_scheduler()
     start_extraction_worker()

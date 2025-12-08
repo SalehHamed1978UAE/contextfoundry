@@ -1,11 +1,47 @@
 import os
+import sys
 import json
 import atexit
 import logging
+import signal
+import socket
+import time
 from datetime import timedelta
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, g
 
 logger = logging.getLogger(__name__)
+
+
+def is_port_available(port):
+    """Check if a port is available for binding."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(('0.0.0.0', port))
+            return True
+        except OSError:
+            return False
+
+
+def kill_port_process(port):
+    """Kill any process using the specified port."""
+    try:
+        os.system(f'fuser -k {port}/tcp 2>/dev/null')
+        time.sleep(2)
+        return is_port_available(port)
+    except Exception:
+        return False
+
+
+def shutdown_handler(signum, frame):
+    """Handle graceful shutdown on SIGTERM/SIGINT."""
+    sig_name = signal.Signals(signum).name
+    print(f"[Platform] Received {sig_name}, shutting down gracefully...")
+    stop_scheduler()
+    sys.exit(0)
+
+
+signal.signal(signal.SIGTERM, shutdown_handler)
+signal.signal(signal.SIGINT, shutdown_handler)
 from src.context_foundry.core import ContextFoundry
 from src.context_foundry.agents.scheduler import (
     GardenerScheduler, SchedulerConfig, start_scheduler, stop_scheduler, get_scheduler
@@ -4071,5 +4107,17 @@ def context_bundle_schema():
 
 
 if __name__ == '__main__':
+    port = 5000
+    
+    # Check if port is available, kill existing process if needed
+    if not is_port_available(port):
+        print(f"[Platform] Port {port} in use, attempting to kill existing process...")
+        if kill_port_process(port):
+            print(f"[Platform] Successfully freed port {port}")
+        else:
+            print(f"[Platform] Failed to free port {port}, exiting")
+            sys.exit(1)
+    
     init_scheduler()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    print(f"[Platform] Starting on port {port}")
+    app.run(host='0.0.0.0', port=port, debug=True)
