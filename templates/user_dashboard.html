@@ -421,6 +421,195 @@
     color: var(--text-muted);
 }
 
+.clickable-row {
+    cursor: pointer;
+}
+.clickable-row:hover {
+    background: #293548 !important;
+}
+
+.detail-panel {
+    position: fixed;
+    right: -450px;
+    top: 0;
+    width: 450px;
+    height: 100vh;
+    background: #1e293b;
+    border-left: 1px solid #334155;
+    z-index: 1000;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.detail-panel.open {
+    right: 0;
+}
+
+.panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+    display: none;
+}
+
+.panel-overlay.open {
+    display: block;
+}
+
+.panel-header {
+    padding: 20px;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #f1f5f9;
+    word-break: break-word;
+}
+
+.close-panel {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.close-panel:hover {
+    color: white;
+}
+
+.panel-metadata {
+    padding: 20px;
+    border-bottom: 1px solid #334155;
+}
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #293548;
+}
+
+.meta-row:last-child {
+    border-bottom: none;
+}
+
+.meta-label {
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+
+.meta-value {
+    color: #f1f5f9;
+    font-size: 0.85rem;
+}
+
+.meta-value.badge {
+    background: #334155;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.meta-value.badge.published {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.meta-value.badge.review {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.panel-entities {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.panel-entities h4 {
+    margin: 0 0 16px 0;
+    color: #f1f5f9;
+}
+
+.entity-group {
+    margin-bottom: 16px;
+}
+
+.entity-type-header {
+    color: #00d4ff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.entity-type-count {
+    color: #9ca3af;
+    font-weight: normal;
+}
+
+.entity-item {
+    padding: 6px 12px;
+    background: #293548;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.entity-confidence {
+    color: #9ca3af;
+    font-size: 0.75rem;
+}
+
+.panel-actions {
+    padding: 20px;
+    border-top: 1px solid #334155;
+    display: flex;
+    gap: 10px;
+}
+
+.panel-actions .btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    background: #00d4ff;
+    color: #0f172a;
+}
+
+.btn-secondary {
+    background: #334155;
+    color: #f1f5f9;
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+}
+
 .connector-item {
     display: flex;
     justify-content: space-between;
@@ -657,6 +846,49 @@
     </div>
 
     <div class="pagination" id="pagination"></div>
+
+    <div id="document-detail-panel" class="detail-panel">
+        <div class="panel-header">
+            <h3 id="panel-doc-name">Document Name</h3>
+            <button class="close-panel" onclick="closeDetailPanel()">×</button>
+        </div>
+        
+        <div class="panel-metadata">
+            <div class="meta-row">
+                <span class="meta-label">Type</span>
+                <span id="panel-doc-type" class="meta-value">PDF</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">Size</span>
+                <span id="panel-doc-size" class="meta-value">2.4 MB</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">Uploaded</span>
+                <span id="panel-doc-date" class="meta-value">Dec 8, 2025</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">Extraction</span>
+                <span id="panel-doc-method" class="meta-value badge">text</span>
+            </div>
+            <div class="meta-row">
+                <span class="meta-label">Status</span>
+                <span id="panel-doc-status" class="meta-value badge review">Review</span>
+            </div>
+        </div>
+        
+        <div class="panel-entities">
+            <h4>Entities (<span id="panel-entity-count">0</span>)</h4>
+            <div id="panel-entity-list">
+            </div>
+        </div>
+        
+        <div class="panel-actions">
+            <button class="btn btn-primary" onclick="publishDocument()">Publish</button>
+            <button class="btn btn-secondary" onclick="reExtractDocument()">Re-extract</button>
+            <button class="btn btn-danger" onclick="rejectDocument()">Reject</button>
+        </div>
+    </div>
+    <div id="panel-overlay" class="panel-overlay" onclick="closeDetailPanel()"></div>
 {% endif %}
 
 {% if active_page == 'connectors' %}
@@ -947,7 +1179,7 @@ function renderDocumentsTable(docs) {
         const date = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '-';
         
         return `
-            <tr>
+            <tr data-doc-id="${doc.id}" class="clickable-row">
                 <td class="doc-name-cell" title="${escapeHtml(doc.name)}">${escapeHtml(doc.name)}</td>
                 <td><span class="doc-type-badge">${type}</span></td>
                 <td><span class="document-status ${statusClass}">${statusText}</span></td>
@@ -1041,6 +1273,99 @@ function formatStatus(status) {
     };
     return map[status] || status || 'Pending';
 }
+
+let currentDocumentId = null;
+
+function openDetailPanel(docId) {
+    currentDocumentId = docId;
+    
+    fetch(`/api/documents/${docId}/details`)
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('panel-doc-name').textContent = data.name;
+            document.getElementById('panel-doc-type').textContent = data.file_type?.toUpperCase() || 'Unknown';
+            document.getElementById('panel-doc-size').textContent = formatFileSize(data.file_size);
+            document.getElementById('panel-doc-date').textContent = data.created_at ? new Date(data.created_at).toLocaleDateString() : '-';
+            document.getElementById('panel-doc-method').textContent = data.extraction_method || 'text';
+            
+            const statusEl = document.getElementById('panel-doc-status');
+            statusEl.textContent = data.published ? 'Published' : 'Review';
+            statusEl.className = 'meta-value badge ' + (data.published ? 'published' : 'review');
+            
+            document.getElementById('panel-entity-count').textContent = data.entity_count || 0;
+            
+            const entityList = document.getElementById('panel-entity-list');
+            entityList.innerHTML = '';
+            
+            if (data.entities_by_type && Object.keys(data.entities_by_type).length > 0) {
+                for (const [type, entities] of Object.entries(data.entities_by_type)) {
+                    const group = document.createElement('div');
+                    group.className = 'entity-group';
+                    group.innerHTML = `
+                        <div class="entity-type-header">
+                            ${type} <span class="entity-type-count">(${entities.length})</span>
+                        </div>
+                    `;
+                    
+                    for (const entity of entities) {
+                        const item = document.createElement('div');
+                        item.className = 'entity-item';
+                        item.innerHTML = `
+                            <span>${escapeHtml(entity.name)}</span>
+                            <span class="entity-confidence">${(entity.confidence * 100).toFixed(0)}%</span>
+                        `;
+                        group.appendChild(item);
+                    }
+                    
+                    entityList.appendChild(group);
+                }
+            } else {
+                entityList.innerHTML = '<div style="color: #9ca3af;">No entities extracted yet.</div>';
+            }
+            
+            document.getElementById('document-detail-panel').classList.add('open');
+            document.getElementById('panel-overlay').classList.add('open');
+        })
+        .catch(err => {
+            console.error('Failed to load document details:', err);
+            showToast('Failed to load document details', 'error');
+        });
+}
+
+function closeDetailPanel() {
+    document.getElementById('document-detail-panel').classList.remove('open');
+    document.getElementById('panel-overlay').classList.remove('open');
+    currentDocumentId = null;
+}
+
+function formatFileSize(bytes) {
+    if (!bytes) return 'Unknown';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function publishDocument() {
+    if (!currentDocumentId) return;
+    showToast('Publish coming soon', 'success');
+}
+
+function reExtractDocument() {
+    if (!currentDocumentId) return;
+    showToast('Re-extraction coming soon', 'success');
+}
+
+function rejectDocument() {
+    if (!currentDocumentId) return;
+    showToast('Reject coming soon', 'success');
+}
+
+document.getElementById('documentsTableBody').addEventListener('click', function(e) {
+    const row = e.target.closest('tr[data-doc-id]');
+    if (row && row.dataset.docId) {
+        openDetailPanel(row.dataset.docId);
+    }
+});
 {% endif %}
 
 {% if active_page == 'connectors' %}
