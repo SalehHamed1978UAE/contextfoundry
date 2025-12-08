@@ -564,58 +564,69 @@
         </main>
     </div>
     
-    <script>
-        // Show body when loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            document.body.classList.add('loaded');
-        });
-        
-        // Mobile menu toggle
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        
-        if (hamburgerBtn) {
-            hamburgerBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('open');
-                mobileOverlay.classList.toggle('active');
+    <script data-turbo-eval="false">
+        (function() {
+            // Show body when loaded (works with Turbo too)
+            function showBody() {
+                document.body.classList.add('loaded');
+            }
+            document.addEventListener('DOMContentLoaded', showBody);
+            document.addEventListener('turbo:load', showBody);
+            
+            // Mobile menu toggle
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            
+            if (hamburgerBtn && !hamburgerBtn._turboInit) {
+                hamburgerBtn._turboInit = true;
+                hamburgerBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('open');
+                    mobileOverlay.classList.toggle('active');
+                });
+            }
+            
+            if (mobileOverlay && !mobileOverlay._turboInit) {
+                mobileOverlay._turboInit = true;
+                mobileOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('open');
+                    mobileOverlay.classList.remove('active');
+                });
+            }
+            
+            // Section toggle
+            document.querySelectorAll('.nav-section-header').forEach(function(header) {
+                if (!header._turboInit) {
+                    header._turboInit = true;
+                    header.addEventListener('click', function() {
+                        const section = this.closest('.nav-section');
+                        section.classList.toggle('collapsed');
+                    });
+                }
             });
-        }
-        
-        if (mobileOverlay) {
-            mobileOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('open');
-                mobileOverlay.classList.remove('active');
-            });
-        }
-        
-        // Section toggle
-        document.querySelectorAll('.nav-section-header').forEach(function(header) {
-            header.addEventListener('click', function() {
-                const section = this.closest('.nav-section');
-                section.classList.toggle('collapsed');
-            });
-        });
-        
-        // Update system stats
-        function updateSystemStats() {
-            fetch('/api/v1/health')
-                .then(r => r.json())
-                .then(data => {
-                    const memEl = document.getElementById('memoryUsage');
-                    const latEl = document.getElementById('latencyValue');
-                    if (memEl && data.memory_usage_mb) {
-                        memEl.textContent = Math.round(data.memory_usage_mb) + ' MB';
-                    }
-                    if (latEl) {
-                        latEl.textContent = (data.latency_ms || 25) + 'ms';
-                    }
-                })
-                .catch(() => {});
-        }
-        
-        updateSystemStats();
-        setInterval(updateSystemStats, 30000);
+            
+            // Update system stats (only set interval once)
+            if (!window._statsIntervalSet) {
+                window._statsIntervalSet = true;
+                function updateSystemStats() {
+                    fetch('/api/v1/health')
+                        .then(r => r.json())
+                        .then(data => {
+                            const memEl = document.getElementById('memoryUsage');
+                            const latEl = document.getElementById('latencyValue');
+                            if (memEl && data.memory_usage_mb) {
+                                memEl.textContent = Math.round(data.memory_usage_mb) + ' MB';
+                            }
+                            if (latEl) {
+                                latEl.textContent = (data.latency_ms || 25) + 'ms';
+                            }
+                        })
+                        .catch(() => {});
+                }
+                updateSystemStats();
+                setInterval(updateSystemStats, 30000);
+            }
+        })();
         
         {% block extra_scripts %}{% endblock %}
     </script>
