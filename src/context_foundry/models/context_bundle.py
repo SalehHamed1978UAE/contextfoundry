@@ -361,10 +361,39 @@ class ContextBundle:
             lines.append("=== IMPACT/CASCADE QUERY DETECTED ===")
             lines.append("The user is asking about blast radius, impact, or who needs to be notified if something fails.")
             lines.append("")
+            
+            # Include the actual traversal results - the structured data from graph traversal
+            if self.blast_radius_entities:
+                lines.append(f"=== GRAPH TRAVERSAL RESULT: {len(self.blast_radius_entities)} AFFECTED ENTITIES ===")
+                lines.append(f"Traversal complete: {self.blast_radius_complete}")
+                lines.append("")
+                lines.append("CONFIRMED AFFECTED ENTITIES (from graph traversal):")
+                for entity_name in self.blast_radius_entities:
+                    lines.append(f"  - {entity_name}")
+                lines.append("")
+            
+            # Include frontier nodes (where knowledge ends)
+            if self.frontier:
+                lines.append(f"=== KNOWLEDGE BOUNDARIES: {len(self.frontier)} FRONTIER NODES ===")
+                lines.append("These entities mark where our knowledge ends:")
+                for fn in self.frontier:
+                    lines.append(f"  - {fn.get('entity_name', 'Unknown')} [{fn.get('entity_type', 'Unknown')}]")
+                    lines.append(f"    Reason: {fn.get('reason', 'Unknown')}")
+                    if fn.get('message'):
+                        lines.append(f"    Details: {fn.get('message')}")
+                lines.append("")
+            
+            # Include identified documentation gaps
+            if self.gaps_identified:
+                lines.append(f"=== DOCUMENTATION GAPS IDENTIFIED ===")
+                for gap in self.gaps_identified:
+                    lines.append(f"  - {gap}")
+                lines.append("")
+            
             lines.append("STRUCTURE YOUR RESPONSE IN THREE TIERS:")
             lines.append("")
             lines.append("**CONFIRMED IMPACT:** (High confidence)")
-            lines.append("  - Direct dependencies from the knowledge graph with high confidence")
+            lines.append("  - List the entities from GRAPH TRAVERSAL RESULT above")
             lines.append("  - These are KNOWN relationships we are certain about")
             lines.append("")
             lines.append("**INFERRED IMPACT:** (Lower confidence)")
@@ -373,9 +402,8 @@ class ContextBundle:
             lines.append("  - Example: 'User Database (inferred via Auth Gateway, 57% confidence)'")
             lines.append("")
             lines.append("**KNOWLEDGE BOUNDARY:** (Unknown)")
-            lines.append("  - Where our knowledge ends - downstream consumers we don't have visibility into")
-            lines.append("  - Explicitly state what we DON'T know")
-            lines.append("  - Example: 'No visibility into downstream consumers of User Database'")
+            lines.append("  - List the FRONTIER NODES above - where our knowledge ends")
+            lines.append("  - Explicitly state what we DON'T know based on the gaps identified")
             lines.append("")
             lines.append("CRITICAL: Be explicit about uncertainty. Do NOT present inferred impacts as confirmed facts.\n")
         
@@ -462,7 +490,8 @@ class ContextBundle:
                     lines.append(f"    Reason: {explanation}")
         
         # KNOWLEDGE BOUNDARIES: Where graph traversal stopped
-        if self.frontier:
+        # Only show here for non-impact queries (impact queries show it earlier with context)
+        if self.frontier and self.query_type != 'impact':
             lines.append("\n=== KNOWLEDGE BOUNDARIES (FRONTIER NODES) ===")
             lines.append("These mark where our knowledge ends. Traversal stopped at these points.\n")
             for frontier_node in self.frontier:

@@ -151,6 +151,40 @@ entity_types:
       - outputs
       - owner
 
+  - name: SERVICE
+    description: "A software service, API, or application component"
+    keywords:
+      - service
+      - api
+      - application
+      - endpoint
+      - microservice
+      - gateway
+      - server
+      - system
+      - app
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - owner
+      - dependencies
+      - endpoints
+
+  - name: DATABASE
+    description: "A data storage system - database, data store, repository"
+    keywords:
+      - database
+      - datastore
+      - repository
+      - storage
+      - cluster
+      - cache
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - type
+      - owner
+
   - name: DATE
     description: "A specific point in time - date, year, deadline, period"
     keywords:
@@ -320,6 +354,71 @@ relationship_types:
     target_types:
       - DATE
     cardinality: many-to-one
+
+  # Dependencies (for IT/Services)
+  - name: DEPENDS_ON
+    description: "Service or Process depends on another Service, Process, or resource"
+    source_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+      - ORGANIZATION
+      - DATABASE
+    target_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+      - ORGANIZATION
+      - DATABASE
+    cardinality: many-to-many
+    semantics:
+      modes:
+        impact:
+          include: true
+          from_source: false
+          from_target: true
+          transitive: true
+        dependency:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: true
+
+  - name: ROUTES_TO
+    description: "Traffic or requests route from one service to another"
+    source_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+    target_types:
+      - SERVICE
+      - PROCESS
+      - CONCEPT
+    cardinality: many-to-many
+    semantics:
+      modes:
+        impact:
+          include: true
+          from_source: false
+          from_target: true
+          transitive: true
+
+  - name: ESCALATES_TO
+    description: "Person or Process escalates issues to another Person or Process"
+    source_types:
+      - PERSON
+      - PROCESS
+    target_types:
+      - PERSON
+      - PROCESS
+    cardinality: many-to-many
+    semantics:
+      modes:
+        escalation:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: true
 
   # Fallback
   - name: RELATED_TO
