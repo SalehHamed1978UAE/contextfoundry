@@ -322,13 +322,25 @@ class ReasoningAgent:
         
         Returns a structured response with answer, confidence, evidence, and uncertainty.
         """
+        import time
+        timing = {"start": time.time()}
+        
         context_str = bundle.to_llm_context()
+        timing["context_build"] = time.time()
         
         entity_density, grounding_entities = self.calculate_entity_density(bundle.episodic_documents)
+        timing["entity_density"] = time.time()
         
         # OPTIMIZATION: Skip sufficiency check for impact queries with confirmed traversal
         # This saves ~3-5 seconds per query by avoiding an extra LLM call
         has_traversal_results = bundle.blast_radius_entities or bundle.frontier
+        
+        # Log optimization check details
+        logger.info(f"OPTIMIZATION CHECK: query_type={bundle.query_type}, "
+                   f"has_blast_radius={bool(bundle.blast_radius_entities)}, "
+                   f"blast_radius_count={len(bundle.blast_radius_entities) if bundle.blast_radius_entities else 0}, "
+                   f"has_frontier={bool(bundle.frontier)}")
+        
         if bundle.query_type == 'impact' and has_traversal_results:
             # For impact queries with traversal, we can directly determine sufficiency
             # - If we have confirmed entities: SUFFICIENT (we know what's affected)
@@ -349,13 +361,17 @@ class ReasoningAgent:
                     "key_facts_found": [],
                     "key_facts_missing": bundle.gaps_identified if bundle.gaps_identified else []
                 }
-            logger.info(f"Skipped sufficiency LLM call for impact query (has traversal results)")
+            logger.info(f"OPTIMIZATION TRIGGERED: Skipped sufficiency LLM call for impact query")
+            timing["sufficiency"] = time.time()
         else:
+            logger.info(f"OPTIMIZATION NOT TRIGGERED: Running sufficiency LLM call")
             sufficiency, sufficiency_details = self.check_sufficiency(bundle.query_text, context_str)
+            timing["sufficiency"] = time.time()
         
         calibrated_confidence, quadrant = self.calculate_quadrant_confidence(
             bundle, sufficiency, entity_density
         )
+        timing["confidence_calc"] = time.time()
         
         if quadrant == "Q4_no_evidence" and sufficiency == "INSUFFICIENT":
             logger.info(f"Insufficient evidence for query, returning low-confidence response")
@@ -379,6 +395,7 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             
             schema = get_schema_loader().schema
             reasoning_prompt = _build_reasoning_system_prompt(schema)
+            timing["prompt_build"] = time.time()
             
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -387,11 +404,19 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.0,  # Deterministic for consistent answers
-                max_completion_tokens=2000,
+                max_completion_tokens=3500,  # Increased from 2000 for conversational responses
                 response_format={"type": "json_object"}
             )
+            timing["llm_call"] = time.time()
             
             response_text = response.choices[0].message.content or ""
+            
+            # Check for truncation - warn if response seems incomplete
+            finish_reason = response.choices[0].finish_reason
+            if finish_reason == "length":
+                logger.warning(f"RESPONSE TRUNCATED: finish_reason=length, tokens may have hit limit")
+            elif response_text.endswith(('...', '…')) or (len(response_text) > 100 and not response_text.rstrip().endswith(('}', '"', '.', '!', '?'))):
+                logger.warning(f"POTENTIAL TRUNCATION: response ends with '{response_text[-50:]}'")
             
             try:
                 result = json.loads(response_text)
@@ -402,6 +427,19 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
                 result, bundle, calibrated_confidence, quadrant, 
                 sufficiency, entity_density, grounding_entities
             )
+            timing["end"] = time.time()
+            
+            # Log timing breakdown
+            timing_breakdown = {
+                "context_build_ms": int((timing["context_build"] - timing["start"]) * 1000),
+                "entity_density_ms": int((timing["entity_density"] - timing["context_build"]) * 1000),
+                "sufficiency_ms": int((timing["sufficiency"] - timing["entity_density"]) * 1000),
+                "confidence_calc_ms": int((timing["confidence_calc"] - timing["sufficiency"]) * 1000),
+                "prompt_build_ms": int((timing["prompt_build"] - timing["confidence_calc"]) * 1000),
+                "llm_call_ms": int((timing["llm_call"] - timing["prompt_build"]) * 1000),
+                "total_ms": int((timing["end"] - timing["start"]) * 1000)
+            }
+            logger.info(f"REASONING TIMING: {timing_breakdown}")
             
             if query_logger:
                 query_logger.log_reasoning(

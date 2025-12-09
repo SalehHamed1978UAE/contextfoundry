@@ -117,6 +117,14 @@ When queries contain "notify", "contact", "escalate", or "owner":
 - Impact queries with traversal: ~12 seconds (reduced from 22s)
 - Non-impact queries: ~16-18 seconds
 
+### Performance Optimization (Dec 2025)
+**Episodic Memory pgvector Optimization**: Replaced Python-based full table scan with in-database pgvector cosine distance search.
+- Before: 6400ms (loading all 7700+ documents into Python)
+- After: 540ms (in-database vector similarity)
+- **Improvement: 12x speedup**
+
+Implementation: `src/context_foundry/memory/episodic.py` - `search_similar()` uses `Document.embedding.cosine_distance()` for efficient in-database search.
+
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
 - **LLM**: OpenAI `gpt-4o-mini`
