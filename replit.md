@@ -98,4 +98,29 @@ Implementation: `src/context_foundry/extraction/entity_extractor.py` - `_chunk_t
 - **Vector Embeddings**: `text-embedding-3-small`
 - **Web Framework**: Flask
 - **Deployment**: Gunicorn
-- **Authentication**: Magic Link, API Keys, JWT Sessions
+- **Authentication**: Magic Link, API Keys, JWT Sessions, Google OAuth
+
+## Recent Changes (December 9, 2025)
+
+### Query/Reasoning System Hardening
+- **Blast Radius Direction Fix**: Corrected DEPENDS_ON traversal to show downstream dependents (what breaks if X fails), not upstream dependencies
+- **GROUNDED/GAP/INFERRED Response Structure**: All query responses now clearly label facts as GROUNDED (in knowledge graph), GAP (missing documentation), or INFERRED (derived but unverified)
+- **Edge Case Handling**: System correctly refuses to hallucinate about non-existent entities (FakeService, XYZ123 Service), validates empty queries (400 error), and stays in-domain for general knowledge questions
+- **23/23 Query Verification**: Full test suite passing for all query types
+
+### Pipeline Progress Module (Anthropic Long-Running Agent Harness)
+- **New module**: `src/context_foundry/pipeline/` with ProgressTracker class
+- **Step-based tracking**: 11 discrete steps (queued→reading→classifying→chunking→extracting→relating→staging→verifying→promoting→completed/failed)
+- **Checkpoint/Resume**: Database-backed progress survives crashes; `reset_for_retry()` clears stale data
+- **Stale detection**: `get_stalled()` finds documents stuck for more than N minutes
+- **Migration**: `010_pipeline_progress.sql` applied with ingestion_step enum and 7 indexes
+- **Test Suite**: 13 tests validating checkpoint flow, interrupt recovery, fail/retry logic
+
+### Production Fixes
+- **Google OAuth Fix**: Dynamic redirect URI construction for contextfoundry.app deployment
+- **SQLAlchemy JSON Mutation**: Added `flag_modified()` calls for proper JSON field persistence
+
+### Stress Testing
+- **Overnight stress test running**: Multi-tenant document ingestion with domain classification
+- **Results so far**: 50-60 entities per document after dedup, 12-19 relations per document
+- **Domain classification**: Automatic detection of construction, manufacturing, finance, IT domains
