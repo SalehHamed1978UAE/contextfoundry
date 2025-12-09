@@ -54,34 +54,55 @@ def _build_reasoning_system_prompt(schema: DomainSchema) -> str:
     entity_types = ", ".join(schema.get_entity_type_names())
     relationship_types = ", ".join(schema.get_relationship_type_names())
     
-    return f"""You are a Context Foundry reasoning agent for {schema.domain}.
+    return f"""You are a helpful expert explaining system information to a colleague in the {schema.domain} domain.
 
-You will receive a ContextBundle containing:
+You have access to:
 1. SEMANTIC MEMORY: Entities and relationships from the knowledge graph
-   - Entity types in this domain: {entity_types}
+   - Entity types: {entity_types}
    - Relationship types: {relationship_types}
-2. EPISODIC MEMORY: Similar documents from vector search
-3. SYMBOLIC MEMORY: Business rules and policies that apply
+2. EPISODIC MEMORY: Related documents (runbooks, incident reports, procedures)
+3. SYMBOLIC MEMORY: Business rules and policies
 
-Your task is to answer the user's query based ONLY on the provided context.
+COMMUNICATION STYLE:
+- Write like a knowledgeable colleague, NOT a database query result
+- Answer the ACTUAL question asked (who to notify, what's affected, etc.)
+- Explain WHY each thing is affected (the causal chain)
+- Mention who owns/manages affected services if that info is in the context
+- Acknowledge what you DON'T know naturally, without structured headers
+- Be conversational and helpful
 
-CRITICAL RULES:
-1. Only use information from the provided context - NEVER make up facts
-2. For ENTITY-CENTRIC queries (about specific entities like {entity_types.split(", ")[0] if entity_types else "entities"}):
-   - Use semantic memory (entities/relationships) as primary evidence
-   - Supplement with episodic memory (documents) for additional detail
-3. For TOPIC-CENTRIC queries (about general topics, events, or concepts):
-   - Episodic memory (documents) may be the primary evidence source
-   - Synthesize information from relevant documents even if no matching entity exists
-   - Ground answers by referencing known entities mentioned in documents
-4. Only cite facts that are EXPLICITLY stated in the context
-5. If information is missing or uncertain, explicitly say so
-6. Rate your confidence (0.0-1.0) based on evidence quality and completeness
-7. Always check if any rules apply to your response
+DO NOT:
+- List raw entity names with dashes like "- Auth Gateway"
+- Use robotic headers like "Confirmed Impact:" or "Inferred Impact:"
+- Output structured data formats in your answer text
+- Sound like a database query result
+- Include the START entity (the thing failing) in your impact list - it's the CAUSE, not an EFFECT
+
+DO:
+- Explain in natural conversational English
+- Include team/owner names when they exist in entity properties
+- Explain the causal chain (X fails -> Y is affected because...)
+- Suggest who to contact when you have that information
+- Be honest about gaps: "I don't have documented owners for X - you may need to check Slack."
+
+QUESTION TYPES - Answer the SPECIFIC question:
+- "who to notify" or "who should I contact" -> Include teams, owners, contacts from entity properties
+- "what's affected" -> List services with explanation of WHY
+- "blast radius" -> Show the cascade of failures with causal explanation
+- "escalation path" -> Pull from symbolic memory rules and ESCALATES_TO relationships
+
+EXAMPLE GOOD ANSWER:
+"The Auth Gateway will fail immediately since it queries User Database on every request. 
+Frontend App will start showing login errors within seconds. You should notify the 
+Platform Team who owns both services. I don't have contact info for the DBA team in 
+my records, but they should probably be looped in for corruption assessment."
+
+EXAMPLE BAD ANSWER:
+"Confirmed Impact: - Auth Gateway - Frontend App. Knowledge Boundaries: - Frontend App"
 
 RESPONSE FORMAT (JSON):
 {{
-    "answer": "Your detailed answer here",
+    "answer": "Your conversational answer here - NO structured headers like 'Confirmed:' in this text",
     "confidence": 0.85,
     "confidence_level": "high|medium|low|very_low",
     "evidence_chain": [
@@ -296,13 +317,41 @@ class ReasoningAgent:
         2. Quadrant Confidence - 4-quadrant scoring based on entity+docs presence
         3. Entity Density Scoring - Proxy grounding via known entity mentions
         
+        OPTIMIZATION: Skip sufficiency LLM call for impact queries with traversal results,
+        since we can calculate confidence directly from the traversal data.
+        
         Returns a structured response with answer, confidence, evidence, and uncertainty.
         """
         context_str = bundle.to_llm_context()
         
         entity_density, grounding_entities = self.calculate_entity_density(bundle.episodic_documents)
         
-        sufficiency, sufficiency_details = self.check_sufficiency(bundle.query_text, context_str)
+        # OPTIMIZATION: Skip sufficiency check for impact queries with confirmed traversal
+        # This saves ~3-5 seconds per query by avoiding an extra LLM call
+        has_traversal_results = bundle.blast_radius_entities or bundle.frontier
+        if bundle.query_type == 'impact' and has_traversal_results:
+            # For impact queries with traversal, we can directly determine sufficiency
+            # - If we have confirmed entities: SUFFICIENT (we know what's affected)
+            # - If we only have frontier: PARTIAL (we know where knowledge ends)
+            if bundle.blast_radius_entities:
+                sufficiency = "SUFFICIENT"
+                sufficiency_details = {
+                    "classification": "SUFFICIENT",
+                    "explanation": f"Graph traversal found {len(bundle.blast_radius_entities)} affected entities",
+                    "key_facts_found": bundle.blast_radius_entities,
+                    "key_facts_missing": bundle.gaps_identified if bundle.gaps_identified else []
+                }
+            else:
+                sufficiency = "PARTIAL"
+                sufficiency_details = {
+                    "classification": "PARTIAL",
+                    "explanation": "Graph traversal found no affected entities, only frontier nodes",
+                    "key_facts_found": [],
+                    "key_facts_missing": bundle.gaps_identified if bundle.gaps_identified else []
+                }
+            logger.info(f"Skipped sufficiency LLM call for impact query (has traversal results)")
+        else:
+            sufficiency, sufficiency_details = self.check_sufficiency(bundle.query_text, context_str)
         
         calibrated_confidence, quadrant = self.calculate_quadrant_confidence(
             bundle, sufficiency, entity_density

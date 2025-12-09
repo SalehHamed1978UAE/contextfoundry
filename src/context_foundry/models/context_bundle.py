@@ -356,56 +356,61 @@ class ContextBundle:
             lines.append("- For aggregate analysis, the user should query their incident database directly")
             lines.append("DO NOT attempt to synthesize patterns from partial data - this risks hallucination.\n")
         
-        # IMPACT QUERY: Guide LLM to structure response with three tiers
+        # IMPACT QUERY: Provide traversal data for conversational response
         if self.query_type == 'impact':
-            lines.append("=== IMPACT/CASCADE QUERY DETECTED ===")
-            lines.append("The user is asking about blast radius, impact, or who needs to be notified if something fails.")
+            # Extract the start entity (the thing that might fail)
+            start_entity_name = None
+            if self.traversal_result and isinstance(self.traversal_result, dict):
+                start_entity_name = self.traversal_result.get("start_entity_name")
+            
+            lines.append("=== IMPACT/CASCADE QUERY ===")
+            if start_entity_name:
+                lines.append(f"START ENTITY (the thing failing): {start_entity_name}")
+                lines.append(f"CRITICAL: '{start_entity_name}' is the CAUSE, NOT an effect. Do NOT include it in your impact list.")
             lines.append("")
+            
+            # Determine if this is a notification query
+            query_lower = self.query_text.lower() if self.query_text else ""
+            is_notification_query = any(kw in query_lower for kw in ["notify", "contact", "who should", "escalat", "owner", "team"])
+            
+            if is_notification_query:
+                lines.append("NOTIFICATION QUERY DETECTED - The user wants to know WHO to contact.")
+                lines.append("Look for 'owner', 'team', 'owner_team' in entity properties below.")
+                lines.append("Also check ESCALATES_TO relationships and escalation rules in symbolic memory.")
+                lines.append("")
             
             # Include the actual traversal results - the structured data from graph traversal
             if self.blast_radius_entities:
-                lines.append(f"=== GRAPH TRAVERSAL RESULT: {len(self.blast_radius_entities)} AFFECTED ENTITIES ===")
-                lines.append(f"Traversal complete: {self.blast_radius_complete}")
-                lines.append("")
-                lines.append("CONFIRMED AFFECTED ENTITIES (from graph traversal):")
+                lines.append(f"AFFECTED ENTITIES ({len(self.blast_radius_entities)} confirmed by graph traversal):")
                 for entity_name in self.blast_radius_entities:
                     lines.append(f"  - {entity_name}")
                 lines.append("")
-            
-            # Include frontier nodes (where knowledge ends)
-            if self.frontier:
-                lines.append(f"=== KNOWLEDGE BOUNDARIES: {len(self.frontier)} FRONTIER NODES ===")
-                lines.append("These entities mark where our knowledge ends:")
-                for fn in self.frontier:
-                    lines.append(f"  - {fn.get('entity_name', 'Unknown')} [{fn.get('entity_type', 'Unknown')}]")
-                    lines.append(f"    Reason: {fn.get('reason', 'Unknown')}")
-                    if fn.get('message'):
-                        lines.append(f"    Details: {fn.get('message')}")
+            else:
+                lines.append("No entities found in the blast radius for this failure scenario.")
                 lines.append("")
             
-            # Include identified documentation gaps
+            # Include frontier nodes (where knowledge ends) - explain conversationally
+            if self.frontier:
+                lines.append(f"KNOWLEDGE ENDS AT ({len(self.frontier)} entities):")
+                for fn in self.frontier:
+                    entity_name = fn.get('entity_name', 'Unknown')
+                    entity_type = fn.get('entity_type', 'Unknown').lower()
+                    message = fn.get('message', '')
+                    lines.append(f"  - {entity_name}: {message}")
+                lines.append("")
+            
+            # Include identified documentation gaps - for conversational acknowledgment
             if self.gaps_identified:
-                lines.append(f"=== DOCUMENTATION GAPS IDENTIFIED ===")
+                lines.append("DOCUMENTATION GAPS:")
                 for gap in self.gaps_identified:
                     lines.append(f"  - {gap}")
                 lines.append("")
             
-            lines.append("STRUCTURE YOUR RESPONSE IN THREE TIERS:")
-            lines.append("")
-            lines.append("**CONFIRMED IMPACT:** (High confidence)")
-            lines.append("  - List the entities from GRAPH TRAVERSAL RESULT above")
-            lines.append("  - These are KNOWN relationships we are certain about")
-            lines.append("")
-            lines.append("**INFERRED IMPACT:** (Lower confidence)")
-            lines.append("  - Transitive/indirect dependencies inferred through chains")
-            lines.append("  - Include the confidence percentage for each inferred item")
-            lines.append("  - Example: 'User Database (inferred via Auth Gateway, 57% confidence)'")
-            lines.append("")
-            lines.append("**KNOWLEDGE BOUNDARY:** (Unknown)")
-            lines.append("  - List the FRONTIER NODES above - where our knowledge ends")
-            lines.append("  - Explicitly state what we DON'T know based on the gaps identified")
-            lines.append("")
-            lines.append("CRITICAL: Be explicit about uncertainty. Do NOT present inferred impacts as confirmed facts.\n")
+            lines.append("RESPONSE GUIDANCE:")
+            lines.append("1. Explain the causal chain: why each service is affected")
+            lines.append("2. For notification queries: mention team/owner names from entity properties")
+            lines.append("3. Acknowledge gaps naturally (e.g., 'I don't have owner info for X')")
+            lines.append("4. Do NOT use structured headers like 'Confirmed Impact:' - write conversationally\n")
         
         # SEQUENCE INTENT: Guide LLM to provide ordered steps from runbooks
         if self.sequence_intent:

@@ -1449,10 +1449,10 @@ class RetrievalAgent:
         # Include traversal result with frontier detection for impact queries
         if is_impact_query and target_entity_name and traversal_result:
             if traversal_result.traversal_complete:
-                # Confirmed entities from traversal
-                result["blast_radius_entities"] = sorted([
+                # Confirmed entities from traversal (deduplicated)
+                result["blast_radius_entities"] = sorted(list(set([
                     e.entity_name for e in traversal_result.confirmed_entities
-                ])
+                ])))
                 result["blast_radius_complete"] = True
                 result["blast_radius_mode"] = traversal_result.mode
                 
