@@ -91,40 +91,6 @@ The extraction pipeline uses **semantic routing** for automatic domain detection
 
 Implementation: `src/context_foundry/extraction/entity_extractor.py` - `_chunk_text()` and `extract_with_types()`
 
-## Query & Reasoning System
-
-### Conversational Response Style
-The reasoning agent produces **natural, conversational responses** that:
-- Explain WHY services are affected (causal chains)
-- Mention team/owner names when available in entity properties
-- Acknowledge knowledge gaps naturally ("I don't have contact info for X, check Slack")
-- Answer the SPECIFIC question asked (notification vs impact vs escalation)
-
-### Impact Query Optimization
-For blast radius/impact queries, the system:
-1. Uses deterministic graph traversal (BFS) to find all affected entities
-2. Skips the sufficiency LLM call when traversal results exist (saves ~3-5 seconds)
-3. Filters start entity from results (it's the CAUSE, not an effect)
-4. Deduplicates blast radius entity list
-
-### Notification Query Cross-Memory Synthesis
-When queries contain "notify", "contact", "escalate", or "owner":
-- Pulls ownership info from entity properties (owner, team, owner_team)
-- Checks ESCALATES_TO relationships
-- Includes escalation rules from symbolic memory
-
-### Response Time Target
-- Impact queries with traversal: ~12 seconds (reduced from 22s)
-- Non-impact queries: ~16-18 seconds
-
-### Performance Optimization (Dec 2025)
-**Episodic Memory pgvector Optimization**: Replaced Python-based full table scan with in-database pgvector cosine distance search.
-- Before: 6400ms (loading all 7700+ documents into Python)
-- After: 540ms (in-database vector similarity)
-- **Improvement: 12x speedup**
-
-Implementation: `src/context_foundry/memory/episodic.py` - `search_similar()` uses `Document.embedding.cosine_distance()` for efficient in-database search.
-
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
 - **LLM**: OpenAI `gpt-4o-mini`

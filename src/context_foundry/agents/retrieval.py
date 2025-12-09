@@ -182,8 +182,6 @@ class RetrievalAgent:
                         If provided, only returns facts that were valid at this date.
         """
         from datetime import datetime
-        import time
-        retrieval_timing = {"start": time.time()}
         
         parsed_as_of_date = None
         if as_of_date:
@@ -199,7 +197,6 @@ class RetrievalAgent:
         
         query_type = self._classify_query_type(query_text)
         bundle.query_type = query_type
-        retrieval_timing["classification"] = time.time()
         
         sequence_intent, sequence_reason = self._detect_sequence_intent(query_text)
         bundle.sequence_intent = sequence_intent
@@ -346,8 +343,6 @@ class RetrievalAgent:
                 bundle.target_entity_found = True
             # else: preserve the existing value from _verify_target_entity_exists
         
-        retrieval_timing["pre_semantic"] = time.time()
-        
         # Skip semantic memory query for aggregation queries - entities already populated
         if not bundle.is_aggregation_query:
             semantic_results = self._query_semantic_memory(
@@ -361,7 +356,6 @@ class RetrievalAgent:
         else:
             # For aggregation queries, semantic_entities was populated by _handle_entity_listing_query
             semantic_results = {"entities": bundle.semantic_entities, "relationships": []}
-        retrieval_timing["post_semantic"] = time.time()
         
         # Set blast radius entities for deterministic impact queries
         if "blast_radius_entities" in semantic_results:
@@ -426,8 +420,6 @@ class RetrievalAgent:
                     bundle.semantic_entities.insert(0, entity_dict)
                     seen_ids.add(entity_dict["id"])
         
-        retrieval_timing["pre_episodic"] = time.time()
-        
         if query_type == 'rule':
             rule_keywords = self._get_rule_document_keywords(query_text)
             episodic_results = self._query_episodic_memory_for_rules(
@@ -438,12 +430,9 @@ class RetrievalAgent:
                 query_text, keywords, max_documents, query_logger
             )
         bundle.episodic_documents = episodic_results
-        retrieval_timing["post_episodic"] = time.time()
         
         relationship_types = [r.get("relationship_type") for r in bundle.semantic_relationships]
         entity_type_strs = [e.get("entity_type") for e in bundle.semantic_entities]
-        
-        retrieval_timing["pre_symbolic"] = time.time()
         
         if query_type == 'rule':
             symbolic_results = self._query_symbolic_memory_for_rules(
@@ -464,7 +453,6 @@ class RetrievalAgent:
                 query_text, keywords, entity_type_strs, relationship_types, max_rules, query_logger
             )
         bundle.symbolic_rules = symbolic_results
-        retrieval_timing["post_symbolic"] = time.time()
         
         if sequence_intent:
             bundle.has_multi_step_evidence = self._check_multi_step_evidence(
@@ -495,20 +483,6 @@ class RetrievalAgent:
                 "rules_count": len(bundle.symbolic_rules),
                 "confidence": bundle.confidence
             })
-        
-        # Log retrieval timing breakdown
-        retrieval_timing["end"] = time.time()
-        timing_breakdown = {
-            "classification_ms": int((retrieval_timing.get("classification", retrieval_timing["start"]) - retrieval_timing["start"]) * 1000),
-            "semantic_memory_ms": int((retrieval_timing.get("post_semantic", retrieval_timing["start"]) - retrieval_timing.get("pre_semantic", retrieval_timing["start"])) * 1000),
-            "episodic_memory_ms": int((retrieval_timing.get("post_episodic", retrieval_timing["start"]) - retrieval_timing.get("pre_episodic", retrieval_timing["start"])) * 1000),
-            "symbolic_memory_ms": int((retrieval_timing.get("post_symbolic", retrieval_timing["start"]) - retrieval_timing.get("pre_symbolic", retrieval_timing["start"])) * 1000),
-            "total_retrieval_ms": int((retrieval_timing["end"] - retrieval_timing["start"]) * 1000)
-        }
-        logger.info(f"RETRIEVAL TIMING: {timing_breakdown}")
-        logger.info(f"BUNDLE DATA: blast_radius_entities={bundle.blast_radius_entities}, "
-                   f"frontier={len(bundle.frontier) if bundle.frontier else 0} nodes, "
-                   f"query_type={bundle.query_type}")
         
         return bundle
     
@@ -1475,10 +1449,10 @@ class RetrievalAgent:
         # Include traversal result with frontier detection for impact queries
         if is_impact_query and target_entity_name and traversal_result:
             if traversal_result.traversal_complete:
-                # Confirmed entities from traversal (deduplicated)
-                result["blast_radius_entities"] = sorted(list(set([
+                # Confirmed entities from traversal
+                result["blast_radius_entities"] = sorted([
                     e.entity_name for e in traversal_result.confirmed_entities
-                ])))
+                ])
                 result["blast_radius_complete"] = True
                 result["blast_radius_mode"] = traversal_result.mode
                 

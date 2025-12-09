@@ -614,15 +614,6 @@ class SemanticMemory:
                 timestamp=datetime.utcnow().isoformat()
             )
         
-        logger.info(f"TRAVERSAL DEBUG: Found entity '{entity.name}' (id={entity.id}, type={entity.entity_type})")
-        
-        # Debug: Check what relationships exist for this entity
-        all_rels = self._get_relationships_for_entity(entity.id, as_of_date, trusted_only=True)
-        logger.info(f"TRAVERSAL DEBUG: Entity has {len(all_rels)} trusted relationships")
-        for rel in all_rels[:10]:
-            direction = "source" if rel.source_id == entity.id else "target"
-            logger.info(f"  - {rel.relationship_type}: entity is {direction}, other side is {rel.target_id if direction == 'source' else rel.source_id}")
-        
         result = self.traverse_with_frontier_detection(
             entity.id,
             mode=mode,
