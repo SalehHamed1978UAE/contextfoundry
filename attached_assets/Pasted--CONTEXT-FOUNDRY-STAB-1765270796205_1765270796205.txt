@@ -1,0 +1,157 @@
+═══════════════════════════════════════════════════════════════════════════════
+CONTEXT FOUNDRY STABILIZATION - COMPLETE FIX
+═══════════════════════════════════════════════════════════════════════════════
+
+Stop fixing bugs one at a time. Here's everything wrong and how to fix it all.
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 1: TRAVERSAL LOGIC ERRORS
+═══════════════════════════════════════════════════════════════════════════════
+
+Issue: Start entity appears in its own blast radius results.
+Query: "If User Database is corrupted..." 
+Wrong: Shows "User Database (90%)" as inferred impact.
+
+FIX: In the traversal function, filter out the start entity from all results:
+- confirmed_entities should NOT include start entity
+- inferred_entities should NOT include start entity
+- The start entity is the CAUSE, not the EFFECT
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 2: RESPONSE LATENCY (22 SECONDS)
+═══════════════════════════════════════════════════════════════════════════════
+
+Issue: Response B takes 22 seconds. Unacceptable.
+
+FIX: Profile the query path. Likely culprits:
+- Multiple sequential LLM calls (should be 1)
+- N+1 database queries (use batch/eager loading)
+- Redundant traversals
+- Unindexed queries
+
+Target: < 5 seconds for any query.
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 3: ROBOTIC RESPONSE WORDING
+═══════════════════════════════════════════════════════════════════════════════
+
+Issue: Responses sound like database dumps, not helpful explanations.
+
+Current: "Confirmed Impact: - Auth Gateway - Frontend App"
+Should be: "If X goes down, notify the Auth Team first — they own the 
+           service that directly depends on it."
+
+FIX: Rewrite the LLM system prompt. Replace formatting instructions with:
+
+---
+You are a helpful expert explaining system impacts to a colleague.
+
+DO NOT:
+- List raw entity names with dashes
+- Say "Confirmed Impact:" or "Inferred Impact:"
+- Output structured data formats
+- Sound like a database query result
+
+DO:
+- Explain in natural conversational English
+- Answer the ACTUAL question asked (who to notify, what's affected, etc.)
+- Explain WHY each thing is affected (the causal chain)
+- Mention who owns/manages affected services if known
+- Acknowledge what you DON'T know naturally
+- Sound like a knowledgeable colleague, not a robot
+
+EXAMPLE:
+Bad: "Confirmed Impact: - Auth Gateway - Frontend App"
+Good: "The Auth Gateway will fail immediately since it queries User Database 
+       on every request. Frontend App will start showing login errors within 
+       seconds. You should notify the Platform Team who owns both services."
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 4: NOT ANSWERING THE ACTUAL QUESTION
+═══════════════════════════════════════════════════════════════════════════════
+
+Issue: "Which services need to be NOTIFIED?" returns impact list, not contacts.
+
+FIX: The LLM prompt must emphasize answering the SPECIFIC question:
+- "who to notify" → include owners, teams, contacts from graph
+- "what's affected" → list services with explanation
+- "blast radius" → show cascade with confidence
+- "escalation path" → pull from symbolic memory rules
+
+Add to prompt:
+---
+First, identify what the user is ACTUALLY asking:
+- Notification question → tell them WHO to contact
+- Impact question → tell them WHAT is affected and WHY
+- Escalation question → tell them the PROCESS to follow
+- Blast radius → show the CASCADE of failures
+
+Then answer THAT question, not a generic impact dump.
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 5: MISSING CROSS-MEMORY SYNTHESIS
+═══════════════════════════════════════════════════════════════════════════════
+
+Issue: Notification queries should pull ownership + escalation rules, not just 
+impact graph.
+
+FIX: For queries containing "notify", "escalate", "contact", "owner":
+1. Get impacted entities from semantic memory (graph)
+2. Get ownership info from entity properties or relationships
+3. Get escalation rules from symbolic memory
+4. Synthesize into actionable answer
+
+═══════════════════════════════════════════════════════════════════════════════
+PROBLEM 6: KNOWLEDGE BOUNDARIES POORLY EXPLAINED
+═══════════════════════════════════════════════════════════════════════════════
+
+Issue: "Knowledge Boundaries: - Frontend App" means nothing to user.
+
+FIX: In LLM prompt, explain gaps naturally:
+---
+If you hit knowledge boundaries (things you don't know), explain them 
+conversationally:
+- "We don't have documented owners for Frontend App — you may need to 
+   check Slack or PagerDuty."
+- "The dependency chain stops at Auth Gateway — I don't have visibility 
+   into what depends on it."
+
+Never output "Knowledge Boundaries:" as a section header.
+---
+
+═══════════════════════════════════════════════════════════════════════════════
+IMPLEMENTATION ORDER
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Fix traversal logic (filter start entity) - 15 min
+2. Rewrite LLM synthesis prompt completely - 30 min
+3. Profile and fix latency - 1 hour
+4. Add cross-memory synthesis for notification queries - 30 min
+5. Test with these queries:
+   - "If User Database is corrupted, which services need to be notified?"
+   - "What is the blast radius if API Gateway becomes unavailable?"
+   - "If Auth Service fails, what downstream services will be impacted?"
+   - "Who should I contact if the Payment Service goes down?"
+
+EXPECTED OUTPUT for "If User Database is corrupted, who should be notified?":
+
+"You need to notify three teams:
+
+1. Auth Team — They own User Authentication Service, which directly queries 
+   the User Database for every login attempt. They'll see failures immediately.
+
+2. Platform Team — Both Auth Gateway and API Gateway depend on auth, so 
+   they'll start rejecting requests within seconds.
+
+I don't have contact info for the DBA team in my records, but they should 
+probably be looped in for corruption assessment.
+
+Confidence is high for the first two (direct dependencies confirmed in the 
+system). Let me know if you need escalation procedures."
+
+═══════════════════════════════════════════════════════════════════════════════
+DO NOT come back with partial fixes. Implement ALL of the above, test all 
+queries, and report results.
+═══════════════════════════════════════════════════════════════════════════════
