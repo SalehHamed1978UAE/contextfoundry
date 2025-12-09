@@ -6,7 +6,7 @@ Supports temporal queries via as_of_date parameter.
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Set
 from sqlalchemy import or_, and_, text, func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from collections import deque
 import uuid
 
@@ -195,7 +195,10 @@ class SemanticMemory:
             normalized_types = [t.upper() if isinstance(t, str) else t for t in relationship_types]
         
         if direction in ["outgoing", "both"]:
-            q = self.session.query(Relationship).filter(
+            q = self.session.query(Relationship).options(
+                joinedload(Relationship.source_entity),
+                joinedload(Relationship.target_entity)
+            ).filter(
                 Relationship.source_id == entity_id
             )
             if trusted_only:
@@ -229,7 +232,10 @@ class SemanticMemory:
                         })
         
         if direction in ["incoming", "both"]:
-            q = self.session.query(Relationship).filter(
+            q = self.session.query(Relationship).options(
+                joinedload(Relationship.source_entity),
+                joinedload(Relationship.target_entity)
+            ).filter(
                 Relationship.target_id == entity_id
             )
             if trusted_only:
@@ -458,7 +464,10 @@ class SemanticMemory:
             as_of_date: Optional temporal filter
             trusted_only: If True, only return TRUSTED relationships (default)
         """
-        q = self.session.query(Relationship).filter(
+        q = self.session.query(Relationship).options(
+            joinedload(Relationship.source_entity),
+            joinedload(Relationship.target_entity)
+        ).filter(
             or_(
                 Relationship.source_id == entity_id,
                 Relationship.target_id == entity_id
