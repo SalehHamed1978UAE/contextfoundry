@@ -15,13 +15,18 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-PRODUCTION_DOMAIN = "https://context-foundry.replit.app"
+PRODUCTION_DOMAINS = [
+    "https://context-foundry.replit.app",
+    "https://contextfoundry.app"
+]
 
 def get_redirect_url():
     """Get the correct redirect URL for dev or production."""
     # Check if running in production (no dev domain means production deployment)
     if not os.environ.get("REPLIT_DEV_DOMAIN"):
-        return f'{PRODUCTION_DOMAIN}/google_login/callback'
+        # Use custom domain if configured, otherwise default replit.app
+        custom_domain = os.environ.get("CUSTOM_DOMAIN", "https://contextfoundry.app")
+        return f'{custom_domain}/google_login/callback'
     # Development uses REPLIT_DEV_DOMAIN
     return f'https://{os.environ.get("REPLIT_DEV_DOMAIN")}/google_login/callback'
 
