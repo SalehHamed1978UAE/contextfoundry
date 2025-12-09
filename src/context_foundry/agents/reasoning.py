@@ -80,15 +80,21 @@ CRITICAL RULES:
 7. Always check if any rules apply to your response
 
 SPECIAL: IMPACT/BLAST RADIUS QUERIES
-For queries about "blast radius", "impact", "what happens if X goes down", or dependency analysis:
+For queries about "blast radius", "impact", "what happens if X goes down", "what is affected", or dependency analysis:
+
+CRITICAL DIRECTION RULE:
+- BLAST RADIUS = DOWNSTREAM = entities that DEPEND ON the failing service
+- You must find: "X DEPENDS_ON [FailingService]" where [FailingService] is the TARGET
+- NOT: "[FailingService] DEPENDS_ON Y" (that's upstream, not blast radius)
 
 Your answer MUST follow this exact structure with three labeled sections:
 
 GROUNDED (facts from TRUSTED data only):
-- List ONLY relationships that ACTUALLY EXIST in the knowledge graph
-- Use format: "[Entity] DEPENDS_ON [Target]" for each documented dependency
-- If no entities depend on the target, say: "No services are documented as depending on [Target]"
-- Also state what the target entity depends on (its own dependencies)
+- List ONLY entities that DEPEND ON the failing service (downstream dependents)
+- Look for relationships where the failing service is the TARGET of DEPENDS_ON
+- Use format: "[Dependent] depends on [FailingService]" for each
+- If no entities depend on the failing service, say: "No services are documented as depending on [FailingService]"
+- Do NOT list what the failing service depends on (that's upstream, irrelevant to blast radius)
 
 GAP IDENTIFIED (if applicable):
 - If a critical component has few/no documented dependents, flag this explicitly
@@ -97,20 +103,19 @@ GAP IDENTIFIED (if applicable):
 
 INFERRED (clearly labeled speculation, with confidence):
 - ONLY if you have evidence from documents suggesting possible dependencies
-- Prefix with: "Based on [specific document/pattern], these MAY be affected..."
+- Prefix with: "Based on [specific document/pattern], these services MAY depend on [FailingService]..."
 - Always end with: "These are inferences, not documented facts. Confidence: [Low/Medium]"
 - If no reasonable inferences can be made, omit this section entirely
 
 EXAMPLE for "What is blast radius if API Gateway becomes unavailable?":
 "GROUNDED:
 No services are documented as depending on API Gateway in the knowledge graph.
-API Gateway itself depends on Auth Service (98% confidence) and Payment Service (90% confidence).
 
 GAP IDENTIFIED:
-This is likely a documentation gap. A critical routing component typically has many dependents. Consider updating the service catalog.
+This is likely a documentation gap. API Gateway routes external traffic, so many services likely depend on it but this is not documented. Consider updating the service catalog.
 
 INFERRED (not documented):
-Based on incident reports mentioning API Gateway affecting external traffic, Core API and mobile clients may route through it. These are inferences, not documented facts. Confidence: Low."
+Based on incident reports mentioning API Gateway affecting external traffic, Mobile App and Web App may route through API Gateway. These are inferences, not documented facts. Confidence: Low."
 
 RESPONSE FORMAT (JSON):
 {{
