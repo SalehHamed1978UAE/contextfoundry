@@ -15,11 +15,21 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-DEV_REDIRECT_URL = f'https://{os.environ.get("REPLIT_DEV_DOMAIN", "localhost")}/google_login/callback'
+def get_redirect_url():
+    """Get the correct redirect URL for dev or production."""
+    # Production deployments use REPLIT_DEPLOYMENT_URL or custom domain
+    if os.environ.get("REPLIT_DEPLOYMENT_URL"):
+        return f'{os.environ.get("REPLIT_DEPLOYMENT_URL")}/google_login/callback'
+    # Development uses REPLIT_DEV_DOMAIN
+    if os.environ.get("REPLIT_DEV_DOMAIN"):
+        return f'https://{os.environ.get("REPLIT_DEV_DOMAIN")}/google_login/callback'
+    return 'http://localhost:5000/google_login/callback'
 
+# For logging at startup
+_startup_redirect = get_redirect_url()
 if GOOGLE_CLIENT_ID:
     print(f"""Google OAuth configured.
-Redirect URI: {DEV_REDIRECT_URL}
+Redirect URI: {_startup_redirect}
 """)
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID) if GOOGLE_CLIENT_ID else None
@@ -122,7 +132,7 @@ def login():
 
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=DEV_REDIRECT_URL,
+        redirect_uri=get_redirect_url(),
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -144,7 +154,7 @@ def callback():
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url.replace("http://", "https://"),
-        redirect_url=DEV_REDIRECT_URL,
+        redirect_url=get_redirect_url(),
         code=code,
     )
     token_response = requests.post(
