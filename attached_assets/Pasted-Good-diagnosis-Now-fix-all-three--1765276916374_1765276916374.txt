@@ -1,0 +1,70 @@
+Good diagnosis. Now fix all three:
+
+═══════════════════════════════════════════════════════════════════════════════
+FIX 1: OPTIMIZATION NOT TRIGGERING
+═══════════════════════════════════════════════════════════════════════════════
+
+The blast_radius_entities is being set AFTER the bundle goes to reasoning.
+The optimization check runs before the data exists.
+
+FIX: Ensure traversal happens BEFORE reasoning is called. Check the order:
+1. Retrieval agent builds bundle
+2. Traversal populates blast_radius_entities 
+3. THEN bundle goes to reasoning agent
+4. Reasoning checks for traversal data and skips sufficiency call
+
+Add logging to confirm the order:
+- Log when blast_radius_entities is populated
+- Log when optimization check runs
+- Confirm data exists at check time
+
+═══════════════════════════════════════════════════════════════════════════════
+FIX 2: RESPONSE TRUNCATION
+═══════════════════════════════════════════════════════════════════════════════
+
+max_completion_tokens=2000 is too low for conversational responses.
+
+FIX: Increase to 3000 or 4000. The new prompt style generates longer, 
+more helpful responses. Don't cut them off mid-sentence.
+
+Also: Add a check that if response ends mid-word or mid-sentence, 
+log a warning so we catch this in monitoring.
+
+═══════════════════════════════════════════════════════════════════════════════
+FIX 3: CF vs GRAPHRAG LATENCY GAP
+═══════════════════════════════════════════════════════════════════════════════
+
+CF is 22s, GraphRAG is 5s. That's a 4x difference.
+
+Current CF path:
+1. Query classification
+2. Entity extraction  
+3. Semantic memory search
+4. Traversal (blast radius)
+5. Episodic memory search
+6. Symbolic memory search
+7. Sufficiency LLM call ← SKIP THIS for impact queries
+8. Reasoning LLM call
+
+Target: <8 seconds for CF impact queries.
+
+Profile each step. Where is the time going?
+- Is traversal slow? (should be <1s with proper indexes)
+- Multiple LLM calls? (should be 1 after optimization)
+- N+1 database queries? (use batch loading)
+
+Add timing logs for each step and report back.
+
+═══════════════════════════════════════════════════════════════════════════════
+AFTER FIXES, TEST:
+═══════════════════════════════════════════════════════════════════════════════
+
+Query: "What is the blast radius if the API Gateway becomes unavailable?"
+
+Expected:
+- Latency: <10 seconds (ideally <8)
+- Response: Complete (not truncated)
+- Tone: Conversational with causal explanation
+- Content: Lists affected services + explains WHY + mentions teams
+
+═══════════════════════════════════════════════════════════════════════════════
