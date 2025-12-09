@@ -115,34 +115,42 @@ class EpisodicMemory:
         """
         Search for similar documents using vector similarity.
         Returns documents with their similarity scores.
+        
+        OPTIMIZED: Uses pgvector's cosine distance operator for in-database
+        similarity search instead of loading all documents into Python.
         """
         query_embedding = openai_embedding(query_text, self.embedding_dim)
         
+        # Build base query using pgvector's cosine_distance function
+        # Cosine similarity = 1 - cosine distance
         query = self.session.query(Document)
         if doc_types:
             query = query.filter(Document.doc_type.in_(doc_types))
         
+        query = query.filter(Document.embedding.isnot(None))
+        
+        # Use pgvector's cosine_distance function for efficient in-database similarity
+        # The embedding column type handles proper vector casting automatically
+        cosine_dist = Document.embedding.cosine_distance(query_embedding)
+        query = query.add_columns((1 - cosine_dist).label('similarity'))
+        query = query.order_by(cosine_dist)
+        query = query.limit(limit * 2)
+        
+        rows = query.all()
+        
         results = []
-        documents = query.all()
+        for row in rows:
+            doc = row[0]  # First element is the Document object
+            similarity = float(row[1]) if row[1] else 0.0  # Second element is similarity
+            if similarity >= min_similarity:
+                # Use to_dict() to preserve the contract expected by RetrievalAgent
+                result = doc.to_dict()
+                result["similarity"] = similarity
+                results.append(result)
         
-        for doc in documents:
-            if doc.embedding is not None:
-                doc_embedding = np.array(doc.embedding)
-                query_vec = np.array(query_embedding)
-                
-                similarity = float(np.dot(doc_embedding, query_vec) / 
-                                   (np.linalg.norm(doc_embedding) * np.linalg.norm(query_vec) + 1e-8))
-                
-                if similarity >= min_similarity:
-                    results.append({
-                        **doc.to_dict(),
-                        "similarity": similarity
-                    })
-        
-        results.sort(key=lambda x: x["similarity"], reverse=True)
         results = results[:limit]
         
-        logger.debug(f"Episodic search '{query_text[:50]}...': found {len(results)} similar documents")
+        logger.debug(f"Episodic search '{query_text[:50]}...': found {len(results)} similar documents (pgvector)")
         return results
     
     def search_by_keywords(
