@@ -15,26 +15,31 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-PRODUCTION_DOMAINS = [
-    "https://context-foundry.replit.app",
-    "https://contextfoundry.app"
-]
-
 def get_redirect_url():
-    """Get the correct redirect URL for dev or production."""
-    # Check if running in production (no dev domain means production deployment)
-    if not os.environ.get("REPLIT_DEV_DOMAIN"):
-        # Use custom domain if configured, otherwise default replit.app
-        custom_domain = os.environ.get("CUSTOM_DOMAIN", "https://contextfoundry.app")
-        return f'{custom_domain}/google_login/callback'
-    # Development uses REPLIT_DEV_DOMAIN
-    return f'https://{os.environ.get("REPLIT_DEV_DOMAIN")}/google_login/callback'
+    """Get the correct redirect URL dynamically from the request.
+    
+    This uses the actual request host so it works for both dev and production
+    without relying on environment variables.
+    """
+    try:
+        # Get the scheme (http/https) - respect X-Forwarded-Proto from proxy
+        scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
+        if scheme != 'https':
+            scheme = 'https'  # Always use HTTPS for OAuth
+        
+        # Get the host from the request
+        host = request.headers.get('X-Forwarded-Host', request.host)
+        
+        return f'{scheme}://{host}/google_login/callback'
+    except RuntimeError:
+        # Outside request context (e.g., at startup) - use env var fallback
+        if os.environ.get("REPLIT_DEV_DOMAIN"):
+            return f'https://{os.environ.get("REPLIT_DEV_DOMAIN")}/google_login/callback'
+        return 'https://contextfoundry.app/google_login/callback'
 
-# For logging at startup
-_startup_redirect = get_redirect_url()
 if GOOGLE_CLIENT_ID:
     print(f"""Google OAuth configured.
-Redirect URI: {_startup_redirect}
+Note: Redirect URI is determined dynamically from request host.
 """)
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID) if GOOGLE_CLIENT_ID else None
