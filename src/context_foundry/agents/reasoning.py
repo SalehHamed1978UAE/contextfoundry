@@ -16,6 +16,7 @@ from openai import OpenAI
 from ..models.context_bundle import ContextBundle, EvidenceItem
 from ..utils.logger import logger, QueryLogger
 from ..config.domain_schema import get_schema_loader, DomainSchema
+from .query_classifier import classify_query, get_data_sufficiency, format_no_relationships_response, format_sparse_response, should_gate_query
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -346,6 +347,10 @@ class ReasoningAgent:
                 })
             return self._create_entity_not_found_response(bundle)
         
+        relationship_guard_result = self._check_relationship_guard(bundle, query_logger)
+        if relationship_guard_result:
+            return relationship_guard_result
+        
         context_str = bundle.to_llm_context()
         
         entity_density, grounding_entities = self.calculate_entity_density(bundle.episodic_documents)
@@ -668,6 +673,146 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
         except Exception as e:
             logger.warning(f"Failed to find similar entities: {e}")
             return []
+        finally:
+            session.close()
+    
+    def _check_relationship_guard(self, bundle: ContextBundle, query_logger: Optional[QueryLogger] = None) -> Optional[Dict]:
+        """
+        RELATIONSHIP GUARD: Check if query requires relationships but entity has none.
+        
+        This is the key hallucination prevention mechanism from the 4-LLM consensus:
+        "Don't ask the LLM to not hallucinate. Don't give it the opportunity to hallucinate."
+        
+        Returns:
+            - None if query should proceed to LLM
+            - Dict response if query should be gated (answered without LLM)
+        """
+        if not bundle.target_entity_found or not bundle.target_entity_name:
+            return None
+        
+        from ..models.schema import Entity, LifecycleState, get_session
+        session = get_session()
+        
+        try:
+            entity = session.query(Entity).filter(
+                Entity.name.ilike(bundle.target_entity_name),
+                Entity.lifecycle_state == LifecycleState.TRUSTED
+            ).first()
+            
+            if not entity:
+                return None
+            
+            entity_id = str(entity.id)
+            entity_type = entity.entity_type
+            
+            query_type = classify_query(bundle.query_text)
+            sufficiency = get_data_sufficiency(session, entity_id)
+            
+            should_gate, gate_reason = should_gate_query(query_type, sufficiency)
+            
+            if not should_gate:
+                return None
+            
+            if query_logger:
+                query_logger.log_event("RELATIONSHIP_GUARD", {
+                    "target_entity": bundle.target_entity_name,
+                    "query_type": query_type,
+                    "gate_reason": gate_reason,
+                    "relationship_count": sufficiency['relationship_count'],
+                    "action": "short_circuit"
+                })
+            
+            logger.info(f"RELATIONSHIP GUARD: {bundle.target_entity_name} has {sufficiency['relationship_count']} relationships, gate_reason={gate_reason}")
+            
+            if gate_reason == 'no_relationships':
+                answer = format_no_relationships_response(bundle.target_entity_name, query_type, entity_type)
+                return {
+                    "answer": answer,
+                    "confidence": 1.0,
+                    "confidence_level": "high",
+                    "grounded": True,
+                    "data_gap": "no_relationships",
+                    "relationship_count": 0,
+                    "entity_found": True,
+                    "target_entity": bundle.target_entity_name,
+                    "confidence_calibration": {
+                        "quadrant": "DATA_GATE_NO_RELATIONSHIPS",
+                        "sufficiency": "GROUNDED_GAP",
+                        "entity_density": 1.0,
+                        "grounding_entities": [bundle.target_entity_name],
+                        "llm_self_confidence": None
+                    },
+                    "evidence_chain": [f"Entity '{bundle.target_entity_name}' exists in knowledge graph"],
+                    "uncertainty": {
+                        "uncertain_facts": [],
+                        "reasons": ["No relationships documented for this entity"],
+                        "would_help": [
+                            f"Document dependencies for '{bundle.target_entity_name}'",
+                            "Upload documentation that describes system connections"
+                        ]
+                    },
+                    "rules_applied": [],
+                    "caveats": [
+                        "This is a GROUNDED response - we are certain the data gap exists",
+                        "No hallucination occurred - LLM was not invoked"
+                    ],
+                    "bundle_id": bundle.query_id,
+                    "query_text": bundle.query_text
+                }
+            
+            elif gate_reason in ['sparse_data', 'insufficient_for_impact']:
+                from ..models.schema import Relationship
+                rels = session.query(Relationship).filter(
+                    Relationship.lifecycle_state == LifecycleState.TRUSTED,
+                    (Relationship.source_id == entity_id) | (Relationship.target_id == entity_id)
+                ).limit(10).all()
+                
+                rel_list = []
+                for rel in rels:
+                    rel_list.append({
+                        'id': str(rel.id)[:8],
+                        'source_name': rel.source.name if rel.source else 'Unknown',
+                        'target_name': rel.target.name if rel.target else 'Unknown',
+                        'relationship_type': rel.relationship_type
+                    })
+                
+                answer = format_sparse_response(bundle.target_entity_name, entity_type, rel_list, sufficiency)
+                return {
+                    "answer": answer,
+                    "confidence": 0.7,
+                    "confidence_level": "moderate",
+                    "grounded": True,
+                    "data_gap": gate_reason,
+                    "relationship_count": sufficiency['relationship_count'],
+                    "entity_found": True,
+                    "target_entity": bundle.target_entity_name,
+                    "confidence_calibration": {
+                        "quadrant": "DATA_GATE_SPARSE",
+                        "sufficiency": "PARTIAL",
+                        "entity_density": 1.0,
+                        "grounding_entities": [bundle.target_entity_name],
+                        "llm_self_confidence": None
+                    },
+                    "evidence_chain": [f"Entity '{bundle.target_entity_name}' exists with {sufficiency['relationship_count']} relationship(s)"],
+                    "uncertainty": {
+                        "uncertain_facts": [],
+                        "reasons": ["Limited relationship data available"],
+                        "would_help": ["Add more documentation about system dependencies"]
+                    },
+                    "rules_applied": [],
+                    "caveats": [
+                        "Response based on limited data - no LLM reasoning applied",
+                        "Additional relationships may exist but are not documented"
+                    ],
+                    "bundle_id": bundle.query_id,
+                    "query_text": bundle.query_text
+                }
+            
+            return None
+            
+        except Exception as e:
+            logger.warning(f"Relationship guard error: {e}")
+            return None
         finally:
             session.close()
     
