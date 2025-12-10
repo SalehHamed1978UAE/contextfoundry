@@ -336,6 +336,16 @@ class ReasoningAgent:
         
         Returns a structured response with answer, confidence, evidence, and uncertainty.
         """
+        if self._is_blast_radius_query(bundle.query_text) and bundle.target_entity_name and not bundle.target_entity_found:
+            logger.warning(f"ENTITY NOT FOUND: '{bundle.target_entity_name}' - refusing to hallucinate for blast radius query")
+            if query_logger:
+                query_logger.log_event("ENTITY_NOT_FOUND_GUARD", {
+                    "target_entity": bundle.target_entity_name,
+                    "query_type": "blast_radius",
+                    "action": "short_circuit"
+                })
+            return self._create_entity_not_found_response(bundle)
+        
         context_str = bundle.to_llm_context()
         
         entity_density, grounding_entities = self.calculate_entity_density(bundle.episodic_documents)
@@ -593,6 +603,117 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             "caveats": [
                 "The knowledge base does not contain sufficient information to answer this query",
                 "This is an honest abstention rather than a fabricated answer"
+            ],
+            "bundle_id": bundle.query_id,
+            "query_text": bundle.query_text,
+            "context_bundle": bundle.to_dict()
+        }
+    
+    def _is_blast_radius_query(self, query_text: str) -> bool:
+        """
+        Detect if this is a blast radius / impact analysis query.
+        
+        These queries REQUIRE the target entity to exist - we cannot hallucinate
+        about the impact of a non-existent entity.
+        """
+        query_lower = query_text.lower()
+        blast_radius_patterns = [
+            'blast radius',
+            'impact',
+            'impacted',
+            'what happens if',
+            'what would happen if',
+            'goes down',
+            'becomes unavailable',
+            'fails',
+            'failure',
+            'affected',
+            'affects',
+            'depends on',
+            'dependencies'
+        ]
+        return any(pattern in query_lower for pattern in blast_radius_patterns)
+    
+    def _find_similar_entities(self, target_name: str, limit: int = 5) -> List[str]:
+        """
+        Find entities with similar names to suggest as alternatives.
+        
+        Uses simple substring matching and word overlap.
+        """
+        from ..models.schema import Entity, LifecycleState, get_session
+        
+        session = get_session()
+        try:
+            all_entities = session.query(Entity.name).filter(
+                Entity.lifecycle_state.in_([LifecycleState.TRUSTED, LifecycleState.STAGING])
+            ).distinct().limit(500).all()
+            
+            target_lower = target_name.lower()
+            target_words = set(target_lower.split())
+            
+            scored = []
+            for (name,) in all_entities:
+                name_lower = name.lower()
+                score = 0
+                if target_lower in name_lower or name_lower in target_lower:
+                    score += 3
+                name_words = set(name_lower.split())
+                common_words = target_words & name_words
+                score += len(common_words) * 2
+                if score > 0:
+                    scored.append((name, score))
+            
+            scored.sort(key=lambda x: -x[1])
+            return [name for name, _ in scored[:limit]]
+        except Exception as e:
+            logger.warning(f"Failed to find similar entities: {e}")
+            return []
+        finally:
+            session.close()
+    
+    def _create_entity_not_found_response(self, bundle: ContextBundle) -> Dict:
+        """
+        Create a structured response when the target entity doesn't exist.
+        
+        CRITICAL: This prevents hallucination about non-existent entities.
+        For blast radius queries, we MUST have a real entity to analyze.
+        """
+        target_name = bundle.target_entity_name or "Unknown"
+        similar_entities = self._find_similar_entities(target_name)
+        
+        similar_suggestion = ""
+        if similar_entities:
+            similar_suggestion = f" Did you mean one of these? {', '.join(similar_entities[:3])}"
+        
+        return {
+            "answer": f"Entity '{target_name}' was not found in the knowledge graph. "
+                     f"Cannot assess blast radius for a non-existent entity.{similar_suggestion}",
+            "confidence": 0.0,
+            "confidence_level": "very_low",
+            "entity_not_found": True,
+            "target_entity": target_name,
+            "similar_entities": similar_entities,
+            "confidence_calibration": {
+                "quadrant": "ENTITY_NOT_FOUND",
+                "sufficiency": "NOT_APPLICABLE",
+                "entity_density": 0.0,
+                "grounding_entities": [],
+                "llm_self_confidence": 0.0
+            },
+            "evidence_chain": [],
+            "uncertainty": {
+                "uncertain_facts": [f"Entity '{target_name}' does not exist in the knowledge graph"],
+                "reasons": ["The queried entity was not found in the knowledge base"],
+                "would_help": [
+                    f"Add documentation about '{target_name}' to the knowledge base",
+                    "Verify the exact name of the entity you're querying",
+                    "Check if the entity exists under a different name"
+                ]
+            },
+            "rules_applied": [],
+            "caveats": [
+                "This is NOT a hallucinated response - the entity genuinely doesn't exist",
+                "Context Foundry refuses to fabricate information about non-existent entities"
             ],
             "bundle_id": bundle.query_id,
             "query_text": bundle.query_text,
