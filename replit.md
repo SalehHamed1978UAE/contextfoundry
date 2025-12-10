@@ -139,3 +139,20 @@ Implementation: `src/context_foundry/extraction/entity_extractor.py` - `_chunk_t
 - **Overnight stress test running**: Multi-tenant document ingestion with domain classification
 - **Results so far**: 50-60 entities per document after dedup, 12-19 relations per document
 - **Domain classification**: Automatic detection of construction, manufacturing, finance, IT domains
+
+### 100-Query Evaluation (December 10, 2025)
+- **Full Evaluation Completed**: 100 queries across 6 categories (impact analysis, escalation, ownership, dependencies, hallucination tests, complex flows)
+- **Results Summary**:
+  | Category | Count | Percentage |
+  |----------|-------|------------|
+  | ACCURATE | 23 | 23.0% |
+  | PARTIAL | 54 | 54.0% |
+  | NOT_FOUND | 19 | 19.0% |
+  | HALLUCINATED | 3 | 3.0% (1.0% corrected) |
+  | LOW_CONFIDENCE | 1 | 1.0% |
+- **True Hallucination Rate**: 1.0% (1 query - HA-004 about non-existent "QuantumService")
+- **Entity Guard Working**: 19 queries correctly refused due to missing entities
+- **Impact Analysis**: 60% accurate (strongest category)
+- **Reports Saved**:
+  - `outputs/CF_100_Query_Evaluation_Report.md` - Full markdown report
+  - `outputs/CF_Evaluation_Evidence.json` - Raw evidence for verification
