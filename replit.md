@@ -57,6 +57,29 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - Integrated EntityResolver into RetrievalAgent's `_match_known_entity_in_query()`
 - Running batch embedding job to populate entity name embeddings (~8.7k entities)
 
+## Future Optimization: Document Chunk Embeddings
+
+**Current state:** Both entity names and document chunks use `text-embedding-3-small` (1536-dim)
+
+**Why this is fine for now:**
+- Entity resolution via tri-stage resolver compensates for embedding quality
+- Cost-efficient during development (~10x cheaper than large)
+- Relationship sparsity (0.24 rel/entity) is the current bottleneck, not retrieval quality
+
+**Review triggers - revisit embedding model choice when ANY of these occur:**
+
+1. **Useful answer rate plateaus** after relationship density improves past 1.0 rel/entity
+2. **Document retrieval misses** become a pattern in query logs (user asks about incident X, system retrieves incident Y)
+3. **Long-form queries underperform** - questions requiring synthesis across multiple 512-token chunks return poor results
+4. **A/B benchmark shows >15% retrieval quality gap** between small and large on document chunks specifically
+
+**Upgrade path if triggered:**
+- Keep `text-embedding-3-small` for entity names (short strings, cost-sensitive, high volume)
+- Upgrade to `text-embedding-3-large` for document chunks only (3072-dim)
+- Update ChromaDB collection to handle mixed dimensions OR maintain separate collections
+
+**Benchmark task:** Create evaluation set of 50 document retrieval queries, measure recall@5 for small vs large, log results before deciding.
+
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
 - **LLM**: OpenAI `gpt-4o-mini`
