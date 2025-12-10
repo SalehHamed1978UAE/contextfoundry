@@ -1,0 +1,93 @@
+**Good validation.** Both LLMs confirm the approach is correct, but identified gaps:
+
+---
+
+## Gaps Identified
+
+| Issue | Risk | Fix |
+|-------|------|-----|
+| Regex misses ~20% of phrasings | Medium | Ship now, replace with LLM extraction later |
+| Fuzzy threshold 0.6 too low | Low | Raise to 0.75-0.80 |
+| Multi-entity queries not handled | Low | Phase 2 enhancement |
+
+---
+
+## Updated Strategy
+
+**Phase 1 (Now): Ship the 80% fix**
+- Regex extraction (works for most queries)
+- Exact entity check before LLM
+- Higher fuzzy threshold (0.75)
+- 10 test cases
+
+**Phase 2 (Later): Harden to 95%+**
+- Replace regex with LLM extraction
+- Embedding-based similarity
+- Multi-entity support
+
+---
+
+## Refined Prompt for Replit
+
+```
+CRITICAL FIX: Entity Existence Validation
+
+Read /mnt/user-data/outputs/FIX_ENTITY_EXISTENCE_VALIDATION.md for the full spec.
+
+PHASE 1 IMPLEMENTATION (Do Now):
+
+1. Add _extract_target_entity_from_query() with regex patterns
+   - This catches ~80% of queries, good enough for now
+   - We'll upgrade to LLM extraction in Phase 2
+
+2. Add _entity_exists() to check if entity is in knowledge graph
+   - Exact match first (case-insensitive)
+   - If not found, fuzzy search with min_similarity=0.75 (not 0.6)
+
+3. Add _create_entity_not_found_response() 
+   - Return structured "not found" response
+   - Include similar entity suggestions if available
+
+4. In the query handler (retrieval.py), BEFORE calling reasoning:
+   - Extract target entity from query
+   - If entity extracted AND entity not found → return "not found" immediately
+   - If entity found OR no entity extracted → continue normal flow
+
+5. Add logging when LLM call is skipped due to missing entity
+   - Log: query, extracted_entity, similar_entities_found
+   - Useful for debugging and analytics
+
+IMPORTANT:
+- This is a RETRIEVAL layer fix, not REASONING layer fix
+- This applies to ALL query types, not just blast radius
+- The LLM should NEVER be called for non-existent entities
+- Use fuzzy threshold 0.75 (not 0.6) to avoid bad suggestions
+
+RUN THESE TESTS:
+
+Entity Not Found (should return "not found"):
+1. "What is the blast radius if Payment Processor fails?"
+2. "Who owns the XYZ123 Service?"
+3. "What does FakeService depend on?"
+4. "Who is the expert on the Nonexistent System?"
+
+Entity Exists (should work normally):
+5. "What is the blast radius if API Gateway fails?"
+6. "Who owns the Auth Service?"
+7. "What does the User Database depend on?"
+
+Edge Cases:
+8. "What services have had incidents this month?" (no specific entity)
+9. "" (empty query - should return 400)
+10. "What is the capital of France?" (off-topic)
+
+ALSO: Re-run 5 queries from the 23-query validation suite to confirm no regressions.
+
+Show me all test results before marking complete.
+
+NOTE: This is Phase 1. We'll improve regex → LLM extraction in Phase 2.
+```
+
+---
+
+**This gets you 80% improvement now. We can harden it later.**

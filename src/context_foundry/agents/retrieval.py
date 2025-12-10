@@ -1091,13 +1091,21 @@ class RetrievalAgent:
         if fails_pattern:
             return self._normalize_entity_name(fails_pattern.group(1))
         
-        # Pattern 4: "depends on <Entity>" / "depend on <Entity>"
+        # Pattern 4a: "depends on <Entity>" / "depend on <Entity>"
         depends_pattern = re.search(
             rf'\bdepends?\s+on\s+(?:the\s+)?{ENTITY_PATTERN}\b',
             query_text, re.IGNORECASE
         )
         if depends_pattern:
             return self._normalize_entity_name(depends_pattern.group(1))
+        
+        # Pattern 4b: "what does <Entity> depend on" / "does <Entity> depend on"
+        what_depends_pattern = re.search(
+            rf'\b(?:what\s+)?does\s+(?:the\s+)?{ENTITY_PATTERN}\s+depend',
+            query_text, re.IGNORECASE
+        )
+        if what_depends_pattern:
+            return self._normalize_entity_name(what_depends_pattern.group(1))
         
         # Pattern 5: "if <Entity>" (impact analysis)
         if_pattern = re.search(
