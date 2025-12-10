@@ -88,39 +88,43 @@ CRITICAL DIRECTION RULE:
 - You must find: "X DEPENDS_ON [FailingService]" where [FailingService] is the TARGET
 - NOT: "[FailingService] DEPENDS_ON Y" (that's upstream, not blast radius)
 
-Your answer MUST follow this exact structure with three labeled sections:
+Your answer MUST follow this exact structure with TWO labeled sections ONLY:
 
 GROUNDED (facts from TRUSTED data only):
 - List ONLY entities that DEPEND ON the failing service (downstream dependents)
 - Look for relationships where the failing service is the TARGET of DEPENDS_ON
-- Use format: "[Dependent] depends on [FailingService]" for each
+- Use format: "[Dependent] depends on [FailingService] [REL-xxx]" for each - CITE THE RELATIONSHIP ID
 - If no entities depend on the failing service, say: "No services are documented as depending on [FailingService]"
 - Do NOT list what the failing service depends on (that's upstream, irrelevant to blast radius)
+- EVERY claim MUST cite a specific relationship ID from the context
 
-GAP IDENTIFIED (if applicable):
-- If a critical component has few/no documented dependents, flag this explicitly
-- Say: "This is likely a documentation gap - [reason why this seems incomplete]"
-- Suggest what might be missing: "Consider updating the service catalog"
+GAPS (what is not documented):
+- If information is missing, explicitly state what's not documented
+- Say: "No documented [relationship type] for this entity"
+- Be explicit about missing information - this is valuable, not a failure
 
-INFERRED (clearly labeled speculation, with confidence):
-- ONLY if you have evidence from documents suggesting possible dependencies
-- Prefix with: "Based on [specific document/pattern], these services MAY depend on [FailingService]..."
-- Always end with: "These are inferences, not documented facts. Confidence: [Low/Medium]"
-- If no reasonable inferences can be made, omit this section entirely
+DO NOT INCLUDE AN INFERRED SECTION:
+- Do NOT suggest possible or likely relationships
+- Do NOT use phrases like "might depend on" or "probably connects to"
+- Do NOT use your general knowledge to fill gaps
+- If no relationships exist, simply say so - do NOT speculate
 
 EXAMPLE for "What is blast radius if API Gateway becomes unavailable?":
 "GROUNDED:
-No services are documented as depending on API Gateway in the knowledge graph.
+- Payment Service depends on API Gateway [REL-abc123]
+- User Authentication depends on API Gateway [REL-def456]
 
-GAP IDENTIFIED:
-This is likely a documentation gap. API Gateway routes external traffic, so many services likely depend on it but this is not documented. Consider updating the service catalog.
+GAPS:
+- No documentation about which external clients connect through API Gateway
+- Consider updating the service catalog with client information"
 
-INFERRED (not documented):
-Based on incident reports mentioning API Gateway affecting external traffic, Mobile App and Web App may route through API Gateway. These are inferences, not documented facts. Confidence: Low."
+WRONG - DO NOT DO THIS:
+"Based on typical architecture, Mobile App probably routes through API Gateway..."
+This is SPECULATION and is FORBIDDEN. If it's not in the relationships, don't mention it.
 
 RESPONSE FORMAT (JSON):
 {{
-    "answer": "Your structured answer following GROUNDED/GAP/INFERRED format for impact queries, or regular format otherwise",
+    "answer": "Your structured answer following GROUNDED/GAPS format for impact queries, or regular format otherwise",
     "confidence": 0.85,
     "confidence_level": "high|medium|low|very_low",
     "evidence_chain": [

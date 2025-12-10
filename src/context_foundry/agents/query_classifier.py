@@ -19,13 +19,22 @@ def classify_query(query: str) -> str:
     """
     Classify query type for routing decisions.
     
+    IMPORTANT: Check most specific patterns first (impact, relationship) 
+    before generic patterns (existence) to avoid false positives.
+    
     Returns one of: 'existence', 'relationship', 'impact', 'general'
     """
     query_lower = query.lower()
     
-    existence_keywords = ['exist', 'is there', 'do we have', 'do you know', 'what is']
-    if any(w in query_lower for w in existence_keywords):
-        return 'existence'
+    impact_keywords = [
+        'blast', 'radius', 'impact', 'affects', 'affected',
+        'fail', 'fails', 'failure', 'outage',
+        'cascade', 'cascading', 'downstream impact',
+        'what happens if', 'what breaks',
+        'go down', 'goes down', 'went down'
+    ]
+    if any(w in query_lower for w in impact_keywords):
+        return 'impact'
     
     relationship_keywords = [
         'depend', 'depends on', 'dependency', 'dependencies',
@@ -39,15 +48,9 @@ def classify_query(query: str) -> str:
     if any(w in query_lower for w in relationship_keywords):
         return 'relationship'
     
-    impact_keywords = [
-        'blast', 'radius', 'impact', 'affects', 'affected',
-        'fail', 'fails', 'failure', 'outage',
-        'cascade', 'cascading', 'downstream impact',
-        'what happens if', 'what breaks', 'if .* fails',
-        'go down', 'goes down', 'went down'
-    ]
-    if any(w in query_lower for w in impact_keywords):
-        return 'impact'
+    existence_keywords = ['exist', 'is there', 'do we have', 'do you know']
+    if any(w in query_lower for w in existence_keywords):
+        return 'existence'
     
     return 'general'
 
