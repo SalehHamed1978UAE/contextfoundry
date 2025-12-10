@@ -766,17 +766,23 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             
             elif gate_reason in ['sparse_data', 'insufficient_for_impact']:
                 from ..models.schema import Relationship
-                rels = session.query(Relationship).filter(
+                from sqlalchemy.orm import joinedload
+                rels = session.query(Relationship).options(
+                    joinedload(Relationship.source_entity),
+                    joinedload(Relationship.target_entity)
+                ).filter(
                     Relationship.lifecycle_state == LifecycleState.TRUSTED,
                     (Relationship.source_id == entity_id) | (Relationship.target_id == entity_id)
                 ).limit(10).all()
                 
                 rel_list = []
                 for rel in rels:
+                    source_name = rel.source_entity.name if rel.source_entity else 'Unknown'
+                    target_name = rel.target_entity.name if rel.target_entity else 'Unknown'
                     rel_list.append({
                         'id': str(rel.id)[:8],
-                        'source_name': rel.source.name if rel.source else 'Unknown',
-                        'target_name': rel.target.name if rel.target else 'Unknown',
+                        'source_name': source_name,
+                        'target_name': target_name,
                         'relationship_type': rel.relationship_type
                     })
                 
