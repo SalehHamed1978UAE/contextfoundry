@@ -293,7 +293,9 @@ class GardenerScheduler:
                       ELSE 0.70
                   END
                   AND e.id NOT IN (
-                      SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
+                      SELECT fact_a_id FROM conflicts WHERE status = 'PENDING'
+                      UNION
+                      SELECT fact_b_id FROM conflicts WHERE status = 'PENDING'
                   )
                 LIMIT 500
             )
@@ -310,7 +312,9 @@ class GardenerScheduler:
                   AND r.created_at < NOW() - INTERVAL '1 hour'
                   AND r.confidence >= 0.70
                   AND r.id NOT IN (
-                      SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
+                      SELECT fact_a_id FROM conflicts WHERE status = 'PENDING'
+                      UNION
+                      SELECT fact_b_id FROM conflicts WHERE status = 'PENDING'
                   )
                 LIMIT 500
             )
