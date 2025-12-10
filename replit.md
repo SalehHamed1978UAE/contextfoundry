@@ -102,6 +102,22 @@ Implementation: `src/context_foundry/extraction/entity_extractor.py` - `_chunk_t
 
 ## Recent Changes (December 10, 2025)
 
+### CRITICAL: STAGING → TRUSTED Pipeline Fix (December 10, 2025)
+- **Root Cause Identified**: StagingValidator was never called automatically - entities stayed in STAGING+PENDING forever
+- **Problem**: 8,184 high-confidence entities were stuck in STAGING because Gardener requires `validation_status = VALID` to promote
+- **Solution**: Added fast SQL-based validation to scheduler before Gardener runs
+- **Results**:
+  | Before | After | Increase |
+  |--------|-------|----------|
+  | 328 TRUSTED entities | 8,511 TRUSTED entities | +8,183 (+2,495%) |
+  | 404 TRUSTED relationships | 2,013 TRUSTED relationships | +1,609 (+398%) |
+- **Code Change**: `src/context_foundry/agents/scheduler.py` - Added `_fast_validate_staging()` method
+- **Pipeline Flow (Fixed)**:
+  1. Extraction → STAGING + PENDING
+  2. Scheduler runs `_fast_validate_staging()` → marks high-confidence as VALID
+  3. Gardener runs → promotes VALID entities to TRUSTED
+- **Bypass Paths Identified**: `org_chart_loader.py`, `seed_inference_fixtures.py`, `semantic.py` create TRUSTED entities directly
+
 ### Hallucination Prevention Guard (Critical Fix)
 - **Entity-Not-Found Guard**: Added guard in `core.py` that short-circuits before reasoning agent when queried entity doesn't exist in knowledge graph
 - **Pattern Refinement**: Tightened entity extraction patterns in `retrieval.py` to prevent false positives
