@@ -266,31 +266,57 @@ class GardenerScheduler:
         Fast SQL-based validation for STAGING entities.
         
         Marks STAGING entities with high confidence as VALID so Gardener can promote them.
-        This is faster than running full StagingValidator which does expensive conflict detection.
+        Uses type-specific thresholds matching Gardener's promotion requirements.
+        
+        Safety features:
+        1. Type-specific confidence thresholds (PERSON: 0.85, INCIDENT: 0.80, default: 0.70)
+        2. Volume cap: max 500 entities per cycle to prevent mass bad promotions
+        3. Requires dwell time > 1 hour (already checked by Gardener)
+        4. Excludes entities with existing conflicts
         
         Returns: Number of entities marked as VALID
         """
-        result = session.execute(text("""
-            UPDATE entities 
+        entity_result = session.execute(text("""
+            UPDATE entities e
             SET validation_status = 'VALID',
                 last_validated_at = NOW()
-            WHERE lifecycle_state = 'STAGING'
-              AND validation_status = 'PENDING'
-              AND confidence >= 0.70
-              AND name IS NOT NULL
+            WHERE e.lifecycle_state = 'STAGING'
+              AND e.validation_status = 'PENDING'
+              AND e.name IS NOT NULL
+              AND e.created_at < NOW() - INTERVAL '1 hour'
+              AND e.confidence >= CASE 
+                  WHEN e.entity_type = 'PERSON' THEN 0.85
+                  WHEN e.entity_type = 'INCIDENT' THEN 0.80
+                  WHEN e.entity_type = 'SERVICE' THEN 0.75
+                  ELSE 0.70
+              END
+              AND e.id NOT IN (
+                  SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
+              )
+            LIMIT 500
         """))
         
         rel_result = session.execute(text("""
-            UPDATE relationships 
+            UPDATE relationships r
             SET validation_status = 'VALID',
                 last_validated_at = NOW()
-            WHERE lifecycle_state = 'STAGING'
-              AND (validation_status IS NULL OR validation_status = 'PENDING')
-              AND confidence >= 0.70
+            WHERE r.lifecycle_state = 'STAGING'
+              AND (r.validation_status IS NULL OR r.validation_status = 'PENDING')
+              AND r.created_at < NOW() - INTERVAL '1 hour'
+              AND r.confidence >= 0.70
+              AND r.id NOT IN (
+                  SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
+              )
+            LIMIT 500
         """))
         
         session.commit()
-        return result.rowcount + rel_result.rowcount
+        
+        total = entity_result.rowcount + rel_result.rowcount
+        if total > 0:
+            print(f"[Scheduler] Fast-validated: {entity_result.rowcount} entities, {rel_result.rowcount} relationships")
+        
+        return total
 
 
 _scheduler_instance: Optional[GardenerScheduler] = None
