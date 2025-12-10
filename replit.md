@@ -100,12 +100,27 @@ Implementation: `src/context_foundry/extraction/entity_extractor.py` - `_chunk_t
 - **Deployment**: Gunicorn
 - **Authentication**: Magic Link, API Keys, JWT Sessions, Google OAuth
 
-## Recent Changes (December 9, 2025)
+## Recent Changes (December 10, 2025)
 
-### Query/Reasoning System Hardening
+### Hallucination Prevention Guard (Critical Fix)
+- **Entity-Not-Found Guard**: Added guard in `core.py` that short-circuits before reasoning agent when queried entity doesn't exist in knowledge graph
+- **Pattern Refinement**: Tightened entity extraction patterns in `retrieval.py` to prevent false positives
+  - Added Pattern 2 for "if X fails" impact queries with alphanumeric support
+  - Made "the X" pattern case-sensitive (matches "Payment Service" but not "education system")
+  - Removed greedy fallback patterns that matched common nouns
+- **Similar Entity Suggestions**: When entity not found, suggests similar entities from the graph
+- **Test Coverage**: 6 validation queries passing:
+  1. FakeService123 (non-existent) → guard triggers
+  2. Payment Processor (real) → 0.765 confidence
+  3. XYZ123 Service (non-existent) → guard triggers
+  4. Empty query → error
+  5. "Capital of France" (general) → low confidence refusal
+  6. "Education system" (edge case) → low confidence refusal
+
+### Query/Reasoning System Hardening (December 9, 2025)
 - **Blast Radius Direction Fix**: Corrected DEPENDS_ON traversal to show downstream dependents (what breaks if X fails), not upstream dependencies
 - **GROUNDED/GAP/INFERRED Response Structure**: All query responses now clearly label facts as GROUNDED (in knowledge graph), GAP (missing documentation), or INFERRED (derived but unverified)
-- **Edge Case Handling**: System correctly refuses to hallucinate about non-existent entities (FakeService, XYZ123 Service), validates empty queries (400 error), and stays in-domain for general knowledge questions
+- **Edge Case Handling**: System correctly refuses to hallucinate about non-existent entities
 - **23/23 Query Verification**: Full test suite passing for all query types
 
 ### Pipeline Progress Module (Anthropic Long-Running Agent Harness)

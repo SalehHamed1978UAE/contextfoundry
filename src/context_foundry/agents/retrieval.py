@@ -260,17 +260,16 @@ class RetrievalAgent:
                 "query_type": query_type
             })
         
+        # NOTE: We deliberately do NOT use _find_potential_entity_names to set 
+        # target_entity_name for the hallucination guard. That fallback is too greedy
+        # and would incorrectly block general knowledge queries like "What is the 
+        # education system in France?" The guard should ONLY trigger when we have
+        # explicit entity extraction from deterministic patterns in _extract_target_entity.
+        # Log potential entities for debugging, but don't trigger the guard.
         if query_type not in ('rule', 'analysis') and not target_entity_name:
             potential_entities = self._find_potential_entity_names(query_text)
             if potential_entities:
-                for pe in potential_entities:
-                    found, entity_match = self._verify_target_entity_exists(pe)
-                    if not found:
-                        bundle.target_entity_name = pe
-                        bundle.target_entity_found = False
-                        bundle.target_entity_match = None
-                        logger.warning(f"POTENTIAL ENTITY NOT FOUND: '{pe}' detected in query but not in graph")
-                        break
+                logger.debug(f"POTENTIAL ENTITIES (informational only): {potential_entities[:3]}")
         
         is_impact = self._is_impact_query(query_text)
         if is_impact and query_logger:
@@ -1056,23 +1055,35 @@ class RetrievalAgent:
         # PRIORITY 2: Fall back to regex patterns for entities not yet in DB
         # Entity type suffixes we look for (case-insensitive)
         ENTITY_SUFFIXES = r'(?:[Ss]ervice|[Dd]atabase|[Tt]eam|[Cc]ache|[Qq]ueue|[Gg]ateway|API|api|[Ss]ystem|[Ee]ngine|[Pp]latform|[Cc]luster)'
-        # Entity pattern - now accepts both lower and upper case starting letters
-        ENTITY_PATTERN = rf'([A-Za-z][a-zA-Z]*(?:\s+[A-Za-z][a-zA-Z]*)*(?:\s+{ENTITY_SUFFIXES})?)'
+        # Entity pattern - accepts letters and numbers (e.g., "FakeService123", "API Gateway")
+        ENTITY_PATTERN = rf'([A-Za-z][a-zA-Z0-9]*(?:\s+[A-Za-z][a-zA-Z0-9]*)*(?:\s+{ENTITY_SUFFIXES})?)'
         
         # Pattern 1: Quoted entity names (highest priority)
         quoted = re.findall(r'["\']([^"\']+)["\']', query_text)
         if quoted:
             return self._normalize_entity_name(quoted[0])
         
-        # Pattern 2: "the <Entity Name>" - captures multi-word names
-        the_pattern = re.search(
-            rf'\bthe\s+{ENTITY_PATTERN}\b',
+        # Pattern 2: "if <Entity> fails/goes down" - HIGHEST priority for impact queries
+        # Matches: "if FakeService123 fails", "if API Gateway goes down"
+        if_fails_pattern = re.search(
+            rf'\bif\s+(?:the\s+)?{ENTITY_PATTERN}\s+(?:goes?\s+down|fails?|is\s+down|crashes?|times?\s+out|becomes?\s+unavailable)\b',
             query_text, re.IGNORECASE
+        )
+        if if_fails_pattern:
+            return self._normalize_entity_name(if_fails_pattern.group(1))
+        
+        # Pattern 3: "the <Entity Name>" - only match if properly capitalized like a proper entity
+        # e.g., "the Payment Service" but NOT "the education system in France"
+        # Must have Capital First Letter to distinguish entities from common nouns
+        the_pattern = re.search(
+            rf'\bthe\s+([A-Z][a-zA-Z0-9]*(?:\s+[A-Z][a-zA-Z0-9]*)*)\b',
+            query_text
         )
         if the_pattern:
             return self._normalize_entity_name(the_pattern.group(1))
         
-        # Pattern 3: "<Entity> goes down" / "<Entity> fails" / "<Entity> is down"
+        # Pattern 4: "<Entity> goes down" / "<Entity> fails" / "<Entity> is down"
+        # (without "if" prefix - that's handled in Pattern 2)
         fails_pattern = re.search(
             rf'\b{ENTITY_PATTERN}\s+(?:goes?\s+down|fails?|is\s+down|crashes?|times?\s+out)\b',
             query_text, re.IGNORECASE
@@ -1131,21 +1142,17 @@ class RetrievalAgent:
             return self._normalize_entity_name(responsible_pattern.group(1))
         
         # Pattern 10: "about <Entity>" / "regarding <Entity>"
+        # Only match if entity ends with a known suffix (to avoid matching generic nouns like "France")
         about_pattern = re.search(
-            rf'\b(?:about|regarding|concerning|for)\s+(?:the\s+)?{ENTITY_PATTERN}\b',
+            rf'\b(?:about|regarding|concerning)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9]*(?:\s+[A-Za-z][a-zA-Z0-9]*)*\s+{ENTITY_SUFFIXES})\b',
             query_text, re.IGNORECASE
         )
         if about_pattern:
             return self._normalize_entity_name(about_pattern.group(1))
         
-        # Pattern 11: FALLBACK - Any multi-word phrase ending with entity suffix (case-insensitive)
-        # This catches cases like "search service" at the start or middle of query
-        fallback_pattern = re.search(
-            rf'\b([A-Za-z][a-zA-Z]*(?:\s+[A-Za-z][a-zA-Z]*)*\s+{ENTITY_SUFFIXES})\b',
-            query_text, re.IGNORECASE
-        )
-        if fallback_pattern:
-            return self._normalize_entity_name(fallback_pattern.group(1))
+        # NOTE: Removed Pattern 11 (greedy fallback) to prevent matching generic phrases
+        # like "Education System" in "What is the education system in France?"
+        # The guard should only trigger for explicit entity extraction patterns (1-10).
         
         return None
     
@@ -1275,27 +1282,21 @@ class RetrievalAgent:
         Find potential entity names in the query that might need verification.
         
         This is a fallback for when pattern-based extraction fails.
-        Looks for multi-word phrases that look like entity names (case-insensitive).
+        ONLY matches phrases that end with known entity suffixes to prevent
+        false positives like "Capital Of France".
         Returns title-cased versions for consistent comparison.
         """
         # Entity type suffixes (case-insensitive)
-        ENTITY_SUFFIXES = r'(?:[Ss]ervice|[Dd]atabase|[Tt]eam|[Cc]ache|[Qq]ueue|[Gg]ateway|API|api|[Ss]ystem|[Ee]ngine|[Pp]latform|[Cc]luster)'
+        ENTITY_SUFFIXES = r'(?:[Ss]ervice|[Dd]atabase|[Tt]eam|[Cc]ache|[Qq]ueue|[Gg]ateway|API|api|[Ss]ystem|[Ee]ngine|[Pp]latform|[Cc]luster|[Pp]rocessor)'
         
         # Find all phrases that end with an entity suffix (case-insensitive)
-        pattern = rf'\b([A-Za-z][a-zA-Z]*(?:\s+[A-Za-z][a-zA-Z]*)*\s+{ENTITY_SUFFIXES})\b'
+        # This is the ONLY pattern we use - no greedy fallback
+        pattern = rf'\b([A-Za-z][a-zA-Z0-9]*(?:\s+[A-Za-z][a-zA-Z0-9]*)*\s+{ENTITY_SUFFIXES})\b'
         matches = re.findall(pattern, query_text, re.IGNORECASE)
         
-        # Also check for phrases that might be entity names without suffix
-        # But only if they're 2+ words (e.g., "api gateway", "payment processor")
-        alt_pattern = r'\b([A-Za-z][a-zA-Z]+\s+[A-Za-z][a-zA-Z]+(?:\s+[A-Za-z][a-zA-Z]+)?)\b'
-        alt_matches = re.findall(alt_pattern, query_text)
-        
-        # Combine and dedupe, convert to title case for consistent comparison
-        all_matches = list(set(matches + alt_matches))
-        
         # Filter out common false positives (check lowercase version)
-        false_positives = {'what', 'who', 'where', 'when', 'how', 'which', 'the', 'are', 'does', 'can'}
-        filtered = [m for m in all_matches if m.split()[0].lower() not in false_positives]
+        false_positives = {'what', 'who', 'where', 'when', 'how', 'which', 'the', 'are', 'does', 'can', 'is', 'of'}
+        filtered = [m for m in matches if m.split()[0].lower() not in false_positives]
         
         # Convert to title case for consistent database lookups
         title_cased = [m.title() for m in filtered]

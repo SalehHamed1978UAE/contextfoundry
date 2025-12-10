@@ -89,6 +89,45 @@ class ContextFoundry:
                 as_of_date=as_of_date
             )
             
+            if bundle.target_entity_name and not bundle.target_entity_found:
+                query_logger.log_event("ENTITY_NOT_FOUND_GUARD", {
+                    "target_entity": bundle.target_entity_name,
+                    "action": "short_circuit_before_reasoning"
+                })
+                logger.warning(f"ENTITY NOT FOUND: '{bundle.target_entity_name}' - refusing to hallucinate")
+                
+                similar = self._find_similar_entities(bundle.target_entity_name)
+                similar_msg = f" Did you mean: {', '.join(similar[:3])}?" if similar else ""
+                
+                response = {
+                    "answer": f"Entity '{bundle.target_entity_name}' was not found in the knowledge graph. "
+                             f"Cannot answer questions about non-existent entities.{similar_msg}",
+                    "confidence": 0.0,
+                    "confidence_level": "very_low",
+                    "entity_not_found": True,
+                    "target_entity": bundle.target_entity_name,
+                    "similar_entities": similar,
+                    "evidence_chain": [],
+                    "uncertainty": {
+                        "reasons": ["The queried entity does not exist in the knowledge base"],
+                        "would_help": [
+                            f"Add documentation about '{bundle.target_entity_name}'",
+                            "Check if the entity exists under a different name"
+                        ]
+                    },
+                    "rules_applied": [],
+                    "caveats": [
+                        "Context Foundry refuses to fabricate information about non-existent entities"
+                    ],
+                    "bundle_id": bundle.query_id,
+                    "query_text": bundle.query_text,
+                    "context_bundle": bundle.to_dict()
+                }
+                
+                summary = query_logger.log_complete(success=True, final_confidence=0.0)
+                response["query_log"] = summary
+                return response
+            
             if display_output:
                 display_context_bundle(bundle.to_dict())
             
@@ -217,3 +256,37 @@ class ContextFoundry:
         with open(filepath, 'w') as f:
             json.dump(response, f, indent=2, default=str)
         logger.info(f"Response exported to {filepath}")
+    
+    def _find_similar_entities(self, target_name: str, limit: int = 5):
+        """
+        Find entities with similar names to suggest as alternatives.
+        
+        Uses substring matching and word overlap for fuzzy matching.
+        """
+        from .models.schema import Entity, LifecycleState
+        
+        try:
+            all_entities = self.session.query(Entity.name).filter(
+                Entity.lifecycle_state.in_([LifecycleState.TRUSTED, LifecycleState.STAGING])
+            ).distinct().limit(500).all()
+            
+            target_lower = target_name.lower()
+            target_words = set(target_lower.split())
+            
+            scored = []
+            for (name,) in all_entities:
+                name_lower = name.lower()
+                score = 0
+                if target_lower in name_lower or name_lower in target_lower:
+                    score += 3
+                name_words = set(name_lower.split())
+                common_words = target_words & name_words
+                score += len(common_words) * 2
+                if score > 0:
+                    scored.append((name, score))
+            
+            scored.sort(key=lambda x: -x[1])
+            return [name for name, _ in scored[:limit]]
+        except Exception as e:
+            logger.warning(f"Failed to find similar entities: {e}")
+            return []
