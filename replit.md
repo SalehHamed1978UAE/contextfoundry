@@ -1,5 +1,7 @@
 # Context Foundry - Dual-System Cognitive Architecture
 
+> **Detailed architecture documentation:** See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for complete system reference including all agents, memory layers, pipelines, and data flows.
+
 ## Overview
 Context Foundry implements a dual-system cognitive architecture for enterprise knowledge graph governance. It separates Ontology Foundry (schema governance) from Context Foundry (instance governance) to allow for different governance cadences, confidence thresholds, and agent responsibilities. The project provides a robust framework for managing knowledge graphs, emphasizing structured truth delivery and a cognitive cycle approach to information processing, enabling multi-tenancy and advanced knowledge extraction capabilities with a focus on structured truth delivery and preventing hallucinations.
 
