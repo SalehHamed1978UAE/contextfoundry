@@ -1,0 +1,76 @@
+Safe Approach (Final Recommendation)
+Step 1: Discover Required Fields
+Tell Replit:
+
+Show me the schema configuration for required fields:
+
+1. Where is the schema defined? (search for entity_type, required_fields)
+2. For each entity type, what fields are required?
+3. Sample 5 STAGING entities of each type - do they HAVE those required fields?
+
+Example output needed:
+Entity Type: PERSON
+Required Fields: [name, role]
+Sample Entity "John Anderson": name=✅, role=❌ (missing)
+
+This tells us if validation will pass or fail before we run it.
+Step 2: Test on 100 Entities
+Tell Replit:
+
+Run StagingValidator on 100 entities:
+
+results = staging_validator.validate_entities(limit=100)
+
+Report:
+- How many VALID?
+- How many INVALID?
+- How many CONFLICT?
+- What were the specific failure reasons?
+- Group failures by entity_type
+
+DO NOT run on all entities yet.
+Step 3: Based on Results
+If ResultThen90%+ passRun on all entities50-90% passReview failure reasons, decide if rules need fixing<50% passSchema rules are too strict — fix rules first
+Step 4: Only After Success
+Add to scheduler:
+python# In scheduler.py, before Gardener runs:
+staging_validator.validate_all_staging()
+gardener.run_cycle()
+```
+
+---
+
+## Why This Is Safer Than Bulk SQL
+
+| Approach | Risk |
+|----------|------|
+| Bulk SQL `SET validation_status = 'VALID'` | Promotes bad data if schema violations exist |
+| Run StagingValidator first | Tells us what's wrong BEFORE promoting |
+
+**StagingValidator will show us failure reasons.** Then we decide:
+- If failures are legitimate → fix the data
+- If failures are false positives → fix the rules
+- If everything passes → promote safely
+
+---
+
+## Prompt for Replit
+```
+STEP 1: Schema Discovery
+
+Before running validation, show me what will be checked:
+
+1. Find the schema configuration file (search for: required_fields, entity_schema, type_config)
+
+2. For each entity type in the schema, list:
+   - Entity type name
+   - Required fields
+   - Optional fields with validation rules
+
+3. Sample check - for 3 STAGING entities of each major type (PERSON, SERVICE, DATABASE, TEAM):
+   - Show the entity's actual properties
+   - Check if required fields are present
+
+4. Predict: Based on this analysis, what % of entities will likely pass validation?
+
+DO NOT RUN VALIDATOR YET. Just analyze the schema requirements.
