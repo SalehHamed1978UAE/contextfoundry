@@ -277,37 +277,43 @@ class GardenerScheduler:
         Returns: Number of entities marked as VALID
         """
         entity_result = session.execute(text("""
-            UPDATE entities e
+            UPDATE entities
             SET validation_status = 'VALID',
                 last_validated_at = NOW()
-            WHERE e.lifecycle_state = 'STAGING'
-              AND e.validation_status = 'PENDING'
-              AND e.name IS NOT NULL
-              AND e.created_at < NOW() - INTERVAL '1 hour'
-              AND e.confidence >= CASE 
-                  WHEN e.entity_type = 'PERSON' THEN 0.85
-                  WHEN e.entity_type = 'INCIDENT' THEN 0.80
-                  WHEN e.entity_type = 'SERVICE' THEN 0.75
-                  ELSE 0.70
-              END
-              AND e.id NOT IN (
-                  SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
-              )
-            LIMIT 500
+            WHERE id IN (
+                SELECT e.id FROM entities e
+                WHERE e.lifecycle_state = 'STAGING'
+                  AND e.validation_status = 'PENDING'
+                  AND e.name IS NOT NULL
+                  AND e.created_at < NOW() - INTERVAL '1 hour'
+                  AND e.confidence >= CASE 
+                      WHEN e.entity_type = 'PERSON' THEN 0.85
+                      WHEN e.entity_type = 'INCIDENT' THEN 0.80
+                      WHEN e.entity_type = 'SERVICE' THEN 0.75
+                      ELSE 0.70
+                  END
+                  AND e.id NOT IN (
+                      SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
+                  )
+                LIMIT 500
+            )
         """))
         
         rel_result = session.execute(text("""
-            UPDATE relationships r
+            UPDATE relationships
             SET validation_status = 'VALID',
                 last_validated_at = NOW()
-            WHERE r.lifecycle_state = 'STAGING'
-              AND (r.validation_status IS NULL OR r.validation_status = 'PENDING')
-              AND r.created_at < NOW() - INTERVAL '1 hour'
-              AND r.confidence >= 0.70
-              AND r.id NOT IN (
-                  SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
-              )
-            LIMIT 500
+            WHERE id IN (
+                SELECT r.id FROM relationships r
+                WHERE r.lifecycle_state = 'STAGING'
+                  AND (r.validation_status IS NULL OR r.validation_status = 'PENDING')
+                  AND r.created_at < NOW() - INTERVAL '1 hour'
+                  AND r.confidence >= 0.70
+                  AND r.id NOT IN (
+                      SELECT staging_fact_id FROM conflicts WHERE status = 'PENDING'
+                  )
+                LIMIT 500
+            )
         """))
         
         session.commit()
