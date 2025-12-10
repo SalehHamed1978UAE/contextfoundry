@@ -70,6 +70,9 @@ if os.environ.get("GOOGLE_OAUTH_CLIENT_ID"):
     from google_auth import google_auth
     app.register_blueprint(google_auth)
 
+from src.context_foundry.api.external import external_api
+app.register_blueprint(external_api)
+
 @app.after_request
 def add_headers(response):
     """Add dark theme headers and cache control."""
