@@ -56,6 +56,26 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - Implemented EntityResolver class in `src/context_foundry/agents/entity_resolver.py`
 - Integrated EntityResolver into RetrievalAgent's `_match_known_entity_in_query()`
 - Running batch embedding job to populate entity name embeddings (~8.7k entities)
+- Fixed Gardener scheduler conflict query (UNION of fact_a_id/fact_b_id)
+- Created Day 4 test suite: 100% resolution rate (0% NOT_FOUND failures)
+
+## Week 2.5 Governance Blocker
+
+**CRITICAL: Gardener must be healthy before ANY enrichment work begins.**
+
+Before implementing relationship enrichment, entity merging, or data quality improvements:
+
+1. **Verify Gardener cycles complete without errors** - Check scheduler logs for successful promotion/decay/conflict passes
+2. **Confirm STAGING → TRUSTED promotion is working** - Entities should flow through lifecycle states
+3. **Validate conflict resolution** - Pending conflicts should be resolved or escalated
+4. **Check demotion pass** - Low-confidence entities should be archived
+
+**Rationale:** Enrichment work will generate new STAGING entities and relationships. If the Gardener isn't promoting/demoting correctly, the knowledge graph will either:
+- Accumulate low-quality STAGING data indefinitely
+- Miss conflicts between new and existing facts
+- Fail to maintain confidence scores over time
+
+**Validation command:** Check `/tmp/logs/Start_All_*.log` for `[Scheduler] Cycle #N complete` with non-zero promotion counts.
 
 ## Future Optimization: Document Chunk Embeddings
 
