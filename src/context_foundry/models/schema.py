@@ -102,6 +102,8 @@ class Entity(Base):
     properties = Column(JSON, default=dict)
     description = Column(Text)
     
+    name_embedding = Column(Vector(1536))
+    
     confidence = Column(Float, default=0.5)
     
     source_document_id = Column(String(255))
