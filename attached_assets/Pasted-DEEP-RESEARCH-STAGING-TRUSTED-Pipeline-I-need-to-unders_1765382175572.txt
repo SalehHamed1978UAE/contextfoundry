@@ -1,0 +1,110 @@
+DEEP RESEARCH: STAGING → TRUSTED Pipeline
+
+I need to understand the FULL promotion flow before recommending fixes.
+DO NOT FIX ANYTHING YET. Just gather information.
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 1: DATABASE STATE (Current Reality)
+═══════════════════════════════════════════════════════════════════════════════
+
+Run these queries and show me the FULL results:
+
+-- 1. Entity lifecycle distribution
+SELECT lifecycle_state, validation_status, COUNT(*) 
+FROM entities 
+GROUP BY lifecycle_state, validation_status
+ORDER BY lifecycle_state, validation_status;
+
+-- 2. Relationship lifecycle distribution  
+SELECT lifecycle_state, COUNT(*)
+FROM relationships
+GROUP BY lifecycle_state;
+
+-- 3. When were entities last updated?
+SELECT lifecycle_state, validation_status,
+       MIN(updated_at) as oldest,
+       MAX(updated_at) as newest,
+       COUNT(*) as count
+FROM entities
+GROUP BY lifecycle_state, validation_status;
+
+-- 4. Sample STAGING entities with high confidence that should be promoted
+SELECT name, entity_type, confidence, validation_status, created_at
+FROM entities
+WHERE lifecycle_state = 'STAGING' 
+  AND confidence >= 0.85
+ORDER BY confidence DESC
+LIMIT 20;
+
+-- 5. Are there ANY entities with validation_status = 'VALID'?
+SELECT name, entity_type, lifecycle_state, validation_status
+FROM entities
+WHERE validation_status = 'VALID'
+LIMIT 10;
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 2: CODE ANALYSIS (How It's Supposed to Work)
+═══════════════════════════════════════════════════════════════════════════════
+
+Find and show me:
+
+1. StagingValidator:
+   - File path (search for: staging_validator, StagingValidator, validate_staging)
+   - The main validation method
+   - What conditions mark an entity as VALID?
+   - Is it called anywhere? (grep for usages)
+
+2. Gardener promotion logic:
+   - File: src/context_foundry/agents/gardener.py
+   - Show the full promote_to_trusted() method
+   - Show the method that checks if entity can be promoted
+   - What are ALL the conditions for promotion?
+
+3. Entity extraction:
+   - Where is validation_status set during extraction?
+   - Is it always PENDING? Or can it be set to VALID directly?
+
+4. Background jobs / schedulers:
+   - Is there a cron job or scheduled task for validation?
+   - Is there a background worker that runs StagingValidator?
+   - Check for: celery, apscheduler, cron, background_tasks
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 3: FLOW DIAGRAM
+═══════════════════════════════════════════════════════════════════════════════
+
+Based on the code, draw me the full lifecycle:
+
+Document Ingested
+    ↓
+Entity Extracted (lifecycle_state = ?, validation_status = ?)
+    ↓
+[What happens here?]
+    ↓
+Entity Validated (validation_status = VALID)
+    ↓
+[What triggers this?]
+    ↓
+Gardener Promotes (lifecycle_state = TRUSTED)
+    ↓
+Entity available for queries
+
+═══════════════════════════════════════════════════════════════════════════════
+PART 4: SPECIFIC QUESTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+Answer these:
+
+1. Does StagingValidator exist as a class/module?
+2. If yes, is it ever instantiated and called?
+3. If no, was validation supposed to be part of extraction?
+4. Is validation_status a required step, or can we bypass it?
+5. Can we safely change validation_status directly via SQL?
+6. What would break if we promoted STAGING → TRUSTED without validation?
+
+═══════════════════════════════════════════════════════════════════════════════
+DO NOT PROPOSE FIXES YET
+═══════════════════════════════════════════════════════════════════════════════
+
+Just gather this information and present it clearly.
+I need to understand the system before deciding what to change.
