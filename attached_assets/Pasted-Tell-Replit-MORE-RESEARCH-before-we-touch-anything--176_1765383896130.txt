@@ -1,0 +1,59 @@
+Tell Replit:
+
+MORE RESEARCH before we touch anything:
+
+═══════════════════════════════════════════════════════════════════════════════
+QUESTION 1: How did 278 entities get TRUSTED while still PENDING?
+═══════════════════════════════════════════════════════════════════════════════
+
+SELECT name, entity_type, confidence, created_at, updated_at
+FROM entities
+WHERE lifecycle_state = 'TRUSTED' AND validation_status = 'PENDING'
+LIMIT 20;
+
+-- When were they promoted?
+-- What code path allowed this?
+-- Is there a bypass we can use?
+
+═══════════════════════════════════════════════════════════════════════════════
+QUESTION 2: How did the 50 TRUSTED + VALID entities get validated?
+═══════════════════════════════════════════════════════════════════════════════
+
+SELECT name, entity_type, confidence, created_at, updated_at
+FROM entities
+WHERE lifecycle_state = 'TRUSTED' AND validation_status = 'VALID'
+LIMIT 20;
+
+-- Were these manually set?
+-- Was there a different validation path?
+
+═══════════════════════════════════════════════════════════════════════════════
+QUESTION 3: What exactly does StagingValidator check?
+═══════════════════════════════════════════════════════════════════════════════
+
+Show me the _validate_entity() method (full code).
+What specific checks does it perform?
+- Required fields?
+- Cardinality rules?
+- Type constraints?
+
+═══════════════════════════════════════════════════════════════════════════════
+QUESTION 4: What happens when validation FAILS?
+═══════════════════════════════════════════════════════════════════════════════
+
+Show me _mark_validation_status() method.
+- Does it set validation_status = 'INVALID'?
+- Can INVALID entities ever be promoted?
+- Can INVALID entities be re-validated?
+
+═══════════════════════════════════════════════════════════════════════════════
+QUESTION 5: Is there a way to promote without validation?
+═══════════════════════════════════════════════════════════════════════════════
+
+Search for any code that sets lifecycle_state = 'TRUSTED' directly.
+Is there a force_promote() or bypass flag?
+
+grep -r "TRUSTED" --include="*.py" | grep -i "lifecycle"
+
+═══════════════════════════════════════════════════════════════════════════════
+QUESTION 6: Are relat
