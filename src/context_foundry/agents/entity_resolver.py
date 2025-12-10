@@ -118,18 +118,24 @@ class EntityResolver:
         if exact_result.entity and exact_result.confidence >= self.EXACT_MATCH_THRESHOLD:
             logger.info(f"Exact match found: {exact_result.entity.name}")
             return exact_result
+        if exact_result.needs_disambiguation:
+            logger.info(f"Exact match disambiguation: {len(exact_result.candidates)} candidates")
+            return exact_result
         
         semantic_result = self._semantic_search(query, entity_type_hint, top_k)
         if semantic_result.entity and semantic_result.confidence >= self.SEMANTIC_THRESHOLD:
-            if semantic_result.needs_disambiguation:
-                logger.info(f"Disambiguation needed: {len(semantic_result.candidates)} candidates")
-            else:
-                logger.info(f"Semantic match found: {semantic_result.entity.name}")
+            logger.info(f"Semantic match found: {semantic_result.entity.name}")
+            return semantic_result
+        if semantic_result.needs_disambiguation:
+            logger.info(f"Semantic disambiguation: {len(semantic_result.candidates)} candidates")
             return semantic_result
         
         fuzzy_result = self._fuzzy_match(query, entity_type_hint)
         if fuzzy_result.entity and fuzzy_result.confidence >= self.FUZZY_THRESHOLD:
             logger.info(f"Fuzzy match found: {fuzzy_result.entity.name}")
+            return fuzzy_result
+        if fuzzy_result.needs_disambiguation:
+            logger.info(f"Fuzzy disambiguation: {len(fuzzy_result.candidates)} candidates")
             return fuzzy_result
         
         logger.info(f"No match found for: '{query}'")
@@ -273,30 +279,44 @@ class EntityResolver:
             self.session.rollback()
         except Exception:
             pass
+        
+        try:
+            base_query = self.session.query(Entity).filter(
+                Entity.lifecycle_state == LifecycleState.TRUSTED
+            )
             
-        base_query = self.session.query(Entity).filter(
-            Entity.lifecycle_state == LifecycleState.TRUSTED
-        )
-        
-        if entity_type_hint:
-            base_query = base_query.filter(Entity.entity_type == entity_type_hint)
-        
-        if self.tenant_id:
-            base_query = base_query.filter(Entity.tenant_id == self.tenant_id)
-        
-        entities = base_query.limit(5000).all()
+            if entity_type_hint:
+                base_query = base_query.filter(Entity.entity_type == entity_type_hint)
+            
+            if self.tenant_id:
+                base_query = base_query.filter(Entity.tenant_id == self.tenant_id)
+            
+            entities = base_query.limit(5000).all()
+            logger.debug(f"Fuzzy match: loaded {len(entities)} entities")
+        except Exception as e:
+            logger.error(f"Fuzzy match query failed: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            return ResolveResult(match_stage="fuzzy_error")
         
         candidates = []
         query_lower = query.lower()
         
         for entity in entities:
-            ratio = fuzz.ratio(query_lower, entity.name.lower()) / 100.0
+            name_lower = entity.name.lower()
+            ratio = fuzz.ratio(query_lower, name_lower) / 100.0
+            token_ratio = fuzz.token_sort_ratio(query_lower, name_lower) / 100.0
+            partial_ratio = fuzz.partial_ratio(query_lower, name_lower) / 100.0
             
-            token_ratio = fuzz.token_sort_ratio(query_lower, entity.name.lower()) / 100.0
+            query_words = set(query_lower.split())
+            name_words = set(name_lower.replace('-', ' ').split())
+            word_overlap = len(query_words & name_words) / len(query_words) if query_words else 0
+            word_boost = word_overlap * 0.15
             
-            partial_ratio = fuzz.partial_ratio(query_lower, entity.name.lower()) / 100.0
-            
-            combined_score = max(ratio, token_ratio * 0.95, partial_ratio * 0.9)
+            combined_score = max(ratio, token_ratio * 0.95, partial_ratio * 0.9) + word_boost
+            combined_score = min(combined_score, 0.99)
             
             if combined_score >= self.FUZZY_THRESHOLD:
                 candidates.append(EntityCandidate(
@@ -311,6 +331,8 @@ class EntityResolver:
         
         candidates.sort(key=lambda x: x.score, reverse=True)
         candidates = candidates[:20]
+        
+        logger.debug(f"Fuzzy match: {len(candidates)} candidates above threshold {self.FUZZY_THRESHOLD}")
         
         if not candidates:
             return ResolveResult(match_stage="fuzzy")

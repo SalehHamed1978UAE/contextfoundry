@@ -43,6 +43,19 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Automatic Domain Detection**: Semantic routing classifies documents into domains using embedding similarity, combining Core Foundation types with domain-specific types for extraction.
 - **Chunked Extraction**: Splits documents into overlapping chunks to prevent LLM "output saturation," significantly improving entity extraction recall.
 - **Query/Reasoning System**: Provides GROUNDED, GAP, and INFERRED responses, with guards to prevent hallucination when entities or sufficient data are not found. Implements a 4-AI consensus design principle by architecturally gating LLM calls based on data sufficiency.
+- **EntityResolver (NEW)**: 3-stage entity resolution pipeline for robust entity matching:
+  1. Exact match (case-insensitive)
+  2. Semantic search (OpenAI embeddings with pgvector, similarity > 0.75)
+  3. Fuzzy match (rapidfuzz with word-level boost, threshold 0.70)
+  - Disambiguation: Returns candidate list when top 2 scores are within 0.1 delta
+  - Entity name embeddings stored in `entities.name_embedding` column (Vector 1536)
+  - Batch embedding job: `scripts/batch_entity_embeddings.py`
+
+## Recent Changes (December 2025)
+- Added `name_embedding` column to entities table via migration 012
+- Implemented EntityResolver class in `src/context_foundry/agents/entity_resolver.py`
+- Integrated EntityResolver into RetrievalAgent's `_match_known_entity_in_query()`
+- Running batch embedding job to populate entity name embeddings (~8.7k entities)
 
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)

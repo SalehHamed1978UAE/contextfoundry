@@ -23,6 +23,7 @@ from ..memory.symbolic import SymbolicMemory
 from ..utils.logger import logger, QueryLogger
 from ..config.domain_schema import get_schema_loader, DomainSchema, TraversalResult
 from ..memory.inference import InferenceEngine
+from .entity_resolver import EntityResolver, ResolveResult
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -99,6 +100,7 @@ class RetrievalAgent:
         self.semantic = SemanticMemory(self.session)
         self.episodic = EpisodicMemory(self.session)
         self.symbolic = SymbolicMemory(self.session)
+        self.entity_resolver = EntityResolver(session=self.session)
         
         self._llm_client = None
         
@@ -949,89 +951,87 @@ class RetrievalAgent:
         """
         Search for known entity names from the database within the query.
         
-        This is the PRIMARY method for entity extraction - it's more reliable
-        than regex patterns because it matches against actual entities that exist.
+        Uses the 3-stage EntityResolver for robust matching:
+        1. Exact match (case-insensitive)
+        2. Semantic search (OpenAI embeddings with cosine similarity > 0.75)
+        3. Fuzzy match (Levenshtein ratio with threshold 0.70)
         
-        ROBUST MATCHING STRATEGY:
-        1. Exact match (case-insensitive with word boundaries)
-        2. Fuzzy match: "Marketing team" → finds "Marketing Department" 
-        3. Core word match: extracts significant words and matches
-        4. Type prioritization: prefer SERVICE/TEAM/DATABASE over INCIDENT
+        When disambiguation is needed, prefers SERVICE/TEAM/DATABASE over INCIDENT
+        unless the query explicitly mentions incidents.
         
-        Returns the longest matching entity name found in the query.
+        Returns the best matching entity name found.
         """
-        try:
-            entities = self.session.query(Entity.name, Entity.entity_type).filter(
-                Entity.lifecycle_state == 'TRUSTED'
-            ).all()
-            entity_data = {e[0]: e[1] for e in entities}
-            entity_names = list(set([e[0] for e in entities]))
-        except Exception:
+        entity_phrase = self._extract_entity_phrase_from_query(query_text)
+        if not entity_phrase:
             return None
         
-        if not entity_names:
-            return None
+        result = self.entity_resolver.resolve(entity_phrase)
         
-        query_lower = query_text.lower()
-        query_normalized = re.sub(r'[^\w\s]', ' ', query_lower)
-        query_words = set(query_normalized.split())
+        if result.entity:
+            logger.debug(f"EntityResolver found: {result.entity.name} (stage: {result.match_stage}, conf: {result.confidence:.2f})")
+            return result.entity.name
         
-        matches = []
-        
-        for name in entity_names:
-            name_lower = name.lower()
-            name_normalized = re.sub(r'[^\w\s]', ' ', name_lower)
-            
-            if re.search(rf'\b{re.escape(name_lower)}\b', query_lower):
-                matches.append((name, 100, len(name)))
-                continue
-            
-            name_words = set(name_normalized.split())
-            common_words = name_words & query_words
-            
-            type_suffixes = {'team', 'department', 'service', 'database', 'cache', 'queue', 'gateway', 'api', 'system'}
-            query_stop_words = {'the', 'a', 'an', 'for', 'of', 'what', 'who', 'is', 'are', 'does', 'do', "what's", 'whats', 'budget', 'issues', 'problems', 'status'}
-            significant_name_words = name_words - type_suffixes - {'org', 'the', 'a', 'an'}
-            significant_query_words = query_words - type_suffixes - query_stop_words
-            
-            if significant_name_words and significant_name_words <= significant_query_words:
-                score = len(common_words) * 10 + len(name)
-                matches.append((name, score, len(name)))
-                continue
-            
-            for sig_word in significant_name_words:
-                if len(sig_word) > 3:
-                    if re.search(rf'\b{re.escape(sig_word)}\b', query_lower):
-                        score = len(common_words) * 5 + len(name)
-                        matches.append((name, score, len(name)))
-                        break
-        
-        if not matches:
-            return None
-        
-        has_org_hint = 'org:' in query_lower or ' org ' in query_lower
-        has_incident_hint = any(w in query_lower for w in ['incident', 'outage', 'inc-', 'sev1', 'sev2'])
-        
-        if len(matches) > 1:
-            if has_org_hint:
-                org_matches = [m for m in matches if m[0].lower().startswith('org:')]
-                if org_matches:
-                    matches = org_matches
-            else:
-                non_org_matches = [m for m in matches if not m[0].lower().startswith('org:')]
-                if non_org_matches:
-                    matches = non_org_matches
+        if result.needs_disambiguation and result.candidates:
+            query_lower = query_text.lower()
+            has_incident_hint = any(w in query_lower for w in ['incident', 'outage', 'inc-', 'sev1', 'sev2'])
             
             if not has_incident_hint:
                 core_types = {'SERVICE', 'TEAM', 'DATABASE', 'COMPONENT', 'PERSON'}
-                core_matches = [m for m in matches if entity_data.get(m[0]) in core_types]
-                if core_matches:
-                    matches = core_matches
+                core_candidates = [c for c in result.candidates if c.entity_type in core_types]
+                if core_candidates:
+                    logger.debug(f"EntityResolver disambiguation: prioritizing core type {core_candidates[0].name}")
+                    return core_candidates[0].name
+            
+            logger.debug(f"EntityResolver disambiguation: {len(result.candidates)} candidates, returning top: {result.candidates[0].name}")
+            return result.candidates[0].name
         
-        matches.sort(key=lambda x: (-x[1], len(x[0])))
+        logger.debug(f"EntityResolver: no match for '{entity_phrase}' (stage: {result.match_stage})")
+        return None
+    
+    def _extract_entity_phrase_from_query(self, query_text: str) -> Optional[str]:
+        """
+        Extract the most likely entity phrase from a natural language query.
         
-        logger.debug(f"Entity match candidates: {[m[0] for m in matches[:3]]}, selected: {matches[0][0]}")
-        return matches[0][0]
+        This pre-processes the query before sending to EntityResolver to get
+        a cleaner entity phrase for matching.
+        """
+        quoted = re.findall(r'["\']([^"\']+)["\']', query_text)
+        if quoted:
+            return quoted[0]
+        
+        if_fails = re.search(
+            r'\bif\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)\s+(?:goes?\s+down|fails?|is\s+down)',
+            query_text, re.IGNORECASE
+        )
+        if if_fails:
+            return if_fails.group(1).strip()
+        
+        depends_on = re.search(
+            r'(?:depends?\s+on|uses?|calls?|connects?\s+to)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)(?:\?|$|\s+(?:and|or|for|to|from))',
+            query_text, re.IGNORECASE
+        )
+        if depends_on:
+            return depends_on.group(1).strip()
+        
+        about_pattern = re.search(
+            r'(?:about|on|for)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)(?:\?|$|\s+(?:and|or|to|from))',
+            query_text, re.IGNORECASE
+        )
+        if about_pattern:
+            phrase = about_pattern.group(1).strip()
+            if len(phrase) > 2 and phrase.lower() not in {'a', 'an', 'the', 'this', 'that', 'it'}:
+                return phrase
+        
+        with_the = re.search(
+            r'(?:issues?|problems?|status|info|information|details?)\s+(?:with|of|for)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)(?:\?|$|\.)',
+            query_text, re.IGNORECASE
+        )
+        if with_the:
+            phrase = with_the.group(1).strip()
+            if len(phrase) > 2:
+                return phrase
+        
+        return None
     
     def _extract_target_entity(self, query_text: str) -> Optional[str]:
         """
