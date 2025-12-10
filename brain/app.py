@@ -412,10 +412,27 @@ def extract_text_from_file(file_path: str, file_name: str = None) -> tuple:
             return "", "text", 0
 
 
+ENABLE_PROGRESS_TRACKING = os.environ.get("ENABLE_PROGRESS_TRACKING", "false").lower() == "true"
+
+
+def get_progress_tracker():
+    """Get progress tracker if enabled, None otherwise."""
+    if not ENABLE_PROGRESS_TRACKING:
+        return None
+    try:
+        from src.context_foundry.pipeline.progress import ProgressTracker
+        return ProgressTracker()
+    except Exception as e:
+        logger.warning(f"[ProgressTracker] Failed to initialize: {e}")
+        return None
+
+
 def process_extraction_queue():
     """
     Process pending extraction requests from the queue.
     Claims one request at a time, runs extraction, saves results.
+    
+    If ENABLE_PROGRESS_TRACKING=true, uses ProgressTracker for checkpointing.
     """
     import psycopg2
     from psycopg2.extras import RealDictCursor
@@ -427,6 +444,7 @@ def process_extraction_queue():
     
     worker_id = f"brain-worker-{os.getpid()}"
     processed = 0
+    tracker = get_progress_tracker()
     
     try:
         conn = psycopg2.connect(database_url)
@@ -457,7 +475,15 @@ def process_extraction_queue():
             document_id = str(request.get('document_id'))
             request_id = str(request.get('request_id'))
             
+            if tracker:
+                from src.context_foundry.pipeline.progress import IngestionStep
+                tracker.start(document_id, tenant_id)
+                tracker.update(document_id, IngestionStep.READING, {"file_name": file_name})
+            
             text_content, extraction_method, page_count = extract_text_from_file(file_path, file_name)
+            
+            if tracker:
+                tracker.update(document_id, IngestionStep.CLASSIFYING, {"chars": len(text_content), "method": extraction_method})
             
             start_time = datetime.utcnow()
             
@@ -509,7 +535,13 @@ def process_extraction_queue():
                     logger.warning(f"[ExtractionWorker] No text extracted from {file_name}")
                     text_content = f"Document: {file_name}\n\nContent could not be extracted."
                 
+                if tracker:
+                    tracker.update(document_id, IngestionStep.CHUNKING)
+                
                 pipeline = ExtractionPipeline(model="gpt-4o-mini", temperature=0.0)
+                
+                if tracker:
+                    tracker.update(document_id, IngestionStep.EXTRACTING)
                 
                 extraction_result = pipeline.extract_with_fallback(
                     text=text_content,
@@ -519,6 +551,12 @@ def process_extraction_queue():
                 
                 extracted_entities = extraction_result.entities
                 extraction_success = extraction_result.success
+                
+                if tracker:
+                    tracker.update(document_id, IngestionStep.RELATING, {"entities": len(extracted_entities)})
+            
+            if tracker:
+                tracker.update(document_id, IngestionStep.STAGING)
             
             with tenant_session(tenant_id) as session:
                 try:
@@ -619,9 +657,14 @@ def process_extraction_queue():
                 result_conn.commit()
                 logger.info(f"[ExtractionWorker] Successfully persisted extraction results for {request['document_id']}")
                 
+                if tracker:
+                    tracker.complete(document_id)
+                
             except Exception as db_error:
                 logger.error(f"[ExtractionWorker] Failed to persist results: {db_error}")
                 result_conn.rollback()
+                if tracker:
+                    tracker.fail(document_id, str(db_error))
             finally:
                 result_cur.close()
                 result_conn.close()
