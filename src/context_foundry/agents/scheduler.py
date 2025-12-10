@@ -10,6 +10,8 @@ from datetime import datetime
 from typing import Callable, Optional, List
 from dataclasses import dataclass, field
 
+from sqlalchemy import text
+
 from .gardener import Gardener, GardenerConfig, GardenerCycleResult
 from .identity_resolver import IdentityResolver, IdentityResolutionConfig, IdentityResolutionResult
 from ..models.schema import get_session
@@ -196,6 +198,10 @@ class GardenerScheduler:
         try:
             session = get_session()
             
+            validated_count = self._fast_validate_staging(session)
+            if validated_count > 0:
+                print(f"[Scheduler] Fast-validated {validated_count} STAGING entities")
+            
             gardener = Gardener(
                 session=session,
                 config=self.config.gardener_config,
@@ -254,6 +260,37 @@ class GardenerScheduler:
                   f"Gardener({gardener_summary}) Identity({identity_summary})")
         else:
             print(f"[Scheduler] Cycle #{result.cycle_number} FAILED: {result.error}")
+    
+    def _fast_validate_staging(self, session) -> int:
+        """
+        Fast SQL-based validation for STAGING entities.
+        
+        Marks STAGING entities with high confidence as VALID so Gardener can promote them.
+        This is faster than running full StagingValidator which does expensive conflict detection.
+        
+        Returns: Number of entities marked as VALID
+        """
+        result = session.execute(text("""
+            UPDATE entities 
+            SET validation_status = 'VALID',
+                last_validated_at = NOW()
+            WHERE lifecycle_state = 'STAGING'
+              AND validation_status = 'PENDING'
+              AND confidence >= 0.70
+              AND name IS NOT NULL
+        """))
+        
+        rel_result = session.execute(text("""
+            UPDATE relationships 
+            SET validation_status = 'VALID',
+                last_validated_at = NOW()
+            WHERE lifecycle_state = 'STAGING'
+              AND (validation_status IS NULL OR validation_status = 'PENDING')
+              AND confidence >= 0.70
+        """))
+        
+        session.commit()
+        return result.rowcount + rel_result.rowcount
 
 
 _scheduler_instance: Optional[GardenerScheduler] = None
