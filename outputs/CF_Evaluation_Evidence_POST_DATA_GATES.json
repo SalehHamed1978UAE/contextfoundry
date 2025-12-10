@@ -1,0 +1,86 @@
+{
+  "totals": {
+    "ACCURATE": 1,
+    "GATED": 4,
+    "PARTIAL": 4,
+    "NOT_FOUND": 1
+  },
+  "gate_triggers": {
+    "no_relationships": 3,
+    "sparse_data": 1,
+    "insufficient_for_impact": 0,
+    "entity_not_found": 0
+  },
+  "results": [
+    {
+      "query_id": "IA-001",
+      "category": "ACCURATE",
+      "confidence": 0.765,
+      "grounded": false,
+      "data_gap": null
+    },
+    {
+      "query_id": "IA-002",
+      "category": "GATED",
+      "confidence": 1.0,
+      "grounded": true,
+      "data_gap": "no_relationships"
+    },
+    {
+      "query_id": "IA-003",
+      "category": "PARTIAL",
+      "confidence": 0.49500000000000005,
+      "grounded": false,
+      "data_gap": null
+    },
+    {
+      "query_id": "HA-001",
+      "category": "NOT_FOUND",
+      "confidence": 0.0,
+      "grounded": false,
+      "data_gap": null
+    },
+    {
+      "query_id": "HA-002",
+      "category": "GATED",
+      "confidence": 1.0,
+      "grounded": true,
+      "data_gap": "no_relationships"
+    },
+    {
+      "query_id": "DEP-001",
+      "category": "PARTIAL",
+      "confidence": 0.49500000000000005,
+      "grounded": false,
+      "data_gap": null
+    },
+    {
+      "query_id": "DEP-002",
+      "category": "PARTIAL",
+      "confidence": 0.49500000000000005,
+      "grounded": false,
+      "data_gap": null
+    },
+    {
+      "query_id": "OWN-001",
+      "category": "GATED",
+      "confidence": 1.0,
+      "grounded": true,
+      "data_gap": "no_relationships"
+    },
+    {
+      "query_id": "OWN-002",
+      "category": "GATED",
+      "confidence": 0.7,
+      "grounded": true,
+      "data_gap": "sparse_data"
+    },
+    {
+      "query_id": "ESC-001",
+      "category": "PARTIAL",
+      "confidence": 0.49500000000000005,
+      "grounded": false,
+      "data_gap": null
+    }
+  ]
+}
