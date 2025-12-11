@@ -14,8 +14,28 @@ from ..models.schema import (
     Entity, Relationship, LifecycleState, EntityMention
 )
 from .entity_extractor import ExtractedEntity
+
+
 from .relation_extractor import ExtractedRelation
 from .duplicate_detector import DuplicateDetector, DuplicateDetectionResult
+
+
+def _safe_uuid(value) -> Optional[uuid.UUID]:
+    """Safely convert a value to UUID, returning None if invalid.
+    
+    Handles chunk_id values that have _c0, _c1 etc suffixes from sub-chunking.
+    """
+    if value is None:
+        return None
+    if isinstance(value, uuid.UUID):
+        return value
+    try:
+        str_val = str(value)
+        if '_c' in str_val:
+            str_val = str_val.rsplit('_c', 1)[0]
+        return uuid.UUID(str_val)
+    except (ValueError, AttributeError):
+        return None
 
 
 @dataclass
@@ -176,23 +196,27 @@ class StagingLoader:
                 existing.updated_at = datetime.utcnow()
                 
                 if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
-                    chunk_uuid = uuid.UUID(extracted.source_chunk_id) if isinstance(extracted.source_chunk_id, str) else extracted.source_chunk_id
-                    existing_mention = self.session.query(EntityMention).filter_by(
-                        entity_id=existing.id,
-                        chunk_id=chunk_uuid
-                    ).first()
+                    chunk_uuid = _safe_uuid(extracted.source_chunk_id)
+                    doc_uuid = _safe_uuid(extracted.source_document_id)
+                    tenant_uuid = _safe_uuid(self.tenant_id)
                     
-                    if not existing_mention:
-                        mention = EntityMention(
-                            id=uuid.uuid4(),
+                    if chunk_uuid and tenant_uuid:
+                        existing_mention = self.session.query(EntityMention).filter_by(
                             entity_id=existing.id,
-                            document_id=uuid.UUID(extracted.source_document_id) if extracted.source_document_id else None,
-                            chunk_id=chunk_uuid,
-                            tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
-                            mention_text=extracted.source_span or extracted.canonical_name,
-                            confidence=extracted.confidence,
-                        )
-                        self.session.add(mention)
+                            chunk_id=chunk_uuid
+                        ).first()
+                        
+                        if not existing_mention:
+                            mention = EntityMention(
+                                id=uuid.uuid4(),
+                                entity_id=existing.id,
+                                document_id=doc_uuid,
+                                chunk_id=chunk_uuid,
+                                tenant_id=tenant_uuid,
+                                mention_text=extracted.source_span or extracted.canonical_name,
+                                confidence=extracted.confidence,
+                            )
+                            self.session.add(mention)
                 
                 return existing, "updated"
             
@@ -215,16 +239,21 @@ class StagingLoader:
         self.session.add(entity)
         
         if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
-            mention = EntityMention(
-                id=uuid.uuid4(),
-                entity_id=entity.id,
-                document_id=uuid.UUID(extracted.source_document_id) if extracted.source_document_id else None,
-                chunk_id=uuid.UUID(extracted.source_chunk_id) if isinstance(extracted.source_chunk_id, str) else extracted.source_chunk_id,
-                tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
-                mention_text=extracted.source_span or extracted.canonical_name,
-                confidence=extracted.confidence,
-            )
-            self.session.add(mention)
+            doc_uuid = _safe_uuid(extracted.source_document_id)
+            chunk_uuid = _safe_uuid(extracted.source_chunk_id)
+            tenant_uuid = _safe_uuid(self.tenant_id)
+            
+            if chunk_uuid and tenant_uuid:
+                mention = EntityMention(
+                    id=uuid.uuid4(),
+                    entity_id=entity.id,
+                    document_id=doc_uuid,
+                    chunk_id=chunk_uuid,
+                    tenant_id=tenant_uuid,
+                    mention_text=extracted.source_span or extracted.canonical_name,
+                    confidence=extracted.confidence,
+                )
+                self.session.add(mention)
         
         cache_key = (extracted.canonical_name.lower(), entity_type, self.tenant_id)
         self._entity_cache[cache_key] = entity
