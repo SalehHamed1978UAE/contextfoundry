@@ -1,0 +1,120 @@
+---
+
+## Replit Instructions: Clean Slate Re-Extraction
+
+### Phase 1: Clear existing data
+
+```sql
+BEGIN;
+
+DELETE FROM proposed_relationships;
+DELETE FROM inference_runs;
+DELETE FROM entity_mentions;
+DELETE FROM relationships;
+DELETE FROM entities;
+
+COMMIT;
+```
+
+Verify:
+```sql
+SELECT 
+    (SELECT COUNT(*) FROM entities) as entities,
+    (SELECT COUNT(*) FROM relationships) as relationships,
+    (SELECT COUNT(*) FROM entity_mentions) as mentions;
+```
+
+All three should be 0.
+
+---
+
+### Phase 2: Re-extract all documents
+
+```python
+import sys
+sys.path.insert(0, '/home/runner/workspace')
+
+from uuid import UUID
+from src.context_foundry.models.schema import get_session, Document
+from src.context_foundry.extraction.extraction_pipeline import ExtractionPipeline
+from src.context_foundry.ingestion.ingestion_pipeline import IngestionPipeline
+
+tenant_id = "f3dd3201-7225-4a55-9264-445f99d0eba3"
+
+with get_session() as session:
+    documents = session.query(Document).filter(
+        Document.tenant_id == UUID(tenant_id)
+    ).all()
+    
+    print(f"Re-extracting {len(documents)} documents...")
+    
+    for i, doc in enumerate(documents):
+        try:
+            # Create IngestedDocument from existing document
+            ingested = IngestionPipeline.from_existing_document(doc)
+            
+            # Extract entities and relations
+            pipeline = ExtractionPipeline(session, tenant_id=tenant_id)
+            result = pipeline.extract_from_document(ingested)
+            
+            session.commit()
+            print(f"  [{i+1}/{len(documents)}] {doc.filename}: {result.entities_created} entities")
+            
+        except Exception as e:
+            print(f"  [{i+1}/{len(documents)}] {doc.filename}: ERROR - {e}")
+            session.rollback()
+    
+    print("Done")
+```
+
+If `IngestionPipeline.from_existing_document()` doesn't exist, show me what methods IngestionPipeline has:
+```bash
+grep -n "def " src/context_foundry/ingestion/ingestion_pipeline.py | head -20
+```
+
+---
+
+### Phase 3: Promote entities to TRUSTED
+
+```sql
+UPDATE entities 
+SET lifecycle_state = 'TRUSTED'
+WHERE tenant_id = 'f3dd3201-7225-4a55-9264-445f99d0eba3';
+```
+
+---
+
+### Phase 4: Verify results
+
+```sql
+SELECT 
+    (SELECT COUNT(*) FROM entities) as entities,
+    (SELECT COUNT(*) FROM entity_mentions) as mentions,
+    (SELECT COUNT(DISTINCT entity_id) FROM entity_mentions) as entities_with_mentions,
+    ROUND(100.0 * COUNT(DISTINCT em.entity_id) / NULLIF(COUNT(DISTINCT e.id), 0), 1) as coverage_pct
+FROM entities e
+LEFT JOIN entity_mentions em ON e.id = em.entity_id
+WHERE e.tenant_id = 'f3dd3201-7225-4a55-9264-445f99d0eba3';
+```
+
+Target: coverage_pct should be close to 100%.
+
+---
+
+### Phase 5: Test RE Agent
+
+```python
+from uuid import UUID
+from src.context_foundry.agents.relationship_inference import RelationshipInferenceAgent
+
+tenant_id = UUID("f3dd3201-7225-4a55-9264-445f99d0eba3")
+agent = RelationshipInferenceAgent(domain='GENERIC')
+result = agent.run_inference(tenant_id=tenant_id, batch_size=50)
+
+print(f"Proposed: {result.relationships_proposed}")
+print(f"Approved: {result.relationships_approved}")
+```
+
+---
+
+Execute phases in order. Report results after each phase before proceeding.
