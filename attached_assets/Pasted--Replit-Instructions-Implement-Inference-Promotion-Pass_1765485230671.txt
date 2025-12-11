@@ -1,0 +1,248 @@
+---
+
+## Replit Instructions: Implement Inference Promotion Pass in Gardener
+
+### Context
+
+The RE Agent creates validated relationship proposals in `proposed_relationships` table with status `AUTO_APPROVED`. These need to flow into the `relationships` table as `lifecycle_state = 'STAGING'` so Gardener's existing promotion logic can move them to `TRUSTED`.
+
+Currently: RE Agent → proposed_relationships → **NOTHING** → relationships table never updated
+
+Target: RE Agent → proposed_relationships → **Gardener Inference Promotion Pass** → relationships (STAGING) → Gardener Promotion Pass → relationships (TRUSTED)
+
+---
+
+### Step 1: Add `promote_proposal()` function
+
+Add this function to `gardener.py` (or a new file `src/context_foundry/agents/proposal_promoter.py` if you prefer separation):
+
+```python
+def promote_proposal(session, proposal_id: UUID, approved_by: str = 'gardener_auto') -> Optional[UUID]:
+    """
+    Move an approved proposal from proposed_relationships to relationships table.
+    
+    Args:
+        session: SQLAlchemy session
+        proposal_id: UUID of the proposal to promote
+        approved_by: Who/what approved the promotion
+        
+    Returns:
+        UUID of created relationship, or None if failed
+    """
+    from src.context_foundry.models import ProposedRelationship, Relationship
+    
+    proposal = session.query(ProposedRelationship).filter_by(id=proposal_id).first()
+    
+    if not proposal:
+        logger.warning(f"Proposal {proposal_id} not found")
+        return None
+        
+    if proposal.status not in ['AUTO_APPROVED', 'APPROVED']:
+        logger.warning(f"Cannot promote proposal with status {proposal.status}")
+        return None
+    
+    # Check for duplicate in relationships table
+    existing = session.query(Relationship).filter_by(
+        tenant_id=proposal.tenant_id,
+        source_id=proposal.source_entity_id,
+        target_id=proposal.target_entity_id,
+        relationship_type=proposal.relationship_type
+    ).first()
+    
+    if existing:
+        logger.info(f"Relationship already exists: {existing.id}, marking proposal as DUPLICATE")
+        proposal.status = 'DUPLICATE'
+        return None
+    
+    # Create relationship in STAGING
+    relationship = Relationship(
+        tenant_id=proposal.tenant_id,
+        source_id=proposal.source_entity_id,
+        target_id=proposal.target_entity_id,
+        relationship_type=proposal.relationship_type,
+        confidence=proposal.confidence,
+        lifecycle_state='STAGING',
+        validation_status='VALID',
+        provenance={
+            'source': 'inference_agent',
+            'run_id': str(proposal.inference_run_id) if proposal.inference_run_id else None,
+            'document_id': str(proposal.source_document_id) if proposal.source_document_id else None,
+            'chunk_id': str(proposal.source_chunk_id) if proposal.source_chunk_id else None,
+            'evidence': proposal.evidence_span,
+            'method': proposal.inference_method,
+            'has_lexical_evidence': proposal.has_lexical_evidence,
+            'approved_by': approved_by,
+            'promoted_at': datetime.utcnow().isoformat()
+        }
+    )
+    
+    session.add(relationship)
+    
+    # Update proposal status
+    proposal.status = 'PROMOTED'
+    proposal.reviewed_by = approved_by
+    proposal.reviewed_at = datetime.utcnow()
+    
+    logger.info(f"Promoted proposal {proposal_id} to relationship {relationship.id}")
+    
+    return relationship.id
+```
+
+---
+
+### Step 2: Add Inference Promotion Pass to Gardener cycle
+
+Find where Gardener runs its passes (likely in a `run_cycle()` or similar method) and add the inference promotion pass. Add this method to the Gardener class:
+
+```python
+def inference_promotion_pass(self, session, tenant_id: UUID) -> dict:
+    """
+    Promote AUTO_APPROVED proposals to relationships as STAGING.
+    
+    This pass runs as part of Gardener's governance cycle.
+    RE Agent proposes, Gardener governs.
+    """
+    from src.context_foundry.models import ProposedRelationship
+    
+    stats = {
+        'proposals_found': 0,
+        'promoted': 0,
+        'duplicates': 0,
+        'errors': 0
+    }
+    
+    # Get all AUTO_APPROVED proposals for this tenant
+    proposals = session.query(ProposedRelationship).filter_by(
+        tenant_id=tenant_id,
+        status='AUTO_APPROVED'
+    ).all()
+    
+    stats['proposals_found'] = len(proposals)
+    
+    for proposal in proposals:
+        try:
+            result = promote_proposal(session, proposal.id, approved_by='gardener_auto')
+            if result:
+                stats['promoted'] += 1
+            elif proposal.status == 'DUPLICATE':
+                stats['duplicates'] += 1
+        except Exception as e:
+            logger.error(f"Error promoting proposal {proposal.id}: {e}")
+            stats['errors'] += 1
+    
+    if stats['promoted'] > 0:
+        logger.info(f"Inference promotion pass: promoted {stats['promoted']} proposals to STAGING")
+    
+    return stats
+```
+
+---
+
+### Step 3: Wire into Gardener's main cycle
+
+Find the main Gardener cycle method and add the inference promotion pass. It should run BEFORE the existing STAGING → TRUSTED promotion pass so newly promoted relationships can be considered:
+
+```python
+def run_governance_cycle(self, tenant_id: UUID):
+    """Main Gardener governance cycle."""
+    
+    with self.get_session() as session:
+        # Pass 0: Inference Promotion (NEW) - proposals → STAGING
+        inference_stats = self.inference_promotion_pass(session, tenant_id)
+        
+        # Pass 1: Decay (existing)
+        # ...
+        
+        # Pass 2: Promotion STAGING → TRUSTED (existing)
+        # ...
+        
+        # Pass 3: Conflict Resolution (existing)
+        # ...
+        
+        # Pass 4: Cleanup (existing)
+        # ...
+        
+        session.commit()
+```
+
+---
+
+### Step 4: Verify the Relationship model has required fields
+
+Check that `src/context_foundry/models.py` has the Relationship model with these fields:
+
+```python
+class Relationship(Base):
+    __tablename__ = 'relationships'
+    
+    id = Column(UUID, primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID, nullable=False)
+    source_id = Column(UUID, ForeignKey('entities.id'), nullable=False)
+    target_id = Column(UUID, ForeignKey('entities.id'), nullable=False)
+    relationship_type = Column(String, nullable=False)
+    confidence = Column(Float, default=1.0)
+    lifecycle_state = Column(String, default='STAGING')  # STAGING, TRUSTED, ARCHIVED
+    validation_status = Column(String, default='PENDING')  # PENDING, VALID, INVALID
+    provenance = Column(JSONB, default={})
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+```
+
+If fields are named differently, adjust the `promote_proposal()` function accordingly.
+
+---
+
+### Step 5: Test
+
+After implementation, run:
+
+```python
+python3 << 'EOF'
+import sys
+sys.path.insert(0, '/home/runner/workspace')
+
+from uuid import UUID
+from src.context_foundry.agents.gardener import Gardener
+
+tenant_id = UUID("f3dd3201-7225-4a55-9264-445f99d0eba3")
+
+gardener = Gardener()
+stats = gardener.inference_promotion_pass(tenant_id)
+
+print(f"Proposals found: {stats['proposals_found']}")
+print(f"Promoted: {stats['promoted']}")
+print(f"Duplicates: {stats['duplicates']}")
+print(f"Errors: {stats['errors']}")
+EOF
+```
+
+Then verify:
+
+```sql
+-- Should see new STAGING relationships
+SELECT lifecycle_state, COUNT(*) 
+FROM relationships 
+GROUP BY lifecycle_state;
+
+-- Should see proposals marked PROMOTED
+SELECT status, COUNT(*) 
+FROM proposed_relationships 
+GROUP BY status;
+
+-- Check density improvement
+SELECT 
+    (SELECT COUNT(*)::float FROM relationships WHERE tenant_id = 'f3dd3201-7225-4a55-9264-445f99d0eba3') /
+    NULLIF((SELECT COUNT(*) FROM entities WHERE tenant_id = 'f3dd3201-7225-4a55-9264-445f99d0eba3'), 0) 
+    as density;
+```
+
+---
+
+### Summary
+
+| What | Where | Action |
+|------|-------|--------|
+| `promote_proposal()` | gardener.py or new file | Create function |
+| `inference_promotion_pass()` | Gardener class | Add method |
+| Governance cycle | Gardener.run_governance_cycle() | Wire in new pass |
+| Test | CLI | Verify 11 AUTO_APPROVED → PROMOTED |
