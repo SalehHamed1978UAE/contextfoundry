@@ -639,6 +639,251 @@ class EvaluationVote(Base):
         }
 
 
+class InferenceRunStatus(str, Enum):
+    """Status of an inference run."""
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    ROLLED_BACK = "ROLLED_BACK"
+
+
+class ProposedRelationshipStatus(str, Enum):
+    """Status of a proposed relationship."""
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    AUTO_APPROVED = "AUTO_APPROVED"
+
+
+class InferenceMethod(str, Enum):
+    """Method used to infer a relationship."""
+    LLM_EXTRACTION = "llm_extraction"
+    HEURISTIC_NAME = "heuristic_name"
+    HEURISTIC_TRANSITIVE = "heuristic_transitive"
+
+
+class DocumentChunk(Base):
+    """Document chunks for RE processing."""
+    __tablename__ = "document_chunks"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False, index=True)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    chunk_index = Column(Integer, nullable=False)
+    text = Column(Text, nullable=False)
+    char_start = Column(Integer)
+    char_end = Column(Integer)
+    chunk_metadata = Column(JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_chunks_doc_index', 'document_id', 'chunk_index', unique=True),
+    )
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "document_id": str(self.document_id),
+            "chunk_index": self.chunk_index,
+            "text": self.text[:200] + "..." if len(self.text) > 200 else self.text,
+            "char_start": self.char_start,
+            "char_end": self.char_end,
+        }
+
+
+class EntityMention(Base):
+    """Entity mentions linking entities to document chunks."""
+    __tablename__ = "entity_mentions"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    entity_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False, index=True)
+    chunk_id = Column(UUID(as_uuid=True), ForeignKey("document_chunks.id"), index=True)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    mention_text = Column(Text, nullable=False)
+    char_start = Column(Integer)
+    char_end = Column(Integer)
+    confidence = Column(Float, default=1.0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_mentions_entity_chunk', 'entity_id', 'chunk_id', 'char_start', unique=True),
+    )
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "entity_id": str(self.entity_id),
+            "document_id": str(self.document_id),
+            "chunk_id": str(self.chunk_id) if self.chunk_id else None,
+            "mention_text": self.mention_text,
+            "confidence": self.confidence,
+        }
+
+
+class InferenceRun(Base):
+    """Track inference runs for idempotency and rollback."""
+    __tablename__ = "inference_runs"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    started_at = Column(DateTime, default=datetime.utcnow)
+    completed_at = Column(DateTime)
+    status = Column(SQLEnum(InferenceRunStatus), default=InferenceRunStatus.RUNNING, index=True)
+    
+    batch_size = Column(Integer, nullable=False)
+    entity_filter = Column(JSON)
+    prompt_version = Column(String(50), nullable=False)
+    ontology_version = Column(String(50))
+    domain = Column(String(50), default='IT')
+    
+    entities_processed = Column(Integer, default=0)
+    chunks_analyzed = Column(Integer, default=0)
+    relationships_proposed = Column(Integer, default=0)
+    relationships_approved = Column(Integer, default=0)
+    relationships_rejected = Column(Integer, default=0)
+    
+    llm_tokens_used = Column(Integer, default=0)
+    estimated_cost_usd = Column(Float, default=0.0)
+    
+    rollback_executed = Column(Boolean, default=False)
+    rollback_at = Column(DateTime)
+    rollback_reason = Column(Text)
+    error_message = Column(Text)
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "tenant_id": str(self.tenant_id),
+            "status": self.status.value if self.status else None,
+            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "batch_size": self.batch_size,
+            "entities_processed": self.entities_processed,
+            "chunks_analyzed": self.chunks_analyzed,
+            "relationships_proposed": self.relationships_proposed,
+            "relationships_approved": self.relationships_approved,
+            "relationships_rejected": self.relationships_rejected,
+            "llm_tokens_used": self.llm_tokens_used,
+            "estimated_cost_usd": self.estimated_cost_usd,
+        }
+
+
+class InferenceRunChunk(Base):
+    """Track which chunks have been processed per run (idempotency)."""
+    __tablename__ = "inference_run_chunks"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id = Column(UUID(as_uuid=True), ForeignKey("inference_runs.id"), nullable=False, index=True)
+    chunk_id = Column(UUID(as_uuid=True), ForeignKey("document_chunks.id"), nullable=False)
+    entity_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False)
+    status = Column(String(20), default='COMPLETED')
+    relationships_found = Column(Integer, default=0)
+    processed_at = Column(DateTime, default=datetime.utcnow)
+    error_message = Column(Text)
+    
+    __table_args__ = (
+        Index('idx_run_chunk_entity', 'run_id', 'chunk_id', 'entity_id', unique=True),
+    )
+
+
+class ProposedRelationship(Base):
+    """Staging area for proposed relationships before approval."""
+    __tablename__ = "proposed_relationships"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    source_entity_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
+    target_entity_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
+    relationship_type = Column(String(50), nullable=False, index=True)
+    confidence = Column(Float, nullable=False)
+    
+    inference_run_id = Column(UUID(as_uuid=True), ForeignKey("inference_runs.id"), nullable=False, index=True)
+    source_document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"), nullable=False)
+    source_chunk_id = Column(UUID(as_uuid=True), ForeignKey("document_chunks.id"))
+    evidence_span = Column(Text, nullable=False)
+    evidence_char_start = Column(Integer)
+    evidence_char_end = Column(Integer)
+    
+    inference_method = Column(SQLEnum(InferenceMethod), default=InferenceMethod.LLM_EXTRACTION)
+    has_lexical_evidence = Column(Boolean, default=False)
+    
+    status = Column(SQLEnum(ProposedRelationshipStatus), default=ProposedRelationshipStatus.PENDING, index=True)
+    reviewed_by = Column(String(100))
+    reviewed_at = Column(DateTime)
+    rejection_reason = Column(Text)
+    
+    corroboration_count = Column(Integer, default=1)
+    corroborating_chunks = Column(JSON, default=list)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_proposed_unique', 'source_entity_id', 'target_entity_id', 'relationship_type', 'source_chunk_id', unique=True),
+        Index('idx_proposed_confidence', 'confidence'),
+    )
+    
+    source_entity = relationship("Entity", foreign_keys=[source_entity_id])
+    target_entity = relationship("Entity", foreign_keys=[target_entity_id])
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "source_entity_id": str(self.source_entity_id),
+            "target_entity_id": str(self.target_entity_id),
+            "source_entity_name": self.source_entity.name if self.source_entity else None,
+            "target_entity_name": self.target_entity.name if self.target_entity else None,
+            "source_entity_type": self.source_entity.entity_type if self.source_entity else None,
+            "target_entity_type": self.target_entity.entity_type if self.target_entity else None,
+            "relationship_type": self.relationship_type,
+            "confidence": self.confidence,
+            "evidence_span": self.evidence_span,
+            "has_lexical_evidence": self.has_lexical_evidence,
+            "status": self.status.value if self.status else None,
+            "inference_method": self.inference_method.value if self.inference_method else None,
+            "corroboration_count": self.corroboration_count,
+        }
+
+
+class OntologyRelationshipType(Base):
+    """Domain ontology configuration for relationship types."""
+    __tablename__ = "ontology_relationship_types"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), index=True)
+    domain = Column(String(50), nullable=False, index=True)
+    relationship_type = Column(String(50), nullable=False)
+    definition = Column(Text, nullable=False)
+    
+    valid_source_types = Column(ARRAY(Text), nullable=False)
+    valid_target_types = Column(ARRAY(Text), nullable=False)
+    lexical_patterns = Column(ARRAY(Text), nullable=False)
+    
+    min_confidence = Column(Float, default=0.70)
+    auto_approve_confidence = Column(Float, default=0.90)
+    
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_ontology_unique', 'tenant_id', 'domain', 'relationship_type', unique=True),
+    )
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "domain": self.domain,
+            "relationship_type": self.relationship_type,
+            "definition": self.definition,
+            "valid_source_types": self.valid_source_types,
+            "valid_target_types": self.valid_target_types,
+            "lexical_patterns": self.lexical_patterns,
+            "min_confidence": self.min_confidence,
+            "auto_approve_confidence": self.auto_approve_confidence,
+            "is_active": self.is_active,
+        }
+
+
 _engine = None
 _session_factory = None
 

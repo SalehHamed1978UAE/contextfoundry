@@ -4728,6 +4728,244 @@ def context_bundle_schema():
     return jsonify(schema)
 
 
+@app.route('/api/v1/inference/runs', methods=['POST'])
+def start_inference_run():
+    """Start a new relationship inference run."""
+    from flask import g
+    from uuid import UUID as PyUUID
+    from src.context_foundry.agents.relationship_inference import RelationshipInferenceAgent
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = PyUUID(g.tenant_id)
+        data = request.get_json() or {}
+        
+        batch_size = min(data.get('batch_size', 100), 500)
+        entity_filter = data.get('entity_filter')
+        domain = data.get('domain', 'IT')
+        
+        agent = RelationshipInferenceAgent(domain=domain)
+        run = agent.run_inference(
+            tenant_id=tenant_id,
+            batch_size=batch_size,
+            entity_filter=entity_filter
+        )
+        
+        return jsonify({
+            'run_id': str(run.id),
+            'status': run.status.value,
+            'entities_processed': run.entities_processed,
+            'relationships_proposed': run.relationships_proposed,
+            'relationships_approved': run.relationships_approved,
+            'estimated_cost_usd': round(run.estimated_cost_usd, 4)
+        }), 201
+        
+    except Exception as e:
+        logger.error(f"Inference run failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/inference/runs/<run_id>', methods=['GET'])
+def get_inference_run(run_id):
+    """Get inference run status."""
+    from flask import g
+    from uuid import UUID as PyUUID
+    from src.context_foundry.models.schema import InferenceRun, get_session
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        session = get_session()
+        run = session.query(InferenceRun).filter(
+            InferenceRun.id == PyUUID(run_id),
+            InferenceRun.tenant_id == PyUUID(g.tenant_id)
+        ).first()
+        
+        if not run:
+            return jsonify({'error': 'Run not found'}), 404
+        
+        return jsonify(run.to_dict())
+        
+    except Exception as e:
+        logger.error(f"Get inference run failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/inference/review', methods=['GET'])
+def get_inference_review_queue():
+    """Get pending relationship proposals for review."""
+    from flask import g
+    from uuid import UUID as PyUUID
+    from src.context_foundry.agents.relationship_inference import RelationshipInferenceAgent
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = PyUUID(g.tenant_id)
+        run_id = request.args.get('run_id')
+        limit = min(int(request.args.get('limit', 50)), 100)
+        
+        agent = RelationshipInferenceAgent()
+        proposals = agent.get_pending_proposals(
+            tenant_id=tenant_id,
+            run_id=PyUUID(run_id) if run_id else None,
+            limit=limit
+        )
+        
+        return jsonify({
+            'proposals': [p.to_dict() for p in proposals],
+            'total_pending': len(proposals)
+        })
+        
+    except Exception as e:
+        logger.error(f"Get review queue failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/inference/review/<proposal_id>', methods=['POST'])
+def review_proposal(proposal_id):
+    """Approve or reject a relationship proposal."""
+    from flask import g
+    from uuid import UUID as PyUUID
+    from src.context_foundry.agents.relationship_inference import RelationshipInferenceAgent
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.get_json() or {}
+        action = data.get('action')
+        reviewed_by = data.get('reviewed_by', g.get('user_id', 'anonymous'))
+        
+        if action not in ['approve', 'reject']:
+            return jsonify({'error': 'Invalid action. Use "approve" or "reject"'}), 400
+        
+        agent = RelationshipInferenceAgent()
+        
+        if action == 'approve':
+            relationship_id = agent.approve_proposal(PyUUID(proposal_id), reviewed_by)
+            if relationship_id:
+                return jsonify({
+                    'proposal_id': proposal_id,
+                    'status': 'APPROVED',
+                    'relationship_id': str(relationship_id)
+                })
+            else:
+                return jsonify({'error': 'Proposal not found or already processed'}), 404
+        else:
+            reason = data.get('rejection_reason', 'No reason provided')
+            success = agent.reject_proposal(PyUUID(proposal_id), reviewed_by, reason)
+            if success:
+                return jsonify({
+                    'proposal_id': proposal_id,
+                    'status': 'REJECTED'
+                })
+            else:
+                return jsonify({'error': 'Proposal not found'}), 404
+        
+    except Exception as e:
+        logger.error(f"Review proposal failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/inference/bulk-approve', methods=['POST'])
+def bulk_approve_proposals():
+    """Bulk approve proposals meeting confidence threshold."""
+    from flask import g
+    from uuid import UUID as PyUUID
+    from src.context_foundry.agents.relationship_inference import RelationshipInferenceAgent
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = PyUUID(g.tenant_id)
+        data = request.get_json() or {}
+        
+        min_confidence = data.get('min_confidence', 0.90)
+        require_lexical = data.get('require_lexical_evidence', True)
+        reviewed_by = data.get('reviewed_by', g.get('user_id', 'system'))
+        run_id = data.get('run_id')
+        
+        agent = RelationshipInferenceAgent()
+        approved_ids = agent.bulk_approve(
+            tenant_id=tenant_id,
+            min_confidence=min_confidence,
+            require_lexical=require_lexical,
+            approved_by=reviewed_by,
+            run_id=PyUUID(run_id) if run_id else None
+        )
+        
+        return jsonify({
+            'approved_count': len(approved_ids),
+            'relationship_ids': [str(rid) for rid in approved_ids]
+        })
+        
+    except Exception as e:
+        logger.error(f"Bulk approve failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/inference/runs/<run_id>/rollback', methods=['POST'])
+def rollback_inference_run(run_id):
+    """Rollback an inference run, deleting created relationships."""
+    from flask import g
+    from uuid import UUID as PyUUID
+    from src.context_foundry.agents.relationship_inference import RelationshipInferenceAgent
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        data = request.get_json() or {}
+        reason = data.get('reason', 'No reason provided')
+        delete_proposals = data.get('delete_proposals', True)
+        executed_by = data.get('executed_by', g.get('user_id', 'anonymous'))
+        
+        agent = RelationshipInferenceAgent()
+        result = agent.rollback_run(
+            run_id=PyUUID(run_id),
+            reason=reason,
+            executed_by=executed_by,
+            delete_proposals=delete_proposals
+        )
+        
+        if 'error' in result:
+            return jsonify(result), 404
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"Rollback failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/v1/inference/metrics', methods=['GET'])
+def get_inference_metrics():
+    """Get relationship density and inference metrics."""
+    from flask import g
+    from uuid import UUID as PyUUID
+    from src.context_foundry.agents.relationship_inference import RelationshipInferenceAgent
+    
+    if not g.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        tenant_id = PyUUID(g.tenant_id)
+        agent = RelationshipInferenceAgent()
+        metrics = agent.get_metrics(tenant_id)
+        
+        return jsonify(metrics)
+        
+    except Exception as e:
+        logger.error(f"Get metrics failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     port = 5000
     
