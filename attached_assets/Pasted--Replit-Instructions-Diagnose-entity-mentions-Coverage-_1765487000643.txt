@@ -1,0 +1,115 @@
+---
+
+## Replit Instructions: Diagnose entity_mentions Coverage Gap
+
+### Context
+
+The RE Agent is working correctly but has no data to process. 90% of isolated entities have 0 rows in `entity_mentions`, meaning they can't be traced back to document chunks. This blocks relationship extraction.
+
+Before fixing anything, we need to understand the scope and cause of the gap.
+
+---
+
+### Step 1: Measure the gap
+
+```sql
+-- Total entities vs entities with mentions
+SELECT 
+    (SELECT COUNT(*) FROM entities WHERE lifecycle_state = 'TRUSTED') as total_trusted_entities,
+    (SELECT COUNT(DISTINCT entity_id) FROM entity_mentions) as entities_with_mentions,
+    (SELECT COUNT(*) FROM entity_mentions) as total_mentions;
+```
+
+Expected output shows the gap size.
+
+---
+
+### Step 2: Check when entity_mentions was populated
+
+```sql
+-- When were mentions created?
+SELECT 
+    DATE(created_at) as date,
+    COUNT(*) as mentions_created
+FROM entity_mentions
+GROUP BY DATE(created_at)
+ORDER BY date DESC
+LIMIT 10;
+```
+
+This shows if backfill was run or if mentions only come from recent extractions.
+
+---
+
+### Step 3: Check entity extraction pipeline
+
+```sql
+-- Do entities have source_document_id or provenance that links to chunks?
+SELECT 
+    e.id,
+    e.name,
+    e.entity_type,
+    e.provenance->>'document_id' as doc_id,
+    e.provenance->>'chunk_id' as chunk_id,
+    (SELECT COUNT(*) FROM entity_mentions em WHERE em.entity_id = e.id) as mention_count
+FROM entities e
+WHERE e.lifecycle_state = 'TRUSTED'
+ORDER BY mention_count ASC
+LIMIT 20;
+```
+
+This reveals if entities have provenance data that could be used to rebuild mentions.
+
+---
+
+### Step 4: Check if chunks contain entity references
+
+```sql
+-- Sample chunks and check if entity names appear in text
+SELECT 
+    dc.id as chunk_id,
+    LEFT(dc.text, 200) as chunk_text,
+    (SELECT COUNT(*) FROM entity_mentions em WHERE em.chunk_id = dc.id) as mention_count
+FROM document_chunks dc
+ORDER BY mention_count ASC
+LIMIT 10;
+```
+
+This shows if chunks exist but weren't linked to entities.
+
+---
+
+### Step 5: Check extraction code path
+
+```bash
+# Find where entity_mentions are created
+grep -rn "entity_mentions\|EntityMention" src/context_foundry/ --include="*.py" | head -30
+```
+
+```bash
+# Find the extraction pipeline
+grep -rn "def extract\|def process_chunk\|def process_document" src/context_foundry/ --include="*.py" | head -20
+```
+
+This shows where mentions SHOULD be created during extraction.
+
+---
+
+### Step 6: Summarize findings
+
+After running the above, provide:
+
+1. **Gap size**: X entities have mentions out of Y total (Z%)
+2. **Cause hypothesis**: 
+   - Backfill never ran?
+   - Extraction doesn't create mentions?
+   - Mentions created but deleted?
+   - Foreign key constraint blocking inserts?
+3. **Provenance availability**: Can we rebuild mentions from entity.provenance?
+4. **Recommended fix**: Backfill script, extraction pipeline fix, or both?
+
+---
+
+### Do NOT fix yet
+
+Just diagnose. We need to understand the cause before choosing the right fix. Report findings and I'll provide fix instructions.
