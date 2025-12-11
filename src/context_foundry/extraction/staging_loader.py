@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState
+    Entity, Relationship, LifecycleState, EntityMention
 )
 from .entity_extractor import ExtractedEntity
 from .relation_extractor import ExtractedRelation
@@ -175,6 +175,25 @@ class StagingLoader:
                 existing.extraction_method = "llm_extraction"
                 existing.updated_at = datetime.utcnow()
                 
+                if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
+                    chunk_uuid = uuid.UUID(extracted.source_chunk_id) if isinstance(extracted.source_chunk_id, str) else extracted.source_chunk_id
+                    existing_mention = self.session.query(EntityMention).filter_by(
+                        entity_id=existing.id,
+                        chunk_id=chunk_uuid
+                    ).first()
+                    
+                    if not existing_mention:
+                        mention = EntityMention(
+                            id=uuid.uuid4(),
+                            entity_id=existing.id,
+                            document_id=uuid.UUID(extracted.source_document_id) if extracted.source_document_id else None,
+                            chunk_id=chunk_uuid,
+                            tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
+                            mention_text=extracted.source_span or extracted.canonical_name,
+                            confidence=extracted.confidence,
+                        )
+                        self.session.add(mention)
+                
                 return existing, "updated"
             
             return existing, "skipped"
@@ -194,6 +213,18 @@ class StagingLoader:
         )
         
         self.session.add(entity)
+        
+        if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
+            mention = EntityMention(
+                id=uuid.uuid4(),
+                entity_id=entity.id,
+                document_id=uuid.UUID(extracted.source_document_id) if extracted.source_document_id else None,
+                chunk_id=uuid.UUID(extracted.source_chunk_id) if isinstance(extracted.source_chunk_id, str) else extracted.source_chunk_id,
+                tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
+                mention_text=extracted.source_span or extracted.canonical_name,
+                confidence=extracted.confidence,
+            )
+            self.session.add(mention)
         
         cache_key = (extracted.canonical_name.lower(), entity_type, self.tenant_id)
         self._entity_cache[cache_key] = entity
