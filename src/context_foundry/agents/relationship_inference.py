@@ -296,12 +296,15 @@ OUTPUT REQUIREMENTS:
         tenant_id: UUID
     ) -> List[DocumentChunk]:
         """Get all document chunks mentioning this entity."""
-        return self.session.query(DocumentChunk).join(
-            EntityMention, EntityMention.chunk_id == DocumentChunk.id
-        ).filter(
-            EntityMention.entity_id == entity_id,
+        # Use subquery to get distinct chunk IDs (avoids JSON comparison issue)
+        chunk_ids_subq = self.session.query(EntityMention.chunk_id).filter(
+            EntityMention.entity_id == entity_id
+        ).distinct().subquery()
+        
+        return self.session.query(DocumentChunk).filter(
+            DocumentChunk.id.in_(chunk_ids_subq),
             DocumentChunk.tenant_id == tenant_id
-        ).distinct().all()
+        ).all()
     
     def find_candidate_entities(
         self, 
