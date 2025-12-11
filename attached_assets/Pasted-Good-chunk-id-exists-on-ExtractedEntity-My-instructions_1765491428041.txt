@@ -1,0 +1,104 @@
+Good. `chunk_id` exists on ExtractedEntity. My instructions are correct. Here's the confirmed version:
+
+---
+
+## Replit Instructions: Add EntityMention Creation (Confirmed)
+
+### Change 1: Add import
+
+**File:** `src/context_foundry/extraction/staging_loader.py`
+**Line:** 13-15
+
+**From:**
+```python
+from ..models.schema import (
+    Entity, Relationship, LifecycleState
+)
+```
+
+**To:**
+```python
+from ..models.schema import (
+    Entity, Relationship, LifecycleState, EntityMention
+)
+```
+
+---
+
+### Change 2: Create EntityMention after Entity creation
+
+**File:** `src/context_foundry/extraction/staging_loader.py`
+**After line 196** (after `self.session.add(entity)`):
+
+```python
+        self.session.add(entity)
+        
+        # Create EntityMention to link entity to source chunk
+        if hasattr(extracted, 'chunk_id') and extracted.chunk_id:
+            mention = EntityMention(
+                id=uuid.uuid4(),
+                entity_id=entity.id,
+                document_id=uuid.UUID(extracted.source_document_id) if extracted.source_document_id else None,
+                chunk_id=uuid.UUID(extracted.chunk_id) if isinstance(extracted.chunk_id, str) else extracted.chunk_id,
+                tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
+                mention_text=extracted.source_span or extracted.canonical_name,
+                confidence=extracted.confidence,
+            )
+            self.session.add(mention)
+        
+        cache_key = (extracted.canonical_name.lower(), entity_type, self.tenant_id)
+```
+
+---
+
+### Change 3: Also create mention on "updated" path
+
+**After line 175** (after the update block, before `return existing, "updated"`):
+
+```python
+                existing.updated_at = datetime.utcnow()
+                
+                # Ensure mention exists for this chunk
+                if hasattr(extracted, 'chunk_id') and extracted.chunk_id:
+                    chunk_uuid = uuid.UUID(extracted.chunk_id) if isinstance(extracted.chunk_id, str) else extracted.chunk_id
+                    existing_mention = self.session.query(EntityMention).filter_by(
+                        entity_id=existing.id,
+                        chunk_id=chunk_uuid
+                    ).first()
+                    
+                    if not existing_mention:
+                        mention = EntityMention(
+                            id=uuid.uuid4(),
+                            entity_id=existing.id,
+                            document_id=uuid.UUID(extracted.source_document_id) if extracted.source_document_id else None,
+                            chunk_id=chunk_uuid,
+                            tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
+                            mention_text=extracted.source_span or extracted.canonical_name,
+                            confidence=extracted.confidence,
+                        )
+                        self.session.add(mention)
+                
+                return existing, "updated"
+```
+
+---
+
+### Test
+
+After implementation:
+```python
+# Re-extract one document and verify mentions are created
+from src.context_foundry.models.schema import get_session
+from sqlalchemy import text
+
+with get_session() as session:
+    result = session.execute(text("""
+        SELECT COUNT(*) FROM entity_mentions 
+        WHERE created_at > NOW() - INTERVAL '5 minutes'
+    """)).fetchone()
+    print(f"New mentions created: {result[0]}")
+```
+
+---
+
+Proceed with these changes.
