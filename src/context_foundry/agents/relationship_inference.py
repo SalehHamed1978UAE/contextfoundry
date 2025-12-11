@@ -287,16 +287,17 @@ OUTPUT REQUIREMENTS:
         batch_size: int = 100,
         entity_filter: Optional[Dict] = None
     ) -> List[Entity]:
-        """Select isolated entities (no relationships) prioritized by confidence."""
+        """Select isolated entities (no relationships) that have mentions, prioritized by mention count."""
         query = text("""
-            SELECT e.* 
+            SELECT e.id
             FROM entities e
             LEFT JOIN relationships r ON (e.id = r.source_id OR e.id = r.target_id)
                 AND r.lifecycle_state != 'ARCHIVED'
             WHERE e.tenant_id = :tenant_id
               AND e.lifecycle_state = 'TRUSTED'
               AND r.id IS NULL
-            ORDER BY e.confidence DESC
+              AND EXISTS (SELECT 1 FROM entity_mentions em WHERE em.entity_id = e.id)
+            ORDER BY (SELECT COUNT(*) FROM entity_mentions em WHERE em.entity_id = e.id) DESC
             LIMIT :batch_size
         """)
         
