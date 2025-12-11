@@ -98,7 +98,7 @@ Before implementing relationship enrichment, entity merging, or data quality imp
 **Upgrade path if triggered:**
 - Keep `text-embedding-3-small` for entity names (short strings, cost-sensitive, high volume)
 - Upgrade to `text-embedding-3-large` for document chunks only (3072-dim)
-- Update ChromaDB collection to handle mixed dimensions OR maintain separate collections
+- Update pgvector columns to handle mixed dimensions OR maintain separate tables
 
 **Benchmark task:** Create evaluation set of 50 document retrieval queries, measure recall@5 for small vs large, log results before deciding.
 
