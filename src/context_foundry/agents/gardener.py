@@ -24,6 +24,7 @@ from ..models.schema import (
     ConflictLog as ConflictLogDB,
     GardenerLog, GardenerActionType,
     DuplicateCandidate,
+    ProposedRelationship, ProposedRelationshipStatus,
     get_session
 )
 
@@ -204,18 +205,39 @@ class CleanupResult:
 
 
 @dataclass
+class InferencePromotionResult:
+    """Result of promoting approved proposals to STAGING relationships."""
+    proposals_found: int = 0
+    promoted: int = 0
+    duplicates: int = 0
+    errors: List[str] = field(default_factory=list)
+    duration_seconds: float = 0.0
+    
+    def to_dict(self) -> Dict:
+        return {
+            "proposals_found": self.proposals_found,
+            "promoted": self.promoted,
+            "duplicates": self.duplicates,
+            "errors": self.errors,
+            "duration_seconds": self.duration_seconds,
+        }
+
+
+@dataclass
 class GardenerCycleResult:
     """Result of a complete gardener cycle."""
     cycle_id: str
     started_at: datetime
     completed_at: Optional[datetime] = None
     
+    inference_promotion_result: Optional[InferencePromotionResult] = None
     decay_result: Optional[DecayResult] = None
     promotion_result: Optional[PromotionResult] = None
     conflict_result: Optional[ConflictResult] = None
     demotion_result: Optional[DemotionResult] = None
     cleanup_result: Optional[CleanupResult] = None
     
+    proposals_promoted: int = 0
     facts_decayed: int = 0
     facts_promoted: int = 0
     facts_demoted: int = 0
@@ -229,12 +251,14 @@ class GardenerCycleResult:
             "cycle_id": self.cycle_id,
             "started_at": self.started_at.isoformat(),
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "inference_promotion": self.inference_promotion_result.to_dict() if self.inference_promotion_result else None,
             "decay": self.decay_result.to_dict() if self.decay_result else None,
             "promotion": self.promotion_result.to_dict() if self.promotion_result else None,
             "conflict_resolution": self.conflict_result.to_dict() if self.conflict_result else None,
             "demotion": self.demotion_result.to_dict() if self.demotion_result else None,
             "cleanup": self.cleanup_result.to_dict() if self.cleanup_result else None,
             "summary": {
+                "proposals_promoted": self.proposals_promoted,
                 "facts_decayed": self.facts_decayed,
                 "facts_promoted": self.facts_promoted,
                 "facts_demoted": self.facts_demoted,
@@ -348,6 +372,9 @@ class GardenerAgent:
         try:
             logger.info(f"[Gardener] Starting cycle {cycle_id}")
             
+            result.inference_promotion_result = self.inference_promotion_pass(cycle_id)
+            result.proposals_promoted = result.inference_promotion_result.promoted
+            
             result.decay_result = self.decay_pass(cycle_id)
             result.facts_decayed = (
                 result.decay_result.entities_decayed + 
@@ -376,6 +403,7 @@ class GardenerAgent:
             
             logger.info(
                 f"[Gardener] Cycle {cycle_id} complete: "
+                f"proposals_promoted={result.proposals_promoted}, "
                 f"decayed={result.facts_decayed}, promoted={result.facts_promoted}, "
                 f"demoted={result.facts_demoted}, conflicts={result.conflicts_resolved}"
             )
@@ -390,6 +418,111 @@ class GardenerAgent:
         
         self._log_cycle_summary(cycle_id, result)
         
+        return result
+    
+    def inference_promotion_pass(self, cycle_id: str = "") -> InferencePromotionResult:
+        """
+        Pass 0: Promote AUTO_APPROVED proposals to relationships as STAGING.
+        
+        This pass runs before other governance passes so that newly promoted
+        relationships can be considered for STAGING → TRUSTED promotion
+        in the same cycle.
+        
+        Flow: RE Agent → proposed_relationships → STAGING relationships
+        """
+        start_time = datetime.utcnow()
+        result = InferencePromotionResult()
+        
+        try:
+            proposals = self.session.query(ProposedRelationship).filter(
+                ProposedRelationship.status.in_([
+                    ProposedRelationshipStatus.AUTO_APPROVED,
+                    ProposedRelationshipStatus.APPROVED
+                ])
+            ).all()
+            
+            result.proposals_found = len(proposals)
+            
+            for proposal in proposals:
+                try:
+                    existing = self.session.query(Relationship).filter(
+                        Relationship.tenant_id == proposal.tenant_id,
+                        Relationship.source_id == proposal.source_entity_id,
+                        Relationship.target_id == proposal.target_entity_id,
+                        Relationship.relationship_type == proposal.relationship_type,
+                        Relationship.lifecycle_state != LifecycleState.ARCHIVED
+                    ).first()
+                    
+                    if existing:
+                        proposal.status = ProposedRelationshipStatus.REJECTED
+                        proposal.rejection_reason = "DUPLICATE: Relationship already exists"
+                        proposal.reviewed_at = datetime.utcnow()
+                        proposal.reviewed_by = "gardener_auto"
+                        result.duplicates += 1
+                        continue
+                    
+                    provenance = {
+                        'source': 'inference_agent',
+                        'run_id': str(proposal.inference_run_id) if proposal.inference_run_id else None,
+                        'document_id': str(proposal.source_document_id) if proposal.source_document_id else None,
+                        'chunk_id': str(proposal.source_chunk_id) if proposal.source_chunk_id else None,
+                        'evidence': proposal.evidence_span,
+                        'inference_method': proposal.inference_method.value if proposal.inference_method else None,
+                        'has_lexical_evidence': proposal.has_lexical_evidence,
+                        'approved_by': 'gardener_auto',
+                        'promoted_at': datetime.utcnow().isoformat(),
+                        'corroboration_count': proposal.corroboration_count,
+                    }
+                    
+                    relationship = Relationship(
+                        tenant_id=proposal.tenant_id,
+                        source_id=proposal.source_entity_id,
+                        target_id=proposal.target_entity_id,
+                        relationship_type=proposal.relationship_type,
+                        confidence=proposal.confidence,
+                        lifecycle_state=LifecycleState.STAGING,
+                        validation_status=ValidationStatus.VALID,
+                        properties=provenance,
+                        source_document_id=str(proposal.source_document_id) if proposal.source_document_id else None,
+                        source_sentence=proposal.evidence_span,
+                    )
+                    
+                    self.session.add(relationship)
+                    self.session.flush()
+                    
+                    proposal.status = ProposedRelationshipStatus.APPROVED
+                    proposal.reviewed_at = datetime.utcnow()
+                    proposal.reviewed_by = "gardener_auto"
+                    
+                    self._log_action(
+                        cycle_id=cycle_id,
+                        action_type=GardenerActionType.VALIDATE,
+                        target_id=relationship.id,
+                        target_type="relationship",
+                        target_name=f"{proposal.relationship_type}",
+                        new_state=LifecycleState.STAGING.value,
+                        new_confidence=proposal.confidence,
+                        reason=f"Promoted from proposal {proposal.id}",
+                    )
+                    
+                    result.promoted += 1
+                    
+                except Exception as e:
+                    result.errors.append(f"Error promoting proposal {proposal.id}: {str(e)}")
+                    logger.error(f"[Gardener] Error promoting proposal {proposal.id}: {e}")
+            
+            if result.promoted > 0:
+                logger.info(
+                    f"[Gardener] Inference promotion pass: "
+                    f"found={result.proposals_found}, promoted={result.promoted}, "
+                    f"duplicates={result.duplicates}"
+                )
+                
+        except Exception as e:
+            result.errors.append(f"Inference promotion pass error: {str(e)}")
+            logger.error(f"[Gardener] Inference promotion pass error: {e}")
+        
+        result.duration_seconds = (datetime.utcnow() - start_time).total_seconds()
         return result
     
     def decay_pass(self, cycle_id: str = "") -> DecayResult:
