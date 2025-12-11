@@ -231,11 +231,14 @@ OUTPUT REQUIREMENTS:
         source_id: UUID,
         target_id: UUID,
         relationship_type: str,
-        tenant_id: UUID
-    ) -> bool:
+        tenant_id: UUID,
+        chunk_id: UUID = None
+    ) -> Tuple[bool, str]:
         """
         Constraint 7: Check if this relationship already exists.
+        Returns (is_duplicate, reason).
         """
+        # 1. Check existing relationships (global)
         existing = self.session.query(Relationship).filter(
             Relationship.tenant_id == tenant_id,
             Relationship.source_id == source_id,
@@ -245,20 +248,38 @@ OUTPUT REQUIREMENTS:
         ).first()
         
         if existing:
-            return True
+            return True, "RELATIONSHIP_EXISTS"
         
-        proposed = self.session.query(ProposedRelationship).filter(
+        # 2. Check for any pending/approved proposal (global dedup)
+        global_proposal = self.session.query(ProposedRelationship).filter(
             ProposedRelationship.tenant_id == tenant_id,
             ProposedRelationship.source_entity_id == source_id,
             ProposedRelationship.target_entity_id == target_id,
             ProposedRelationship.relationship_type == relationship_type,
             ProposedRelationship.status.in_([
                 ProposedRelationshipStatus.PENDING,
-                ProposedRelationshipStatus.AUTO_APPROVED
+                ProposedRelationshipStatus.AUTO_APPROVED,
+                ProposedRelationshipStatus.APPROVED
             ])
         ).first()
         
-        return proposed is not None
+        if global_proposal:
+            return True, "PROPOSAL_EXISTS_GLOBAL"
+        
+        # 3. Check for same chunk (unique constraint - prevents re-processing)
+        if chunk_id:
+            chunk_proposal = self.session.query(ProposedRelationship).filter(
+                ProposedRelationship.tenant_id == tenant_id,
+                ProposedRelationship.source_entity_id == source_id,
+                ProposedRelationship.target_entity_id == target_id,
+                ProposedRelationship.relationship_type == relationship_type,
+                ProposedRelationship.source_chunk_id == chunk_id
+            ).first()
+            
+            if chunk_proposal:
+                return True, "PROPOSAL_EXISTS_CHUNK"
+        
+        return False, None
     
     def select_isolated_entities(
         self,
@@ -440,8 +461,21 @@ If no relationships can be identified with evidence, return:
         valid, msg, rel_ont = self.validate_type_pair(
             source.entity_type, target.entity_type, relationship_type, ontology
         )
+        
+        # Direction-flip: If original direction fails, try swapping source/target
+        direction_flipped = False
         if not valid:
-            return ValidationResult(False, msg)
+            valid_flipped, msg_flipped, rel_ont_flipped = self.validate_type_pair(
+                target.entity_type, source.entity_type, relationship_type, ontology
+            )
+            if valid_flipped:
+                # Swap source and target
+                source, target = target, source
+                rel_ont = rel_ont_flipped
+                direction_flipped = True
+                logger.debug(f"Direction flipped for {relationship_type}: {source.name} -> {target.name}")
+            else:
+                return ValidationResult(False, msg)
         
         has_lexical = self.has_lexical_evidence(evidence_span, rel_ont)
         
@@ -450,8 +484,9 @@ If no relationships can be identified with evidence, return:
         if disposition == 'REJECT':
             return ValidationResult(False, f"Confidence {confidence} below threshold {rel_ont.min_confidence}")
         
-        if self.check_duplicate(source.id, target.id, relationship_type, run.tenant_id):
-            return ValidationResult(False, "Relationship already exists")
+        is_dup, dup_reason = self.check_duplicate(source.id, target.id, relationship_type, run.tenant_id, chunk.id)
+        if is_dup:
+            return ValidationResult(False, f"Duplicate: {dup_reason}")
         
         status = (ProposedRelationshipStatus.AUTO_APPROVED 
                   if disposition == 'AUTO_APPROVE' 
