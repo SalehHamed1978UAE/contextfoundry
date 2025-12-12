@@ -1,3 +1,6 @@
+ Add Resume Capability
+Step 1: Modify the script to skip already-processed chunks
+Replace scripts/full_reextraction.py with this version that resumes from where it left off:
 #!/usr/bin/env python3
 """Full re-extraction with resume capability."""
 
@@ -22,10 +25,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("httpcore").setLevel(logging.WARNING)
-logging.getLogger("openai").setLevel(logging.WARNING)
-
 TENANT_ID = "f3dd3201-7225-4a55-9264-445f99d0eba3"
 
 def get_processed_chunk_ids(session):
@@ -43,13 +42,16 @@ def main():
     extractor = EntityExtractor(model="gpt-4o-mini", temperature=0.0)
     
     with get_session() as session:
+        # Get already processed chunks
         processed_ids = get_processed_chunk_ids(session)
         logger.info(f"Already processed: {len(processed_ids)} chunks")
         
+        # Get all chunks
         all_chunks = session.query(DocumentChunk).filter(
             DocumentChunk.tenant_id == UUID(TENANT_ID)
         ).order_by(DocumentChunk.document_id, DocumentChunk.chunk_index).all()
         
+        # Filter to unprocessed only
         chunks = [c for c in all_chunks if c.id not in processed_ids]
         
         total_all = len(all_chunks)
@@ -81,6 +83,7 @@ def main():
                     elif action == "updated":
                         stats["mentions"] += 1
                 
+                # Commit every 10 chunks for faster resume
                 if (i + 1) % 10 == 0:
                     session.commit()
                     processed_total = total_all - total_remaining + i + 1
@@ -98,3 +101,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+Step 2: Verify current state before restarting
+SELECT 
+    (SELECT COUNT(*) FROM entities WHERE tenant_id = 'f3dd3201-7225-4a55-9264-445f99d0eba3') as entities,
+    (SELECT COUNT(DISTINCT chunk_id) FROM entity_mentions WHERE tenant_id = 'f3dd3201-7225-4a55-9264-445f99d0eba3') as chunks_processed,
+    (SELECT COUNT(*) FROM document_chunks WHERE tenant_id = 'f3dd3201-7225-4a55-9264-445f99d0eba3') as total_chunks;
+Step 3: Restart the workflow
+The new script will automatically skip chunks that already have mentions.
