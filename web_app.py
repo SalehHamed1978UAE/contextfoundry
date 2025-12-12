@@ -73,6 +73,37 @@ if os.environ.get("GOOGLE_OAUTH_CLIENT_ID"):
 from src.context_foundry.api.external import external_api
 app.register_blueprint(external_api)
 
+def validate_api_key():
+    """
+    Validate API key from Authorization header.
+    Returns (tenant_id, key_data) on success, (None, error_response) on failure.
+    """
+    auth_header = request.headers.get('Authorization', '')
+    
+    if not auth_header:
+        return None, None
+    
+    if not auth_header.startswith('Bearer '):
+        return None, (jsonify({'error': 'Invalid authorization header format. Use: Bearer <api_key>'}), 401)
+    
+    api_key = auth_header[7:]
+    
+    if not api_key.startswith('cf_live_') and not api_key.startswith('cf_test_'):
+        return None, (jsonify({'error': 'Invalid API key format'}), 401)
+    
+    try:
+        from platform_foundation.src.auth_service import AuthService
+        auth_service = AuthService(os.environ.get('DATABASE_URL'))
+        key_data = auth_service.validate_api_key(api_key)
+        
+        if not key_data:
+            return None, (jsonify({'error': 'Invalid or expired API key'}), 401)
+        
+        return key_data.get('tenant_id'), key_data
+    except Exception as e:
+        logger.error(f"API key validation error: {e}")
+        return None, (jsonify({'error': 'Authentication service error'}), 500)
+
 @app.after_request
 def add_headers(response):
     """Add dark theme headers and cache control."""
@@ -2458,6 +2489,13 @@ def command_center_redirect():
 
 @app.route('/api/query', methods=['POST'])
 def query():
+    tenant_id, auth_result = validate_api_key()
+    if auth_result and isinstance(auth_result, tuple):
+        return auth_result
+    
+    if not tenant_id:
+        return jsonify({'error': 'API key required. Use Authorization: Bearer <api_key>'}), 401
+    
     data = request.get_json()
     query_text = data.get('query', '')
     as_of_date = data.get('as_of_date')  # Optional: ISO format date string for temporal queries
