@@ -204,13 +204,44 @@ class GraphRAGBaseline:
                 unique.append(rel)
         return unique
     
+    def _is_blast_radius_query(self, query_text: str) -> bool:
+        """Detect if this is a blast radius / impact analysis query."""
+        query_lower = query_text.lower()
+        patterns = ['blast radius', 'impact', 'what happens if', 'goes down', 
+                    'becomes unavailable', 'fails', 'affected', 'depends on']
+        return any(p in query_lower for p in patterns)
+
     def _generate_response(self, query_text: str, context: GraphRAGContext) -> str:
         """Generate response using LLM with simple prompt."""
         client = self._get_openai_client()
         
         context_str = self._format_context(context)
         
-        prompt = f"""You are a helpful assistant answering questions about an IT operations knowledge base.
+        is_blast_radius = self._is_blast_radius_query(query_text)
+        
+        if is_blast_radius:
+            prompt = f"""You are answering a blast radius / impact analysis query about an IT operations knowledge base.
+
+Context from knowledge graph:
+{context_str}
+
+Question: {query_text}
+
+IMPORTANT: Your answer MUST follow this exact structure with TWO labeled sections ONLY:
+
+GROUNDED (facts from the data only):
+- List ONLY entities that DEPEND ON the failing service
+- Use format: "[Dependent] depends on [FailingService] [REL-xxx]" for each
+- If no entities depend on the failing service, say: "No services are documented as depending on [FailingService]"
+- EVERY claim MUST cite a specific relationship from the context
+
+GAPS (what is not documented):
+- State what information is missing
+- Be explicit about missing information
+
+DO NOT include an INFERRED section. DO NOT speculate. If it's not in the relationships, don't mention it."""
+        else:
+            prompt = f"""You are a helpful assistant answering questions about an IT operations knowledge base.
 
 Context from knowledge graph:
 {context_str}

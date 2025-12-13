@@ -10,7 +10,7 @@ for calibrated confidence that works for both entity-centric and topic-centric q
 import os
 import json
 import re
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Any, Dict, List, Optional, Tuple, Set
 from openai import OpenAI
 
 from ..models.context_bundle import ContextBundle, EvidenceItem
@@ -449,6 +449,48 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             "caveats": ["Response format was non-standard"]
         }
     
+    def _synthesize_structured_answer(self, structured_data: Any, confidence: float) -> str:
+        """
+        Synthesize structured GROUNDED/GAPS data into natural language with confidence markers.
+        
+        Converts JSON like {"GROUNDED": [...], "GAPS": [...]} into readable prose.
+        """
+        if not isinstance(structured_data, dict):
+            return str(structured_data)
+        
+        lines = []
+        confidence_marker = "🟢" if confidence >= 0.85 else "🟡" if confidence >= 0.70 else "🟠" if confidence >= 0.50 else "🔴"
+        
+        grounded = structured_data.get("GROUNDED", structured_data.get("grounded", []))
+        gaps = structured_data.get("GAPS", structured_data.get("gaps", []))
+        
+        if grounded:
+            lines.append(f"{confidence_marker} **Confirmed Impact** (from documented relationships):")
+            if isinstance(grounded, list):
+                for item in grounded:
+                    lines.append(f"  • {item}")
+            else:
+                lines.append(f"  • {grounded}")
+            lines.append("")
+        
+        if gaps:
+            lines.append("⚠️ **Documentation Gaps** (not yet documented):")
+            if isinstance(gaps, list):
+                for item in gaps:
+                    lines.append(f"  • {item}")
+            else:
+                lines.append(f"  • {gaps}")
+            lines.append("")
+        
+        if not grounded and not gaps:
+            import json as json_module
+            return json_module.dumps(structured_data)
+        
+        conf_level = "high" if confidence >= 0.85 else "medium" if confidence >= 0.70 else "low" if confidence >= 0.50 else "very low"
+        lines.append(f"_Confidence: {conf_level} ({confidence:.0%})_")
+        
+        return "\n".join(lines)
+    
     def _validate_and_enrich_response(
         self, 
         result: Dict, 
@@ -468,8 +510,7 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
         if "answer" not in result:
             result["answer"] = "Unable to generate answer from context."
         elif not isinstance(result["answer"], str):
-            import json as json_module
-            result["answer"] = json_module.dumps(result["answer"]) if isinstance(result["answer"], (dict, list)) else str(result["answer"])
+            result["answer"] = self._synthesize_structured_answer(result["answer"], calibrated_confidence)
         
         result["confidence"] = calibrated_confidence
         
