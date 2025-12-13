@@ -48,7 +48,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-PROMPT_VERSION = "v1.0"
+PROMPT_VERSION = "v1.1"  # Added specificity guidance to prefer rich types over RELATED_TO
 
 
 @dataclass
@@ -87,6 +87,23 @@ CRITICAL RULES — VIOLATIONS ARE UNACCEPTABLE:
 5. Every relationship MUST have an exact quote from the document as evidence
 6. If no clear relationship exists, return an empty list — DO NOT GUESS
 7. Confidence scores must reflect actual certainty (0.0-1.0)
+
+RELATIONSHIP TYPE SELECTION — SPECIFICITY IS MANDATORY:
+- ALWAYS prefer the MOST SPECIFIC relationship type that fits the evidence
+- RELATED_TO is a LAST RESORT — only use when NO other type applies
+- Look for action verbs that indicate specific relationships:
+  * "leads", "manages", "oversees", "directs", "heads" → MANAGES
+  * "owns", "acquired", "purchased" → OWNS
+  * "depends on", "requires", "needs", "uses" → DEPENDS_ON
+  * "works at", "employed by", "joined" → WORKS_AT
+  * "reports to", "supervised by" → REPORTS_TO
+  * "part of", "belongs to", "within" → PART_OF or MEMBER_OF
+  * "located in", "based in", "headquartered" → LOCATED_IN
+  * "implements", "follows", "adopts" → IMPLEMENTS
+  * "enables", "supports", "facilitates" → ENABLES
+  * "calls", "invokes", "routes to" → ROUTES_TO or CALLS
+- If the text says "X manages Y", use MANAGES, not RELATED_TO
+- If the text says "X depends on Y", use DEPENDS_ON, not RELATED_TO
 
 OUTPUT REQUIREMENTS:
 - Return valid JSON only
@@ -378,8 +395,10 @@ TENANT: {tenant_id}
 ENTITY_LIST (you may ONLY use these — match by entity_code):
 {entity_list}
 
-ALLOWED_RELATIONSHIPS (you may ONLY use these types):
+ALLOWED_RELATIONSHIPS (you may ONLY use these types, listed from MOST SPECIFIC to LEAST SPECIFIC):
 {rel_list}
+
+⚠️ RELATED_TO is the LAST entry because it is a FALLBACK — only use it when NO specific type applies.
 
 DOCUMENT CHUNK:
 \"\"\"
@@ -389,6 +408,12 @@ DOCUMENT CHUNK:
 TASK:
 Extract all EXPLICIT relationships between the entities above that are stated in this text.
 Do not infer relationships that are not clearly expressed.
+
+IMPORTANT: Choose the MOST SPECIFIC relationship type. Examples:
+- "Emily Rodriguez leads the QA Department" → MANAGES (not RELATED_TO)
+- "Mark Thompson oversees automated processes" → MANAGES (not RELATED_TO)
+- "Payment Gateway depends on Redis Cache" → DEPENDS_ON (not RELATED_TO)
+- "John works at Acme Corp" → WORKS_AT (not RELATED_TO)
 
 OUTPUT FORMAT (JSON):
 {{
