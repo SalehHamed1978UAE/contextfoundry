@@ -1,0 +1,43 @@
+From below B is Graphrag 
+
+That's concerning. GraphRAG found more relationships (7 vs 3), was faster (4s vs 18s), and had cleaner output.
+
+**But context matters:**
+
+| Factor | Context Foundry | GraphRAG |
+|--------|-----------------|----------|
+| Current density | 0.062 (sparse) | Unknown |
+| Relationships | 211 total | Different data source? |
+| State | Mid-rebuild | Stable |
+
+**The Dec 8 A/B eval** showed CF winning 12-3. But that was with 2,013 relationships (0.24 density).
+
+**Right now** CF has only 211 relationships (0.062 density). We cleared and rebuilt the data today. The RE Agent is only 9% through processing.
+
+**The question:** Is GraphRAG querying different data? Or the same sparse graph?
+
+If same data → GraphRAG is currently better at retrieval
+If different data → Not a fair comparison during CF rebuild
+
+---
+
+**What to check:**
+
+Is the IT Ops test data (API Gateway, GraphQL Gateway, etc.) in the current CF database? Or was it cleared when we reset?
+
+```sql
+SELECT name, entity_type 
+FROM entities 
+WHERE name ILIKE '%gateway%' 
+  AND lifecycle_state = 'TRUSTED';
+```
+
+If those entities don't exist, CF is querying against empty symbolic memory for this domain.
+
+What is the blast radius if the API Gateway becomes unavailable?
+A
+18515ms
+🟡 **Confirmed Impact** (from documented relationships): • GraphQL Gateway depends on API Gateway [REL-001] • Mobile Gateway depends on API Gateway [REL-002] • Partner Gateway depends on API Gateway [REL-003] ⚠️ **Documentation Gaps** (not yet documented): • No documented services that depend on GraphQL Gateway. • No documented services that depend on Mobile Gateway. • No documented services that depend on Partner Gateway. _Confidence: medium (76%)_
+B
+4122ms
+GROUNDED (facts from the data only): - GraphQL Gateway depends on API Gateway [DEPENDS_ON] - Mobile Gateway depends on API Gateway [DEPENDS_ON] - Partner Gateway depends on API Gateway [DEPENDS_ON] - Prometheus depends on API Gateway [CALLS] - Synthetic Monitor depends on API Gateway [CALLS] - Service Mesh hosts API Gateway [HOSTS] - Load Balancer hosts API Gateway [HOSTS] GAPS (what is not documented): - The specific impact on each dependent service if the API Gateway becomes unavailable is not documented. - There is no information on the recovery time or contingency plans for the API Gateway. - The potential cascading effects on downstream services that are called by the API Gateway are not detailed. - There is no mention of how the API Team plans to address the unavailability of the API Gateway.
