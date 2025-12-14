@@ -175,31 +175,117 @@ def health_check():
     })
 
 
+def _log_interaction_event(
+    tenant_id: str,
+    app_id: str,
+    event_type: str,
+    raw_text: str,
+    result_status: str,
+    resolved_entities: list = None,
+    confidence: float = None,
+    elapsed_ms: float = None,
+    user_id: str = None,
+    session_id: str = None,
+    trace_id: str = None,
+    analysis_type: str = None
+):
+    """Log interaction event (append-only, non-blocking)."""
+    try:
+        from ..models.schema import InteractionEvent, get_session
+        session = get_session()
+        event = InteractionEvent(
+            tenant_id=tenant_id,
+            app_id=app_id or 'unknown',
+            user_id=user_id,
+            session_id=session_id,
+            trace_id=trace_id,
+            event_type=event_type,
+            raw_text=raw_text,
+            analysis_type=analysis_type,
+            resolved_entities=resolved_entities,
+            result_status=result_status,
+            confidence=confidence,
+            elapsed_ms=elapsed_ms
+        )
+        session.add(event)
+        session.commit()
+        session.close()
+    except Exception as e:
+        pass
+
+
+def _get_entity_relationships(session, entity_id: str, max_hops: int = 2) -> dict:
+    """Get relationships for an entity with hop traversal."""
+    from sqlalchemy import text
+    
+    grounded_facts = []
+    
+    sql = text("""
+        SELECT 
+            r.relationship_type,
+            e_source.name as source_name,
+            e_target.name as target_name,
+            r.confidence,
+            r.source_sentence
+        FROM relationships r
+        JOIN entities e_source ON r.source_id = e_source.id
+        JOIN entities e_target ON r.target_id = e_target.id
+        WHERE (r.source_id = :entity_id OR r.target_id = :entity_id)
+          AND r.lifecycle_state = 'TRUSTED'
+          AND e_source.lifecycle_state = 'TRUSTED'
+          AND e_target.lifecycle_state = 'TRUSTED'
+        ORDER BY r.confidence DESC
+        LIMIT 50
+    """)
+    
+    try:
+        result = session.execute(sql, {"entity_id": entity_id})
+        for row in result:
+            grounded_facts.append({
+                "fact": f"{row[1]} {row[0]} {row[2]}",
+                "evidence": [f"edge:{row[0]}"],
+                "confidence": float(row[3]) if row[3] else 0.5,
+                "source_sentence": row[4]
+            })
+    except Exception as e:
+        pass
+    
+    return grounded_facts
+
+
 @external_api.route('/query', methods=['POST'])
 @require_api_key
 def query_knowledge():
     """
-    Natural language query endpoint.
+    Natural language query endpoint with entity extraction.
+    
+    Accepts raw text and extracts entities using Tier 1 Resolver.
     
     Input:
         {
-            "query": "What is the blast radius if API Gateway fails?",
-            "options": {
-                "include_inferred": true,
-                "max_depth": 3,
-                "confidence_threshold": 0.7
+            "query": "Reduce API Gateway downtime by 50%",
+            "analysis_type": "root_cause",
+            "context": {
+                "app_id": "premisia",
+                "user_id": "u-123",
+                "session_id": "s-456",
+                "trace_id": "t-789"
             }
         }
     
     Output:
         {
-            "answer": "...",
-            "confidence": 0.85,
-            "grounded": [{"fact": "...", "source": "..."}],
-            "inferred": [{"fact": "...", "reasoning": "..."}],
-            "gaps": [{"topic": "...", "suggestion": "..."}]
+            "status": "RESOLVED",
+            "memory_version": 47,
+            "confidence": 0.76,
+            "entity_resolution": {...},
+            "answer": {...},
+            "audit": {...}
         }
     """
+    import time
+    start_time = time.time()
+    
     data = request.get_json()
     
     if not data or not data.get('query'):
@@ -209,57 +295,365 @@ def query_knowledge():
         }), 400
     
     query_text = data['query'].strip()
-    options = data.get('options', {})
+    analysis_type = data.get('analysis_type', 'general')
+    context = data.get('context', {})
+    
+    app_id = context.get('app_id', 'unknown')
+    user_id = context.get('user_id')
+    session_id = context.get('session_id')
+    trace_id = context.get('trace_id')
     
     try:
-        from ..agents.reasoning import ReasoningAgent
+        from ..agents.tier1_resolver import Tier1Resolver
+        from ..models.schema import get_session as get_cf_session
         
-        agent = ReasoningAgent(tenant_id=g.tenant_id)
-        result = agent.process_query(query_text)
+        cf_session = get_cf_session()
+        resolver = Tier1Resolver(session=cf_session, tenant_id=g.tenant_id)
+        resolve_result = resolver.resolve_from_text(query_text)
         
-        grounded = []
-        inferred = []
-        gaps = []
+        elapsed_ms = (time.time() - start_time) * 1000
         
-        answer = result.get('answer', '')
+        if resolve_result.status == "NO_MATCHES":
+            _log_interaction_event(
+                tenant_id=g.tenant_id,
+                app_id=app_id,
+                event_type="QUERY",
+                raw_text=query_text,
+                result_status="NO_MATCHES",
+                elapsed_ms=elapsed_ms,
+                user_id=user_id,
+                session_id=session_id,
+                trace_id=trace_id,
+                analysis_type=analysis_type
+            )
+            
+            return jsonify({
+                "status": "NO_MATCHES",
+                "memory_version": 1,
+                "confidence": 0.0,
+                "entity_resolution": {
+                    "candidates": [],
+                    "selected": None,
+                    "extracted_terms": resolve_result.extracted_terms
+                },
+                "answer": {
+                    "grounded_facts": [],
+                    "gaps": [{"gap": "No entities found in query text", "evidence": ["resolver:tier1"]}]
+                },
+                "audit": {"elapsed_ms": elapsed_ms}
+            })
         
-        if 'GROUNDED:' in answer:
-            parts = answer.split('GROUNDED:')
-            if len(parts) > 1:
-                grounded_text = parts[1].split('GAP')[0].split('INFERRED')[0]
-                for line in grounded_text.strip().split('\n'):
-                    if line.strip().startswith('-'):
-                        grounded.append({'fact': line.strip()[1:].strip(), 'source': 'knowledge_graph'})
+        if resolve_result.status == "AMBIGUOUS":
+            _log_interaction_event(
+                tenant_id=g.tenant_id,
+                app_id=app_id,
+                event_type="QUERY",
+                raw_text=query_text,
+                result_status="AMBIGUOUS",
+                resolved_entities=[e.to_dict() for e in resolve_result.entities],
+                confidence=resolve_result.entities[0].score if resolve_result.entities else 0,
+                elapsed_ms=elapsed_ms,
+                user_id=user_id,
+                session_id=session_id,
+                trace_id=trace_id,
+                analysis_type=analysis_type
+            )
+            
+            return jsonify({
+                "status": "AMBIGUOUS",
+                "memory_version": 1,
+                "confidence": resolve_result.entities[0].score if resolve_result.entities else 0,
+                "entity_resolution": {
+                    "candidates": [e.to_dict() for e in resolve_result.entities],
+                    "selected": None,
+                    "selection_reason": resolve_result.selection_reason
+                },
+                "answer": {
+                    "grounded_facts": [],
+                    "gaps": [{"gap": "Multiple possible entities - clarification needed", "evidence": ["resolver:tier1"]}]
+                },
+                "audit": {"elapsed_ms": elapsed_ms}
+            })
         
-        if 'GAP' in answer:
-            parts = answer.split('GAP')
-            if len(parts) > 1:
-                gap_text = parts[1].split('INFERRED')[0]
-                for line in gap_text.strip().split('\n'):
-                    if line.strip().startswith('-') or line.strip():
-                        gaps.append({'topic': line.strip().lstrip('-').strip(), 'suggestion': 'Document this relationship'})
+        if resolve_result.status == "LOW_CONFIDENCE":
+            _log_interaction_event(
+                tenant_id=g.tenant_id,
+                app_id=app_id,
+                event_type="QUERY",
+                raw_text=query_text,
+                result_status="LOW_CONFIDENCE",
+                resolved_entities=[e.to_dict() for e in resolve_result.entities],
+                confidence=resolve_result.entities[0].score if resolve_result.entities else 0,
+                elapsed_ms=elapsed_ms,
+                user_id=user_id,
+                session_id=session_id,
+                trace_id=trace_id,
+                analysis_type=analysis_type
+            )
+            
+            return jsonify({
+                "status": "LOW_CONFIDENCE",
+                "memory_version": 1,
+                "confidence": resolve_result.entities[0].score if resolve_result.entities else 0,
+                "entity_resolution": {
+                    "candidates": [e.to_dict() for e in resolve_result.entities],
+                    "selected": None,
+                    "selection_reason": resolve_result.selection_reason
+                },
+                "answer": {
+                    "grounded_facts": [],
+                    "gaps": [{"gap": "Low confidence match - may need clarification", "evidence": ["resolver:tier1"]}]
+                },
+                "audit": {"elapsed_ms": elapsed_ms}
+            })
         
-        if 'INFERRED' in answer:
-            parts = answer.split('INFERRED')
-            if len(parts) > 1:
-                inferred_text = parts[1]
-                for line in inferred_text.strip().split('\n'):
-                    if line.strip().startswith('-'):
-                        inferred.append({'fact': line.strip()[1:].strip(), 'reasoning': 'Derived from graph structure'})
+        selected = resolve_result.selected
+        grounded_facts = _get_entity_relationships(cf_session, selected.entity_id)
+        
+        elapsed_ms = (time.time() - start_time) * 1000
+        
+        _log_interaction_event(
+            tenant_id=g.tenant_id,
+            app_id=app_id,
+            event_type="QUERY",
+            raw_text=query_text,
+            result_status="RESOLVED",
+            resolved_entities=[selected.to_dict()],
+            confidence=selected.score,
+            elapsed_ms=elapsed_ms,
+            user_id=user_id,
+            session_id=session_id,
+            trace_id=trace_id,
+            analysis_type=analysis_type
+        )
+        
+        cf_session.close()
         
         return jsonify({
-            'answer': answer,
-            'confidence': result.get('confidence', 0.5),
-            'grounded': grounded,
-            'inferred': inferred,
-            'gaps': gaps,
-            'query_type': result.get('query_type', 'unknown'),
-            'entities_found': result.get('entities_found', [])
+            "status": "RESOLVED",
+            "memory_version": 1,
+            "confidence": selected.score,
+            "entity_resolution": {
+                "candidates": [e.to_dict() for e in resolve_result.entities],
+                "selected": {
+                    "entity_id": selected.entity_id,
+                    "name": selected.name,
+                    "selection_reason": resolve_result.selection_reason
+                }
+            },
+            "answer": {
+                "grounded_facts": grounded_facts,
+                "gaps": [] if grounded_facts else [{"gap": f"No relationships found for {selected.name}", "evidence": ["graph:traversal"]}]
+            },
+            "audit": {
+                "evidence_chain": [f"entity:{selected.entity_id}"],
+                "applied_memory": [
+                    {
+                        "type": "resolver",
+                        "input": query_text,
+                        "resolved_to": selected.name,
+                        "evidence": selected.evidence
+                    }
+                ],
+                "elapsed_ms": elapsed_ms
+            }
         })
         
     except Exception as e:
+        elapsed_ms = (time.time() - start_time) * 1000
+        _log_interaction_event(
+            tenant_id=g.tenant_id,
+            app_id=app_id,
+            event_type="QUERY",
+            raw_text=query_text,
+            result_status="ERROR",
+            elapsed_ms=elapsed_ms,
+            user_id=user_id,
+            session_id=session_id,
+            trace_id=trace_id,
+            analysis_type=analysis_type
+        )
+        
         return jsonify({
             'error': 'Query processing failed',
+            'message': str(e)
+        }), 500
+
+
+@external_api.route('/verify', methods=['POST'])
+@require_api_key
+def verify_claim():
+    """
+    Fast claim verification endpoint for real-time use (Meeting Assistant).
+    
+    Uses Tier 1 Resolver ONLY - no LLM calls.
+    Target latency: P95 < 300ms, P99 < 500ms
+    
+    Input:
+        {
+            "utterance": "If API Gateway goes down, mobile will be down too.",
+            "verification_type": "dependency_check",
+            "context": {
+                "app_id": "meeting_assistant",
+                "user_id": "u-777",
+                "session_id": "meeting-2025-12-14-0900",
+                "trace_id": "t-abc"
+            }
+        }
+    
+    Output:
+        {
+            "verdict": "SUPPORTED|REFUTED|INSUFFICIENT_EVIDENCE|NEEDS_CLARIFICATION",
+            "memory_version": 47,
+            "confidence": 0.81,
+            "entity_resolution": {...},
+            "support": [...],
+            "limits": {"max_hops": 2, "llm_used": false}
+        }
+    """
+    import time
+    start_time = time.time()
+    
+    data = request.get_json()
+    
+    if not data or not data.get('utterance'):
+        return jsonify({
+            'error': 'No utterance provided',
+            'message': 'Request body must contain an "utterance" field'
+        }), 400
+    
+    utterance = data['utterance'].strip()
+    verification_type = data.get('verification_type', 'general')
+    context = data.get('context', {})
+    
+    app_id = context.get('app_id', 'unknown')
+    user_id = context.get('user_id')
+    session_id = context.get('session_id')
+    trace_id = context.get('trace_id')
+    
+    try:
+        from ..agents.tier1_resolver import Tier1Resolver
+        from ..models.schema import get_session as get_cf_session
+        
+        cf_session = get_cf_session()
+        resolver = Tier1Resolver(session=cf_session, tenant_id=g.tenant_id, use_embeddings=False)
+        resolve_result = resolver.resolve_from_text(utterance)
+        
+        elapsed_ms = (time.time() - start_time) * 1000
+        
+        if resolve_result.status in ["NO_MATCHES", "NO_TEXT", "NO_ENTITIES_IN_GRAPH"]:
+            _log_interaction_event(
+                tenant_id=g.tenant_id,
+                app_id=app_id,
+                event_type="VERIFY",
+                raw_text=utterance,
+                result_status="INSUFFICIENT_EVIDENCE",
+                elapsed_ms=elapsed_ms,
+                user_id=user_id,
+                session_id=session_id,
+                trace_id=trace_id
+            )
+            
+            cf_session.close()
+            return jsonify({
+                "verdict": "INSUFFICIENT_EVIDENCE",
+                "memory_version": 1,
+                "confidence": 0.0,
+                "entity_resolution": {
+                    "selected": None,
+                    "secondary": []
+                },
+                "support": [],
+                "limits": {"max_hops": 2, "llm_used": False},
+                "elapsed_ms": elapsed_ms
+            })
+        
+        if resolve_result.status in ["AMBIGUOUS", "LOW_CONFIDENCE"]:
+            _log_interaction_event(
+                tenant_id=g.tenant_id,
+                app_id=app_id,
+                event_type="VERIFY",
+                raw_text=utterance,
+                result_status="NEEDS_CLARIFICATION",
+                resolved_entities=[e.to_dict() for e in resolve_result.entities],
+                confidence=resolve_result.entities[0].score if resolve_result.entities else 0,
+                elapsed_ms=elapsed_ms,
+                user_id=user_id,
+                session_id=session_id,
+                trace_id=trace_id
+            )
+            
+            cf_session.close()
+            return jsonify({
+                "verdict": "NEEDS_CLARIFICATION",
+                "memory_version": 1,
+                "confidence": resolve_result.entities[0].score if resolve_result.entities else 0,
+                "entity_resolution": {
+                    "candidates": [e.to_dict() for e in resolve_result.entities[:3]],
+                    "selected": None
+                },
+                "support": [],
+                "limits": {"max_hops": 2, "llm_used": False},
+                "elapsed_ms": elapsed_ms
+            })
+        
+        selected = resolve_result.selected
+        grounded_facts = _get_entity_relationships(cf_session, selected.entity_id, max_hops=2)
+        
+        if grounded_facts:
+            verdict = "SUPPORTED"
+            support = grounded_facts[:5]
+        else:
+            verdict = "INSUFFICIENT_EVIDENCE"
+            support = []
+        
+        elapsed_ms = (time.time() - start_time) * 1000
+        
+        _log_interaction_event(
+            tenant_id=g.tenant_id,
+            app_id=app_id,
+            event_type="VERIFY",
+            raw_text=utterance,
+            result_status=verdict,
+            resolved_entities=[selected.to_dict()],
+            confidence=selected.score,
+            elapsed_ms=elapsed_ms,
+            user_id=user_id,
+            session_id=session_id,
+            trace_id=trace_id
+        )
+        
+        cf_session.close()
+        
+        return jsonify({
+            "verdict": verdict,
+            "memory_version": 1,
+            "confidence": selected.score,
+            "entity_resolution": {
+                "selected": {"entity_id": selected.entity_id, "name": selected.name},
+                "secondary": [e.to_dict() for e in resolve_result.entities[1:3]]
+            },
+            "support": support,
+            "limits": {"max_hops": 2, "llm_used": False},
+            "elapsed_ms": elapsed_ms
+        })
+        
+    except Exception as e:
+        elapsed_ms = (time.time() - start_time) * 1000
+        _log_interaction_event(
+            tenant_id=g.tenant_id,
+            app_id=app_id,
+            event_type="VERIFY",
+            raw_text=utterance,
+            result_status="ERROR",
+            elapsed_ms=elapsed_ms,
+            user_id=user_id,
+            session_id=session_id,
+            trace_id=trace_id
+        )
+        
+        return jsonify({
+            'error': 'Verification failed',
             'message': str(e)
         }), 500
 

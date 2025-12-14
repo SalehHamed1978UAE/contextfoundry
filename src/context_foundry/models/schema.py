@@ -884,6 +884,72 @@ class OntologyRelationshipType(Base):
         }
 
 
+class InteractionEvent(Base):
+    """Append-only event log for app interactions (Phase 1 logging)."""
+    __tablename__ = "cf_interaction_events"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(String(36), nullable=False, index=True)
+    app_id = Column(String(50), nullable=False, index=True)
+    user_id = Column(String(100))
+    session_id = Column(String(100))
+    trace_id = Column(String(100))
+    
+    event_type = Column(String(20), nullable=False)
+    raw_text = Column(Text)
+    analysis_type = Column(String(50))
+    
+    extracted_entities = Column(JSON)
+    resolved_entities = Column(JSON)
+    result_status = Column(String(30))
+    confidence = Column(Float)
+    
+    helpfulness = Column(String(10))
+    corrections = Column(JSON)
+    
+    elapsed_ms = Column(Float)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    
+    __table_args__ = (
+        Index('idx_events_tenant_time', 'tenant_id', 'created_at'),
+        Index('idx_events_tenant_app', 'tenant_id', 'app_id', 'created_at'),
+    )
+
+
+class EntityAlias(Base):
+    """Alias dictionary with governance states."""
+    __tablename__ = "cf_entity_aliases"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(String(36), nullable=False, index=True)
+    alias_text = Column(String(255), nullable=False)
+    entity_id = Column(String(36), nullable=False)
+    
+    status = Column(String(20), nullable=False, default='PROPOSED')
+    confidence = Column(Float)
+    source = Column(String(50))
+    evidence = Column(JSON)
+    
+    created_by = Column(String(100))
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_seen_at = Column(DateTime)
+    
+    __table_args__ = (
+        Index('idx_aliases_lookup', 'tenant_id', 'alias_text'),
+        Index('idx_aliases_unique', 'tenant_id', 'alias_text', 'entity_id', unique=True),
+    )
+
+
+class MemoryVersion(Base):
+    """Memory versioning for incremental sync."""
+    __tablename__ = "cf_memory_versions"
+    
+    tenant_id = Column(String(36), primary_key=True)
+    current_version = Column(Integer, default=0)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 _engine = None
 _session_factory = None
 
