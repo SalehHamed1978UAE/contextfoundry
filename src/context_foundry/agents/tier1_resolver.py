@@ -173,7 +173,7 @@ class Tier1Resolver:
                     matches.append(match)
                     matched_entity_ids.add(match.entity_id)
         
-        matches.sort(key=lambda x: x.score, reverse=True)
+        matches.sort(key=lambda x: (x.score, len(x.name)), reverse=True)
         matches = matches[:max_entities]
         
         elapsed_ms = (time.time() - start_time) * 1000
@@ -188,7 +188,7 @@ class Tier1Resolver:
         top_match = matches[0]
         
         if top_match.score >= self.CONFIDENCE_THRESHOLD:
-            if len(matches) > 1 and (top_match.score - matches[1].score) < 0.1:
+            if len(matches) > 1 and (top_match.score - matches[1].score) < 0.1 and len(top_match.name) <= len(matches[1].name):
                 return Tier1ResolveResult(
                     status="AMBIGUOUS",
                     entities=matches,
