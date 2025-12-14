@@ -408,6 +408,17 @@ def query_knowledge():
             })
         
         selected = resolve_result.selected
+        if not selected:
+            cf_session.close()
+            return jsonify({
+                "status": "NO_MATCHES",
+                "memory_version": 1,
+                "confidence": 0.0,
+                "entity_resolution": {"candidates": [], "selected": None},
+                "answer": {"grounded_facts": [], "gaps": [{"gap": "No entity could be resolved"}]},
+                "audit": {"elapsed_ms": elapsed_ms}
+            })
+        
         grounded_facts = _get_entity_relationships(cf_session, selected.entity_id)
         
         elapsed_ms = (time.time() - start_time) * 1000
