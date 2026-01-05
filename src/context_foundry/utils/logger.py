@@ -201,9 +201,12 @@ def display_response(response: dict):
     if response.get("evidence_chain"):
         console.print("\n[bold]Evidence Chain:[/bold]")
         for i, evidence in enumerate(response["evidence_chain"], 1):
-            console.print(f"  {i}. [{evidence.get('type', 'Unknown')}] {evidence.get('description', 'N/A')}")
-            if evidence.get("source"):
-                console.print(f"     Source: {evidence['source']}")
+            if isinstance(evidence, dict):
+                console.print(f"  {i}. [{evidence.get('type', 'Unknown')}] {evidence.get('description', 'N/A')}")
+                if evidence.get("source"):
+                    console.print(f"     Source: {evidence['source']}")
+            else:
+                console.print(f"  {i}. {evidence}")
     
     if response.get("uncertainty"):
         console.print("\n[bold yellow]Uncertainty Notes:[/bold yellow]")

@@ -70,6 +70,12 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - **Test coverage**: 90 passing tests (Memory API + Sandbox + Router + Integration)
 
 ## Recent Changes (January 2026)
+- **Multi-Tenancy Gap Identified (Jan 5)**: SemanticMemory doesn't filter by tenant_id
+  - Query system returns cross-tenant results (entities from all tenants)
+  - RetrievalAgent initializes SemanticMemory without tenant_id parameter
+  - EntityResolver correctly filters by tenant_id (working)
+  - **TODO**: Add tenant_id filtering to SemanticMemory methods: search_entities(), get_relationships(), etc.
+  - Workaround: Use the main tenant (f3dd3201-7225-4a55-9264-445f99d0eba3) for queries
 - **Entity Type Correction Fix (Jan 5)**: Fixed TYPE_MAPPING not being called in extraction pipeline
   - Root cause: TYPE_MAPPING existed in `graph_builder.py` but extraction uses `entity_extractor.py`
   - Added TYPE_MAPPING and SPECIFIC_TYPE_PATTERNS to EntityExtractor class
