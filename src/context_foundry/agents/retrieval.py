@@ -1263,15 +1263,25 @@ class RetrievalAgent:
         if not target_name:
             return False, None
         
-        # Search for exact match first
+        # Search for exact match first (uses entity_resolver which has tenant context)
         entity = self.semantic.find_entity_by_name(target_name)
         if entity:
             return True, entity.to_dict()
         
+        # Build base query with tenant filter
+        base_filter = [Entity.lifecycle_state == 'TRUSTED']
+        if self.tenant_id:
+            from uuid import UUID as PyUUID
+            try:
+                tenant_uuid = PyUUID(self.tenant_id) if isinstance(self.tenant_id, str) else self.tenant_id
+                base_filter.append(Entity.tenant_id == tenant_uuid)
+            except (ValueError, TypeError):
+                pass  # Invalid tenant_id, skip tenant filter
+        
         # Try case-insensitive search
         results = self.session.query(Entity).filter(
             Entity.name.ilike(target_name),
-            Entity.lifecycle_state == 'TRUSTED'
+            *base_filter
         ).first()
         
         if results:
@@ -1283,7 +1293,7 @@ class RetrievalAgent:
             # Try searching for the full phrase
             results = self.session.query(Entity).filter(
                 Entity.name.ilike(f"%{target_name}%"),
-                Entity.lifecycle_state == 'TRUSTED'
+                *base_filter
             ).first()
             
             if results:

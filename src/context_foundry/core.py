@@ -49,6 +49,8 @@ class ContextFoundry:
         self.enable_rlm = enable_rlm
         self.rlm_config = rlm_config
         
+        self._set_tenant_context()
+        
         self.retrieval = RetrievalAgent(self.session, tenant_id=tenant_id)
         self.reasoning = ReasoningAgent()
         self.validation = ValidationAgent(self.session)
@@ -58,6 +60,16 @@ class ContextFoundry:
         self.is_initialized = False
         
         logger.info(f"ContextFoundry core initialized for tenant {tenant_id[:8] if tenant_id else 'default'}... (RLM enabled: {enable_rlm})")
+    
+    def _set_tenant_context(self):
+        """Set RLS tenant context on the session."""
+        if self.tenant_id:
+            try:
+                from sqlalchemy import text
+                self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+                logger.debug(f"RLS tenant context set: {self.tenant_id[:8]}...")
+            except Exception as e:
+                logger.warning(f"Failed to set RLS tenant context: {e}")
     
     def cleanup(self):
         """Clean up the session to recover from errors."""
@@ -207,6 +219,7 @@ class ContextFoundry:
             
             try:
                 self.session.rollback()
+                self._set_tenant_context()
             except Exception:
                 pass
             
@@ -342,6 +355,7 @@ class ContextFoundry:
             
             try:
                 self.session.rollback()
+                self._set_tenant_context()
             except Exception:
                 pass
             
@@ -503,11 +517,13 @@ class ContextFoundry:
             )
             self.session.add(log_entry)
             self.session.commit()
+            self._set_tenant_context()
             logger.debug(f"Query log saved: {query_id}")
         except Exception as e:
             logger.error(f"Failed to save query log: {e}")
             try:
                 self.session.rollback()
+                self._set_tenant_context()
             except Exception:
                 pass
     
@@ -521,6 +537,7 @@ class ContextFoundry:
             pass
         
         self.session = get_session()
+        self._set_tenant_context()
         self.retrieval = RetrievalAgent(self.session, tenant_id=self.tenant_id)
         self.validation = ValidationAgent(self.session)
         logger.info("ContextFoundry session reset")
