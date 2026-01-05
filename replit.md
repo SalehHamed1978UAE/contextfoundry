@@ -77,13 +77,19 @@ Context Foundry implements a dual-system cognitive architecture for enterprise k
   - **Type Mappings**: Default mappings in service (type_translation view requires deprecated types)
 - **Verification**: All 72 contract tests + E2E tests still pass
 
-### Known Bugs (Week 4 Backlog)
-1. **Query Parser Bug (FIXED in contracts)**: "What was affected by X" was incorrectly parsed as having entity name "affected by X". Fixed in `PatternBasedQueryParser`.
-2. **RLM Parity Bug (Documented, pending fix)**: `SymbolicMemoryAPI.get_relationships()` sometimes returns 0 relationships while `SemanticMemory.get_entity_relationships()` returns correct data. Root causes may include:
-   - tenant_id type mismatch (str vs UUID)
-   - lifecycle_state filtering differences (trusted_only vs include_staging)
-   - Session/connection isolation issues
-3. **Test Data Seeding Required**: E2E tests skip when canonical entities (Order Service, API Gateway, etc.) not found in database. Need test data seeding script for CI.
+### Week 4 Stabilization - Bug Fixes (In Progress)
+- **RLM Parity Bug (FIXED)**: `SymbolicMemoryAPI.get_relationships()` returned 0 relationships while `SemanticMemory.get_entity_relationships()` returned correct data.
+  - **Root Cause**: tenant_id type mismatch - SymbolicMemoryAPI compared string tenant_id directly to UUID column
+  - **Fix**: Added UUID conversion in `SymbolicMemoryAPI.__init__()`: `self._tenant_id = PyUUID(tenant_id) if isinstance(tenant_id, str) else tenant_id`
+  - **File**: `src/context_foundry/rlm/memory_apis/symbolic.py`
+  - **Verification**: 18 parity contract tests pass, 2 integration unit tests pass
+- **Integration Tests Added**: `tests/integration/test_rlm_parity.py`
+  - Tests tenant_id UUID conversion
+  - Parity tests (skip when RLS prevents seeding - need test data fixture)
+
+### Known Bugs (Remaining)
+1. **Query Parser Bug (FIXED in Week 1)**: "What was affected by X" was incorrectly parsed. Fixed in `PatternBasedQueryParser`.
+2. **Test Data Seeding Required**: E2E tests skip when canonical entities not found. Need test data seeding script for CI.
 
 ## User Preferences
 - Iterative development with detailed explanations

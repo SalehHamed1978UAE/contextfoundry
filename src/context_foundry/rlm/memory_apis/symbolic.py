@@ -3,11 +3,14 @@ SymbolicMemoryAPI - Relationship and graph operations for RLM REPL.
 
 Wraps the relationships table to provide relationship queries,
 path finding, and graph traversal.
+
+Week 4 Stabilization: Fixed tenant_id type mismatch (str vs UUID).
 """
 
 from datetime import datetime
 from typing import Optional, List, Set
 from collections import deque
+from uuid import UUID as PyUUID
 from sqlalchemy import func, or_, and_
 from sqlalchemy.orm import Session
 
@@ -28,12 +31,21 @@ class SymbolicMemoryAPI:
     
     All methods are tenant-scoped and track accessed relationship IDs
     for progress tracking.
+    
+    CRITICAL: tenant_id must be converted to UUID for database queries
+    since Entity.tenant_id and Relationship.tenant_id columns are UUID type.
     """
     
     def __init__(self, tenant_id: str, session: Session):
-        self._tenant_id = tenant_id
+        self._tenant_id_str = tenant_id
+        self._tenant_id = PyUUID(tenant_id) if isinstance(tenant_id, str) else tenant_id
         self._session = session
         self._accessed_relationship_ids: List[str] = []
+    
+    @property
+    def tenant_id(self) -> str:
+        """Return tenant_id as string for API compatibility."""
+        return self._tenant_id_str
     
     def get_accessed_relationship_ids(self) -> List[str]:
         """Returns list of relationship IDs accessed during this session."""
