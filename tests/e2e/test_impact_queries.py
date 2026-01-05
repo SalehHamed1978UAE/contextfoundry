@@ -216,7 +216,7 @@ class TestImpactQueryDirection:
         bundle = retrieval.build_context_bundle(query)
         
         downstream = [
-            r for r in bundle.relationships
+            r for r in bundle.semantic_relationships
             if r.get('target_entity_name', '').lower() == 'auth database'
             or r.get('target', '').lower() == 'auth database'
         ]
@@ -299,7 +299,7 @@ class TestImpactQueryConfidence:
         result = E2ETestFixtures.run_query(query)
         
         bundle = result.get('_bundle')
-        if bundle and bundle.target_entity_found and len(bundle.relationships) > 0:
+        if bundle and bundle.target_entity_found and len(bundle.semantic_relationships) > 0:
             assert result.get('confidence', 0) >= 0.3
 
 

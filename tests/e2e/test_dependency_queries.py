@@ -104,10 +104,10 @@ def assert_has_relationships(result: Dict, query: str):
     """Assert that relationships were found in the context bundle."""
     bundle = result.get('_bundle')
     if bundle:
-        assert len(bundle.relationships) > 0, (
+        assert len(bundle.semantic_relationships) > 0, (
             f"Query: '{query}'\n"
             f"No relationships found in context bundle.\n"
-            f"Entities found: {[e.get('name') for e in bundle.entities]}"
+            f"Entities found: {[e.get('name') for e in bundle.semantic_entities]}"
         )
 
 
@@ -142,7 +142,7 @@ class TestDependencyQueriesBasic:
             f"Expected dependency-type query, got {bundle.query_type}"
         
         if bundle.target_entity_found:
-            assert len(bundle.entities) > 0, \
+            assert len(bundle.semantic_entities) > 0, \
                 "When target entity found, entities list should not be empty"
             assert result.get('confidence', 0) >= 0.3, \
                 "Known entity should have confidence >= 0.3"
@@ -255,7 +255,7 @@ class TestDependencyQueryWithRelationships:
         
         relationship_types = {
             r.get('type', r.get('relationship_type', '')) 
-            for r in bundle.relationships
+            for r in bundle.semantic_relationships
         }
         
         assert 'answer' in E2ETestFixtures.run_query(query)
@@ -272,7 +272,7 @@ class TestDependencyQueryWithRelationships:
         bundle = retrieval.build_context_bundle(query)
         
         outgoing_deps = [
-            r for r in bundle.relationships
+            r for r in bundle.semantic_relationships
             if r.get('source_entity_name', '').lower() == 'order service'
             and r.get('type', r.get('relationship_type', '')) in ['DEPENDS_ON', 'USES']
         ]
@@ -342,7 +342,7 @@ class TestDependencyQueryConfidence:
             result = E2ETestFixtures.run_query(query)
             bundle = result.get('_bundle')
             
-            if bundle and bundle.target_entity_found and len(bundle.relationships) > 0:
+            if bundle and bundle.target_entity_found and len(bundle.semantic_relationships) > 0:
                 assert_confidence_above(result, 0.4, query)
     
     def test_unknown_entity_has_low_confidence(self):

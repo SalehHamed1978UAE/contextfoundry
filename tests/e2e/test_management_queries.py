@@ -185,7 +185,7 @@ class TestOwnershipQueryWithRelationships:
         
         relationship_types = {
             r.get('type', r.get('relationship_type', ''))
-            for r in bundle.relationships
+            for r in bundle.semantic_relationships
         }
         
         result = E2ETestFixtures.run_query(query)

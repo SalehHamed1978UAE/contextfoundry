@@ -56,7 +56,7 @@ def assert_all_entities_belong_to_tenant(result: Dict, tenant_id: str, query: st
     if not bundle:
         return
     
-    for entity in bundle.entities:
+    for entity in bundle.semantic_entities:
         entity_tenant = entity.get('tenant_id', '')
         if entity_tenant and str(entity_tenant) != str(tenant_id):
             pytest.fail(
@@ -74,7 +74,7 @@ def assert_all_relationships_belong_to_tenant(result: Dict, tenant_id: str, quer
     if not bundle:
         return
     
-    for rel in bundle.relationships:
+    for rel in bundle.semantic_relationships:
         rel_tenant = rel.get('tenant_id', '')
         if rel_tenant and str(rel_tenant) != str(tenant_id):
             pytest.fail(
@@ -118,8 +118,8 @@ class TestTenantIsolationBasic:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.entities:
-            for entity in bundle.entities:
+        if bundle and bundle.semantic_entities:
+            for entity in bundle.semantic_entities:
                 assert 'tenant_id' in entity or True
 
 
@@ -136,8 +136,8 @@ class TestTenantIsolationEnforcement:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.entities:
-            tenant_ids = {e.get('tenant_id') for e in bundle.entities if e.get('tenant_id')}
+        if bundle and bundle.semantic_entities:
+            tenant_ids = {e.get('tenant_id') for e in bundle.semantic_entities if e.get('tenant_id')}
             assert len(tenant_ids) <= 1, (
                 f"Multiple tenants found in results: {tenant_ids}\n"
                 f"This indicates a tenant isolation failure!"
@@ -151,10 +151,10 @@ class TestTenantIsolationEnforcement:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.relationships:
+        if bundle and bundle.semantic_relationships:
             tenant_ids = {
                 r.get('tenant_id') 
-                for r in bundle.relationships 
+                for r in bundle.semantic_relationships 
                 if r.get('tenant_id')
             }
             assert len(tenant_ids) <= 1, (
@@ -203,8 +203,8 @@ class TestTenantIsolationEdgeCases:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.entities:
-            tenant_ids = {e.get('tenant_id') for e in bundle.entities if e.get('tenant_id')}
+        if bundle and bundle.semantic_entities:
+            tenant_ids = {e.get('tenant_id') for e in bundle.semantic_entities if e.get('tenant_id')}
             assert len(tenant_ids) <= 1
     
     def test_uuid_tenant_id_format(self):
@@ -215,8 +215,8 @@ class TestTenantIsolationEdgeCases:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.entities:
-            for entity in bundle.entities:
+        if bundle and bundle.semantic_entities:
+            for entity in bundle.semantic_entities:
                 tenant_id = entity.get('tenant_id')
                 if tenant_id:
                     assert len(str(tenant_id)) >= 8
@@ -236,8 +236,8 @@ class TestCrossTenantQueryPrevention:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.entities:
-            tenant_ids = {e.get('tenant_id') for e in bundle.entities if e.get('tenant_id')}
+        if bundle and bundle.semantic_entities:
+            tenant_ids = {e.get('tenant_id') for e in bundle.semantic_entities if e.get('tenant_id')}
             assert len(tenant_ids) <= 1
     
     def test_semantic_search_respects_tenant_boundary(self):
@@ -249,8 +249,8 @@ class TestCrossTenantQueryPrevention:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.documents:
-            for doc in bundle.documents:
+        if bundle and bundle.episodic_documents:
+            for doc in bundle.episodic_documents:
                 pass
 
 
@@ -267,10 +267,10 @@ class TestTenantIsolationWithDocuments:
         result = E2ETestFixtures.run_query(query)
         bundle = result.get('_bundle')
         
-        if bundle and bundle.documents:
+        if bundle and bundle.episodic_documents:
             tenant_ids = {
                 d.get('tenant_id') 
-                for d in bundle.documents 
+                for d in bundle.episodic_documents 
                 if d.get('tenant_id')
             }
             assert len(tenant_ids) <= 1
