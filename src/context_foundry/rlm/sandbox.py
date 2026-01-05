@@ -81,11 +81,17 @@ RESTRICTED_PATTERNS = [
     r"__getattribute__",
     r"__setattr__",
     r"__delattr__",
+    r"__dict__",
+    r"__slots__",
     r"\bbreakpoint\b",
     r"\binput\b",
-    r"\bgetattr\b\s*\(\s*\w+\s*,\s*['\"][_]",
+    r"\bgetattr\b",
+    r"\bsetattr\b",
+    r"\bdelattr\b",
     r"\._session\b",
     r"\._tenant_id\b",
+    r"['\"]\s*_session\s*['\"]",
+    r"['\"]\s*_tenant_id\s*['\"]",
 ]
 
 
