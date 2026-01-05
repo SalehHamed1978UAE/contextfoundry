@@ -337,8 +337,8 @@ class TestSemanticMemoryAPI:
         tenant_id = str(uuid4())
         api = SemanticMemoryAPI(tenant_id, mock_session)
         
-        assert api.tenant_id == tenant_id
-        assert api.session == mock_session
+        assert api._tenant_id == tenant_id
+        assert api._session == mock_session
         assert len(api._accessed_entity_ids) == 0
 
 

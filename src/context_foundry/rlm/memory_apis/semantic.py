@@ -29,8 +29,8 @@ class SemanticMemoryAPI:
     """
     
     def __init__(self, tenant_id: str, session: Session):
-        self.tenant_id = tenant_id
-        self.session = session
+        self._tenant_id = tenant_id
+        self._session = session
         self._accessed_entity_ids: List[str] = []
     
     def get_accessed_entity_ids(self) -> List[str]:
@@ -60,8 +60,8 @@ class SemanticMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity, Relationship
         
-        query = self.session.query(Entity).filter(
-            Entity.tenant_id == self.tenant_id
+        query = self._session.query(Entity).filter(
+            Entity.tenant_id == self._tenant_id
         )
         
         if not include_staging:
@@ -79,7 +79,7 @@ class SemanticMemoryAPI:
         
         results = []
         for e in entities:
-            rel_count = self.session.query(func.count(Relationship.id)).filter(
+            rel_count = self._session.query(func.count(Relationship.id)).filter(
                 or_(
                     Relationship.source_id == e.id,
                     Relationship.target_id == e.id
@@ -162,7 +162,7 @@ class SemanticMemoryAPI:
         
         params = {
             "embedding": str(query_embedding),
-            "tenant_id": str(self.tenant_id),
+            "tenant_id": str(self._tenant_id),
             "lifecycle_states": [ls.value for ls in lifecycle_filter],
             "min_confidence": min_confidence,
             "limit": k,
@@ -170,13 +170,13 @@ class SemanticMemoryAPI:
         if entity_type:
             params["entity_type"] = entity_type.upper()
         
-        rows = self.session.execute(sql, params).fetchall()
+        rows = self._session.execute(sql, params).fetchall()
         
         results = []
         for row in rows:
             self._accessed_entity_ids.append(str(row.id))
             
-            rel_count = self.session.query(func.count(Relationship.id)).filter(
+            rel_count = self._session.query(func.count(Relationship.id)).filter(
                 or_(
                     Relationship.source_id == row.id,
                     Relationship.target_id == row.id
@@ -232,9 +232,9 @@ class SemanticMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity
         
-        entity = self.session.query(Entity).filter(
+        entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not entity:
@@ -294,8 +294,8 @@ class SemanticMemoryAPI:
         if include_staging:
             lifecycle_filter.append(LifecycleState.STAGING)
         
-        query = self.session.query(Entity).filter(
-            Entity.tenant_id == self.tenant_id,
+        query = self._session.query(Entity).filter(
+            Entity.tenant_id == self._tenant_id,
             Entity.lifecycle_state.in_(lifecycle_filter),
             Entity.properties[property_name].astext == property_value
         )
@@ -304,7 +304,7 @@ class SemanticMemoryAPI:
         
         results = []
         for e in entities:
-            rel_count = self.session.query(func.count(Relationship.id)).filter(
+            rel_count = self._session.query(func.count(Relationship.id)).filter(
                 or_(
                     Relationship.source_id == e.id,
                     Relationship.target_id == e.id
@@ -345,9 +345,9 @@ class SemanticMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity
         
-        entity = self.session.query(Entity).filter(
+        entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not entity:
