@@ -113,6 +113,28 @@ Context Foundry implements a dual-system cognitive architecture for enterprise k
   - 4 skipped (RLS prevents seeding)
   - **100 total tests passing (target met)**
 
+### Week 5 Stabilization - CI/CD + Documentation (Completed)
+- **GitHub Actions CI Pipeline** (`.github/workflows/ci.yml`)
+  - Runs on push/PR to main and develop branches
+  - PostgreSQL with pgvector service container
+  - Contract tests, integration tests, E2E tests
+  - Ruff linting and mypy type checking
+  - Bandit security scanning
+  - Coverage reporting with Codecov
+- **Pre-commit Hooks** (`.pre-commit-config.yaml`)
+  - Trailing whitespace, end-of-file fixes
+  - Ruff linting and formatting
+  - Contract tests run before commit
+  - Targeted test runs for modified files
+- **Documentation**
+  - `docs/testing.md` - Comprehensive testing guide
+  - `README.md` - Project overview with test badge
+  - Updated architecture and API references
+- **Test Summary (Final)**:
+  - 88 contract + integration tests passing
+  - 12 E2E tenant isolation tests passing
+  - **100 total tests passing**
+
 ### Known Bugs (Remaining)
 1. **Query Parser Bug (FIXED in Week 1)**: "What was affected by X" was incorrectly parsed. Fixed in `PatternBasedQueryParser`.
 2. **E2E LLM Tests**: Some E2E tests still require actual LLM calls when not using mock fixtures.
