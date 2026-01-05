@@ -16,6 +16,7 @@ import hashlib
 from openai import OpenAI
 
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
+from ..ontology_foundry.schema_service import OntologySchemaService, get_ontology_schema_service
 
 
 def load_few_shot_examples(domain: str = "core") -> list:
@@ -282,24 +283,6 @@ Return valid JSON array only (no markdown):
             return False
         return True
     
-    TYPE_MAPPING = {
-        "APPLICATION": "SERVICE",
-        "API": "SERVICE",
-        "PLATFORM": "SERVICE",
-        "GATEWAY": "SERVICE",
-        "MICROSERVICE": "SERVICE",
-        "GROUP": "TEAM",
-        "SQUAD": "TEAM",
-        "DEPARTMENT": "TEAM",
-        "OUTAGE": "INCIDENT",
-        "ISSUE": "INCIDENT",
-        "FAILURE": "INCIDENT",
-        "DATASTORE": "DATABASE",
-        "REPOSITORY": "DATABASE",
-        "CACHE": "DATABASE",
-        "TECHNOLOGY": "SERVICE",
-    }
-    
     SPECIFIC_TYPE_PATTERNS = [
         ("TEAM", ["team", "squad"]),
         ("INCIDENT", ["inc-", "incident", "outage", "sev1", "sev2"]),
@@ -307,20 +290,52 @@ Return valid JSON array only (no markdown):
         ("DATABASE", ["database", "db", "datastore", "store", "warehouse", "cache", "redis", "postgres", "mysql", "inventory"]),
     ]
     
+    @property
+    def type_mappings(self) -> Dict[str, str]:
+        """Get type mappings from OntologySchemaService.
+        
+        Week 3 Stabilization: Consolidated from hardcoded TYPE_MAPPING to 
+        database-backed mappings via OntologySchemaService.
+        """
+        try:
+            service = get_ontology_schema_service()
+            return service.type_mappings
+        except Exception:
+            return {
+                "APPLICATION": "SERVICE",
+                "API": "SERVICE",
+                "PLATFORM": "SERVICE",
+                "GATEWAY": "SERVICE",
+                "MICROSERVICE": "SERVICE",
+                "GROUP": "TEAM",
+                "SQUAD": "TEAM",
+                "DEPARTMENT": "TEAM",
+                "OUTAGE": "INCIDENT",
+                "ISSUE": "INCIDENT",
+                "FAILURE": "INCIDENT",
+                "DATASTORE": "DATABASE",
+                "REPOSITORY": "DATABASE",
+                "CACHE": "DATABASE",
+                "TECHNOLOGY": "SERVICE",
+            }
+    
     def _correct_entity_type(self, entity: Dict) -> Dict:
         """Correct common entity type misclassifications.
         
         Uses a priority system:
-        1. Direct mapping from TYPE_MAPPING (e.g., GATEWAY → SERVICE)
+        1. Direct mapping from OntologySchemaService type_mappings
         2. Pattern matching on entity name (e.g., "Payment Gateway" → SERVICE)
         3. LOCATION → ORGANIZATION ACT test
+        
+        Week 3 Stabilization: Now uses OntologySchemaService for type mappings.
         """
         entity_type = entity.get("entity_type", "").upper()
         name = entity.get("canonical_name", entity.get("name", ""))
         name_lower = name.lower()
         
-        if entity_type in self.TYPE_MAPPING:
-            new_type = self.TYPE_MAPPING[entity_type]
+        mappings = self.type_mappings
+        if entity_type in mappings:
+            new_type = mappings[entity_type]
             logger.info(f"[TypeCorrection] Mapping: {entity_type} → {new_type} for '{name}'")
             entity["entity_type"] = new_type
             return entity
