@@ -3287,7 +3287,7 @@ def graph_expand(entity_id):
             try:
                 from src.context_foundry.memory.inference import InferenceEngine
                 
-                inference_engine = InferenceEngine(session)
+                inference_engine = InferenceEngine(session, tenant_id=g.tenant_id)
                 visited_ids = {str(e.id) for e in all_entities}
                 
                 all_inferred = []

@@ -199,15 +199,16 @@ class AutomatedEvaluator:
         r'rule:.*?\]',
     ]
     
-    def __init__(self):
+    def __init__(self, tenant_id: str = None):
         self.query_set = QuerySet()
+        self.tenant_id = tenant_id
         self.cf = None
         self.graphrag = None
         
     def _init_systems(self):
         """Initialize both systems."""
         if self.cf is None:
-            self.cf = ContextFoundry()
+            self.cf = ContextFoundry(tenant_id=self.tenant_id)
         if self.graphrag is None:
             self.graphrag = GraphRAGBaseline()
     

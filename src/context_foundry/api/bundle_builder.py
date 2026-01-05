@@ -40,12 +40,18 @@ class BundleBuilder:
     - Timing instrumentation for each memory layer
     - Translation to API schema
     - Graceful handling of empty results
+    
+    SECURITY: Requires tenant_id for defense-in-depth filtering.
     """
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: str = None):
         self.session = session or get_session()
-        self.retrieval_agent = RetrievalAgent(self.session)
-        logger.info("BundleBuilder initialized")
+        self.tenant_id = tenant_id
+        self.retrieval_agent = RetrievalAgent(self.session, tenant_id=tenant_id)
+        if not tenant_id:
+            logger.warning("BundleBuilder initialized without tenant_id")
+        else:
+            logger.info(f"BundleBuilder initialized for tenant {tenant_id[:8]}...")
     
     def _find_focal_entity_in_db(self, focal_entity_name: str) -> Optional[Entity]:
         """

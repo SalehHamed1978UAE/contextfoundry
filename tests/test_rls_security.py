@@ -172,5 +172,63 @@ class TestRLSWithApplicationFiltering:
             assert count == 0, f"SECURITY BREACH: Cross-tenant WHERE returned {count} rows"
 
 
+class TestMemoryClassDefenseInDepth:
+    """Test that memory classes properly filter by tenant_id (defense-in-depth)."""
+    
+    def test_semantic_memory_with_tenant_id(self):
+        """SemanticMemory with tenant_id should apply filtering."""
+        from src.context_foundry.memory.semantic import SemanticMemory
+        
+        with tenant_session(MAIN_TENANT) as session:
+            sm = SemanticMemory(session, tenant_id=MAIN_TENANT)
+            entities = sm.search_entities("test", limit=10)
+            
+            for entity in entities:
+                entity_tenant = str(entity.tenant_id) if hasattr(entity, 'tenant_id') and entity.tenant_id else None
+                if entity_tenant:
+                    assert entity_tenant == MAIN_TENANT, \
+                        f"SECURITY BREACH: SemanticMemory returned entity with tenant_id={entity_tenant}"
+    
+    def test_semantic_memory_stores_tenant_id(self):
+        """SemanticMemory should store tenant_id for use in queries."""
+        from src.context_foundry.memory.semantic import SemanticMemory
+        
+        with tenant_session(MAIN_TENANT) as session:
+            sm = SemanticMemory(session, tenant_id=MAIN_TENANT)
+            assert sm.tenant_id == MAIN_TENANT, "SemanticMemory should store tenant_id"
+            
+            sm_no_tenant = SemanticMemory(session)
+            assert sm_no_tenant.tenant_id is None, "SemanticMemory without tenant_id should be None"
+    
+    def test_episodic_memory_with_tenant_id(self):
+        """EpisodicMemory with tenant_id should store it for filtering."""
+        from src.context_foundry.memory.episodic import EpisodicMemory
+        
+        with tenant_session(MAIN_TENANT) as session:
+            em = EpisodicMemory(session, tenant_id=MAIN_TENANT)
+            assert em.tenant_id == MAIN_TENANT, "EpisodicMemory should store tenant_id"
+            
+            em_no_tenant = EpisodicMemory(session)
+            assert em_no_tenant.tenant_id is None, "EpisodicMemory without tenant_id should be None"
+    
+    def test_inference_engine_with_tenant_id(self):
+        """InferenceEngine with tenant_id should pass it to internal memory classes."""
+        from src.context_foundry.memory.inference import InferenceEngine
+        
+        with tenant_session(MAIN_TENANT) as session:
+            ie = InferenceEngine(session, tenant_id=MAIN_TENANT)
+            assert ie.tenant_id == MAIN_TENANT, "InferenceEngine should store tenant_id"
+    
+    def test_retrieval_agent_with_tenant_id(self):
+        """RetrievalAgent with tenant_id should pass it to all memory classes."""
+        from src.context_foundry.agents.retrieval import RetrievalAgent
+        
+        with tenant_session(MAIN_TENANT) as session:
+            ra = RetrievalAgent(session, tenant_id=MAIN_TENANT)
+            assert ra.tenant_id == MAIN_TENANT, "RetrievalAgent should store tenant_id"
+            assert ra.semantic.tenant_id == MAIN_TENANT, "SemanticMemory should have tenant_id"
+            assert ra.episodic.tenant_id == MAIN_TENANT, "EpisodicMemory should have tenant_id"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
