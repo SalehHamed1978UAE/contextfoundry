@@ -762,7 +762,7 @@ def get_entity(name: str):
     try:
         from ..memory.semantic import SemanticMemory
         
-        memory = SemanticMemory(tenant_id=g.tenant_id)
+        memory = SemanticMemory()  # Uses default session from get_session()
         
         entities = memory.search_entities(name, limit=1, threshold=0.9)
         
@@ -845,7 +845,7 @@ def search_entities():
     try:
         from ..memory.semantic import SemanticMemory
         
-        memory = SemanticMemory(tenant_id=g.tenant_id)
+        memory = SemanticMemory()  # Uses default session from get_session()
         
         entities = memory.search_entities(
             query, 

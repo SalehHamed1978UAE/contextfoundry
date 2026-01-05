@@ -200,7 +200,7 @@ class BlindEvaluator:
         """Lazy load Context Foundry to avoid circular imports."""
         if self._context_foundry is None:
             from ..core import ContextFoundry
-            self._context_foundry = ContextFoundry(self.session)
+            self._context_foundry = ContextFoundry(session=self.session)
         return self._context_foundry
     
     def run_evaluation(
