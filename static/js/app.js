@@ -278,9 +278,16 @@ function runApp() {
     
     async function expandEntity(entityId) {
         try {
+            // Show loading indicator
+            showGraphLoading(true);
+            
             const url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=true`;
             const response = await fetch(url);
             const data = await response.json();
+            
+            // Hide loading indicator
+            showGraphLoading(false);
+            
             if (data.success) {
                 if (data.nodes && data.nodes.length === 0 && data.message) {
                     showGraphMessage(data.message);
@@ -297,7 +304,8 @@ function runApp() {
                     }
                 });
                 
-                if (data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
+                // Only add speculative nodes/edges if toggle is enabled
+                if (showSpeculativeEdges && data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
                     data.speculative.inferred.forEach(inf => {
                         const targetId = inf.target_entity_id;
                         if (!graphNodes[targetId]) {
@@ -354,7 +362,53 @@ function runApp() {
             return null;
         } catch (error) {
             console.error('Expand error:', error);
+            showGraphLoading(false);
             return null;
+        }
+    }
+    
+    function showGraphLoading(show) {
+        const graphContainer = document.getElementById('graphCanvas');
+        let loadingEl = document.getElementById('graphLoadingIndicator');
+        
+        if (show) {
+            if (!loadingEl) {
+                loadingEl = document.createElement('div');
+                loadingEl.id = 'graphLoadingIndicator';
+                loadingEl.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(30, 41, 59, 0.9);
+                    padding: 16px 24px;
+                    border-radius: 8px;
+                    border: 1px solid var(--border-color);
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    z-index: 1000;
+                    color: var(--text-primary);
+                    font-size: 13px;
+                `;
+                loadingEl.innerHTML = `
+                    <div style="width: 20px; height: 20px; border: 2px solid var(--accent-primary); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <span>Loading relationships...</span>
+                `;
+                // Add spin animation if not exists
+                if (!document.getElementById('spinAnimation')) {
+                    const style = document.createElement('style');
+                    style.id = 'spinAnimation';
+                    style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+                    document.head.appendChild(style);
+                }
+                graphContainer.appendChild(loadingEl);
+            }
+            loadingEl.style.display = 'flex';
+        } else {
+            if (loadingEl) {
+                loadingEl.style.display = 'none';
+            }
         }
     }
     
@@ -2068,12 +2122,19 @@ function runApp() {
     
     async function expandEntityWithTimeline(entityId) {
         try {
+            // Show loading indicator
+            showGraphLoading(true);
+            
             let url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=true`;
             if (currentAsOfDate) {
                 url += `&as_of_date=${encodeURIComponent(currentAsOfDate)}`;
             }
             const response = await fetch(url);
             const data = await response.json();
+            
+            // Hide loading indicator
+            showGraphLoading(false);
+            
             if (data.success) {
                 currentExpandedEntityId = entityId;
                 
@@ -2092,7 +2153,8 @@ function runApp() {
                     }
                 });
                 
-                if (data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
+                // Only add speculative nodes/edges if toggle is enabled
+                if (showSpeculativeEdges && data.speculative && data.speculative.inferred && data.speculative.inferred.length > 0) {
                     data.speculative.inferred.forEach(inf => {
                         const targetId = inf.target_entity_id;
                         if (!graphNodes[targetId]) {
@@ -2133,7 +2195,6 @@ function runApp() {
                 }
                 
                 if (data.frontier && Array.isArray(data.frontier)) {
-                    console.log('Frontier nodes received:', data.frontier.length, data.frontier);
                     data.frontier.forEach(f => {
                         currentFrontierNodes[f.entity_name] = {
                             reason: f.reason,
@@ -2142,12 +2203,7 @@ function runApp() {
                             depth: f.depth
                         };
                     });
-                    console.log('currentFrontierNodes updated:', Object.keys(currentFrontierNodes));
                 }
-                
-                console.log('Before renderGraph - graphNodes:', Object.keys(graphNodes).length, 'graphEdges:', graphEdges.length);
-                const specEdges = graphEdges.filter(e => e.speculative);
-                console.log('Speculative edges in graphEdges:', specEdges.length, specEdges.map(e => `${e.source} -> ${e.target}`));
                 
                 if (data.is_historical) {
                     updateTimelineEntityCount(data.stats.total_nodes);
@@ -2158,6 +2214,7 @@ function runApp() {
             }
             return null;
         } catch (error) {
+            showGraphLoading(false);
             console.error('Expand error:', error);
             return null;
         }
