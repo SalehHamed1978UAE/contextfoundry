@@ -1105,6 +1105,23 @@ class RetrievalAgent:
         if depends_pattern:
             return self._normalize_entity_name(depends_pattern.group(1))
         
+        # Pattern 4c: "affected by <Entity>" / "impacted by <Entity>" / "affected by incident <ID>"
+        # For incident IDs like INC-2025-1201
+        incident_id_pattern = re.search(
+            r'\b(?:affected|impacted)\s+by\s+(?:incident\s+)?([A-Z]+-\d{4}-\d+)\b',
+            query_text, re.IGNORECASE
+        )
+        if incident_id_pattern:
+            return incident_id_pattern.group(1).upper()
+        
+        # Pattern 4d: "affected by <Entity>" for non-incident entities
+        affected_pattern = re.search(
+            rf'\b(?:affected|impacted)\s+by\s+(?:the\s+)?(?:incident\s+)?{ENTITY_PATTERN}\b',
+            query_text, re.IGNORECASE
+        )
+        if affected_pattern:
+            return self._normalize_entity_name(affected_pattern.group(1))
+        
         # Pattern 4b: "what does <Entity> depend on" / "does <Entity> depend on"
         what_depends_pattern = re.search(
             rf'\b(?:what\s+)?does\s+(?:the\s+)?{ENTITY_PATTERN}\s+depend',
