@@ -9,7 +9,7 @@ against predictable data structures.
 from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Dict, Any, Set
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class LifecycleState(str, Enum):
@@ -349,13 +349,12 @@ class ProgressTracker(BaseModel):
     Progress = new entities OR new relationships discovered.
     Circuit breaker trips after 3 consecutive iterations without progress.
     """
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    
     iteration: int = Field(0, ge=0)
     entities_discovered: Set[str] = Field(default_factory=set)
     relationships_discovered: Set[str] = Field(default_factory=set)
     iterations_without_progress: int = Field(0, ge=0)
-    
-    class Config:
-        arbitrary_types_allowed = True
     
     def record_iteration(self, result: REPLExecutionResult) -> bool:
         """Returns True if progress was made."""
