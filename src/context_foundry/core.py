@@ -1,6 +1,10 @@
 """
 Context Foundry Core - Main orchestration layer.
 Coordinates all agents and memory layers for query processing.
+
+Supports dual-tier query routing:
+- Tier 1: Simple single-hop queries via RetrievalAgent pipeline
+- Tier 2: Complex multi-hop queries via RLM iterative reasoning
 """
 import uuid
 import json
@@ -15,24 +19,45 @@ from .agents.retrieval import RetrievalAgent
 from .agents.reasoning import ReasoningAgent
 from .agents.validation import ValidationAgent
 from .utils.logger import logger, QueryLogger, display_context_bundle, display_response
+from .rlm.router import QueryComplexityRouter, QueryTier
+from .rlm.executor import RLMExecutor, RLMResult
+from .rlm.schemas import RLMConfig
+
+
+DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000000"
 
 
 class ContextFoundry:
     """
     Main orchestration class for the Context Foundry system.
     Coordinates tri-memory architecture for intelligent query processing.
+    
+    Supports dual-tier query routing:
+    - Tier 1: Simple queries via RetrievalAgent + ReasoningAgent pipeline
+    - Tier 2: Complex multi-hop queries via RLM iterative reasoning
     """
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(
+        self, 
+        session: Optional[Session] = None, 
+        tenant_id: str = DEFAULT_TENANT_ID,
+        enable_rlm: bool = True,
+        rlm_config: Optional[RLMConfig] = None
+    ):
         self.session = session or get_session()
+        self.tenant_id = tenant_id
+        self.enable_rlm = enable_rlm
+        self.rlm_config = rlm_config
         
         self.retrieval = RetrievalAgent(self.session)
         self.reasoning = ReasoningAgent()
         self.validation = ValidationAgent(self.session)
         
+        self.router = QueryComplexityRouter()
+        
         self.is_initialized = False
         
-        logger.info("ContextFoundry core initialized")
+        logger.info(f"ContextFoundry core initialized (RLM enabled: {enable_rlm})")
     
     def cleanup(self):
         """Clean up the session to recover from errors."""
@@ -62,12 +87,17 @@ class ContextFoundry:
         query_text: str,
         display_output: bool = True,
         save_to_log: bool = True,
-        as_of_date: str = None
+        as_of_date: str = None,
+        force_tier: Optional[str] = None
     ) -> Dict:
         """
         Process a query through the full Context Foundry pipeline.
         
-        Pipeline:
+        Routes queries to appropriate tier:
+        - Tier 1: Simple queries via RetrievalAgent + ReasoningAgent pipeline
+        - Tier 2: Complex multi-hop queries via RLM iterative reasoning
+        
+        Pipeline (Tier 1):
         1. Retrieval Agent builds ContextBundle from all three memory layers
         2. Reasoning Agent generates response with LLM
         3. Validation Agent checks response against rules
@@ -76,12 +106,31 @@ class ContextFoundry:
         Args:
             as_of_date: Optional ISO date string for temporal queries.
                         If provided, returns knowledge graph state as of this date.
+            force_tier: Optional tier override ("tier1" or "tier2"). If None, uses router.
         """
         query_id = str(uuid.uuid4())
         query_logger = QueryLogger(query_id, query_text)
         
         try:
-            query_logger.log_event("PIPELINE_START", {"query": query_text, "as_of_date": as_of_date})
+            tier, signals = self.router.route(query_text)
+            
+            if force_tier == "tier1":
+                tier = QueryTier.TIER1_SIMPLE
+            elif force_tier == "tier2":
+                if not self.enable_rlm:
+                    raise ValueError("Cannot force tier2 when RLM is disabled. Set enable_rlm=True.")
+                tier = QueryTier.TIER2_RLM
+            
+            query_logger.log_event("PIPELINE_START", {
+                "query": query_text, 
+                "as_of_date": as_of_date,
+                "tier": tier.value,
+                "complexity_score": signals.complexity_score,
+                "rlm_enabled": self.enable_rlm
+            })
+            
+            if tier == QueryTier.TIER2_RLM and self.enable_rlm:
+                return self._query_tier2_rlm(query_text, query_id, query_logger, display_output, save_to_log)
             
             bundle = self.retrieval.build_context_bundle(
                 query_text,
@@ -187,6 +236,246 @@ class ContextFoundry:
         """
         query_text = f"Who should I escalate to for {context}?"
         return self.query(query_text)
+    
+    def _query_tier2_rlm(
+        self,
+        query_text: str,
+        query_id: str,
+        query_logger: QueryLogger,
+        display_output: bool,
+        save_to_log: bool
+    ) -> Dict:
+        """
+        Process a complex query through the RLM (Recursive Language Model) pipeline.
+        
+        RLM allows iterative exploration of the knowledge graph with code execution.
+        After RLM exploration, results are validated through ValidationAgent for
+        rule compliance and governance parity with Tier 1.
+        
+        Args:
+            query_text: The query to process
+            query_id: Unique query identifier
+            query_logger: Logger for query events
+            display_output: Whether to display output
+            save_to_log: Whether to save to query log
+        
+        Returns:
+            Dict with answer, confidence, evidence, and RLM execution trace
+        """
+        from .models.context_bundle import create_bundle
+        
+        query_logger.log_event("RLM_START", {"tier": "tier2"})
+        
+        try:
+            executor = RLMExecutor(
+                tenant_id=self.tenant_id,
+                db_session=self.session,
+                config=self.rlm_config
+            )
+            
+            result: RLMResult = executor.execute(query_text)
+            
+            query_logger.log_event("RLM_COMPLETE", {
+                "status": result.status,
+                "iterations": result.execution_trace.total_iterations,
+                "entities_discovered": result.execution_trace.total_entities_discovered,
+                "relationships_discovered": result.execution_trace.total_relationships_discovered,
+                "tokens_used": result.tokens_used
+            })
+            
+            bundle = self._build_rlm_context_bundle(query_text, result)
+            
+            confidence_level = "high" if result.confidence >= 0.7 else \
+                              "medium" if result.confidence >= 0.4 else \
+                              "low" if result.confidence >= 0.2 else "very_low"
+            
+            response = {
+                "answer": result.answer_text or result.answer,
+                "confidence": result.confidence,
+                "confidence_level": confidence_level,
+                "response_mode": result.response_mode,
+                "evidence_chain": result.evidence_chain,
+                "entities_found": [e.dict() if hasattr(e, 'dict') else e for e in result.entities_found],
+                "relationships_found": [r.dict() if hasattr(r, 'dict') else r for r in result.relationships_found],
+                "query_tier": "tier2_rlm",
+                "caveats": self._build_rlm_caveats(result),
+                "uncertainty": self._build_rlm_uncertainty(result),
+                "rlm_execution": {
+                    "status": result.status,
+                    "query_id": result.query_id,
+                    "iterations": result.execution_trace.total_iterations,
+                    "entities_discovered": result.execution_trace.total_entities_discovered,
+                    "relationships_discovered": result.execution_trace.total_relationships_discovered,
+                    "tokens_used": result.tokens_used,
+                    "estimated_cost_usd": result.estimated_cost_usd,
+                    "latency_ms": result.latency_ms
+                },
+                "query_id": query_id,
+                "query_text": query_text
+            }
+            
+            response = self.validation.validate_response(response, bundle, query_logger=query_logger)
+            
+            response["context_bundle"] = bundle.to_dict()
+            
+            if display_output:
+                logger.info(f"RLM Answer: {result.answer_text}")
+                logger.info(f"Confidence: {result.confidence} ({confidence_level})")
+                logger.info(f"Iterations: {result.execution_trace.total_iterations}")
+                if response.get("rules_violations"):
+                    logger.warning(f"Rule violations: {response['rules_violations']}")
+            
+            if save_to_log:
+                self._save_query_log(query_id, query_text, bundle, response)
+            
+            summary = query_logger.log_complete(
+                success=result.status in ("completed", "circuit_breaker", "max_iterations"),
+                final_confidence=result.confidence
+            )
+            response["query_log"] = summary
+            
+            return response
+            
+        except Exception as e:
+            query_logger.log_error("RLM_ERROR", str(e))
+            logger.exception(f"RLM pipeline error: {e}")
+            
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            
+            return {
+                "answer": f"Error in RLM processing: {str(e)}",
+                "confidence": 0,
+                "confidence_level": "very_low",
+                "error": True,
+                "error_message": str(e),
+                "query_tier": "tier2_rlm",
+                "rules_checked": [],
+                "rules_passed": [],
+                "rules_violations": [],
+                "rules_warnings": [],
+                "caveats": ["RLM execution encountered an error"],
+                "uncertainty": {"reasons": [str(e)], "would_help": ["Review error logs"]},
+                "query_id": query_id,
+                "query_text": query_text
+            }
+    
+    def _build_rlm_context_bundle(self, query_text: str, result: RLMResult) -> ContextBundle:
+        """
+        Build a ContextBundle from RLM execution results.
+        
+        This allows RLM results to be validated through the same ValidationAgent
+        pipeline as Tier 1 queries, ensuring governance parity.
+        
+        Populates:
+        - semantic_entities from RLM discovered entities
+        - semantic_relationships from RLM discovered relationships
+        - symbolic_rules loaded from SymbolicMemory based on discovered entity types
+        """
+        from .models.context_bundle import create_bundle
+        from .memory.symbolic import SymbolicMemory
+        
+        bundle = create_bundle(query_text)
+        
+        entity_types = set()
+        relationship_types = set()
+        
+        for entity in result.entities_found:
+            if hasattr(entity, 'dict'):
+                entity_dict = entity.dict()
+                bundle.semantic_entities.append(entity_dict)
+                if entity_dict.get('entity_type'):
+                    entity_types.add(entity_dict['entity_type'])
+            elif isinstance(entity, dict):
+                bundle.semantic_entities.append(entity)
+                if entity.get('entity_type'):
+                    entity_types.add(entity['entity_type'])
+            else:
+                bundle.semantic_entities.append({"id": str(entity), "name": str(entity)})
+        
+        for rel in result.relationships_found:
+            if hasattr(rel, 'dict'):
+                rel_dict = rel.dict()
+                bundle.semantic_relationships.append(rel_dict)
+                if rel_dict.get('relationship_type'):
+                    relationship_types.add(rel_dict['relationship_type'])
+            elif isinstance(rel, dict):
+                bundle.semantic_relationships.append(rel)
+                if rel.get('relationship_type'):
+                    relationship_types.add(rel['relationship_type'])
+            else:
+                bundle.semantic_relationships.append({"type": str(rel)})
+        
+        try:
+            symbolic = SymbolicMemory(self.session)
+            if entity_types or relationship_types:
+                applicable_rules = symbolic.find_applicable_rules(
+                    entity_types=list(entity_types) if entity_types else None,
+                    relationship_types=list(relationship_types) if relationship_types else None,
+                    query_keywords=query_text.split()[:10]
+                )
+                bundle.symbolic_rules = applicable_rules[:10]
+        except Exception as e:
+            logger.warning(f"Failed to load symbolic rules for RLM bundle: {e}")
+        
+        bundle.retrieval_metadata["rlm_execution"] = {
+            "status": result.status,
+            "iterations": result.execution_trace.total_iterations,
+            "entities_discovered": result.execution_trace.total_entities_discovered,
+            "relationships_discovered": result.execution_trace.total_relationships_discovered,
+            "tokens_used": result.tokens_used,
+            "estimated_cost_usd": result.estimated_cost_usd
+        }
+        bundle.retrieval_metadata["query_tier"] = "tier2_rlm"
+        bundle.retrieval_metadata["entity_types_found"] = list(entity_types)
+        bundle.retrieval_metadata["relationship_types_found"] = list(relationship_types)
+        
+        return bundle
+    
+    def _build_rlm_caveats(self, result: RLMResult) -> list:
+        """Build caveats list based on RLM execution result."""
+        caveats = []
+        
+        if result.status == "circuit_breaker":
+            caveats.append("Query exploration was cut short due to lack of progress")
+        elif result.status == "max_iterations":
+            caveats.append("Query reached maximum exploration iterations")
+        elif result.status == "budget_exhausted":
+            caveats.append("Query budget was exhausted before completion")
+        
+        if result.response_mode == "INFERRED":
+            caveats.append("Answer is based on partial information and inference")
+        elif result.response_mode == "GAP":
+            caveats.append("Insufficient data found to answer the query")
+        
+        if result.execution_trace.total_entities_discovered == 0:
+            caveats.append("No relevant entities were discovered during exploration")
+        
+        return caveats
+    
+    def _build_rlm_uncertainty(self, result: RLMResult) -> dict:
+        """Build uncertainty dict based on RLM execution result."""
+        reasons = []
+        would_help = []
+        
+        if result.confidence < 0.5:
+            reasons.append("Low confidence in answer due to limited evidence")
+        
+        if result.execution_trace.total_entities_discovered < 3:
+            reasons.append(f"Only {result.execution_trace.total_entities_discovered} entities discovered")
+            would_help.append("Add more relevant entities to the knowledge graph")
+        
+        if result.execution_trace.total_relationships_discovered < 2:
+            reasons.append(f"Only {result.execution_trace.total_relationships_discovered} relationships discovered")
+            would_help.append("Document more relationships between entities")
+        
+        if result.status != "completed":
+            reasons.append(f"Exploration ended with status: {result.status}")
+            would_help.append("Simplify the query or increase exploration budget")
+        
+        return {"reasons": reasons, "would_help": would_help}
     
     def _save_query_log(
         self,
