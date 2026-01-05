@@ -66,12 +66,26 @@ class EpisodicMemory:
     """
     Vector-based memory for similarity search.
     Stores document embeddings for retrieval using OpenAI embeddings.
+    
+    SECURITY: Requires tenant_id for defense-in-depth filtering.
+    RLS provides the authoritative security boundary, but application-level
+    filtering provides belt-and-suspenders protection.
     """
     
-    def __init__(self, session: Optional[Session] = None, embedding_dim: int = EMBEDDING_DIM):
+    def __init__(self, session: Optional[Session] = None, embedding_dim: int = EMBEDDING_DIM, tenant_id: str = None):
         self.session = session or get_session()
         self.embedding_dim = embedding_dim
-        logger.info(f"EpisodicMemory initialized (embedding_dim={embedding_dim}, model={EMBEDDING_MODEL})")
+        self.tenant_id = tenant_id
+        if not tenant_id:
+            logger.warning("EpisodicMemory initialized without tenant_id - queries will not be tenant-scoped")
+        else:
+            logger.info(f"EpisodicMemory initialized for tenant {tenant_id[:8]}... (model={EMBEDDING_MODEL})")
+    
+    def _apply_tenant_filter(self, query, model_class):
+        """Apply tenant_id filter if tenant_id is set (defense-in-depth)."""
+        if self.tenant_id and hasattr(model_class, 'tenant_id'):
+            return query.filter(model_class.tenant_id == self.tenant_id)
+        return query
     
     def add_document(
         self,
@@ -119,6 +133,7 @@ class EpisodicMemory:
         query_embedding = openai_embedding(query_text, self.embedding_dim)
         
         query = self.session.query(Document)
+        query = self._apply_tenant_filter(query, Document)
         if doc_types:
             query = query.filter(Document.doc_type.in_(doc_types))
         
@@ -153,6 +168,7 @@ class EpisodicMemory:
     ) -> List[Dict]:
         """Fallback keyword search when vector search returns nothing."""
         query = self.session.query(Document)
+        query = self._apply_tenant_filter(query, Document)
         
         if doc_types:
             query = query.filter(Document.doc_type.in_(doc_types))
@@ -197,6 +213,7 @@ class EpisodicMemory:
         3. RUNBOOK and PROCEDURE doc types
         """
         query = self.session.query(Document)
+        query = self._apply_tenant_filter(query, Document)
         
         if doc_types:
             query = query.filter(Document.doc_type.in_(doc_types))
@@ -239,28 +256,31 @@ class EpisodicMemory:
         return results
     
     def get_document_by_id(self, doc_id: str) -> Optional[Document]:
-        """Get a document by its ID."""
-        return self.session.query(Document).filter(
-            Document.id == doc_id
-        ).first()
+        """Get a document by its ID (tenant-scoped)."""
+        query = self.session.query(Document).filter(Document.id == doc_id)
+        query = self._apply_tenant_filter(query, Document)
+        return query.first()
     
     def get_documents_by_type(self, doc_type: str) -> List[Document]:
-        """Get all documents of a specific type."""
-        return self.session.query(Document).filter(
-            Document.doc_type == doc_type
-        ).all()
+        """Get all documents of a specific type (tenant-scoped)."""
+        query = self.session.query(Document).filter(Document.doc_type == doc_type)
+        query = self._apply_tenant_filter(query, Document)
+        return query.all()
     
     def get_statistics(self) -> Dict:
-        """Get statistics about the episodic memory."""
-        total = self.session.query(Document).count()
+        """Get statistics about the episodic memory (tenant-scoped)."""
+        base_query = self._apply_tenant_filter(self.session.query(Document), Document)
+        total = base_query.count()
         
         type_counts = {}
         for doc_type in ["RUNBOOK", "INCIDENT", "PROCEDURE", "DOCUMENTATION", 
                          "MEETING_NOTES", "EMAIL_THREAD", "STRATEGY_DOC", "SLACK_EXPORT",
                          "MEETING_NOTES_CHUNK", "EMAIL_THREAD_CHUNK", "STRATEGY_DOC_CHUNK", "SLACK_EXPORT_CHUNK"]:
-            count = self.session.query(Document).filter(
-                Document.doc_type == doc_type
-            ).count()
+            type_query = self._apply_tenant_filter(
+                self.session.query(Document).filter(Document.doc_type == doc_type),
+                Document
+            )
+            count = type_query.count()
             if count > 0:
                 type_counts[doc_type] = count
         
@@ -272,9 +292,10 @@ class EpisodicMemory:
         }
     
     def clear_all_documents(self) -> int:
-        """Clear all documents from episodic memory. Returns count deleted."""
-        count = self.session.query(Document).count()
-        self.session.query(Document).delete()
+        """Clear all documents from episodic memory (tenant-scoped). Returns count deleted."""
+        base_query = self._apply_tenant_filter(self.session.query(Document), Document)
+        count = base_query.count()
+        base_query.delete()
         self.session.commit()
-        logger.info(f"Cleared {count} documents from episodic memory")
+        logger.info(f"Cleared {count} documents from episodic memory (tenant_id={self.tenant_id})")
         return count

@@ -29,11 +29,31 @@ class SemanticMemory:
     """
     Knowledge Graph memory layer with lifecycle management.
     Only TRUSTED facts are used for reasoning by default.
+    
+    SECURITY: Requires tenant_id for defense-in-depth filtering.
+    RLS provides the authoritative security boundary, but application-level
+    filtering provides belt-and-suspenders protection.
     """
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: str = None):
         self.session = session or get_session()
-        logger.info("SemanticMemory initialized")
+        self.tenant_id = tenant_id
+        if not tenant_id:
+            logger.warning("SemanticMemory initialized without tenant_id - queries will not be tenant-scoped")
+        else:
+            logger.info(f"SemanticMemory initialized for tenant {tenant_id[:8]}...")
+    
+    def _apply_tenant_filter(self, query, model_class):
+        """Apply tenant_id filter if tenant_id is set (defense-in-depth)."""
+        if self.tenant_id and hasattr(model_class, 'tenant_id'):
+            return query.filter(model_class.tenant_id == self.tenant_id)
+        return query
+    
+    def _get_entity_by_id(self, entity_id: uuid.UUID) -> Optional[Entity]:
+        """Get entity by ID with tenant filtering (defense-in-depth)."""
+        query = self.session.query(Entity).filter(Entity.id == entity_id)
+        query = self._apply_tenant_filter(query, Entity)
+        return query.first()
     
     def add_entity(
         self,
@@ -108,6 +128,7 @@ class SemanticMemory:
     def find_entity_by_name(self, name: str, trusted_only: bool = True) -> Optional[Entity]:
         """Find an entity by exact name match."""
         query = self.session.query(Entity).filter(Entity.name == name)
+        query = self._apply_tenant_filter(query, Entity)
         if trusted_only:
             query = query.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)
         return query.first()
@@ -136,6 +157,7 @@ class SemanticMemory:
         
         def build_base_query():
             q = self.session.query(Entity)
+            q = self._apply_tenant_filter(q, Entity)
             if trusted_only:
                 q = q.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)
             if entity_types:
@@ -201,6 +223,7 @@ class SemanticMemory:
             ).filter(
                 Relationship.source_id == entity_id
             )
+            q = self._apply_tenant_filter(q, Relationship)
             if trusted_only:
                 q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
             if normalized_types:
@@ -214,7 +237,7 @@ class SemanticMemory:
                 q = q.filter(Relationship.valid_to.is_(None))
             
             for rel in q.all():
-                target = self.session.query(Entity).get(rel.target_id)
+                target = self._get_entity_by_id(rel.target_id)
                 if target and (not trusted_only or target.lifecycle_state == LifecycleState.TRUSTED):
                     if as_of_date:
                         if target.valid_from and target.valid_from <= as_of_date:
@@ -238,6 +261,7 @@ class SemanticMemory:
             ).filter(
                 Relationship.target_id == entity_id
             )
+            q = self._apply_tenant_filter(q, Relationship)
             if trusted_only:
                 q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
             if normalized_types:
@@ -251,7 +275,7 @@ class SemanticMemory:
                 q = q.filter(Relationship.valid_to.is_(None))
             
             for rel in q.all():
-                source = self.session.query(Entity).get(rel.source_id)
+                source = self._get_entity_by_id(rel.source_id)
                 if source and (not trusted_only or source.lifecycle_state == LifecycleState.TRUSTED):
                     if as_of_date:
                         if source.valid_from and source.valid_from <= as_of_date:
@@ -294,7 +318,7 @@ class SemanticMemory:
                 return
             
             visited.add(current_id)
-            entity = self.session.query(Entity).get(current_id)
+            entity = self._get_entity_by_id(current_id)
             if not entity:
                 return
             
@@ -319,7 +343,7 @@ class SemanticMemory:
                     })
                     traverse(connected_id, depth + 1, path + [connected["name"]])
         
-        entity = self.session.query(Entity).get(entity_id)
+        entity = self._get_entity_by_id(entity_id)
         if entity:
             traverse(entity_id, 1, [entity.name])
         
@@ -473,6 +497,7 @@ class SemanticMemory:
                 Relationship.target_id == entity_id
             )
         )
+        q = self._apply_tenant_filter(q, Relationship)
         
         if trusted_only:
             q = q.filter(Relationship.lifecycle_state == LifecycleState.TRUSTED)
@@ -553,7 +578,7 @@ class SemanticMemory:
                     neighbor_id = rel.source_id
                 
                 if neighbor_id and neighbor_id not in reachable:
-                    neighbor_entity = self.session.query(Entity).get(neighbor_id)
+                    neighbor_entity = self._get_entity_by_id(neighbor_id)
                     if not neighbor_entity:
                         continue
                     if neighbor_entity.lifecycle_state != LifecycleState.TRUSTED:
@@ -665,7 +690,7 @@ class SemanticMemory:
         
         affected = []
         for aid in affected_ids:
-            e = self.session.query(Entity).get(aid)
+            e = self._get_entity_by_id(aid)
             if e:
                 affected.append({
                     "entity": e.to_dict(),
@@ -745,7 +770,7 @@ class SemanticMemory:
                     neighbor_id = rel.source_id
                 
                 if neighbor_id and neighbor_id not in reachable:
-                    neighbor_entity = self.session.query(Entity).get(neighbor_id)
+                    neighbor_entity = self._get_entity_by_id(neighbor_id)
                     if not neighbor_entity:
                         continue
                     if neighbor_entity.lifecycle_state != LifecycleState.TRUSTED:
@@ -801,7 +826,7 @@ class SemanticMemory:
         """
         schema = get_schema_loader().schema
         
-        start_entity = self.session.query(Entity).get(entity_id)
+        start_entity = self._get_entity_by_id(entity_id)
         if not start_entity:
             logger.warning(f"Start entity not found: {entity_id}")
             return TraversalResult(
@@ -834,7 +859,7 @@ class SemanticMemory:
                 continue
             
             if depth > max_depth:
-                current_entity = self.session.query(Entity).get(current_id)
+                current_entity = self._get_entity_by_id(current_id)
                 if current_entity and current_id != entity_id:
                     message = generate_frontier_message(
                         FrontierReason.MAX_DEPTH_REACHED,
@@ -856,7 +881,7 @@ class SemanticMemory:
             entity_depths[current_id] = depth
             entity_paths[current_id] = path
             
-            current_entity = self.session.query(Entity).get(current_id)
+            current_entity = self._get_entity_by_id(current_id)
             if not current_entity:
                 continue
             
@@ -915,7 +940,7 @@ class SemanticMemory:
                     edges_below_threshold.append((rel, neighbor_id))
                     continue
                 
-                neighbor_entity = self.session.query(Entity).get(neighbor_id)
+                neighbor_entity = self._get_entity_by_id(neighbor_id)
                 if not neighbor_entity:
                     continue
                 if neighbor_entity.lifecycle_state != LifecycleState.TRUSTED:
@@ -1026,7 +1051,7 @@ class SemanticMemory:
     
     def promote_to_trusted(self, entity_id: uuid.UUID) -> bool:
         """Promote an entity from STAGING to TRUSTED."""
-        entity = self.session.query(Entity).get(entity_id)
+        entity = self._get_entity_by_id(entity_id)
         if entity and entity.lifecycle_state == LifecycleState.STAGING:
             entity.lifecycle_state = LifecycleState.TRUSTED
             from datetime import datetime
@@ -1075,6 +1100,7 @@ class SemanticMemory:
         filters = filters or []
         
         q = self.session.query(Entity)
+        q = self._apply_tenant_filter(q, Entity)
         
         if trusted_only:
             q = q.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)
@@ -1159,26 +1185,29 @@ class SemanticMemory:
         return schemas.get(entity_type.upper() if entity_type else "", {"properties": {}})
     
     def get_statistics(self) -> Dict:
-        """Get statistics about the semantic memory."""
+        """Get statistics about the semantic memory (tenant-scoped)."""
+        entity_base = self._apply_tenant_filter(self.session.query(Entity), Entity)
+        rel_base = self._apply_tenant_filter(self.session.query(Relationship), Relationship)
+        
         stats = {
             "entities": {
-                "total": self.session.query(Entity).count(),
-                "staging": self.session.query(Entity).filter(
+                "total": entity_base.count(),
+                "staging": entity_base.filter(
                     Entity.lifecycle_state == LifecycleState.STAGING
                 ).count(),
-                "trusted": self.session.query(Entity).filter(
+                "trusted": entity_base.filter(
                     Entity.lifecycle_state == LifecycleState.TRUSTED
                 ).count(),
-                "archived": self.session.query(Entity).filter(
+                "archived": entity_base.filter(
                     Entity.lifecycle_state == LifecycleState.ARCHIVED
                 ).count(),
             },
             "relationships": {
-                "total": self.session.query(Relationship).count(),
-                "staging": self.session.query(Relationship).filter(
+                "total": rel_base.count(),
+                "staging": rel_base.filter(
                     Relationship.lifecycle_state == LifecycleState.STAGING
                 ).count(),
-                "trusted": self.session.query(Relationship).filter(
+                "trusted": rel_base.filter(
                     Relationship.lifecycle_state == LifecycleState.TRUSTED
                 ).count(),
             }
