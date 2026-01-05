@@ -133,6 +133,11 @@ class Entity(Base):
         foreign_keys="Relationship.target_id",
         back_populates="target_entity"
     )
+    aliases = relationship(
+        "EntityAlias",
+        back_populates="entity",
+        cascade="all, delete-orphan"
+    )
     
     def to_dict(self):
         return {
@@ -202,6 +207,36 @@ class Relationship(Base):
             "valid_to": self.valid_to.isoformat() if self.valid_to else None,
             "superseded_by": str(self.superseded_by) if self.superseded_by else None,
             "change_reason": self.change_reason
+        }
+
+
+class EntityAlias(Base):
+    """Entity aliases for acronyms, abbreviations, and alternate names."""
+    __tablename__ = "entity_aliases"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    entity_id = Column(UUID(as_uuid=True), ForeignKey("entities.id", ondelete="CASCADE"), nullable=False, index=True)
+    alias = Column(String(255), nullable=False)
+    alias_type = Column(String(50), default='acronym')
+    confidence = Column(Float, default=1.0)
+    source = Column(String(50), default='extraction')
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    entity = relationship("Entity", back_populates="aliases")
+    
+    __table_args__ = (
+        Index('idx_entity_aliases_lookup', 'tenant_id', text('LOWER(alias)')),
+    )
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "entity_id": str(self.entity_id),
+            "alias": self.alias,
+            "alias_type": self.alias_type,
+            "confidence": self.confidence,
+            "source": self.source
         }
 
 
