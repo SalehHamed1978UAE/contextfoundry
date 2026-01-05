@@ -20,42 +20,65 @@ class OntologyType(BaseModel):
     description: Optional[str] = None
     parent_type_id: Optional[UUID] = None
     properties_schema: Optional[Dict[str, Any]] = None
-    extraction_hints: Optional[Dict[str, Any]] = None
+    extraction_hints: Optional[Any] = None
     status: str = "ACTIVE"
     domain_id: Optional[str] = None
     
     class Config:
         from_attributes = True
+    
+    def get_keywords(self) -> List[str]:
+        """Get extraction keywords from hints."""
+        if self.extraction_hints:
+            if isinstance(self.extraction_hints, list):
+                return self.extraction_hints
+            if isinstance(self.extraction_hints, dict) and "keywords" in self.extraction_hints:
+                return self.extraction_hints["keywords"]
+        return []
 
 
 class OntologyRelation(BaseModel):
-    """Represents a relationship type from ontology_relations table."""
+    """Represents a relationship type from ontology.relations table."""
     id: UUID
-    relation_name: str
-    layer: int
+    relation_type: str
     source_type_id: UUID
     target_type_id: UUID
     source_type_name: Optional[str] = None
     target_type_name: Optional[str] = None
     cardinality: str = "MANY_TO_MANY"
     description: Optional[str] = None
-    semantics: Optional[Dict[str, Any]] = None
-    extraction_hints: Optional[Dict[str, Any]] = None
-    origin: str = "domain_template"
+    semantics: Optional[str] = None
+    extraction_hints: Optional[str] = None
+    status: str = "ACTIVE"
+    domain_id: Optional[str] = None
     
     class Config:
         from_attributes = True
     
     def get_trigger_phrases(self) -> List[str]:
         """Get extraction trigger phrases from hints."""
-        if self.extraction_hints and "trigger_phrases" in self.extraction_hints:
-            return self.extraction_hints["trigger_phrases"]
+        if self.extraction_hints:
+            import json
+            try:
+                hints = json.loads(self.extraction_hints) if isinstance(self.extraction_hints, str) else self.extraction_hints
+                if isinstance(hints, list):
+                    return hints
+                if isinstance(hints, dict) and "trigger_phrases" in hints:
+                    return hints["trigger_phrases"]
+            except (json.JSONDecodeError, TypeError):
+                pass
         return []
     
     def get_anti_patterns(self) -> List[str]:
         """Get anti-patterns that should NOT trigger this relationship."""
-        if self.extraction_hints and "anti_patterns" in self.extraction_hints:
-            return self.extraction_hints["anti_patterns"]
+        if self.extraction_hints:
+            import json
+            try:
+                hints = json.loads(self.extraction_hints) if isinstance(self.extraction_hints, str) else self.extraction_hints
+                if isinstance(hints, dict) and "anti_patterns" in hints:
+                    return hints["anti_patterns"]
+            except (json.JSONDecodeError, TypeError):
+                pass
         return []
 
 

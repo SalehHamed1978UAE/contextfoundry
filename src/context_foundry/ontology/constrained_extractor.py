@@ -219,7 +219,7 @@ class ConstrainedExtractor:
             )
             system_prompt = self.prompt_generator.build_system_prompt()
             
-            valid_relation_names = set(r.relation_name for r in snapshot.relations)
+            valid_relation_names = set(r.relation_type for r in snapshot.relations)
             logger.info(f"Extracting relationships with {len(valid_relation_names)} valid relation types")
             
             raw_extractions = self._call_llm(system_prompt, prompt)
@@ -261,7 +261,7 @@ class ConstrainedExtractor:
                     target_entity.entity_type
                 )
                 matching_relation = next(
-                    (r for r in valid_relations if r.relation_name == relation_type),
+                    (r for r in valid_relations if r.relation_type == relation_type),
                     None
                 )
                 

@@ -1,7 +1,7 @@
 """
-OntologyRepository - Database access layer for ontology_types and ontology_relations.
+OntologyRepository - Database access layer for ontology.types and ontology.relations.
 
-Queries the PostgreSQL ontology tables at extraction time to dynamically
+Queries the PostgreSQL ontology schema at extraction time to dynamically
 load entity types and relationship constraints.
 """
 
@@ -20,7 +20,7 @@ class OntologyRepository:
     """
     Database access layer for the ontology system.
     
-    Queries ontology_types and ontology_relations tables to provide
+    Queries ontology.types and ontology.relations tables to provide
     dynamic schema information for extraction and validation.
     """
     
@@ -53,35 +53,39 @@ class OntologyRepository:
             self._connection.close()
             self._connection = None
     
-    def get_all_types(self, include_deprecated: bool = False) -> List[OntologyType]:
+    def get_all_types(self, include_deprecated: bool = False, domain_id: Optional[str] = None) -> List[OntologyType]:
         """
-        Get all entity types from ontology_types table.
+        Get all entity types from ontology.types table.
         
         Returns types from layers 0-2 (system), plus tenant extensions (layer 3)
         if tenant_id is set.
+        
+        Args:
+            include_deprecated: Include types with status != 'ACTIVE'
+            domain_id: Filter by domain_id (e.g., 'IT', 'GENERIC')
         """
         conn = self._get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                if self.tenant_id:
-                    cur.execute("""
-                        SELECT id, type_name, layer, display_name, description,
-                               parent_type_id, properties_schema, origin, tenant_id
-                        FROM ontology_types
-                        WHERE (tenant_id IS NULL OR tenant_id = %s)
-                        AND (NOT is_deprecated OR %s)
-                        ORDER BY layer, type_name
-                    """, (str(self.tenant_id), include_deprecated))
-                else:
-                    cur.execute("""
-                        SELECT id, type_name, layer, display_name, description,
-                               parent_type_id, properties_schema, origin, tenant_id
-                        FROM ontology_types
-                        WHERE tenant_id IS NULL
-                        AND (NOT is_deprecated OR %s)
-                        ORDER BY layer, type_name
-                    """, (include_deprecated,))
+                base_query = """
+                    SELECT id, type_name, layer, display_name, description,
+                           parent_type_id, properties_schema, extraction_hints,
+                           status, domain_id
+                    FROM ontology.types
+                    WHERE valid_to IS NULL
+                """
+                params = []
                 
+                if not include_deprecated:
+                    base_query += " AND status = 'ACTIVE'"
+                
+                if domain_id:
+                    base_query += " AND (domain_id = %s OR domain_id IS NULL)"
+                    params.append(domain_id)
+                
+                base_query += " ORDER BY layer, type_name"
+                
+                cur.execute(base_query, params)
                 rows = cur.fetchall()
                 return [OntologyType(**row) for row in rows]
         except Exception as e:
@@ -93,26 +97,16 @@ class OntologyRepository:
         conn = self._get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                if self.tenant_id:
-                    cur.execute("""
-                        SELECT id, type_name, layer, display_name, description,
-                               parent_type_id, properties_schema, origin, tenant_id
-                        FROM ontology_types
-                        WHERE type_name = %s
-                        AND (tenant_id IS NULL OR tenant_id = %s)
-                        AND NOT is_deprecated
-                        LIMIT 1
-                    """, (type_name, str(self.tenant_id)))
-                else:
-                    cur.execute("""
-                        SELECT id, type_name, layer, display_name, description,
-                               parent_type_id, properties_schema, origin, tenant_id
-                        FROM ontology_types
-                        WHERE type_name = %s
-                        AND tenant_id IS NULL
-                        AND NOT is_deprecated
-                        LIMIT 1
-                    """, (type_name,))
+                cur.execute("""
+                    SELECT id, type_name, layer, display_name, description,
+                           parent_type_id, properties_schema, extraction_hints,
+                           status, domain_id
+                    FROM ontology.types
+                    WHERE type_name = %s
+                    AND status = 'ACTIVE'
+                    AND valid_to IS NULL
+                    LIMIT 1
+                """, (type_name,))
                 
                 row = cur.fetchone()
                 return OntologyType(**row) if row else None
@@ -125,44 +119,40 @@ class OntologyRepository:
         type_obj = self.get_type_by_name(type_name)
         return type_obj.id if type_obj else None
     
-    def get_all_relations(self, include_deprecated: bool = False) -> List[OntologyRelation]:
+    def get_all_relations(self, include_deprecated: bool = False, domain_id: Optional[str] = None) -> List[OntologyRelation]:
         """
         Get all relationship types with source/target type names resolved.
+        
+        Args:
+            include_deprecated: Include relations with status != 'ACTIVE'
+            domain_id: Filter by domain_id
         """
         conn = self._get_connection()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                if self.tenant_id:
-                    cur.execute("""
-                        SELECT r.id, r.relation_name, r.layer, 
-                               r.source_type_id, r.target_type_id,
-                               s.type_name as source_type_name,
-                               t.type_name as target_type_name,
-                               r.cardinality, r.description, 
-                               r.semantics, r.extraction_hints, r.origin
-                        FROM ontology_relations r
-                        JOIN ontology_types s ON r.source_type_id = s.id
-                        JOIN ontology_types t ON r.target_type_id = t.id
-                        WHERE (r.tenant_id IS NULL OR r.tenant_id = %s)
-                        AND (NOT r.is_deprecated OR %s)
-                        ORDER BY r.relation_name, s.type_name, t.type_name
-                    """, (str(self.tenant_id), include_deprecated))
-                else:
-                    cur.execute("""
-                        SELECT r.id, r.relation_name, r.layer,
-                               r.source_type_id, r.target_type_id,
-                               s.type_name as source_type_name,
-                               t.type_name as target_type_name,
-                               r.cardinality, r.description,
-                               r.semantics, r.extraction_hints, r.origin
-                        FROM ontology_relations r
-                        JOIN ontology_types s ON r.source_type_id = s.id
-                        JOIN ontology_types t ON r.target_type_id = t.id
-                        WHERE r.tenant_id IS NULL
-                        AND (NOT r.is_deprecated OR %s)
-                        ORDER BY r.relation_name, s.type_name, t.type_name
-                    """, (include_deprecated,))
+                base_query = """
+                    SELECT r.id, r.relation_type, r.source_type_id, r.target_type_id,
+                           s.type_name as source_type_name,
+                           t.type_name as target_type_name,
+                           r.cardinality, r.description,
+                           r.semantics, r.extraction_hints, r.status, r.domain_id
+                    FROM ontology.relations r
+                    JOIN ontology.types s ON r.source_type_id = s.id
+                    JOIN ontology.types t ON r.target_type_id = t.id
+                    WHERE r.valid_to IS NULL
+                """
+                params = []
                 
+                if not include_deprecated:
+                    base_query += " AND r.status = 'ACTIVE'"
+                
+                if domain_id:
+                    base_query += " AND (r.domain_id = %s OR r.domain_id IS NULL)"
+                    params.append(domain_id)
+                
+                base_query += " ORDER BY r.relation_type, s.type_name, t.type_name"
+                
+                cur.execute(base_query, params)
                 rows = cur.fetchall()
                 return [OntologyRelation(**row) for row in rows]
         except Exception as e:
@@ -179,20 +169,19 @@ class OntologyRepository:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
-                    SELECT r.id, r.relation_name, r.layer,
-                           r.source_type_id, r.target_type_id,
+                    SELECT r.id, r.relation_type, r.source_type_id, r.target_type_id,
                            s.type_name as source_type_name,
                            t.type_name as target_type_name,
                            r.cardinality, r.description,
-                           r.semantics, r.extraction_hints, r.origin
-                    FROM ontology_relations r
-                    JOIN ontology_types s ON r.source_type_id = s.id
-                    JOIN ontology_types t ON r.target_type_id = t.id
+                           r.semantics, r.extraction_hints, r.status, r.domain_id
+                    FROM ontology.relations r
+                    JOIN ontology.types s ON r.source_type_id = s.id
+                    JOIN ontology.types t ON r.target_type_id = t.id
                     WHERE s.type_name = %s
                     AND t.type_name = %s
-                    AND NOT r.is_deprecated
-                    AND (r.tenant_id IS NULL OR r.tenant_id = %s)
-                """, (source_type_name, target_type_name, str(self.tenant_id) if self.tenant_id else None))
+                    AND r.status = 'ACTIVE'
+                    AND r.valid_to IS NULL
+                """, (source_type_name, target_type_name))
                 
                 rows = cur.fetchall()
                 return [OntologyRelation(**row) for row in rows]
@@ -202,7 +191,7 @@ class OntologyRepository:
     
     def normalize_type_name(self, input_type: str) -> Optional[str]:
         """
-        Normalize type name to match exact ontology_types.type_name.
+        Normalize type name to match exact ontology.types.type_name.
         
         Performs case-insensitive lookup and returns the canonical type name
         from the database. This ensures all outputs match the ontology exactly.
@@ -218,12 +207,12 @@ class OntologyRepository:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
                     SELECT type_name
-                    FROM ontology_types
+                    FROM ontology.types
                     WHERE LOWER(type_name) = LOWER(%s)
-                    AND NOT is_deprecated
-                    AND (tenant_id IS NULL OR tenant_id = %s)
+                    AND status = 'ACTIVE'
+                    AND valid_to IS NULL
                     LIMIT 1
-                """, (input_type.strip(), str(self.tenant_id) if self.tenant_id else None))
+                """, (input_type.strip(),))
                 
                 row = cur.fetchone()
                 return row["type_name"] if row else None
@@ -240,12 +229,16 @@ class OntologyRepository:
         types = self.get_all_types()
         return {t.type_name for t in types}
     
-    def get_snapshot(self, force_refresh: bool = False) -> OntologySnapshot:
+    def get_snapshot(self, force_refresh: bool = False, domain_id: Optional[str] = None) -> OntologySnapshot:
         """
         Get a cached snapshot of the ontology for extraction.
         
         Caches the ontology for _cache_ttl_seconds to avoid repeated DB queries
         during a single extraction run.
+        
+        Args:
+            force_refresh: Force reload from database
+            domain_id: Filter by domain (e.g., 'IT', 'GENERIC')
         """
         now = datetime.utcnow()
         
@@ -257,9 +250,9 @@ class OntologyRepository:
         ):
             return self._snapshot_cache
         
-        logger.info("Loading fresh ontology snapshot from database")
-        types = self.get_all_types()
-        relations = self.get_all_relations()
+        logger.info(f"Loading fresh ontology snapshot from database (domain_id={domain_id})")
+        types = self.get_all_types(domain_id=domain_id)
+        relations = self.get_all_relations(domain_id=domain_id)
         
         types_dict = {t.type_name: t for t in types}
         
