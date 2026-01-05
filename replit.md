@@ -77,7 +77,7 @@ Context Foundry implements a dual-system cognitive architecture for enterprise k
   - **Type Mappings**: Default mappings in service (type_translation view requires deprecated types)
 - **Verification**: All 72 contract tests + E2E tests still pass
 
-### Week 4 Stabilization - Bug Fixes (In Progress)
+### Week 4 Stabilization - Bug Fixes (Completed)
 - **RLM Parity Bug (FIXED)**: `SymbolicMemoryAPI.get_relationships()` returned 0 relationships while `SemanticMemory.get_entity_relationships()` returned correct data.
   - **Root Cause**: tenant_id type mismatch - SymbolicMemoryAPI compared string tenant_id directly to UUID column
   - **Fix**: Added UUID conversion in `SymbolicMemoryAPI.__init__()`: `self._tenant_id = PyUUID(tenant_id) if isinstance(tenant_id, str) else tenant_id`
@@ -94,15 +94,28 @@ Context Foundry implements a dual-system cognitive architecture for enterprise k
   - Changed `bundle.entities` → `bundle.semantic_entities`
   - Changed `bundle.relationships` → `bundle.semantic_relationships`
   - Changed `bundle.documents` → `bundle.episodic_documents`
-- **Test Summary (as of Week 4)**:
-  - 74 contract + integration tests passing
+- **'rely on' Query Classification (FIXED)**: Updated query parser pattern priority
+  - Changed classification order: ANALYSIS → DEPENDENCY → IMPACT
+  - Fixed regex patterns: `\brel(?:y|ies) on\b`, `\bdepends? on\b`
+  - "What does X rely on?" now correctly maps to DEPENDENCY
+- **Mock LLM Support (CREATED)**: `tests/fixtures/mock_llm.py`
+  - `MockLLMClient` with canned responses for dependency/impact/ownership queries
+  - `MockChatCompletion` for deterministic chat responses
+  - Mock embedding generation based on text hash
+  - Fixtures in `tests/e2e/conftest.py` for mock_openai and mock_embeddings
+- **Ontology Fallback Tests (CREATED)**: `tests/contracts/test_ontology_fallback.py`
+  - 14 tests verifying YAML fallback when ontology tables unavailable
+  - Tests fallback visibility (logging warnings)
+  - Validates type_mappings work in both modes
+- **Test Summary (Final Week 4)**:
+  - 88 contract + integration tests passing
   - 12 tenant isolation E2E tests passing
   - 4 skipped (RLS prevents seeding)
-  - **86+ total tests verified**
+  - **100 total tests passing (target met)**
 
 ### Known Bugs (Remaining)
 1. **Query Parser Bug (FIXED in Week 1)**: "What was affected by X" was incorrectly parsed. Fixed in `PatternBasedQueryParser`.
-2. **'rely on' Query Classification**: Maps to 'impact' instead of 'dependency' - needs query parser pattern update.
+2. **E2E LLM Tests**: Some E2E tests still require actual LLM calls when not using mock fixtures.
 
 ## User Preferences
 - Iterative development with detailed explanations
