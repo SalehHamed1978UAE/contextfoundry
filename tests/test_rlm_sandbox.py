@@ -124,12 +124,39 @@ class TestSandboxSecurity:
         assert result.success == False
         assert "Restricted pattern" in result.error
     
-    def test_session_via_getattr_rejected(self):
-        """Access to _session via getattr should be rejected."""
+    def test_getattr_rejected_entirely(self):
+        """getattr should be completely blocked to prevent bypasses."""
         sandbox = REPLSandbox(
             memory_apis={"semantic": MockMemoryAPI()}
         )
-        result = sandbox.execute("session = getattr(semantic, '_session')")
+        result = sandbox.execute("x = getattr(semantic, 'find_entities')")
+        assert result.success == False
+        assert "Restricted pattern" in result.error
+    
+    def test_session_string_in_variable_rejected(self):
+        """_session as a string literal should be blocked."""
+        sandbox = REPLSandbox(
+            memory_apis={"semantic": MockMemoryAPI()}
+        )
+        result = sandbox.execute("attr = '_session'")
+        assert result.success == False
+        assert "Restricted pattern" in result.error
+    
+    def test_setattr_rejected(self):
+        """setattr should be blocked."""
+        sandbox = REPLSandbox(
+            memory_apis={"semantic": MockMemoryAPI()}
+        )
+        result = sandbox.execute("setattr(semantic, 'x', 1)")
+        assert result.success == False
+        assert "Restricted pattern" in result.error
+    
+    def test_dict_access_rejected(self):
+        """Access to __dict__ should be blocked to prevent attribute discovery."""
+        sandbox = REPLSandbox(
+            memory_apis={"semantic": MockMemoryAPI()}
+        )
+        result = sandbox.execute("d = semantic.__dict__")
         assert result.success == False
         assert "Restricted pattern" in result.error
 

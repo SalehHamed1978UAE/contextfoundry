@@ -62,7 +62,7 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
     - STAGING entities visible to RLM with lifecycle_state field (LLM can weigh confidence)
     - StaleEntityError raised if Gardener archives entity mid-execution
     - Router threshold: 0.19 complexity score for Tier 2 routing
-  - **Test coverage**: 71 passing tests (20 Memory API + 29 Sandbox + 22 Router)
+  - **Test coverage**: 77 passing tests (20 Memory API + 35 Sandbox + 22 Router)
 
 ## Recent Changes (January 2026)
 - **RLM Integration Complete**: Implemented complete RLM (Recursive Language Model) system for complex multi-hop queries
