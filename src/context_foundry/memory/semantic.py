@@ -66,9 +66,12 @@ class SemanticMemory:
         confidence: float = 0.5,
         source_document_id: str = None,
         source_sentence: str = None,
-        lifecycle_state: LifecycleState = LifecycleState.STAGING
+        lifecycle_state: LifecycleState = LifecycleState.STAGING,
+        aliases: list = None
     ) -> Entity:
-        """Add an entity to the knowledge graph."""
+        """Add an entity to the knowledge graph with optional aliases."""
+        from .schema import EntityAlias
+        
         entity = Entity(
             name=name,
             entity_type=entity_type.upper(),
@@ -77,19 +80,44 @@ class SemanticMemory:
             confidence=confidence,
             source_document_id=source_document_id,
             source_sentence=source_sentence,
-            lifecycle_state=lifecycle_state
+            lifecycle_state=lifecycle_state,
+            tenant_id=self.tenant_id
         )
         self.session.add(entity)
         
         try:
+            self.session.flush()
+            
+            if aliases:
+                for alias in aliases:
+                    if alias and alias.lower() != name.lower():
+                        alias_type = self._detect_alias_type(alias, name)
+                        entity_alias = EntityAlias(
+                            entity_id=entity.id,
+                            alias=alias,
+                            alias_type=alias_type,
+                            source='extraction',
+                            tenant_id=self.tenant_id
+                        )
+                        self.session.add(entity_alias)
+            
             self.session.commit()
         except Exception as e:
             self.session.rollback()
             logger.error(f"Failed to add entity {name}: {e}")
             raise
         
-        logger.debug(f"Added entity: {name} [{entity_type}] (state: {lifecycle_state.value})")
+        logger.debug(f"Added entity: {name} [{entity_type}] (state: {lifecycle_state.value}) with {len(aliases or [])} aliases")
         return entity
+    
+    def _detect_alias_type(self, alias: str, full_name: str) -> str:
+        """Detect type of alias (acronym or synonym)."""
+        if alias.isupper() and len(alias) <= 10:
+            return 'acronym'
+        initials = ''.join(word[0] for word in full_name.split() if word and word[0].isupper())
+        if alias.upper() == initials:
+            return 'acronym'
+        return 'synonym'
     
     def add_relationship(
         self,

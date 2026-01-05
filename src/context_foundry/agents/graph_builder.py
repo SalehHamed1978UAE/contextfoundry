@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from openai import OpenAI
 
 from ..models.schema import (
-    Entity, Relationship, Document,
+    Entity, Relationship, Document, EntityAlias,
     LifecycleState,
     get_session
 )
@@ -52,6 +52,7 @@ class ExtractedEntity:
     properties: Dict = field(default_factory=dict)
     confidence: float = 0.5
     source_sentence: str = ""
+    aliases: List[str] = field(default_factory=list)
     start_offset: int = 0
     end_offset: int = 0
 
@@ -104,10 +105,17 @@ TYPE PRIORITY - Use SPECIFIC types over GENERIC ones:
 
 For EACH entity found, return:
 - type: One of {entity_type_names}
-- canonical_name: The standardized name
+- canonical_name: The standardized name (full name, not abbreviation)
+- aliases: List of alternate names, acronyms, or abbreviations for this entity
 - properties: Any additional attributes mentioned (as key-value pairs)
 - confidence: 0.0-1.0 how certain you are this is correct
 - source_sentence: The EXACT sentence it came from (copy verbatim)
+
+ALIAS EXTRACTION:
+- If text mentions "Electronic Health Record (EHR)", canonical_name is "Electronic Health Record", aliases is ["EHR"]
+- If text mentions "API Gateway (APIGW)", canonical_name is "API Gateway", aliases is ["APIGW"]
+- If text mentions "AWS", and you know it's Amazon Web Services, canonical_name is "Amazon Web Services", aliases is ["AWS"]
+- If no aliases exist, use empty array: []
 
 CRITICAL RULES:
 1. Only extract what is EXPLICITLY stated in the text
@@ -130,13 +138,15 @@ Example format:
   {{
     "type": "SERVICE",
     "canonical_name": "Payment Gateway",
+    "aliases": ["PG", "PayGW"],
     "properties": {{"owner": "Platform Team"}},
     "confidence": 0.95,
-    "source_sentence": "The Payment Gateway handles all credit card transactions."
+    "source_sentence": "The Payment Gateway (PG) handles all credit card transactions."
   }},
   {{
     "type": "TEAM",
     "canonical_name": "Platform Engineering Team",
+    "aliases": [],
     "properties": {{}},
     "confidence": 0.90,
     "source_sentence": "The Platform Engineering Team manages the core infrastructure."
@@ -554,12 +564,17 @@ class GraphBuilderAgent:
                         start_offset = chunk.start_offset + sentence_pos
                         end_offset = start_offset + len(source_sentence)
                 
+                aliases = e.get("aliases", [])
+                if not isinstance(aliases, list):
+                    aliases = []
+                
                 entity = ExtractedEntity(
                     entity_type=entity_type,
                     canonical_name=canonical_name,
                     properties=e.get("properties", {}),
                     confidence=confidence,
                     source_sentence=source_sentence,
+                    aliases=aliases,
                     start_offset=start_offset,
                     end_offset=end_offset
                 )
@@ -740,6 +755,19 @@ class GraphBuilderAgent:
                 )
                 self.session.add(db_entity)
                 self.session.flush()
+                
+                if entity.aliases:
+                    for alias in entity.aliases:
+                        if alias and alias.lower() != entity.canonical_name.lower():
+                            alias_type = 'acronym' if alias.isupper() and len(alias) <= 10 else 'synonym'
+                            entity_alias = EntityAlias(
+                                entity_id=db_entity.id,
+                                alias=alias,
+                                alias_type=alias_type,
+                                source='extraction',
+                                tenant_id=uuid.UUID(tenant_id) if tenant_id else None
+                            )
+                            self.session.add(entity_alias)
                 
                 entity_db_map[entity.canonical_name] = db_entity.id
                 entities_staged += 1

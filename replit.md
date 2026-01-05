@@ -65,6 +65,24 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   6. Gap Identification (0.50) - "What services have no documented disaster recovery?"
 - **Verdict**: CONTEXT FOUNDRY PROVIDES SIGNIFICANT VALUE
 
+### Alias Intelligence System (January 2026)
+- **entity_aliases Table**: Stores acronym/synonym mappings with RLS (alias_text, alias_type, source, entity_id)
+- **EntityResolver._alias_match()**: Checks entity_aliases before semantic/fuzzy search
+- **GraphBuilder Integration**: Extracts aliases from patterns like "Full Name (ABBR)" during ingestion
+- **Retrieval Agent Integration**: _verify_target_entity_exists() uses alias resolution
+- **Backfill Script**: scripts/backfill_aliases.py extracts aliases from existing entity names
+- **Result**: EHR → "Electronic Health Record (EHR)" resolved at 0.77 confidence
+
+### Test 2 Results - Al Shifa Healthcare (6/6 queries working)
+- **Demo Tenant**: 7031800f-06ef-4858-b9e8-a22174bfbdae
+- **Query Results**:
+  1. Blast Radius (0.77) - "If Patient Identity Service goes down..."
+  2. Dependency Chain (0.77) - "What does the EHR depend on?" (uses alias)
+  3. Ownership (0.95) - "Who manages the Lab System?"
+  4. Incident Impact (0.45) - "What was affected by incident INC-2025-0892?"
+  5. Cross-Document (0.50) - "Which team should be paged if Master Patient Index fails?"
+  6. Gap Identification (0.50) - "What systems have no documented disaster recovery?"
+
 ### Bug Fixes (Demo Debugging)
 - **RLS Tenant Context Reset**: Fixed `session.commit()` resetting PostgreSQL `SET app.current_tenant_id`
 - **EntityResolver UUID Conversion**: Added UUID conversion in `EntityResolver.__init__()`

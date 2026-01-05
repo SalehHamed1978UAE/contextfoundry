@@ -1304,6 +1304,12 @@ class RetrievalAgent:
         if results:
             return True, results.to_dict()
         
+        # Try alias match (for acronyms like EHR -> Electronic Health Record)
+        alias_entity = self.entity_resolver.resolve_alias(target_name)
+        if alias_entity:
+            logger.debug(f"Alias resolved: '{target_name}' -> '{alias_entity.name}'")
+            return True, alias_entity.to_dict()
+        
         # Try partial match for multi-word names
         words = target_name.split()
         if len(words) > 1:
