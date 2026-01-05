@@ -1,0 +1,107 @@
+Good question. Let me identify the gaps that could bite them during implementation:
+
+## Spec Gaps to Address
+
+### 1. **Error Handling in REPL**
+The spec says "sandbox catches errors" but doesn't define:
+- What happens when code fails? Retry? Skip? Count against iterations?
+- How to surface useful error messages back to root LLM so it can self-correct?
+- Max retries per iteration before moving on?
+
+```python
+# Needs definition:
+class REPLExecutionResult:
+    success: bool
+    output: str
+    error: Optional[str]
+    retry_hint: Optional[str]  # Help LLM fix its code
+```
+
+### 2. **Memory API Response Formats**
+The APIs are defined but not the return shapes. LLM needs predictable structures to write code against:
+
+```python
+# What does EntityMatch actually look like?
+class EntityMatch:
+    id: str
+    name: str
+    entity_type: str
+    confidence: float
+    properties: dict  # Or flattened? Nested?
+    # What about lifecycle_state? Include or filter STAGING out?
+```
+
+### 3. **STAGING vs TRUSTED Visibility**
+Should RLM see STAGING entities? Current spec doesn't say.
+- **Option A**: Only TRUSTED (safer, but misses recent data)
+- **Option B**: Both with lifecycle_state visible (LLM decides relevance)
+- **Option C**: Configurable per query
+
+### 4. **Circuit Breaker Definition**
+Replit suggested "3 iterations with no progress" but what's "progress"?
+- New entities discovered?
+- New relationships found?
+- Sub-query returned useful info?
+- Need a `ProgressTracker` component
+
+### 5. **Tenant Isolation in Sandbox**
+The REPL executes arbitrary code with memory API access. How do we guarantee:
+- No cross-tenant data leakage
+- Rate limits per tenant
+- Audit logging of what was accessed
+
+### 6. **Output Truncation Strategy**
+Spec says `max_output_length: 10000` but:
+- Truncate from end? Middle? 
+- How does root LLM know output was truncated?
+- Should it auto-paginate?
+
+### 7. **Sub-Query Prompt Templates**
+`llm_verify(claim, evidence)` has a hardcoded prompt template. Should this be:
+- Configurable per domain?
+- Include domain schema context?
+- Reference entity types from `domain_schema.yaml`?
+
+### 8. **Fallback Behavior**
+When RLM times out or exhausts budget:
+- Return partial findings with low confidence?
+- Fall back to standard pipeline and try again?
+- Return NOT_FOUND with explanation?
+
+### 9. **Integration with Existing Confidence Calibration**
+Current ReasoningAgent has 3-phase confidence. How does RLM output map to:
+- Sufficiency autorater
+- Quadrant scoring
+- Entity density
+
+Or does RLM replace all three?
+
+### 10. **Observability**
+Execution trace is mentioned but not structured:
+```python
+# What fields are logged?
+class ExecutionTraceEntry:
+    iteration: int
+    code: str
+    result: str
+    duration_ms: int
+    tokens_used: int
+    entities_accessed: List[str]  # For audit
+    sub_queries: List[SubQueryLog]
+```
+
+---
+
+## Recommendation
+
+**Refine these three before building:**
+
+| Gap | Why It Matters | Effort to Define |
+|-----|----------------|------------------|
+| Memory API response formats | LLM can't write code without knowing shapes | 1 hour |
+| STAGING visibility policy | Affects data quality of results | 30 min decision |
+| Circuit breaker definition | Prevents cost runaway | 30 min |
+
+The rest can be figured out during implementation — they're implementation details, not architectural decisions.
+
+Want me to draft the Memory API response schemas? That's the highest-value refinement before they start coding.
