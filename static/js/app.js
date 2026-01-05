@@ -369,7 +369,7 @@ function runApp() {
     }
     
     function showGraphLoading(show) {
-        const graphContainer = document.getElementById('graphCanvas');
+        const graphContainer = document.getElementById('graphCanvasContainer');
         let loadingEl = document.getElementById('graphLoadingIndicator');
         
         if (show) {
