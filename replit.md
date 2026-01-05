@@ -70,6 +70,12 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - **Test coverage**: 90 passing tests (Memory API + Sandbox + Router + Integration)
 
 ## Recent Changes (January 2026)
+- **Entity Type Correction Fix (Jan 5)**: Fixed TYPE_MAPPING not being called in extraction pipeline
+  - Root cause: TYPE_MAPPING existed in `graph_builder.py` but extraction uses `entity_extractor.py`
+  - Added TYPE_MAPPING and SPECIFIC_TYPE_PATTERNS to EntityExtractor class
+  - Changed SPECIFIC_TYPE_PATTERNS from dict to ordered list for priority control (TEAM > DATABASE)
+  - Pattern priority: TEAM first (catches "Database Administration Team"), then INCIDENT, SERVICE, DATABASE
+  - Verified: Payment Gateway → SERVICE, Platform Engineering Team → TEAM, Inventory Database → DATABASE, INC-* → INCIDENT
 - **Entity Persistence FK Fix (Jan 5)**: Fixed critical silent failure where entities weren't being persisted
   - Root cause: `entity_mentions.document_id` has FK to `public.documents`, but extraction documents only exist in `platform.documents`
   - FK violation caused transaction rollback, but error was caught and appended to `result.errors` without re-raising
