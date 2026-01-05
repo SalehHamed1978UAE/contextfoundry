@@ -179,11 +179,48 @@ entity_types:
       - storage
       - cluster
       - cache
+      - db
     required_fields:
       - canonical_name
     optional_fields:
       - type
       - owner
+
+  - name: TEAM
+    description: "A group of people working together - team, squad, department (internal organizational units)"
+    keywords:
+      - team
+      - squad
+      - department
+      - group
+      - unit
+      - division
+      - engineering team
+      - platform team
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - parent_organization
+      - lead
+      - focus_area
+
+  - name: INCIDENT
+    description: "An operational issue or outage - incident, outage, issue with an ID (e.g., INC-2026-001)"
+    keywords:
+      - incident
+      - outage
+      - issue
+      - failure
+      - disruption
+      - INC-
+      - alert
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - severity
+      - status
+      - date
+      - affected_services
 
   - name: DATE
     description: "A specific point in time - date, year, deadline, period"
@@ -254,14 +291,17 @@ relationship_types:
     cardinality: many-to-many
 
   - name: MANAGES
-    description: "Person or Organization manages a Process, Organization, or Concept"
+    description: "Person, Organization, or Team manages a Process, Organization, Concept, Service, or Database"
     source_types:
       - PERSON
       - ORGANIZATION
+      - TEAM
     target_types:
       - PROCESS
       - ORGANIZATION
       - CONCEPT
+      - SERVICE
+      - DATABASE
     cardinality: many-to-many
 
   - name: GOVERNS
@@ -355,6 +395,61 @@ relationship_types:
       - DATE
     cardinality: many-to-one
 
+  # Team/Service Ownership
+  - name: OWNS
+    description: "Team owns/is responsible for a Service, Database, or System"
+    source_types:
+      - TEAM
+      - PERSON
+    target_types:
+      - SERVICE
+      - DATABASE
+      - PROCESS
+    cardinality: many-to-many
+    semantics:
+      modes:
+        ownership:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: false
+
+  # Incident Relationships
+  - name: AFFECTS
+    description: "Incident affects a Service, Database, or other entity"
+    source_types:
+      - INCIDENT
+    target_types:
+      - SERVICE
+      - DATABASE
+      - PROCESS
+      - TEAM
+    cardinality: many-to-many
+    semantics:
+      modes:
+        incident:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: false
+
+  - name: TRIGGERED_BY
+    description: "Incident was triggered by a Service, Database, or other entity failure"
+    source_types:
+      - INCIDENT
+    target_types:
+      - SERVICE
+      - DATABASE
+      - INCIDENT
+    cardinality: many-to-many
+    semantics:
+      modes:
+        incident:
+          include: true
+          from_source: true
+          from_target: false
+          transitive: true
+
   # Dependencies (for IT/Services)
   - name: DEPENDS_ON
     description: "Service or Process depends on another Service, Process, or resource"
@@ -432,6 +527,10 @@ relationship_types:
       - EVENT
       - LOCATION
       - DATE
+      - SERVICE
+      - DATABASE
+      - TEAM
+      - INCIDENT
     target_types:
       - PERSON
       - ORGANIZATION
@@ -441,6 +540,10 @@ relationship_types:
       - EVENT
       - LOCATION
       - DATE
+      - SERVICE
+      - DATABASE
+      - TEAM
+      - INCIDENT
     cardinality: many-to-many
 
 validation_rules:

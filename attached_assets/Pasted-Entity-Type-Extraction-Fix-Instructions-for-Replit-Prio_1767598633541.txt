@@ -1,0 +1,266 @@
+Entity Type Extraction Fix — Instructions for Replit
+Priority: CRITICAL — This is breaking the entire system
+Problem: Extractor uses generic types (ORGANIZATION, PROCESS) instead of schema types (SERVICE, TEAM, DATABASE)
+Impact: Relationships can't be created, RLM can't find entities, graph is disconnected
+Problem EvidenceHealth check test document extraction results:Expected TypeActual TypeExample EntitySERVICEORGANIZATIONPayment GatewaySERVICEPROCESSPayment Gateway (duplicate!)TEAMORGANIZATIONPlatform Engineering TeamDATABASEPROCESSInventory DatabaseDATABASEORGANIZATIONUser DatabaseINCIDENTEVENTINC-2026-0105-ACritical Issues:
+
+No entities typed as SERVICE, DATABASE, TEAM, or INCIDENT
+Same entity appears with multiple types (duplicates)
+Document stuck in "Review" status — relationships likely not created
+Why This Breaks Everything1. Relationship Validation Fails
+python# DEPENDS_ON is configured for:
+valid_source_types = {SERVICE, SYSTEM, APPLICATION, DATABASE}
+valid_target_types = {SERVICE, SYSTEM, DATABASE, API}
+
+# But extracted entities are typed as ORGANIZATION, PROCESS
+# So validation rejects: "ORGANIZATION cannot be source of DEPENDS_ON"2. RLM Queries Return Empty
+python# RLM searches for SERVICE entities
+services = semantic.find_by_type("SERVICE", limit=10)
+# Returns: [] (empty - nothing is typed as SERVICE)3. Graph Traversal Broken
+python# Impact queries look for SERVICE dependencies
+# But all "services" are typed as ORGANIZATION or PROCESS
+# So traversal finds nothingInvestigation StepsStep 1: Find the Extraction Promptbash# Find where entity extraction happens
+grep -rn "extract.*entity\|entity.*type" src/context_foundry/agents/
+grep -rn "ORGANIZATION\|PROCESS\|EVENT" src/context_foundry/agents/
+grep -rn "graph_builder\|GraphBuilder" src/context_foundry/
+
+# Check the extraction prompt/template
+find src/ -name "*.py" -exec grep -l "entity_type" {} \;Step 2: Check Schema Loadingbash# Is domain_schema.yaml being loaded?
+grep -rn "domain_schema\|load.*schema" src/context_foundry/agents/
+
+# What entity types are defined?
+cat config/domain_schema.yaml | grep -A 50 "entity_types:"Step 3: Check Extraction Flowpython# Trace the extraction flow
+from context_foundry.agents.graph_builder import GraphBuilderAgent
+
+# Check what schema/types it knows about
+agent = GraphBuilderAgent()
+print(f"Known entity types: {agent.entity_types}")  # Or however it's stored
+print(f"Extraction prompt: {agent.extraction_prompt[:500]}")Step 4: Check Database Ontologysql-- What entity types exist in ontology?
+SELECT name, domain, description 
+FROM ontology_entity_types 
+WHERE is_active = true
+ORDER BY name;
+
+-- Are SERVICE, DATABASE, TEAM defined?
+SELECT name FROM ontology_entity_types 
+WHERE name IN ('SERVICE', 'DATABASE', 'TEAM', 'INCIDENT', 'PERSON');Root Cause HypothesesHypothesis A: Prompt Doesn't Include Schema Types
+The extraction prompt may not list the allowed entity types, so the LLM uses its own generic types.Hypothesis B: Schema Not Loaded at Extraction Time
+The domain_schema.yaml might not be passed to the GraphBuilderAgent.Hypothesis C: Fallback to Generic Types
+There may be code that maps unknown types to generic ones:
+python# Bad pattern
+if entity_type not in KNOWN_TYPES:
+    entity_type = "ORGANIZATION"  # This is the problemHypothesis D: Ontology Mismatch
+The database ontology might define different types than the YAML schema.Fix: Update Extraction PromptLocate the Prompt
+It's likely in one of these files:
+
+src/context_foundry/agents/graph_builder.py
+src/context_foundry/extraction/entity_extractor.py
+src/context_foundry/config/prompts.py
+Current Prompt (Probably)
+pythonEXTRACTION_PROMPT = """
+Extract entities from the following document.
+For each entity, identify:
+- name: The entity name
+- type: The entity type
+- confidence: How confident you are (0-1)
+
+Document:
+{document_content}
+"""Fixed Prompt (Required)
+pythonEXTRACTION_PROMPT = """
+Extract entities from the following document.
+
+IMPORTANT: You MUST classify each entity as ONE of these types ONLY:
+- SERVICE: Software services, APIs, applications, microservices (e.g., "Payment Gateway", "Authentication Service")
+- DATABASE: Data stores, databases, data warehouses (e.g., "User Database", "Inventory DB")
+- TEAM: Teams, groups, departments (e.g., "Platform Engineering Team", "Security Team")
+- PERSON: Individual people (e.g., "John Smith", "Jane Doe")
+- INCIDENT: Incidents, outages, issues with IDs (e.g., "INC-2026-001", "Outage #123")
+- SYSTEM: Infrastructure, platforms, environments (e.g., "Production Cluster", "AWS Region")
+- COMPONENT: Sub-parts of services (e.g., "Cache Layer", "Message Queue")
+
+DO NOT use generic types like:
+- ORGANIZATION (use TEAM instead for internal teams)
+- PROCESS (use SERVICE instead for software services)
+- EVENT (use INCIDENT instead for operational issues)
+- CONCEPT, TECHNOLOGY, DATE, DOCUMENT (ignore these or use specific types)
+
+For each entity, provide:
+- name: The exact entity name from the document
+- entity_type: One of the types listed above (SERVICE, DATABASE, TEAM, PERSON, INCIDENT, SYSTEM, COMPONENT)
+- confidence: 0.0-1.0 based on how clearly the entity is defined
+
+Examples:
+- "Payment Gateway" → SERVICE (it's a software service)
+- "Database Administration Team" → TEAM (it's a team of people)
+- "User Database" → DATABASE (it's a data store)
+- "INC-2026-0105-A" → INCIDENT (it's an incident with an ID)
+
+Document:
+{document_content}
+
+Extract entities as JSON array:
+[
+  {{"name": "...", "entity_type": "SERVICE", "confidence": 0.95}},
+  ...
+]
+"""Fix: Add Type ValidationAfter extraction, validate and correct types:python# In graph_builder.py or entity_extractor.py
+
+VALID_ENTITY_TYPES = {"SERVICE", "DATABASE", "TEAM", "PERSON", "INCIDENT", "SYSTEM", "COMPONENT"}
+
+TYPE_MAPPING = {
+    # Map generic types to schema types
+    "ORGANIZATION": "TEAM",      # Internal teams
+    "PROCESS": "SERVICE",        # Software processes
+    "EVENT": "INCIDENT",         # Operational events
+    "APPLICATION": "SERVICE",    # Apps are services
+    "API": "SERVICE",            # APIs are services
+    "PLATFORM": "SYSTEM",        # Platforms are systems
+    "GROUP": "TEAM",             # Groups are teams
+}
+
+def validate_entity_type(extracted_type: str, entity_name: str) -> str:
+    """Validate and correct entity type."""
+    
+    extracted_type = extracted_type.upper()
+    
+    # Already valid
+    if extracted_type in VALID_ENTITY_TYPES:
+        return extracted_type
+    
+    # Map to valid type
+    if extracted_type in TYPE_MAPPING:
+        return TYPE_MAPPING[extracted_type]
+    
+    # Heuristic fallbacks based on name patterns
+    name_lower = entity_name.lower()
+    
+    if any(x in name_lower for x in ['service', 'gateway', 'api', 'portal']):
+        return "SERVICE"
+    if any(x in name_lower for x in ['database', 'db', 'store', 'warehouse']):
+        return "DATABASE"
+    if any(x in name_lower for x in ['team', 'group', 'department']):
+        return "TEAM"
+    if any(x in name_lower for x in ['inc-', 'incident', 'outage']):
+        return "INCIDENT"
+    
+    # Default fallback
+    return "SERVICE"  # Most common type
+
+def extract_entities(document_content: str) -> List[Entity]:
+    """Extract and validate entities from document."""
+    
+    # Call LLM extraction
+    raw_entities = llm_extract_entities(document_content)
+    
+    # Validate and correct types
+    validated_entities = []
+    for entity in raw_entities:
+        corrected_type = validate_entity_type(
+            entity['entity_type'], 
+            entity['name']
+        )
+        entity['entity_type'] = corrected_type
+        validated_entities.append(entity)
+    
+    # Deduplicate by name (keep highest confidence)
+    deduped = deduplicate_entities(validated_entities)
+    
+    return dedupedFix: Update Ontology Entity TypesEnsure database ontology has all types in GENERIC domain:sql-- Check current types
+SELECT name, domain FROM ontology_entity_types WHERE is_active = true;
+
+-- Add missing types to GENERIC domain
+INSERT INTO ontology_entity_types (name, domain, description, is_active, created_at, updated_at)
+VALUES 
+    ('SERVICE', 'GENERIC', 'Software service, API, or application', true, NOW(), NOW()),
+    ('DATABASE', 'GENERIC', 'Data store or database', true, NOW(), NOW()),
+    ('TEAM', 'GENERIC', 'Team, group, or department', true, NOW(), NOW()),
+    ('INCIDENT', 'GENERIC', 'Operational incident or outage', true, NOW(), NOW()),
+    ('PERSON', 'GENERIC', 'Individual person', true, NOW(), NOW()),
+    ('SYSTEM', 'GENERIC', 'Infrastructure or platform', true, NOW(), NOW()),
+    ('COMPONENT', 'GENERIC', 'Component or module of a service', true, NOW(), NOW())
+ON CONFLICT (name, domain) DO UPDATE SET is_active = true, updated_at = NOW();Fix: Handle Document "Review" StatusThe document is stuck in "Review" status. Check why:python# Check document processing
+from context_foundry.models import Document
+
+doc = session.query(Document).filter(Document.name == 'health_check_test_document.txt').first()
+print(f"Status: {doc.status}")
+print(f"Error: {doc.error_message}")
+print(f"Entities extracted: {doc.entity_count}")
+print(f"Relationships extracted: {doc.relationship_count}")If entities are extracted but status is "Review":
+
+Relationships might be pending validation
+Or there's an error in relationship extraction
+Check if DEPENDS_ON type validation is blocking
+Testing the FixStep 1: Re-process Test Documentpython# Delete existing entities from test doc
+DELETE FROM entities WHERE source_document_id = '{test_doc_id}';
+DELETE FROM relationships WHERE source_document_id = '{test_doc_id}';
+
+# Re-queue document for processing
+UPDATE documents SET status = 'pending' WHERE id = '{test_doc_id}';Step 2: Verify Extractionsql-- Check entity types after re-processing
+SELECT entity_type, COUNT(*), array_agg(name) 
+FROM entities 
+WHERE source_document_id = '{test_doc_id}'
+GROUP BY entity_type;
+
+-- Expected:
+-- SERVICE: 7 (Order Processing Service, Payment Gateway, Fraud Detection Service, etc.)
+-- DATABASE: 3 (Inventory Database, User Database, Machine Learning Platform)
+-- TEAM: 6 (Platform Engineering Team, Security Team, etc.)
+-- INCIDENT: 2 (INC-2026-0105-A, INC-2026-0105-B)Step 3: Verify Relationships Createdsql-- Check relationships
+SELECT relationship_type, COUNT(*)
+FROM relationships 
+WHERE source_document_id = '{test_doc_id}'
+GROUP BY relationship_type;
+
+-- Expected:
+-- DEPENDS_ON: 8+
+-- MANAGES: 6+
+-- TRIGGERED_BY: 2
+-- AFFECTS: 3+Step 4: Test Queriespythonfrom context_foundry.core import ContextFoundry
+cf = ContextFoundry(tenant_id="f3dd3201-7225-4a55-9264-445f99d0eba3")
+
+# Test SERVICE query
+result = cf.query("What does Order Processing Service depend on?")
+print(f"Answer: {result.get('answer')}")
+# Expected: Should mention Inventory Database and Payment Gateway
+
+# Test INCIDENT query
+result = cf.query("What services were affected by INC-2026-0105-A?")
+print(f"Answer: {result.get('answer')}")
+# Expected: Should mention Order Processing Service
+
+# Test TEAM query
+result = cf.query("Who manages the Payment Gateway?")
+print(f"Answer: {result.get('answer')}")
+# Expected: Should mention Platform Engineering TeamSuccess CriteriaMetricBeforeAfterSERVICE entities07+DATABASE entities03+TEAM entities06+INCIDENT entities02DEPENDS_ON relationships08+MANAGES relationships06+Document statusReviewCompletedDuplicate entitiesManyNoneFiles to Modify
+Extraction prompt — Add explicit type constraints
+
+Likely: src/context_foundry/agents/graph_builder.py
+Or: src/context_foundry/extraction/entity_extractor.py
+
+
+
+Type validation — Add post-extraction validation
+
+Add validate_entity_type() function
+Add TYPE_MAPPING for generic→schema conversion
+
+
+
+Ontology database — Ensure types exist in GENERIC domain
+
+Run INSERT statements above
+
+
+
+Deduplication — Prevent same entity with multiple types
+
+Add deduplication logic by entity name
+
+
+After Fix
+Re-process the health check test document
+Verify entity types are correct
+Verify relationships are created
+Run the full system health check
+Update SavePoint with results
