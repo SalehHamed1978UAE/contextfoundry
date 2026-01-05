@@ -27,7 +27,9 @@ class EpisodicMemoryAPI:
     """
     
     def __init__(self, tenant_id: str, session: Session):
-        self._tenant_id = tenant_id
+        from uuid import UUID as PyUUID
+        self._tenant_id_str = tenant_id
+        self._tenant_id = PyUUID(tenant_id) if isinstance(tenant_id, str) and tenant_id else None
         self._session = session
         self._accessed_chunk_ids: List[str] = []
     

@@ -83,8 +83,10 @@ class EntityResolver:
     DISAMBIGUATION_DELTA = 0.1
     
     def __init__(self, session: Optional[Session] = None, tenant_id: Optional[str] = None):
+        from uuid import UUID as PyUUID
         self.session = session or get_session()
-        self.tenant_id = tenant_id
+        self._tenant_id_str = tenant_id
+        self.tenant_id = PyUUID(tenant_id) if isinstance(tenant_id, str) and tenant_id else None
         logger.info("EntityResolver initialized")
     
     def resolve(
@@ -118,6 +120,14 @@ class EntityResolver:
             logger.info(f"Exact match disambiguation: {len(exact_result.candidates)} candidates")
             return exact_result
         
+        contains_result = self._contains_match(query, entity_type_hint)
+        if contains_result.entity and contains_result.confidence >= 0.90:
+            logger.info(f"Contains match found: {contains_result.entity.name}")
+            return contains_result
+        if contains_result.needs_disambiguation:
+            logger.info(f"Contains match disambiguation: {len(contains_result.candidates)} candidates")
+            return contains_result
+        
         semantic_result = self._semantic_search(query, entity_type_hint, top_k)
         if semantic_result.entity and semantic_result.confidence >= self.SEMANTIC_THRESHOLD:
             logger.info(f"Semantic match found: {semantic_result.entity.name}")
@@ -136,6 +146,66 @@ class EntityResolver:
         
         logger.info(f"No match found for: '{query}'")
         return ResolveResult(match_stage="not_found")
+    
+    def _normalize_name(self, name: str) -> str:
+        """Normalize entity name for matching."""
+        import re
+        name = name.lower().strip()
+        name = re.sub(r'^(the|a|an)\s+', '', name)
+        name = re.sub(r'\s+', ' ', name)
+        return name
+    
+    def _contains_match(
+        self,
+        query: str,
+        entity_type_hint: Optional[str] = None
+    ) -> ResolveResult:
+        """Stage 1.5: Contains match - query in entity name or entity name in query."""
+        normalized_query = self._normalize_name(query)
+        
+        base_query = self.session.query(Entity).filter(
+            Entity.lifecycle_state == LifecycleState.TRUSTED,
+            Entity.name.ilike(f'%{query}%')
+        )
+        
+        if entity_type_hint:
+            base_query = base_query.filter(Entity.entity_type == entity_type_hint)
+        
+        if self.tenant_id:
+            base_query = base_query.filter(Entity.tenant_id == self.tenant_id)
+        
+        matches = base_query.limit(50).all()
+        
+        candidates = []
+        for entity in matches:
+            normalized_name = self._normalize_name(entity.name)
+            if normalized_query == normalized_name:
+                score = 0.98
+            elif normalized_query in normalized_name:
+                score = 0.95 - (len(normalized_name) - len(normalized_query)) * 0.01
+                score = max(score, 0.85)
+            elif normalized_name in normalized_query:
+                score = 0.92 - (len(normalized_query) - len(normalized_name)) * 0.01
+                score = max(score, 0.80)
+            else:
+                score = 0.90
+            
+            candidates.append(EntityCandidate(
+                entity_id=str(entity.id),
+                name=entity.name,
+                entity_type=entity.entity_type,
+                description=entity.description,
+                score=score,
+                match_stage="contains",
+                confidence=score
+            ))
+        
+        candidates.sort(key=lambda x: x.score, reverse=True)
+        
+        if not candidates:
+            return ResolveResult(match_stage="contains")
+        
+        return self._check_disambiguation(candidates, "contains")
     
     def _exact_match(
         self,
