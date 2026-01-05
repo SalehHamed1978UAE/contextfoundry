@@ -38,6 +38,7 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - **Defense-in-Depth**: Application-level tenant_id filtering in all memory classes
   - **Propagation Chain**: ContextFoundry → RetrievalAgent → SemanticMemory/EpisodicMemory → _apply_tenant_filter()
   - **UUID Conversion**: _apply_tenant_filter() converts string tenant_ids to UUID for proper SQLAlchemy filtering
+  - **TenantSession Wrapper**: Auto-restores tenant context after commit/rollback (PostgreSQL resets SET variables on transaction boundaries)
   - **Test Coverage**: 16 RLS tests (11 RLS + 5 defense-in-depth) verify tenant isolation
 - **Document Management**: Supports upload, versioning, re-queue, and status tracking.
 - **Bulk Ingestion System**: Multi-file/ZIP uploads, S3/Google Drive connectors, and content deduplication.

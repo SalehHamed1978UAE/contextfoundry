@@ -1058,11 +1058,76 @@ def get_session(use_rls_role: bool = True):
 
 from contextlib import contextmanager
 
+
+class TenantSession:
+    """Wrapper that automatically restores tenant context after commit/rollback.
+    
+    PostgreSQL's SET command is reset by commit/rollback. This wrapper tracks
+    the tenant_id and automatically re-sets it when the next query is executed.
+    """
+    
+    def __init__(self, session, tenant_id: str, role: str = 'user'):
+        self._session = session
+        self.tenant_id = tenant_id
+        self.role = role
+        self._context_valid = False
+        self._ensure_context()
+    
+    def _ensure_context(self):
+        """Set the tenant context on the session if not already set."""
+        if not self._context_valid:
+            if self.tenant_id:
+                self._session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+            if self.role == 'admin':
+                self._session.execute(text("SET app.role = 'admin'"))
+            self._context_valid = True
+    
+    def _invalidate_context(self):
+        """Mark context as needing refresh (after commit/rollback)."""
+        self._context_valid = False
+    
+    def commit(self):
+        """Commit and mark context as needing refresh."""
+        self._session.commit()
+        self._invalidate_context()
+        self._ensure_context()
+    
+    def rollback(self):
+        """Rollback and mark context as needing refresh."""
+        self._session.rollback()
+        self._invalidate_context()
+        self._ensure_context()
+    
+    def execute(self, *args, **kwargs):
+        """Execute with context ensured."""
+        self._ensure_context()
+        return self._session.execute(*args, **kwargs)
+    
+    def query(self, *args, **kwargs):
+        """Query with context ensured."""
+        self._ensure_context()
+        return self._session.query(*args, **kwargs)
+    
+    def __getattr__(self, name):
+        """Proxy all other attributes to the underlying session."""
+        return getattr(self._session, name)
+    
+    def close(self):
+        """Clean up and close session."""
+        try:
+            self._session.execute(text("RESET app.current_tenant_id"))
+            self._session.execute(text("RESET app.role"))
+        except Exception:
+            pass
+        self._session.close()
+
+
 @contextmanager
 def tenant_session(tenant_id: str, role: str = 'user'):
     """Context manager for tenant-scoped database operations.
     
     Sets app.current_tenant_id for Row-Level Security policies.
+    Automatically restores the setting after commit/rollback.
     Automatically resets the setting when the context exits.
     
     SECURITY: RLS policies use fail-closed logic:
@@ -1073,6 +1138,8 @@ def tenant_session(tenant_id: str, role: str = 'user'):
         with tenant_session(tenant_id) as session:
             # All operations here use tenant context
             entities = session.query(Entity).all()
+            session.commit()  # Context automatically restored
+            session.rollback()  # Context automatically restored
         # Setting is automatically reset when context exits
     
     Args:
@@ -1080,44 +1147,41 @@ def tenant_session(tenant_id: str, role: str = 'user'):
         role: 'user' (default) or 'admin' (bypasses RLS)
         
     Yields:
-        SQLAlchemy session with tenant context set
+        TenantSession wrapper with auto-restore tenant context
     """
     if role == 'admin':
-        session = get_session(use_rls_role=False)
+        raw_session = get_session(use_rls_role=False)
     else:
-        session = get_session(use_rls_role=True)
+        raw_session = get_session(use_rls_role=True)
+    
+    tenant_sess = TenantSession(raw_session, tenant_id, role)
     try:
-        if tenant_id:
-            session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
-        yield session
+        yield tenant_sess
     finally:
-        try:
-            session.execute(text("RESET app.current_tenant_id"))
-        except Exception:
-            pass
-        session.close()
+        tenant_sess.close()
 
 
-def get_tenant_session(tenant_id: str, role: str = 'user'):
+def get_tenant_session(tenant_id: str, role: str = 'user') -> TenantSession:
     """Create a database session with RLS tenant_id set.
     
-    WARNING: This session must be closed and the connection reset manually.
-    Prefer using tenant_session() context manager instead.
+    Returns a TenantSession wrapper that automatically restores tenant context
+    after commit/rollback operations.
+    
+    WARNING: This session must be closed manually. Prefer using tenant_session()
+    context manager instead for automatic cleanup.
     
     Args:
         tenant_id: UUID string of the tenant
         role: 'user' (default) or 'admin' (bypasses RLS)
         
     Returns:
-        SQLAlchemy session with tenant context set
+        TenantSession wrapper with auto-restore tenant context
     """
     if role == 'admin':
-        session = get_session(use_rls_role=False)
+        raw_session = get_session(use_rls_role=False)
     else:
-        session = get_session(use_rls_role=True)
-    if tenant_id:
-        session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
-    return session
+        raw_session = get_session(use_rls_role=True)
+    return TenantSession(raw_session, tenant_id, role)
 
 
 def set_tenant_context(session, tenant_id: str, role: str = 'user'):
@@ -1136,9 +1200,9 @@ def set_tenant_context(session, tenant_id: str, role: str = 'user'):
         role: 'user' (default) or 'admin' (bypasses RLS)
     """
     if tenant_id:
-        session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
+        session.execute(text(f"SET app.current_tenant_id = '{tenant_id}'"))
     if role == 'admin':
-        session.execute(text("SET LOCAL app.role = 'admin'"))
+        session.execute(text("SET app.role = 'admin'"))
 
 
 def reset_tenant_context(session):
