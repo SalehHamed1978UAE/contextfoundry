@@ -121,6 +121,8 @@ class SemanticMemoryAPI:
         """
         Semantic search for entities matching query.
         
+        Falls back to text-based search if entities don't have embeddings.
+        
         Args:
             query: Search query text
             k: Number of results (default 10)
@@ -132,40 +134,81 @@ class SemanticMemoryAPI:
             List of EntityMatch objects with similarity scores
         """
         from src.context_foundry.models.schema import Entity, Relationship
-        import openai
-        
-        client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        response = client.embeddings.create(
-            model="text-embedding-3-small",
-            input=query
-        )
-        query_embedding = response.data[0].embedding
         
         lifecycle_filter = [LifecycleState.TRUSTED]
         if include_staging:
             lifecycle_filter.append(LifecycleState.STAGING)
         
-        sql = text("""
-            SELECT 
-                id, name, entity_type, confidence, lifecycle_state,
-                created_at, updated_at, properties, description,
-                1 - (name_embedding <=> :embedding::vector) as similarity
-            FROM entities
-            WHERE tenant_id = :tenant_id
-            AND lifecycle_state = ANY(:lifecycle_states)
-            AND name_embedding IS NOT NULL
-            AND confidence >= :min_confidence
-            """ + (f"AND entity_type = :entity_type" if entity_type else "") + """
-            ORDER BY name_embedding <=> :embedding::vector
-            LIMIT :limit
+        lifecycle_values = ",".join(f"'{ls.value}'" for ls in lifecycle_filter)
+        entity_type_clause = "AND entity_type = :entity_type" if entity_type else ""
+        
+        check_sql = text("""
+            SELECT COUNT(*) FROM entities 
+            WHERE tenant_id = :tenant_id AND name_embedding IS NOT NULL
+            LIMIT 1
         """)
+        has_embeddings = self._session.execute(check_sql, {"tenant_id": str(self._tenant_id)}).scalar() > 0
+        
+        if has_embeddings:
+            import openai
+            client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+            response = client.embeddings.create(
+                model="text-embedding-3-small",
+                input=query
+            )
+            query_embedding = response.data[0].embedding
+            embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
+            
+            sql = text(f"""
+                SELECT 
+                    id, name, entity_type, confidence, lifecycle_state,
+                    created_at, updated_at, properties, description,
+                    1 - (name_embedding <=> '{embedding_str}'::vector) as similarity
+                FROM entities
+                WHERE tenant_id = :tenant_id
+                AND lifecycle_state::text = ANY(ARRAY[{lifecycle_values}])
+                AND name_embedding IS NOT NULL
+                AND confidence >= :min_confidence
+                {entity_type_clause}
+                ORDER BY name_embedding <=> '{embedding_str}'::vector
+                LIMIT :limit
+            """)
+        else:
+            query_lower = query.lower()
+            query_words = query_lower.split()
+            like_conditions = " OR ".join(
+                f"LOWER(name) LIKE '%{word}%'" for word in query_words if len(word) > 2
+            )
+            if not like_conditions:
+                like_conditions = f"LOWER(name) LIKE '%{query_lower}%'"
+            
+            sql = text(f"""
+                SELECT 
+                    id, name, entity_type, confidence, lifecycle_state,
+                    created_at, updated_at, properties, description,
+                    CASE 
+                        WHEN LOWER(name) = :query_lower THEN 1.0
+                        WHEN LOWER(name) LIKE :query_prefix THEN 0.9
+                        WHEN LOWER(name) LIKE :query_contains THEN 0.7
+                        ELSE 0.5
+                    END as similarity
+                FROM entities
+                WHERE tenant_id = :tenant_id
+                AND lifecycle_state::text = ANY(ARRAY[{lifecycle_values}])
+                AND ({like_conditions})
+                AND confidence >= :min_confidence
+                {entity_type_clause}
+                ORDER BY similarity DESC, confidence DESC
+                LIMIT :limit
+            """)
         
         params = {
-            "embedding": str(query_embedding),
             "tenant_id": str(self._tenant_id),
-            "lifecycle_states": [ls.value for ls in lifecycle_filter],
             "min_confidence": min_confidence,
             "limit": k,
+            "query_lower": query.lower(),
+            "query_prefix": f"{query.lower()}%",
+            "query_contains": f"%{query.lower()}%",
         }
         if entity_type:
             params["entity_type"] = entity_type.upper()
