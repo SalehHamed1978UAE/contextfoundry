@@ -70,7 +70,7 @@ class SchemaPromptGenerator:
     
     def _format_relation_description(self, rel: OntologyRelation) -> str:
         """Format a single relationship type for the prompt."""
-        desc = rel.description or f"{rel.relation_name} relationship"
+        desc = rel.description or f"{rel.relation_type} relationship"
         source = rel.source_type_name or "any"
         target = rel.target_type_name or "any"
         
@@ -83,7 +83,7 @@ class SchemaPromptGenerator:
             cardinality_note = " (one-to-one)"
         
         lines = [
-            f"- {rel.relation_name}: {desc}",
+            f"- {rel.relation_type}: {desc}",
             f"  Source: {source} → Target: {target}{cardinality_note}"
         ]
         
@@ -195,7 +195,7 @@ Respond with ONLY valid JSON, no markdown code blocks or other text. Format:
         
         relation_descriptions = [self._format_relation_description(r) for r in relations_to_include]
         relation_list = "\n".join(relation_descriptions)
-        relation_names = ", ".join(sorted(set(r.relation_name for r in relations_to_include)))
+        relation_names = ", ".join(sorted(set(r.relation_type for r in relations_to_include)))
         
         logger.info(f"Building relationship extraction prompt with {len(relations_to_include)} relations from ontology")
         
@@ -254,7 +254,7 @@ Return only valid JSON with no additional commentary."""
     def get_valid_relation_names(self) -> List[str]:
         """Get list of valid relationship type names from current ontology."""
         snapshot = self.get_snapshot()
-        return sorted(set(r.relation_name for r in snapshot.relations))
+        return sorted(set(r.relation_type for r in snapshot.relations))
     
     def validate_entity_type(self, type_name: str) -> bool:
         """Check if an entity type is valid in the current ontology."""
