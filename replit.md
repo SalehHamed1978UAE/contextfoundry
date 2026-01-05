@@ -53,6 +53,30 @@ Context Foundry implements a dual-system cognitive architecture for enterprise k
   - Need deterministic test data seeding for CI/CD reliability
   - Need mock/stub LLM responses for fast, deterministic execution
 
+### Week 3 Stabilization - Schema Consolidation (Completed)
+- **Created `src/context_foundry/ontology_foundry/schema_service.py`**
+  - `OntologySchemaService` singleton loads schema from ontology.types and ontology.relations tables
+  - Auto-loads with database session via `get_ontology_schema_service()`
+  - `type_mappings` property provides LLM type correction mappings (APPLICATION→SERVICE, etc.)
+  - Fallback to default mappings when database unavailable
+  - Compatible with existing `DomainSchema` interface via `to_domain_schema()`
+- **Updated `src/context_foundry/config/domain_schema.py`**
+  - `DomainSchemaLoader.load()` now tries ontology tables first via `_load_from_ontology()`
+  - Falls back to YAML only if ontology tables unavailable
+  - `use_ontology=True` parameter (default) enables ontology-first behavior
+- **Updated `src/context_foundry/extraction/entity_extractor.py`**
+  - Replaced hardcoded `TYPE_MAPPING` with `OntologySchemaService.type_mappings`
+  - `_correct_entity_type()` now uses consolidated service
+  - Maintains YAML fallback for backward compatibility
+- **Updated `src/context_foundry/agents/graph_builder.py`**
+  - Same consolidation as entity_extractor
+  - `type_mappings` property delegates to OntologySchemaService
+- **Schema Architecture**:
+  - **Source of Truth**: `ontology.types` and `ontology.relations` tables (225 types, 208 relations)
+  - **YAML Fallback**: `config/domain_schema.yaml` kept for domains not in ontology tables
+  - **Type Mappings**: Default mappings in service (type_translation view requires deprecated types)
+- **Verification**: All 72 contract tests + E2E tests still pass
+
 ### Known Bugs (Week 4 Backlog)
 1. **Query Parser Bug (FIXED in contracts)**: "What was affected by X" was incorrectly parsed as having entity name "affected by X". Fixed in `PatternBasedQueryParser`.
 2. **RLM Parity Bug (Documented, pending fix)**: `SymbolicMemoryAPI.get_relationships()` sometimes returns 0 relationships while `SemanticMemory.get_entity_relationships()` returns correct data. Root causes may include:

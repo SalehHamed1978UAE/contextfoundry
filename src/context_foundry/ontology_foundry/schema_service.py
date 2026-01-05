@@ -117,14 +117,27 @@ class OntologySchemaService:
         
         for row in result:
             name = row.type_name.upper()
-            hints = row.extraction_hints or {}
+            hints = row.extraction_hints
+            
+            if isinstance(hints, list):
+                keywords = hints
+                required_fields = ['canonical_name']
+                optional_fields = []
+            elif isinstance(hints, dict):
+                keywords = hints.get('keywords', [])
+                required_fields = hints.get('required_fields', ['canonical_name'])
+                optional_fields = hints.get('optional_fields', [])
+            else:
+                keywords = []
+                required_fields = ['canonical_name']
+                optional_fields = []
             
             self._entity_types[name] = EntityTypeConfig(
                 name=name,
                 description=row.description or row.display_name or name,
-                required_fields=hints.get('required_fields', ['canonical_name']),
-                optional_fields=hints.get('optional_fields', []),
-                keywords=hints.get('keywords', [])
+                required_fields=required_fields,
+                optional_fields=optional_fields,
+                keywords=keywords
             )
     
     def _load_relationship_types(self):
@@ -361,8 +374,24 @@ def get_ontology_schema_service(
     session: Session = None, 
     force_reload: bool = False
 ) -> OntologySchemaService:
-    """Get the singleton OntologySchemaService instance."""
-    return OntologySchemaService(session=session, force_reload=force_reload)
+    """Get the singleton OntologySchemaService instance.
+    
+    If no session is provided and service is not loaded, attempts to create
+    a session using the default session factory.
+    """
+    service = OntologySchemaService(session=session, force_reload=force_reload)
+    
+    if not service._loaded and session:
+        service.load(session)
+    elif not service._loaded and not session:
+        try:
+            from ..models.schema import get_session
+            with get_session() as db_session:
+                service.load(db_session)
+        except Exception as e:
+            logger.warning(f"Could not auto-load ontology schema: {e}")
+    
+    return service
 
 
 def populate_type_translations(session: Session):

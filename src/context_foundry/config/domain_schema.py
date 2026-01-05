@@ -366,7 +366,9 @@ class DomainSchemaLoader:
     Loads and manages domain schema configuration.
     
     Provides typed access to entity types, relationship types, and validation rules.
-    Supports loading from YAML files and hot-reloading.
+    Supports loading from YAML files, ontology tables, or hot-reloading.
+    
+    Week 3 Stabilization: Added ontology table support as primary source.
     """
     
     DEFAULT_CONFIG_PATH = "config/domain_schema.yaml"
@@ -374,25 +376,69 @@ class DomainSchemaLoader:
     _instance: Optional['DomainSchemaLoader'] = None
     _schema: Optional[DomainSchema] = None
     
-    def __new__(cls, config_path: Optional[str] = None, force_reload: bool = False):
+    def __new__(cls, config_path: Optional[str] = None, force_reload: bool = False, 
+                use_ontology: bool = True):
         """Singleton pattern - one schema loader per process."""
         if cls._instance is None or force_reload:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self, config_path: Optional[str] = None, force_reload: bool = False):
+    def __init__(self, config_path: Optional[str] = None, force_reload: bool = False,
+                 use_ontology: bool = True):
         if self._initialized and not force_reload:
             return
         
         self.config_path = config_path or self.DEFAULT_CONFIG_PATH
         self._schema = None
+        self._use_ontology = use_ontology
         self._initialized = True
         
         self.load()
     
     def load(self, config_path: Optional[str] = None) -> DomainSchema:
-        """Load schema from YAML config file."""
+        """Load schema from ontology tables (preferred) or YAML config file.
+        
+        Week 3 Stabilization: Now tries ontology tables first, then falls back to YAML.
+        """
+        if self._use_ontology:
+            ontology_schema = self._load_from_ontology()
+            if ontology_schema:
+                self._schema = ontology_schema
+                return self._schema
+            logger.warning(
+                "SCHEMA FALLBACK: Ontology tables not available, using YAML. "
+                "This may cause schema drift if ontology tables are the intended source of truth."
+            )
+        
+        return self._load_from_yaml(config_path)
+    
+    def _load_from_ontology(self) -> Optional[DomainSchema]:
+        """Load schema from ontology tables.
+        
+        Week 3 Stabilization: OntologySchemaService as source of truth.
+        """
+        try:
+            from ..ontology_foundry.schema_service import get_ontology_schema_service
+            
+            service = get_ontology_schema_service()
+            
+            if service._loaded and len(service.entity_types) > 0:
+                schema = service.to_domain_schema(domain="Ontology Foundation")
+                logger.info(
+                    f"Loaded domain schema from ontology tables: "
+                    f"{len(schema.entity_types)} entity types, "
+                    f"{len(schema.relationship_types)} relationship types"
+                )
+                return schema
+            
+            return None
+        except Exception as e:
+            logger.warning(f"Could not load from ontology tables: {e}")
+            return None
+    
+    def _load_from_yaml(self, config_path: Optional[str] = None) -> DomainSchema:
+        """Load schema from YAML config file (fallback)."""
         path = config_path or self.config_path
         
         if not os.path.exists(path):
@@ -405,7 +451,7 @@ class DomainSchemaLoader:
                 config = yaml.safe_load(f)
             
             self._schema = self._parse_config(config)
-            logger.info(f"Loaded domain schema: {self._schema.domain} "
+            logger.info(f"Loaded domain schema from YAML: {self._schema.domain} "
                        f"({len(self._schema.entity_types)} entity types, "
                        f"{len(self._schema.relationship_types)} relationship types)")
             

@@ -26,6 +26,7 @@ from ..models.schema import (
     get_session
 )
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
+from ..ontology_foundry.schema_service import get_ontology_schema_service
 from ..utils.logger import logger
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
@@ -256,30 +257,41 @@ class GraphBuilderAgent:
             text=text
         )
     
-    TYPE_MAPPING = {
-        "APPLICATION": "SERVICE",
-        "API": "SERVICE",
-        "PLATFORM": "SERVICE",
-        "GATEWAY": "SERVICE",
-        "MICROSERVICE": "SERVICE",
-        "GROUP": "TEAM",
-        "SQUAD": "TEAM",
-        "DEPARTMENT": "TEAM",
-        "OUTAGE": "INCIDENT",
-        "ISSUE": "INCIDENT",
-        "FAILURE": "INCIDENT",
-        "DATASTORE": "DATABASE",
-        "REPOSITORY": "DATABASE",
-        "CACHE": "DATABASE",
-        "TECHNOLOGY": "SERVICE",
-    }
-    
     SPECIFIC_TYPE_PATTERNS = {
         "SERVICE": ["service", "gateway", "api", "app", "server", "endpoint", "microservice", "portal"],
         "DATABASE": ["database", "db", "datastore", "store", "warehouse", "cache", "redis", "postgres", "mysql"],
         "TEAM": ["team", "squad", "department", "group", "engineering", "platform team", "security team"],
         "INCIDENT": ["inc-", "incident", "outage", "issue #", "failure", "disruption", "alert"],
     }
+    
+    @property
+    def type_mappings(self) -> Dict[str, str]:
+        """Get type mappings from OntologySchemaService.
+        
+        Week 3 Stabilization: Consolidated from hardcoded TYPE_MAPPING to 
+        database-backed mappings via OntologySchemaService.
+        """
+        try:
+            service = get_ontology_schema_service()
+            return service.type_mappings
+        except Exception:
+            return {
+                "APPLICATION": "SERVICE",
+                "API": "SERVICE",
+                "PLATFORM": "SERVICE",
+                "GATEWAY": "SERVICE",
+                "MICROSERVICE": "SERVICE",
+                "GROUP": "TEAM",
+                "SQUAD": "TEAM",
+                "DEPARTMENT": "TEAM",
+                "OUTAGE": "INCIDENT",
+                "ISSUE": "INCIDENT",
+                "FAILURE": "INCIDENT",
+                "DATASTORE": "DATABASE",
+                "REPOSITORY": "DATABASE",
+                "CACHE": "DATABASE",
+                "TECHNOLOGY": "SERVICE",
+            }
     
     def _validate_entity_type(self, entity_type: str) -> bool:
         """Check if entity type is valid according to loaded schema."""
@@ -293,17 +305,17 @@ class GraphBuilderAgent:
         """Correct/map generic entity types to specific types.
         
         Uses a priority system:
-        1. Direct mapping from TYPE_MAPPING
+        1. Direct mapping from OntologySchemaService type_mappings
         2. Pattern matching on entity name
         3. Keep original type if already valid
         
-        This helps correct LLM errors like "Payment Gateway" → ORGANIZATION
-        to the correct type: SERVICE
+        Week 3 Stabilization: Now uses OntologySchemaService for type mappings.
         """
         extracted_type = extracted_type.upper()
         
-        if extracted_type in self.TYPE_MAPPING:
-            mapped = self.TYPE_MAPPING[extracted_type]
+        mappings = self.type_mappings
+        if extracted_type in mappings:
+            mapped = mappings[extracted_type]
             logger.debug(f"Type mapping: {extracted_type} → {mapped} for '{entity_name}'")
             return mapped
         
