@@ -1171,8 +1171,8 @@ def reject_document(doc_id):
                 cur.execute("""
                     DELETE FROM public.relationships 
                     WHERE tenant_id = %s AND (
-                        source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
-                        OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        source_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        OR target_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
                     )
                 """, [tenant_id, doc_id, doc_id])
                 
@@ -1227,8 +1227,8 @@ def re_extract_document(doc_id):
                 cur.execute("""
                     DELETE FROM public.relationships 
                     WHERE tenant_id = %s AND (
-                        source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
-                        OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        source_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        OR target_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
                     )
                 """, [tenant_id, doc_id, doc_id])
                 
@@ -1282,8 +1282,8 @@ def delete_document(doc_id):
                 cur.execute("""
                     DELETE FROM public.relationships 
                     WHERE tenant_id = %s AND (
-                        source_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
-                        OR target_entity_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        source_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        OR target_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
                     )
                 """, [tenant_id, doc_id, doc_id])
                 
