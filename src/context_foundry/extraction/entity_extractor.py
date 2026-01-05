@@ -282,10 +282,55 @@ Return valid JSON array only (no markdown):
             return False
         return True
     
+    TYPE_MAPPING = {
+        "APPLICATION": "SERVICE",
+        "API": "SERVICE",
+        "PLATFORM": "SERVICE",
+        "GATEWAY": "SERVICE",
+        "MICROSERVICE": "SERVICE",
+        "GROUP": "TEAM",
+        "SQUAD": "TEAM",
+        "DEPARTMENT": "TEAM",
+        "OUTAGE": "INCIDENT",
+        "ISSUE": "INCIDENT",
+        "FAILURE": "INCIDENT",
+        "DATASTORE": "DATABASE",
+        "REPOSITORY": "DATABASE",
+        "CACHE": "DATABASE",
+        "TECHNOLOGY": "SERVICE",
+    }
+    
+    SPECIFIC_TYPE_PATTERNS = {
+        "SERVICE": ["service", "gateway", "api", "app", "server", "endpoint", "microservice", "portal"],
+        "DATABASE": ["database", "db", "datastore", "store", "warehouse", "cache", "redis", "postgres", "mysql", "inventory"],
+        "TEAM": ["team", "squad", "department", "group", "engineering", "platform team", "security team"],
+        "INCIDENT": ["inc-", "incident", "outage", "issue #", "failure", "disruption", "alert", "sev1", "sev2"],
+    }
+    
     def _correct_entity_type(self, entity: Dict) -> Dict:
-        """Apply ACT test to correct common LOCATION/ORGANIZATION misclassifications."""
+        """Correct common entity type misclassifications.
+        
+        Uses a priority system:
+        1. Direct mapping from TYPE_MAPPING (e.g., GATEWAY → SERVICE)
+        2. Pattern matching on entity name (e.g., "Payment Gateway" → SERVICE)
+        3. LOCATION → ORGANIZATION ACT test
+        """
         entity_type = entity.get("entity_type", "").upper()
-        name = entity.get("canonical_name", entity.get("name", "")).lower()
+        name = entity.get("canonical_name", entity.get("name", ""))
+        name_lower = name.lower()
+        
+        if entity_type in self.TYPE_MAPPING:
+            new_type = self.TYPE_MAPPING[entity_type]
+            logger.info(f"[TypeCorrection] Mapping: {entity_type} → {new_type} for '{name}'")
+            entity["entity_type"] = new_type
+            return entity
+        
+        if entity_type in ("ORGANIZATION", "PROCESS", "EVENT", "CONCEPT"):
+            for specific_type, patterns in self.SPECIFIC_TYPE_PATTERNS.items():
+                if any(pattern in name_lower for pattern in patterns):
+                    logger.info(f"[TypeCorrection] Pattern match: {entity_type} → {specific_type} for '{name}'")
+                    entity["entity_type"] = specific_type
+                    return entity
         
         if entity_type == "LOCATION":
             org_patterns = [
@@ -296,7 +341,7 @@ Return valid JSON array only (no markdown):
                 "group", "unit", "branch", "sector", "regime", "administration"
             ]
             for pattern in org_patterns:
-                if pattern in name:
+                if pattern in name_lower:
                     entity["entity_type"] = "ORGANIZATION"
                     break
         
