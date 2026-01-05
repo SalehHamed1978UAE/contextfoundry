@@ -37,21 +37,31 @@ SYSTEM_PROMPT = """You are an expert knowledge graph analyst working with a tri-
 - episodic: Document chunk memory (search, get_chunk, get_document_chunks, get_provenance)
 - symbolic: Relationship memory (get_relationships, find_path, get_related_entities, traverse)
 
-You also have access to:
-- llm_query(prompt, context): Ask clarifying questions about data
-- llm_verify(claim, evidence): Verify claims against evidence
-
 Your task is to answer the user's query by exploring these memory systems iteratively.
 
-RULES:
-1. Write Python code to explore the memory APIs
-2. Use print() to show findings
-3. Store your final answer in the 'answer' variable
-4. Store evidence references in the 'evidence' list
-5. Be methodical - search broadly first, then drill down
-6. Track entity lifecycle_state - STAGING entities have lower confidence
-7. Follow relationships to discover connected entities
-8. When you have enough information, set answer and call finalize()
+## CRITICAL: Answer Generation Rules
+
+1. **Finalize Early**: After 3 iterations of exploration, you MUST attempt to answer.
+   - Do NOT keep exploring indefinitely
+   - If you have found relevant entities and relationships, synthesize an answer
+   - Set the 'answer' variable and call finalize() immediately
+
+2. **Progress Check**: At each iteration, ask yourself:
+   - "Do I have enough information to answer the original query?"
+   - If YES → Set answer and call finalize() immediately
+   - If NO → Continue ONE more exploration step, then reassess
+
+3. **Answer Structure**: Your final answer should:
+   - Name specific entities you found (by name, not ID)
+   - Describe the relationships between them
+   - Directly address the original query
+   - Cite confidence based on evidence found
+
+4. **When to Stop Exploring**:
+   - You found entities matching the query subject ✓
+   - You found relationships connecting them ✓
+   - Additional searches return entities you've already seen ✓
+   → STOP and synthesize answer NOW
 
 AVAILABLE DATA TYPES (use these attributes):
 - EntitySummary: id, name, entity_type, confidence, lifecycle_state, property_count, relationship_count
@@ -59,25 +69,32 @@ AVAILABLE DATA TYPES (use these attributes):
 - ChunkDetail: id, document_id, chunk_index, content, document_name, document_type, page_numbers
 - Relationship: id, source_entity_name, target_entity_name, relationship_type, confidence, properties
 
-EXAMPLE EXPLORATION:
+EXAMPLE - GOOD BEHAVIOR (finalize after finding data):
 ```python
-# Find relevant entities
-entities = semantic.find_similar("network monitoring service", k=5)
-for match in entities:
-    print(f"Entity: {match.entity.name} (confidence: {match.similarity_score:.2f})")
+# Iteration 1: Find relevant entities
+entities = semantic.find_similar("payment service", k=5)
+print(f"Found: {[e.entity.name for e in entities]}")
 
-# Get relationships for promising entity
+# Iteration 2: Get relationships
 if entities:
-    entity_id = entities[0].entity.id
-    rels = symbolic.get_relationships(entity_id)
-    for rel in rels:
-        print(f"  -> {rel.relationship_type} -> {rel.target_entity_name}")
+    rels = symbolic.get_relationships(entities[0].entity.id)
+    deps = [r.source_entity_name for r in rels if r.relationship_type == "DEPENDS_ON"]
+    print(f"Dependents: {deps}")
+
+# Iteration 3: I have the answer! Finalize NOW.
+answer = f"The following services depend on Payment Service: {', '.join(deps)}"
+finalize()
 ```
 
-When you're ready to answer, write:
+EXAMPLE - BAD BEHAVIOR (DO NOT DO THIS):
+- Found 5 entities and 10 relationships
+- Keep exploring "to verify" or "find more"
+- Hit circuit breaker with no answer
+
+When ready to answer, write:
 ```python
-answer = "Your comprehensive answer here..."
-evidence.append("Source: document_name.pdf, Page: X")
+answer = "Your comprehensive answer citing specific entities and relationships..."
+evidence.append("Source: document_name")
 finalize()
 ```"""
 
@@ -197,12 +214,26 @@ class RLMExecutor:
             })
         
         budget_info = self.sub_query.get_remaining_budget()
+        remaining_iterations = self.config.max_iterations - (self.progress.iteration + 1)
+        
+        iteration_warning = ""
+        if remaining_iterations <= 2:
+            iteration_warning = f"""
+⚠️ WARNING: You have {remaining_iterations} iteration(s) remaining before automatic timeout.
+You MUST call finalize() with your answer in the next iteration.
+If you have found relevant entities/relationships, synthesize your answer NOW.
+"""
+        elif remaining_iterations <= 4:
+            iteration_warning = f"""
+Note: {remaining_iterations} iterations remaining. Consider finalizing soon if you have sufficient data.
+"""
+        
         status = f"""
 Iteration: {self.progress.iteration + 1}/{self.config.max_iterations}
 Entities discovered: {len(self.progress.entities_discovered)}
 Relationships discovered: {len(self.progress.relationships_discovered)}
 Sub-query budget: {budget_info['tokens_remaining']} tokens / {budget_info['calls_remaining']} calls remaining
-
+{iteration_warning}
 Write Python code to continue your exploration. If you have enough information, set 'answer' and call finalize().
 """
         
@@ -353,10 +384,10 @@ Write Python code to continue your exploration. If you have enough information, 
         if answer:
             response_mode = "GROUNDED"
             confidence = 0.8
-        elif len(self.progress.entities_discovered) > 0:
-            response_mode = "INFERRED"
-            confidence = 0.5
-            answer = "Unable to provide a complete answer. Partial exploration completed."
+        elif len(self.progress.entities_discovered) > 0 or len(self.progress.relationships_discovered) > 0:
+            response_mode = "PARTIAL_ANSWER"
+            confidence = 0.6
+            answer = self._synthesize_answer_from_discoveries()
         else:
             response_mode = "GAP"
             confidence = 0.0
@@ -380,6 +411,73 @@ Write Python code to continue your exploration. If you have enough information, 
             tokens_used=self.trace.total_tokens_used,
             estimated_cost_usd=self._estimate_cost()
         )
+    
+    def _synthesize_answer_from_discoveries(self) -> str:
+        """Synthesize an answer from discovered entities and relationships when LLM didn't finalize."""
+        entity_ids = list(self.progress.entities_discovered)[:20]
+        relationship_ids = list(self.progress.relationships_discovered)[:20]
+        
+        entity_names = []
+        relationship_strs = []
+        
+        if entity_ids:
+            try:
+                from sqlalchemy import text
+                entity_id_list = ", ".join([f"'{eid}'" for eid in entity_ids])
+                result = self.db_session.execute(
+                    text(f"""
+                        SELECT id, name, entity_type 
+                        FROM entities 
+                        WHERE id IN ({entity_id_list})
+                        AND tenant_id = :tenant_id
+                    """),
+                    {"tenant_id": self.tenant_id}
+                )
+                for row in result:
+                    entity_names.append(f"{row[1]} ({row[2]})")
+            except Exception:
+                entity_names = [f"Entity {eid[:8]}..." for eid in entity_ids[:10]]
+        
+        if relationship_ids:
+            try:
+                from sqlalchemy import text
+                rel_id_list = ", ".join([f"'{rid}'" for rid in relationship_ids])
+                result = self.db_session.execute(
+                    text(f"""
+                        SELECT r.relationship_type, e1.name as source, e2.name as target
+                        FROM relationships r
+                        JOIN entities e1 ON r.source_entity_id = e1.id
+                        JOIN entities e2 ON r.target_entity_id = e2.id
+                        WHERE r.id IN ({rel_id_list})
+                        AND r.tenant_id = :tenant_id
+                    """),
+                    {"tenant_id": self.tenant_id}
+                )
+                for row in result:
+                    relationship_strs.append(f"{row[1]} --[{row[0]}]--> {row[2]}")
+            except Exception:
+                relationship_strs = [f"Relationship {rid[:8]}..." for rid in relationship_ids[:10]]
+        
+        parts = []
+        parts.append(f"Based on the knowledge graph exploration, I found the following relevant information:")
+        
+        if entity_names:
+            parts.append(f"\n\nRelevant entities discovered ({len(entity_names)}):")
+            for name in entity_names[:10]:
+                parts.append(f"\n  • {name}")
+            if len(entity_names) > 10:
+                parts.append(f"\n  ... and {len(entity_names) - 10} more")
+        
+        if relationship_strs:
+            parts.append(f"\n\nRelationships found ({len(relationship_strs)}):")
+            for rel_str in relationship_strs[:8]:
+                parts.append(f"\n  • {rel_str}")
+            if len(relationship_strs) > 8:
+                parts.append(f"\n  ... and {len(relationship_strs) - 8} more")
+        
+        parts.append("\n\nNote: This answer was synthesized from partial exploration. For more detailed analysis, please refine your query.")
+        
+        return "".join(parts)
     
     def _estimate_cost(self) -> float:
         """Estimate USD cost based on token usage."""
