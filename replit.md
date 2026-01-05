@@ -31,12 +31,35 @@ Context Foundry implements a dual-system cognitive architecture for enterprise k
   - `test_entity_resolver_contract.py` - 17 tests for entity resolution
   - `test_memory_parity.py` - 18 tests for memory parity
 
+### Week 2 Stabilization - E2E Test Suite (Completed)
+- **Created `tests/e2e/`** - End-to-end test directory
+- **test_dependency_queries.py** (18 tests)
+  - Tests "What does X depend on?" query patterns
+  - Verifies: query_type classification, ContextBundle structure, confidence levels
+  - Skips data-dependent assertions when test entities not in database
+- **test_management_queries.py** (14 tests)
+  - Tests "Who owns X?" and "Who manages X?" patterns
+  - Ownership relationship retrieval verification
+- **test_impact_queries.py** (14 tests)
+  - Tests blast radius and impact analysis queries
+  - **BUG REGRESSION TEST**: Verifies "What was affected by X" fix (Week 1)
+  - Confirms target_entity_name does NOT contain "affected by"
+- **test_tenant_isolation.py** (13 tests)
+  - Tenant data isolation verification
+  - Cross-tenant data leakage detection
+- **Test Summary**: 59 E2E tests + 72 contract tests = 131 total tests
+- **KNOWN LIMITATIONS** (Week 4 backlog):
+  - Tests skip when canonical entities (Order Service, etc.) not in database
+  - Need deterministic test data seeding for CI/CD reliability
+  - Need mock/stub LLM responses for fast, deterministic execution
+
 ### Known Bugs (Week 4 Backlog)
 1. **Query Parser Bug (FIXED in contracts)**: "What was affected by X" was incorrectly parsed as having entity name "affected by X". Fixed in `PatternBasedQueryParser`.
 2. **RLM Parity Bug (Documented, pending fix)**: `SymbolicMemoryAPI.get_relationships()` sometimes returns 0 relationships while `SemanticMemory.get_entity_relationships()` returns correct data. Root causes may include:
    - tenant_id type mismatch (str vs UUID)
    - lifecycle_state filtering differences (trusted_only vs include_staging)
    - Session/connection isolation issues
+3. **Test Data Seeding Required**: E2E tests skip when canonical entities (Order Service, API Gateway, etc.) not found in database. Need test data seeding script for CI.
 
 ## User Preferences
 - Iterative development with detailed explanations
