@@ -93,18 +93,24 @@ class RetrievalAgent:
     """
     Agent that retrieves relevant context from all three memory layers
     and assembles a ContextBundle for reasoning.
+    
+    SECURITY: Requires tenant_id for defense-in-depth filtering.
     """
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: str = None):
         self.session = session or get_session()
-        self.semantic = SemanticMemory(self.session)
-        self.episodic = EpisodicMemory(self.session)
+        self.tenant_id = tenant_id
+        self.semantic = SemanticMemory(self.session, tenant_id=tenant_id)
+        self.episodic = EpisodicMemory(self.session, tenant_id=tenant_id)
         self.symbolic = SymbolicMemory(self.session)
-        self.entity_resolver = EntityResolver(session=self.session)
+        self.entity_resolver = EntityResolver(session=self.session, tenant_id=tenant_id)
         
         self._llm_client = None
         
-        logger.info("RetrievalAgent initialized")
+        if not tenant_id:
+            logger.warning("RetrievalAgent initialized without tenant_id")
+        else:
+            logger.info(f"RetrievalAgent initialized for tenant {tenant_id[:8]}...")
     
     @property
     def llm_client(self):
@@ -374,7 +380,7 @@ class RetrievalAgent:
         # Run speculative inference on frontier nodes
         if bundle.frontier:
             try:
-                inference_engine = InferenceEngine(self.semantic.session)
+                inference_engine = InferenceEngine(self.semantic.session, tenant_id=self.tenant_id)
                 
                 # Get entity IDs from semantic entities for neighbors context
                 neighbor_ids = [e.get("id") for e in bundle.semantic_entities if e.get("id")]

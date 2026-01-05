@@ -21,12 +21,15 @@ class GraphLoaderAgent:
     """
     Agent responsible for loading structured data into the tri-memory architecture.
     All loaded data starts in STAGING state and must be promoted to TRUSTED.
+    
+    SECURITY: Requires tenant_id for defense-in-depth filtering.
     """
     
-    def __init__(self, session: Optional[Session] = None, auto_promote: bool = True):
+    def __init__(self, session: Optional[Session] = None, auto_promote: bool = True, tenant_id: str = None):
         self.session = session or get_session()
-        self.semantic = SemanticMemory(self.session)
-        self.episodic = EpisodicMemory(self.session)
+        self.tenant_id = tenant_id
+        self.semantic = SemanticMemory(self.session, tenant_id=tenant_id)
+        self.episodic = EpisodicMemory(self.session, tenant_id=tenant_id)
         self.symbolic = SymbolicMemory(self.session)
         self.auto_promote = auto_promote
         
@@ -40,7 +43,10 @@ class GraphLoaderAgent:
             "errors": []
         }
         
-        logger.info(f"GraphLoaderAgent initialized (auto_promote={auto_promote})")
+        if not tenant_id:
+            logger.warning(f"GraphLoaderAgent initialized without tenant_id (auto_promote={auto_promote})")
+        else:
+            logger.info(f"GraphLoaderAgent initialized for tenant {tenant_id[:8]}... (auto_promote={auto_promote})")
     
     def load_synthetic_data(self, data: Dict) -> Dict:
         """

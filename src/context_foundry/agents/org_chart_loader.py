@@ -23,7 +23,10 @@ logger = logging.getLogger(__name__)
 
 
 class OrgChartLoader:
-    """Loads org chart data into the tri-memory system."""
+    """Loads org chart data into the tri-memory system.
+    
+    SECURITY: Requires tenant_id for defense-in-depth filtering.
+    """
     
     ORG_ENTITY_TYPE_MAP = {
         "VP": "PERSON",
@@ -39,9 +42,10 @@ class OrgChartLoader:
         "COLLABORATES_WITH": "DEPENDS_ON",
     }
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: str = None):
         self.session = session or get_session()
-        self.episodic = EpisodicMemory(self.session)
+        self.tenant_id = tenant_id
+        self.episodic = EpisodicMemory(self.session, tenant_id=tenant_id)
         self.entity_map: Dict[str, Entity] = {}
         
     def load_all(self, clear_existing: bool = False) -> Dict:
