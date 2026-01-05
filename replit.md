@@ -52,26 +52,32 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - Disambiguation: Returns candidate list when top 2 scores are within 0.1 delta
   - Entity name embeddings stored in `entities.name_embedding` column (Vector 1536)
   - Batch embedding job: `scripts/batch_entity_embeddings.py`
-- **RLM Integration (NEW - January 2026)**: Recursive Language Model system for complex multi-hop queries:
-  - **QueryComplexityRouter**: Analyzes query complexity (conjunctions, comparisons, causal keywords, aggregations) to route between Tier 1 (simple retrieval) and Tier 2 (RLM complex)
-  - **Memory APIs**: Wrappers for tri-memory architecture (SemanticMemoryAPI, EpisodicMemoryAPI, SymbolicMemoryAPI) that track entity/relationship discovery for progress monitoring
-  - **REPLSandbox**: Secure Python code execution with restricted patterns (no imports, eval, exec, file access), timeout enforcement, and retry hint generation
-  - **RLMExecutor**: Orchestrates multi-turn LLM conversation loop with progress tracking, circuit breaker (3 iterations without new discoveries), and budget management
-  - **SubQueryAPI**: Enables sub-queries to Tier 1 resolver with token budget tracking (max 8000 tokens)
+- **RLM Integration (January 2026)**: Recursive Language Model system for complex multi-hop queries:
+  - **QueryComplexityRouter**: Routes between Tier 1 (simple) and Tier 2 (RLM) based on complexity analysis
+    - Threshold: 0.10 complexity score for Tier 2 routing
+    - Force patterns: `affected by.*triggered`, `services.*connected`, `impact.*of.*on`, etc.
+  - **Memory APIs**: Wrappers for tri-memory (Semantic, Episodic, Symbolic) with discovery tracking and text fallback when embeddings unavailable
+  - **REPLSandbox**: Secure Python execution with restricted patterns, timeout enforcement, and retry hints
+  - **RLMExecutor**: Orchestrates multi-turn LLM loop with:
+    - Circuit breaker (3 iterations without progress)
+    - Iteration warnings at 2 and 4 iterations remaining
+    - Answer synthesis from discoveries when LLM doesn't finalize
+  - **SubQueryAPI**: Sub-queries to Tier 1 resolver with token budget (max 8000 tokens)
   - **Design decisions**:
-    - STAGING entities visible to RLM with lifecycle_state field (LLM can weigh confidence)
+    - STAGING entities visible to RLM with lifecycle_state field
     - StaleEntityError raised if Gardener archives entity mid-execution
-    - Router threshold: 0.19 complexity score for Tier 2 routing
-  - **Test coverage**: 77 passing tests (20 Memory API + 35 Sandbox + 22 Router)
+    - Synthesized answers include entity names and relationship types from database
+  - **Test coverage**: 90 passing tests (Memory API + Sandbox + Router + Integration)
 
 ## Recent Changes (January 2026)
-- **RLM Integration Complete**: Implemented complete RLM (Recursive Language Model) system for complex multi-hop queries
-  - QueryComplexityRouter with 0.19 threshold for Tier 1/Tier 2 routing
-  - Memory APIs (Semantic, Episodic, Symbolic) with entity/relationship discovery tracking
-  - REPLSandbox with security restrictions and retry hint generation
-  - RLMExecutor with circuit breaker and budget management
-  - SubQueryAPI with token budget tracking (max 8000 tokens)
-  - 71 passing tests across all components
+- **RLM Answer Generation Improvements**: Enhanced RLM to produce grounded answers instead of exploration-only responses
+  - Updated system prompt to emphasize early finalization (after 3 iterations)
+  - Added iteration warnings at 2 and 4 remaining iterations
+  - Added circuit breaker synthesis: when LLM doesn't finalize, answers synthesized from discovered entities/relationships
+  - Added FORCE_RLM_PATTERNS for pattern-based routing (bypasses complexity scoring)
+  - Lowered complexity threshold from 0.19 to 0.10 for broader RLM coverage
+  - Fixed entity name lookup to use correct schema (public vs context)
+  - 90 passing tests across all components
 
 ## Previous Changes (December 2025)
 - Added `name_embedding` column to entities table via migration 012
