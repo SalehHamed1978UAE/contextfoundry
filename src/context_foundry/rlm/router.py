@@ -104,12 +104,27 @@ class QueryComplexityRouter:
     - "How does change in System X impact downstream services?"
     """
     
-    def __init__(self, complexity_threshold: float = 0.19):
+    FORCE_RLM_PATTERNS = [
+        r'affected by.*triggered',
+        r'triggered by.*affected',
+        r'depend(?:s|ing)? on.*and',
+        r'trace.*from.*to',
+        r'chain.*from.*to',
+        r'what.*incidents.*services',
+        r'which.*services.*incidents',
+        r'compare.*across',
+        r'all.*that.*have',
+        r'services.*connected.*to',
+        r'related.*to.*incident',
+        r'impact.*of.*on',
+    ]
+    
+    def __init__(self, complexity_threshold: float = 0.10):
         """
         Initialize router.
         
         Args:
-            complexity_threshold: Score threshold for RLM routing (default 0.35)
+            complexity_threshold: Score threshold for RLM routing (default 0.10)
         """
         self.complexity_threshold = complexity_threshold
     
@@ -177,6 +192,8 @@ class QueryComplexityRouter:
         """
         Route query to appropriate tier.
         
+        Checks forced RLM patterns first, then falls back to complexity scoring.
+        
         Args:
             query: The query string
         
@@ -184,6 +201,11 @@ class QueryComplexityRouter:
             Tuple of (tier, complexity_signals)
         """
         signals = self.analyze_complexity(query)
+        query_lower = query.lower()
+        
+        for pattern in self.FORCE_RLM_PATTERNS:
+            if re.search(pattern, query_lower):
+                return QueryTier.TIER2_RLM, signals
         
         if signals.complexity_score >= self.complexity_threshold:
             return QueryTier.TIER2_RLM, signals
