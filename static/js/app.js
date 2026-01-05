@@ -281,7 +281,8 @@ function runApp() {
             // Show loading indicator
             showGraphLoading(true);
             
-            const url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=true`;
+            // Only request speculative data if toggle is enabled (saves significant API time)
+            const url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=${showSpeculativeEdges}`;
             const response = await fetch(url);
             const data = await response.json();
             
@@ -2125,7 +2126,8 @@ function runApp() {
             // Show loading indicator
             showGraphLoading(true);
             
-            let url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=true`;
+            // Only request speculative data if toggle is enabled (saves significant API time)
+            let url = `/api/graph/expand/${entityId}?lifecycle_state=${currentLifecycleFilter}&include_speculative=${showSpeculativeEdges}`;
             if (currentAsOfDate) {
                 url += `&as_of_date=${encodeURIComponent(currentAsOfDate)}`;
             }
