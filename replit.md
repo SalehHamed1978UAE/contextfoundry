@@ -85,11 +85,24 @@ Context Foundry implements a dual-system cognitive architecture for enterprise k
   - **Verification**: 18 parity contract tests pass, 2 integration unit tests pass
 - **Integration Tests Added**: `tests/integration/test_rlm_parity.py`
   - Tests tenant_id UUID conversion
-  - Parity tests (skip when RLS prevents seeding - need test data fixture)
+  - Parity tests (skip when RLS prevents seeding)
+- **Test Data Seeding Fixtures (CREATED)**:
+  - `tests/fixtures/seed_test_data.py` - TestDataSeeder class with canonical IT service architecture
+  - `tests/e2e/conftest.py` - Pytest fixtures for test data (seeded_test_data, api_gateway, payment_service, etc.)
+  - RLS-aware: gracefully skips seeding when Row-Level Security prevents inserts
+- **E2E Test Attribute Bug (FIXED)**: Fixed incorrect attribute names in E2E tests
+  - Changed `bundle.entities` → `bundle.semantic_entities`
+  - Changed `bundle.relationships` → `bundle.semantic_relationships`
+  - Changed `bundle.documents` → `bundle.episodic_documents`
+- **Test Summary (as of Week 4)**:
+  - 74 contract + integration tests passing
+  - 12 tenant isolation E2E tests passing
+  - 4 skipped (RLS prevents seeding)
+  - **86+ total tests verified**
 
 ### Known Bugs (Remaining)
 1. **Query Parser Bug (FIXED in Week 1)**: "What was affected by X" was incorrectly parsed. Fixed in `PatternBasedQueryParser`.
-2. **Test Data Seeding Required**: E2E tests skip when canonical entities not found. Need test data seeding script for CI.
+2. **'rely on' Query Classification**: Maps to 'impact' instead of 'dependency' - needs query parser pattern update.
 
 ## User Preferences
 - Iterative development with detailed explanations
