@@ -185,6 +185,9 @@ function runApp() {
     let currentFrontierNodes = {};  // Map of entity_name -> frontier info
     let currentGapsIdentified = [];
     
+    // Toggle for showing speculative (inferred) edges - hidden by default
+    let showSpeculativeEdges = false;
+    
     // Helper to get human-readable frontier reason text
     function getFrontierReasonText(reason) {
         switch(reason) {
@@ -628,7 +631,11 @@ function runApp() {
         linksContainer.innerHTML = '';
         
         const nodes = Object.values(graphNodes);
-        const edges = graphEdges.filter(e => graphNodes[e.source] && graphNodes[e.target]);
+        // Filter edges: must have valid source/target, and hide speculative unless toggled on
+        const edges = graphEdges.filter(e => 
+            graphNodes[e.source] && graphNodes[e.target] && 
+            (showSpeculativeEdges || !e.speculative)
+        );
         
         if (nodes.length === 0) {
             if (emptyState) emptyState.style.display = 'block';
@@ -1191,6 +1198,15 @@ function runApp() {
             resetBtn.addEventListener('click', () => {
                 customNodePositions = {};
                 layoutRadiusMultiplier = 1.0;
+                renderGraph();
+            });
+        }
+        
+        // Toggle for showing speculative/inferred edges
+        const speculativeToggle = document.getElementById('showSpeculativeToggle');
+        if (speculativeToggle) {
+            speculativeToggle.addEventListener('change', (e) => {
+                showSpeculativeEdges = e.target.checked;
                 renderGraph();
             });
         }
