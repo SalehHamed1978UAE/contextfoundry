@@ -3,6 +3,41 @@
 ## Overview
 Context Foundry implements a dual-system cognitive architecture for enterprise knowledge graph governance. It separates Ontology Foundry (schema governance) from Context Foundry (instance governance) to allow for different governance cadences, confidence thresholds, and agent responsibilities. The project provides a robust framework for managing knowledge graphs, emphasizing structured truth delivery and a cognitive cycle approach to information processing, enabling multi-tenancy and advanced knowledge extraction capabilities with a focus on structured truth delivery and preventing hallucinations.
 
+## Recent Changes (January 2026)
+
+### Week 1 Stabilization - Component Contracts (Completed)
+- **Created `src/context_foundry/contracts/`** - Formal component contracts directory
+- **QueryParserContract** (`contracts/query_parser.py`)
+  - `QueryIntent` dataclass for structured query parsing output
+  - `QueryType` enum: IMPACT, DEPENDENCY, OWNERSHIP, ENTITY, RULE, ANALYSIS, etc.
+  - `PatternBasedQueryParser` implementation with regex patterns
+  - **BUG FIX**: Correctly parses "What was affected by X" - extracts "X" as entity, not "affected by X"
+- **EntityResolverContract** (`contracts/entity_resolver.py`)
+  - `EntityCandidate` and `ResolveResult` dataclasses with invariant validation
+  - Threshold constants: EXACT=0.95, SEMANTIC=0.75, FUZZY=0.70
+  - Disambiguation detection when candidates within 0.1 score delta
+- **Memory Contracts** (`contracts/memory.py`)
+  - `SemanticMemoryContract` - Knowledge graph memory layer interface
+  - `SymbolicMemoryAPIContract` - RLM REPL memory interface
+  - `verify_relationship_parity()` - Utility to detect RLM parity bugs
+  - **CRITICAL**: Parity tests catch when SymbolicMemoryAPI returns 0 relationships while SemanticMemory returns correct data
+- **Test Fixtures** (`tests/fixtures/knowledge_graph.py`)
+  - Canonical IT service architecture (API Gateway → Payment Service → Auth Database, etc.)
+  - 6 entities, 6 relationships, impact chain test cases
+  - `get_impact_chain()` helper for expected blast radius results
+- **Contract Tests** (`tests/contracts/`)
+  - 72 tests total, 100% passing
+  - `test_query_parser_contract.py` - 37 tests for query parsing
+  - `test_entity_resolver_contract.py` - 17 tests for entity resolution
+  - `test_memory_parity.py` - 18 tests for memory parity
+
+### Known Bugs (Week 4 Backlog)
+1. **Query Parser Bug (FIXED in contracts)**: "What was affected by X" was incorrectly parsed as having entity name "affected by X". Fixed in `PatternBasedQueryParser`.
+2. **RLM Parity Bug (Documented, pending fix)**: `SymbolicMemoryAPI.get_relationships()` sometimes returns 0 relationships while `SemanticMemory.get_entity_relationships()` returns correct data. Root causes may include:
+   - tenant_id type mismatch (str vs UUID)
+   - lifecycle_state filtering differences (trusted_only vs include_staging)
+   - Session/connection isolation issues
+
 ## User Preferences
 - Iterative development with detailed explanations
 - Ask before making major changes
