@@ -85,6 +85,22 @@ Given this text, extract any entities of these EXACT types:
 
 {entity_types_section}
 
+TYPE PRIORITY - Use SPECIFIC types over GENERIC ones:
+- Use SERVICE (not ORGANIZATION or PROCESS) for: software services, APIs, applications, gateways, microservices
+  Examples: "Payment Gateway" → SERVICE, "Authentication Service" → SERVICE, "Order Processing API" → SERVICE
+- Use DATABASE (not ORGANIZATION or PROCESS) for: databases, data stores, warehouses, caches
+  Examples: "User Database" → DATABASE, "Inventory DB" → DATABASE, "Redis Cache" → DATABASE
+- Use TEAM (not ORGANIZATION) for: internal teams, squads, departments, engineering groups
+  Examples: "Platform Engineering Team" → TEAM, "Security Team" → TEAM, "DevOps Squad" → TEAM
+- Use INCIDENT (not EVENT) for: operational incidents, outages, issues with IDs
+  Examples: "INC-2026-0105-A" → INCIDENT, "Database Outage" → INCIDENT, "Production Incident" → INCIDENT
+- Use ORGANIZATION only for: external companies, agencies, government bodies, corporations
+  Examples: "Acme Corporation" → ORGANIZATION, "AWS" → ORGANIZATION, "Federal Reserve" → ORGANIZATION
+- Use PROCESS only for: abstract business workflows, procedures, methodologies (NOT software services)
+  Examples: "Approval Workflow" → PROCESS, "Onboarding Procedure" → PROCESS
+- Use EVENT only for: meetings, conferences, announcements (NOT operational incidents)
+  Examples: "Annual Conference" → EVENT, "Q4 Kickoff Meeting" → EVENT
+
 For EACH entity found, return:
 - type: One of {entity_type_names}
 - canonical_name: The standardized name
@@ -96,7 +112,9 @@ CRITICAL RULES:
 1. Only extract what is EXPLICITLY stated in the text
 2. Do NOT infer entities that aren't mentioned
 3. Use canonical naming (e.g., "Auth Service" not "the auth service")
-4. Confidence should reflect clarity of mention:
+4. ALWAYS prefer specific types (SERVICE, DATABASE, TEAM, INCIDENT) over generic types (ORGANIZATION, PROCESS, EVENT)
+5. Each entity should only appear ONCE with ONE type - no duplicates
+6. Confidence should reflect clarity of mention:
    - 0.9-1.0: Clearly named and defined
    - 0.7-0.9: Mentioned by name but minimal context
    - 0.5-0.7: Implied or ambiguous reference
@@ -109,11 +127,18 @@ Respond with ONLY a valid JSON array of entities. If no entities found, return [
 Example format:
 [
   {{
-    "type": "ENTITY_TYPE",
-    "canonical_name": "Example Name",
-    "properties": {{"key": "value"}},
+    "type": "SERVICE",
+    "canonical_name": "Payment Gateway",
+    "properties": {{"owner": "Platform Team"}},
     "confidence": 0.95,
-    "source_sentence": "The exact sentence from the text."
+    "source_sentence": "The Payment Gateway handles all credit card transactions."
+  }},
+  {{
+    "type": "TEAM",
+    "canonical_name": "Platform Engineering Team",
+    "properties": {{}},
+    "confidence": 0.90,
+    "source_sentence": "The Platform Engineering Team manages the core infrastructure."
   }}
 ]"""
 
@@ -231,6 +256,31 @@ class GraphBuilderAgent:
             text=text
         )
     
+    TYPE_MAPPING = {
+        "APPLICATION": "SERVICE",
+        "API": "SERVICE",
+        "PLATFORM": "SERVICE",
+        "GATEWAY": "SERVICE",
+        "MICROSERVICE": "SERVICE",
+        "GROUP": "TEAM",
+        "SQUAD": "TEAM",
+        "DEPARTMENT": "TEAM",
+        "OUTAGE": "INCIDENT",
+        "ISSUE": "INCIDENT",
+        "FAILURE": "INCIDENT",
+        "DATASTORE": "DATABASE",
+        "REPOSITORY": "DATABASE",
+        "CACHE": "DATABASE",
+        "TECHNOLOGY": "SERVICE",
+    }
+    
+    SPECIFIC_TYPE_PATTERNS = {
+        "SERVICE": ["service", "gateway", "api", "app", "server", "endpoint", "microservice", "portal"],
+        "DATABASE": ["database", "db", "datastore", "store", "warehouse", "cache", "redis", "postgres", "mysql"],
+        "TEAM": ["team", "squad", "department", "group", "engineering", "platform team", "security team"],
+        "INCIDENT": ["inc-", "incident", "outage", "issue #", "failure", "disruption", "alert"],
+    }
+    
     def _validate_entity_type(self, entity_type: str) -> bool:
         """Check if entity type is valid according to loaded schema."""
         return entity_type.upper() in self._valid_entity_types
@@ -238,6 +288,34 @@ class GraphBuilderAgent:
     def _validate_relationship(self, rel_type: str, source_type: str, target_type: str) -> Tuple[bool, str]:
         """Validate relationship type and source/target compatibility."""
         return self.schema.validate_relationship(rel_type, source_type, target_type)
+    
+    def _correct_entity_type(self, extracted_type: str, entity_name: str) -> str:
+        """Correct/map generic entity types to specific types.
+        
+        Uses a priority system:
+        1. Direct mapping from TYPE_MAPPING
+        2. Pattern matching on entity name
+        3. Keep original type if already valid
+        
+        This helps correct LLM errors like "Payment Gateway" → ORGANIZATION
+        to the correct type: SERVICE
+        """
+        extracted_type = extracted_type.upper()
+        
+        if extracted_type in self.TYPE_MAPPING:
+            mapped = self.TYPE_MAPPING[extracted_type]
+            logger.debug(f"Type mapping: {extracted_type} → {mapped} for '{entity_name}'")
+            return mapped
+        
+        name_lower = entity_name.lower()
+        
+        if extracted_type in ("ORGANIZATION", "PROCESS", "EVENT", "CONCEPT"):
+            for specific_type, patterns in self.SPECIFIC_TYPE_PATTERNS.items():
+                if any(pattern in name_lower for pattern in patterns):
+                    logger.info(f"Type correction: {extracted_type} → {specific_type} for '{entity_name}' (pattern match)")
+                    return specific_type
+        
+        return extracted_type
     
     def _normalize_entity_type(self, entity_type: str) -> str:
         """Normalize entity type string for database storage.
@@ -431,16 +509,27 @@ class GraphBuilderAgent:
                 entities_data = [entities_data] if entities_data else []
             
             entities = []
+            seen_names = set()
+            
             for e in entities_data:
-                entity_type = e.get("type", "").upper()
+                raw_type = e.get("type", "").upper()
+                canonical_name = e.get("canonical_name", e.get("name", ""))
+                
+                name_key = canonical_name.lower().strip()
+                if name_key in seen_names:
+                    logger.debug(f"Skipping duplicate entity: {canonical_name}")
+                    continue
+                seen_names.add(name_key)
+                
+                entity_type = self._correct_entity_type(raw_type, canonical_name)
                 
                 if not self._validate_entity_type(entity_type):
-                    logger.warning(f"Unknown entity type: {entity_type} (valid: {self._valid_entity_types})")
+                    logger.warning(f"Unknown entity type after correction: {entity_type} (original: {raw_type}, valid: {self._valid_entity_types})")
                     continue
                 
                 confidence = float(e.get("confidence", 0.5))
                 if confidence < 0.5:
-                    logger.debug(f"Skipping low-confidence entity: {e.get('canonical_name')} ({confidence})")
+                    logger.debug(f"Skipping low-confidence entity: {canonical_name} ({confidence})")
                     continue
                 
                 source_sentence = e.get("source_sentence", "")
@@ -455,7 +544,7 @@ class GraphBuilderAgent:
                 
                 entity = ExtractedEntity(
                     entity_type=entity_type,
-                    canonical_name=e.get("canonical_name", e.get("name", "")),
+                    canonical_name=canonical_name,
                     properties=e.get("properties", {}),
                     confidence=confidence,
                     source_sentence=source_sentence,
