@@ -16,7 +16,7 @@ from rapidfuzz import fuzz
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
-from ..models.schema import Entity, LifecycleState, get_session
+from ..models.schema import Entity, EntityAlias, LifecycleState, get_session
 from ..memory.episodic import openai_embedding, EMBEDDING_DIM
 from ..utils.logger import logger
 
@@ -120,6 +120,14 @@ class EntityResolver:
             logger.info(f"Exact match disambiguation: {len(exact_result.candidates)} candidates")
             return exact_result
         
+        alias_result = self._alias_match(query, entity_type_hint)
+        if alias_result.entity and alias_result.confidence >= self.EXACT_MATCH_THRESHOLD:
+            logger.info(f"Alias match found: {alias_result.entity.name}")
+            return alias_result
+        if alias_result.needs_disambiguation:
+            logger.info(f"Alias match disambiguation: {len(alias_result.candidates)} candidates")
+            return alias_result
+        
         contains_result = self._contains_match(query, entity_type_hint)
         if contains_result.entity and contains_result.confidence >= 0.90:
             logger.info(f"Contains match found: {contains_result.entity.name}")
@@ -146,6 +154,21 @@ class EntityResolver:
         
         logger.info(f"No match found for: '{query}'")
         return ResolveResult(match_stage="not_found")
+    
+    def resolve_alias(self, alias_text: str, entity_type_hint: Optional[str] = None) -> Optional[Entity]:
+        """
+        Public method to resolve an alias to an Entity.
+        
+        Used by RetrievalAgent to resolve acronyms/abbreviations to full entity names.
+        Returns the Entity if found, None otherwise.
+        """
+        result = self._alias_match(alias_text, entity_type_hint)
+        if result.entity:
+            entity = self.session.query(Entity).filter(
+                Entity.id == result.entity.entity_id
+            ).first()
+            return entity
+        return None
     
     def _normalize_name(self, name: str) -> str:
         """Normalize entity name for matching."""
@@ -265,6 +288,72 @@ class EntityResolver:
             needs_disambiguation=True,
             candidates=candidates,
             match_stage="exact"
+        )
+    
+    def _alias_match(
+        self,
+        query: str,
+        entity_type_hint: Optional[str] = None
+    ) -> ResolveResult:
+        """Stage 1.5: Alias match - check if query matches any entity alias."""
+        base_query = self.session.query(Entity).join(
+            EntityAlias, Entity.id == EntityAlias.entity_id
+        ).filter(
+            Entity.lifecycle_state == LifecycleState.TRUSTED,
+            EntityAlias.alias.ilike(query)
+        )
+        
+        if entity_type_hint:
+            base_query = base_query.filter(Entity.entity_type == entity_type_hint)
+        
+        if self.tenant_id:
+            base_query = base_query.filter(
+                Entity.tenant_id == self.tenant_id,
+                EntityAlias.tenant_id == self.tenant_id
+            )
+        
+        matches = base_query.all()
+        
+        if not matches:
+            return ResolveResult(match_stage="alias")
+        
+        if len(matches) == 1:
+            entity = matches[0]
+            candidate = EntityCandidate(
+                entity_id=str(entity.id),
+                name=entity.name,
+                entity_type=entity.entity_type,
+                description=entity.description,
+                score=0.98,
+                match_stage="alias",
+                confidence=0.98
+            )
+            logger.debug(f"Alias resolved: '{query}' -> {entity.name}")
+            return ResolveResult(
+                entity=candidate,
+                confidence=0.98,
+                match_stage="alias"
+            )
+        
+        candidates = [
+            EntityCandidate(
+                entity_id=str(e.id),
+                name=e.name,
+                entity_type=e.entity_type,
+                description=e.description,
+                score=0.98,
+                match_stage="alias",
+                confidence=0.98
+            )
+            for e in matches
+        ]
+        
+        return ResolveResult(
+            entity=None,
+            confidence=0.98,
+            needs_disambiguation=True,
+            candidates=candidates,
+            match_stage="alias"
         )
     
     def _semantic_search(

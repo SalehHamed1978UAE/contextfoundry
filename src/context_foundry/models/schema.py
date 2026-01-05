@@ -951,8 +951,8 @@ class InteractionEvent(Base):
     )
 
 
-class EntityAlias(Base):
-    """Alias dictionary with governance states."""
+class LegacyEntityAlias(Base):
+    """Legacy alias dictionary with governance states (deprecated - use EntityAlias instead)."""
     __tablename__ = "cf_entity_aliases"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
