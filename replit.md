@@ -70,6 +70,13 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - **Test coverage**: 90 passing tests (Memory API + Sandbox + Router + Integration)
 
 ## Recent Changes (January 2026)
+- **Entity Type Extraction Fix (Jan 5)**: Fixed critical issue where extractor used generic types (ORGANIZATION, PROCESS) instead of IT-specific types (SERVICE, DATABASE, TEAM, INCIDENT)
+  - Added TEAM and INCIDENT entity types to domain_schema.yaml
+  - Added OWNS, AFFECTS, TRIGGERED_BY relationship types for IT infrastructure
+  - Updated extraction prompt with TYPE PRIORITY section to prefer specific types
+  - Added post-extraction type correction with TYPE_MAPPING and SPECIFIC_TYPE_PATTERNS
+  - Added deduplication to prevent duplicate entities with different types
+  - Updated MANAGES relationship to include TEAM as source and SERVICE/DATABASE as targets
 - **RLM Answer Generation Improvements**: Enhanced RLM to produce grounded answers instead of exploration-only responses
   - Updated system prompt to emphasize early finalization (after 3 iterations)
   - Added iteration warnings at 2 and 4 remaining iterations
