@@ -685,10 +685,15 @@ function runApp() {
         graphContainer.innerHTML = '';
         linksContainer.innerHTML = '';
         
-        const nodes = Object.values(graphNodes);
-        // Filter edges: must have valid source/target, and hide speculative unless toggled on
+        // Filter nodes: hide speculative target nodes when toggle is off
+        const nodes = Object.values(graphNodes).filter(n => 
+            showSpeculativeEdges || !n.is_speculative_target
+        );
+        const visibleNodeIds = new Set(nodes.map(n => n.id));
+        
+        // Filter edges: must have valid source/target in visible nodes, and hide speculative unless toggled on
         const edges = graphEdges.filter(e => 
-            graphNodes[e.source] && graphNodes[e.target] && 
+            visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target) && 
             (showSpeculativeEdges || !e.speculative)
         );
         
@@ -1262,10 +1267,17 @@ function runApp() {
         if (speculativeToggle) {
             speculativeToggle.addEventListener('change', async (e) => {
                 showSpeculativeEdges = e.target.checked;
-                // Re-fetch the current entity with updated speculative setting
-                if (currentDetailEntityId && showSpeculativeEdges) {
-                    // Only re-fetch if turning ON speculative (need to fetch the data)
-                    await expandEntity(currentDetailEntityId);
+                
+                if (showSpeculativeEdges) {
+                    // Turning ON - re-fetch to get speculative data
+                    if (currentDetailEntityId) {
+                        await expandEntity(currentDetailEntityId);
+                    }
+                } else {
+                    // Turning OFF - remove speculative nodes and edges
+                    graphEdges = graphEdges.filter(e => !e.speculative);
+                    const speculativeNodeIds = Object.keys(graphNodes).filter(id => graphNodes[id].is_speculative_target);
+                    speculativeNodeIds.forEach(id => delete graphNodes[id]);
                 }
                 renderGraph();
             });
