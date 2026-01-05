@@ -48,6 +48,8 @@ class EpisodicMemoryAPI:
         """
         Semantic search over document chunks.
         
+        Falls back to text-based search if embeddings are not available.
+        
         Args:
             query: Search query text
             k: Number of results (default 5)
@@ -57,40 +59,83 @@ class EpisodicMemoryAPI:
             List of ChunkMatch objects with similarity scores
         """
         from src.context_foundry.models.schema import Document, DocumentChunk
-        import openai
         
-        client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-        response = client.embeddings.create(
-            model="text-embedding-3-small",
-            input=query
-        )
-        query_embedding = response.data[0].embedding
+        doc_type_clause = "AND d.doc_type = :doc_type" if document_type else ""
         
-        sql = text("""
-            SELECT 
-                dc.id as chunk_id,
-                dc.document_id,
-                dc.chunk_index,
-                dc.text as content,
-                dc.chunk_metadata,
-                dc.created_at as chunk_created_at,
-                d.title as document_name,
-                d.doc_type as document_type,
-                d.created_at as upload_date,
-                1 - (d.embedding <=> :embedding::vector) as similarity
-            FROM document_chunks dc
-            JOIN documents d ON dc.document_id = d.id
-            WHERE dc.tenant_id = :tenant_id
-            AND d.embedding IS NOT NULL
-            """ + (f"AND d.doc_type = :doc_type" if document_type else "") + """
-            ORDER BY d.embedding <=> :embedding::vector
-            LIMIT :limit
+        check_sql = text("""
+            SELECT COUNT(*) FROM documents 
+            WHERE tenant_id = :tenant_id AND embedding IS NOT NULL
+            LIMIT 1
         """)
+        has_embeddings = self._session.execute(check_sql, {"tenant_id": str(self._tenant_id)}).scalar() > 0
+        
+        if has_embeddings:
+            import openai
+            client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+            response = client.embeddings.create(
+                model="text-embedding-3-small",
+                input=query
+            )
+            query_embedding = response.data[0].embedding
+            embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
+            
+            sql = text(f"""
+                SELECT 
+                    dc.id as chunk_id,
+                    dc.document_id,
+                    dc.chunk_index,
+                    dc.text as content,
+                    dc.chunk_metadata,
+                    dc.created_at as chunk_created_at,
+                    d.title as document_name,
+                    d.doc_type as document_type,
+                    d.created_at as upload_date,
+                    1 - (d.embedding <=> '{embedding_str}'::vector) as similarity
+                FROM document_chunks dc
+                JOIN documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tenant_id
+                AND d.embedding IS NOT NULL
+                {doc_type_clause}
+                ORDER BY d.embedding <=> '{embedding_str}'::vector
+                LIMIT :limit
+            """)
+        else:
+            query_lower = query.lower()
+            query_words = query_lower.split()
+            like_conditions = " OR ".join(
+                f"LOWER(dc.text) LIKE '%{word}%'" for word in query_words if len(word) > 2
+            )
+            if not like_conditions:
+                like_conditions = f"LOWER(dc.text) LIKE '%{query_lower}%'"
+            
+            sql = text(f"""
+                SELECT 
+                    dc.id as chunk_id,
+                    dc.document_id,
+                    dc.chunk_index,
+                    dc.text as content,
+                    dc.chunk_metadata,
+                    dc.created_at as chunk_created_at,
+                    d.title as document_name,
+                    d.doc_type as document_type,
+                    d.created_at as upload_date,
+                    CASE 
+                        WHEN LOWER(dc.text) LIKE :query_contains THEN 0.8
+                        ELSE 0.5
+                    END as similarity
+                FROM document_chunks dc
+                JOIN documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tenant_id
+                AND ({like_conditions})
+                {doc_type_clause}
+                ORDER BY similarity DESC
+                LIMIT :limit
+            """)
         
         params = {
-            "embedding": str(query_embedding),
             "tenant_id": str(self._tenant_id),
             "limit": k,
+            "query_contains": f"%{query.lower()}%",
         }
         if document_type:
             params["doc_type"] = document_type.lower()
