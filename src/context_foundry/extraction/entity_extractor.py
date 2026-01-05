@@ -300,12 +300,12 @@ Return valid JSON array only (no markdown):
         "TECHNOLOGY": "SERVICE",
     }
     
-    SPECIFIC_TYPE_PATTERNS = {
-        "SERVICE": ["service", "gateway", "api", "app", "server", "endpoint", "microservice", "portal"],
-        "DATABASE": ["database", "db", "datastore", "store", "warehouse", "cache", "redis", "postgres", "mysql", "inventory"],
-        "TEAM": ["team", "squad", "department", "group", "engineering", "platform team", "security team"],
-        "INCIDENT": ["inc-", "incident", "outage", "issue #", "failure", "disruption", "alert", "sev1", "sev2"],
-    }
+    SPECIFIC_TYPE_PATTERNS = [
+        ("TEAM", ["team", "squad"]),
+        ("INCIDENT", ["inc-", "incident", "outage", "sev1", "sev2"]),
+        ("SERVICE", ["service", "gateway", "api", "app", "server", "endpoint", "microservice", "portal"]),
+        ("DATABASE", ["database", "db", "datastore", "store", "warehouse", "cache", "redis", "postgres", "mysql", "inventory"]),
+    ]
     
     def _correct_entity_type(self, entity: Dict) -> Dict:
         """Correct common entity type misclassifications.
@@ -326,7 +326,7 @@ Return valid JSON array only (no markdown):
             return entity
         
         if entity_type in ("ORGANIZATION", "PROCESS", "EVENT", "CONCEPT"):
-            for specific_type, patterns in self.SPECIFIC_TYPE_PATTERNS.items():
+            for specific_type, patterns in self.SPECIFIC_TYPE_PATTERNS:
                 if any(pattern in name_lower for pattern in patterns):
                     logger.info(f"[TypeCorrection] Pattern match: {entity_type} → {specific_type} for '{name}'")
                     entity["entity_type"] = specific_type
