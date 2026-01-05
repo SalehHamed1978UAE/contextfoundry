@@ -11,9 +11,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, EntityMention
+    Entity, Relationship, LifecycleState, EntityMention, Document
 )
 from .entity_extractor import ExtractedEntity
+
+from ..utils.logger import logger
 
 
 from .relation_extractor import ExtractedRelation
@@ -36,6 +38,9 @@ def _safe_uuid(value) -> Optional[uuid.UUID]:
         return uuid.UUID(str_val)
     except (ValueError, AttributeError):
         return None
+
+
+_document_existence_cache: Dict[str, bool] = {}
 
 
 @dataclass
@@ -97,9 +102,28 @@ class StagingLoader:
         """
         self.session = session
         self._entity_cache = {}
+        self._document_exists_cache: Dict[str, bool] = {}
         self.enable_deduplication = enable_deduplication
         self.tenant_id = tenant_id
         self.duplicate_detector = DuplicateDetector(session, similarity_threshold, tenant_id=tenant_id)
+    
+    def _document_exists_in_public(self, doc_id: uuid.UUID) -> bool:
+        """Check if a document exists in public.documents (for FK constraint).
+        
+        EntityMention has a FK to public.documents, but extraction documents
+        may only exist in platform.documents. This check prevents FK violations.
+        """
+        cache_key = str(doc_id)
+        if cache_key in self._document_exists_cache:
+            return self._document_exists_cache[cache_key]
+        
+        try:
+            exists = self.session.query(Document).filter(Document.id == doc_id).first() is not None
+            self._document_exists_cache[cache_key] = exists
+            return exists
+        except Exception:
+            self._document_exists_cache[cache_key] = False
+            return False
     
     def _normalize_entity_type(self, entity_type: str) -> str:
         """Normalize entity type string for database storage.
@@ -200,7 +224,7 @@ class StagingLoader:
                     doc_uuid = _safe_uuid(extracted.source_document_id)
                     tenant_uuid = _safe_uuid(self.tenant_id)
                     
-                    if chunk_uuid and tenant_uuid:
+                    if chunk_uuid and tenant_uuid and doc_uuid and self._document_exists_in_public(doc_uuid):
                         existing_mention = self.session.query(EntityMention).filter_by(
                             entity_id=existing.id,
                             chunk_id=chunk_uuid
@@ -243,7 +267,7 @@ class StagingLoader:
             chunk_uuid = _safe_uuid(extracted.source_chunk_id)
             tenant_uuid = _safe_uuid(self.tenant_id)
             
-            if chunk_uuid and tenant_uuid:
+            if chunk_uuid and tenant_uuid and doc_uuid and self._document_exists_in_public(doc_uuid):
                 mention = EntityMention(
                     id=uuid.uuid4(),
                     entity_id=entity.id,
