@@ -85,10 +85,6 @@ class EntityResolver:
     def __init__(self, session: Optional[Session] = None, tenant_id: Optional[str] = None):
         self.session = session or get_session()
         self.tenant_id = tenant_id
-        try:
-            self.session.rollback()
-        except Exception:
-            pass
         logger.info("EntityResolver initialized")
     
     def resolve(
