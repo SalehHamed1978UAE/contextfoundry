@@ -14,6 +14,16 @@ def get_db_session():
     return get_session()
 
 
+def get_tenant_db_session(tenant_id: str):
+    """Get a database session with RLS tenant context set.
+    
+    SECURITY: This sets app.current_tenant_id for Row-Level Security.
+    RLS policies are fail-closed: if not set, NO rows are returned.
+    """
+    from src.context_foundry.models.schema import get_tenant_session
+    return get_tenant_session(tenant_id)
+
+
 def get_context_foundry():
     from src.context_foundry.core import ContextFoundry
     return ContextFoundry()
@@ -212,7 +222,7 @@ def list_entities():
     document_id = request.args.get('document_id')
     
     try:
-        session = get_db_session()
+        session = get_tenant_db_session(tenant_id)
         
         query = """
             SELECT e.id, e.name, e.entity_type, e.properties, e.confidence,
@@ -268,7 +278,7 @@ def get_entity(entity_id):
         return jsonify({'error': 'tenant_id required'}), 400
     
     try:
-        session = get_db_session()
+        session = get_tenant_db_session(tenant_id)
         
         entity_result = session.execute(
             text("""
@@ -332,7 +342,7 @@ def list_relationships():
     per_page = request.args.get('per_page', 50, type=int)
     
     try:
-        session = get_db_session()
+        session = get_tenant_db_session(tenant_id)
         
         result = session.execute(
             text("""
@@ -388,7 +398,7 @@ def get_graph():
     document_id = request.args.get('document_id')
     
     try:
-        session = get_db_session()
+        session = get_tenant_db_session(tenant_id)
         
         if document_id:
             entity_result = session.execute(
@@ -488,7 +498,7 @@ def get_stats():
         return jsonify({'error': 'tenant_id required'}), 400
     
     try:
-        session = get_db_session()
+        session = get_tenant_db_session(tenant_id)
         
         stats_result = session.execute(
             text("""
