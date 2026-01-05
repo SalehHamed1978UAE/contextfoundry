@@ -84,7 +84,9 @@ class EpisodicMemory:
     def _apply_tenant_filter(self, query, model_class):
         """Apply tenant_id filter if tenant_id is set (defense-in-depth)."""
         if self.tenant_id and hasattr(model_class, 'tenant_id'):
-            return query.filter(model_class.tenant_id == self.tenant_id)
+            from uuid import UUID
+            tid = UUID(self.tenant_id) if isinstance(self.tenant_id, str) else self.tenant_id
+            return query.filter(model_class.tenant_id == tid)
         return query
     
     def add_document(

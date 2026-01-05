@@ -33,7 +33,12 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **UI/UX**: Single Page Application (SPA) with Flask/Jinja2, AJAX, SVG graph visualization.
 - **Corpus Stats Dashboard**: Displays real-time document processing statistics.
 - **OCR Support**: Integrates Tesseract OCR with Claude Vision fallback for visually complex PDFs.
-- **Tenant Isolation**: Multi-layer security via PostgreSQL RLS policies (authoritative), application-level defense-in-depth filtering, and tenant session management. Memory classes (SemanticMemory, EpisodicMemory) accept tenant_id parameter for belt-and-suspenders protection.
+- **Tenant Isolation**: Multi-layer security architecture:
+  - **RLS (Authoritative)**: PostgreSQL fail-closed policies on 9 tables via `app_user` role (NOBYPASSRLS)
+  - **Defense-in-Depth**: Application-level tenant_id filtering in all memory classes
+  - **Propagation Chain**: ContextFoundry → RetrievalAgent → SemanticMemory/EpisodicMemory → _apply_tenant_filter()
+  - **UUID Conversion**: _apply_tenant_filter() converts string tenant_ids to UUID for proper SQLAlchemy filtering
+  - **Test Coverage**: 16 RLS tests (11 RLS + 5 defense-in-depth) verify tenant isolation
 - **Document Management**: Supports upload, versioning, re-queue, and status tracking.
 - **Bulk Ingestion System**: Multi-file/ZIP uploads, S3/Google Drive connectors, and content deduplication.
 - **Automatic Domain Detection**: Semantic routing classifies documents for domain-specific extraction.

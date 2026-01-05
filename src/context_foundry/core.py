@@ -49,7 +49,7 @@ class ContextFoundry:
         self.enable_rlm = enable_rlm
         self.rlm_config = rlm_config
         
-        self.retrieval = RetrievalAgent(self.session)
+        self.retrieval = RetrievalAgent(self.session, tenant_id=tenant_id)
         self.reasoning = ReasoningAgent()
         self.validation = ValidationAgent(self.session)
         
@@ -57,7 +57,7 @@ class ContextFoundry:
         
         self.is_initialized = False
         
-        logger.info(f"ContextFoundry core initialized (RLM enabled: {enable_rlm})")
+        logger.info(f"ContextFoundry core initialized for tenant {tenant_id[:8] if tenant_id else 'default'}... (RLM enabled: {enable_rlm})")
     
     def cleanup(self):
         """Clean up the session to recover from errors."""
@@ -77,7 +77,7 @@ class ContextFoundry:
     
     def load_data(self, data: Dict, auto_promote: bool = True) -> Dict:
         """Load data into the tri-memory system."""
-        loader = GraphLoaderAgent(self.session, auto_promote=auto_promote)
+        loader = GraphLoaderAgent(self.session, auto_promote=auto_promote, tenant_id=self.tenant_id)
         stats = loader.load_synthetic_data(data)
         logger.info(f"Data loaded: {stats}")
         return stats
@@ -521,7 +521,7 @@ class ContextFoundry:
             pass
         
         self.session = get_session()
-        self.retrieval = RetrievalAgent(self.session)
+        self.retrieval = RetrievalAgent(self.session, tenant_id=self.tenant_id)
         self.validation = ValidationAgent(self.session)
         logger.info("ContextFoundry session reset")
     

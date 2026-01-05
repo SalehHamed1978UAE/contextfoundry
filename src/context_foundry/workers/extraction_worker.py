@@ -176,7 +176,7 @@ class ExtractionWorker:
         """
         from src.context_foundry.core import ContextFoundry
         
-        foundry = ContextFoundry()
+        foundry = ContextFoundry(tenant_id=tenant_id)
         
         input_tokens = 0
         output_tokens = 0
