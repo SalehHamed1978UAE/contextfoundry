@@ -1,0 +1,50 @@
+Yes, run the original test queries against the correct tenant.
+pythonfrom context_foundry.core import ContextFoundry
+
+# CORRECT tenant with health check test data
+cf = ContextFoundry(tenant_id="53e94d0c-d4e5-47e5-82ae-3c68750cabd0")
+
+# First, verify the data exists
+print("=== DATA VERIFICATION ===")
+# Check entities
+result = cf.query("List all SERVICE entities")
+print(f"Services: {result.get('answer')}")
+
+# Check relationships exist
+result = cf.query("What relationships does Order Processing Service have?")
+print(f"Relationships: {result.get('answer')}")
+Then run the validation tests:
+python# Test 1: Dependency (Tier 1)
+result = cf.query("What does Order Processing Service depend on?")
+print(f"Test 1: {result.get('answer')}")
+# Expected: Payment Gateway, Inventory Database
+
+# Test 2: Management (Tier 1)
+result = cf.query("Who manages the Payment Gateway?")
+print(f"Test 2: {result.get('answer')}")
+# Expected: Platform Engineering Team
+
+# Test 3: Impact (Tier 1)
+result = cf.query("What was affected by incident INC-2026-0105-A?")
+print(f"Test 3: {result.get('answer')}")
+# Expected: Order Processing Service
+
+# Test 4: Multi-hop (Tier 2 RLM)
+result = cf.query(
+    "Trace dependencies from Customer Portal to databases",
+    force_tier="tier2"
+)
+print(f"Test 4 - Entities: {result.get('entities_discovered')}")
+print(f"Test 4 - Relationships: {result.get('relationships_discovered')}")
+print(f"Test 4 - Answer: {result.get('answer')}")
+
+# Test 5: Blast radius (Tier 2 RLM)
+result = cf.query(
+    "If Payment Gateway fails, what services are affected?",
+    force_tier="tier2"
+)
+print(f"Test 5 - Blast radius: {result.get('blast_radius_entities')}")
+print(f"Test 5 - Answer: {result.get('answer')}")
+Report in this format:
+TestExpectedActualPass?1 - DependencyPayment Gateway, Inventory DB??2 - ManagementPlatform Engineering Team??3 - ImpactOrder Processing Service??4 - Multi-hopDependency chain found??5 - Blast radiusAffected services listed??
+This should show RLM working because this tenant actually has DEPENDS_ON relationships.
