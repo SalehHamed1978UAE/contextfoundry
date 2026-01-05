@@ -45,15 +45,35 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Automatic Domain Detection**: Semantic routing classifies documents into domains using embedding similarity, combining Core Foundation types with domain-specific types for extraction.
 - **Chunked Extraction**: Splits documents into overlapping chunks to prevent LLM "output saturation," significantly improving entity extraction recall.
 - **Query/Reasoning System**: Provides GROUNDED, GAP, and INFERRED responses, with guards to prevent hallucination when entities or sufficient data are not found. Implements a 4-AI consensus design principle by architecturally gating LLM calls based on data sufficiency.
-- **EntityResolver (NEW)**: 3-stage entity resolution pipeline for robust entity matching:
+- **EntityResolver**: 3-stage entity resolution pipeline for robust entity matching:
   1. Exact match (case-insensitive)
   2. Semantic search (OpenAI embeddings with pgvector, similarity > 0.75)
   3. Fuzzy match (rapidfuzz with word-level boost, threshold 0.70)
   - Disambiguation: Returns candidate list when top 2 scores are within 0.1 delta
   - Entity name embeddings stored in `entities.name_embedding` column (Vector 1536)
   - Batch embedding job: `scripts/batch_entity_embeddings.py`
+- **RLM Integration (NEW - January 2026)**: Recursive Language Model system for complex multi-hop queries:
+  - **QueryComplexityRouter**: Analyzes query complexity (conjunctions, comparisons, causal keywords, aggregations) to route between Tier 1 (simple retrieval) and Tier 2 (RLM complex)
+  - **Memory APIs**: Wrappers for tri-memory architecture (SemanticMemoryAPI, EpisodicMemoryAPI, SymbolicMemoryAPI) that track entity/relationship discovery for progress monitoring
+  - **REPLSandbox**: Secure Python code execution with restricted patterns (no imports, eval, exec, file access), timeout enforcement, and retry hint generation
+  - **RLMExecutor**: Orchestrates multi-turn LLM conversation loop with progress tracking, circuit breaker (3 iterations without new discoveries), and budget management
+  - **SubQueryAPI**: Enables sub-queries to Tier 1 resolver with token budget tracking (max 8000 tokens)
+  - **Design decisions**:
+    - STAGING entities visible to RLM with lifecycle_state field (LLM can weigh confidence)
+    - StaleEntityError raised if Gardener archives entity mid-execution
+    - Router threshold: 0.19 complexity score for Tier 2 routing
+  - **Test coverage**: 71 passing tests (20 Memory API + 29 Sandbox + 22 Router)
 
-## Recent Changes (December 2025)
+## Recent Changes (January 2026)
+- **RLM Integration Complete**: Implemented complete RLM (Recursive Language Model) system for complex multi-hop queries
+  - QueryComplexityRouter with 0.19 threshold for Tier 1/Tier 2 routing
+  - Memory APIs (Semantic, Episodic, Symbolic) with entity/relationship discovery tracking
+  - REPLSandbox with security restrictions and retry hint generation
+  - RLMExecutor with circuit breaker and budget management
+  - SubQueryAPI with token budget tracking (max 8000 tokens)
+  - 71 passing tests across all components
+
+## Previous Changes (December 2025)
 - Added `name_embedding` column to entities table via migration 012
 - Implemented EntityResolver class in `src/context_foundry/agents/entity_resolver.py`
 - Integrated EntityResolver into RetrievalAgent's `_match_known_entity_in_query()`
