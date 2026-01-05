@@ -336,6 +336,7 @@ class PatternBasedQueryParser(QueryParserContract):
         
         leading_noise = [
             r'^(the|a|an)\s+',
+            r'^incident\s+',
         ]
         for pattern in leading_noise:
             cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
@@ -346,6 +347,9 @@ class PatternBasedQueryParser(QueryParserContract):
             return None
         if cleaned.lower() in ['it', 'this', 'that', 'what', 'which', 'who', 'how']:
             return None
+        
+        if re.match(r'^[A-Z]+-\d{4}-\d+$', cleaned.upper()):
+            return cleaned.upper()
         
         return cleaned.title() if cleaned else None
     

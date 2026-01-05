@@ -50,3 +50,24 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Web Framework**: Flask
 - **Deployment**: Gunicorn
 - **Authentication**: Magic Link, API Keys, JWT Sessions, Google OAuth
+
+## Recent Changes (January 2026)
+
+### Value Demo (6/6 queries working)
+- **Demo Script**: `scripts/value_demo.py`
+- **Demo Tenant**: 8eee325b-ba3b-447e-9ee7-6d66085ead5f
+- **Query Results**:
+  1. Blast Radius (0.77) - "If Auth Service goes down, what services are affected?"
+  2. Dependency Chain (0.95) - "What does Order Service depend on?"
+  3. Ownership (0.50) - "Who manages the Payment Service?"
+  4. Incident Impact (0.59) - "What was affected by incident INC-2025-1201?"
+  5. Cross-Document Reasoning (0.77) - "Which team should be paged if Orders Database fails?"
+  6. Gap Identification (0.50) - "What services have no documented disaster recovery?"
+- **Verdict**: CONTEXT FOUNDRY PROVIDES SIGNIFICANT VALUE
+
+### Bug Fixes (Demo Debugging)
+- **RLS Tenant Context Reset**: Fixed `session.commit()` resetting PostgreSQL `SET app.current_tenant_id`
+- **EntityResolver UUID Conversion**: Added UUID conversion in `EntityResolver.__init__()`
+- **RLM Memory APIs UUID Conversion**: Fixed SemanticMemoryAPI and EpisodicMemoryAPI
+- **Query Parser Incident ID Handling**: Fixed extraction of incident IDs like "INC-2025-1201"
+- **Retrieval Agent "affected by" Pattern**: Added patterns for incident impact queries
