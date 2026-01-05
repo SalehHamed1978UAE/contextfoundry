@@ -32,6 +32,10 @@ from .schemas import (
     REPLExecutionError,
     CircuitBreakerTripped,
 )
+from .sandbox import REPLSandbox, generate_retry_hint
+from .sub_query import SubQueryAPI
+from .executor import RLMExecutor, execute_rlm_query
+from .router import QueryComplexityRouter, QueryTier, route_query, should_use_rlm
 
 __all__ = [
     "LifecycleState",
@@ -59,4 +63,13 @@ __all__ = [
     "BudgetExhaustedError",
     "REPLExecutionError",
     "CircuitBreakerTripped",
+    "REPLSandbox",
+    "generate_retry_hint",
+    "SubQueryAPI",
+    "RLMExecutor",
+    "execute_rlm_query",
+    "QueryComplexityRouter",
+    "QueryTier",
+    "route_query",
+    "should_use_rlm",
 ]
