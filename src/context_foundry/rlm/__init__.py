@@ -1,0 +1,62 @@
+"""
+RLM (Recursive Language Models) Integration for Context Foundry.
+
+This module implements RLM-style iterative reasoning over the tri-memory architecture,
+allowing LLMs to write code to navigate memory and recursively sub-query for verification.
+"""
+
+from .schemas import (
+    LifecycleState,
+    EntitySummary,
+    EntityDetail,
+    EntityMatch,
+    ChunkSummary,
+    ChunkDetail,
+    ChunkMatch,
+    ProvenanceInfo,
+    Relationship,
+    PathStep,
+    Path,
+    SubGraph,
+    VerificationResult,
+    REPLExecutionResult,
+    ProgressTracker,
+    SubQueryLog,
+    ExecutionTraceEntry,
+    ExecutionTrace,
+    RLMConfig,
+    RLMResult,
+    RLMError,
+    StaleEntityError,
+    BudgetExhaustedError,
+    REPLExecutionError,
+    CircuitBreakerTripped,
+)
+
+__all__ = [
+    "LifecycleState",
+    "EntitySummary",
+    "EntityDetail",
+    "EntityMatch",
+    "ChunkSummary",
+    "ChunkDetail",
+    "ChunkMatch",
+    "ProvenanceInfo",
+    "Relationship",
+    "PathStep",
+    "Path",
+    "SubGraph",
+    "VerificationResult",
+    "REPLExecutionResult",
+    "ProgressTracker",
+    "SubQueryLog",
+    "ExecutionTraceEntry",
+    "ExecutionTrace",
+    "RLMConfig",
+    "RLMResult",
+    "RLMError",
+    "StaleEntityError",
+    "BudgetExhaustedError",
+    "REPLExecutionError",
+    "CircuitBreakerTripped",
+]
