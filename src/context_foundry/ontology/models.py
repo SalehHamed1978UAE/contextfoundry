@@ -12,15 +12,17 @@ from datetime import datetime
 
 
 class OntologyType(BaseModel):
-    """Represents an entity type from ontology_types table."""
+    """Represents an entity type from ontology.types table."""
     id: UUID
     type_name: str
     layer: int
-    display_name: str
+    display_name: Optional[str] = None
     description: Optional[str] = None
     parent_type_id: Optional[UUID] = None
     properties_schema: Optional[Dict[str, Any]] = None
-    origin: str = "system"
+    extraction_hints: Optional[Dict[str, Any]] = None
+    status: str = "ACTIVE"
+    domain_id: Optional[str] = None
     
     class Config:
         from_attributes = True
