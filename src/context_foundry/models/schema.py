@@ -951,12 +951,40 @@ class MemoryVersion(Base):
 
 
 _engine = None
+_rls_engine = None
 _session_factory = None
+_rls_session_factory = None
 
 
-def get_engine():
-    """Create database engine from environment with connection pooling."""
-    global _engine
+def get_engine(use_rls: bool = False):
+    """Create database engine from environment with connection pooling.
+    
+    SECURITY: For RLS enforcement, use use_rls=True or set DATABASE_URL_RLS.
+    The RLS engine connects as app_user (NOBYPASSRLS) for tenant isolation.
+    
+    Args:
+        use_rls: If True, returns the RLS-enforced engine (connects as app_user)
+    """
+    global _engine, _rls_engine
+    
+    if use_rls:
+        if _rls_engine is None:
+            rls_url = os.environ.get("DATABASE_URL_RLS")
+            if not rls_url:
+                rls_url = _construct_rls_url()
+            if rls_url:
+                _rls_engine = create_engine(
+                    rls_url,
+                    echo=False,
+                    pool_pre_ping=True,
+                    pool_recycle=300,
+                    pool_size=5,
+                    max_overflow=10,
+                    pool_timeout=30,
+                )
+        if _rls_engine:
+            return _rls_engine
+    
     if _engine is None:
         database_url = os.environ.get("DATABASE_URL")
         if not database_url:
@@ -973,23 +1001,73 @@ def get_engine():
     return _engine
 
 
-def get_session():
-    """Create a new database session with auto-reconnect."""
-    global _session_factory
-    if _session_factory is None:
-        engine = get_engine()
-        _session_factory = sessionmaker(bind=engine)
-    return _session_factory()
+def _construct_rls_url():
+    """Construct an RLS-enforced DATABASE_URL using app_user credentials.
+    
+    Uses PGHOST, PGPORT, PGDATABASE from environment.
+    Returns None if construction fails.
+    """
+    try:
+        pghost = os.environ.get("PGHOST")
+        pgport = os.environ.get("PGPORT", "5432")
+        pgdatabase = os.environ.get("PGDATABASE")
+        
+        if not pghost or not pgdatabase:
+            return None
+        
+        rls_password = os.environ.get("RLS_USER_PASSWORD", "RLS_Secure_Tenant_Isolation_2026!")
+        return f"postgresql://app_user:{rls_password}@{pghost}:{pgport}/{pgdatabase}?sslmode=require"
+    except Exception:
+        return None
+
+
+def get_session(use_rls_role: bool = True):
+    """Create a new database session with auto-reconnect.
+    
+    SECURITY: By default, uses RLS-enforced connection.
+    Attempts to connect as app_user (NOBYPASSRLS) first.
+    Falls back to SET ROLE if direct connection unavailable.
+    
+    Args:
+        use_rls_role: If True (default), uses RLS-enforced connection.
+                      Set to False only for admin/migration operations.
+    """
+    global _session_factory, _rls_session_factory
+    
+    if use_rls_role:
+        rls_engine = get_engine(use_rls=True)
+        if rls_engine is not None and rls_engine != get_engine(use_rls=False):
+            if _rls_session_factory is None:
+                _rls_session_factory = sessionmaker(bind=rls_engine)
+            return _rls_session_factory()
+        else:
+            if _session_factory is None:
+                _session_factory = sessionmaker(bind=get_engine())
+            session = _session_factory()
+            try:
+                session.execute(text("SET ROLE app_user"))
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Could not SET ROLE app_user: {e}")
+            return session
+    else:
+        if _session_factory is None:
+            _session_factory = sessionmaker(bind=get_engine())
+        return _session_factory()
 
 
 from contextlib import contextmanager
 
 @contextmanager
-def tenant_session(tenant_id: str):
+def tenant_session(tenant_id: str, role: str = 'user'):
     """Context manager for tenant-scoped database operations.
     
     Sets app.current_tenant_id for Row-Level Security policies.
     Automatically resets the setting when the context exits.
+    
+    SECURITY: RLS policies use fail-closed logic:
+    - If tenant_id is not set, NO rows are returned (not all rows)
+    - admin role bypasses RLS by using neondb_owner (which has BYPASSRLS)
     
     Usage:
         with tenant_session(tenant_id) as session:
@@ -999,11 +1077,15 @@ def tenant_session(tenant_id: str):
     
     Args:
         tenant_id: UUID string of the tenant
+        role: 'user' (default) or 'admin' (bypasses RLS)
         
     Yields:
         SQLAlchemy session with tenant context set
     """
-    session = get_session()
+    if role == 'admin':
+        session = get_session(use_rls_role=False)
+    else:
+        session = get_session(use_rls_role=True)
     try:
         if tenant_id:
             session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
@@ -1016,7 +1098,7 @@ def tenant_session(tenant_id: str):
         session.close()
 
 
-def get_tenant_session(tenant_id: str):
+def get_tenant_session(tenant_id: str, role: str = 'user'):
     """Create a database session with RLS tenant_id set.
     
     WARNING: This session must be closed and the connection reset manually.
@@ -1024,14 +1106,51 @@ def get_tenant_session(tenant_id: str):
     
     Args:
         tenant_id: UUID string of the tenant
+        role: 'user' (default) or 'admin' (bypasses RLS)
         
     Returns:
         SQLAlchemy session with tenant context set
     """
-    session = get_session()
+    if role == 'admin':
+        session = get_session(use_rls_role=False)
+    else:
+        session = get_session(use_rls_role=True)
     if tenant_id:
         session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
     return session
+
+
+def set_tenant_context(session, tenant_id: str, role: str = 'user'):
+    """Set tenant context on an existing session for RLS.
+    
+    Use this when you already have a session (e.g., from Flask-SQLAlchemy)
+    and need to set the tenant context for RLS policies.
+    
+    SECURITY: RLS policies use fail-closed logic:
+    - If tenant_id is not set, NO rows are returned (not all rows)
+    - admin role bypasses RLS for maintenance operations
+    
+    Args:
+        session: SQLAlchemy session
+        tenant_id: UUID string of the tenant
+        role: 'user' (default) or 'admin' (bypasses RLS)
+    """
+    if tenant_id:
+        session.execute(text(f"SET LOCAL app.current_tenant_id = '{tenant_id}'"))
+    if role == 'admin':
+        session.execute(text("SET LOCAL app.role = 'admin'"))
+
+
+def reset_tenant_context(session):
+    """Reset tenant context on a session.
+    
+    Call this at the end of a request to clear RLS context.
+    """
+    try:
+        session.execute(text("RESET app.current_tenant_id"))
+        session.execute(text("RESET app.role"))
+    except Exception:
+        pass
 
 
 def init_database():
