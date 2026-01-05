@@ -39,8 +39,8 @@ class ContextFoundry:
     
     def __init__(
         self, 
-        session: Optional[Session] = None, 
         tenant_id: str = DEFAULT_TENANT_ID,
+        session: Optional[Session] = None, 
         enable_rlm: bool = True,
         rlm_config: Optional[RLMConfig] = None
     ):
