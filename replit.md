@@ -70,6 +70,12 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - **Test coverage**: 90 passing tests (Memory API + Sandbox + Router + Integration)
 
 ## Recent Changes (January 2026)
+- **Entity Persistence FK Fix (Jan 5)**: Fixed critical silent failure where entities weren't being persisted
+  - Root cause: `entity_mentions.document_id` has FK to `public.documents`, but extraction documents only exist in `platform.documents`
+  - FK violation caused transaction rollback, but error was caught and appended to `result.errors` without re-raising
+  - Fix: Added `_document_exists_in_public()` check in StagingLoader before creating EntityMention records
+  - EntityMention creation now skipped when document doesn't exist in public.documents (entity still persists)
+  - Verified fix: test entities now persist correctly (2/2 created, 0 errors)
 - **OntologyRepository Refactor (Jan 5)**: Fixed repository to use correct ontology schema
   - Repository now queries `ontology.types` and `ontology.relations` instead of legacy `public` schema
   - Updated OntologyType and OntologyRelation models to match actual database columns
