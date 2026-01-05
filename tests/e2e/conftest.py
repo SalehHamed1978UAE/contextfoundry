@@ -3,13 +3,17 @@ E2E Test Configuration - Pytest fixtures for end-to-end testing.
 
 Week 4 Stabilization: Provides seeded test data fixtures for E2E tests
 so they can exercise the full pipeline instead of skipping.
+
+Also provides mock LLM fixtures for deterministic testing without API calls.
 """
 
 import pytest
 from uuid import UUID
+from unittest.mock import patch, MagicMock
 from sqlalchemy.orm import Session
 
 from src.context_foundry.models.schema import get_session
+from tests.fixtures.mock_llm import MockLLMClient, MockChatCompletion, MockChoice, MockChatMessage
 
 from tests.fixtures.knowledge_graph import (
     TEST_TENANT_ID,
@@ -120,3 +124,67 @@ def redis_cache(canonical_entities):
 def sre_team(canonical_entities):
     """Get the SRE Team entity."""
     return canonical_entities.get(SRE_TEAM_ID)
+
+
+@pytest.fixture(scope="function")
+def mock_llm_client():
+    """Provide a mock LLM client for deterministic testing."""
+    return MockLLMClient()
+
+
+@pytest.fixture(scope="function")
+def mock_openai(monkeypatch):
+    """
+    Mock OpenAI API calls for deterministic E2E testing.
+    
+    This fixture patches the OpenAI client to return mock responses,
+    eliminating dependency on external LLM API calls.
+    """
+    mock_client = MockLLMClient()
+    
+    def mock_chat_create(*args, **kwargs):
+        messages = kwargs.get("messages", [])
+        return mock_client.chat_completion(messages=messages)
+    
+    try:
+        import openai
+        monkeypatch.setattr(
+            "openai.chat.completions.create",
+            mock_chat_create
+        )
+    except (ImportError, AttributeError):
+        pass
+    
+    return mock_client
+
+
+@pytest.fixture(scope="function")
+def mock_embeddings(monkeypatch):
+    """
+    Mock embedding API calls for deterministic testing.
+    
+    Returns deterministic fake embeddings based on text hash.
+    """
+    mock_client = MockLLMClient()
+    
+    def mock_create_embedding(*args, **kwargs):
+        texts = kwargs.get("input", [])
+        if isinstance(texts, str):
+            texts = [texts]
+        
+        embeddings = mock_client.create_embeddings(texts)
+        
+        return MagicMock(
+            data=[MagicMock(embedding=emb) for emb in embeddings]
+        )
+    
+    try:
+        import openai
+        monkeypatch.setattr(
+            "openai.embeddings.create",
+            mock_create_embedding
+        )
+    except (ImportError, AttributeError):
+        pass
+    
+    return mock_client

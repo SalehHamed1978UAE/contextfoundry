@@ -173,13 +173,13 @@ class PatternBasedQueryParser(QueryParserContract):
     ]
     
     DEPENDENCY_PATTERNS = [
-        r'\bdepends on\b',
+        r'\bdepends? on\b',
         r'\bdependencies of\b',
         r'\bwhat does .+ depend on\b',
         r'\bupstream\b',
-        r'\brequires\b',
-        r'\bneeds\b',
-        r'\brelies on\b',
+        r'\brequires?\b',
+        r'\bneeds?\b',
+        r'\brel(?:y|ies) on\b',
     ]
     
     OWNERSHIP_PATTERNS = [
@@ -256,19 +256,28 @@ class PatternBasedQueryParser(QueryParserContract):
         )
     
     def _classify_query_type(self, query_text: str) -> QueryType:
-        """Classify the query type based on patterns."""
+        """Classify the query type based on patterns.
+        
+        Priority order matters:
+        1. ANALYSIS first (most specific - 'how many', 'patterns', etc.)
+        2. DEPENDENCY second (specific keywords like 'rely on', 'depends on')
+        3. IMPACT third (more generic like 'what services', 'affected')
+        4. OWNERSHIP, RULE, etc. follow
+        """
         query_lower = query_text.lower()
         
-        if self._matches_patterns(query_lower, self.IMPACT_PATTERNS):
-            return QueryType.IMPACT
+        # Check ANALYSIS first - most specific (how many, patterns, etc.)
+        if self._matches_patterns(query_lower, self.ANALYSIS_PATTERNS):
+            return QueryType.ANALYSIS
+        # Check DEPENDENCY second - specific keywords
         if self._matches_patterns(query_lower, self.DEPENDENCY_PATTERNS):
             return QueryType.DEPENDENCY
+        if self._matches_patterns(query_lower, self.IMPACT_PATTERNS):
+            return QueryType.IMPACT
         if self._matches_patterns(query_lower, self.OWNERSHIP_PATTERNS):
             return QueryType.OWNERSHIP
         if self._matches_patterns(query_lower, self.RULE_PATTERNS):
             return QueryType.RULE
-        if self._matches_patterns(query_lower, self.ANALYSIS_PATTERNS):
-            return QueryType.ANALYSIS
         if self._matches_patterns(query_lower, self.EXISTENCE_PATTERNS):
             return QueryType.EXISTENCE
         if self._matches_patterns(query_lower, self.LISTING_PATTERNS):
