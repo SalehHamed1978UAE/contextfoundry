@@ -1260,8 +1260,13 @@ function runApp() {
         // Toggle for showing speculative/inferred edges
         const speculativeToggle = document.getElementById('showSpeculativeToggle');
         if (speculativeToggle) {
-            speculativeToggle.addEventListener('change', (e) => {
+            speculativeToggle.addEventListener('change', async (e) => {
                 showSpeculativeEdges = e.target.checked;
+                // Re-fetch the current entity with updated speculative setting
+                if (currentDetailEntityId && showSpeculativeEdges) {
+                    // Only re-fetch if turning ON speculative (need to fetch the data)
+                    await expandEntity(currentDetailEntityId);
+                }
                 renderGraph();
             });
         }
