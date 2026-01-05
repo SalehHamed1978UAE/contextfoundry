@@ -446,10 +446,15 @@ class InferenceEngine:
     
     Schema-driven design - all inference is based on the loaded domain schema,
     not hardcoded to any specific domain.
+    
+    SECURITY: Requires tenant_id for defense-in-depth filtering.
+    RLS provides the authoritative security boundary, but application-level
+    filtering provides belt-and-suspenders protection.
     """
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: str = None):
         self.session = session or get_session()
+        self.tenant_id = tenant_id
         self.schema_loader = get_schema_loader()
         
         self.rules: List[InferenceRule] = [
@@ -461,7 +466,22 @@ class InferenceEngine:
         self.shared_dependency_rule = SharedDependencyRule()
         self.co_occurrence_rule = CoOccurrenceRule()
         
-        logger.info(f"InferenceEngine initialized with {len(self.rules)} rules")
+        if not tenant_id:
+            logger.warning("InferenceEngine initialized without tenant_id - queries will not be tenant-scoped")
+        else:
+            logger.info(f"InferenceEngine initialized for tenant {tenant_id[:8]}... with {len(self.rules)} rules")
+    
+    def _apply_tenant_filter(self, query, model_class):
+        """Apply tenant_id filter if tenant_id is set (defense-in-depth)."""
+        if self.tenant_id and hasattr(model_class, 'tenant_id'):
+            return query.filter(model_class.tenant_id == self.tenant_id)
+        return query
+    
+    def _get_entity_by_id(self, entity_id) -> Optional[Entity]:
+        """Get entity by ID with tenant filtering (defense-in-depth)."""
+        query = self.session.query(Entity).filter(Entity.id == entity_id)
+        query = self._apply_tenant_filter(query, Entity)
+        return query.first()
     
     def find_co_occurrences_for_entity(
         self,
@@ -489,7 +509,7 @@ class InferenceEngine:
         except ValueError:
             return []
         
-        entity = self.session.query(Entity).filter(Entity.id == entity_uuid).first()
+        entity = self._get_entity_by_id(entity_uuid)
         if not entity:
             return []
         
@@ -540,7 +560,7 @@ class InferenceEngine:
         except ValueError:
             return []
         
-        center_entity = self.session.query(Entity).filter(Entity.id == center_uuid).first()
+        center_entity = self._get_entity_by_id(center_uuid)
         if not center_entity:
             return []
         
@@ -552,11 +572,13 @@ class InferenceEngine:
             except ValueError:
                 continue
             
-            center_to_neighbor = self.session.query(Relationship).filter(
+            rel_query = self.session.query(Relationship).filter(
                 Relationship.source_id == center_uuid,
                 Relationship.target_id == neighbor_uuid,
                 Relationship.lifecycle_state == LifecycleState.TRUSTED
-            ).first()
+            )
+            rel_query = self._apply_tenant_filter(rel_query, Relationship)
+            center_to_neighbor = rel_query.first()
             
             if not center_to_neighbor:
                 continue
@@ -564,11 +586,13 @@ class InferenceEngine:
             if center_to_neighbor.relationship_type not in rel_types:
                 continue
             
-            neighbor_outgoing = self.session.query(Relationship).filter(
+            outgoing_query = self.session.query(Relationship).filter(
                 Relationship.source_id == neighbor_uuid,
                 Relationship.relationship_type == center_to_neighbor.relationship_type,
                 Relationship.lifecycle_state == LifecycleState.TRUSTED
-            ).all()
+            )
+            outgoing_query = self._apply_tenant_filter(outgoing_query, Relationship)
+            neighbor_outgoing = outgoing_query.all()
             
             for rel in neighbor_outgoing:
                 target_id = rel.target_id
@@ -576,17 +600,19 @@ class InferenceEngine:
                 if str(target_id) in visited or str(target_id) == str(center_uuid):
                     continue
                 
-                existing = self.session.query(Relationship).filter(
+                existing_query = self.session.query(Relationship).filter(
                     Relationship.source_id == center_uuid,
                     Relationship.target_id == target_id,
                     Relationship.lifecycle_state == LifecycleState.TRUSTED
-                ).first()
+                )
+                existing_query = self._apply_tenant_filter(existing_query, Relationship)
+                existing = existing_query.first()
                 
                 if existing:
                     continue
                 
-                target_entity = self.session.query(Entity).filter(Entity.id == target_id).first()
-                neighbor_entity = self.session.query(Entity).filter(Entity.id == neighbor_uuid).first()
+                target_entity = self._get_entity_by_id(target_id)
+                neighbor_entity = self._get_entity_by_id(neighbor_uuid)
                 
                 if not target_entity or not neighbor_entity:
                     continue
@@ -662,26 +688,23 @@ class InferenceEngine:
             except ValueError:
                 continue
             
-            incoming_rels = self.session.query(Relationship).filter(
+            incoming_query = self.session.query(Relationship).filter(
                 Relationship.target_id == neighbor_uuid,
                 Relationship.lifecycle_state == LifecycleState.TRUSTED
-            ).all()
+            )
+            incoming_query = self._apply_tenant_filter(incoming_query, Relationship)
+            incoming_rels = incoming_query.all()
             
             if len(incoming_rels) < 2:
                 continue
             
             dependents = []
             for rel in incoming_rels:
-                entity = self.session.query(Entity).filter(
-                    Entity.id == rel.source_id,
-                    Entity.lifecycle_state == LifecycleState.TRUSTED
-                ).first()
-                if entity:
+                entity = self._get_entity_by_id(rel.source_id)
+                if entity and entity.lifecycle_state == LifecycleState.TRUSTED:
                     dependents.append((entity, rel.relationship_type, rel.confidence))
             
-            neighbor_entity = self.session.query(Entity).filter(
-                Entity.id == neighbor_uuid
-            ).first()
+            neighbor_entity = self._get_entity_by_id(neighbor_uuid)
             neighbor_name = neighbor_entity.name if neighbor_entity else "unknown"
             
             for i, (entity_a, rel_type_a, conf_a) in enumerate(dependents):
@@ -689,7 +712,7 @@ class InferenceEngine:
                     if str(entity_a.id) in visited and str(entity_b.id) in visited:
                         continue
                     
-                    existing = self.session.query(Relationship).filter(
+                    existing_q = self.session.query(Relationship).filter(
                         or_(
                             and_(
                                 Relationship.source_id == entity_a.id,
@@ -701,7 +724,9 @@ class InferenceEngine:
                             )
                         ),
                         Relationship.lifecycle_state == LifecycleState.TRUSTED
-                    ).first()
+                    )
+                    existing_q = self._apply_tenant_filter(existing_q, Relationship)
+                    existing = existing_q.first()
                     
                     if existing:
                         continue
@@ -810,7 +835,7 @@ class InferenceEngine:
         schema = self.schema_loader.schema
         
         from ..memory.episodic import EpisodicMemory
-        episodic = EpisodicMemory(self.session)
+        episodic = EpisodicMemory(self.session, tenant_id=self.tenant_id)
         
         for frontier in frontier_nodes:
             try:
@@ -850,9 +875,7 @@ class InferenceEngine:
         """Find entities similar to a single frontier node."""
         similar = []
         
-        entity = self.session.query(Entity).filter(
-            Entity.id == frontier.entity_id
-        ).first()
+        entity = self._get_entity_by_id(frontier.entity_id)
         
         if not entity:
             return similar
@@ -873,11 +896,13 @@ class InferenceEngine:
             return similar
         
         for doc in vector_results:
-            doc_entities = self.session.query(Entity).filter(
+            doc_query = self.session.query(Entity).filter(
                 Entity.source_document_id == doc.get('document_id'),
                 Entity.lifecycle_state == LifecycleState.TRUSTED,
                 Entity.id != frontier.entity_id
-            ).all()
+            )
+            doc_query = self._apply_tenant_filter(doc_query, Entity)
+            doc_entities = doc_query.all()
             
             for ent in doc_entities:
                 if str(ent.id) in visited:
