@@ -70,6 +70,13 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - **Test coverage**: 90 passing tests (Memory API + Sandbox + Router + Integration)
 
 ## Recent Changes (January 2026)
+- **OntologyRepository Refactor (Jan 5)**: Fixed repository to use correct ontology schema
+  - Repository now queries `ontology.types` and `ontology.relations` instead of legacy `public` schema
+  - Updated OntologyType and OntologyRelation models to match actual database columns
+  - Added `get_keywords()` helper to handle both list and dict extraction_hints formats
+  - Added 10 IT-specific relations to ontology.relations: DEPENDS_ON, MANAGES, OWNS, AFFECTS, TRIGGERED_BY
+  - Ontology snapshot now loads 229 types and 222 relations from correct schema
+  - Next: Refactor GraphBuilderAgent to use OntologyRepository (pending approval)
 - **Entity Type Extraction Fix (Jan 5)**: Fixed critical issue where extractor used generic types (ORGANIZATION, PROCESS) instead of IT-specific types (SERVICE, DATABASE, TEAM, INCIDENT)
   - Added TEAM and INCIDENT entity types to domain_schema.yaml
   - Added OWNS, AFFECTS, TRIGGERED_BY relationship types for IT infrastructure
