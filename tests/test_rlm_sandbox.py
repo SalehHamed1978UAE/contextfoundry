@@ -105,6 +105,33 @@ class TestSandboxSecurity:
         result = sandbox.execute("import subprocess")
         assert result.success == False
         assert "Restricted pattern" in result.error
+    
+    def test_session_access_rejected(self):
+        """Access to ._session should be rejected (security: prevents raw SQL access)."""
+        sandbox = REPLSandbox(
+            memory_apis={"semantic": MockMemoryAPI()}
+        )
+        result = sandbox.execute("session = semantic._session")
+        assert result.success == False
+        assert "Restricted pattern" in result.error
+    
+    def test_tenant_id_access_rejected(self):
+        """Access to ._tenant_id should be rejected (security: prevents tenant spoofing)."""
+        sandbox = REPLSandbox(
+            memory_apis={"semantic": MockMemoryAPI()}
+        )
+        result = sandbox.execute("tenant = semantic._tenant_id")
+        assert result.success == False
+        assert "Restricted pattern" in result.error
+    
+    def test_session_via_getattr_rejected(self):
+        """Access to _session via getattr should be rejected."""
+        sandbox = REPLSandbox(
+            memory_apis={"semantic": MockMemoryAPI()}
+        )
+        result = sandbox.execute("session = getattr(semantic, '_session')")
+        assert result.success == False
+        assert "Restricted pattern" in result.error
 
 
 class TestSandboxExecution:

@@ -27,8 +27,8 @@ class EpisodicMemoryAPI:
     """
     
     def __init__(self, tenant_id: str, session: Session):
-        self.tenant_id = tenant_id
-        self.session = session
+        self._tenant_id = tenant_id
+        self._session = session
         self._accessed_chunk_ids: List[str] = []
     
     def get_accessed_chunk_ids(self) -> List[str]:
@@ -89,13 +89,13 @@ class EpisodicMemoryAPI:
         
         params = {
             "embedding": str(query_embedding),
-            "tenant_id": str(self.tenant_id),
+            "tenant_id": str(self._tenant_id),
             "limit": k,
         }
         if document_type:
             params["doc_type"] = document_type.lower()
         
-        rows = self.session.execute(sql, params).fetchall()
+        rows = self._session.execute(sql, params).fetchall()
         
         results = []
         for row in rows:
@@ -151,9 +151,9 @@ class EpisodicMemoryAPI:
         """
         from src.context_foundry.models.schema import Document, DocumentChunk
         
-        chunk = self.session.query(DocumentChunk).filter(
+        chunk = self._session.query(DocumentChunk).filter(
             DocumentChunk.id == chunk_id,
-            DocumentChunk.tenant_id == self.tenant_id
+            DocumentChunk.tenant_id == self._tenant_id
         ).first()
         
         if not chunk:
@@ -172,7 +172,7 @@ class EpisodicMemoryAPI:
         
         self._accessed_chunk_ids.append(str(chunk.id))
         
-        doc = self.session.query(Document).filter(
+        doc = self._session.query(Document).filter(
             Document.id == chunk.document_id
         ).first()
         
@@ -208,9 +208,9 @@ class EpisodicMemoryAPI:
         """
         from src.context_foundry.models.schema import DocumentChunk
         
-        chunks = self.session.query(DocumentChunk).filter(
+        chunks = self._session.query(DocumentChunk).filter(
             DocumentChunk.document_id == document_id,
-            DocumentChunk.tenant_id == self.tenant_id
+            DocumentChunk.tenant_id == self._tenant_id
         ).order_by(DocumentChunk.chunk_index).all()
         
         results = []
@@ -244,9 +244,9 @@ class EpisodicMemoryAPI:
         """
         from src.context_foundry.models.schema import Document, DocumentChunk
         
-        chunk = self.session.query(DocumentChunk).filter(
+        chunk = self._session.query(DocumentChunk).filter(
             DocumentChunk.id == chunk_id,
-            DocumentChunk.tenant_id == self.tenant_id
+            DocumentChunk.tenant_id == self._tenant_id
         ).first()
         
         if not chunk:
@@ -262,7 +262,7 @@ class EpisodicMemoryAPI:
                 processing_steps=[]
             )
         
-        doc = self.session.query(Document).filter(
+        doc = self._session.query(Document).filter(
             Document.id == chunk.document_id
         ).first()
         

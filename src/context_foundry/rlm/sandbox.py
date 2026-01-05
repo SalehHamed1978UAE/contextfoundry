@@ -84,6 +84,8 @@ RESTRICTED_PATTERNS = [
     r"\bbreakpoint\b",
     r"\binput\b",
     r"\bgetattr\b\s*\(\s*\w+\s*,\s*['\"][_]",
+    r"\._session\b",
+    r"\._tenant_id\b",
 ]
 
 

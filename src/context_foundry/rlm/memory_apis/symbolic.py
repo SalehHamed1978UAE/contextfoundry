@@ -31,8 +31,8 @@ class SymbolicMemoryAPI:
     """
     
     def __init__(self, tenant_id: str, session: Session):
-        self.tenant_id = tenant_id
-        self.session = session
+        self._tenant_id = tenant_id
+        self._session = session
         self._accessed_relationship_ids: List[str] = []
     
     def get_accessed_relationship_ids(self) -> List[str]:
@@ -67,9 +67,9 @@ class SymbolicMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity, Relationship
         
-        entity = self.session.query(Entity).filter(
+        entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not entity:
@@ -89,9 +89,9 @@ class SymbolicMemoryAPI:
                 Relationship.target_id == entity_id
             )
         
-        query = self.session.query(Relationship).filter(
+        query = self._session.query(Relationship).filter(
             filter_clause,
-            Relationship.tenant_id == self.tenant_id,
+            Relationship.tenant_id == self._tenant_id,
             Relationship.lifecycle_state.in_(lifecycle_filter)
         )
         
@@ -148,17 +148,17 @@ class SymbolicMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity, Relationship
         
-        source = self.session.query(Entity).filter(
+        source = self._session.query(Entity).filter(
             Entity.id == source_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not source:
             raise StaleEntityError(source_id)
         
-        target = self.session.query(Entity).filter(
+        target = self._session.query(Entity).filter(
             Entity.id == target_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not target:
@@ -185,12 +185,12 @@ class SymbolicMemoryAPI:
             if len(path_so_far) >= max_depth:
                 continue
             
-            rels = self.session.query(Relationship).filter(
+            rels = self._session.query(Relationship).filter(
                 or_(
                     Relationship.source_id == current_id,
                     Relationship.target_id == current_id
                 ),
-                Relationship.tenant_id == self.tenant_id,
+                Relationship.tenant_id == self._tenant_id,
                 Relationship.lifecycle_state.in_([
                     LifecycleState.STAGING, 
                     LifecycleState.TRUSTED
@@ -203,7 +203,7 @@ class SymbolicMemoryAPI:
                 if next_id in visited:
                     continue
                 
-                next_entity = self.session.query(Entity).filter(
+                next_entity = self._session.query(Entity).filter(
                     Entity.id == next_id
                 ).first()
                 
@@ -261,9 +261,9 @@ class SymbolicMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity, Relationship
         
-        entity = self.session.query(Entity).filter(
+        entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not entity:
@@ -273,13 +273,13 @@ class SymbolicMemoryAPI:
         if include_staging:
             lifecycle_filter.append(LifecycleState.STAGING)
         
-        rels = self.session.query(Relationship).filter(
+        rels = self._session.query(Relationship).filter(
             or_(
                 Relationship.source_id == entity_id,
                 Relationship.target_id == entity_id
             ),
             Relationship.relationship_type == relationship_type.upper(),
-            Relationship.tenant_id == self.tenant_id,
+            Relationship.tenant_id == self._tenant_id,
             Relationship.lifecycle_state.in_(lifecycle_filter)
         ).all()
         
@@ -294,15 +294,15 @@ class SymbolicMemoryAPI:
         if not related_ids:
             return []
         
-        entities = self.session.query(Entity).filter(
+        entities = self._session.query(Entity).filter(
             Entity.id.in_(related_ids),
-            Entity.tenant_id == self.tenant_id,
+            Entity.tenant_id == self._tenant_id,
             Entity.lifecycle_state.in_(lifecycle_filter)
         ).all()
         
         results = []
         for e in entities:
-            rel_count = self.session.query(func.count(Relationship.id)).filter(
+            rel_count = self._session.query(func.count(Relationship.id)).filter(
                 or_(
                     Relationship.source_id == e.id,
                     Relationship.target_id == e.id
@@ -355,9 +355,9 @@ class SymbolicMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity, Relationship
         
-        start_entity = self.session.query(Entity).filter(
+        start_entity = self._session.query(Entity).filter(
             Entity.id == start_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not start_entity:
@@ -378,12 +378,12 @@ class SymbolicMemoryAPI:
             next_level = []
             
             for entity_id in current_level:
-                query = self.session.query(Relationship).filter(
+                query = self._session.query(Relationship).filter(
                     or_(
                         Relationship.source_id == entity_id,
                         Relationship.target_id == entity_id
                     ),
-                    Relationship.tenant_id == self.tenant_id,
+                    Relationship.tenant_id == self._tenant_id,
                     Relationship.lifecycle_state.in_([
                         LifecycleState.STAGING, 
                         LifecycleState.TRUSTED
@@ -424,12 +424,12 @@ class SymbolicMemoryAPI:
                         visited_entity_ids.add(next_id)
                         next_level.append(next_id)
                         
-                        next_entity = self.session.query(Entity).filter(
+                        next_entity = self._session.query(Entity).filter(
                             Entity.id == next_id
                         ).first()
                         
                         if next_entity:
-                            rel_count = self.session.query(func.count(Relationship.id)).filter(
+                            rel_count = self._session.query(func.count(Relationship.id)).filter(
                                 or_(
                                     Relationship.source_id == next_entity.id,
                                     Relationship.target_id == next_entity.id
@@ -492,15 +492,15 @@ class SymbolicMemoryAPI:
         """
         from src.context_foundry.models.schema import Entity, Rule
         
-        entity = self.session.query(Entity).filter(
+        entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
-            Entity.tenant_id == self.tenant_id
+            Entity.tenant_id == self._tenant_id
         ).first()
         
         if not entity:
             raise StaleEntityError(entity_id)
         
-        rules = self.session.query(Rule).filter(
+        rules = self._session.query(Rule).filter(
             Rule.is_active == True,
             or_(
                 Rule.entity_types.contains([entity.entity_type]),
