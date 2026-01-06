@@ -617,8 +617,18 @@
             
             if (data.success) {
                 currentPairId = data.pair_id;
-                document.getElementById('responseA').textContent = data.response_a.answer;
-                document.getElementById('responseB').textContent = data.response_b.answer;
+                
+                // Set content and ensure whitespace is preserved
+                const responseAEl = document.getElementById('responseA');
+                const responseBEl = document.getElementById('responseB');
+                
+                responseAEl.textContent = data.response_a.answer;
+                responseBEl.textContent = data.response_b.answer;
+                
+                // Force whitespace preservation (in case CSS cache is stale)
+                responseAEl.style.whiteSpace = 'pre-wrap';
+                responseBEl.style.whiteSpace = 'pre-wrap';
+                
                 document.getElementById('latencyA').textContent = `${Math.round(data.response_a.latency_ms)}ms`;
                 document.getElementById('latencyB').textContent = `${Math.round(data.response_b.latency_ms)}ms`;
                 
