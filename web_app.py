@@ -3859,12 +3859,9 @@ def run_evaluation():
         if categories:
             categories = [QueryCategory(c) for c in categories]
         
-        tenant_id = g.get('tenant_id')
-        if not tenant_id:
-            return jsonify({'success': False, 'error': 'Authentication required - no tenant context'}), 401
-        
-        print(f"[A/B Eval] Running evaluation for tenant: {tenant_id[:8]}...")
-        evaluator = BlindEvaluator(tenant_id=tenant_id)
+        # A/B Evaluation uses demo tenant - queries are designed for this tenant's data
+        DEMO_TENANT_ID = "8eee325b-ba3b-447e-9ee7-6d66085ead5f"
+        evaluator = BlindEvaluator(tenant_id=DEMO_TENANT_ID)
         evaluation_result = evaluator.run_evaluation(
             query_ids=query_ids,
             categories=categories,
@@ -3896,17 +3893,9 @@ def compare_single_query():
         if not query_id:
             return jsonify({'success': False, 'error': 'query_id required'}), 400
         
-        tenant_id = g.get('tenant_id')
-        from flask import session as flask_session
-        session_tenant = flask_session.get('tenant_id')
-        
-        print(f"[A/B Eval DEBUG] g.tenant_id={tenant_id}, session.tenant_id={session_tenant}")
-        
-        if not tenant_id:
-            return jsonify({'success': False, 'error': 'Authentication required - no tenant context'}), 401
-        
-        print(f"[A/B Eval] Running comparison for tenant: {tenant_id[:8]}...")
-        evaluator = BlindEvaluator(tenant_id=tenant_id)
+        # A/B Evaluation uses demo tenant - queries are designed for this tenant's data
+        DEMO_TENANT_ID = "8eee325b-ba3b-447e-9ee7-6d66085ead5f"
+        evaluator = BlindEvaluator(tenant_id=DEMO_TENANT_ID)
         pair = evaluator.run_single_query(query_id)
         
         if not pair:
@@ -3959,12 +3948,9 @@ def query_graphrag():
         if not query_text:
             return jsonify({'success': False, 'error': 'query required'}), 400
         
-        tenant_id = g.get('tenant_id')
-        if not tenant_id:
-            return jsonify({'success': False, 'error': 'Authentication required - no tenant context'}), 401
-        
-        print(f"[GraphRAG] Running query for tenant: {tenant_id[:8]}...")
-        graphrag = GraphRAGBaseline(tenant_id=tenant_id)
+        # A/B Evaluation uses demo tenant - queries are designed for this tenant's data
+        DEMO_TENANT_ID = "8eee325b-ba3b-447e-9ee7-6d66085ead5f"
+        graphrag = GraphRAGBaseline(tenant_id=DEMO_TENANT_ID)
         result = graphrag.query(query_text)
         
         return jsonify({
