@@ -240,6 +240,58 @@ class EntityAlias(Base):
         }
 
 
+class RelationshipContext(Base):
+    """Rich context metadata for relationships - provenance, temporal, descriptions."""
+    __tablename__ = "relationship_contexts"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    relationship_id = Column(UUID(as_uuid=True), ForeignKey("relationships.id", ondelete="CASCADE"), nullable=False, index=True)
+    tenant_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    
+    source_document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"))
+    source_chunk_id = Column(UUID(as_uuid=True))
+    provenance_text = Column(Text)
+    source_location = Column(String(100))
+    
+    temporal_start = Column(DateTime)
+    temporal_end = Column(DateTime)
+    temporal_granularity = Column(String(20))
+    
+    description = Column(Text)
+    qualifiers = Column(JSON, default=list)
+    
+    embedding = Column(Vector(1536))
+    
+    extraction_method = Column(String(50))
+    extraction_model = Column(String(100))
+    extraction_prompt_version = Column(String(50))
+    raw_extraction = Column(JSON)
+    
+    confidence_source = Column(Float)
+    confidence_extraction = Column(Float)
+    confidence_combined = Column(Float)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    rel = relationship("Relationship", backref="contexts")
+    
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "relationship_id": str(self.relationship_id),
+            "provenance_text": self.provenance_text,
+            "source_location": self.source_location,
+            "description": self.description,
+            "qualifiers": self.qualifiers,
+            "temporal_start": self.temporal_start.isoformat() if self.temporal_start else None,
+            "temporal_end": self.temporal_end.isoformat() if self.temporal_end else None,
+            "temporal_granularity": self.temporal_granularity,
+            "confidence_combined": self.confidence_combined,
+            "extraction_method": self.extraction_method
+        }
+
+
 class Document(Base):
     """Episodic Memory: Documents with vector embeddings."""
     __tablename__ = "documents"
