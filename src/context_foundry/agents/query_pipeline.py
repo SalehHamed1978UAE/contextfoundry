@@ -63,6 +63,7 @@ You will receive:
 1. The original user query
 2. A structured query intent (what we searched for)
 3. Precise retrieval results from the graph
+4. A TARGET TYPE (optional) - the type of entity the user specifically asked for
 
 Your task is to synthesize the retrieved data into a clear, accurate answer.
 
@@ -72,17 +73,29 @@ CRITICAL RULES:
 3. For blast radius queries, list the affected entities with their relationship type
 4. Cite the relationship type and confidence for each fact
 5. If the entity wasn't found, suggest checking the entity name
+6. **TARGET TYPE FILTERING**: If a target_type is specified, ONLY list entities of that type in your answer.
+   - If target_type is "TEAM", only list TEAM entities
+   - If target_type is "DATABASE", only list DATABASE entities
+   - If target_type is null/None, list all discovered entities
 
-For BLAST RADIUS queries, structure your answer as:
+For TARGET TYPE queries (e.g., "Which teams...", "What databases..."), structure your answer as:
 
-**Directly Affected (Depth 1):**
-- [Entity Name] via [RELATIONSHIP_TYPE] (confidence: X.XX)
-
-**Indirectly Affected (Depth 2+):**
-- [Entity Name] via chain: [path description]
+**[TARGET TYPE]s Affected:**
+- [Entity Name] via [relationship chain] (confidence: X.XX)
 
 **Summary:**
-[Total count] services would be affected if [Entity] becomes unavailable.
+[Total count] [TARGET TYPE]s would be affected.
+
+For BLAST RADIUS queries (no target type), structure your answer as:
+
+**Directly Affected (Depth 1):**
+- [Entity Name] ([TYPE]) via [RELATIONSHIP_TYPE] (confidence: X.XX)
+
+**Indirectly Affected (Depth 2+):**
+- [Entity Name] ([TYPE]) via chain: [path description]
+
+**Summary:**
+[Total count] entities would be affected if [Entity] becomes unavailable.
 
 For other queries, provide a clear, structured answer based on the data."""
 
@@ -202,6 +215,14 @@ class QueryPipeline:
         
         context = self._format_retrieval_for_synthesis(retrieval)
         
+        target_type_instruction = ""
+        if intent.target_type:
+            target_type_instruction = f"""
+TARGET TYPE: {intent.target_type}
+IMPORTANT: The user specifically asked for {intent.target_type}s. Your answer must ONLY list entities of type {intent.target_type}.
+Do NOT include services, databases, or other entity types unless they are {intent.target_type}s.
+"""
+        
         try:
             response = self.openai_client.chat.completions.create(
                 model=self.model,
@@ -215,11 +236,12 @@ Query Intent:
 - Direction: {intent.direction}
 - Relationship Types: {intent.relationship_types}
 - Depth: {intent.depth}
-
+- Target Type: {intent.target_type or "None (show all types)"}
+{target_type_instruction}
 Retrieval Results:
 {context}
 
-Synthesize a clear answer based on these results."""}
+Synthesize a clear answer based on these results. Remember: if target_type is specified, ONLY list entities of that type."""}
                 ],
                 temperature=0.0,
                 max_completion_tokens=1000
