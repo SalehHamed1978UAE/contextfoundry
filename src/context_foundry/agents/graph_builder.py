@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from openai import OpenAI
 
 from ..models.schema import (
-    Entity, Relationship, Document, EntityAlias,
+    Entity, Relationship, Document, EntityAlias, RelationshipContext,
     LifecycleState,
     get_session
 )
@@ -59,13 +59,19 @@ class ExtractedEntity:
 
 @dataclass
 class ExtractedRelationship:
-    """A relationship extracted from text."""
+    """A relationship extracted from text with rich context metadata."""
     relationship_type: str
     source_name: str
     target_name: str
     properties: Dict = field(default_factory=dict)
     confidence: float = 0.5
     source_sentence: str = ""
+    # Context metadata fields (Phase 2: Relationship Context)
+    provenance_text: str = ""
+    description: str = ""
+    temporal_validity: str = "current"  # current, historical, planned
+    qualifiers: List[Dict] = field(default_factory=list)
+    confidence_reasoning: str = ""
 
 
 @dataclass
@@ -155,7 +161,7 @@ Example format:
 
 RELATIONSHIP_EXTRACTION_PROMPT_TEMPLATE = """You are a relationship extraction system for {domain} knowledge graphs.
 
-Given this text and the entities already identified, extract relationships between them.
+Given this text and the entities already identified, extract relationships between them WITH RICH CONTEXT.
 
 {relationship_types_section}
 
@@ -165,31 +171,50 @@ ENTITIES FOUND IN THIS TEXT:
 TEXT TO ANALYZE:
 {text}
 
-For EACH relationship found, return:
+For EACH relationship found, return these fields:
 - type: One of {relationship_type_names}
 - source_name: The canonical name of the source entity
 - target_name: The canonical name of the target entity
 - properties: Any additional context (as key-value pairs)
 - confidence: 0.0-1.0 how certain you are this relationship exists
 - source_sentence: The EXACT sentence that states this relationship
+- provenance_text: A fuller quote (1-2 sentences) that establishes this relationship
+- description: A brief explanation of what this relationship means in context
+- temporal_validity: "current" (active now), "historical" (past), or "planned" (future)
+- qualifiers: Array of qualifier objects like {{"type": "purpose", "text": "credential storage"}}
+- confidence_reasoning: Brief explanation of why you assigned this confidence score
+
+QUALIFIER TYPES:
+- "purpose": Why this relationship exists (e.g., "for authentication", "for data storage")
+- "frequency": How often (e.g., "continuous", "daily", "on-demand")
+- "criticality": Importance level (e.g., "critical", "optional", "backup")
+- "condition": When it applies (e.g., "during peak hours", "when primary fails")
 
 CRITICAL RULES:
 1. Only extract relationships EXPLICITLY stated in the text
 2. Both source and target must be in the entities list
 3. Verify the relationship type matches allowed source→target types
 4. Do NOT infer relationships that aren't directly stated
-5. Confidence reflects how clearly the relationship is stated
+5. Confidence reflects how clearly the relationship is stated:
+   - 0.9-1.0: Explicit statement with clear context
+   - 0.7-0.9: Mentioned directly but limited context
+   - 0.5-0.7: Implied but supported by text
 
 Respond with ONLY a valid JSON array of relationships. If none found, return [].
 Example format:
 [
   {{
-    "type": "RELATIONSHIP_TYPE",
-    "source_name": "Source Entity Name",
-    "target_name": "Target Entity Name",
+    "type": "DEPENDS_ON",
+    "source_name": "Auth Service",
+    "target_name": "Users Database",
     "properties": {{}},
-    "confidence": 0.92,
-    "source_sentence": "The exact sentence from the text."
+    "confidence": 0.95,
+    "source_sentence": "Auth Service depends on Users Database.",
+    "provenance_text": "Auth Service depends on Users Database for credential storage and validation.",
+    "description": "Queries user credentials during authentication",
+    "temporal_validity": "current",
+    "qualifiers": [{{"type": "purpose", "text": "credential storage"}}],
+    "confidence_reasoning": "Explicit dependency statement with clear purpose"
   }}
 ]"""
 
@@ -660,7 +685,13 @@ class GraphBuilderAgent:
                     target_name=target_name,
                     properties=r.get("properties", {}),
                     confidence=confidence,
-                    source_sentence=r.get("source_sentence", "")
+                    source_sentence=r.get("source_sentence", ""),
+                    # Context metadata (Phase 2)
+                    provenance_text=r.get("provenance_text", ""),
+                    description=r.get("description", ""),
+                    temporal_validity=r.get("temporal_validity", "current"),
+                    qualifiers=r.get("qualifiers", []),
+                    confidence_reasoning=r.get("confidence_reasoning", "")
                 )
                 relationships.append(relationship)
             
@@ -823,6 +854,31 @@ class GraphBuilderAgent:
                     extracted_at=datetime.utcnow()
                 )
                 self.session.add(db_rel)
+                self.session.flush()  # Get db_rel.id
+                
+                # Create RelationshipContext record (Phase 2: Context Metadata)
+                if rel.provenance_text or rel.description or rel.qualifiers:
+                    context = RelationshipContext(
+                        id=uuid.uuid4(),
+                        relationship_id=db_rel.id,
+                        tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
+                        provenance_text=rel.provenance_text[:2000] if rel.provenance_text else None,
+                        description=rel.description[:1000] if rel.description else None,
+                        qualifiers=rel.qualifiers if rel.qualifiers else [],
+                        temporal_start=datetime.utcnow() if rel.temporal_validity == "current" else None,
+                        temporal_granularity=rel.temporal_validity,
+                        extraction_method="graph_builder_llm",
+                        extraction_model=self.model,
+                        raw_extraction={
+                            "source_sentence": rel.source_sentence,
+                            "confidence_reasoning": rel.confidence_reasoning
+                        },
+                        confidence_extraction=rel.confidence,
+                        confidence_combined=rel.confidence
+                    )
+                    self.session.add(context)
+                    logger.debug(f"Created context for relationship: {rel.source_name} -> {rel.target_name}")
+                
                 relationships_staged += 1
                 
                 logger.debug(f"Staged relationship: {rel.source_name} -[{rel.relationship_type}]-> {rel.target_name}")
