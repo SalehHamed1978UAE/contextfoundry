@@ -371,6 +371,14 @@ class BlindEvaluator:
         else:
             answer = str(raw_answer) if raw_answer else ""
         
+        # Post-process string answers to improve formatting
+        # Convert inline " - " bullet patterns to proper newlines
+        if isinstance(answer, str) and " - " in answer:
+            import re
+            # Pattern: "Header: - item1 - item2" -> "Header:\n- item1\n- item2"
+            answer = re.sub(r':\s*-\s+', ':\n- ', answer)  # After header colons
+            answer = re.sub(r'\s+-\s+(?=[A-Z])', '\n- ', answer)  # Between items starting with caps
+        
         return EvaluationResponse(
             system=SystemType.CONTEXT_FOUNDRY,
             query_id=query.id,
