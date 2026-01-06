@@ -1,0 +1,82 @@
+Implement the Relationship Context Metadata enhancement. Here's the plan:
+Phase 1: Schema (do this first)
+Create the relationship_contexts table:
+sqlCREATE TABLE relationship_contexts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    relationship_id UUID NOT NULL REFERENCES relationships(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL,
+    
+    -- Provenance
+    source_document_id UUID REFERENCES documents(id),
+    source_chunk_id UUID,
+    provenance_text TEXT,
+    source_location VARCHAR(100),
+    
+    -- Temporal
+    temporal_start TIMESTAMP,
+    temporal_end TIMESTAMP,
+    temporal_granularity VARCHAR(20),
+    
+    -- Description
+    description TEXT,
+    qualifiers JSONB DEFAULT '[]',
+    
+    -- Semantic
+    embedding VECTOR(1536),
+    
+    -- Extraction metadata
+    extraction_method VARCHAR(50),
+    extraction_model VARCHAR(100),
+    extraction_prompt_version VARCHAR(50),
+    raw_extraction JSONB,
+    
+    -- Confidence breakdown
+    confidence_source FLOAT,
+    confidence_extraction FLOAT,
+    confidence_combined FLOAT,
+    
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_rel_context_relationship ON relationship_contexts(relationship_id);
+CREATE INDEX idx_rel_context_tenant ON relationship_contexts(tenant_id);
+
+-- RLS
+ALTER TABLE relationship_contexts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY rel_context_tenant_isolation ON relationship_contexts
+    USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+Phase 2: Update extraction prompt
+When extracting relationships, capture context:
+python# For each relationship, extract:
+{
+    "source_entity": "Auth Service",
+    "relationship_type": "DEPENDS_ON",
+    "target_entity": "Users Database",
+    "provenance_text": "Auth Service depends on Users Database for credential storage",
+    "description": "Queries user credentials during authentication",
+    "temporal_validity": "current",
+    "qualifiers": [{"type": "purpose", "text": "credential storage"}],
+    "confidence": 0.95,
+    "confidence_reasoning": "Explicit statement in document"
+}
+Phase 3: Update DirectedGraphRetriever
+When fetching relationships, join with context:
+python# Fetch relationship + context together
+SELECT r.*, rc.provenance_text, rc.description, rc.confidence_combined
+FROM relationships r
+LEFT JOIN relationship_contexts rc ON r.id = rc.relationship_id
+WHERE ...
+```
+
+**Phase 4: Update AnswerSynthesizer**
+
+Include context in the response:
+```
+Auth Service depends on Users Database
+  - Why: "For credential storage"
+  - Source: architecture_overview.md
+  - Confidence: 0.95
+
+Start with Phase 1 (schema). Let me know when it's done.
