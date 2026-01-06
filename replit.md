@@ -194,3 +194,16 @@ class CascadePath:
 | Total entities | 64 | 17 | 19 |
 | Cascade paths | N/A | 29 | N/A |
 | Confidence | ~0.50 | **0.93** | N/A |
+
+### Entity Resolution Bug Fixes (January 2026)
+**Problem 1**: "User Database" wouldn't match "Users Database" even though normalized_match worked.
+**Root Cause**: `DirectedGraphRetriever._resolve_entity()` returned `None` when disambiguation was needed (multiple candidates), instead of picking the best one.
+**Fix**: Added disambiguation handling - picks the first candidate when multiple entities have the same name but different types.
+
+**Problem 2**: "Which teams would be affected by a Checkout Service outage?" tried to find "A Checkout Service Outage" as an entity.
+**Root Cause**: Query didn't match `_is_impact_query()` patterns, so it fell through to old pipeline which extracted the wrong entity.
+**Fix**: Added 7 new impact detection patterns including `'would be affected'`, `'teams.*affected'`, `'outage.*affected'`, `'is corrupted'`.
+
+**Test Results**:
+- "If the User Database is corrupted..." → Found "Users Database" ✅
+- "Which teams would be affected by a Checkout Service outage?" → Found "Checkout Service" ✅
