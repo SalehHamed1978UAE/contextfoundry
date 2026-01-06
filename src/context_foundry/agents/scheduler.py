@@ -196,7 +196,7 @@ class GardenerScheduler:
         
         session = None
         try:
-            session = get_session()
+            session = get_session(use_rls_role=False)
             
             validated_count = self._fast_validate_staging(session)
             if validated_count > 0:
@@ -273,58 +273,80 @@ class GardenerScheduler:
         2. Volume cap: max 500 entities per cycle to prevent mass bad promotions
         3. Requires dwell time > 1 hour (already checked by Gardener)
         4. Excludes entities with existing conflicts
+        5. Isolated error handling - validation failures don't crash entire cycle
         
         Returns: Number of entities marked as VALID
         """
-        entity_result = session.execute(text("""
-            UPDATE entities
-            SET validation_status = 'VALID',
-                last_validated_at = NOW()
-            WHERE id IN (
-                SELECT e.id FROM entities e
-                WHERE e.lifecycle_state = 'STAGING'
-                  AND e.validation_status = 'PENDING'
-                  AND e.name IS NOT NULL
-                  AND e.created_at < NOW() - INTERVAL '1 hour'
-                  AND e.confidence >= CASE 
-                      WHEN e.entity_type = 'PERSON' THEN 0.85
-                      WHEN e.entity_type = 'INCIDENT' THEN 0.80
-                      WHEN e.entity_type = 'SERVICE' THEN 0.75
-                      ELSE 0.70
-                  END
-                  AND e.id NOT IN (
-                      SELECT fact_a_id FROM conflicts WHERE status = 'PENDING'
-                      UNION
-                      SELECT fact_b_id FROM conflicts WHERE status = 'PENDING'
-                  )
-                LIMIT 500
-            )
-        """))
+        entity_count = 0
+        rel_count = 0
         
-        rel_result = session.execute(text("""
-            UPDATE relationships
-            SET validation_status = 'VALID',
-                last_validated_at = NOW()
-            WHERE id IN (
-                SELECT r.id FROM relationships r
-                WHERE r.lifecycle_state = 'STAGING'
-                  AND (r.validation_status IS NULL OR r.validation_status = 'PENDING')
-                  AND r.created_at < NOW() - INTERVAL '1 hour'
-                  AND r.confidence >= 0.70
-                  AND r.id NOT IN (
-                      SELECT fact_a_id FROM conflicts WHERE status = 'PENDING'
-                      UNION
-                      SELECT fact_b_id FROM conflicts WHERE status = 'PENDING'
-                  )
-                LIMIT 500
-            )
-        """))
+        print(f"[Scheduler] Running fast validation for STAGING entities...")
         
-        session.commit()
+        try:
+            entity_result = session.execute(text("""
+                UPDATE entities
+                SET validation_status = 'VALID',
+                    last_validated_at = NOW()
+                WHERE id IN (
+                    SELECT e.id FROM entities e
+                    WHERE e.lifecycle_state = 'STAGING'
+                      AND e.validation_status = 'PENDING'
+                      AND e.name IS NOT NULL
+                      AND e.created_at < NOW() - INTERVAL '1 hour'
+                      AND e.confidence >= CASE 
+                          WHEN e.entity_type = 'PERSON' THEN 0.85
+                          WHEN e.entity_type = 'INCIDENT' THEN 0.80
+                          WHEN e.entity_type = 'SERVICE' THEN 0.75
+                          ELSE 0.70
+                      END
+                      AND NOT EXISTS (
+                          SELECT 1 FROM conflicts c 
+                          WHERE c.status = 'PENDING' 
+                            AND (c.fact_a_id = e.id OR c.fact_b_id = e.id)
+                      )
+                    LIMIT 500
+                )
+            """))
+            entity_count = entity_result.rowcount
+        except Exception as e:
+            import traceback
+            print(f"[Scheduler] Entity validation error (continuing): {e}")
+            traceback.print_exc()
+            session.rollback()
         
-        total = entity_result.rowcount + rel_result.rowcount
+        try:
+            rel_result = session.execute(text("""
+                UPDATE relationships
+                SET validation_status = 'VALID',
+                    last_validated_at = NOW()
+                WHERE id IN (
+                    SELECT r.id FROM relationships r
+                    WHERE r.lifecycle_state = 'STAGING'
+                      AND (r.validation_status IS NULL OR r.validation_status = 'PENDING')
+                      AND r.created_at < NOW() - INTERVAL '1 hour'
+                      AND r.confidence >= 0.70
+                      AND NOT EXISTS (
+                          SELECT 1 FROM conflicts c 
+                          WHERE c.status = 'PENDING' 
+                            AND (c.fact_a_id = r.id OR c.fact_b_id = r.id)
+                      )
+                    LIMIT 500
+                )
+            """))
+            rel_count = rel_result.rowcount
+        except Exception as e:
+            print(f"[Scheduler] Relationship validation error (continuing): {e}")
+            session.rollback()
+        
+        try:
+            session.commit()
+        except Exception as e:
+            print(f"[Scheduler] Validation commit error: {e}")
+            session.rollback()
+        
+        total = entity_count + rel_count
         if total > 0:
-            print(f"[Scheduler] Fast-validated: {entity_result.rowcount} entities, {rel_result.rowcount} relationships")
+            print(f"[Scheduler] Fast-validated: {entity_count} entities, {rel_count} relationships")
         
         return total
 

@@ -549,7 +549,10 @@ class GardenerAgent:
                     self.config.decay_rates["_DEFAULT"]
                 )
                 
-                age = datetime.utcnow() - (rel.updated_at or rel.created_at)
+                rel_date = rel.updated_at or rel.created_at
+                if rel_date is None:
+                    continue
+                age = datetime.utcnow() - rel_date
                 age_days = age.total_seconds() / 86400
                 
                 if age_days <= decay_config.grace_days:
@@ -595,7 +598,10 @@ class GardenerAgent:
             decay_config = self.config.entity_decay
             
             for entity in trusted_entities:
-                age = datetime.utcnow() - (entity.updated_at or entity.created_at)
+                entity_date = entity.updated_at or entity.created_at
+                if entity_date is None:
+                    continue
+                age = datetime.utcnow() - entity_date
                 age_days = age.total_seconds() / 86400
                 
                 if age_days <= decay_config.grace_days:
