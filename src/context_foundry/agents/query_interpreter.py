@@ -41,7 +41,7 @@ def get_tenant_entity_types(session: Session, tenant_id: str) -> List[str]:
     try:
         result = session.execute(text("""
             SELECT DISTINCT entity_type 
-            FROM context.entities 
+            FROM entities 
             WHERE tenant_id = :tenant_id
             ORDER BY entity_type
         """), {'tenant_id': tenant_id})
@@ -50,6 +50,7 @@ def get_tenant_entity_types(session: Session, tenant_id: str) -> List[str]:
         return types
     except Exception as e:
         logger.error(f"Failed to get entity types: {e}")
+        session.rollback()
         return []
 
 
@@ -60,7 +61,7 @@ def get_tenant_relationship_types(session: Session, tenant_id: str) -> List[str]
     try:
         result = session.execute(text("""
             SELECT DISTINCT relationship_type 
-            FROM context.relationships 
+            FROM relationships 
             WHERE tenant_id = :tenant_id
             ORDER BY relationship_type
         """), {'tenant_id': tenant_id})
@@ -69,6 +70,7 @@ def get_tenant_relationship_types(session: Session, tenant_id: str) -> List[str]
         return types
     except Exception as e:
         logger.error(f"Failed to get relationship types: {e}")
+        session.rollback()
         return []
 
 
