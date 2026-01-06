@@ -2613,25 +2613,31 @@ def command_center_data():
     from datetime import datetime, timedelta
     from sqlalchemy import text
     from src.context_foundry.models.schema import get_session, Entity, Relationship, Document, Rule, LifecycleState, GardenerLog
+    from flask import session as flask_session
     
-    session = get_session()
+    db_session = get_session()
     now = datetime.utcnow()
     last_24h = now - timedelta(hours=24)
     last_10min = now - timedelta(minutes=10)
     
+    # Set RLS tenant context for multi-tenant isolation
+    tenant_id = flask_session.get('tenant_id')
+    if tenant_id:
+        db_session.execute(text("SELECT platform.set_current_tenant(:tid)"), {'tid': str(tenant_id)})
+    
     try:
         # Perception quadrant
-        docs_total = session.query(Document).count()
-        entities_total = session.query(Entity).count()
-        rels_total = session.query(Relationship).count()
+        docs_total = db_session.query(Document).count()
+        entities_total = db_session.query(Entity).count()
+        rels_total = db_session.query(Relationship).count()
         
         perception = {
             'documents_total': docs_total,
-            'documents_24h': session.query(Document).filter(Document.created_at >= last_24h).count(),
+            'documents_24h': db_session.query(Document).filter(Document.created_at >= last_24h).count(),
             'entities_extracted': entities_total,
-            'entities_24h': session.query(Entity).filter(Entity.created_at >= last_24h).count(),
+            'entities_24h': db_session.query(Entity).filter(Entity.created_at >= last_24h).count(),
             'relationships_extracted': rels_total,
-            'relationships_24h': session.query(Relationship).filter(Relationship.created_at >= last_24h).count(),
+            'relationships_24h': db_session.query(Relationship).filter(Relationship.created_at >= last_24h).count(),
             'extractors': [
                 {'name': 'EntityExtractor', 'status': 'IDLE', 'last_run': 'On demand'},
                 {'name': 'RelationExtractor', 'status': 'IDLE', 'last_run': 'On demand'},
@@ -2641,36 +2647,36 @@ def command_center_data():
         
         # Memory quadrant
         try:
-            rules_count = session.query(Rule).filter(Rule.is_active == True).count()
+            rules_count = db_session.query(Rule).filter(Rule.is_active == True).count()
         except:
-            session.rollback()
+            db_session.rollback()
             rules_count = 0
             
         try:
-            avg_conf = session.execute(text("SELECT COALESCE(AVG(confidence), 0) FROM entities WHERE lifecycle_state = 'TRUSTED'")).scalar() or 0
+            avg_conf = db_session.execute(text("SELECT COALESCE(AVG(confidence), 0) FROM entities WHERE lifecycle_state = 'TRUSTED'")).scalar() or 0
         except:
-            session.rollback()
+            db_session.rollback()
             avg_conf = 0
             
         try:
-            orphan_entities = session.execute(text("""
+            orphan_entities = db_session.execute(text("""
                 SELECT COUNT(*) FROM entities e
                 WHERE NOT EXISTS (SELECT 1 FROM relationships r WHERE r.source_id = e.id OR r.target_id = e.id)
             """)).scalar() or 0
         except:
-            session.rollback()
+            db_session.rollback()
             orphan_entities = 0
             
         try:
-            pending_conflicts = session.execute(text("SELECT COUNT(*) FROM conflicts WHERE status = 'PENDING'")).scalar() or 0
+            pending_conflicts = db_session.execute(text("SELECT COUNT(*) FROM conflicts WHERE status = 'PENDING'")).scalar() or 0
         except:
-            session.rollback()
+            db_session.rollback()
             pending_conflicts = 0
         
         memory = {
-            'entities_staging': session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.STAGING).count(),
-            'entities_trusted': session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.TRUSTED).count(),
-            'entities_archived': session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.ARCHIVED).count(),
+            'entities_staging': db_session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.STAGING).count(),
+            'entities_trusted': db_session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.TRUSTED).count(),
+            'entities_archived': db_session.query(Entity).filter(Entity.lifecycle_state == LifecycleState.ARCHIVED).count(),
             'total_nodes': entities_total,
             'total_edges': rels_total,
             'documents_indexed': docs_total,
@@ -2682,7 +2688,7 @@ def command_center_data():
         }
         
         # Agents quadrant
-        gardener_last = session.query(GardenerLog).order_by(GardenerLog.created_at.desc()).first()
+        gardener_last = db_session.query(GardenerLog).order_by(GardenerLog.created_at.desc()).first()
         gardener_status = 'IDLE'
         gardener_last_action = 'Never'
         if gardener_last:
@@ -2691,10 +2697,10 @@ def command_center_data():
             gardener_last_action = gardener_last.created_at.strftime('%H:%M:%S')
         
         try:
-            orphan_pending = session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE status = 'ACTIVE'")).scalar() or 0
-            approval_pending = session.execute(text("SELECT COUNT(*) FROM ontology.approval_requests WHERE status = 'PENDING'")).scalar() or 0
+            orphan_pending = db_session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE status = 'ACTIVE'")).scalar() or 0
+            approval_pending = db_session.execute(text("SELECT COUNT(*) FROM ontology.approval_requests WHERE status = 'PENDING'")).scalar() or 0
         except:
-            session.rollback()
+            db_session.rollback()
             orphan_pending = 0
             approval_pending = 0
         
@@ -2713,31 +2719,31 @@ def command_center_data():
         
         gardener_stats = {
             'last_cycle': gardener_last_action,
-            'promoted': session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'PROMOTE' AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
-            'demoted': session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type IN ('DEMOTE', 'ARCHIVE') AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
-            'conflicts': session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'RESOLVE_CONFLICT' AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
+            'promoted': db_session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'PROMOTE' AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
+            'demoted': db_session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type IN ('DEMOTE', 'ARCHIVE') AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
+            'conflicts': db_session.execute(text("SELECT COUNT(*) FROM gardener_logs WHERE action_type = 'RESOLVE_CONFLICT' AND created_at >= :since"), {'since': last_24h}).scalar() or 0,
         }
         
         # Context quadrant
         try:
-            type_counts = session.execute(text("SELECT status, COUNT(*) FROM ontology.types GROUP BY status")).fetchall()
+            type_counts = db_session.execute(text("SELECT status, COUNT(*) FROM ontology.types GROUP BY status")).fetchall()
             type_status_map = {row[0]: row[1] for row in type_counts}
         except:
-            session.rollback()
+            db_session.rollback()
             type_status_map = {}
             
         try:
-            orphans_detected = session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns")).scalar() or 0
-            orphans_surfaced = session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE frequency >= 10")).scalar() or 0
-            types_promoted = session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE status = 'RESOLVED'")).scalar() or 0
+            orphans_detected = db_session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns")).scalar() or 0
+            orphans_surfaced = db_session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE frequency >= 10")).scalar() or 0
+            types_promoted = db_session.execute(text("SELECT COUNT(*) FROM context.orphan_patterns WHERE status = 'RESOLVED'")).scalar() or 0
         except:
-            session.rollback()
+            db_session.rollback()
             orphans_detected = orphans_surfaced = types_promoted = 0
             
         # Approval queue
         approval_queue = []
         try:
-            pending_requests = session.execute(text("""
+            pending_requests = db_session.execute(text("""
                 SELECT ar.id, t.type_name, ar.assigned_level, ar.sla_deadline, ar.created_at
                 FROM ontology.approval_requests ar
                 JOIN ontology.types t ON ar.target_id = t.id
@@ -2761,7 +2767,7 @@ def command_center_data():
                     sla_remaining, sla_class = 'No deadline', 'sla-green'
                 approval_queue.append({'type_name': req[1], 'level': f'L{req[2]}', 'sla_remaining': sla_remaining, 'sla_class': sla_class})
         except:
-            session.rollback()
+            db_session.rollback()
         
         context = {
             'orphans_detected': orphans_detected,
@@ -2777,7 +2783,7 @@ def command_center_data():
         
         # Message bus footer
         try:
-            recent_events = session.execute(text("""
+            recent_events = db_session.execute(text("""
                 SELECT event_type, source_agent, created_at
                 FROM shared.message_queue
                 ORDER BY created_at DESC
@@ -2785,19 +2791,31 @@ def command_center_data():
             """)).fetchall()
             event_list = [{'type': ev[0], 'source': ev[1], 'time': ev[2].strftime('%H:%M:%S') if ev[2] else ''} for ev in recent_events]
         except:
-            session.rollback()
+            db_session.rollback()
             event_list = []
             
         try:
-            dead_letter = session.execute(text("SELECT COUNT(*) FROM shared.dead_letter_queue")).scalar() or 0
+            dead_letter = db_session.execute(text("SELECT COUNT(*) FROM shared.dead_letter_queue")).scalar() or 0
         except:
-            session.rollback()
+            db_session.rollback()
             dead_letter = 0
+        
+        try:
+            events_per_min = db_session.execute(text("SELECT COUNT(*) FROM shared.message_queue WHERE created_at >= :since"), {'since': now - timedelta(minutes=1)}).scalar() or 0
+        except:
+            db_session.rollback()
+            events_per_min = 0
+            
+        try:
+            total_events = db_session.execute(text("SELECT COUNT(*) FROM shared.message_queue")).scalar() or 0
+        except:
+            db_session.rollback()
+            total_events = 0
         
         message_bus = {
             'dead_letter': dead_letter,
-            'events_per_minute': session.execute(text("SELECT COUNT(*) FROM shared.message_queue WHERE created_at >= :since"), {'since': now - timedelta(minutes=1)}).scalar() or 0,
-            'total_events': session.execute(text("SELECT COUNT(*) FROM shared.message_queue")).scalar() or 0,
+            'events_per_minute': events_per_min,
+            'total_events': total_events,
             'recent_events': event_list,
         }
         
@@ -2811,10 +2829,10 @@ def command_center_data():
             'message_bus': message_bus,
         })
     except Exception as e:
-        session.rollback()
+        db_session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
-        session.close()
+        db_session.close()
 
 
 @app.route('/api/knowledge/date-range')
