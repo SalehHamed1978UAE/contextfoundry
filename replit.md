@@ -132,3 +132,36 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - "Authentication Service" → "Auth Service": MATCH
 - "CDN Edge" → "Content Delivery Network Edge": MATCH
 - "LB Service" → "Load Balancer Service": MATCH
+
+### 3-Step Query Pipeline (January 2026)
+**Problem**: Query interpretation was tightly coupled with retrieval. Blast radius queries might return all relationships instead of filtering by direction.
+
+**Solution**: Separate query interpretation from retrieval with a 3-step pipeline:
+
+1. **Step 1 - Query Interpretation (LLM)**: `QueryInterpreter` parses natural language into structured `QueryIntent`:
+   ```json
+   {"entity": "API Gateway", "direction": "inbound", "relationship_types": ["DEPENDS_ON", "CALLS"], "depth": 2}
+   ```
+
+2. **Step 2 - Directed Retrieval (Code)**: `DirectedGraphRetriever` executes EXACTLY what was asked - precise SQL filtering by direction and relationship types.
+
+3. **Step 3 - Answer Synthesis (LLM)**: Format retrieved results into natural language answer.
+
+**Direction Mapping**:
+| Query Type | Direction | Relationship Types |
+|------------|-----------|-------------------|
+| Blast radius if X fails | inbound | DEPENDS_ON, CALLS |
+| What does X depend on | outbound | DEPENDS_ON |
+| What services does X call | outbound | CALLS |
+| Who manages X | inbound | MANAGES, OWNS |
+| What was affected by incident X | outbound | AFFECTS |
+
+**Files**:
+- `src/context_foundry/agents/query_interpreter.py` - Step 1
+- `src/context_foundry/agents/directed_retriever.py` - Step 2
+- `src/context_foundry/agents/query_pipeline.py` - Orchestrator
+- `scripts/test_query_pipeline.py` - Test script
+
+**Test Results** (5/5 interpretation tests passing):
+- Blast radius query: 8 inbound relationships, 0 outbound ✓
+- Dependency query: 5 outbound relationships, 0 inbound ✓
