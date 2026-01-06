@@ -5,6 +5,7 @@ Uses LLM-powered NER to extract entities based on active schema configuration.
 Uses Replit AI Integrations for OpenAI access (no API key required, billed to credits).
 """
 import json
+import logging
 import os
 import re
 from pathlib import Path
@@ -14,6 +15,8 @@ from datetime import datetime
 import hashlib
 
 from openai import OpenAI
+
+logger = logging.getLogger(__name__)
 
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 from ..ontology_foundry.schema_service import OntologySchemaService, get_ontology_schema_service
