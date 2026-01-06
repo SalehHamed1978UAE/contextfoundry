@@ -3888,9 +3888,13 @@ def compare_single_query():
     
     global comparison_pairs
     
+    # Demo tenant with test data (API Gateway, Auth Service, etc.)
+    DEMO_TENANT_ID = "8eee325b-ba3b-447e-9ee7-6d66085ead5f"
+    
     try:
         data = request.get_json()
         query_id = data.get('query_id')
+        use_demo_tenant = data.get('use_demo_tenant', True)  # Default to demo tenant for evaluation
         
         if not query_id:
             return jsonify({'success': False, 'error': 'query_id required'}), 400
@@ -3899,7 +3903,10 @@ def compare_single_query():
         if not tenant_id:
             return jsonify({'success': False, 'error': 'Authentication required'}), 401
         
-        evaluator = BlindEvaluator(tenant_id=tenant_id)
+        # Use demo tenant for evaluation if requested (default) to ensure test data is available
+        eval_tenant_id = DEMO_TENANT_ID if use_demo_tenant else tenant_id
+        
+        evaluator = BlindEvaluator(tenant_id=eval_tenant_id)
         pair = evaluator.run_single_query(query_id)
         
         if not pair:
