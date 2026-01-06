@@ -2765,3 +2765,20 @@ body {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* Graph visualization - allow tooltips to overflow card boundaries */
+.graph-main-panel .card {
+    overflow: visible !important;
+}
+
+.graph-main-panel .card-body {
+    overflow: visible !important;
+}
+
+.memory-graph-container {
+    overflow: visible !important;
+}
+
+#graphNodesHtml {
+    overflow: visible !important;
+}
