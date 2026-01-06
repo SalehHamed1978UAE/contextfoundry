@@ -7,6 +7,7 @@ import signal
 import socket
 import time
 from datetime import timedelta
+from uuid import UUID
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, g
 
 logger = logging.getLogger(__name__)
@@ -731,47 +732,238 @@ def get_document_extraction_status(document_id):
 def landing():
     """Landing page - shows sign in or redirects to dashboard if authenticated."""
     if session.get('user_id') and session.get('tenant_id'):
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('vault_list'))
     return render_template('landing.html')
 
+# ============ Vault Routes ============
+
 @app.route('/app')
-@app.route('/app/dashboard')
-def index():
+def vault_list():
+    """Vault list - shows all vaults the user has access to."""
+    if not session.get('user_id'):
+        return redirect(url_for('landing'))
+    import time
+    return render_template('vault_list.html',
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
+@app.route('/app/new')
+def vault_new():
+    """Create new vault page."""
+    if not session.get('user_id'):
+        return redirect(url_for('landing'))
+    import time
+    return render_template('vault_new.html',
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
+@app.route('/app/<vault_id>')
+def vault_view(vault_id):
+    """Vault view - file tree and chat interface."""
+    if not session.get('user_id'):
+        return redirect(url_for('landing'))
+    
+    from platform_foundation.src.tenant_service import TenantService
+    tenant_svc = TenantService()
+    if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+        return "Access denied", 403
+    
+    session['tenant_id'] = vault_id
+    g.tenant_id = vault_id
+    g.user_role = session.get('role', 'user')
+    import time
+    return render_template('vault_view.html',
+                         vault_id=vault_id,
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
+@app.route('/app/<vault_id>/settings')
+def vault_settings(vault_id):
+    """Vault settings - API keys and configuration."""
+    if not session.get('user_id'):
+        return redirect(url_for('landing'))
+    
+    from platform_foundation.src.tenant_service import TenantService
+    tenant_svc = TenantService()
+    if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+        return "Access denied", 403
+    
+    session['tenant_id'] = vault_id
+    g.tenant_id = vault_id
+    g.user_role = session.get('role', 'user')
+    import time
+    return render_template('vault_settings.html',
+                         vault_id=vault_id,
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
+# ============ Vault API ============
+
+@app.route('/api/vaults', methods=['GET'])
+def api_list_vaults():
+    """List all vaults the user has access to."""
+    if not session.get('user_id'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        from platform_foundation.src.tenant_service import TenantService
+        tenant_svc = TenantService()
+        vaults = tenant_svc.list_user_vaults(UUID(session['user_id']))
+        
+        result = []
+        for v in vaults:
+            result.append({
+                'id': str(v['id']),
+                'name': v['name'],
+                'slug': v['slug'],
+                'document_count': v.get('document_count', 0),
+                'created_at': v['created_at'].isoformat() if v.get('created_at') else None,
+                'updated_at': v['updated_at'].isoformat() if v.get('updated_at') else None
+            })
+        
+        return jsonify({'success': True, 'vaults': result})
+    except Exception as e:
+        logger.error(f"Failed to list vaults: {e}")
+        return jsonify({'error': 'Failed to list vaults'}), 500
+
+@app.route('/api/vaults', methods=['POST'])
+def api_create_vault():
+    """Create a new vault."""
+    if not session.get('user_id'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        
+        if not name:
+            return jsonify({'error': 'Vault name is required'}), 400
+        if len(name) < 2:
+            return jsonify({'error': 'Vault name must be at least 2 characters'}), 400
+        if len(name) > 100:
+            return jsonify({'error': 'Vault name must be less than 100 characters'}), 400
+        
+        from platform_foundation.src.tenant_service import TenantService
+        tenant_svc = TenantService()
+        vault = tenant_svc.create_vault_for_user(UUID(session['user_id']), name)
+        
+        session['tenant_id'] = str(vault['id'])
+        
+        return jsonify({
+            'success': True,
+            'vault': {
+                'id': str(vault['id']),
+                'name': vault['name'],
+                'slug': vault['slug']
+            }
+        })
+    except Exception as e:
+        logger.error(f"Failed to create vault: {e}")
+        return jsonify({'error': 'Failed to create vault'}), 500
+
+@app.route('/api/vaults/<vault_id>', methods=['GET'])
+def api_get_vault(vault_id):
+    """Get vault details."""
+    if not session.get('user_id'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        from platform_foundation.src.tenant_service import TenantService
+        tenant_svc = TenantService()
+        
+        if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+            return jsonify({'error': 'Access denied'}), 403
+        
+        vault = tenant_svc.get_tenant(UUID(vault_id))
+        
+        if not vault:
+            return jsonify({'error': 'Vault not found'}), 404
+        
+        stats = tenant_svc.get_vault_stats(UUID(vault_id))
+        
+        return jsonify({
+            'success': True,
+            'vault': {
+                'id': str(vault['id']),
+                'name': vault['name'],
+                'slug': vault['slug'],
+                'total_documents': stats.get('total_documents', 0),
+                'completed_documents': stats.get('completed_documents', 0),
+                'last_activity': stats['last_activity'].isoformat() if stats.get('last_activity') else None
+            }
+        })
+    except Exception as e:
+        logger.error(f"Failed to get vault: {e}")
+        return jsonify({'error': 'Failed to get vault'}), 500
+
+# ============ Legacy App Routes (within vault context) ============
+
+def require_vault_access(vault_id):
+    """Check vault access and return redirect/error if not authorized."""
+    if not session.get('user_id'):
+        return redirect(url_for('landing'))
+    from platform_foundation.src.tenant_service import TenantService
+    tenant_svc = TenantService()
+    if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+        return "Access denied", 403
+    session['tenant_id'] = vault_id
+    g.tenant_id = vault_id
+    g.user_role = session.get('role', 'user')
+    return None
+
+@app.route('/app/<vault_id>/dashboard')
+def index(vault_id):
     """Knowledge dashboard - main knowledge exploration interface."""
+    auth_check = require_vault_access(vault_id)
+    if auth_check:
+        return auth_check
     import time
     return render_template('index.html', 
                          active_section='knowledge',
                          active_page='dashboard',
+                         vault_id=vault_id,
                          user_name=session.get('user_name', 'User'),
                          cache_bust=int(time.time()))
 
-@app.route('/app/memory-graph')
-def app_memory_graph():
+@app.route('/app/<vault_id>/memory-graph')
+def app_memory_graph(vault_id):
     """Knowledge - Memory Graph page."""
+    auth_check = require_vault_access(vault_id)
+    if auth_check:
+        return auth_check
     import time
     return render_template('index.html',
                          active_section='knowledge', 
                          active_page='memory-graph',
+                         vault_id=vault_id,
                          user_name=session.get('user_name', 'User'),
                          cache_bust=int(time.time()))
 
-@app.route('/app/command-center')
-def app_command_center():
+@app.route('/app/<vault_id>/command-center')
+def app_command_center(vault_id):
     """Knowledge - Command Center page."""
+    auth_check = require_vault_access(vault_id)
+    if auth_check:
+        return auth_check
     import time
     return render_template('index.html',
                          active_section='knowledge',
                          active_page='command-center',
+                         vault_id=vault_id,
                          user_name=session.get('user_name', 'User'),
                          cache_bust=int(time.time()))
 
-@app.route('/app/evaluation')
-def app_evaluation():
+@app.route('/app/<vault_id>/evaluation')
+def app_evaluation(vault_id):
     """Knowledge - A/B Evaluation page."""
+    auth_check = require_vault_access(vault_id)
+    if auth_check:
+        return auth_check
     import time
     return render_template('index.html',
                          active_section='knowledge',
                          active_page='evaluation',
+                         vault_id=vault_id,
                          user_name=session.get('user_name', 'User'),
                          cache_bust=int(time.time()))
 

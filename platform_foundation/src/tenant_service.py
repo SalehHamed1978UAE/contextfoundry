@@ -115,3 +115,100 @@ class TenantService:
         with conn.cursor() as cur:
             cur.execute("SELECT platform.set_current_tenant(%s)", (str(tenant_id),))
             cur.execute("SELECT platform.set_current_user_role(%s)", (role,))
+    
+    def list_user_vaults(self, user_id: UUID) -> List[Dict[str, Any]]:
+        """List all vaults (tenants) the user has access to via user_tenants join table."""
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT t.*, 
+                           ut.role as user_role
+                    FROM platform.tenants t
+                    JOIN platform.user_tenants ut ON ut.tenant_id = t.id
+                    WHERE ut.user_id = %s AND t.status = 'active'
+                    ORDER BY t.updated_at DESC
+                """, (str(user_id),))
+                vaults = [dict(row) for row in cur.fetchall()]
+                
+                for vault in vaults:
+                    vault['document_count'] = 0
+                    try:
+                        cur.execute("""
+                            SELECT COUNT(*) FROM context.documents WHERE tenant_id = %s
+                        """, (str(vault['id']),))
+                        vault['document_count'] = cur.fetchone()[0]
+                    except Exception:
+                        pass
+                
+                return vaults
+    
+    def user_has_vault_access(self, user_id: UUID, tenant_id: UUID) -> bool:
+        """Check if user has access to a specific vault."""
+        with self._get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT 1 FROM platform.user_tenants
+                    WHERE user_id = %s AND tenant_id = %s
+                """, (str(user_id), str(tenant_id)))
+                return cur.fetchone() is not None
+    
+    def create_vault_for_user(
+        self,
+        user_id: UUID,
+        name: str
+    ) -> Dict[str, Any]:
+        """
+        Create a new vault and grant user access via user_tenants join table.
+        
+        Args:
+            user_id: The user creating the vault
+            name: Display name for the vault
+            
+        Returns:
+            Created vault record
+        """
+        import re
+        base_slug = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+        slug = f"{base_slug}-{uuid4().hex[:8]}"
+        
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    INSERT INTO platform.tenants (name, slug, type, settings)
+                    VALUES (%s, %s, 'personal_sandbox', '{}')
+                    RETURNING *
+                """, (name, slug))
+                
+                tenant = dict(cur.fetchone())
+                conn.commit()
+                
+                cur.execute("""
+                    INSERT INTO platform.tenant_quotas (tenant_id)
+                    VALUES (%s)
+                    ON CONFLICT (tenant_id) DO NOTHING
+                """, (tenant['id'],))
+                conn.commit()
+                
+                cur.execute("""
+                    INSERT INTO platform.user_tenants (user_id, tenant_id, role)
+                    VALUES (%s, %s, 'owner')
+                """, (str(user_id), tenant['id']))
+                conn.commit()
+                
+                logger.info(f"Created vault '{name}' for user {user_id}")
+                return tenant
+    
+    def get_vault_stats(self, tenant_id: UUID) -> Dict[str, Any]:
+        """Get document stats for a vault."""
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        COUNT(*) as total_documents,
+                        COUNT(*) FILTER (WHERE status = 'completed') as completed_documents,
+                        COUNT(*) FILTER (WHERE status = 'failed') as failed_documents,
+                        MAX(updated_at) as last_activity
+                    FROM context.documents
+                    WHERE tenant_id = %s
+                """, (str(tenant_id),))
+                return dict(cur.fetchone())
