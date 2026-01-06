@@ -123,6 +123,9 @@ class ContextFoundry:
         query_id = str(uuid.uuid4())
         query_logger = QueryLogger(query_id, query_text)
         
+        # Re-set tenant context at start of every query (defensive - in case of session reset)
+        self._set_tenant_context()
+        
         try:
             tier, signals = self.router.route(query_text)
             
@@ -568,13 +571,25 @@ class ContextFoundry:
         Find entities with similar names to suggest as alternatives.
         
         Uses substring matching and word overlap for fuzzy matching.
+        SECURITY: Must filter by tenant_id to prevent cross-tenant data leakage.
         """
         from .models.schema import Entity, LifecycleState
+        from uuid import UUID as PyUUID
         
         try:
-            all_entities = self.session.query(Entity.name).filter(
+            base_query = self.session.query(Entity.name).filter(
                 Entity.lifecycle_state.in_([LifecycleState.TRUSTED, LifecycleState.STAGING])
-            ).distinct().limit(500).all()
+            )
+            
+            # CRITICAL: Add tenant filtering to prevent cross-tenant leakage
+            if self.tenant_id:
+                try:
+                    tenant_uuid = PyUUID(self.tenant_id) if isinstance(self.tenant_id, str) else self.tenant_id
+                    base_query = base_query.filter(Entity.tenant_id == tenant_uuid)
+                except (ValueError, TypeError):
+                    pass  # Invalid tenant_id format, skip filter
+            
+            all_entities = base_query.distinct().limit(500).all()
             
             target_lower = target_name.lower()
             target_words = set(target_lower.split())
