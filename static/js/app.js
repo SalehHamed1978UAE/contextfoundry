@@ -911,7 +911,7 @@ function runApp() {
                 transform: scale(0);
                 opacity: 0;
                 transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.2s ease, background 0.2s ease;
-                z-index: ${isCenter ? 20 : 10};
+                z-index: ${isCenter ? 9020 : 9010};
             `;
             
             nodeEl.dataset.nodeOpacity = nodeOpacity;
@@ -921,6 +921,29 @@ function runApp() {
             iconWrapper.style.cssText = `width: ${iconSize}px; height: ${iconSize}px; color: ${nodeColor}; position: relative;`;
             iconWrapper.innerHTML = getNodeIcon(node.type);
             nodeEl.appendChild(iconWrapper);
+            
+            // Add name label below the node
+            const nameLabel = document.createElement('div');
+            const truncatedName = node.name.length > 18 ? node.name.substring(0, 16) + '...' : node.name;
+            nameLabel.textContent = truncatedName;
+            nameLabel.style.cssText = `
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 6px;
+                font-size: 10px;
+                font-family: 'Inter', sans-serif;
+                font-weight: 500;
+                color: ${nodeColor};
+                white-space: nowrap;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+                pointer-events: none;
+                max-width: 100px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            `;
+            nodeEl.appendChild(nameLabel);
             
             // Add frontier indicator (question mark badge) for frontier nodes
             if (isFrontier) {
@@ -966,7 +989,7 @@ function runApp() {
                 opacity: 0;
                 pointer-events: none;
                 transition: opacity 0.2s ease;
-                z-index: 100;
+                z-index: 10000;
                 max-width: 280px;
             `;
             
