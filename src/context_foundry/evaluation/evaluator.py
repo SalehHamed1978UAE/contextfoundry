@@ -372,12 +372,7 @@ class BlindEvaluator:
             answer = str(raw_answer) if raw_answer else ""
         
         # Post-process string answers to improve formatting
-        # Convert inline " - " bullet patterns to proper newlines
-        if isinstance(answer, str) and " - " in answer:
-            import re
-            # Pattern: "Header: - item1 - item2" -> "Header:\n- item1\n- item2"
-            answer = re.sub(r':\s*-\s+', ':\n- ', answer)  # After header colons
-            answer = re.sub(r'\s+-\s+(?=[A-Z])', '\n- ', answer)  # Between items starting with caps
+        answer = self._format_answer_for_display(answer)
         
         return EvaluationResponse(
             system=SystemType.CONTEXT_FOUNDRY,
@@ -390,15 +385,36 @@ class BlindEvaluator:
             evidence_chain=evidence_chain,
         )
     
+    def _format_answer_for_display(self, answer: str) -> str:
+        """Format answer text for better display - convert inline bullets to newlines."""
+        import re
+        if not answer or " - " not in answer:
+            return answer
+        
+        # Split after section headers
+        answer = re.sub(r'(GROUNDED|GAPS|Confirmed Impact|Inferred Impact|Knowledge Boundaries?)(?:\s*\([^)]*\))?:\s*-\s*', r'\1:\n- ', answer)
+        
+        # Split between bullet items - match service-like names
+        service_pattern = r'(?:Service|Gateway|Database|Cache|Manager|Queue|Broker|Store|Provider|Server|System|Balancer|Edge|Client|API|Collector|Aggregator|Hub)'
+        answer = re.sub(rf'\s+-\s+([A-Z][a-zA-Z0-9/\s]*{service_pattern})', r'\n- \1', answer)
+        
+        # Also handle dependency patterns like "Mobile Gateway depends on API Gateway [REL-001]"
+        answer = re.sub(r'\s+-\s+([A-Z][a-zA-Z\s]+ (?:depends on|calls|uses|connects to) )', r'\n- \1', answer)
+        
+        return answer
+    
     def _run_graphrag(self, query: EvaluationQuery) -> EvaluationResponse:
         """Run query through GraphRAG baseline."""
         result = self.graphrag.query(query.query_text)
+        
+        # Format the answer for better display
+        formatted_answer = self._format_answer_for_display(result.answer)
         
         return EvaluationResponse(
             system=SystemType.GRAPHRAG_BASELINE,
             query_id=query.id,
             query_text=query.query_text,
-            answer=result.answer,
+            answer=formatted_answer,
             latency_ms=result.latency_ms,
             context_size=result.context.to_dict()["total_items"],
             confidence=None,
