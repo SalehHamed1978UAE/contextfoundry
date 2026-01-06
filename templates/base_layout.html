@@ -633,7 +633,7 @@
                             </svg>
                             <span>Dashboard</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'memory-graph' %}active{% endif %}" href="/app/memory-graph" data-tooltip="Memory Graph">
+                        <a class="nav-item {% if active_page == 'memory-graph' %}active{% endif %}" href="/app/{{ vault_id }}/memory-graph" data-tooltip="Memory Graph">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <circle cx="12" cy="12" r="10"/>
                                 <circle cx="12" cy="12" r="6"/>
@@ -641,7 +641,7 @@
                             </svg>
                             <span>Memory Graph</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'command-center' %}active{% endif %}" href="/app/command-center" data-tooltip="Command Center">
+                        <a class="nav-item {% if active_page == 'command-center' %}active{% endif %}" href="/app/{{ vault_id }}/command-center" data-tooltip="Command Center">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <rect x="2" y="3" width="20" height="14" rx="2"/>
                                 <path d="M8 21h8"/>
@@ -649,7 +649,7 @@
                             </svg>
                             <span>Command Center</span>
                         </a>
-                        <a class="nav-item {% if active_page == 'evaluation' %}active{% endif %}" href="/app/evaluation" data-tooltip="A/B Evaluation">
+                        <a class="nav-item {% if active_page == 'evaluation' %}active{% endif %}" href="/app/{{ vault_id }}/evaluation" data-tooltip="A/B Evaluation">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
                                 <rect x="9" y="3" width="6" height="4" rx="1"/>
