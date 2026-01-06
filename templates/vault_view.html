@@ -158,8 +158,152 @@
         
         .file-status.completed { background: var(--accent-success); }
         .file-status.processing { background: var(--accent-warning); }
+        .file-status.queued { background: var(--accent-warning); }
         .file-status.failed { background: var(--accent-error); }
         .file-status.pending { background: var(--text-muted); }
+        
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .folder-item:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .folder-item.expanded > .folder-arrow {
+            transform: rotate(90deg);
+        }
+        
+        .folder-arrow {
+            width: 12px;
+            height: 12px;
+            transition: transform 0.15s;
+            color: var(--text-muted);
+        }
+        
+        .folder-icon {
+            width: 16px;
+            height: 16px;
+            color: #f59e0b;
+        }
+        
+        .folder-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .folder-children {
+            margin-left: 16px;
+            display: none;
+        }
+        
+        .folder-children.expanded {
+            display: block;
+        }
+        
+        .file-item.nested {
+            margin-left: 22px;
+        }
+        
+        .drop-target {
+            background: rgba(6, 182, 212, 0.15) !important;
+            border: 1px dashed var(--accent-primary);
+        }
+        
+        .file-item[draggable="true"] {
+            cursor: grab;
+        }
+        
+        .file-item.dragging {
+            opacity: 0.5;
+        }
+        
+        .new-folder-btn {
+            padding: 4px 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+        }
+        
+        .new-folder-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        
+        .folder-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            z-index: 1000;
+            min-width: 300px;
+        }
+        
+        .folder-dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        .folder-dialog h3 {
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+        
+        .folder-dialog input {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+        
+        .folder-dialog-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        
+        .folder-dialog-btns button {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .folder-dialog-btns .cancel-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .folder-dialog-btns .create-btn {
+            background: var(--accent-primary);
+            border: none;
+            color: var(--bg-primary);
+        }
         
         .sidebar-footer {
             padding: 12px;
@@ -400,12 +544,15 @@
             <div class="file-tree-section">
                 <div class="section-header">
                     <span class="section-title">Documents</span>
-                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                        + Upload
-                    </button>
+                    <div style="display: flex; gap: 4px;">
+                        <button class="new-folder-btn" onclick="showNewFolderDialog()" title="New Folder">+</button>
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            Upload
+                        </button>
+                    </div>
                 </div>
                 <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.md">
-                <div id="fileList" class="file-list">
+                <div id="fileTree" class="file-list">
                     <div class="empty-files">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 8px;">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -486,31 +633,225 @@
             }
         }
         
+        let currentFolderPath = '/';
+        let expandedFolders = new Set(['/']);
+        
         async function loadDocuments() {
             try {
-                const response = await fetch(`/api/documents?page=1&per_page=100`);
+                const response = await fetch(`/api/documents/tree`);
                 const data = await response.json();
                 
-                const fileList = document.getElementById('fileList');
+                const fileTree = document.getElementById('fileTree');
                 
-                if (!data.documents || data.documents.length === 0) {
+                if ((!data.folders || data.folders.length === 0) && 
+                    (!data.documents || data.documents.length === 0)) {
                     return;
                 }
                 
-                fileList.innerHTML = data.documents.map(doc => `
-                    <div class="file-item" data-id="${doc.id}">
-                        <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                        </svg>
-                        <span class="file-name">${escapeHtml(doc.name || doc.original_filename || 'Unknown')}</span>
-                        <span class="file-status ${doc.status}"></span>
-                    </div>
-                `).join('');
+                const tree = buildFolderTree(data.folders || [], data.documents || []);
+                fileTree.innerHTML = renderFolderTree(tree, '/');
+                
+                setupDragDrop();
                 
             } catch (error) {
                 console.error('Failed to load documents:', error);
             }
+        }
+        
+        function buildFolderTree(folders, documents) {
+            const tree = { folders: {}, documents: [] };
+            
+            folders.forEach(folder => {
+                const parts = folder.path.split('/').filter(p => p);
+                let current = tree;
+                parts.forEach((part, i) => {
+                    if (!current.folders[part]) {
+                        current.folders[part] = { 
+                            id: folder.id,
+                            name: part, 
+                            path: '/' + parts.slice(0, i + 1).join('/') + '/',
+                            folders: {}, 
+                            documents: [] 
+                        };
+                    }
+                    current = current.folders[part];
+                });
+            });
+            
+            documents.forEach(doc => {
+                const folderPath = doc.folder_path || '/';
+                if (folderPath === '/') {
+                    tree.documents.push(doc);
+                } else {
+                    const parts = folderPath.split('/').filter(p => p);
+                    let current = tree;
+                    parts.forEach(part => {
+                        if (current.folders[part]) {
+                            current = current.folders[part];
+                        }
+                    });
+                    current.documents.push(doc);
+                }
+            });
+            
+            return tree;
+        }
+        
+        function renderFolderTree(node, path) {
+            let html = '';
+            
+            Object.values(node.folders).forEach(folder => {
+                const isExpanded = expandedFolders.has(folder.path);
+                html += `
+                    <div class="folder-container" data-path="${escapeHtml(folder.path)}">
+                        <div class="folder-item ${isExpanded ? 'expanded' : ''}" 
+                             onclick="toggleFolder('${escapeHtml(folder.path)}')"
+                             ondragover="handleDragOver(event)"
+                             ondrop="handleDrop(event, '${escapeHtml(folder.path)}')">
+                            <svg class="folder-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                            <svg class="folder-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                            </svg>
+                            <span class="folder-name">${escapeHtml(folder.name)}</span>
+                        </div>
+                        <div class="folder-children ${isExpanded ? 'expanded' : ''}">
+                            ${renderFolderTree(folder, folder.path)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            node.documents.forEach(doc => {
+                html += `
+                    <div class="file-item" data-id="${doc.id}" draggable="true"
+                         ondragstart="handleDragStart(event, '${doc.id}')"
+                         ondragend="handleDragEnd(event)">
+                        <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                        </svg>
+                        <span class="file-name">${escapeHtml(doc.name || 'Unknown')}</span>
+                        <span class="file-status ${doc.status}"></span>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        function toggleFolder(path) {
+            if (expandedFolders.has(path)) {
+                expandedFolders.delete(path);
+            } else {
+                expandedFolders.add(path);
+            }
+            loadDocuments();
+        }
+        
+        function showNewFolderDialog() {
+            const overlay = document.createElement('div');
+            overlay.className = 'folder-dialog-overlay';
+            overlay.onclick = () => overlay.remove();
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'folder-dialog';
+            dialog.innerHTML = `
+                <h3>New Folder</h3>
+                <input type="text" id="newFolderName" placeholder="Folder name" autofocus>
+                <div class="folder-dialog-btns">
+                    <button class="cancel-btn" onclick="this.closest('.folder-dialog-overlay').remove()">Cancel</button>
+                    <button class="create-btn" onclick="createFolder()">Create</button>
+                </div>
+            `;
+            dialog.onclick = e => e.stopPropagation();
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            setTimeout(() => document.getElementById('newFolderName').focus(), 100);
+        }
+        
+        async function createFolder() {
+            const nameInput = document.getElementById('newFolderName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            
+            try {
+                const response = await fetch('/api/folders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, parent_path: currentFolderPath })
+                });
+                
+                if (response.ok) {
+                    document.querySelector('.folder-dialog-overlay').remove();
+                    expandedFolders.add(currentFolderPath + name + '/');
+                    loadDocuments();
+                }
+            } catch (error) {
+                console.error('Failed to create folder:', error);
+            }
+        }
+        
+        let draggedDocId = null;
+        
+        function handleDragStart(e, docId) {
+            draggedDocId = docId;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drop-target');
+        }
+        
+        async function handleDrop(e, folderPath) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drop-target');
+            
+            if (!draggedDocId) return;
+            
+            try {
+                const response = await fetch(`/api/documents/${draggedDocId}/move`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ folder_path: folderPath })
+                });
+                
+                if (response.ok) {
+                    expandedFolders.add(folderPath);
+                    loadDocuments();
+                }
+            } catch (error) {
+                console.error('Failed to move document:', error);
+            }
+            
+            draggedDocId = null;
+        }
+        
+        function setupDragDrop() {
+            const rootDropZone = document.getElementById('fileTree');
+            rootDropZone.ondragover = (e) => {
+                e.preventDefault();
+                if (!e.target.closest('.folder-item')) {
+                    rootDropZone.classList.add('drop-target');
+                }
+            };
+            rootDropZone.ondragleave = () => rootDropZone.classList.remove('drop-target');
+            rootDropZone.ondrop = (e) => {
+                if (!e.target.closest('.folder-item')) {
+                    handleDrop(e, '/');
+                }
+                rootDropZone.classList.remove('drop-target');
+            };
         }
         
         chatInput.addEventListener('input', function() {
