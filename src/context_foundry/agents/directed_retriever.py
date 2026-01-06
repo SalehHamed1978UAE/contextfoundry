@@ -217,6 +217,27 @@ class DirectedGraphRetriever:
             depth=intent.depth
         )
         
+        if intent.target_type:
+            direct_rels, direct_paths = self._get_direct_target_type_neighbors(
+                entity_id=entity_id,
+                entity_name=entity_name,
+                target_type=intent.target_type
+            )
+            
+            if direct_rels:
+                logger.info(f"Found {len(direct_rels)} direct {intent.target_type} neighbors (N_T(X))")
+                
+                existing_rel_ids = {r.relationship_id for r in relationships}
+                for rel in direct_rels:
+                    if rel.relationship_id not in existing_rel_ids:
+                        relationships.append(rel)
+                        existing_rel_ids.add(rel.relationship_id)
+                
+                existing_path_sigs = {p.to_string() for p in cascade_paths}
+                for path in direct_paths:
+                    if path.to_string() not in existing_path_sigs:
+                        cascade_paths.append(path)
+        
         affected = self._collect_affected_entities(relationships, entity_id)
         
         if intent.target_type:
@@ -281,6 +302,101 @@ class DirectedGraphRetriever:
         except Exception as e:
             logger.error(f"Entity resolution failed: {e}")
             return None
+    
+    def _get_direct_target_type_neighbors(
+        self,
+        entity_id: str,
+        entity_name: str,
+        target_type: str
+    ) -> tuple:
+        """
+        Get direct neighbors of entity X that are of the specified target_type.
+        
+        This implements N_T(X) - finding all entities of type T that are directly
+        connected to X by ANY relationship type.
+        
+        This fixes the case where BR(X) = empty but teams/databases still 
+        OWN or MANAGE X directly.
+        
+        Args:
+            entity_id: The UUID of entity X
+            entity_name: The name of entity X (for path building)
+            target_type: The type of neighbor we want (e.g., "TEAM")
+            
+        Returns:
+            Tuple of (List[RetrievedRelationship], List[CascadePath])
+        """
+        relationships = []
+        cascade_paths = []
+        
+        query = text("""
+            SELECT 
+                r.id as rel_id,
+                r.relationship_type,
+                r.source_id,
+                src.name as source_name,
+                src.entity_type as source_type,
+                r.target_id,
+                tgt.name as target_name,
+                tgt.entity_type as target_type,
+                r.confidence,
+                CASE 
+                    WHEN r.target_id = :entity_id THEN 'inbound'
+                    ELSE 'outbound'
+                END as direction
+            FROM relationships r
+            JOIN entities src ON r.source_id = src.id
+            JOIN entities tgt ON r.target_id = tgt.id
+            WHERE r.tenant_id = :tenant_id
+              AND (r.source_id = :entity_id OR r.target_id = :entity_id)
+              AND (
+                  (r.source_id = :entity_id AND tgt.entity_type = :target_type)
+                  OR (r.target_id = :entity_id AND src.entity_type = :target_type)
+              )
+        """)
+        
+        try:
+            result = self.session.execute(query, {
+                'entity_id': entity_id,
+                'tenant_id': self.tenant_id,
+                'target_type': target_type.upper()
+            })
+            
+            for row in result.fetchall():
+                rel = RetrievedRelationship(
+                    relationship_id=str(row.rel_id),
+                    relationship_type=row.relationship_type,
+                    source_id=str(row.source_id),
+                    source_name=row.source_name,
+                    source_type=row.source_type,
+                    target_id=str(row.target_id),
+                    target_name=row.target_name,
+                    target_type=row.target_type,
+                    confidence=row.confidence or 0.9,
+                    direction_relative_to_entity=row.direction,
+                    depth=0
+                )
+                relationships.append(rel)
+                
+                if row.direction == 'inbound':
+                    other_name = row.source_name
+                else:
+                    other_name = row.target_name
+                
+                cascade_paths.append(CascadePath(
+                    path=[entity_name, other_name],
+                    depth=0,
+                    relationship_types=[row.relationship_type]
+                ))
+                
+            logger.debug(f"Direct {target_type} neighbors of {entity_name}: "
+                        f"{len(relationships)} found")
+            
+        except Exception as e:
+            logger.error(f"Failed to get direct target_type neighbors: {e}")
+            self.session.rollback()
+        
+        return relationships, cascade_paths
     
     def _retrieve_relationships_with_paths(
         self,
