@@ -50,3 +50,20 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Web Framework**: Flask
 - **Deployment**: Gunicorn
 - **Authentication**: Magic Link, API Keys, JWT Sessions, Google OAuth
+
+## Database Security (RLS)
+
+### Role-Based Access
+- **`app_user`**: Application role with RLS enforced - used by running application
+- **`neondb_owner`**: Database owner - used only for migrations, bypasses RLS
+
+### Vault Isolation
+All tenant data is protected by PostgreSQL Row-Level Security (RLS):
+- RLS policies filter data by `tenant_id` using `app.current_tenant_id` session variable
+- Application connects as `app_user` (non-owner) so RLS is enforced
+- 14 tables have RLS policies: entities, relationships, documents, etc.
+
+### Connection Setup
+- `get_session(use_rls_role=True)`: Default, uses `app_user` for tenant isolation
+- `get_session(use_rls_role=False)`: Admin/migration mode, bypasses RLS
+- RLS URL constructed from `PGHOST`, `PGPORT`, `PGDATABASE` + `app_user` credentials
