@@ -56,6 +56,26 @@ class RetrievedRelationship:
 
 
 @dataclass
+class CascadePath:
+    """A single impact chain path from the target entity to an affected entity."""
+    path: List[str]  # List of entity names in the path
+    depth: int
+    relationship_types: List[str]  # Relationship types along the path
+    
+    def to_string(self) -> str:
+        """Format as 'A -> B -> C'"""
+        return " -> ".join(self.path)
+    
+    def to_dict(self) -> dict:
+        return {
+            "path": self.path,
+            "depth": self.depth,
+            "relationship_types": self.relationship_types,
+            "formatted": self.to_string()
+        }
+
+
+@dataclass
 class RetrievalResult:
     """
     The complete result of executing a QueryIntent against the graph.
@@ -70,6 +90,7 @@ class RetrievalResult:
     entity_type: Optional[str]
     relationships: List[RetrievedRelationship] = field(default_factory=list)
     affected_entities: List[Dict] = field(default_factory=list)  # Unique entities discovered
+    cascade_paths: List[CascadePath] = field(default_factory=list)  # Impact chains with paths
     error: Optional[str] = None
     
     def to_dict(self) -> dict:
@@ -82,8 +103,37 @@ class RetrievalResult:
             "relationship_count": len(self.relationships),
             "relationships": [r.to_dict() for r in self.relationships],
             "affected_entities": self.affected_entities,
+            "cascade_paths": [p.to_dict() for p in self.cascade_paths],
             "error": self.error
         }
+    
+    def get_cascade_breakdown(self) -> Dict[int, List[str]]:
+        """Get affected entities grouped by depth."""
+        breakdown = {}
+        for path in self.cascade_paths:
+            if path.depth not in breakdown:
+                breakdown[path.depth] = []
+            # The last entity in the path is the affected one
+            affected = path.path[-1] if path.path else None
+            if affected and affected not in breakdown[path.depth]:
+                breakdown[path.depth].append(affected)
+        return breakdown
+    
+    def get_formatted_cascade(self) -> str:
+        """Get a human-readable cascade breakdown."""
+        breakdown = self.get_cascade_breakdown()
+        lines = []
+        total = 0
+        for depth in sorted(breakdown.keys()):
+            entities = breakdown[depth]
+            total += len(entities)
+            lines.append(f"Depth {depth}: {len(entities)} services")
+            for entity in entities[:5]:
+                lines.append(f"  - {entity}")
+            if len(entities) > 5:
+                lines.append(f"  ... and {len(entities) - 5} more")
+        lines.append(f"\nTotal unique affected: {total}")
+        return "\n".join(lines)
     
     def get_summary(self) -> str:
         """Get a human-readable summary of the retrieval result."""
@@ -159,8 +209,9 @@ class DirectedGraphRetriever:
         
         logger.info(f"Entity resolved: {entity_name} ({entity_type})")
         
-        relationships = self._retrieve_relationships(
+        relationships, cascade_paths = self._retrieve_relationships_with_paths(
             entity_id=entity_id,
+            entity_name=entity_name,
             direction=intent.direction,
             relationship_types=intent.relationship_types,
             depth=intent.depth
@@ -175,11 +226,12 @@ class DirectedGraphRetriever:
             entity_name=entity_name,
             entity_type=entity_type,
             relationships=relationships,
-            affected_entities=affected
+            affected_entities=affected,
+            cascade_paths=cascade_paths
         )
         
         logger.info(f"Retrieval complete: {len(relationships)} relationships, "
-                   f"{len(affected)} affected entities")
+                   f"{len(affected)} affected entities, {len(cascade_paths)} paths")
         
         return result
     
@@ -207,33 +259,44 @@ class DirectedGraphRetriever:
             logger.error(f"Entity resolution failed: {e}")
             return None
     
-    def _retrieve_relationships(
+    def _retrieve_relationships_with_paths(
         self,
         entity_id: str,
+        entity_name: str,
         direction: str,
         relationship_types: List[str],
         depth: int
-    ) -> List[RetrievedRelationship]:
+    ) -> tuple:
         """
-        Retrieve relationships matching the query intent.
+        Retrieve relationships with path tracking for cascade visualization.
         
         Args:
             entity_id: The UUID of the target entity
+            entity_name: The name of the target entity (for path building)
             direction: "inbound", "outbound", or "both"
             relationship_types: List of relationship types to include
             depth: Maximum traversal depth
             
         Returns:
-            List of RetrievedRelationship objects
+            Tuple of (List[RetrievedRelationship], List[CascadePath])
         """
         relationships = []
+        cascade_paths = []
+        
+        # Track paths: entity_id -> (path_names, path_rel_types)
+        entity_paths: Dict[str, tuple] = {entity_id: ([entity_name], [])}
         visited_entities: Set[str] = {entity_id}
         current_frontier: Set[str] = {entity_id}
+        
+        # Track first discovery depth for each entity
+        entity_first_depth: Dict[str, int] = {}
         
         for current_depth in range(1, depth + 1):
             next_frontier: Set[str] = set()
             
             for frontier_entity_id in current_frontier:
+                current_path, current_rel_types = entity_paths.get(frontier_entity_id, ([entity_name], []))
+                
                 rels = self._get_direct_relationships(
                     entity_id=frontier_entity_id,
                     direction=direction,
@@ -245,17 +308,39 @@ class DirectedGraphRetriever:
                     rel.depth = current_depth
                     relationships.append(rel)
                     
-                    other_id = rel.source_id if rel.direction_relative_to_entity == "inbound" else rel.target_id
+                    # Get the "other" entity (the one we discovered)
+                    if rel.direction_relative_to_entity == "inbound":
+                        other_id = rel.source_id
+                        other_name = rel.source_name
+                    else:
+                        other_id = rel.target_id
+                        other_name = rel.target_name
+                    
                     if other_id not in visited_entities:
-                        next_frontier.add(other_id)
                         visited_entities.add(other_id)
+                        next_frontier.add(other_id)
+                        
+                        # Build path to this entity
+                        new_path = current_path + [other_name]
+                        new_rel_types = current_rel_types + [rel.relationship_type]
+                        entity_paths[other_id] = (new_path, new_rel_types)
+                        
+                        # Record first discovery depth
+                        entity_first_depth[other_id] = current_depth
+                        
+                        # Create cascade path
+                        cascade_paths.append(CascadePath(
+                            path=new_path,
+                            depth=current_depth,
+                            relationship_types=new_rel_types
+                        ))
             
             current_frontier = next_frontier
             
             if not current_frontier:
                 break
         
-        return relationships
+        return relationships, cascade_paths
     
     def _get_direct_relationships(
         self,

@@ -18,6 +18,7 @@ from .agents.graph_loader import GraphLoaderAgent
 from .agents.retrieval import RetrievalAgent
 from .agents.reasoning import ReasoningAgent
 from .agents.validation import ValidationAgent
+from .agents.query_pipeline import QueryPipeline, PipelineResult
 from .utils.logger import logger, QueryLogger, display_context_bundle, display_response
 from .rlm.router import QueryComplexityRouter, QueryTier
 from .rlm.executor import RLMExecutor, RLMResult
@@ -146,6 +147,11 @@ class ContextFoundry:
             
             if tier == QueryTier.TIER2_RLM and self.enable_rlm:
                 return self._query_tier2_rlm(query_text, query_id, query_logger, display_output, save_to_log)
+            
+            # Use 3-step pipeline for impact/blast radius queries (precise direction filtering)
+            if self._is_impact_query(query_text):
+                query_logger.log_event("USING_3STEP_PIPELINE", {"reason": "impact_query_detected"})
+                return self._query_with_3step_pipeline(query_text, query_id, query_logger, display_output, save_to_log)
             
             bundle = self.retrieval.build_context_bundle(
                 query_text,
@@ -493,6 +499,166 @@ class ContextFoundry:
             would_help.append("Simplify the query or increase exploration budget")
         
         return {"reasons": reasons, "would_help": would_help}
+    
+    def _is_impact_query(self, query_text: str) -> bool:
+        """
+        Detect if this is a blast radius / impact analysis query.
+        
+        These queries need precise directional filtering from the 3-step pipeline.
+        """
+        query_lower = query_text.lower()
+        
+        impact_patterns = [
+            'blast radius',
+            'if .* fails',
+            'if .* goes down',
+            'what.*affected',
+            'what.*impacted',
+            'cascade',
+            'downstream impact',
+            'what depends on',
+            'what relies on',
+        ]
+        
+        import re
+        for pattern in impact_patterns:
+            if re.search(pattern, query_lower):
+                return True
+        
+        return False
+    
+    def _query_with_3step_pipeline(
+        self,
+        query_text: str,
+        query_id: str,
+        query_logger: QueryLogger,
+        display_output: bool,
+        save_to_log: bool
+    ) -> Dict:
+        """
+        Process a query through the 3-step pipeline for precise directed retrieval.
+        
+        This pipeline is used for impact/blast radius queries where direction
+        matters: we need to find INBOUND DEPENDS_ON relationships (what depends
+        on the target entity), not all relationships.
+        
+        Steps:
+        1. Query Interpretation (LLM) - Parse into structured QueryIntent
+        2. Directed Retrieval (Code) - Precise graph traversal with paths
+        3. Answer Synthesis (LLM) - Format results with cascade paths
+        """
+        from .models.context_bundle import create_bundle
+        
+        query_logger.log_event("3STEP_PIPELINE_START", {"query": query_text})
+        
+        try:
+            pipeline = QueryPipeline(self.session, self.tenant_id)
+            result: PipelineResult = pipeline.execute(query_text)
+            
+            if result.error:
+                query_logger.log_error("3STEP_PIPELINE_ERROR", result.error)
+                return {
+                    "answer": f"Error processing query: {result.error}",
+                    "confidence": 0.0,
+                    "confidence_level": "very_low",
+                    "error": True,
+                    "error_message": result.error,
+                    "query_tier": "tier1_3step",
+                    "query_id": query_id,
+                    "query_text": query_text
+                }
+            
+            # Build response with cascade paths
+            cascade_breakdown = result.step2_result.get_cascade_breakdown() if result.step2_result else {}
+            cascade_paths = [p.to_dict() for p in result.step2_result.cascade_paths] if result.step2_result else []
+            
+            # Format answer with paths for display
+            answer_with_paths = result.step3_answer or ""
+            if cascade_paths:
+                answer_with_paths += "\n\n**Impact Chains:**\n"
+                for path_info in cascade_paths[:15]:
+                    answer_with_paths += f"- {path_info['formatted']}\n"
+                if len(cascade_paths) > 15:
+                    answer_with_paths += f"- ... and {len(cascade_paths) - 15} more chains\n"
+            
+            confidence = result.step3_confidence
+            confidence_level = "high" if confidence >= 0.7 else \
+                              "medium" if confidence >= 0.4 else \
+                              "low" if confidence >= 0.2 else "very_low"
+            
+            # Build a minimal bundle for logging
+            bundle = create_bundle(query_text)
+            bundle.retrieval_metadata["query_tier"] = "tier1_3step"
+            bundle.retrieval_metadata["pipeline_result"] = result.to_dict()
+            
+            response = {
+                "answer": answer_with_paths,
+                "confidence": confidence,
+                "confidence_level": confidence_level,
+                "query_tier": "tier1_3step",
+                "entity_found": result.step2_result.entity_found if result.step2_result else False,
+                "entity_name": result.step2_result.entity_name if result.step2_result else None,
+                "relationships_count": len(result.step2_result.relationships) if result.step2_result else 0,
+                "affected_entities_count": len(result.step2_result.affected_entities) if result.step2_result else 0,
+                "cascade_breakdown": cascade_breakdown,
+                "cascade_paths": cascade_paths,
+                "evidence_chain": [{
+                    "type": "graph_traversal",
+                    "description": f"Precise directional traversal: {result.step1_intent.direction} {result.step1_intent.relationship_types}",
+                    "confidence": confidence,
+                    "source": "3-Step Pipeline"
+                }] if result.step1_intent else [],
+                "pipeline_timing": {
+                    "step1_interpretation_ms": result.step1_duration_ms,
+                    "step2_retrieval_ms": result.step2_duration_ms,
+                    "step3_synthesis_ms": result.step3_duration_ms,
+                    "total_ms": result.total_duration_ms
+                },
+                "query_id": query_id,
+                "query_text": query_text,
+                "context_bundle": bundle.to_dict()
+            }
+            
+            query_logger.log_event("3STEP_PIPELINE_COMPLETE", {
+                "confidence": confidence,
+                "relationships": response["relationships_count"],
+                "affected_entities": response["affected_entities_count"],
+                "cascade_paths": len(cascade_paths),
+                "total_ms": result.total_duration_ms
+            })
+            
+            if display_output:
+                logger.info(f"3-Step Pipeline Answer (confidence: {confidence:.2f}):")
+                logger.info(answer_with_paths[:500])
+            
+            if save_to_log:
+                self._save_query_log(query_id, query_text, bundle, response)
+            
+            summary = query_logger.log_complete(success=True, final_confidence=confidence)
+            response["query_log"] = summary
+            
+            return response
+            
+        except Exception as e:
+            query_logger.log_error("3STEP_PIPELINE_ERROR", str(e))
+            logger.exception(f"3-step pipeline error: {e}")
+            
+            try:
+                self.session.rollback()
+                self._set_tenant_context()
+            except Exception:
+                pass
+            
+            return {
+                "answer": f"Error in 3-step pipeline: {str(e)}",
+                "confidence": 0,
+                "confidence_level": "very_low",
+                "error": True,
+                "error_message": str(e),
+                "query_tier": "tier1_3step",
+                "query_id": query_id,
+                "query_text": query_text
+            }
     
     def _save_query_log(
         self,
