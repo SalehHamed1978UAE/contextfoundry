@@ -67,3 +67,26 @@ All tenant data is protected by PostgreSQL Row-Level Security (RLS):
 - `get_session(use_rls_role=True)`: Default, uses `app_user` for tenant isolation
 - `get_session(use_rls_role=False)`: Admin/migration mode, bypasses RLS
 - RLS URL constructed from `PGHOST`, `PGPORT`, `PGDATABASE` + `app_user` credentials
+
+## Vault Interface (User-Facing)
+
+### Routes
+- `/app` - Vault list (all vaults user has access to)
+- `/app/new` - Create new vault
+- `/app/<vault_id>` - Vault view (file tree + chat interface)
+- `/app/<vault_id>/settings` - Vault settings (API keys, configuration)
+- `/app/<vault_id>/dashboard` - Knowledge dashboard
+- `/app/<vault_id>/memory-graph` - Memory graph visualization
+- `/app/<vault_id>/command-center` - Query interface
+- `/app/<vault_id>/evaluation` - A/B evaluation
+
+### Multi-Vault Access
+- Users can access multiple vaults via `platform.user_tenants` join table
+- `user_tenants` table stores user_id, tenant_id, and role (e.g., 'owner')
+- All vault routes check authorization via `user_has_vault_access()` before setting session tenant
+- Creating a vault adds entry to `user_tenants`, preserving existing vault access
+
+### API Endpoints
+- `GET /api/vaults` - List user's vaults
+- `POST /api/vaults` - Create new vault (body: `{name: string}`)
+- `GET /api/vaults/<vault_id>` - Get vault details with stats
