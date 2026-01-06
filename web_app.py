@@ -763,9 +763,15 @@ def vault_view(vault_id):
     if not session.get('user_id'):
         return redirect(url_for('landing'))
     
+    try:
+        vault_uuid = UUID(vault_id)
+        user_uuid = UUID(session['user_id'])
+    except (ValueError, TypeError):
+        return "Invalid vault ID", 400
+    
     from platform_foundation.src.tenant_service import TenantService
     tenant_svc = TenantService()
-    if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+    if not tenant_svc.user_has_vault_access(user_uuid, vault_uuid):
         return "Access denied", 403
     
     session['tenant_id'] = vault_id
@@ -783,9 +789,15 @@ def vault_settings(vault_id):
     if not session.get('user_id'):
         return redirect(url_for('landing'))
     
+    try:
+        vault_uuid = UUID(vault_id)
+        user_uuid = UUID(session['user_id'])
+    except (ValueError, TypeError):
+        return "Invalid vault ID", 400
+    
     from platform_foundation.src.tenant_service import TenantService
     tenant_svc = TenantService()
-    if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+    if not tenant_svc.user_has_vault_access(user_uuid, vault_uuid):
         return "Access denied", 403
     
     session['tenant_id'] = vault_id
@@ -868,18 +880,24 @@ def api_get_vault(vault_id):
         return jsonify({'error': 'Unauthorized'}), 401
     
     try:
+        try:
+            vault_uuid = UUID(vault_id)
+            user_uuid = UUID(session['user_id'])
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid vault ID'}), 400
+        
         from platform_foundation.src.tenant_service import TenantService
         tenant_svc = TenantService()
         
-        if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+        if not tenant_svc.user_has_vault_access(user_uuid, vault_uuid):
             return jsonify({'error': 'Access denied'}), 403
         
-        vault = tenant_svc.get_tenant(UUID(vault_id))
+        vault = tenant_svc.get_tenant(vault_uuid)
         
         if not vault:
             return jsonify({'error': 'Vault not found'}), 404
         
-        stats = tenant_svc.get_vault_stats(UUID(vault_id))
+        stats = tenant_svc.get_vault_stats(vault_uuid)
         
         return jsonify({
             'success': True,
@@ -902,9 +920,14 @@ def require_vault_access(vault_id):
     """Check vault access and return redirect/error if not authorized."""
     if not session.get('user_id'):
         return redirect(url_for('landing'))
+    try:
+        vault_uuid = UUID(vault_id)
+        user_uuid = UUID(session['user_id'])
+    except (ValueError, TypeError):
+        return "Invalid vault ID", 400
     from platform_foundation.src.tenant_service import TenantService
     tenant_svc = TenantService()
-    if not tenant_svc.user_has_vault_access(UUID(session['user_id']), UUID(vault_id)):
+    if not tenant_svc.user_has_vault_access(user_uuid, vault_uuid):
         return "Access denied", 403
     session['tenant_id'] = vault_id
     g.tenant_id = vault_id
