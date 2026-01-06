@@ -3860,6 +3860,10 @@ def run_evaluation():
             categories = [QueryCategory(c) for c in categories]
         
         tenant_id = g.get('tenant_id')
+        if not tenant_id:
+            return jsonify({'success': False, 'error': 'Authentication required - no tenant context'}), 401
+        
+        print(f"[A/B Eval] Running evaluation for tenant: {tenant_id[:8]}...")
         evaluator = BlindEvaluator(tenant_id=tenant_id)
         evaluation_result = evaluator.run_evaluation(
             query_ids=query_ids,
@@ -3893,6 +3897,10 @@ def compare_single_query():
             return jsonify({'success': False, 'error': 'query_id required'}), 400
         
         tenant_id = g.get('tenant_id')
+        if not tenant_id:
+            return jsonify({'success': False, 'error': 'Authentication required - no tenant context'}), 401
+        
+        print(f"[A/B Eval] Running comparison for tenant: {tenant_id[:8]}...")
         evaluator = BlindEvaluator(tenant_id=tenant_id)
         pair = evaluator.run_single_query(query_id)
         
@@ -3947,6 +3955,10 @@ def query_graphrag():
             return jsonify({'success': False, 'error': 'query required'}), 400
         
         tenant_id = g.get('tenant_id')
+        if not tenant_id:
+            return jsonify({'success': False, 'error': 'Authentication required - no tenant context'}), 401
+        
+        print(f"[GraphRAG] Running query for tenant: {tenant_id[:8]}...")
         graphrag = GraphRAGBaseline(tenant_id=tenant_id)
         result = graphrag.query(query_text)
         
