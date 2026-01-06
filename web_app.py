@@ -3859,9 +3859,11 @@ def run_evaluation():
         if categories:
             categories = [QueryCategory(c) for c in categories]
         
-        # A/B Evaluation uses demo tenant - queries are designed for this tenant's data
-        DEMO_TENANT_ID = "8eee325b-ba3b-447e-9ee7-6d66085ead5f"
-        evaluator = BlindEvaluator(tenant_id=DEMO_TENANT_ID)
+        tenant_id = g.get('tenant_id')
+        if not tenant_id:
+            return jsonify({'success': False, 'error': 'Authentication required'}), 401
+        
+        evaluator = BlindEvaluator(tenant_id=tenant_id)
         evaluation_result = evaluator.run_evaluation(
             query_ids=query_ids,
             categories=categories,
@@ -3893,9 +3895,11 @@ def compare_single_query():
         if not query_id:
             return jsonify({'success': False, 'error': 'query_id required'}), 400
         
-        # A/B Evaluation uses demo tenant - queries are designed for this tenant's data
-        DEMO_TENANT_ID = "8eee325b-ba3b-447e-9ee7-6d66085ead5f"
-        evaluator = BlindEvaluator(tenant_id=DEMO_TENANT_ID)
+        tenant_id = g.get('tenant_id')
+        if not tenant_id:
+            return jsonify({'success': False, 'error': 'Authentication required'}), 401
+        
+        evaluator = BlindEvaluator(tenant_id=tenant_id)
         pair = evaluator.run_single_query(query_id)
         
         if not pair:
@@ -3948,9 +3952,11 @@ def query_graphrag():
         if not query_text:
             return jsonify({'success': False, 'error': 'query required'}), 400
         
-        # A/B Evaluation uses demo tenant - queries are designed for this tenant's data
-        DEMO_TENANT_ID = "8eee325b-ba3b-447e-9ee7-6d66085ead5f"
-        graphrag = GraphRAGBaseline(tenant_id=DEMO_TENANT_ID)
+        tenant_id = g.get('tenant_id')
+        if not tenant_id:
+            return jsonify({'success': False, 'error': 'Authentication required'}), 401
+        
+        graphrag = GraphRAGBaseline(tenant_id=tenant_id)
         result = graphrag.query(query_text)
         
         return jsonify({
