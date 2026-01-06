@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RetrievedRelationship:
-    """A single relationship retrieved from the graph."""
+    """A single relationship retrieved from the graph with context metadata."""
     relationship_id: str
     relationship_type: str
     source_id: str
@@ -38,9 +38,14 @@ class RetrievedRelationship:
     confidence: float
     direction_relative_to_entity: str  # "inbound" or "outbound"
     depth: int  # How many hops from the queried entity
+    # Context metadata (Phase 3: Pipeline Integration)
+    provenance_text: Optional[str] = None
+    description: Optional[str] = None
+    context_confidence: Optional[float] = None
+    source_location: Optional[str] = None
     
     def to_dict(self) -> dict:
-        return {
+        result = {
             "relationship_id": self.relationship_id,
             "relationship_type": self.relationship_type,
             "source_id": self.source_id,
@@ -53,6 +58,14 @@ class RetrievedRelationship:
             "direction": self.direction_relative_to_entity,
             "depth": self.depth
         }
+        # Include context if available
+        if self.description:
+            result["description"] = self.description
+        if self.provenance_text:
+            result["provenance_text"] = self.provenance_text
+        if self.source_location:
+            result["source_location"] = self.source_location
+        return result
 
 
 @dataclass
@@ -343,10 +356,15 @@ class DirectedGraphRetriever:
                 CASE 
                     WHEN r.target_id = :entity_id THEN 'inbound'
                     ELSE 'outbound'
-                END as direction
+                END as direction,
+                rc.provenance_text,
+                rc.description,
+                rc.confidence_combined,
+                rc.source_location
             FROM relationships r
             JOIN entities src ON r.source_id = src.id
             JOIN entities tgt ON r.target_id = tgt.id
+            LEFT JOIN relationship_contexts rc ON r.id = rc.relationship_id
             WHERE r.tenant_id = :tenant_id
               AND (r.source_id = :entity_id OR r.target_id = :entity_id)
               AND (
@@ -374,7 +392,11 @@ class DirectedGraphRetriever:
                     target_type=row.target_type,
                     confidence=row.confidence or 0.9,
                     direction_relative_to_entity=row.direction,
-                    depth=0
+                    depth=0,
+                    provenance_text=row.provenance_text if hasattr(row, 'provenance_text') else None,
+                    description=row.description if hasattr(row, 'description') else None,
+                    context_confidence=float(row.confidence_combined) if hasattr(row, 'confidence_combined') and row.confidence_combined else None,
+                    source_location=row.source_location if hasattr(row, 'source_location') else None
                 )
                 relationships.append(rel)
                 
@@ -532,10 +554,15 @@ class DirectedGraphRetriever:
                     r.target_id::text,
                     te.name as target_name,
                     te.entity_type as target_type,
-                    r.confidence
+                    r.confidence,
+                    rc.provenance_text,
+                    rc.description,
+                    rc.confidence_combined,
+                    rc.source_location
                 FROM relationships r
                 JOIN entities se ON r.source_id = se.id
                 JOIN entities te ON r.target_id = te.id
+                LEFT JOIN relationship_contexts rc ON r.id = rc.relationship_id
                 WHERE r.target_id = :entity_id
                 AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
                 {type_filter}
@@ -556,7 +583,11 @@ class DirectedGraphRetriever:
                     target_type=row[7] or "UNKNOWN",
                     confidence=float(row[8]) if row[8] else 0.0,
                     direction_relative_to_entity="inbound",
-                    depth=0
+                    depth=0,
+                    provenance_text=row[9] if len(row) > 9 else None,
+                    description=row[10] if len(row) > 10 else None,
+                    context_confidence=float(row[11]) if len(row) > 11 and row[11] else None,
+                    source_location=row[12] if len(row) > 12 else None
                 ))
         
         if direction in ("outbound", "both"):
@@ -570,10 +601,15 @@ class DirectedGraphRetriever:
                     r.target_id::text,
                     te.name as target_name,
                     te.entity_type as target_type,
-                    r.confidence
+                    r.confidence,
+                    rc.provenance_text,
+                    rc.description,
+                    rc.confidence_combined,
+                    rc.source_location
                 FROM relationships r
                 JOIN entities se ON r.source_id = se.id
                 JOIN entities te ON r.target_id = te.id
+                LEFT JOIN relationship_contexts rc ON r.id = rc.relationship_id
                 WHERE r.source_id = :entity_id
                 AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
                 {type_filter}
@@ -594,7 +630,11 @@ class DirectedGraphRetriever:
                     target_type=row[7] or "UNKNOWN",
                     confidence=float(row[8]) if row[8] else 0.0,
                     direction_relative_to_entity="outbound",
-                    depth=0
+                    depth=0,
+                    provenance_text=row[9] if len(row) > 9 else None,
+                    description=row[10] if len(row) > 10 else None,
+                    context_confidence=float(row[11]) if len(row) > 11 and row[11] else None,
+                    source_location=row[12] if len(row) > 12 else None
                 ))
         
         return results

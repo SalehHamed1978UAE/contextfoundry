@@ -263,7 +263,7 @@ Synthesize a clear answer based on these results. Remember: if target_type is sp
             )
     
     def _format_retrieval_for_synthesis(self, retrieval: RetrievalResult) -> str:
-        """Format retrieval results for the synthesis LLM."""
+        """Format retrieval results for the synthesis LLM with context metadata."""
         lines = []
         
         lines.append(f"Entity: {retrieval.entity_name} ({retrieval.entity_type})")
@@ -281,16 +281,22 @@ Synthesize a clear answer based on these results. Remember: if target_type is sp
         for depth in sorted(by_depth.keys()):
             lines.append(f"--- Depth {depth} ---")
             for rel in by_depth[depth]:
-                if rel.direction_relative_to_entity == "inbound":
-                    lines.append(
-                        f"  {rel.source_name} --[{rel.relationship_type}]--> {rel.target_name} "
-                        f"(confidence: {rel.confidence:.2f})"
-                    )
-                else:
-                    lines.append(
-                        f"  {rel.source_name} --[{rel.relationship_type}]--> {rel.target_name} "
-                        f"(confidence: {rel.confidence:.2f})"
-                    )
+                # Base relationship line
+                rel_line = (
+                    f"  {rel.source_name} --[{rel.relationship_type}]--> {rel.target_name} "
+                    f"(confidence: {rel.confidence:.2f})"
+                )
+                lines.append(rel_line)
+                
+                # Add context metadata if available (Phase 3: Pipeline Integration)
+                if rel.description:
+                    lines.append(f"    - Why: \"{rel.description}\"")
+                if rel.source_location:
+                    lines.append(f"    - Source: {rel.source_location}")
+                elif rel.provenance_text:
+                    # Show truncated provenance if no source_location
+                    prov_short = rel.provenance_text[:80] + "..." if len(rel.provenance_text) > 80 else rel.provenance_text
+                    lines.append(f"    - Evidence: \"{prov_short}\"")
             lines.append("")
         
         lines.append("Affected Entities:")
