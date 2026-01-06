@@ -74,8 +74,9 @@ class GraphRAGBaseline:
     5. No provenance tracking on response generation
     """
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: Optional[str] = None):
         self.session = session or get_session()
+        self.tenant_id = tenant_id
         self._client = None
     
     def _get_openai_client(self):
@@ -121,9 +122,12 @@ class GraphRAGBaseline:
         keywords = self._extract_keywords(query_text)
         
         for keyword in keywords:
-            entities = self.session.query(Entity).filter(
+            query = self.session.query(Entity).filter(
                 Entity.name.ilike(f"%{keyword}%")
-            ).limit(10).all()
+            )
+            if self.tenant_id:
+                query = query.filter(Entity.tenant_id == self.tenant_id)
+            entities = query.limit(10).all()
             
             for entity in entities:
                 context.entities.append({
@@ -151,9 +155,12 @@ class GraphRAGBaseline:
         
         context.relationships = self._deduplicate_relationships(context.relationships)
         
-        documents = self.session.query(Document).filter(
+        doc_query = self.session.query(Document).filter(
             or_(*[Document.content.ilike(f"%{kw}%") for kw in keywords])
-        ).limit(5).all()
+        )
+        if self.tenant_id:
+            doc_query = doc_query.filter(Document.tenant_id == self.tenant_id)
+        documents = doc_query.limit(5).all()
         
         for doc in documents:
             context.documents.append({

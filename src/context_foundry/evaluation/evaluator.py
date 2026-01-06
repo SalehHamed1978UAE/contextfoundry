@@ -190,17 +190,18 @@ class BlindEvaluator:
     5. Calculate metrics
     """
     
-    def __init__(self, session: Optional[Session] = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: Optional[str] = None):
         self.session = session or get_session()
+        self.tenant_id = tenant_id
         self.query_set = QuerySet()
-        self.graphrag = GraphRAGBaseline(self.session)
+        self.graphrag = GraphRAGBaseline(self.session, tenant_id=tenant_id)
         self._context_foundry = None
     
     def _get_context_foundry(self):
         """Lazy load Context Foundry to avoid circular imports."""
         if self._context_foundry is None:
             from ..core import ContextFoundry
-            self._context_foundry = ContextFoundry(session=self.session)
+            self._context_foundry = ContextFoundry(session=self.session, tenant_id=self.tenant_id)
         return self._context_foundry
     
     def run_evaluation(

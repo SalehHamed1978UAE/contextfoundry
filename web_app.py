@@ -3859,7 +3859,8 @@ def run_evaluation():
         if categories:
             categories = [QueryCategory(c) for c in categories]
         
-        evaluator = BlindEvaluator()
+        tenant_id = g.get('tenant_id')
+        evaluator = BlindEvaluator(tenant_id=tenant_id)
         evaluation_result = evaluator.run_evaluation(
             query_ids=query_ids,
             categories=categories,
@@ -3891,7 +3892,8 @@ def compare_single_query():
         if not query_id:
             return jsonify({'success': False, 'error': 'query_id required'}), 400
         
-        evaluator = BlindEvaluator()
+        tenant_id = g.get('tenant_id')
+        evaluator = BlindEvaluator(tenant_id=tenant_id)
         pair = evaluator.run_single_query(query_id)
         
         if not pair:
@@ -3944,7 +3946,8 @@ def query_graphrag():
         if not query_text:
             return jsonify({'success': False, 'error': 'query required'}), 400
         
-        graphrag = GraphRAGBaseline()
+        tenant_id = g.get('tenant_id')
+        graphrag = GraphRAGBaseline(tenant_id=tenant_id)
         result = graphrag.query(query_text)
         
         return jsonify({
