@@ -1118,6 +1118,176 @@ def api_documents_upload_multi():
     """API: Upload multiple documents - wrapper for dashboard upload."""
     return dashboard_upload_multi()
 
+@app.route('/api/folders', methods=['GET'])
+def api_list_folders():
+    """List all folders for the current tenant."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, name, path, parent_path, created_at
+                    FROM platform.folders
+                    WHERE tenant_id = %s
+                    ORDER BY path
+                """, (session['tenant_id'],))
+                folders = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'folders': [{
+                'id': str(f['id']),
+                'name': f['name'],
+                'path': f['path'],
+                'parent_path': f['parent_path']
+            } for f in folders]
+        })
+    except Exception as e:
+        logger.error(f"Failed to list folders: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/folders', methods=['POST'])
+def api_create_folder():
+    """Create a new folder."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        data = request.get_json()
+        name = data.get('name', '').strip()
+        parent_path = data.get('parent_path', '/').strip()
+        
+        if not name:
+            return jsonify({'error': 'Folder name is required'}), 400
+        
+        if not parent_path.startswith('/'):
+            parent_path = '/' + parent_path
+        if not parent_path.endswith('/'):
+            parent_path = parent_path + '/'
+        
+        folder_path = parent_path + name + '/'
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    INSERT INTO platform.folders (tenant_id, name, path, parent_path)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (tenant_id, path) DO NOTHING
+                    RETURNING id, name, path, parent_path
+                """, (session['tenant_id'], name, folder_path, parent_path))
+                folder = cur.fetchone()
+                conn.commit()
+                
+                if not folder:
+                    return jsonify({'error': 'Folder already exists'}), 409
+        
+        return jsonify({
+            'success': True,
+            'folder': {
+                'id': str(folder['id']),
+                'name': folder['name'],
+                'path': folder['path'],
+                'parent_path': folder['parent_path']
+            }
+        })
+    except Exception as e:
+        logger.error(f"Failed to create folder: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/documents/<doc_id>/move', methods=['POST'])
+def api_move_document(doc_id):
+    """Move a document to a different folder."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        
+        data = request.get_json()
+        folder_path = data.get('folder_path', '/').strip()
+        
+        if not folder_path.startswith('/'):
+            folder_path = '/' + folder_path
+        if not folder_path.endswith('/') and folder_path != '/':
+            folder_path = folder_path + '/'
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE platform.documents
+                    SET folder_path = %s, updated_at = NOW()
+                    WHERE id = %s AND tenant_id = %s
+                """, (folder_path, doc_id, session['tenant_id']))
+                conn.commit()
+                
+                if cur.rowcount == 0:
+                    return jsonify({'error': 'Document not found'}), 404
+        
+        return jsonify({'success': True, 'folder_path': folder_path})
+    except Exception as e:
+        logger.error(f"Failed to move document: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/documents/tree', methods=['GET'])
+def api_documents_tree():
+    """Get documents organized by folder structure."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'error': 'Authentication required'}), 401
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        
+        database_url = os.environ.get("DATABASE_URL")
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, name, path, parent_path
+                    FROM platform.folders
+                    WHERE tenant_id = %s
+                    ORDER BY path
+                """, (session['tenant_id'],))
+                folders = cur.fetchall()
+                
+                cur.execute("""
+                    SELECT id, original_filename, folder_path, status, mime_type
+                    FROM platform.documents
+                    WHERE tenant_id = %s
+                    ORDER BY folder_path, original_filename
+                """, (session['tenant_id'],))
+                documents = cur.fetchall()
+        
+        return jsonify({
+            'success': True,
+            'folders': [{
+                'id': str(f['id']),
+                'name': f['name'],
+                'path': f['path'],
+                'parent_path': f['parent_path']
+            } for f in folders],
+            'documents': [{
+                'id': str(d['id']),
+                'name': d['original_filename'],
+                'folder_path': d['folder_path'] or '/',
+                'status': d['status'],
+                'mime_type': d['mime_type']
+            } for d in documents]
+        })
+    except Exception as e:
+        logger.error(f"Failed to get document tree: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/documents', methods=['GET'])
 def api_documents():
     """API: List documents for authenticated user with pagination, search, and filtering."""
