@@ -270,6 +270,10 @@ class DirectedGraphRetriever:
         """
         Retrieve relationships with path tracking for cascade visualization.
         
+        Tracks ALL valid paths to each entity (not just the first discovery).
+        Uses path signatures to avoid duplicate paths while allowing multiple
+        routes to the same entity.
+        
         Args:
             entity_id: The UUID of the target entity
             entity_name: The name of the target entity (for path building)
@@ -283,19 +287,23 @@ class DirectedGraphRetriever:
         relationships = []
         cascade_paths = []
         
-        # Track paths: entity_id -> (path_names, path_rel_types)
-        entity_paths: Dict[str, tuple] = {entity_id: ([entity_name], [])}
-        visited_entities: Set[str] = {entity_id}
-        current_frontier: Set[str] = {entity_id}
+        # Track ALL paths to each entity: entity_id -> list of (path_names, path_rel_types)
+        entity_all_paths: Dict[str, List[tuple]] = {entity_id: [([entity_name], [])]}
         
-        # Track first discovery depth for each entity
-        entity_first_depth: Dict[str, int] = {}
+        # Track path signatures to avoid exact duplicates
+        seen_path_signatures: Set[str] = set()
+        
+        # Track visited per depth to prevent infinite loops while allowing multi-path
+        visited_at_depth: Dict[str, int] = {entity_id: 0}
+        
+        current_frontier: Set[str] = {entity_id}
         
         for current_depth in range(1, depth + 1):
             next_frontier: Set[str] = set()
             
             for frontier_entity_id in current_frontier:
-                current_path, current_rel_types = entity_paths.get(frontier_entity_id, ([entity_name], []))
+                # Get all paths to this frontier entity
+                paths_to_here = entity_all_paths.get(frontier_entity_id, [([entity_name], [])])
                 
                 rels = self._get_direct_relationships(
                     entity_id=frontier_entity_id,
@@ -316,24 +324,33 @@ class DirectedGraphRetriever:
                         other_id = rel.target_id
                         other_name = rel.target_name
                     
-                    if other_id not in visited_entities:
-                        visited_entities.add(other_id)
-                        next_frontier.add(other_id)
-                        
-                        # Build path to this entity
+                    # Build paths through each route to get here
+                    for current_path, current_rel_types in paths_to_here:
                         new_path = current_path + [other_name]
                         new_rel_types = current_rel_types + [rel.relationship_type]
-                        entity_paths[other_id] = (new_path, new_rel_types)
                         
-                        # Record first discovery depth
-                        entity_first_depth[other_id] = current_depth
+                        # Create path signature to detect duplicates
+                        path_sig = "->".join(new_path) + ":" + ",".join(new_rel_types)
                         
-                        # Create cascade path
-                        cascade_paths.append(CascadePath(
-                            path=new_path,
-                            depth=current_depth,
-                            relationship_types=new_rel_types
-                        ))
+                        if path_sig not in seen_path_signatures:
+                            seen_path_signatures.add(path_sig)
+                            
+                            # Store path for potential further extension
+                            if other_id not in entity_all_paths:
+                                entity_all_paths[other_id] = []
+                            entity_all_paths[other_id].append((new_path, new_rel_types))
+                            
+                            # Create cascade path
+                            cascade_paths.append(CascadePath(
+                                path=new_path,
+                                depth=current_depth,
+                                relationship_types=new_rel_types
+                            ))
+                    
+                    # Add to frontier only if not visited at equal or earlier depth
+                    if other_id not in visited_at_depth or visited_at_depth[other_id] > current_depth:
+                        next_frontier.add(other_id)
+                        visited_at_depth[other_id] = current_depth
             
             current_frontier = next_frontier
             
