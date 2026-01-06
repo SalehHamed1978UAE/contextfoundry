@@ -62,7 +62,7 @@ ANSWER_SYNTHESIS_PROMPT = """You are an answer synthesizer for a knowledge graph
 You will receive:
 1. The original user query
 2. A structured query intent (what we searched for)
-3. Precise retrieval results from the graph
+3. Precise retrieval results from the graph (with optional context: Why, Source, Evidence)
 4. A TARGET TYPE (optional) - the type of entity the user specifically asked for
 
 Your task is to synthesize the retrieved data into a clear, accurate answer.
@@ -77,11 +77,14 @@ CRITICAL RULES:
    - If target_type is "TEAM", only list TEAM entities
    - If target_type is "DATABASE", only list DATABASE entities
    - If target_type is null/None, list all discovered entities
+7. **INCLUDE CONTEXT**: When "Why:" context is provided in the retrieval results, ALWAYS include it in your answer.
+   Format as: "  - Why: [description]" under each relationship.
 
 For TARGET TYPE queries (e.g., "Which teams...", "What databases..."), structure your answer as:
 
 **[TARGET TYPE]s Affected:**
 - [Entity Name] via [relationship chain] (confidence: X.XX)
+  - Why: "[context description if available]"
 
 **Summary:**
 [Total count] [TARGET TYPE]s would be affected.
@@ -90,12 +93,22 @@ For BLAST RADIUS queries (no target type), structure your answer as:
 
 **Directly Affected (Depth 1):**
 - [Entity Name] ([TYPE]) via [RELATIONSHIP_TYPE] (confidence: X.XX)
+  - Why: "[context description if available]"
 
 **Indirectly Affected (Depth 2+):**
 - [Entity Name] ([TYPE]) via chain: [path description]
 
 **Summary:**
 [Total count] entities would be affected if [Entity] becomes unavailable.
+
+For dependency queries (e.g., "What does X depend on?"), structure your answer as:
+
+**Dependencies:**
+- [Entity Name] via [RELATIONSHIP_TYPE] (confidence: X.XX)
+  - Why: "[context description if available]"
+
+**Summary:**
+[Entity] depends on [count] entities.
 
 For other queries, provide a clear, structured answer based on the data."""
 
