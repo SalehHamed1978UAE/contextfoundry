@@ -15,10 +15,72 @@ import numpy as np
 from rapidfuzz import fuzz
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+import inflect
 
 from ..models.schema import Entity, EntityAlias, LifecycleState, get_session
 from ..memory.episodic import openai_embedding, EMBEDDING_DIM
 from ..utils.logger import logger
+
+_inflect_engine = inflect.engine()
+
+ABBREVIATION_MAP = {
+    "auth": "authentication",
+    "db": "database",
+    "svc": "service",
+    "srv": "service", 
+    "svr": "server",
+    "msg": "message",
+    "mgr": "manager",
+    "cfg": "config",
+    "config": "configuration",
+    "repo": "repository",
+    "api": "api",
+    "k8s": "kubernetes",
+    "pg": "postgresql",
+    "postgres": "postgresql",
+    "redis": "redis",
+    "mq": "message queue",
+    "lb": "load balancer",
+    "cdn": "content delivery network",
+    "ci": "continuous integration",
+    "cd": "continuous deployment",
+    "ml": "machine learning",
+    "ai": "artificial intelligence",
+    "vpc": "virtual private cloud",
+    "vm": "virtual machine",
+    "ec2": "elastic compute cloud",
+    "s3": "simple storage service",
+    "rds": "relational database service",
+    "iam": "identity access management",
+    "dns": "domain name system",
+    "ssl": "secure sockets layer",
+    "tls": "transport layer security",
+    "http": "hypertext transfer protocol",
+    "https": "hypertext transfer protocol secure",
+    "ui": "user interface",
+    "ux": "user experience",
+    "qa": "quality assurance",
+}
+
+def normalize_for_matching(name: str) -> str:
+    """
+    Normalize entity name for matching by:
+    1. Converting to lowercase
+    2. Expanding common abbreviations (preserving token boundaries)
+    3. Singularizing plural words using inflect
+    4. Sorting tokens for order-independent matching
+    """
+    tokens = name.lower().replace('-', ' ').replace('_', ' ').split()
+    expanded_tokens = []
+    for token in tokens:
+        expansion = ABBREVIATION_MAP.get(token, token)
+        expanded_tokens.extend(expansion.split())
+    
+    normalized = []
+    for token in expanded_tokens:
+        singular = _inflect_engine.singular_noun(token)
+        normalized.append(singular if singular else token)
+    return ' '.join(sorted(normalized))
 
 
 @dataclass
@@ -136,6 +198,14 @@ class EntityResolver:
             logger.info(f"Contains match disambiguation: {len(contains_result.candidates)} candidates")
             return contains_result
         
+        normalized_result = self._normalized_match(query, entity_type_hint)
+        if normalized_result.entity and normalized_result.confidence >= 0.90:
+            logger.info(f"Normalized match found: {normalized_result.entity.name} (query: '{query}')")
+            return normalized_result
+        if normalized_result.needs_disambiguation:
+            logger.info(f"Normalized match disambiguation: {len(normalized_result.candidates)} candidates")
+            return normalized_result
+        
         semantic_result = self._semantic_search(query, entity_type_hint, top_k)
         if semantic_result.entity and semantic_result.confidence >= self.SEMANTIC_THRESHOLD:
             logger.info(f"Semantic match found: {semantic_result.entity.name}")
@@ -177,6 +247,65 @@ class EntityResolver:
         name = re.sub(r'^(the|a|an)\s+', '', name)
         name = re.sub(r'\s+', ' ', name)
         return name
+    
+    def _normalized_match(
+        self,
+        query: str,
+        entity_type_hint: Optional[str] = None
+    ) -> ResolveResult:
+        """
+        Stage 2: Normalized match using inflect for plural/singular normalization
+        and abbreviation expansion.
+        
+        This catches cases like:
+        - "User Database" → "Users Database"
+        - "Auth Service" → "Authentication Service"
+        - "DB Service" → "Database Service"
+        """
+        normalized_query = normalize_for_matching(query)
+        logger.debug(f"Normalized query: '{query}' → '{normalized_query}'")
+        
+        if self._tenant_id_str:
+            try:
+                self.session.execute(
+                    text("SELECT platform.set_current_tenant(:tid)"),
+                    {'tid': self._tenant_id_str}
+                )
+            except Exception:
+                pass
+        
+        base_query = self.session.query(Entity).filter(
+            Entity.lifecycle_state == LifecycleState.TRUSTED
+        )
+        
+        if entity_type_hint:
+            base_query = base_query.filter(Entity.entity_type == entity_type_hint)
+        
+        if self.tenant_id:
+            base_query = base_query.filter(Entity.tenant_id == self.tenant_id)
+        
+        entities = base_query.limit(2000).all()
+        logger.debug(f"Normalized match: loaded {len(entities)} entities")
+        
+        candidates = []
+        for entity in entities:
+            normalized_name = normalize_for_matching(entity.name)
+            
+            if normalized_query == normalized_name:
+                candidates.append(EntityCandidate(
+                    entity_id=str(entity.id),
+                    name=entity.name,
+                    entity_type=entity.entity_type,
+                    description=entity.description,
+                    score=0.96,
+                    match_stage="normalized",
+                    confidence=0.96
+                ))
+        
+        if not candidates:
+            return ResolveResult(match_stage="normalized")
+        
+        return self._check_disambiguation(candidates, "normalized")
     
     def _contains_match(
         self,
