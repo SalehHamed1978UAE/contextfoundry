@@ -3897,7 +3897,8 @@ def compare_single_query():
             return jsonify({'success': False, 'error': 'query_id required'}), 400
         
         tenant_id = g.get('tenant_id')
-        session_tenant = session.get('tenant_id')
+        from flask import session as flask_session
+        session_tenant = flask_session.get('tenant_id')
         
         print(f"[A/B Eval DEBUG] g.tenant_id={tenant_id}, session.tenant_id={session_tenant}")
         
