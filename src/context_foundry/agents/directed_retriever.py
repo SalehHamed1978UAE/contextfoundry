@@ -240,16 +240,33 @@ class DirectedGraphRetriever:
         Resolve an entity name to its database record.
         
         Uses EntityResolver for intelligent matching (aliases, normalization, etc.)
+        Handles disambiguation by picking the best candidate when multiple exist.
         """
         try:
             result = self.entity_resolver.resolve(entity_name)
             
+            # Direct match - return it
             if result and result.entity and result.confidence >= 0.5:
                 return {
                     'id': str(result.entity.entity_id),
                     'name': result.entity.name,
                     'type': result.entity.entity_type,
                     'confidence': result.confidence,
+                    'match_stage': result.match_stage
+                }
+            
+            # Disambiguation case - pick the best candidate
+            if result and result.needs_disambiguation and result.candidates:
+                # If all candidates have the same name, pick the first one
+                # This handles cases like "Users Database" appearing as both DATABASE and SERVICE
+                best = result.candidates[0]
+                logger.info(f"Disambiguation: picking '{best.name}' ({best.entity_type}) "
+                           f"from {len(result.candidates)} candidates")
+                return {
+                    'id': str(best.entity_id),
+                    'name': best.name,
+                    'type': best.entity_type,
+                    'confidence': best.confidence,
                     'match_stage': result.match_stage
                 }
             
