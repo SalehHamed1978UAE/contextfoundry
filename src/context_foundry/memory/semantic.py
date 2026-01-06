@@ -41,6 +41,11 @@ class SemanticMemory:
         if not tenant_id:
             logger.warning("SemanticMemory initialized without tenant_id - queries will not be tenant-scoped")
         else:
+            # CRITICAL: Set RLS tenant context on session for Row-Level Security
+            try:
+                self.session.execute(text("SELECT platform.set_current_tenant(:tid)"), {'tid': tenant_id})
+            except Exception as e:
+                logger.warning(f"Failed to set RLS tenant context: {e}")
             logger.info(f"SemanticMemory initialized for tenant {tenant_id[:8]}...")
     
     def _apply_tenant_filter(self, query, model_class):
@@ -246,6 +251,21 @@ class SemanticMemory:
         if relationship_types:
             normalized_types = [t.upper() if isinstance(t, str) else t for t in relationship_types]
         
+        def build_flat_dict(rel, direction, connected_entity):
+            rel_dict = rel.to_dict()
+            return {
+                "relationship_type": rel_dict.get('relationship_type'),
+                "source_id": str(rel_dict.get('source_id')) if rel_dict.get('source_id') else None,
+                "target_id": str(rel_dict.get('target_id')) if rel_dict.get('target_id') else None,
+                "source_name": rel_dict.get('source_name'),
+                "target_name": rel_dict.get('target_name'),
+                "confidence": rel_dict.get('confidence'),
+                "lifecycle_state": rel_dict.get('lifecycle_state'),
+                "direction": direction,
+                "connected_entity": connected_entity.to_dict(),
+                "relationship": rel_dict,
+            }
+        
         if direction in ["outgoing", "both"]:
             q = self.session.query(Relationship).options(
                 joinedload(Relationship.source_entity),
@@ -272,17 +292,9 @@ class SemanticMemory:
                     if as_of_date:
                         if target.valid_from and target.valid_from <= as_of_date:
                             if target.valid_to is None or target.valid_to > as_of_date:
-                                results.append({
-                                    "relationship": rel.to_dict(),
-                                    "direction": "outgoing",
-                                    "connected_entity": target.to_dict()
-                                })
+                                results.append(build_flat_dict(rel, "outgoing", target))
                     elif target.valid_to is None:
-                        results.append({
-                            "relationship": rel.to_dict(),
-                            "direction": "outgoing",
-                            "connected_entity": target.to_dict()
-                        })
+                        results.append(build_flat_dict(rel, "outgoing", target))
         
         if direction in ["incoming", "both"]:
             q = self.session.query(Relationship).options(
@@ -310,17 +322,9 @@ class SemanticMemory:
                     if as_of_date:
                         if source.valid_from and source.valid_from <= as_of_date:
                             if source.valid_to is None or source.valid_to > as_of_date:
-                                results.append({
-                                    "relationship": rel.to_dict(),
-                                    "direction": "incoming",
-                                    "connected_entity": source.to_dict()
-                                })
+                                results.append(build_flat_dict(rel, "incoming", source))
                     elif source.valid_to is None:
-                        results.append({
-                            "relationship": rel.to_dict(),
-                            "direction": "incoming",
-                            "connected_entity": source.to_dict()
-                        })
+                        results.append(build_flat_dict(rel, "incoming", source))
         
         logger.debug(f"Entity {entity_id} relationships: found {len(results)} (as_of={as_of_date})")
         return results
@@ -592,20 +596,22 @@ class SemanticMemory:
             for rel in relationships:
                 rel_type_def = schema.get_relationship_type(rel.relationship_type)
                 
-                if not rel_type_def or not rel_type_def.semantics:
-                    continue
-                
-                rule = rel_type_def.semantics.modes.get(mode)
-                
-                if not rule or not rule.include:
-                    continue
-                
                 neighbor_id = None
                 
-                if rel.source_id == current_id and rule.from_source:
-                    neighbor_id = rel.target_id
-                elif rel.target_id == current_id and rule.from_target:
-                    neighbor_id = rel.source_id
+                if rel_type_def and rel_type_def.semantics:
+                    rule = rel_type_def.semantics.modes.get(mode)
+                    if not rule or not rule.include:
+                        continue
+                    if rel.source_id == current_id and rule.from_source:
+                        neighbor_id = rel.target_id
+                    elif rel.target_id == current_id and rule.from_target:
+                        neighbor_id = rel.source_id
+                else:
+                    # FALLBACK: If no semantics defined, traverse in both directions
+                    if rel.source_id == current_id:
+                        neighbor_id = rel.target_id
+                    elif rel.target_id == current_id:
+                        neighbor_id = rel.source_id
                 
                 if neighbor_id and neighbor_id not in reachable:
                     neighbor_entity = self._get_entity_by_id(neighbor_id)
@@ -784,20 +790,22 @@ class SemanticMemory:
             for rel in relationships:
                 rel_type_def = schema.get_relationship_type(rel.relationship_type)
                 
-                if not rel_type_def or not rel_type_def.semantics:
-                    continue
-                
-                rule = rel_type_def.semantics.modes.get(mode)
-                
-                if not rule or not rule.include:
-                    continue
-                
                 neighbor_id = None
                 
-                if rel.source_id == current_id and rule.from_source:
-                    neighbor_id = rel.target_id
-                elif rel.target_id == current_id and rule.from_target:
-                    neighbor_id = rel.source_id
+                if rel_type_def and rel_type_def.semantics:
+                    rule = rel_type_def.semantics.modes.get(mode)
+                    if not rule or not rule.include:
+                        continue
+                    if rel.source_id == current_id and rule.from_source:
+                        neighbor_id = rel.target_id
+                    elif rel.target_id == current_id and rule.from_target:
+                        neighbor_id = rel.source_id
+                else:
+                    # FALLBACK: If no semantics defined, traverse in both directions
+                    if rel.source_id == current_id:
+                        neighbor_id = rel.target_id
+                    elif rel.target_id == current_id:
+                        neighbor_id = rel.source_id
                 
                 if neighbor_id and neighbor_id not in reachable:
                     neighbor_entity = self._get_entity_by_id(neighbor_id)
@@ -948,20 +956,22 @@ class SemanticMemory:
             for rel in all_relationships:
                 rel_type_def = schema.get_relationship_type(rel.relationship_type)
                 
-                if not rel_type_def or not rel_type_def.semantics:
-                    continue
-                
-                rule = rel_type_def.semantics.modes.get(mode)
-                
-                if not rule or not rule.include:
-                    continue
-                
                 neighbor_id = None
                 
-                if rel.source_id == current_id and rule.from_source:
-                    neighbor_id = rel.target_id
-                elif rel.target_id == current_id and rule.from_target:
-                    neighbor_id = rel.source_id
+                if rel_type_def and rel_type_def.semantics:
+                    rule = rel_type_def.semantics.modes.get(mode)
+                    if not rule or not rule.include:
+                        continue
+                    if rel.source_id == current_id and rule.from_source:
+                        neighbor_id = rel.target_id
+                    elif rel.target_id == current_id and rule.from_target:
+                        neighbor_id = rel.source_id
+                else:
+                    # FALLBACK: If no semantics defined, traverse in both directions
+                    if rel.source_id == current_id:
+                        neighbor_id = rel.target_id
+                    elif rel.target_id == current_id:
+                        neighbor_id = rel.source_id
                 
                 if neighbor_id is None:
                     continue
