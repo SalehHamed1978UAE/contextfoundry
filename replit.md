@@ -165,3 +165,32 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 **Test Results** (5/5 interpretation tests passing):
 - Blast radius query: 8 inbound relationships, 0 outbound ✓
 - Dependency query: 5 outbound relationships, 0 inbound ✓
+
+### 3-Step Pipeline Integration (January 2026)
+**Problem**: Old blast radius code returned 64 services instead of the correct 19 from database truth. The schema-driven traversal was too permissive, including all relationship types.
+
+**Solution**: Integrated 3-step pipeline into `ContextFoundry.query()` via auto-detection:
+- `_is_impact_query()`: Regex patterns detect impact queries (blast radius, if X fails, cascade, etc.)
+- `_query_with_3step_pipeline()`: Routes to 3-step pipeline for precise directional filtering
+
+**CascadePath Tracking**: Added `CascadePath` dataclass in `directed_retriever.py` for impact chain visualization:
+```python
+@dataclass
+class CascadePath:
+    path: List[str]           # ["Auth Service", "API Gateway", "GraphQL Gateway"]
+    depth: int                # 2
+    relationship_types: List[str]  # ["DEPENDS_ON", "DEPENDS_ON"]
+```
+
+**Multi-Path Support**: Tracks ALL valid paths per entity via path signatures:
+- "Order Service" has 5 different impact chains reaching it
+- Uses `seen_path_signatures` set to avoid duplicates while allowing multiple routes
+
+**Results** (Auth Service blast radius):
+| Metric | Old (Broken) | New (3-Step) | Database Truth |
+|--------|--------------|--------------|----------------|
+| Depth 1 | (in 64) | 6 | 6 |
+| Depth 2 | (in 64) | 11-13 | 11-13 |
+| Total entities | 64 | 17 | 19 |
+| Cascade paths | N/A | 29 | N/A |
+| Confidence | ~0.50 | **0.93** | N/A |
