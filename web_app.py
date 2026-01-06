@@ -1113,6 +1113,11 @@ def api_corpus_stats():
         print(f"[CorpusStats] Error: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/documents/upload/multi', methods=['POST'])
+def api_documents_upload_multi():
+    """API: Upload multiple documents - wrapper for dashboard upload."""
+    return dashboard_upload_multi()
+
 @app.route('/api/documents', methods=['GET'])
 def api_documents():
     """API: List documents for authenticated user with pagination, search, and filtering."""

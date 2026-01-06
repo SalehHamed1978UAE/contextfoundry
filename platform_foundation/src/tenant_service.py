@@ -134,7 +134,7 @@ class TenantService:
                     vault['document_count'] = 0
                     try:
                         cur.execute("""
-                            SELECT COUNT(*) FROM context.documents WHERE tenant_id = %s
+                            SELECT COUNT(*) FROM platform.documents WHERE tenant_id = %s
                         """, (str(vault['id']),))
                         vault['document_count'] = cur.fetchone()[0]
                     except Exception:
@@ -208,7 +208,7 @@ class TenantService:
                         COUNT(*) FILTER (WHERE status = 'completed') as completed_documents,
                         COUNT(*) FILTER (WHERE status = 'failed') as failed_documents,
                         MAX(updated_at) as last_activity
-                    FROM context.documents
+                    FROM platform.documents
                     WHERE tenant_id = %s
                 """, (str(tenant_id),))
                 return dict(cur.fetchone())
