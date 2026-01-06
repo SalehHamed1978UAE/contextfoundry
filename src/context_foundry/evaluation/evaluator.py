@@ -16,7 +16,7 @@ import json
 import random
 
 from sqlalchemy.orm import Session
-from sqlalchemy import Column, String, Float, Boolean, DateTime, JSON, Text, Integer
+from sqlalchemy import Column, String, Float, Boolean, DateTime, JSON, Text, Integer, text
 from sqlalchemy.dialects.postgresql import UUID
 
 from ..models.schema import Base, get_session
@@ -193,6 +193,11 @@ class BlindEvaluator:
     def __init__(self, session: Optional[Session] = None, tenant_id: Optional[str] = None):
         self.session = session or get_session()
         self.tenant_id = tenant_id
+        
+        # Set RLS tenant context on the session - CRITICAL for ContextFoundry
+        if self.tenant_id:
+            self.session.execute(text("SELECT platform.set_current_tenant(:tid)"), {'tid': self.tenant_id})
+        
         self.query_set = QuerySet()
         self.graphrag = GraphRAGBaseline(self.session, tenant_id=tenant_id)
         self._context_foundry = None
