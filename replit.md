@@ -86,7 +86,18 @@ All tenant data is protected by PostgreSQL Row-Level Security (RLS):
 - All vault routes check authorization via `user_has_vault_access()` before setting session tenant
 - Creating a vault adds entry to `user_tenants`, preserving existing vault access
 
+### Folder Organization
+- Documents can be organized into folders within each vault
+- `platform.folders` table stores folder hierarchy with `path` and `parent_path`
+- `platform.documents` has `folder_path` column (defaults to '/')
+- Drag-drop to move documents between folders
+- Folder tree UI with expand/collapse functionality
+
 ### API Endpoints
 - `GET /api/vaults` - List user's vaults
 - `POST /api/vaults` - Create new vault (body: `{name: string}`)
 - `GET /api/vaults/<vault_id>` - Get vault details with stats
+- `GET /api/folders` - List folders in current vault
+- `POST /api/folders` - Create folder (body: `{name: string, parent_path: string}`)
+- `GET /api/documents/tree` - Get folder tree with documents
+- `POST /api/documents/<id>/move` - Move document to folder (body: `{folder_path: string}`)
