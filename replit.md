@@ -89,3 +89,4 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **RLM Memory APIs UUID Conversion**: Fixed SemanticMemoryAPI and EpisodicMemoryAPI
 - **Query Parser Incident ID Handling**: Fixed extraction of incident IDs like "INC-2025-1201"
 - **Retrieval Agent "affected by" Pattern**: Added patterns for incident impact queries
+- **A/B Evaluation Tenant Isolation**: Fixed BlindEvaluator and GraphRAGBaseline not receiving tenant_id, causing cross-tenant entity lookups. Now web_app.py routes pass g.tenant_id to all evaluators.
