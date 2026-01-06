@@ -106,7 +106,11 @@ class QueryPipeline:
         self.tenant_id = str(tenant_id)
         self.model = model
         
-        self.interpreter = QueryInterpreter(model=model)
+        self.interpreter = QueryInterpreter(
+            model=model,
+            session=session,
+            tenant_id=str(tenant_id)
+        )
         self.retriever = DirectedGraphRetriever(session, tenant_id)
         
         from openai import OpenAI
