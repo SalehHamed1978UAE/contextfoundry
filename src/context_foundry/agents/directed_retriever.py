@@ -219,6 +219,12 @@ class DirectedGraphRetriever:
         
         affected = self._collect_affected_entities(relationships, entity_id)
         
+        if intent.target_type:
+            affected_before = len(affected)
+            affected = [e for e in affected if e.get('type', '').upper() == intent.target_type.upper()]
+            logger.info(f"Filtered by target_type '{intent.target_type}': "
+                       f"{affected_before} -> {len(affected)} entities")
+        
         result = RetrievalResult(
             query_intent=intent,
             entity_found=True,
