@@ -386,22 +386,10 @@ class BlindEvaluator:
         )
     
     def _format_answer_for_display(self, answer: str) -> str:
-        """Format answer text for better display - convert inline bullets to newlines."""
-        import re
-        if not answer or " - " not in answer:
-            return answer
-        
-        # Split after section headers
-        answer = re.sub(r'(GROUNDED|GAPS|Confirmed Impact|Inferred Impact|Knowledge Boundaries?)(?:\s*\([^)]*\))?:\s*-\s*', r'\1:\n- ', answer)
-        
-        # Split between bullet items - match service-like names
-        service_pattern = r'(?:Service|Gateway|Database|Cache|Manager|Queue|Broker|Store|Provider|Server|System|Balancer|Edge|Client|API|Collector|Aggregator|Hub)'
-        answer = re.sub(rf'\s+-\s+([A-Z][a-zA-Z0-9/\s]*{service_pattern})', r'\n- \1', answer)
-        
-        # Also handle dependency patterns like "Mobile Gateway depends on API Gateway [REL-001]"
-        answer = re.sub(r'\s+-\s+([A-Z][a-zA-Z\s]+ (?:depends on|calls|uses|connects to) )', r'\n- \1', answer)
-        
-        return answer
+        """Format answer text for better display - minimal safe formatting only."""
+        # Don't do any regex-based formatting - it causes more harm than good
+        # The LLM responses already have proper newlines when formatted correctly
+        return answer if answer else ""
     
     def _run_graphrag(self, query: EvaluationQuery) -> EvaluationResponse:
         """Run query through GraphRAG baseline."""
