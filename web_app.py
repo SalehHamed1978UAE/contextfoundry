@@ -2843,8 +2843,8 @@ def knowledge_date_range():
     from datetime import datetime, timezone
     
     session = get_session()
+    set_tenant_on_session(session, g.tenant_id)
     try:
-        # Get min/max valid_from dates from entities
         result = session.execute(
             text("""
                 SELECT 
@@ -2909,6 +2909,7 @@ def graph_visualization():
                 pass
     
     session = get_session()
+    set_tenant_on_session(session, g.tenant_id)
     try:
         entity_query = session.query(Entity)
         
@@ -3043,6 +3044,7 @@ def graph_search():
         return jsonify({'success': True, 'results': [], 'message': 'Enter a search term'})
     
     session = get_session()
+    set_tenant_on_session(session, g.tenant_id)
     try:
         entity_query = session.query(Entity).filter(
             func.lower(Entity.name).contains(query.lower())
@@ -3114,6 +3116,7 @@ def graph_expand(entity_id):
                 pass
     
     session = get_session()
+    set_tenant_on_session(session, g.tenant_id)
     try:
         try:
             entity_uuid = uuid.UUID(entity_id)
@@ -3404,6 +3407,7 @@ def graph_entity_details(entity_id):
     import uuid
     
     session = get_session()
+    set_tenant_on_session(session, g.tenant_id)
     try:
         try:
             entity_uuid = uuid.UUID(entity_id)
@@ -3479,6 +3483,7 @@ def entity_history(entity_id):
     import uuid as uuid_module
     
     session = get_session()
+    set_tenant_on_session(session, g.tenant_id)
     try:
         try:
             entity_uuid = uuid_module.UUID(entity_id)
