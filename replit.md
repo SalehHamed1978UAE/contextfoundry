@@ -89,4 +89,4 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **RLM Memory APIs UUID Conversion**: Fixed SemanticMemoryAPI and EpisodicMemoryAPI
 - **Query Parser Incident ID Handling**: Fixed extraction of incident IDs like "INC-2025-1201"
 - **Retrieval Agent "affected by" Pattern**: Added patterns for incident impact queries
-- **A/B Evaluation Tenant Isolation**: Fixed BlindEvaluator and GraphRAGBaseline not receiving tenant_id, causing cross-tenant entity lookups. Now web_app.py routes pass g.tenant_id to all evaluators.
+- **A/B Evaluation Tenant Isolation**: Fixed BlindEvaluator not setting RLS tenant context on its session. ContextFoundry relies on RLS while GraphRAGBaseline uses explicit filters. Added `session.execute(text("SELECT platform.set_current_tenant(:tid)"))` in BlindEvaluator.__init__. Web routes now pass g.tenant_id to all evaluators.
