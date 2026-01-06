@@ -39,7 +39,7 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Automatic Domain Detection**: Semantic routing classifies documents for domain-specific extraction.
 - **Chunked Extraction**: Splits documents into overlapping chunks to prevent LLM output saturation.
 - **Query/Reasoning System**: Provides GROUNDED, GAP, and INFERRED responses with hallucination guards, using a 4-AI consensus design.
-- **EntityResolver**: 3-stage pipeline (exact, semantic, fuzzy match) with disambiguation for robust entity matching. Entity name embeddings are stored in `entities.name_embedding`.
+- **EntityResolver**: Multi-stage pipeline (exact, alias, normalized, semantic, fuzzy match) with disambiguation for robust entity matching. Entity name embeddings are stored in `entities.name_embedding`. Includes intelligent plural/singular normalization (via `inflect` library) and abbreviation expansion (auth→authentication, cdn→content delivery network, etc.).
 - **RLM Integration (Recursive Language Model)**: For complex multi-hop queries, including a `QueryComplexityRouter`, specialized `Memory APIs` for tri-memory, a `REPLSandbox` for secure Python execution, an `RLMExecutor`, and a `SubQueryAPI`.
 
 ## External Dependencies
@@ -117,3 +117,18 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 **Result**: ContextFoundry now **outperforms** GraphRAG Baseline:
 - ContextFoundry: 134 entities, 134 relationships
 - GraphRAG: 18 entities, 54 relationships
+
+### EntityResolver Normalization Enhancement (January 2026)
+**Problem**: EntityResolver was too strict - "User Database" wouldn't match "Users Database", "Auth Service" wouldn't match "Authentication Service".
+
+**Solution**: Added intelligent normalization using the `inflect` library:
+- **normalize_for_matching()**: Converts entity names to a canonical form by singularizing plurals, expanding abbreviations, and sorting tokens
+- **_normalized_match() stage**: Inserted between contains_match and semantic_search for fast matching
+- **ABBREVIATION_MAP**: 30+ common IT abbreviations (auth→authentication, cdn→content delivery network, lb→load balancer, etc.)
+
+**Test Results**:
+- "API Gateways" → "API Gateway": MATCH
+- "Auth Services" → "Auth Service": MATCH
+- "Authentication Service" → "Auth Service": MATCH
+- "CDN Edge" → "Content Delivery Network Edge": MATCH
+- "LB Service" → "Load Balancer Service": MATCH
