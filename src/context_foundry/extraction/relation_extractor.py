@@ -110,17 +110,21 @@ class RelationExtractor:
         rel_list = "\n".join(rel_descriptions)
         rel_type_names = ", ".join(schema.relationship_types.keys())
         
-        prompt = f"""You are an expert at extracting relationships between entities from documents in the {domain} domain.
+        prompt = f"""You are an expert at extracting relationships between entities from documents.
 
-Given the following text and the list of known entities, extract all relationships. Use relationship types from this list when they fit:
+Given the following text and the list of known entities, extract all relationships.
+
+RELATIONSHIP TYPE SELECTION:
+- If the document is a RESUME/CV: Use HR relationship types like WORKED_AT, EDUCATED_AT, HAS_SKILL, HAS_ROLE, REPORTS_TO
+- If the document is about IT infrastructure: Use types from this list when they fit exactly:
 {rel_list}
-If none fit, create an appropriate relationship type that describes the connection.
+- Otherwise: Create descriptive relationship types that accurately describe the connection (e.g., COLLABORATED_WITH, INVESTED_IN, FOUNDED, LED_PROJECT)
 
 KNOWN ENTITIES:
 {entities_str}
 
 For each relationship, provide:
-1. relation_type: A relationship type from the list above, or a new descriptive type if none fit
+1. relation_type: A relationship type that accurately describes the connection
 2. source_name: The name of the source entity (must be from KNOWN ENTITIES)
 3. target_name: The name of the target entity (must be from KNOWN ENTITIES)
 4. source_span: The exact text that indicates this relationship
@@ -133,6 +137,7 @@ IMPORTANT RULES:
 - Assign lower confidence (0.5-0.7) if the relationship is implied but not explicit
 - Assign higher confidence (0.8-1.0) if the relationship is explicitly stated
 - Extract relationships that are explicitly stated OR implied by document structure and context
+- For resumes: A person listed under a company heading implies WORKED_AT relationship
 
 TEXT:
 {text}
@@ -302,6 +307,8 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
                 raw_relations = self._parse_llm_response(response_text)
                 
                 print(f"[RelationExtractor] LLM returned {len(raw_relations)} raw relations")
+                for raw in raw_relations:
+                    print(f"[RelationExtractor] Raw: {raw.get('source_name', '?')} -{raw.get('relation_type', '?')}-> {raw.get('target_name', '?')}")
                 
                 relations = []
                 valid_types = self.get_valid_relation_types()
