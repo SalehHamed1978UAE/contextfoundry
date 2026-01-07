@@ -3283,6 +3283,12 @@ def graph_visualization():
     from datetime import datetime
     from sqlalchemy import or_
     
+    # CRITICAL: Ensure tenant context is set for RLS isolation
+    tenant_id = g.tenant_id or session.get('tenant_id')
+    if not tenant_id:
+        logger.warning("[GRAPH_VIZ] No tenant context - returning 401")
+        return jsonify({'success': False, 'error': 'No vault context - please select a vault first', 'nodes': [], 'edges': []}), 401
+    
     lifecycle_filter = request.args.get('lifecycle_state', 'all')
     entity_type_filter = request.args.get('entity_type', None)
     limit = int(request.args.get('limit', 100))
@@ -3298,10 +3304,11 @@ def graph_visualization():
             except ValueError:
                 pass
     
-    session = get_session()
-    set_tenant_on_session(session, g.tenant_id)
+    db_session = get_session()
+    set_tenant_on_session(db_session, tenant_id)
+    logger.info(f"[GRAPH_VIZ] tenant_id={tenant_id}, lifecycle={lifecycle_filter}, limit={limit}")
     try:
-        entity_query = session.query(Entity)
+        entity_query = db_session.query(Entity)
         
         if as_of_date:
             entity_query = entity_query.filter(
@@ -3324,7 +3331,7 @@ def graph_visualization():
         entities = entity_query.order_by(Entity.confidence.desc()).limit(limit).all()
         entity_ids = {e.id for e in entities}
         
-        rel_query = session.query(Relationship).filter(
+        rel_query = db_session.query(Relationship).filter(
             Relationship.source_id.in_(entity_ids),
             Relationship.target_id.in_(entity_ids)
         )
@@ -3374,7 +3381,7 @@ def graph_visualization():
         
         state_counts = {}
         for state in LifecycleState:
-            count_query = session.query(Entity).filter(Entity.lifecycle_state == state)
+            count_query = db_session.query(Entity).filter(Entity.lifecycle_state == state)
             if as_of_date:
                 count_query = count_query.filter(
                     Entity.valid_from <= as_of_date,
@@ -3384,6 +3391,7 @@ def graph_visualization():
                 count_query = count_query.filter(Entity.valid_to.is_(None))
             state_counts[state.value] = count_query.count()
         
+        logger.info(f"[GRAPH_VIZ] Returning {len(nodes)} nodes, {len(edges)} edges for tenant {tenant_id}")
         return jsonify({
             'success': True,
             'nodes': nodes,
@@ -3397,9 +3405,10 @@ def graph_visualization():
             }
         })
     except Exception as e:
+        logger.error(f"[GRAPH_VIZ] Error: {e}")
         return jsonify({'error': str(e), 'success': False}), 500
     finally:
-        session.close()
+        db_session.close()
 
 @app.route('/api/graph/search')
 def graph_search():
@@ -3499,6 +3508,12 @@ def graph_expand(entity_id):
     from datetime import datetime
     import uuid
     
+    # CRITICAL: Ensure tenant context is set for RLS isolation
+    tenant_id = g.tenant_id or session.get('tenant_id')
+    if not tenant_id:
+        logger.warning("[GRAPH_EXPAND] No tenant context - returning 401")
+        return jsonify({'success': False, 'error': 'No vault context - please select a vault first'}), 401
+    
     lifecycle_filter = request.args.get('lifecycle_state', 'all')
     as_of_date_str = request.args.get('as_of_date', None)
     include_speculative = request.args.get('include_speculative', 'false').lower() == 'true'
@@ -3513,15 +3528,16 @@ def graph_expand(entity_id):
             except ValueError:
                 pass
     
-    session = get_session()
-    set_tenant_on_session(session, g.tenant_id)
+    db_session = get_session()
+    set_tenant_on_session(db_session, tenant_id)
+    logger.info(f"[GRAPH_EXPAND] tenant_id={tenant_id}, entity_id={entity_id}")
     try:
         try:
             entity_uuid = uuid.UUID(entity_id)
         except ValueError:
             return jsonify({'error': 'Invalid entity ID', 'success': False}), 400
         
-        center_query = session.query(Entity).filter(Entity.id == entity_uuid)
+        center_query = db_session.query(Entity).filter(Entity.id == entity_uuid)
         
         if as_of_date:
             center_query = center_query.filter(
@@ -3540,7 +3556,7 @@ def graph_expand(entity_id):
         
         center_entity = center_query.first()
         if not center_entity:
-            entity_exists = session.query(Entity).filter(Entity.id == entity_uuid).first()
+            entity_exists = db_session.query(Entity).filter(Entity.id == entity_uuid).first()
             if entity_exists:
                 message = f'Entity exists but is not visible'
                 if as_of_date:
@@ -3557,10 +3573,10 @@ def graph_expand(entity_id):
                 })
             return jsonify({'error': 'Entity not found', 'success': False}), 404
         
-        outgoing_query = session.query(Relationship).filter(
+        outgoing_query = db_session.query(Relationship).filter(
             Relationship.source_id == entity_uuid
         )
-        incoming_query = session.query(Relationship).filter(
+        incoming_query = db_session.query(Relationship).filter(
             Relationship.target_id == entity_uuid
         )
         
@@ -3596,7 +3612,7 @@ def graph_expand(entity_id):
         
         neighbors = []
         if neighbor_ids:
-            neighbor_query = session.query(Entity).filter(Entity.id.in_(neighbor_ids))
+            neighbor_query = db_session.query(Entity).filter(Entity.id.in_(neighbor_ids))
             if as_of_date:
                 neighbor_query = neighbor_query.filter(
                     Entity.valid_from <= as_of_date,
@@ -3619,11 +3635,11 @@ def graph_expand(entity_id):
         center_id_uuid = uuid.UUID(entity_id)
         
         for neighbor in neighbors:
-            neighbor_outgoing = session.query(Relationship).filter(
+            neighbor_outgoing = db_session.query(Relationship).filter(
                 Relationship.source_id == neighbor.id,
                 Relationship.target_id != center_id_uuid
             )
-            neighbor_incoming = session.query(Relationship).filter(
+            neighbor_incoming = db_session.query(Relationship).filter(
                 Relationship.target_id == neighbor.id,
                 Relationship.source_id != center_id_uuid
             )
@@ -3794,9 +3810,10 @@ def graph_expand(entity_id):
     except Exception as e:
         import traceback
         traceback.print_exc()
+        logger.error(f"[GRAPH_EXPAND] Error: {e}")
         return jsonify({'error': str(e), 'success': False}), 500
     finally:
-        session.close()
+        db_session.close()
 
 @app.route('/api/graph/entity/<entity_id>')
 def graph_entity_details(entity_id):
@@ -3804,28 +3821,35 @@ def graph_entity_details(entity_id):
     from src.context_foundry.models.schema import get_session, Entity, Relationship
     import uuid
     
-    session = get_session()
-    set_tenant_on_session(session, g.tenant_id)
+    # CRITICAL: Ensure tenant context is set for RLS isolation
+    tenant_id = g.tenant_id or session.get('tenant_id')
+    if not tenant_id:
+        logger.warning("[GRAPH_ENTITY] No tenant context - returning 401")
+        return jsonify({'success': False, 'error': 'No vault context - please select a vault first'}), 401
+    
+    db_session = get_session()
+    set_tenant_on_session(db_session, tenant_id)
+    logger.info(f"[GRAPH_ENTITY] tenant_id={tenant_id}, entity_id={entity_id}")
     try:
         try:
             entity_uuid = uuid.UUID(entity_id)
         except ValueError:
             return jsonify({'error': 'Invalid entity ID', 'success': False}), 400
         
-        entity = session.query(Entity).filter(Entity.id == entity_uuid).first()
+        entity = db_session.query(Entity).filter(Entity.id == entity_uuid).first()
         if not entity:
             return jsonify({'error': 'Entity not found', 'success': False}), 404
         
-        outgoing = session.query(Relationship).filter(
+        outgoing = db_session.query(Relationship).filter(
             Relationship.source_id == entity_uuid
         ).all()
-        incoming = session.query(Relationship).filter(
+        incoming = db_session.query(Relationship).filter(
             Relationship.target_id == entity_uuid
         ).all()
         
         outgoing_list = []
         for r in outgoing:
-            target = session.query(Entity).filter(Entity.id == r.target_id).first()
+            target = db_session.query(Entity).filter(Entity.id == r.target_id).first()
             outgoing_list.append({
                 'relationship_type': r.relationship_type,
                 'target_id': str(r.target_id),
@@ -3836,7 +3860,7 @@ def graph_entity_details(entity_id):
         
         incoming_list = []
         for r in incoming:
-            source = session.query(Entity).filter(Entity.id == r.source_id).first()
+            source = db_session.query(Entity).filter(Entity.id == r.source_id).first()
             incoming_list.append({
                 'relationship_type': r.relationship_type,
                 'source_id': str(r.source_id),
@@ -3866,9 +3890,10 @@ def graph_entity_details(entity_id):
             'incoming_relationships': incoming_list
         })
     except Exception as e:
+        logger.error(f"[GRAPH_ENTITY] Error: {e}")
         return jsonify({'error': str(e), 'success': False}), 500
     finally:
-        session.close()
+        db_session.close()
 
 @app.route('/api/entities/<entity_id>/history')
 def entity_history(entity_id):
