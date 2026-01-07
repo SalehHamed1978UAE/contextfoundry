@@ -3263,8 +3263,9 @@ def stats():
 def vault_chat():
     """Session-based chat endpoint for vault view (no API key required).
     
-    Includes RAG fallback: If graph confidence < 0.5, searches document chunks
-    and answers from text directly. This ensures CF is at least as good as basic RAG.
+    Uses HYBRID retrieval: Always searches both knowledge graph AND document chunks,
+    combining structured relationships with document text for comprehensive answers.
+    This ensures CF is at least as good as basic RAG, plus better for graph queries.
     """
     if not session.get('user_id'):
         return jsonify({'error': 'Unauthorized'}), 401
@@ -3279,8 +3280,6 @@ def vault_chat():
     if not query_text:
         return jsonify({'error': 'No query provided'}), 400
     
-    RAG_CONFIDENCE_THRESHOLD = 0.5
-    
     try:
         from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
         from src.context_foundry.core import ContextFoundry
@@ -3289,31 +3288,239 @@ def vault_chat():
         set_tenant_context(db_session, tenant_id)
         
         foundry = ContextFoundry(tenant_id=tenant_id, session=db_session)
-        result = foundry.query(query_text)
+        graph_result = foundry.query(query_text)
         
-        graph_confidence = result.get('confidence', 0)
+        graph_confidence = graph_result.get('confidence', 0)
+        graph_answer = graph_result.get('answer', '')
+        graph_evidence = graph_result.get('evidence_chain', [])
         
-        if graph_confidence < RAG_CONFIDENCE_THRESHOLD:
-            rag_result = _try_rag_fallback(query_text, tenant_id, db_session)
-            if rag_result and rag_result.get('confidence', 0) > graph_confidence:
-                db_session.close()
-                rag_result['fallback_used'] = 'rag'
-                rag_result['graph_confidence'] = graph_confidence
-                return jsonify(rag_result)
+        chunk_result = _get_relevant_chunks(query_text, tenant_id, db_session)
+        
+        if chunk_result['chunks']:
+            hybrid_answer = _generate_hybrid_answer(
+                query_text, 
+                graph_result, 
+                chunk_result, 
+                tenant_id
+            )
+            
+            combined_confidence = max(graph_confidence, chunk_result.get('relevance_score', 0.3))
+            if graph_confidence > 0 and chunk_result['chunks']:
+                combined_confidence = min(1.0, graph_confidence + 0.1)
+            
+            db_session.close()
+            
+            return jsonify({
+                'success': True,
+                'answer': hybrid_answer,
+                'confidence': combined_confidence,
+                'confidence_level': _confidence_level(combined_confidence),
+                'evidence_chain': graph_evidence,
+                'retrieval_method': 'hybrid',
+                'graph_confidence': graph_confidence,
+                'chunks_used': len(chunk_result['chunks']),
+                'chunk_sources': chunk_result.get('sources', [])
+            })
         
         db_session.close()
         
         return jsonify({
             'success': True,
-            'answer': result.get('answer', ''),
-            'confidence': result.get('confidence', 0),
-            'confidence_level': result.get('confidence_level', 'unknown'),
-            'evidence_chain': result.get('evidence_chain', []),
-            'fallback_used': None
+            'answer': graph_answer,
+            'confidence': graph_confidence,
+            'confidence_level': graph_result.get('confidence_level', 'unknown'),
+            'evidence_chain': graph_evidence,
+            'retrieval_method': 'graph_only',
+            'chunks_used': 0
         })
     except Exception as e:
         logger.error(f"Chat query failed: {e}", exc_info=True)
         return jsonify({'error': str(e), 'success': False}), 500
+
+
+def _confidence_level(confidence: float) -> str:
+    """Convert numeric confidence to categorical level."""
+    if confidence >= 0.8:
+        return 'high'
+    elif confidence >= 0.5:
+        return 'medium'
+    else:
+        return 'low'
+
+
+def _get_relevant_chunks(query_text: str, tenant_id: str, db_session) -> dict:
+    """Search document chunks for relevant text.
+    
+    Uses keyword ranking: chunks matching more query words rank higher.
+    Filters out stop words to focus on meaningful terms.
+    Requires at least 1 non-stop keyword to match.
+    
+    Returns dict with 'chunks' list and 'sources' list.
+    """
+    from sqlalchemy import text
+    
+    try:
+        query_lower = query_text.lower()
+        stop_words = {'the', 'is', 'at', 'which', 'on', 'a', 'an', 'and', 'or', 'but', 'in', 'with', 'to', 'for', 'of', 'what', 'where', 'when', 'who', 'how', 'why', 'was', 'were', 'are', 'has', 'have', 'does', 'do', 'did', 'from', 'that', 'this', 'can', 'will', 'would', 'could', 'should', 'been', 'being', 'had', 'having', 'they', 'them', 'their', 'you', 'your', 'its', 'just', 'also', 'than', 'into', 'about', 'some', 'other', 'such', 'only', 'over', 'very', 'any', 'all', 'most', 'then', 'more', 'own'}
+        query_words = [w for w in query_lower.split() if len(w) > 2 and w not in stop_words]
+        
+        if not query_words:
+            query_words = [w for w in query_lower.split() if len(w) > 2][:3]
+        
+        if not query_words:
+            return {'chunks': [], 'sources': [], 'relevance_score': 0}
+        
+        like_conditions = " OR ".join(
+            f"LOWER(dc.text) LIKE '%' || :word{i} || '%'" for i in range(len(query_words))
+        )
+        
+        match_count_expr = " + ".join(
+            f"CASE WHEN LOWER(dc.text) LIKE '%' || :word{i} || '%' THEN 1 ELSE 0 END" for i in range(len(query_words))
+        )
+        
+        sql = text(f"""
+            SELECT 
+                dc.id as chunk_id,
+                dc.document_id,
+                dc.chunk_index,
+                dc.text,
+                d.name as document_title,
+                d.mime_type as doc_type,
+                ({match_count_expr}) as match_count
+            FROM document_chunks dc
+            JOIN platform.documents d ON dc.document_id = d.id
+            WHERE dc.tenant_id = :tenant_id
+            AND ({like_conditions})
+            ORDER BY match_count DESC, dc.chunk_index
+            LIMIT 8
+        """)
+        
+        params = {'tenant_id': tenant_id}
+        for i, word in enumerate(query_words):
+            params[f'word{i}'] = word
+        
+        rows = db_session.execute(sql, params).fetchall()
+        
+        if not rows:
+            return {'chunks': [], 'sources': [], 'relevance_score': 0}
+        
+        chunks = []
+        sources = []
+        total_match_count = 0
+        max_possible_matches = len(query_words)
+        
+        for row in rows:
+            chunk_text = row.text[:1200] if len(row.text) > 1200 else row.text
+            total_match_count += row.match_count
+            chunks.append({
+                'text': chunk_text,
+                'document': row.document_title,
+                'chunk_index': row.chunk_index,
+                'match_count': row.match_count
+            })
+            if row.document_title not in [s['document'] for s in sources]:
+                sources.append({
+                    'document': row.document_title,
+                    'doc_type': row.doc_type
+                })
+        
+        avg_match_ratio = total_match_count / (len(rows) * max_possible_matches) if rows and max_possible_matches > 0 else 0
+        relevance_score = min(0.7, 0.2 + (avg_match_ratio * 0.4) + (min(len(rows), 5) * 0.05))
+        
+        return {
+            'chunks': chunks,
+            'sources': sources,
+            'relevance_score': relevance_score,
+            'query_words': query_words
+        }
+        
+    except Exception as e:
+        logger.warning(f"Chunk search failed: {e}")
+        return {'chunks': [], 'sources': [], 'relevance_score': 0}
+
+
+def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: dict, tenant_id: str) -> str:
+    """Generate answer using both graph data and document chunks.
+    
+    LLM sees structured graph data AND relevant document text.
+    Caps chunk context to prevent token overflow.
+    """
+    import os
+    from openai import OpenAI
+    
+    try:
+        graph_answer = graph_result.get('answer', '')
+        graph_evidence = graph_result.get('evidence_chain', [])
+        graph_confidence = graph_result.get('confidence', 0)
+        
+        graph_context = ""
+        if graph_confidence >= 0.15 and graph_evidence:
+            evidence_lines = []
+            for ev in graph_evidence[:6]:
+                if isinstance(ev, dict):
+                    evidence_lines.append(f"- {ev.get('source', '')} {ev.get('relation', '')} {ev.get('target', '')}")
+                else:
+                    evidence_lines.append(f"- {ev}")
+            graph_context = "\n".join(evidence_lines)
+        
+        chunks = chunk_result.get('chunks', [])[:4]
+        chunk_context = ""
+        total_chars = 0
+        max_chunk_chars = 4000
+        for chunk in chunks:
+            chunk_text = chunk.get('text', '')[:800]
+            if total_chars + len(chunk_text) > max_chunk_chars:
+                break
+            chunk_context += f"[Source: {chunk['document']}]\n{chunk_text}\n\n---\n\n"
+            total_chars += len(chunk_text)
+        
+        chunk_relevance = chunk_result.get('relevance_score', 0)
+        
+        client = OpenAI(
+            api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
+            base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+        )
+        
+        system_prompt = """You are a helpful assistant that answers questions using both structured knowledge graph data AND document text excerpts.
+
+RULES:
+- ONLY use information from the provided sources (graph data and documents)
+- If graph has structured relationships, cite them as "[Graph: relationship]"
+- If documents have relevant text, cite them as "[Source: document name]"
+- If BOTH sources have info, combine them for a complete answer
+- If neither source has the answer, say "I don't have enough information to answer this."
+- Be concise but accurate"""
+
+        no_graph = "No relevant graph relationships found."
+        no_chunks = "No relevant document excerpts found."
+        
+        user_prompt = f"""Answer this question using the sources below.
+
+QUESTION: {query_text}
+
+KNOWLEDGE GRAPH DATA (structured relationships, confidence: {graph_confidence:.2f}):
+{graph_context if graph_context else no_graph}
+
+DOCUMENT EXCERPTS (text search, relevance: {chunk_relevance:.2f}):
+{chunk_context.strip() if chunk_context.strip() else no_chunks}
+
+Provide a concise, accurate answer with citations."""
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.0,
+            max_tokens=400
+        )
+        
+        return response.choices[0].message.content
+        
+    except Exception as e:
+        logger.warning(f"Hybrid answer generation failed: {e}")
+        return graph_result.get('answer', 'Unable to generate answer.')
 
 
 def _try_rag_fallback(query_text: str, tenant_id: str, db_session) -> dict:

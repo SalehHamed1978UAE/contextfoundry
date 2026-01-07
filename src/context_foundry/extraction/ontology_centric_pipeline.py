@@ -2,19 +2,21 @@
 Ontology-Centric Extraction Pipeline for Context Foundry.
 
 Implements the document-aware, ontology-centric pipeline:
-1. Classify document type
-2. Load/generate per-document-type ontology
-3. Extract with ontology guidance (open extraction)
-4. Define predicates with semantic definitions
-5. Canonicalize using embedding similarity
-6. Update reference ontology with new types
+1. Store document chunks for RAG retrieval
+2. Classify document type
+3. Load/generate per-document-type ontology
+4. Extract with ontology guidance (open extraction)
+5. Define predicates with semantic definitions
+6. Canonicalize using embedding similarity
+7. Update reference ontology with new types
 """
 import uuid
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 
 from sqlalchemy.orm import Session
+from sqlalchemy import text as sql_text
 
 from .document_classifier import classify_with_fallback
 from .ontology_manager import OntologyManager, EntityTypeSchema, RelationshipTypeSchema
@@ -24,6 +26,7 @@ from .relation_extractor import RelationExtractor, ExtractedRelation
 from .staging_loader import StagingLoader, StagingResult
 
 from ..utils.logger import logger
+from ..models.schema import DocumentChunk
 
 
 @dataclass
@@ -37,6 +40,7 @@ class OntologyCentricResult:
     new_entity_types: List[str]
     new_relationship_types: List[str]
     staging_result: Optional[StagingResult] = None
+    chunks_stored: int = 0
     success: bool = True
     error: Optional[str] = None
     
@@ -50,6 +54,7 @@ class OntologyCentricResult:
             "new_entity_types": self.new_entity_types,
             "new_relationship_types": self.new_relationship_types,
             "staging_result": self.staging_result.to_dict() if self.staging_result else None,
+            "chunks_stored": self.chunks_stored,
             "success": self.success,
             "error": self.error,
         }
@@ -117,7 +122,11 @@ class OntologyCentricPipeline:
         Returns:
             OntologyCentricResult with all extraction data
         """
+        chunks_stored = 0
         try:
+            chunks_stored = self._store_document_chunks(text, document_id)
+            logger.info(f"[OntologyCentricPipeline] Stored {chunks_stored} chunks for RAG retrieval")
+            
             if document_type_override:
                 document_type = document_type_override
             else:
@@ -184,6 +193,7 @@ class OntologyCentricPipeline:
                 new_entity_types=new_entity_types,
                 new_relationship_types=new_relationship_types,
                 staging_result=staging_result,
+                chunks_stored=chunks_stored,
                 success=True,
             )
             
@@ -197,9 +207,80 @@ class OntologyCentricPipeline:
                 canonical_triplets=[],
                 new_entity_types=[],
                 new_relationship_types=[],
+                chunks_stored=chunks_stored,
                 success=False,
                 error=str(e),
             )
+    
+    def _chunk_text(self, text: str, chunk_size: int = 2000, overlap: int = 400) -> List[Tuple[str, int, int]]:
+        """Split text into overlapping chunks with position tracking.
+        
+        Returns list of (chunk_text, char_start, char_end) tuples.
+        """
+        if len(text) <= chunk_size:
+            return [(text, 0, len(text))]
+        
+        chunks = []
+        start = 0
+        while start < len(text):
+            end = start + chunk_size
+            if end < len(text):
+                last_period = text.rfind('.', start, end)
+                if last_period > start + int(chunk_size * 0.6):
+                    end = last_period + 1
+            
+            chunk_text = text[start:end].strip()
+            if chunk_text:
+                chunks.append((chunk_text, start, min(end, len(text))))
+            
+            start = end - overlap
+            if start >= len(text):
+                break
+        
+        return chunks
+    
+    def _store_document_chunks(self, text: str, document_id: str) -> int:
+        """Store document chunks for RAG retrieval.
+        
+        This ensures every document has searchable text chunks regardless
+        of entity/relationship extraction success.
+        
+        Returns number of chunks stored.
+        """
+        try:
+            existing_check = self.session.execute(
+                sql_text("SELECT COUNT(*) FROM document_chunks WHERE document_id = :doc_id"),
+                {"doc_id": document_id}
+            ).scalar()
+            
+            if existing_check and existing_check > 0:
+                logger.info(f"[OntologyCentricPipeline] Document {document_id} already has {existing_check} chunks, skipping")
+                return existing_check
+            
+            chunks = self._chunk_text(text, chunk_size=2000, overlap=400)
+            
+            stored_count = 0
+            for idx, (chunk_text, char_start, char_end) in enumerate(chunks):
+                chunk = DocumentChunk(
+                    id=uuid.uuid4(),
+                    document_id=document_id,
+                    tenant_id=self.tenant_id,
+                    chunk_index=idx,
+                    text=chunk_text,
+                    char_start=char_start,
+                    char_end=char_end,
+                    chunk_metadata={"source": "ontology_centric_pipeline"}
+                )
+                self.session.add(chunk)
+                stored_count += 1
+            
+            self.session.flush()
+            return stored_count
+            
+        except Exception as e:
+            logger.error(f"[OntologyCentricPipeline] Failed to store chunks: {e}")
+            self.session.rollback()
+            return 0
     
     def _extract_entities_with_ontology(
         self,
