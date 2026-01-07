@@ -112,14 +112,15 @@ class RelationExtractor:
         
         prompt = f"""You are an expert at extracting relationships between entities from documents in the {domain} domain.
 
-Given the following text and the list of known entities, extract all relationships of these types:
+Given the following text and the list of known entities, extract all relationships. Use relationship types from this list when they fit:
 {rel_list}
+If none fit, create an appropriate relationship type that describes the connection.
 
 KNOWN ENTITIES:
 {entities_str}
 
 For each relationship, provide:
-1. relation_type: One of {rel_type_names}
+1. relation_type: A relationship type from the list above, or a new descriptive type if none fit
 2. source_name: The name of the source entity (must be from KNOWN ENTITIES)
 3. target_name: The name of the target entity (must be from KNOWN ENTITIES)
 4. source_span: The exact text that indicates this relationship
@@ -131,7 +132,7 @@ IMPORTANT RULES:
 - When text mentions multiple targets (e.g., "X, Y, and Z"), extract a SEPARATE relationship for each target
 - Assign lower confidence (0.5-0.7) if the relationship is implied but not explicit
 - Assign higher confidence (0.8-1.0) if the relationship is explicitly stated
-- Only extract relationships that are EXPLICITLY mentioned or clearly implied in the text
+- Extract relationships that are explicitly stated OR implied by document structure and context
 
 TEXT:
 {text}
@@ -215,14 +216,15 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
         return False
     
     def _validate_relation(self, relation: Dict, entity_names: set) -> bool:
-        """Validate extracted relation has required fields and valid references."""
+        """Validate extracted relation has required fields and valid references.
+        
+        Note: We allow any relationship type (not just schema-defined ones) to support
+        domain-agnostic extraction where the LLM creates appropriate types.
+        """
         required = ["relation_type", "source_name", "target_name"]
         for fld in required:
             if fld not in relation:
                 return False
-        
-        if relation["relation_type"].upper() not in self.get_valid_relation_types():
-            return False
         
         source_name = self._strip_type_prefix(relation["source_name"])
         target_name = self._strip_type_prefix(relation["target_name"])
