@@ -385,6 +385,24 @@
             color: var(--text-secondary);
         }
         
+        .admin-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--bg-primary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .admin-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
         .chat-container {
             flex: 1;
             display: flex;
@@ -531,22 +549,6 @@
                     </svg>
                     Chat
                 </a>
-                <a href="/app/{{ vault_id }}/memory-graph" class="nav-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <circle cx="12" cy="12" r="6"/>
-                        <circle cx="12" cy="12" r="2"/>
-                    </svg>
-                    Memory Graph
-                </a>
-                <a href="/app/{{ vault_id }}/command-center" class="nav-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                        <path d="M8 12h8"/>
-                        <path d="M12 8v8"/>
-                    </svg>
-                    Command Center
-                </a>
             </div>
             
             <div class="file-tree-section">
@@ -587,6 +589,7 @@
                 <span class="main-title">Chat with your knowledge</span>
                 <div class="user-actions">
                     <span class="user-name">{{ user_name }}</span>
+                    <a href="/app/{{ vault_id }}/dashboard" class="admin-btn">Admin</a>
                     <a href="/app/{{ vault_id }}/settings" class="settings-btn">Settings</a>
                 </div>
             </div>
