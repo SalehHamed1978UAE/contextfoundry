@@ -3301,7 +3301,8 @@ def vault_chat():
                 query_text, 
                 graph_result, 
                 chunk_result, 
-                tenant_id
+                tenant_id,
+                db_session
             )
             
             combined_confidence = max(graph_confidence, chunk_result.get('relevance_score', 0.3))
@@ -3439,14 +3440,17 @@ def _get_relevant_chunks(query_text: str, tenant_id: str, db_session) -> dict:
         return {'chunks': [], 'sources': [], 'relevance_score': 0}
 
 
-def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: dict, tenant_id: str) -> str:
+def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: dict, tenant_id: str, db_session=None) -> str:
     """Generate answer using both graph data and document chunks.
     
     LLM sees structured graph data AND relevant document text.
+    For job/position queries, fetches ALL relationships from database.
     Caps chunk context to prevent token overflow.
     """
     import os
+    import re
     from openai import OpenAI
+    from sqlalchemy import text as sql_text
     
     try:
         graph_answer = graph_result.get('answer', '')
@@ -3454,9 +3458,49 @@ def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: d
         graph_confidence = graph_result.get('confidence', 0)
         
         graph_context = ""
-        if graph_confidence >= 0.15 and graph_evidence:
+        
+        query_lower = query_text.lower()
+        is_job_query = any(w in query_lower for w in ['job', 'jobs', 'work', 'worked', 'position', 'positions', 'role', 'roles', 'career', 'employment', 'employed'])
+        
+        if is_job_query and db_session:
+            person_match = re.search(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b', query_text)
+            if not person_match:
+                words = [w for w in query_text.split() if len(w) > 2 and w.lower() not in {'what', 'jobs', 'has', 'done', 'did', 'does', 'the', 'all'}]
+                person_name = words[0] if words else None
+            else:
+                person_name = person_match.group(1)
+            
+            if person_name:
+                job_sql = sql_text("""
+                    SELECT r.relationship_type, e2.name as target
+                    FROM relationships r
+                    JOIN entities e1 ON r.source_id = e1.id
+                    JOIN entities e2 ON r.target_id = e2.id
+                    WHERE r.tenant_id = :tenant_id
+                    AND LOWER(e1.name) LIKE :person_pattern
+                    AND r.relationship_type IN ('HELD_POSITION', 'WORKED_AT', 'EMPLOYED_BY', 'EMPLOYED_AT')
+                    ORDER BY r.relationship_type, e2.name
+                """)
+                job_rows = db_session.execute(job_sql, {
+                    'tenant_id': tenant_id, 
+                    'person_pattern': f'%{person_name.lower()}%'
+                }).fetchall()
+                
+                if job_rows:
+                    positions = [r.target for r in job_rows if r.relationship_type == 'HELD_POSITION']
+                    companies = [r.target for r in job_rows if r.relationship_type in ('WORKED_AT', 'EMPLOYED_BY', 'EMPLOYED_AT')]
+                    
+                    lines = []
+                    if positions:
+                        lines.append(f"Positions held: {', '.join(positions)}")
+                    if companies:
+                        lines.append(f"Companies worked at: {', '.join(companies)}")
+                    graph_context = "\n".join(lines)
+                    graph_confidence = max(graph_confidence, 0.5)
+        
+        if not graph_context and graph_confidence >= 0.15 and graph_evidence:
             evidence_lines = []
-            for ev in graph_evidence[:6]:
+            for ev in graph_evidence[:10]:
                 if isinstance(ev, dict):
                     evidence_lines.append(f"- {ev.get('source', '')} {ev.get('relation', '')} {ev.get('target', '')}")
                 else:
