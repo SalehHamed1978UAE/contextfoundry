@@ -493,6 +493,8 @@ def process_extraction_queue():
             from src.context_foundry.models.schema import tenant_session
             from brain.classifier import CORE_FOUNDATION_TYPES
             
+            use_ontology_centric = os.environ.get("USE_ONTOLOGY_CENTRIC_PIPELINE", "").lower() in ("true", "1", "yes")
+            
             entities_count = 0
             relations_count = 0
             model_used = 'gpt-4o-mini'
@@ -538,62 +540,109 @@ def process_extraction_queue():
                 if tracker:
                     tracker.update(document_id, IngestionStep.CHUNKING)
                 
-                pipeline = ExtractionPipeline(model="gpt-4o-mini", temperature=0.0)
-                
-                if tracker:
-                    tracker.update(document_id, IngestionStep.EXTRACTING)
-                
-                extraction_result = pipeline.extract_with_fallback(
-                    text=text_content,
-                    document_id=document_id,
-                    document_title=file_name or "Uploaded Document"
-                )
-                
-                extracted_entities = extraction_result.entities
-                extraction_success = extraction_result.success
-                
-                if tracker:
-                    tracker.update(document_id, IngestionStep.RELATING, {"entities": len(extracted_entities)})
+                if use_ontology_centric:
+                    from src.context_foundry.extraction.ontology_centric_pipeline import OntologyCentricPipeline
+                    
+                    logger.info(f"[ExtractionWorker] Using OntologyCentricPipeline for {file_name}")
+                    
+                    if tracker:
+                        tracker.update(document_id, IngestionStep.EXTRACTING)
+                    
+                    with tenant_session(tenant_id) as session:
+                        ontology_pipeline = OntologyCentricPipeline(
+                            session=session,
+                            tenant_id=tenant_id,
+                            model="gpt-4o-mini",
+                            enable_canonicalization=True,
+                            auto_stage=True,
+                        )
+                        
+                        ontology_result = ontology_pipeline.extract(
+                            text=text_content,
+                            document_id=document_id,
+                            filename=file_name,
+                        )
+                        
+                        extracted_entities = ontology_result.entities
+                        extraction_success = ontology_result.success
+                        extraction_method = f"ontology_centric_{ontology_result.document_type}"
+                        
+                        if ontology_result.staging_result:
+                            entities_count = ontology_result.staging_result.entities_created + ontology_result.staging_result.entities_updated
+                            relations_count = ontology_result.staging_result.relations_created + ontology_result.staging_result.relations_updated
+                        else:
+                            entities_count = len(ontology_result.entities)
+                            relations_count = len(ontology_result.relations)
+                        
+                        logger.info(f"[ExtractionWorker] OntologyCentric: {entities_count} entities, "
+                                   f"{relations_count} relations, type={ontology_result.document_type}")
+                    
+                    if tracker:
+                        tracker.update(document_id, IngestionStep.RELATING, {"entities": len(extracted_entities)})
+                    
+                    extraction_result = type('ExtractionResult', (), {
+                        'entities': extracted_entities,
+                        'relations': ontology_result.relations,
+                        'success': extraction_success
+                    })()
+                else:
+                    pipeline = ExtractionPipeline(model="gpt-4o-mini", temperature=0.0)
+                    
+                    if tracker:
+                        tracker.update(document_id, IngestionStep.EXTRACTING)
+                    
+                    extraction_result = pipeline.extract_with_fallback(
+                        text=text_content,
+                        document_id=document_id,
+                        document_title=file_name or "Uploaded Document"
+                    )
+                    
+                    extracted_entities = extraction_result.entities
+                    extraction_success = extraction_result.success
+                    
+                    if tracker:
+                        tracker.update(document_id, IngestionStep.RELATING, {"entities": len(extracted_entities)})
             
             if tracker:
                 tracker.update(document_id, IngestionStep.STAGING)
             
-            with tenant_session(tenant_id) as session:
-                try:
-                    loader = StagingLoader(
-                        session=session,
-                        enable_deduplication=True,
-                        similarity_threshold=0.8,
-                        tenant_id=tenant_id
-                    )
-                    
-                    logger.info(f"[ExtractionWorker] Loading {len(extracted_entities)} entities to staging...")
-                    
-                    extracted_relations = extraction_result.relations if hasattr(extraction_result, 'relations') else []
-                    
-                    staging_result = loader.load_all(
-                        entities=extracted_entities,
-                        relations=extracted_relations,
-                        commit=True
-                    )
-                    
-                    entities_count = staging_result.entities_created + staging_result.entities_updated
-                    relations_count = staging_result.relations_created + staging_result.relations_updated
-                    
-                    if staging_result.errors:
-                        logger.warning(f"[ExtractionWorker] Staging errors: {staging_result.errors}")
-                    
-                    logger.info(
-                        f"[ExtractionWorker] Extraction complete ({extraction_method}): "
-                        f"{entities_count} entities ({staging_result.entities_created} created, {staging_result.entities_updated} updated, {staging_result.entities_skipped} skipped), "
-                        f"{relations_count} relationships for tenant {tenant_id}"
-                    )
-                    
-                except Exception as e:
-                    logger.error(f"[ExtractionWorker] Staging error: {e}")
-                    import traceback
-                    logger.error(traceback.format_exc())
-                    session.rollback()
+            if not use_ontology_centric:
+                with tenant_session(tenant_id) as session:
+                    try:
+                        loader = StagingLoader(
+                            session=session,
+                            enable_deduplication=True,
+                            similarity_threshold=0.8,
+                            tenant_id=tenant_id
+                        )
+                        
+                        logger.info(f"[ExtractionWorker] Loading {len(extracted_entities)} entities to staging...")
+                        
+                        extracted_relations = extraction_result.relations if hasattr(extraction_result, 'relations') else []
+                        
+                        staging_result = loader.load_all(
+                            entities=extracted_entities,
+                            relations=extracted_relations,
+                            commit=True
+                        )
+                        
+                        entities_count = staging_result.entities_created + staging_result.entities_updated
+                        relations_count = staging_result.relations_created + staging_result.relations_updated
+                        
+                        if staging_result.errors:
+                            logger.warning(f"[ExtractionWorker] Staging errors: {staging_result.errors}")
+                        
+                        logger.info(
+                            f"[ExtractionWorker] Extraction complete ({extraction_method}): "
+                            f"{entities_count} entities ({staging_result.entities_created} created, {staging_result.entities_updated} updated, {staging_result.entities_skipped} skipped), "
+                            f"{relations_count} relationships for tenant {tenant_id}"
+                        )
+                        
+                    except Exception as e:
+                        logger.error(f"[ExtractionWorker] Staging error: {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
+                        session.rollback()
             
             end_time = datetime.utcnow()
             duration_ms = int((end_time - start_time).total_seconds() * 1000)
