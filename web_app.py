@@ -914,6 +914,143 @@ def api_get_vault(vault_id):
         logger.error(f"Failed to get vault: {e}")
         return jsonify({'error': 'Failed to get vault'}), 500
 
+@app.route('/api/vaults/<vault_id>', methods=['DELETE'])
+def api_delete_vault(vault_id):
+    """Delete a vault and all associated data. Requires owner role and confirmation."""
+    if not session.get('user_id'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    try:
+        try:
+            vault_uuid = UUID(vault_id)
+            user_uuid = UUID(session['user_id'])
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid vault ID'}), 400
+        
+        data = request.get_json() or {}
+        confirmation_name = data.get('confirmation_name', '').strip()
+        confirm_delete = data.get('confirm_delete', False)
+        
+        from platform_foundation.src.tenant_service import TenantService
+        tenant_svc = TenantService()
+        
+        if not tenant_svc.user_is_vault_owner(user_uuid, vault_uuid):
+            return jsonify({'error': 'Only the vault owner can delete this vault'}), 403
+        
+        vault = tenant_svc.get_tenant(vault_uuid)
+        if not vault:
+            return jsonify({'error': 'Vault not found'}), 404
+        
+        if not confirm_delete:
+            return jsonify({'error': 'Deletion not confirmed'}), 400
+        
+        if confirmation_name != vault['name']:
+            return jsonify({'error': 'Vault name does not match'}), 400
+        
+        deleted = delete_vault_and_artifacts(vault_uuid)
+        
+        if session.get('tenant_id') == vault_id:
+            session.pop('tenant_id', None)
+        
+        logger.info(f"Vault {vault_id} deleted by owner {user_uuid}. Artifacts deleted: {deleted}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'Vault deleted successfully',
+            'deleted': deleted
+        })
+    except Exception as e:
+        logger.error(f"Failed to delete vault {vault_id}: {e}", exc_info=True)
+        return jsonify({'error': 'Failed to delete vault'}), 500
+
+def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
+    """Delete all artifacts associated with a vault/tenant.
+    
+    Returns dict with counts of deleted items per table.
+    """
+    import shutil
+    from src.context_foundry.models.schema import get_session
+    from sqlalchemy import text
+    
+    db_session = get_session(use_rls_role=False)
+    deleted = {}
+    
+    try:
+        tenant_id_str = str(vault_uuid)
+        
+        public_tables = [
+            'relationships', 'relationship_contexts', 'proposed_relationships',
+            'entity_mentions', 'entity_aliases', 'cf_entity_aliases',
+            'entities', 'entities_v2', 'document_chunks', 'documents',
+            'extraction_events', 'inference_runs', 'gardener_runs',
+            'query_logs', 'pipeline_progress', 'cf_interaction_events',
+            'cf_memory_versions', 'ontology_relations', 'ontology_relationship_types',
+            'ontology_types', 'api_keys'
+        ]
+        
+        platform_tables = [
+            'extraction_results', 'extraction_requests', 'sync_jobs',
+            'source_connectors', 'documents', 'folders',
+            'usage_events', 'usage_snapshots', 'tenant_quotas', 'api_keys'
+        ]
+        
+        for table in public_tables:
+            try:
+                result = db_session.execute(
+                    text(f"DELETE FROM public.{table} WHERE tenant_id = :tid"),
+                    {'tid': tenant_id_str}
+                )
+                deleted[f'public.{table}'] = result.rowcount
+            except Exception as e:
+                logger.warning(f"Could not delete from public.{table}: {e}")
+                deleted[f'public.{table}'] = f'error: {e}'
+        
+        for table in platform_tables:
+            try:
+                result = db_session.execute(
+                    text(f"DELETE FROM platform.{table} WHERE tenant_id = :tid"),
+                    {'tid': tenant_id_str}
+                )
+                deleted[f'platform.{table}'] = result.rowcount
+            except Exception as e:
+                logger.warning(f"Could not delete from platform.{table}: {e}")
+                deleted[f'platform.{table}'] = f'error: {e}'
+        
+        result = db_session.execute(
+            text("DELETE FROM platform.user_tenants WHERE tenant_id = :tid"),
+            {'tid': tenant_id_str}
+        )
+        deleted['platform.user_tenants'] = result.rowcount
+        
+        result = db_session.execute(
+            text("DELETE FROM platform.tenants WHERE id = :tid"),
+            {'tid': tenant_id_str}
+        )
+        deleted['platform.tenants'] = result.rowcount
+        
+        db_session.commit()
+        
+        storage_path = os.path.join('storage', 'tenants', tenant_id_str)
+        if os.path.exists(storage_path):
+            try:
+                shutil.rmtree(storage_path)
+                deleted['filesystem'] = f'deleted: {storage_path}'
+                logger.info(f"Deleted storage directory: {storage_path}")
+            except Exception as e:
+                logger.warning(f"Could not delete storage directory {storage_path}: {e}")
+                deleted['filesystem'] = f'error: {e}'
+        else:
+            deleted['filesystem'] = 'no directory'
+        
+        return deleted
+        
+    except Exception as e:
+        db_session.rollback()
+        logger.error(f"Failed to delete vault artifacts: {e}", exc_info=True)
+        raise
+    finally:
+        db_session.close()
+
 # ============ Legacy App Routes (within vault context) ============
 
 def require_vault_access(vault_id):
