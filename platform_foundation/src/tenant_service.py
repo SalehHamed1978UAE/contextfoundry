@@ -152,6 +152,22 @@ class TenantService:
                 """, (str(user_id), str(tenant_id)))
                 return cur.fetchone() is not None
     
+    def get_user_vault_role(self, user_id: UUID, tenant_id: UUID) -> Optional[str]:
+        """Get user's role for a specific vault (e.g., 'owner', 'admin', 'member')."""
+        with self._get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT role FROM platform.user_tenants
+                    WHERE user_id = %s AND tenant_id = %s
+                """, (str(user_id), str(tenant_id)))
+                result = cur.fetchone()
+                return result[0] if result else None
+    
+    def user_is_vault_owner(self, user_id: UUID, tenant_id: UUID) -> bool:
+        """Check if user is the owner of a specific vault."""
+        role = self.get_user_vault_role(user_id, tenant_id)
+        return role == 'owner'
+    
     def create_vault_for_user(
         self,
         user_id: UUID,
