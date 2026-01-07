@@ -3126,10 +3126,10 @@ def vault_chat():
         return jsonify({'error': 'No query provided'}), 400
     
     try:
-        from src.context_foundry.models.schema import set_tenant_on_session, get_session as get_db_session
+        from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
         
         db_session = get_db_session()
-        set_tenant_on_session(db_session, tenant_id)
+        set_tenant_context(db_session, tenant_id)
         db_session.close()
         
         foundry = get_context_foundry()
