@@ -61,6 +61,16 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - 285 relationships with chunk provenance
 - 10 documents fully extracted with graph data
 - Embedding endpoint fixed: Uses direct OpenAI API for embeddings (Replit proxy only supports chat completions)
+- All document_chunks now have embeddings for pgvector semantic search
+- Similarity threshold: 0.35 (optimized for text-embedding-3-small cosine similarity)
+
+### Confidence Calibration System
+- **Q1 (entity + docs)**: Base 0.90 when entity found AND top chunk similarity > 0.35
+- **Q2 (entity only)**: Base 0.70 when entity found but no strong doc matches
+- **Q3 (docs only)**: Base 0.65 when docs found but no entity match
+- **Q4 (neither)**: Base 0.10 for unknown queries
+- Sufficiency modifiers: SUFFICIENT +0.10, PARTIAL ×0.85, INSUFFICIENT ×0.55
+- Target confidence for grounded answers: 77-95%
 
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
