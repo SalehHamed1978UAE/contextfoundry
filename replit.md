@@ -173,8 +173,10 @@ Combines multiple signals with Reciprocal Rank Fusion (RRF):
 - `src/decision_trace_layer/api.py` - Flask Blueprint (registered in brain/app.py)
 
 ### DTL Security Notes
+- All DTL endpoints (except /health) require X-CF-API-Key authentication
+- tenant_id is derived from authenticated API key via g.tenant_id (not from request body)
 - SQL functions use SECURITY DEFINER to bypass RLS recursion (tenant_id filtering in function logic)
 - API endpoints use application-level tenant isolation (explicit WHERE tenant_id = :tenant_id clauses)
 - All UUID inputs validated before use
 - JSON payloads serialized with json.dumps() for safety
-- Cross-tenant access blocked: requests with wrong tenant_id return 404
+- Cross-tenant access blocked: callers cannot access decisions from other tenants (returns 404)
