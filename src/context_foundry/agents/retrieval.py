@@ -1006,21 +1006,30 @@ class RetrievalAgent:
             return quoted[0]
         
         if_fails = re.search(
-            r'\bif\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)\s+(?:goes?\s+down|fails?|is\s+down)',
+            r'\bif\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s-]*?)\s+(?:goes?\s+down|fails?|is\s+down)',
             query_text, re.IGNORECASE
         )
         if if_fails:
             return if_fails.group(1).strip()
         
         depends_on = re.search(
-            r'(?:depends?\s+on|uses?|calls?|connects?\s+to)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)(?:\?|$|\s+(?:and|or|for|to|from))',
+            r'(?:depends?\s+on|uses?|calls?|connects?\s+to)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s-]*?)(?:\?|$|\s+(?:and|or|for|to|from))',
             query_text, re.IGNORECASE
         )
         if depends_on:
             return depends_on.group(1).strip()
         
+        what_is = re.search(
+            r'(?:what\s+is|what\'s|explain|describe|tell\s+me\s+about)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s-]*?)(?:\?|$|\.)',
+            query_text, re.IGNORECASE
+        )
+        if what_is:
+            phrase = what_is.group(1).strip()
+            if len(phrase) > 2 and phrase.lower() not in {'a', 'an', 'the', 'this', 'that', 'it'}:
+                return phrase
+        
         about_pattern = re.search(
-            r'(?:about|on|for)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)(?:\?|$|\s+(?:and|or|to|from))',
+            r'(?:about|on|for)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s-]*?)(?:\?|$|\s+(?:and|or|to|from))',
             query_text, re.IGNORECASE
         )
         if about_pattern:
@@ -1029,7 +1038,7 @@ class RetrievalAgent:
                 return phrase
         
         with_the = re.search(
-            r'(?:issues?|problems?|status|info|information|details?)\s+(?:with|of|for)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s]*?)(?:\?|$|\.)',
+            r'(?:issues?|problems?|status|info|information|details?)\s+(?:with|of|for)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s-]*?)(?:\?|$|\.)',
             query_text, re.IGNORECASE
         )
         if with_the:
@@ -1081,8 +1090,9 @@ class RetrievalAgent:
         # Pattern 3: "the <Entity Name>" - only match if properly capitalized like a proper entity
         # e.g., "the Payment Service" but NOT "the education system in France"
         # Must have Capital First Letter to distinguish entities from common nouns
+        # Supports hyphenated names like "Tri-Memory System"
         the_pattern = re.search(
-            rf'\bthe\s+([A-Z][a-zA-Z0-9]*(?:\s+[A-Z][a-zA-Z0-9]*)*)\b',
+            rf'\bthe\s+([A-Z][a-zA-Z0-9-]*(?:\s+[A-Z][a-zA-Z0-9-]*)*)\b',
             query_text
         )
         if the_pattern:
