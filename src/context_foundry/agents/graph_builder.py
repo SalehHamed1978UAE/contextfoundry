@@ -459,7 +459,8 @@ class GraphBuilderAgent:
             document_title=title,
             document_type=doc_type,
             document_text=text,
-            tenant_id=tenant_id
+            tenant_id=tenant_id,
+            chunks=chunks
         )
         
         result = ExtractionResult(
@@ -710,9 +711,11 @@ class GraphBuilderAgent:
                          document_title: str,
                          document_type: str,
                          document_text: str,
-                         tenant_id: str = None) -> Tuple[int, int]:
+                         tenant_id: str = None,
+                         chunks: List[Chunk] = None) -> Tuple[int, int]:
         """
         Write extracted entities and relationships to STAGING (not TRUSTED).
+        Also stores document chunks for RAG retrieval.
         
         Maps schema-defined types to database enums for backward compatibility.
         Stores original schema type in properties for future migration.
@@ -720,8 +723,11 @@ class GraphBuilderAgent:
         Returns:
             Tuple of (entities_staged, relationships_staged)
         """
+        from ..models.schema import DocumentChunk
+        
         entities_staged = 0
         relationships_staged = 0
+        doc = None
         
         try:
             doc = Document(
@@ -739,6 +745,31 @@ class GraphBuilderAgent:
             )
             self.session.add(doc)
             self.session.flush()
+            
+            if chunks and doc:
+                chunks_stored = 0
+                for chunk in chunks:
+                    try:
+                        db_chunk = DocumentChunk(
+                            id=uuid.uuid4(),
+                            document_id=doc.id,
+                            tenant_id=uuid.UUID(tenant_id) if tenant_id else uuid.UUID("00000000-0000-0000-0000-000000000000"),
+                            chunk_index=chunk.chunk_index,
+                            text=chunk.text,
+                            char_start=chunk.start_offset,
+                            char_end=chunk.end_offset,
+                            chunk_metadata={
+                                "source_document_id": source_document_id,
+                                "document_title": document_title
+                            }
+                        )
+                        self.session.add(db_chunk)
+                        chunks_stored += 1
+                    except Exception as chunk_e:
+                        logger.warning(f"Failed to store chunk {chunk.chunk_index}: {chunk_e}")
+                
+                self.session.flush()
+                logger.info(f"Stored {chunks_stored} document chunks for RAG retrieval")
             
         except Exception as e:
             logger.error(f"Failed to create document record: {e}")
