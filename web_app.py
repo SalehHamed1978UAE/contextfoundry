@@ -994,6 +994,22 @@ def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
             'usage_events', 'usage_snapshots', 'tenant_quotas', 'api_keys'
         ]
         
+        ontology_tables = [
+            'canonical_relations', 'canonical_entity_types', 'reference_ontologies'
+        ]
+        
+        for table in ontology_tables:
+            try:
+                result = db_session.execute(
+                    text(f"DELETE FROM ontology.{table} WHERE tenant_id = :tid"),
+                    {'tid': tenant_id_str}
+                )
+                deleted[f'ontology.{table}'] = result.rowcount
+            except Exception as e:
+                db_session.rollback()
+                logger.warning(f"Could not delete from ontology.{table}: {e}")
+                deleted[f'ontology.{table}'] = f'skipped'
+        
         for table in public_tables:
             try:
                 result = db_session.execute(
@@ -1002,8 +1018,9 @@ def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
                 )
                 deleted[f'public.{table}'] = result.rowcount
             except Exception as e:
+                db_session.rollback()
                 logger.warning(f"Could not delete from public.{table}: {e}")
-                deleted[f'public.{table}'] = f'error: {e}'
+                deleted[f'public.{table}'] = f'skipped'
         
         for table in platform_tables:
             try:
@@ -1013,8 +1030,9 @@ def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
                 )
                 deleted[f'platform.{table}'] = result.rowcount
             except Exception as e:
+                db_session.rollback()
                 logger.warning(f"Could not delete from platform.{table}: {e}")
-                deleted[f'platform.{table}'] = f'error: {e}'
+                deleted[f'platform.{table}'] = f'skipped'
         
         result = db_session.execute(
             text("DELETE FROM platform.user_tenants WHERE tenant_id = :tid"),
