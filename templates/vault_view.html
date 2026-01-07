@@ -1054,15 +1054,24 @@
             try {
                 const response = await fetch('/api/documents/upload/multi', {
                     method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
                     body: formData
                 });
                 
                 const data = await response.json();
-                if (data.success || data.queued) {
+                if (data.success) {
+                    const summary = data.summary || {};
+                    console.log(`Uploaded: ${summary.queued || 0} files, ${summary.duplicates || 0} duplicates, ${summary.skipped || 0} skipped`);
                     loadDocuments();
+                } else if (data.error) {
+                    console.error('Upload error:', data.error);
                 }
             } catch (error) {
                 console.error('Upload failed:', error);
+                loadDocuments();
             }
         }
         
