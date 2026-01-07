@@ -3272,12 +3272,12 @@ def vault_chat():
         if graph_confidence < RAG_CONFIDENCE_THRESHOLD:
             rag_result = _try_rag_fallback(query_text, tenant_id, db_session)
             if rag_result and rag_result.get('confidence', 0) > graph_confidence:
-                foundry.close()
+                db_session.close()
                 rag_result['fallback_used'] = 'rag'
                 rag_result['graph_confidence'] = graph_confidence
                 return jsonify(rag_result)
         
-        foundry.close()
+        db_session.close()
         
         return jsonify({
             'success': True,
