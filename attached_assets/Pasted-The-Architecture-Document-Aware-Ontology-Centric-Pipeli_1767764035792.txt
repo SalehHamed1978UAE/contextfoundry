@@ -1,0 +1,352 @@
+The Architecture: Document-Aware, Ontology-Centric Pipeline
+Based on research from multiple sources, implement this pipeline:
+┌─────────────────────────────────────────────────────────────────┐
+│                    DOCUMENT INGESTION PIPELINE                  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
+│  │   CLASSIFY   │───▶│   ONTOLOGY   │───▶│   EXTRACT    │      │
+│  │   DOCUMENT   │    │   SELECT/    │    │   (OPEN)     │      │
+│  │              │    │   GENERATE   │    │              │      │
+│  └──────────────┘    └──────────────┘    └──────────────┘      │
+│         │                   │                   │               │
+│         ▼                   ▼                   ▼               │
+│  "resume"            Load or create      Raw triplets with     │
+│                      ontology            exact predicates       │
+│                                                                 │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐      │
+│  │    DEFINE    │───▶│ CANONICALIZE │───▶│    STORE     │      │
+│  │  (SEMANTIC   │    │  (CLUSTER +  │    │  (STAGING)   │      │
+│  │   GROUND)    │    │    MERGE)    │    │              │      │
+│  └──────────────┘    └──────────────┘    └──────────────┘      │
+│         │                   │                   │               │
+│         ▼                   ▼                   ▼               │
+│  Definition for        Map to canonical    Write entities &    │
+│  each predicate        types or create     relationships       │
+│                        new ones                                 │
+│                              │                                  │
+│                              ▼                                  │
+│                     ┌──────────────┐                           │
+│                     │   UPDATE     │                           │
+│                     │  REFERENCE   │                           │
+│                     │  ONTOLOGY    │                           │
+│                     └──────────────┘                           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+Step 1: Document Classification
+pythondef classify_document(text: str) -> str:
+    """Classify document type for ontology selection."""
+    prompt = """
+    Analyze this document and classify its type.
+    
+    Return a single lowercase label like:
+    resume, legal_contract, architecture_doc, financial_report,
+    research_paper, meeting_notes, org_chart, policy_document,
+    technical_spec, incident_report, runbook, invoice, email, etc.
+    
+    If it doesn't match a common type, create a descriptive label.
+    
+    Return ONLY the label, nothing else.
+    
+    DOCUMENT:
+    {text}
+    """
+
+Step 2: Ontology Selection or Generation
+pythondef get_or_create_ontology(document_type: str, tenant_id: str, sample_text: str) -> Ontology:
+    """Load reference ontology or generate new one."""
+    
+    # Check for existing reference ontology
+    ontology = db.query("""
+        SELECT * FROM reference_ontologies 
+        WHERE tenant_id = :tid AND document_type = :dtype
+    """, tid=tenant_id, dtype=document_type)
+    
+    if ontology:
+        return ontology
+    
+    # Generate new ontology from document
+    ontology = generate_ontology(document_type, sample_text)
+    
+    # Save as reference for future documents of this type
+    save_reference_ontology(tenant_id, document_type, ontology)
+    
+    return ontology
+
+
+def generate_ontology(document_type: str, sample_text: str) -> Ontology:
+    """Ask LLM to generate ontology for this document type."""
+    prompt = f"""
+    This is a {document_type}.
+    
+    Based on this document, what entity types and relationship types 
+    would you expect to find?
+    
+    Return JSON:
+    {{
+      "entity_types": [
+        {{"name": "PERSON", "definition": "A human individual mentioned in the document"}},
+        ...
+      ],
+      "relationship_types": [
+        {{"name": "WORKED_AT", "definition": "Employment relationship between person and organization", 
+          "source_types": ["PERSON"], "target_types": ["ORGANIZATION"]}},
+        ...
+      ]
+    }}
+    
+    DOCUMENT SAMPLE:
+    {sample_text[:3000]}
+    """
+
+Step 3: Open Extraction (No Schema Constraints)
+pythondef extract_open(text: str, ontology: Ontology) -> List[RawTriplet]:
+    """
+    Extract triplets. Ontology guides but doesn't constrain.
+    """
+    prompt = f"""
+    Extract all entities and relationships from this text.
+    
+    SUGGESTED ENTITY TYPES (use these when they fit, create new ones if needed):
+    {format_entity_types(ontology.entity_types)}
+    
+    SUGGESTED RELATIONSHIP TYPES (use these when they fit, create new ones if needed):
+    {format_relationship_types(ontology.relationship_types)}
+    
+    IMPORTANT:
+    - Extract ALL relationships, even if they don't match suggested types
+    - Use the exact relationship phrasing from the text when no suggested type fits
+    - Mark any new types you create with "is_new": true
+    
+    Return JSON array of triplets:
+    [
+      {{
+        "subject": "entity name",
+        "subject_type": "PERSON",
+        "predicate": "worked at",
+        "object": "entity name", 
+        "object_type": "ORGANIZATION",
+        "is_new_predicate": false,
+        "context": "the sentence or phrase this came from"
+      }}
+    ]
+    
+    TEXT:
+    {text}
+    """
+
+Step 4: Define (Semantic Grounding)
+This is the key insight from the EDC research. Don't embed the predicate label — embed a semantic definition.
+pythondef define_predicates(triplets: List[RawTriplet]) -> List[DefinedTriplet]:
+    """Generate semantic definitions for each unique predicate."""
+    
+    unique_predicates = set(t.predicate for t in triplets)
+    definitions = {}
+    
+    for predicate in unique_predicates:
+        # Find example context for this predicate
+        example = next(t for t in triplets if t.predicate == predicate)
+        
+        prompt = f"""
+        Define the relationship '{predicate}' as used in this context:
+        "{example.context}"
+        
+        Provide a clear one-sentence definition of what this relationship means.
+        Focus on the semantic meaning, not the exact words.
+        """
+        
+        definition = llm_call(prompt)
+        definitions[predicate] = definition
+    
+    # Attach definitions to triplets
+    return [
+        DefinedTriplet(
+            **t.dict(),
+            predicate_definition=definitions[t.predicate],
+            predicate_embedding=embed(definitions[t.predicate])
+        )
+        for t in triplets
+    ]
+Why this matters:
+
+Embedding "worked at" captures syntax
+Embedding "The subject was employed by the organization" captures semantics
+Enables better clustering of synonymous predicates
+
+
+Step 5: Canonicalize (Cluster + Merge)
+pythondef canonicalize(
+    triplets: List[DefinedTriplet], 
+    canonical_schema: CanonicalSchema,
+    tenant_id: str
+) -> List[CanonicalTriplet]:
+    """Map predicates to canonical types or create new ones."""
+    
+    results = []
+    
+    for triplet in triplets:
+        # Find best matching canonical relation
+        best_match = None
+        best_similarity = 0
+        
+        for canonical in canonical_schema.relations:
+            similarity = cosine_similarity(
+                triplet.predicate_embedding,
+                canonical.embedding
+            )
+            if similarity > best_similarity:
+                best_similarity = similarity
+                best_match = canonical
+        
+        if best_similarity > 0.85:
+            # High confidence match - auto-merge
+            canonical_type = best_match.name
+            # Update canonical with new source predicate
+            best_match.source_predicates.append(triplet.predicate)
+            best_match.usage_count += 1
+            
+        elif best_similarity > 0.70:
+            # Borderline - LLM verification
+            if llm_verify_merge(triplet, best_match):
+                canonical_type = best_match.name
+                best_match.source_predicates.append(triplet.predicate)
+            else:
+                # Create new canonical type
+                canonical_type = create_canonical_type(triplet, canonical_schema, tenant_id)
+        else:
+            # No match - create new canonical type
+            canonical_type = create_canonical_type(triplet, canonical_schema, tenant_id)
+        
+        results.append(CanonicalTriplet(
+            subject=triplet.subject,
+            subject_type=canonicalize_entity_type(triplet.subject_type, canonical_schema),
+            relationship_type=canonical_type,
+            object=triplet.object,
+            object_type=canonicalize_entity_type(triplet.object_type, canonical_schema),
+            confidence=triplet.confidence,
+            source_predicate=triplet.predicate,
+            source_context=triplet.context
+        ))
+    
+    return results
+
+
+def llm_verify_merge(triplet: DefinedTriplet, canonical: CanonicalRelation) -> bool:
+    """LLM verification for borderline matches."""
+    prompt = f"""
+    Can these two relationship types be considered equivalent?
+    
+    Relationship A: "{triplet.predicate}"
+    Definition A: "{triplet.predicate_definition}"
+    
+    Relationship B: "{canonical.name}"
+    Definition B: "{canonical.definition}"
+    
+    Answer YES if they represent the same semantic relationship.
+    Answer NO if they are meaningfully different.
+    
+    Return only YES or NO.
+    """
+    return llm_call(prompt).strip().upper() == "YES"
+
+
+def create_canonical_type(triplet: DefinedTriplet, schema: CanonicalSchema, tenant_id: str) -> str:
+    """Create new canonical type from predicate."""
+    
+    # Generate canonical name (uppercase, underscored)
+    canonical_name = triplet.predicate.upper().replace(" ", "_")
+    
+    # Create canonical relation
+    new_canonical = CanonicalRelation(
+        tenant_id=tenant_id,
+        name=canonical_name,
+        definition=triplet.predicate_definition,
+        embedding=triplet.predicate_embedding,
+        source_predicates=[triplet.predicate],
+        usage_count=1
+    )
+    
+    # Save to database
+    db.insert(new_canonical)
+    
+    # Add to in-memory schema
+    schema.relations.append(new_canonical)
+    
+    return canonical_name
+
+Step 6: Update Reference Ontology
+After processing documents, update the reference ontology for this document type:
+pythondef update_reference_ontology(
+    tenant_id: str, 
+    document_type: str,
+    new_entity_types: List[str],
+    new_relationship_types: List[str]
+):
+    """Update reference ontology with discovered types."""
+    
+    ontology = get_reference_ontology(tenant_id, document_type)
+    
+    for entity_type in new_entity_types:
+        if entity_type not in ontology.entity_types:
+            ontology.entity_types.append(entity_type)
+    
+    for rel_type in new_relationship_types:
+        if rel_type not in ontology.relationship_types:
+            ontology.relationship_types.append(rel_type)
+    
+    ontology.updated_at = now()
+    db.update(ontology)
+
+Database Schema
+sql-- Reference ontologies per document type per tenant
+CREATE TABLE reference_ontologies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    document_type VARCHAR(100) NOT NULL,
+    entity_types JSONB NOT NULL DEFAULT '[]',
+    relationship_types JSONB NOT NULL DEFAULT '[]',
+    usage_count INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(tenant_id, document_type)
+);
+
+-- Canonical relations (grows via canonicalization)
+CREATE TABLE canonical_relations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    definition TEXT NOT NULL,
+    embedding VECTOR(1536),
+    source_predicates JSONB DEFAULT '[]',
+    usage_count INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(tenant_id, name)
+);
+
+-- Canonical entity types (grows via canonicalization)
+CREATE TABLE canonical_entity_types (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    definition TEXT NOT NULL,
+    embedding VECTOR(1536),
+    source_types JSONB DEFAULT '[]',
+    parent_type VARCHAR(100),  -- For hierarchy
+    usage_count INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(tenant_id, name)
+);
+
+-- Indexes for similarity search
+CREATE INDEX idx_canonical_relations_embedding 
+    ON canonical_relations USING ivfflat (embedding vector_cosine_ops);
+CREATE INDEX idx_canonical_entity_types_embedding 
+    ON canonical_entity_types USING ivfflat (embedding vector_cosine_ops);
+
+Summary
+StepWhat HappensKey Insight1. ClassifyDetect document typeRoutes to appropriate ontology2. OntologyLoad or generateReference ontologies grow over time3. ExtractOpen extraction, guided but not constrainedPreserves exact predicates from text4. DefineGenerate semantic definition for each predicateEmbed meaning, not labels5. CanonicalizeCluster similar predicates, merge or create newPrevents schema explosion6. UpdateAdd new types to reference ontologySystem learns from each document
+This is the proper fix. No hardcoding. Schema emerges from documents and improves over time.
