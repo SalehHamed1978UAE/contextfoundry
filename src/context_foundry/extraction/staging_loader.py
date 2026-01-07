@@ -293,6 +293,10 @@ class StagingLoader:
         from ..utils.logger import logger
         logger.debug(f"[StagingLoader] Creating entity: {extracted.canonical_name} ({entity_type})")
         
+        chunk_uuid = None
+        if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
+            chunk_uuid = _safe_uuid(extracted.source_chunk_id)
+        
         entity = Entity(
             id=uuid.uuid4(),
             tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
@@ -303,6 +307,7 @@ class StagingLoader:
             properties=extracted.properties,
             confidence=extracted.confidence,
             source_document_id=extracted.source_document_id,
+            source_chunk_id=chunk_uuid,
             source_sentence=extracted.source_span,
             extraction_method="llm_extraction",
             extracted_at=datetime.utcnow(),
@@ -378,6 +383,10 @@ class StagingLoader:
             
             return existing, "skipped"
         
+        chunk_uuid = None
+        if hasattr(extracted, 'source_chunk_id') and extracted.source_chunk_id:
+            chunk_uuid = _safe_uuid(extracted.source_chunk_id)
+        
         relationship = Relationship(
             id=uuid.uuid4(),
             tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
@@ -388,6 +397,7 @@ class StagingLoader:
             validation_status=ValidationStatus.VALID,
             confidence=extracted.confidence,
             source_document_id=extracted.source_document_id,
+            source_chunk_id=chunk_uuid,
             source_sentence=extracted.source_span,
             extracted_at=datetime.utcnow(),
         )

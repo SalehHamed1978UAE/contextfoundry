@@ -42,6 +42,19 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Query/Reasoning System**: Provides GROUNDED, GAP, and INFERRED responses with hallucination guards, using a 4-AI consensus design, including a 3-step query pipeline for interpretation, retrieval, and synthesis.
 - **EntityResolver**: Multi-stage pipeline (exact, alias, normalized, semantic, fuzzy match) with disambiguation for robust entity matching, intelligent plural/singular normalization, and abbreviation expansion.
 - **RLM Integration (Recursive Language Model)**: For complex multi-hop queries, including a `QueryComplexityRouter`, specialized `Memory APIs` for tri-memory, a `REPLSandbox` for secure Python execution, an `RLMExecutor`, and a `SubQueryAPI`.
+- **Hybrid Retrieval System**: Combines knowledge graph (structured relationships) with RAG (document chunks) to ensure CF is at least as good as basic RAG while providing superior answers for graph-traversable queries.
+- **Entity-Chunk Provenance**: Each entity and relationship has a `source_chunk_id` column linking back to the specific document chunk it was extracted from. This enables full citation tracing from answer → entity → source chunk → document.
+
+### Hybrid Retrieval Architecture
+1. **Graph Query**: Searches knowledge graph for entities and relationships matching query
+2. **Chunk Search**: Keyword-ranked document chunk retrieval with phrase/title matching
+3. **Entity-Chunk Citations**: Retrieves entities matching query with their source chunk provenance
+4. **LLM Synthesis**: Combines graph data, entity citations, and chunk text in unified prompt
+
+### Provenance Schema
+- `entities.source_chunk_id` (UUID): Links to document_chunks.id for extraction provenance
+- `relationships.source_chunk_id` (UUID): Links to document_chunks.id for extraction provenance
+- Pipeline: OntologyCentricPipeline processes each chunk individually, storing source_chunk_id for every extracted entity/relationship
 
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)

@@ -3305,6 +3305,8 @@ def vault_chat():
                 db_session
             )
             
+            entity_citations = _get_entity_chunk_citations(query_text, tenant_id, db_session)
+            
             combined_confidence = max(graph_confidence, chunk_result.get('relevance_score', 0.3))
             if graph_confidence > 0 and chunk_result['chunks']:
                 combined_confidence = min(1.0, graph_confidence + 0.1)
@@ -3320,7 +3322,8 @@ def vault_chat():
                 'retrieval_method': 'hybrid',
                 'graph_confidence': graph_confidence,
                 'chunks_used': len(chunk_result['chunks']),
-                'chunk_sources': chunk_result.get('sources', [])
+                'chunk_sources': chunk_result.get('sources', []),
+                'entity_citations': entity_citations
             })
         
         db_session.close()
@@ -3454,12 +3457,66 @@ def _get_relevant_chunks(query_text: str, tenant_id: str, db_session) -> dict:
         return {'chunks': [], 'sources': [], 'relevance_score': 0}
 
 
+def _get_entity_chunk_citations(query_text: str, tenant_id: str, db_session) -> list:
+    """Fetch entities matching query with their source chunk citations.
+    
+    Returns entities with provenance: which chunk/document they came from.
+    Normalizes query terms: lowercase, strips punctuation, filters stop words.
+    """
+    from sqlalchemy import text as sql_text
+    import re
+    
+    try:
+        query_lower = query_text.lower()
+        query_lower = re.sub(r'[^\w\s]', '', query_lower)
+        stop_words = {'the', 'is', 'at', 'which', 'on', 'a', 'an', 'and', 'or', 'but', 'in', 'with', 'to', 'for', 'of', 'what', 'where', 'when', 'who', 'how', 'why', 'was', 'were', 'are', 'has', 'have', 'does', 'do', 'did', 'from', 'that', 'this', 'can', 'will'}
+        query_words = [w for w in query_lower.split() if len(w) > 2 and w not in stop_words]
+        if not query_words:
+            return []
+        
+        like_conditions = " OR ".join(
+            f"LOWER(e.name) LIKE '%' || :word{i} || '%'" for i in range(len(query_words))
+        )
+        
+        sql = sql_text(f"""
+            SELECT e.name, e.entity_type, e.source_chunk_id::text, d.name as doc_name,
+                   dc.chunk_index, LEFT(dc.text, 200) as chunk_preview
+            FROM entities e
+            LEFT JOIN platform.documents d ON e.source_document_id = d.id::text
+            LEFT JOIN document_chunks dc ON e.source_chunk_id = dc.id
+            WHERE e.tenant_id = :tenant_id
+            AND e.source_chunk_id IS NOT NULL
+            AND ({like_conditions})
+            ORDER BY e.name
+            LIMIT 10
+        """)
+        
+        params = {'tenant_id': tenant_id}
+        for i, word in enumerate(query_words):
+            params[f'word{i}'] = word
+        
+        rows = db_session.execute(sql, params).fetchall()
+        
+        return [{
+            'entity': row[0],
+            'type': row[1],
+            'chunk_id': row[2][:8] if row[2] else None,
+            'document': row[3],
+            'chunk_index': row[4],
+            'chunk_preview': row[5]
+        } for row in rows]
+    except Exception as e:
+        logger.warning(f"Entity-chunk citation fetch failed: {e}")
+        return []
+
+
 def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: dict, tenant_id: str, db_session=None) -> str:
     """Generate answer using both graph data and document chunks.
     
     LLM sees structured graph data AND relevant document text.
     For job/position queries, fetches ALL relationships from database.
     Caps chunk context to prevent token overflow.
+    Includes entity-chunk citations for provenance.
     """
     import os
     import re
@@ -3521,6 +3578,18 @@ def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: d
                     evidence_lines.append(f"- {ev}")
             graph_context = "\n".join(evidence_lines)
         
+        entity_citations = []
+        if db_session:
+            entity_citations = _get_entity_chunk_citations(query_text, tenant_id, db_session)
+        
+        entity_context = ""
+        if entity_citations:
+            entity_lines = []
+            for ec in entity_citations[:6]:
+                line = f"- {ec['entity']} ({ec['type']}) from '{ec['document']}' chunk {ec['chunk_index']}"
+                entity_lines.append(line)
+            entity_context = "\n".join(entity_lines)
+        
         chunks = chunk_result.get('chunks', [])[:4]
         chunk_context = ""
         total_chars = 0
@@ -3551,6 +3620,14 @@ RULES:
 
         no_graph = "No relevant graph relationships found."
         no_chunks = "No relevant document excerpts found."
+        no_entities = ""
+        
+        entity_section = ""
+        if entity_context:
+            entity_section = f"""
+EXTRACTED ENTITIES (with source provenance):
+{entity_context}
+"""
         
         user_prompt = f"""Answer this question using the sources below.
 
@@ -3558,7 +3635,7 @@ QUESTION: {query_text}
 
 KNOWLEDGE GRAPH DATA (structured relationships, confidence: {graph_confidence:.2f}):
 {graph_context if graph_context else no_graph}
-
+{entity_section}
 DOCUMENT EXCERPTS (text search, relevance: {chunk_relevance:.2f}):
 {chunk_context.strip() if chunk_context.strip() else no_chunks}
 
