@@ -25,6 +25,7 @@ from .entity_extractor import EntityExtractor, ExtractedEntity
 from .relation_extractor import RelationExtractor, ExtractedRelation
 from .staging_loader import StagingLoader, StagingResult
 
+from ..agents.entity_resolver import EntityResolver
 from ..utils.logger import logger
 from ..models.schema import DocumentChunk
 
@@ -99,6 +100,7 @@ class OntologyCentricPipeline:
         
         self.ontology_manager = OntologyManager(session, tenant_id)
         self.canonicalizer = Canonicalizer(session, tenant_id) if enable_canonicalization else None
+        self.entity_resolver = EntityResolver(session, tenant_id)
         
         self.entity_extractor = EntityExtractor(model=model, temperature=0.0)
         self.relation_extractor = RelationExtractor(model=model, temperature=0.0)
@@ -409,23 +411,80 @@ class OntologyCentricPipeline:
         logger.info(f"[OntologyCentricPipeline] Updated ontology for '{document_type}': "
                    f"+{len(new_entity_types)} entity types, +{len(new_relationship_types)} relationship types")
     
+    def _resolve_entities_against_existing(
+        self,
+        entities: List[ExtractedEntity],
+    ) -> Tuple[List[ExtractedEntity], Dict[str, str]]:
+        """
+        Resolve extracted entities against existing entities in the database.
+        
+        For each extracted entity, checks if a matching entity already exists.
+        If found with high confidence, the extracted entity is updated to use
+        the existing entity's ID, preventing duplicates.
+        
+        Returns:
+            Tuple of (deduplicated_entities, name_to_existing_id_map)
+        """
+        deduplicated = []
+        seen_names = set()
+        name_to_existing_id = {}
+        resolved_count = 0
+        
+        for entity in entities:
+            normalized_name = entity.canonical_name.lower().strip()
+            
+            if normalized_name in seen_names:
+                continue
+            seen_names.add(normalized_name)
+            
+            try:
+                result = self.entity_resolver.resolve(
+                    query=entity.canonical_name,
+                    entity_type_hint=entity.entity_type,
+                    top_k=5
+                )
+                
+                if result.entity and result.confidence >= 0.7 and not result.needs_disambiguation:
+                    name_to_existing_id[entity.canonical_name] = result.entity.entity_id
+                    logger.debug(f"[EntityResolution] '{entity.canonical_name}' -> existing entity {result.entity.entity_id} "
+                               f"(confidence: {result.confidence:.2f}, stage: {result.match_stage})")
+                    resolved_count += 1
+                else:
+                    deduplicated.append(entity)
+            except Exception as e:
+                logger.warning(f"[EntityResolution] Failed to resolve '{entity.canonical_name}': {e}")
+                deduplicated.append(entity)
+        
+        logger.info(f"[OntologyCentricPipeline] Entity resolution: {resolved_count} matched existing, "
+                   f"{len(deduplicated)} new entities to stage")
+        
+        return deduplicated, name_to_existing_id
+    
     def _stage_results(
         self,
         document_id: str,
         entities: List[ExtractedEntity],
         relations: List[ExtractedRelation],
     ) -> StagingResult:
-        """Stage extracted entities and relations."""
+        """Stage extracted entities and relations after entity resolution."""
+        resolved_entities, name_to_existing_id = self._resolve_entities_against_existing(entities)
+        
+        for relation in relations:
+            if relation.source_name in name_to_existing_id:
+                relation.source_id = name_to_existing_id[relation.source_name]
+            if relation.target_name in name_to_existing_id:
+                relation.target_id = name_to_existing_id[relation.target_name]
+        
         loader = StagingLoader(
             session=self.session,
             tenant_id=self.tenant_id,
             enable_deduplication=True,
         )
         
-        result = loader.load_all(entities, relations, commit=True)
+        result = loader.load_all(resolved_entities, relations, commit=True)
         
         logger.info(f"[OntologyCentricPipeline] Staged: {result.entities_created} entities, "
-                   f"{result.relations_created} relations")
+                   f"{result.relations_created} relations (resolved {len(name_to_existing_id)} to existing)")
         
         return result
 
