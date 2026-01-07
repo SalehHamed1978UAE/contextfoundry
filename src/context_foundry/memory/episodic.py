@@ -129,37 +129,46 @@ class EpisodicMemory:
         min_similarity: float = 0.0
     ) -> List[Dict]:
         """
-        Search for similar documents using vector similarity.
-        Returns documents with their similarity scores.
+        Search for similar document chunks using pgvector cosine similarity.
+        Returns chunks with their similarity scores and source document info.
         """
         query_embedding = openai_embedding(query_text, self.embedding_dim)
+        embedding_str = '[' + ','.join(str(x) for x in query_embedding) + ']'
         
-        query = self.session.query(Document)
-        query = self._apply_tenant_filter(query, Document)
-        if doc_types:
-            query = query.filter(Document.doc_type.in_(doc_types))
+        sql = text("""
+            SELECT 
+                dc.id, dc.document_id, dc.chunk_index, dc.text,
+                d.name as source_document, d.mime_type,
+                1 - (dc.embedding <=> CAST(:emb AS vector)) as similarity
+            FROM document_chunks dc
+            JOIN platform.documents d ON dc.document_id = d.id
+            WHERE dc.tenant_id = :tid 
+              AND dc.embedding IS NOT NULL
+            ORDER BY dc.embedding <=> CAST(:emb AS vector)
+            LIMIT :lim
+        """)
+        
+        rows = self.session.execute(sql, {
+            "emb": embedding_str,
+            "tid": self.tenant_id,
+            "lim": limit
+        }).fetchall()
         
         results = []
-        documents = query.all()
+        for row in rows:
+            similarity = float(row.similarity) if row.similarity else 0.0
+            if similarity >= min_similarity:
+                results.append({
+                    "id": str(row.id),
+                    "document_id": str(row.document_id),
+                    "chunk_index": row.chunk_index,
+                    "content": row.text[:2000] if row.text else "",
+                    "source_document": row.source_document or "Unknown",
+                    "doc_type": row.mime_type or "unknown",
+                    "similarity": similarity
+                })
         
-        for doc in documents:
-            if doc.embedding is not None:
-                doc_embedding = np.array(doc.embedding)
-                query_vec = np.array(query_embedding)
-                
-                similarity = float(np.dot(doc_embedding, query_vec) / 
-                                   (np.linalg.norm(doc_embedding) * np.linalg.norm(query_vec) + 1e-8))
-                
-                if similarity >= min_similarity:
-                    results.append({
-                        **doc.to_dict(),
-                        "similarity": similarity
-                    })
-        
-        results.sort(key=lambda x: x["similarity"], reverse=True)
-        results = results[:limit]
-        
-        logger.debug(f"Episodic search '{query_text[:50]}...': found {len(results)} similar documents")
+        logger.debug(f"Episodic search '{query_text[:50]}...': found {len(results)} similar chunks")
         return results
     
     def search_by_keywords(
@@ -168,36 +177,47 @@ class EpisodicMemory:
         doc_types: List[str] = None,
         limit: int = 5
     ) -> List[Dict]:
-        """Fallback keyword search when vector search returns nothing."""
-        query = self.session.query(Document)
-        query = self._apply_tenant_filter(query, Document)
+        """Fallback keyword search on document chunks when vector search returns nothing."""
+        sql = text("""
+            SELECT 
+                dc.id, dc.document_id, dc.chunk_index, dc.text,
+                d.name as source_document, d.mime_type
+            FROM document_chunks dc
+            JOIN platform.documents d ON dc.document_id = d.id
+            WHERE dc.tenant_id = :tid
+            LIMIT 500
+        """)
         
-        if doc_types:
-            query = query.filter(Document.doc_type.in_(doc_types))
+        rows = self.session.execute(sql, {"tid": self.tenant_id}).fetchall()
         
         results = []
-        for doc in query.all():
+        for row in rows:
             score = 0
-            content_lower = doc.content.lower()
-            title_lower = doc.title.lower()
+            content_lower = (row.text or "").lower()
+            doc_name_lower = (row.source_document or "").lower()
             
             for keyword in keywords:
                 keyword_lower = keyword.lower()
-                if keyword_lower in title_lower:
+                if keyword_lower in doc_name_lower:
                     score += 2
                 if keyword_lower in content_lower:
                     score += content_lower.count(keyword_lower)
             
             if score > 0:
                 results.append({
-                    **doc.to_dict(),
+                    "id": str(row.id),
+                    "document_id": str(row.document_id),
+                    "chunk_index": row.chunk_index,
+                    "content": row.text[:2000] if row.text else "",
+                    "source_document": row.source_document or "Unknown",
+                    "doc_type": row.mime_type or "unknown",
                     "similarity": min(score / 10, 1.0)
                 })
         
         results.sort(key=lambda x: x["similarity"], reverse=True)
         results = results[:limit]
         
-        logger.debug(f"Keyword search {keywords}: found {len(results)} documents")
+        logger.debug(f"Keyword search {keywords}: found {len(results)} chunks")
         return results
     
     def search_for_rule_context(

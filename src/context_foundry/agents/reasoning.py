@@ -161,7 +161,7 @@ class ReasoningAgent:
     3. Entity Density Scoring - Proxy grounding via known entity mentions
     """
     
-    SIMILARITY_THRESHOLD = 0.40
+    SIMILARITY_THRESHOLD = 0.35
     
     def __init__(self):
         self.client = OpenAI(
