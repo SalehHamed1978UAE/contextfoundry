@@ -107,6 +107,7 @@ class Entity(Base):
     confidence = Column(Float, default=0.5)
     
     source_document_id = Column(String(255))
+    source_chunk_id = Column(UUID(as_uuid=True), index=True)
     source_section = Column(String(255))
     source_sentence = Column(Text)
     extracted_at = Column(DateTime, default=datetime.utcnow)
@@ -175,6 +176,7 @@ class Relationship(Base):
     confidence = Column(Float, default=0.5)
     
     source_document_id = Column(String(255))
+    source_chunk_id = Column(UUID(as_uuid=True), index=True)
     source_section = Column(String(255))
     source_sentence = Column(Text)
     extracted_at = Column(DateTime, default=datetime.utcnow)
