@@ -3109,6 +3109,44 @@ def stats():
         reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
 
+@app.route('/api/vault/chat', methods=['POST'])
+def vault_chat():
+    """Session-based chat endpoint for vault view (no API key required)."""
+    if not session.get('user_id'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    tenant_id = g.tenant_id or session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({'error': 'No vault context'}), 400
+    
+    data = request.get_json()
+    query_text = data.get('query', '').strip()
+    
+    if not query_text:
+        return jsonify({'error': 'No query provided'}), 400
+    
+    try:
+        from src.context_foundry.models.schema import set_tenant_on_session, get_session as get_db_session
+        
+        db_session = get_db_session()
+        set_tenant_on_session(db_session, tenant_id)
+        db_session.close()
+        
+        foundry = get_context_foundry()
+        result = foundry.query(query_text)
+        
+        return jsonify({
+            'success': True,
+            'answer': result.get('answer', ''),
+            'confidence': result.get('confidence', 0),
+            'confidence_level': result.get('confidence_level', 'unknown'),
+            'evidence_chain': result.get('evidence_chain', [])
+        })
+    except Exception as e:
+        logger.error(f"Chat query failed: {e}", exc_info=True)
+        reset_context_foundry()
+        return jsonify({'error': str(e), 'success': False}), 500
+
 
 @app.route('/api/v1/health')
 def api_health():

@@ -420,6 +420,78 @@
             padding-bottom: 16px;
         }
         
+        .chat-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-primary);
+        }
+        
+        .assistant-message {
+            align-self: flex-start;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .message-content {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .message-content.error {
+            color: var(--accent-error);
+        }
+        
+        .message-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+        
+        .confidence-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .confidence-badge.high {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-success);
+        }
+        
+        .confidence-badge.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-warning);
+        }
+        
+        .confidence-badge.low {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-error);
+        }
+        
+        .evidence-count {
+            color: var(--text-muted);
+        }
+        
+        .thinking-dots {
+            color: var(--text-muted);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
         .empty-chat {
             flex: 1;
             display: flex;
@@ -882,12 +954,70 @@
         
         sendBtn.addEventListener('click', sendMessage);
         
-        function sendMessage() {
+        async function sendMessage() {
             const message = chatInput.value.trim();
             if (!message) return;
+            
             chatInput.value = '';
             chatInput.style.height = 'auto';
             sendBtn.disabled = true;
+            
+            const emptyChat = document.querySelector('.empty-chat');
+            if (emptyChat) {
+                emptyChat.remove();
+            }
+            
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'chat-message user-message';
+            userMsgDiv.innerHTML = `<div class="message-content">${escapeHtml(message)}</div>`;
+            chatMessages.appendChild(userMsgDiv);
+            
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'chat-message assistant-message thinking';
+            thinkingDiv.innerHTML = `<div class="message-content"><span class="thinking-dots">Thinking...</span></div>`;
+            chatMessages.appendChild(thinkingDiv);
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                const response = await fetch('/api/vault/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: message })
+                });
+                
+                const data = await response.json();
+                
+                thinkingDiv.remove();
+                
+                const assistantDiv = document.createElement('div');
+                assistantDiv.className = 'chat-message assistant-message';
+                
+                if (data.success) {
+                    const confidence = data.confidence || 0;
+                    const confidenceClass = confidence >= 0.7 ? 'high' : confidence >= 0.4 ? 'medium' : 'low';
+                    
+                    assistantDiv.innerHTML = `
+                        <div class="message-content">${escapeHtml(data.answer || 'No answer found.')}</div>
+                        <div class="message-meta">
+                            <span class="confidence-badge ${confidenceClass}">${Math.round(confidence * 100)}% confidence</span>
+                            ${data.evidence_chain && data.evidence_chain.length ? `<span class="evidence-count">${data.evidence_chain.length} sources</span>` : ''}
+                        </div>
+                    `;
+                } else {
+                    assistantDiv.innerHTML = `<div class="message-content error">Error: ${escapeHtml(data.error || 'Query failed')}</div>`;
+                }
+                
+                chatMessages.appendChild(assistantDiv);
+            } catch (error) {
+                thinkingDiv.remove();
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'chat-message assistant-message';
+                errorDiv.innerHTML = `<div class="message-content error">Error: Failed to connect to server</div>`;
+                chatMessages.appendChild(errorDiv);
+            }
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
         fileInput.addEventListener('change', handleFileUpload);
