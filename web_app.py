@@ -1793,6 +1793,132 @@ def re_extract_document(doc_id):
         logger.error(f"Re-extract failed: {e}")
         return jsonify({'success': False, 'error': 'Failed to re-extract document'}), 500
 
+
+@app.route('/api/documents/backfill-chunks', methods=['POST'])
+def backfill_document_chunks():
+    """Backfill document chunks for existing documents that don't have chunks.
+    
+    This enables RAG fallback for documents uploaded before chunk storage was added.
+    Creates chunks from platform.documents content and entity source_sentences.
+    """
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+    
+    tenant_id = session['tenant_id']
+    
+    try:
+        import psycopg2
+        import uuid as uuid_module
+        from psycopg2.extras import RealDictCursor
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT pd.id as platform_doc_id, 
+                           pd.original_filename,
+                           d.id as public_doc_id
+                    FROM platform.documents pd
+                    LEFT JOIN public.documents d ON d.source_document_id = pd.id::text 
+                                                  AND d.tenant_id = pd.tenant_id
+                    WHERE pd.tenant_id = %s
+                      AND pd.status = 'extracted'
+                      AND pd.id NOT IN (
+                          SELECT DISTINCT dc.document_id 
+                          FROM public.document_chunks dc 
+                          WHERE dc.tenant_id = %s::uuid
+                      )
+                """, [tenant_id, tenant_id])
+                
+                docs_to_backfill = cur.fetchall()
+                
+                if not docs_to_backfill:
+                    return jsonify({
+                        'success': True, 
+                        'message': 'No documents need chunk backfill',
+                        'documents_processed': 0
+                    })
+                
+                chunks_created = 0
+                docs_processed = 0
+                
+                for doc in docs_to_backfill:
+                    platform_doc_id = str(doc['platform_doc_id'])
+                    public_doc_id = doc['public_doc_id']
+                    
+                    cur.execute("""
+                        SELECT array_agg(DISTINCT source_sentence) as sentences
+                        FROM public.entities 
+                        WHERE tenant_id = %s::uuid
+                          AND source_document_id = %s
+                          AND source_sentence IS NOT NULL
+                          AND LENGTH(source_sentence) > 10
+                    """, [tenant_id, platform_doc_id])
+                    
+                    result = cur.fetchone()
+                    sentences = result['sentences'] if result and result['sentences'] else []
+                    
+                    if not sentences:
+                        continue
+                    
+                    if not public_doc_id:
+                        public_doc_id = uuid_module.uuid4()
+                        cur.execute("""
+                            INSERT INTO public.documents 
+                            (id, tenant_id, title, doc_type, content, source_document_id, created_at)
+                            VALUES (%s, %s::uuid, %s, 'DOCUMENT', %s, %s, NOW())
+                        """, [
+                            str(public_doc_id),
+                            tenant_id,
+                            doc['original_filename'] or 'Backfilled Document',
+                            ' '.join(sentences)[:5000],
+                            platform_doc_id
+                        ])
+                    
+                    full_text = " ".join(sentences)
+                    chunk_size = 1500
+                    chunks = []
+                    
+                    for i in range(0, len(full_text), chunk_size):
+                        chunk_text = full_text[i:i+chunk_size]
+                        if len(chunk_text.strip()) > 50:
+                            chunks.append(chunk_text)
+                    
+                    for idx, chunk_text in enumerate(chunks):
+                        chunk_id = str(uuid_module.uuid4())
+                        cur.execute("""
+                            INSERT INTO public.document_chunks 
+                            (id, document_id, tenant_id, chunk_index, text, char_start, char_end, chunk_metadata)
+                            VALUES (%s::uuid, %s::uuid, %s::uuid, %s, %s, %s, %s, %s::json)
+                            ON CONFLICT (document_id, chunk_index) DO NOTHING
+                        """, [
+                            chunk_id,
+                            str(public_doc_id),
+                            tenant_id,
+                            idx,
+                            chunk_text,
+                            idx * chunk_size,
+                            min((idx + 1) * chunk_size, len(full_text)),
+                            '{"source": "backfill"}'
+                        ])
+                        chunks_created += 1
+                    
+                    docs_processed += 1
+                
+                conn.commit()
+        
+        logger.info(f"Backfill complete: {docs_processed} documents, {chunks_created} chunks")
+        return jsonify({
+            'success': True,
+            'documents_processed': docs_processed,
+            'chunks_created': chunks_created
+        })
+        
+    except Exception as e:
+        logger.error(f"Backfill failed: {e}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/documents/<doc_id>', methods=['DELETE'])
 def delete_document(doc_id):
     """Hard delete document and all associated data."""
@@ -3111,7 +3237,11 @@ def stats():
 
 @app.route('/api/vault/chat', methods=['POST'])
 def vault_chat():
-    """Session-based chat endpoint for vault view (no API key required)."""
+    """Session-based chat endpoint for vault view (no API key required).
+    
+    Includes RAG fallback: If graph confidence < 0.5, searches document chunks
+    and answers from text directly. This ensures CF is at least as good as basic RAG.
+    """
     if not session.get('user_id'):
         return jsonify({'error': 'Unauthorized'}), 401
     
@@ -3125,27 +3255,152 @@ def vault_chat():
     if not query_text:
         return jsonify({'error': 'No query provided'}), 400
     
+    RAG_CONFIDENCE_THRESHOLD = 0.5
+    
     try:
         from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
         
         db_session = get_db_session()
         set_tenant_context(db_session, tenant_id)
-        db_session.close()
         
         foundry = get_context_foundry()
         result = foundry.query(query_text)
+        
+        graph_confidence = result.get('confidence', 0)
+        
+        if graph_confidence < RAG_CONFIDENCE_THRESHOLD:
+            rag_result = _try_rag_fallback(query_text, tenant_id, db_session)
+            if rag_result and rag_result.get('confidence', 0) > graph_confidence:
+                db_session.close()
+                rag_result['fallback_used'] = 'rag'
+                rag_result['graph_confidence'] = graph_confidence
+                return jsonify(rag_result)
+        
+        db_session.close()
         
         return jsonify({
             'success': True,
             'answer': result.get('answer', ''),
             'confidence': result.get('confidence', 0),
             'confidence_level': result.get('confidence_level', 'unknown'),
-            'evidence_chain': result.get('evidence_chain', [])
+            'evidence_chain': result.get('evidence_chain', []),
+            'fallback_used': None
         })
     except Exception as e:
         logger.error(f"Chat query failed: {e}", exc_info=True)
         reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
+
+
+def _try_rag_fallback(query_text: str, tenant_id: str, db_session) -> dict:
+    """
+    RAG fallback: Semantic search over document chunks and answer from text.
+    
+    Returns a result dict with answer, confidence, etc. or None if no relevant chunks found.
+    """
+    import os
+    from openai import OpenAI
+    from sqlalchemy import text
+    
+    try:
+        query_lower = query_text.lower()
+        query_words = [w for w in query_lower.split() if len(w) > 2]
+        
+        if not query_words:
+            return None
+        
+        like_conditions = " OR ".join(
+            f"LOWER(dc.text) LIKE '%' || :word{i} || '%'" for i in range(len(query_words))
+        )
+        
+        sql = text(f"""
+            SELECT 
+                dc.id as chunk_id,
+                dc.document_id,
+                dc.chunk_index,
+                dc.text,
+                dc.chunk_metadata,
+                d.title as document_title,
+                d.doc_type
+            FROM document_chunks dc
+            JOIN documents d ON dc.document_id = d.id
+            WHERE dc.tenant_id = :tenant_id
+            AND ({like_conditions})
+            ORDER BY dc.chunk_index
+            LIMIT 10
+        """)
+        
+        params = {'tenant_id': tenant_id}
+        for i, word in enumerate(query_words):
+            params[f'word{i}'] = word
+        
+        rows = db_session.execute(sql, params).fetchall()
+        
+        if not rows:
+            return None
+        
+        chunks_text = []
+        sources = []
+        for row in rows:
+            chunk_text = row.text[:1500] if len(row.text) > 1500 else row.text
+            chunks_text.append(f"[{row.document_title}]: {chunk_text}")
+            sources.append({
+                'document': row.document_title,
+                'chunk_index': row.chunk_index
+            })
+        
+        context = "\n\n---\n\n".join(chunks_text)
+        
+        client = OpenAI(
+            api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
+            base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+        )
+        
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """You are a helpful assistant that answers questions based on provided document excerpts.
+                    
+RULES:
+- ONLY use information from the provided documents
+- If the documents don't contain the answer, say so
+- Quote relevant parts when possible
+- Be concise but complete"""
+                },
+                {
+                    "role": "user",
+                    "content": f"""Based on these document excerpts, answer the question.
+
+DOCUMENTS:
+{context}
+
+QUESTION: {query_text}
+
+Provide a helpful answer based on the documents above."""
+                }
+            ],
+            temperature=0.0,
+            max_tokens=500
+        )
+        
+        answer = response.choices[0].message.content
+        
+        confidence = min(0.7, 0.4 + (len(rows) * 0.05))
+        
+        return {
+            'success': True,
+            'answer': answer,
+            'confidence': confidence,
+            'confidence_level': 'medium' if confidence >= 0.5 else 'low',
+            'evidence_chain': sources[:5],
+            'rag_chunks_used': len(rows)
+        }
+        
+    except Exception as e:
+        logger.warning(f"RAG fallback failed: {e}")
+        return None
 
 
 @app.route('/api/v1/health')
