@@ -55,6 +55,7 @@ signal.signal(signal.SIGINT, shutdown_handler)
 
 from flask import Flask
 from brain.routes.internal import internal_bp
+from src.decision_trace_layer.api import dtl_bp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -65,6 +66,7 @@ if not app.secret_key:
     raise RuntimeError("SESSION_SECRET environment variable required")
 
 app.register_blueprint(internal_bp)
+app.register_blueprint(dtl_bp)
 
 scheduler = None
 extraction_worker_thread = None

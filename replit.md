@@ -131,3 +131,50 @@ All tenant data is protected by PostgreSQL Row-Level Security (RLS):
 - `POST /api/folders` - Create folder (body: `{name: string, parent_path: string}`)
 - `GET /api/documents/tree` - Get folder tree with documents
 - `POST /api/documents/<id>/move` - Move document to folder (body: `{folder_path: string}`)
+
+## Decision Trace Layer (DTL) - Added Jan 2026
+
+### Overview
+DTL extends Context Foundry with precedent-aware decision memory. While CF captures *what exists* (entities, relationships), DTL captures *why decisions were made* (rationale, precedents, exceptions, outcomes).
+
+### Database Schema
+- **13 Tables**: decision_traces, decision_evidence, decision_entity_links, decision_precedent_links, decision_exceptions, decision_confidence_scores, decision_executions, decision_results, decision_assessments, decision_categories, schema_evolution_proposals, decision_access_grants, decision_access_audit
+- **6 Enums**: decision_lifecycle, result_status, evidence_type, sensitivity_level, decision_entity_role, category_lifecycle
+- **30 Indexes**: Optimized for precedent search, temporal queries, and RRF ranking
+- **14 RLS Policies**: All tables protected by tenant isolation via `app.current_tenant_id`
+- **4 SQL Functions**: search_precedents, search_precedents_api, dtl_enforce_evidence_for_enacted, dtl_prevent_evidence_deletion_when_enacted
+- **3 Triggers**: Evidence enforcement for enacted decisions
+
+### Evidence Enforcement
+- Enacted decisions REQUIRE evidence (enforced via deferrable constraint trigger)
+- Evidence cannot be deleted if it's the last evidence for an enacted decision
+- Evidence must have substance: source_uri, source_id, or excerpt >= 10 chars
+
+### Precedent Search (Hybrid Retrieval)
+Combines multiple signals with Reciprocal Rank Fusion (RRF):
+1. **Semantic Search** (40% weight): Vector similarity on rationale embeddings
+2. **Full-Text Search** (35% weight): PostgreSQL ts_rank_cd on summary + rationale
+3. **Entity Overlap** (25% weight): Shared entities between decisions
+4. **Recency Decay**: Exponential decay favoring recent decisions
+5. **Outcome Weighting**: Positive outcomes boosted, negative outcomes optionally filtered
+6. **Category Bonus**: Matching decision_type gets ranking boost
+
+### DTL API Endpoints (Blueprint: /api/v1/dtl)
+- `GET /api/v1/dtl/health` - Health check
+- `POST /api/v1/dtl/decisions` - Create decision with evidence (required)
+- `GET /api/v1/dtl/decisions/<id>` - Get decision with all related data
+- `POST /api/v1/dtl/decisions/<id>/outcome` - Record decision outcome
+- `POST /api/v1/dtl/precedents/search` - Search for relevant precedents
+
+### Python Module Structure
+- `src/decision_trace_layer/__init__.py` - Module exports
+- `src/decision_trace_layer/models.py` - SQLAlchemy ORM + Pydantic models
+- `src/decision_trace_layer/precedent_search.py` - PrecedentSearchClient
+- `src/decision_trace_layer/api.py` - Flask Blueprint (registered in brain/app.py)
+
+### DTL Security Notes
+- SQL functions use SECURITY DEFINER to bypass RLS recursion (tenant_id filtering in function logic)
+- API endpoints use application-level tenant isolation (explicit WHERE tenant_id = :tenant_id clauses)
+- All UUID inputs validated before use
+- JSON payloads serialized with json.dumps() for safety
+- Cross-tenant access blocked: requests with wrong tenant_id return 404
