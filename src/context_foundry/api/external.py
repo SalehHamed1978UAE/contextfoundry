@@ -34,6 +34,7 @@ Base = declarative_base()
 class APIKey(Base):
     """API key model for external application authentication."""
     __tablename__ = 'api_keys'
+    __table_args__ = {'schema': 'platform'}
     
     id = Column(String(36), primary_key=True)
     name = Column(String(255), nullable=False)
@@ -43,7 +44,7 @@ class APIKey(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     last_used_at = Column(DateTime)
     expires_at = Column(DateTime)
-    is_active = Column(Boolean, default=True)
+    revoked_at = Column(DateTime)
     scopes = Column(Text)
     created_by = Column(String(36))
 
@@ -80,9 +81,9 @@ def validate_api_key(key: str) -> Optional[Dict[str, Any]]:
     
     try:
         session = get_db_session()
-        api_key = session.query(APIKey).filter_by(
-            key_hash=key_hash,
-            is_active=True
+        api_key = session.query(APIKey).filter(
+            APIKey.key_hash == key_hash,
+            APIKey.revoked_at.is_(None)
         ).first()
         
         if not api_key:
@@ -96,11 +97,18 @@ def validate_api_key(key: str) -> Optional[Dict[str, Any]]:
         api_key.last_used_at = datetime.utcnow()
         session.commit()
         
+        scopes = ['read']
+        if api_key.scopes:
+            if isinstance(api_key.scopes, list):
+                scopes = api_key.scopes
+            elif isinstance(api_key.scopes, str):
+                scopes = api_key.scopes.split(',')
+        
         result = {
-            'id': api_key.id,
+            'id': str(api_key.id),
             'name': api_key.name,
-            'tenant_id': api_key.tenant_id,
-            'scopes': api_key.scopes.split(',') if api_key.scopes else ['read']
+            'tenant_id': str(api_key.tenant_id),
+            'scopes': scopes
         }
         
         session.close()
