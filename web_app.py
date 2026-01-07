@@ -1439,10 +1439,16 @@ def api_documents_tree():
                 folders = cur.fetchall()
                 
                 cur.execute("""
-                    SELECT id, original_filename, folder_path, status, mime_type
-                    FROM platform.documents
-                    WHERE tenant_id = %s
-                    ORDER BY folder_path, original_filename
+                    SELECT d.id, d.original_filename, d.folder_path, d.status, d.mime_type,
+                           COALESCE(er.status, d.status) as extraction_status
+                    FROM platform.documents d
+                    LEFT JOIN LATERAL (
+                        SELECT status FROM platform.extraction_requests 
+                        WHERE document_id = d.id 
+                        ORDER BY created_at DESC LIMIT 1
+                    ) er ON true
+                    WHERE d.tenant_id = %s
+                    ORDER BY d.folder_path, d.original_filename
                 """, (session['tenant_id'],))
                 documents = cur.fetchall()
         
@@ -1458,7 +1464,7 @@ def api_documents_tree():
                 'id': str(d['id']),
                 'name': d['original_filename'],
                 'folder_path': d['folder_path'] or '/',
-                'status': d['status'],
+                'status': d['extraction_status'],
                 'mime_type': d['mime_type']
             } for d in documents]
         })
