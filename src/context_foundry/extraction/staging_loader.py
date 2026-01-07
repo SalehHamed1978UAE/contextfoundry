@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from ..models.schema import (
-    Entity, Relationship, LifecycleState, EntityMention, Document
+    Entity, Relationship, LifecycleState, EntityMention, Document, ValidationStatus
 )
 from .entity_extractor import ExtractedEntity
 
@@ -252,6 +252,7 @@ class StagingLoader:
             name=extracted.canonical_name,
             entity_type=entity_type,
             lifecycle_state=LifecycleState.STAGING,
+            validation_status=ValidationStatus.VALID,
             properties=extracted.properties,
             confidence=extracted.confidence,
             source_document_id=extracted.source_document_id,
@@ -337,6 +338,7 @@ class StagingLoader:
             target_id=target_entity.id,
             relationship_type=relation_type,
             lifecycle_state=LifecycleState.STAGING,
+            validation_status=ValidationStatus.VALID,
             confidence=extracted.confidence,
             source_document_id=extracted.source_document_id,
             source_sentence=extracted.source_span,
