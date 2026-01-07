@@ -366,6 +366,7 @@ class QueryLog(Base):
     __tablename__ = "query_logs"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tenant_id = Column(UUID(as_uuid=True), index=True)
     query_text = Column(Text, nullable=False)
     
     semantic_entities_count = Column(Integer, default=0)
