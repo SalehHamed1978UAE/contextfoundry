@@ -3359,9 +3359,11 @@ def _get_relevant_chunks(query_text: str, tenant_id: str, db_session) -> dict:
     Returns dict with 'chunks' list and 'sources' list.
     """
     from sqlalchemy import text
+    import re
     
     try:
         query_lower = query_text.lower()
+        query_lower = re.sub(r'[^\w\s]', '', query_lower)
         stop_words = {'the', 'is', 'at', 'which', 'on', 'a', 'an', 'and', 'or', 'but', 'in', 'with', 'to', 'for', 'of', 'what', 'where', 'when', 'who', 'how', 'why', 'was', 'were', 'are', 'has', 'have', 'does', 'do', 'did', 'from', 'that', 'this', 'can', 'will', 'would', 'could', 'should', 'been', 'being', 'had', 'having', 'they', 'them', 'their', 'you', 'your', 'its', 'just', 'also', 'than', 'into', 'about', 'some', 'other', 'such', 'only', 'over', 'very', 'any', 'all', 'most', 'then', 'more', 'own'}
         query_words = [w for w in query_lower.split() if len(w) > 2 and w not in stop_words]
         
@@ -3379,6 +3381,11 @@ def _get_relevant_chunks(query_text: str, tenant_id: str, db_session) -> dict:
             f"CASE WHEN LOWER(dc.text) LIKE '%' || :word{i} || '%' THEN 1 ELSE 0 END" for i in range(len(query_words))
         )
         
+        full_phrase = ' '.join(query_words)
+        phrase_underscore = '_'.join(query_words)
+        
+        all_words_in_title = " AND ".join(f"LOWER(d.name) LIKE '%' || :word{i} || '%'" for i in range(len(query_words)))
+        
         sql = text(f"""
             SELECT 
                 dc.id as chunk_id,
@@ -3387,16 +3394,23 @@ def _get_relevant_chunks(query_text: str, tenant_id: str, db_session) -> dict:
                 dc.text,
                 d.name as document_title,
                 d.mime_type as doc_type,
-                ({match_count_expr}) as match_count
+                ({match_count_expr}) as match_count,
+                CASE WHEN LOWER(dc.text) LIKE '%' || :full_phrase || '%' THEN 10 ELSE 0 END as phrase_bonus,
+                CASE 
+                    WHEN LOWER(d.name) LIKE '%' || :full_phrase || '%' THEN 20
+                    WHEN LOWER(d.name) LIKE '%' || :phrase_underscore || '%' THEN 20
+                    WHEN ({all_words_in_title}) THEN 15
+                    ELSE 0 
+                END as title_bonus
             FROM document_chunks dc
             JOIN platform.documents d ON dc.document_id = d.id
             WHERE dc.tenant_id = :tenant_id
             AND ({like_conditions})
-            ORDER BY match_count DESC, dc.chunk_index
+            ORDER BY title_bonus DESC, phrase_bonus DESC, match_count DESC, dc.chunk_index
             LIMIT 8
         """)
         
-        params = {'tenant_id': tenant_id}
+        params = {'tenant_id': tenant_id, 'full_phrase': full_phrase, 'phrase_underscore': phrase_underscore}
         for i, word in enumerate(query_words):
             params[f'word{i}'] = word
         
