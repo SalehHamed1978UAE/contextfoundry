@@ -219,6 +219,15 @@ LOCATION: PHYSICAL places ONLY (cities, countries, buildings)
 7. Be EXHAUSTIVE - do not stop until every entity is captured
 8. When uncertain, INCLUDE with confidence 0.7-0.8
 
+## DO NOT EXTRACT
+
+- Raw numbers like "0.95", "2024", "100" - these are VALUES, not entities
+- JSON field values from code examples (e.g., if you see "confidence": 0.95, do NOT extract "0.95")
+- Timestamps like "2026-01-06T10:30:00Z"
+- Percentages like "95%" or "95% confidence"
+- Code block contents - only extract entities mentioned in prose text
+- Short strings under 3 characters
+
 ## OUTPUT FORMAT
 
 Return valid JSON array only (no markdown):
@@ -293,6 +302,51 @@ Return valid JSON array only (no markdown):
             return False
         if entity["entity_type"].upper() not in self.get_valid_entity_types():
             return False
+        
+        name = entity.get("canonical_name") or entity.get("name", "")
+        if not self._is_valid_entity_name(name):
+            return False
+        
+        return True
+    
+    def _is_valid_entity_name(self, name: str) -> bool:
+        """
+        Validate that an entity name is meaningful and not garbage.
+        
+        Rejects:
+        - Pure numbers (e.g., "0.95", "2024", "100")
+        - Pure punctuation
+        - Very short names (< 2 chars)
+        - ISO dates/timestamps
+        - Percentage patterns (e.g., "95%", "95% confidence")
+        - JSON-like values
+        """
+        if not name or len(name.strip()) < 2:
+            return False
+        
+        name_clean = name.strip()
+        
+        if re.match(r'^[\d.,\-+]+$', name_clean):
+            return False
+        
+        if re.match(r'^\d{4}(-\d{2})?(-\d{2})?(T[\d:]+)?Z?$', name_clean):
+            return False
+        
+        if re.match(r'^\d+%', name_clean):
+            return False
+        
+        if re.match(r'^[\d.,]+\s*(confidence|percent|%)', name_clean, re.IGNORECASE):
+            return False
+        
+        if name_clean.startswith('"') or name_clean.startswith("'"):
+            return False
+        
+        if re.match(r'^[_\-]+[a-z_]+$', name_clean):
+            return False
+        
+        if re.match(r'^(true|false|null|none|undefined)$', name_clean, re.IGNORECASE):
+            return False
+        
         return True
     
     SPECIFIC_TYPE_PATTERNS = [
