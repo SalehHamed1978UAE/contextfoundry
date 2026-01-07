@@ -418,9 +418,9 @@ class OntologyCentricPipeline:
         """
         Resolve extracted entities against existing entities in the database.
         
-        For each extracted entity, checks if a matching entity already exists.
-        If found with high confidence, the extracted entity is updated to use
-        the existing entity's ID, preventing duplicates.
+        For each extracted entity, checks if a matching entity already exists
+        (in STAGING or TRUSTED state). If found, the extracted entity is skipped
+        and existing entity ID is returned for relationship linking.
         
         Returns:
             Tuple of (deduplicated_entities, name_to_existing_id_map)
@@ -430,6 +430,26 @@ class OntologyCentricPipeline:
         name_to_existing_id = {}
         resolved_count = 0
         
+        existing_entities_cache = {}
+        try:
+            result = self.session.execute(sql_text("""
+                SELECT id, LOWER(name) as name_lower, entity_type 
+                FROM entities 
+                WHERE tenant_id = :tid 
+                AND lifecycle_state IN ('STAGING', 'TRUSTED')
+            """), {"tid": self.tenant_id})
+            for row in result:
+                key = row[1]  # name_lower
+                if key not in existing_entities_cache:
+                    existing_entities_cache[key] = str(row[0])  # id
+            logger.debug(f"[EntityResolution] Cached {len(existing_entities_cache)} existing entities for dedup")
+        except Exception as e:
+            logger.warning(f"[EntityResolution] Failed to cache existing entities: {e}")
+            try:
+                self.session.rollback()
+            except:
+                pass
+        
         for entity in entities:
             normalized_name = entity.canonical_name.lower().strip()
             
@@ -437,22 +457,12 @@ class OntologyCentricPipeline:
                 continue
             seen_names.add(normalized_name)
             
-            try:
-                result = self.entity_resolver.resolve(
-                    query=entity.canonical_name,
-                    entity_type_hint=entity.entity_type,
-                    top_k=5
-                )
-                
-                if result.entity and result.confidence >= 0.7 and not result.needs_disambiguation:
-                    name_to_existing_id[entity.canonical_name] = result.entity.entity_id
-                    logger.debug(f"[EntityResolution] '{entity.canonical_name}' -> existing entity {result.entity.entity_id} "
-                               f"(confidence: {result.confidence:.2f}, stage: {result.match_stage})")
-                    resolved_count += 1
-                else:
-                    deduplicated.append(entity)
-            except Exception as e:
-                logger.warning(f"[EntityResolution] Failed to resolve '{entity.canonical_name}': {e}")
+            if normalized_name in existing_entities_cache:
+                existing_id = existing_entities_cache[normalized_name]
+                name_to_existing_id[entity.canonical_name] = existing_id
+                logger.debug(f"[EntityResolution] '{entity.canonical_name}' -> existing entity {existing_id}")
+                resolved_count += 1
+            else:
                 deduplicated.append(entity)
         
         logger.info(f"[OntologyCentricPipeline] Entity resolution: {resolved_count} matched existing, "
