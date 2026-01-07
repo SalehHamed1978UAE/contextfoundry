@@ -757,7 +757,7 @@ def extraction_worker_loop():
     """
     global extraction_worker_running
     
-    logger.info("[ExtractionWorker] Starting extraction worker (30-second interval)")
+    logger.info("[ExtractionWorker] Starting extraction worker (5-second interval)")
     extraction_worker_stats["is_running"] = True
     
     while extraction_worker_running:
@@ -768,7 +768,7 @@ def extraction_worker_loop():
             if processed > 0:
                 time.sleep(1)
             else:
-                for _ in range(30):
+                for _ in range(5):
                     if not extraction_worker_running:
                         break
                     time.sleep(1)
@@ -792,7 +792,7 @@ def start_extraction_worker():
     extraction_worker_running = True
     extraction_worker_thread = threading.Thread(target=extraction_worker_loop, daemon=True)
     extraction_worker_thread.start()
-    logger.info("[Brain] Extraction worker started (30-second cycles)")
+    logger.info("[Brain] Extraction worker started (5-second cycles)")
 
 
 def stop_extraction_worker():
@@ -826,7 +826,7 @@ def init_scheduler():
         from src.context_foundry.agents.identity_resolver import IdentityResolutionConfig
         
         config = SchedulerConfig(
-            cycle_interval_seconds=300,
+            cycle_interval_seconds=30,
             run_identity_resolution=True,
             gardener_config=GardenerConfig(
                 min_confidence_for_promotion=0.75,
