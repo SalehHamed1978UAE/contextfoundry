@@ -25,7 +25,6 @@ from .entity_extractor import EntityExtractor, ExtractedEntity
 from .relation_extractor import RelationExtractor, ExtractedRelation
 from .staging_loader import StagingLoader, StagingResult
 
-from ..agents.entity_resolver import EntityResolver
 from ..utils.logger import logger
 from ..models.schema import DocumentChunk
 
@@ -100,7 +99,6 @@ class OntologyCentricPipeline:
         
         self.ontology_manager = OntologyManager(session, tenant_id)
         self.canonicalizer = Canonicalizer(session, tenant_id) if enable_canonicalization else None
-        self.entity_resolver = EntityResolver(session, tenant_id)
         
         self.entity_extractor = EntityExtractor(model=model, temperature=0.0)
         self.relation_extractor = RelationExtractor(model=model, temperature=0.0)
@@ -419,8 +417,11 @@ class OntologyCentricPipeline:
         Resolve extracted entities against existing entities in the database.
         
         For each extracted entity, checks if a matching entity already exists
-        (in STAGING or TRUSTED state). If found, the extracted entity is skipped
-        and existing entity ID is returned for relationship linking.
+        (in STAGING or TRUSTED state) by NAME. If found, the extracted entity
+        is skipped and existing entity ID is returned for relationship linking.
+        
+        This prevents duplicate entities with the same name regardless of type,
+        ensuring entity names are globally unique within a tenant.
         
         Returns:
             Tuple of (deduplicated_entities, name_to_existing_id_map)
@@ -433,16 +434,16 @@ class OntologyCentricPipeline:
         existing_entities_cache = {}
         try:
             result = self.session.execute(sql_text("""
-                SELECT id, LOWER(name) as name_lower, entity_type 
+                SELECT id, LOWER(name) as name_lower 
                 FROM entities 
                 WHERE tenant_id = :tid 
                 AND lifecycle_state IN ('STAGING', 'TRUSTED')
             """), {"tid": self.tenant_id})
             for row in result:
-                key = row[1]  # name_lower
-                if key not in existing_entities_cache:
-                    existing_entities_cache[key] = str(row[0])  # id
-            logger.debug(f"[EntityResolution] Cached {len(existing_entities_cache)} existing entities for dedup")
+                name_key = row[1]
+                if name_key not in existing_entities_cache:
+                    existing_entities_cache[name_key] = str(row[0])
+            logger.debug(f"[EntityResolution] Cached {len(existing_entities_cache)} existing entity names for dedup")
         except Exception as e:
             logger.warning(f"[EntityResolution] Failed to cache existing entities: {e}")
             try:
@@ -451,6 +452,9 @@ class OntologyCentricPipeline:
                 pass
         
         for entity in entities:
+            if not entity.canonical_name:
+                continue
+                
             normalized_name = entity.canonical_name.lower().strip()
             
             if normalized_name in seen_names:
