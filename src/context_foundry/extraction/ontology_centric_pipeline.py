@@ -113,6 +113,8 @@ class OntologyCentricPipeline:
         """
         Run full ontology-centric extraction pipeline.
         
+        Extracts from each chunk individually with provenance tracking.
+        
         Args:
             text: Document text content
             document_id: Document ID
@@ -122,10 +124,10 @@ class OntologyCentricPipeline:
         Returns:
             OntologyCentricResult with all extraction data
         """
-        chunks_stored = 0
+        chunks_stored = []
         try:
             chunks_stored = self._store_document_chunks(text, document_id)
-            logger.info(f"[OntologyCentricPipeline] Stored {chunks_stored} chunks for RAG retrieval")
+            logger.info(f"[OntologyCentricPipeline] Stored {len(chunks_stored)} chunks for RAG retrieval")
             
             if document_type_override:
                 document_type = document_type_override
@@ -137,11 +139,6 @@ class OntologyCentricPipeline:
             ontology = self.ontology_manager.get_or_create_ontology(document_type, text)
             
             entity_types = self.ontology_manager.get_entity_type_names(document_type)
-            relationship_types = self.ontology_manager.get_relationship_type_names(document_type)
-            
-            entities = self._extract_entities_with_ontology(
-                text, document_id, entity_types, document_type
-            )
             
             relationship_type_defs = [rt.to_dict() for rt in ontology.relationship_types]
             
@@ -150,50 +147,82 @@ class OntologyCentricPipeline:
                     {"name": "RELATED_TO", "definition": "General relationship between entities", "source_types": [], "target_types": []},
                     {"name": "PART_OF", "definition": "Entity is part of or belongs to another", "source_types": [], "target_types": []},
                     {"name": "WORKS_WITH", "definition": "Entity works with or collaborates with another", "source_types": [], "target_types": []},
+                    {"name": "HAS_PROPERTY", "definition": "Entity has a property or attribute", "source_types": [], "target_types": []},
+                    {"name": "HELD_POSITION", "definition": "Person held a job position at organization", "source_types": ["PERSON"], "target_types": ["ROLE", "POSITION"]},
+                    {"name": "WORKED_AT", "definition": "Person worked at an organization", "source_types": ["PERSON"], "target_types": ["ORGANIZATION"]},
                 ]
                 logger.warning(f"[OntologyCentricPipeline] No relationship types in ontology for {document_type}, using fallback")
             
-            relations = self._extract_relations_with_ontology(
-                text, document_id, entities, relationship_type_defs, document_type
-            )
+            all_entities = []
+            all_relations = []
+            
+            for chunk in chunks_stored:
+                chunk_id = str(chunk.id)
+                chunk_text = chunk.text
+                
+                if not chunk_text or len(chunk_text.strip()) < 50:
+                    continue
+                
+                chunk_entities = self._extract_entities_with_ontology(
+                    chunk_text, document_id, entity_types, document_type, chunk_id=chunk_id
+                )
+                
+                for entity in chunk_entities:
+                    entity.source_chunk_id = chunk_id
+                
+                all_entities.extend(chunk_entities)
+                
+                if chunk_entities:
+                    chunk_relations = self._extract_relations_with_ontology(
+                        chunk_text, document_id, chunk_entities, relationship_type_defs, document_type, chunk_id=chunk_id
+                    )
+                    
+                    for rel in chunk_relations:
+                        rel.source_chunk_id = chunk_id
+                    
+                    all_relations.extend(chunk_relations)
+                
+                logger.info(f"[OntologyCentricPipeline] Chunk {chunk.chunk_index}: {len(chunk_entities)} entities, {len(chunk_relations) if chunk_entities else 0} relations")
+            
+            logger.info(f"[OntologyCentricPipeline] Total extracted: {len(all_entities)} entities, {len(all_relations)} relations from {len(chunks_stored)} chunks")
             
             canonical_triplets = []
-            if self.enable_canonicalization and self.canonicalizer and relations:
-                raw_triplets = convert_to_raw_triplets(entities, relations)
+            if self.enable_canonicalization and self.canonicalizer and all_relations:
+                raw_triplets = convert_to_raw_triplets(all_entities, all_relations)
                 canonical_triplets = self.canonicalizer.process_triplets(raw_triplets)
                 
                 for ct in canonical_triplets:
-                    for rel in relations:
+                    for rel in all_relations:
                         if rel.source_name == ct.subject and rel.target_name == ct.object:
                             rel.relation_type = ct.relationship_type
                             break
             
-            new_entity_types = self._find_new_entity_types(entities, ontology)
-            new_relationship_types = self._find_new_relationship_types(relations, ontology)
+            new_entity_types = self._find_new_entity_types(all_entities, ontology)
+            new_relationship_types = self._find_new_relationship_types(all_relations, ontology)
             
             if new_entity_types or new_relationship_types:
                 self._update_reference_ontology(
                     document_type, 
                     new_entity_types, 
                     new_relationship_types,
-                    entities,
-                    relations
+                    all_entities,
+                    all_relations
                 )
             
             staging_result = None
             if self.auto_stage:
-                staging_result = self._stage_results(document_id, entities, relations)
+                staging_result = self._stage_results(document_id, all_entities, all_relations)
             
             return OntologyCentricResult(
                 document_id=document_id,
                 document_type=document_type,
-                entities=entities,
-                relations=relations,
+                entities=all_entities,
+                relations=all_relations,
                 canonical_triplets=canonical_triplets,
                 new_entity_types=new_entity_types,
                 new_relationship_types=new_relationship_types,
                 staging_result=staging_result,
-                chunks_stored=chunks_stored,
+                chunks_stored=len(chunks_stored),
                 success=True,
             )
             
@@ -207,7 +236,7 @@ class OntologyCentricPipeline:
                 canonical_triplets=[],
                 new_entity_types=[],
                 new_relationship_types=[],
-                chunks_stored=chunks_stored,
+                chunks_stored=len(chunks_stored) if chunks_stored else 0,
                 success=False,
                 error=str(e),
             )
@@ -239,28 +268,28 @@ class OntologyCentricPipeline:
         
         return chunks
     
-    def _store_document_chunks(self, text: str, document_id: str) -> int:
+    def _store_document_chunks(self, text: str, document_id: str) -> List[DocumentChunk]:
         """Store document chunks for RAG retrieval.
         
         This ensures every document has searchable text chunks regardless
         of entity/relationship extraction success.
         
-        Returns number of chunks stored.
+        Returns list of stored DocumentChunk objects with IDs.
         """
         try:
-            existing_check = self.session.execute(
-                sql_text("SELECT COUNT(*) FROM document_chunks WHERE document_id = :doc_id"),
+            existing_chunks = self.session.execute(
+                sql_text("SELECT id, chunk_index, text FROM document_chunks WHERE document_id = :doc_id ORDER BY chunk_index"),
                 {"doc_id": document_id}
-            ).scalar()
+            ).fetchall()
             
-            if existing_check and existing_check > 0:
-                logger.info(f"[OntologyCentricPipeline] Document {document_id} already has {existing_check} chunks, skipping")
-                return existing_check
+            if existing_chunks:
+                logger.info(f"[OntologyCentricPipeline] Document {document_id} already has {len(existing_chunks)} chunks, returning existing")
+                return [DocumentChunk(id=row[0], chunk_index=row[1], text=row[2], document_id=document_id, tenant_id=self.tenant_id) for row in existing_chunks]
             
-            chunks = self._chunk_text(text, chunk_size=2000, overlap=400)
+            chunks_data = self._chunk_text(text, chunk_size=2000, overlap=400)
             
-            stored_count = 0
-            for idx, (chunk_text, char_start, char_end) in enumerate(chunks):
+            stored_chunks = []
+            for idx, (chunk_text, char_start, char_end) in enumerate(chunks_data):
                 chunk = DocumentChunk(
                     id=uuid.uuid4(),
                     document_id=document_id,
@@ -272,15 +301,16 @@ class OntologyCentricPipeline:
                     chunk_metadata={"source": "ontology_centric_pipeline"}
                 )
                 self.session.add(chunk)
-                stored_count += 1
+                stored_chunks.append(chunk)
             
             self.session.flush()
-            return stored_count
+            logger.info(f"[OntologyCentricPipeline] Stored {len(stored_chunks)} chunks for document {document_id}")
+            return stored_chunks
             
         except Exception as e:
             logger.error(f"[OntologyCentricPipeline] Failed to store chunks: {e}")
             self.session.rollback()
-            return 0
+            return []
     
     def _extract_entities_with_ontology(
         self,
@@ -288,18 +318,16 @@ class OntologyCentricPipeline:
         document_id: str,
         entity_types: List[str],
         document_type: str,
+        chunk_id: Optional[str] = None,
     ) -> List[ExtractedEntity]:
         """Extract entities using ontology-guided prompt."""
         entities = self.entity_extractor.extract_with_types(
             text=text,
             entity_types=entity_types,
             document_id=document_id,
-            chunk_id=f"{document_id}:chunk:0",
+            chunk_id=chunk_id or f"{document_id}:chunk:0",
             sentence_idx=0,
         )
-        
-        logger.info(f"[OntologyCentricPipeline] Extracted {len(entities)} entities "
-                   f"using {len(entity_types)} ontology types for {document_type}")
         
         return entities
     
@@ -310,6 +338,7 @@ class OntologyCentricPipeline:
         entities: List[ExtractedEntity],
         relationship_type_defs: List[Dict],
         document_type: str,
+        chunk_id: Optional[str] = None,
     ) -> List[ExtractedRelation]:
         """Extract relations using ontology-guided prompt."""
         entities_data = [e.to_dict() for e in entities]
@@ -320,11 +349,8 @@ class OntologyCentricPipeline:
             document_id=document_id,
             document_type=document_type,
             relationship_types=relationship_type_defs,
-            chunk_id=f"{document_id}:chunk:0",
+            chunk_id=chunk_id or f"{document_id}:chunk:0",
         )
-        
-        logger.info(f"[OntologyCentricPipeline] Extracted {len(relations)} relations "
-                   f"using {len(relationship_type_defs)} ontology types for {document_type}")
         
         return relations
     
