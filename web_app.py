@@ -3259,11 +3259,12 @@ def vault_chat():
     
     try:
         from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
+        from src.context_foundry.core import ContextFoundry
         
         db_session = get_db_session()
         set_tenant_context(db_session, tenant_id)
         
-        foundry = get_context_foundry()
+        foundry = ContextFoundry(tenant_id=tenant_id, session=db_session)
         result = foundry.query(query_text)
         
         graph_confidence = result.get('confidence', 0)
@@ -3271,12 +3272,12 @@ def vault_chat():
         if graph_confidence < RAG_CONFIDENCE_THRESHOLD:
             rag_result = _try_rag_fallback(query_text, tenant_id, db_session)
             if rag_result and rag_result.get('confidence', 0) > graph_confidence:
-                db_session.close()
+                foundry.close()
                 rag_result['fallback_used'] = 'rag'
                 rag_result['graph_confidence'] = graph_confidence
                 return jsonify(rag_result)
         
-        db_session.close()
+        foundry.close()
         
         return jsonify({
             'success': True,
@@ -3288,7 +3289,6 @@ def vault_chat():
         })
     except Exception as e:
         logger.error(f"Chat query failed: {e}", exc_info=True)
-        reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
 
 
