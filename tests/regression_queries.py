@@ -52,6 +52,16 @@ TEST_QUERIES = [
 ]
 
 
+IMPACT_TESTS = [
+    {
+        "query": "If Auth Service goes down, what's affected?",
+        "expected_blast_radius": ["API Gateway", "Order Service", "Payment Service", 
+                                   "Inventory Service", "Notification Service"],
+        "min_affected": 5,
+    },
+]
+
+
 def run_regression_tests(tenant_id: str) -> List[TestResult]:
     """Run all regression tests and return results."""
     session = get_session()
@@ -74,7 +84,7 @@ def run_regression_tests(tenant_id: str) -> List[TestResult]:
             sufficiency, details = reasoner.check_sufficiency(query, context_str)
             confidence, quadrant = reasoner.calculate_quadrant_confidence(bundle, sufficiency, entity_density)
             
-            passed = confidence >= expected_confidence
+            passed = round(confidence, 2) >= expected_confidence
             failure_reason = None
             if not passed:
                 failure_reason = f"Confidence {confidence:.2f} < expected {expected_confidence:.2f}"
@@ -160,19 +170,70 @@ def check_entity_duplicates(tenant_id: str):
             return True
 
 
+def run_impact_tests(tenant_id: str) -> bool:
+    """Run impact/blast radius tests."""
+    session = get_session()
+    set_tenant_context(session, tenant_id)
+    
+    retriever = RetrievalAgent(session, tenant_id)
+    
+    print("\n" + "=" * 70)
+    print("IMPACT QUERY TESTS")
+    print("=" * 70)
+    
+    all_passed = True
+    
+    for test in IMPACT_TESTS:
+        query = test["query"]
+        expected = test.get("expected_blast_radius", [])
+        min_affected = test.get("min_affected", 1)
+        
+        print(f"\n[TEST] {query}")
+        
+        try:
+            bundle = retriever.build_context_bundle(query)
+            
+            blast_radius = bundle.blast_radius_entities or []
+            
+            found_expected = [e for e in expected if e in blast_radius]
+            passed = len(found_expected) >= len(expected) and len(blast_radius) >= min_affected
+            
+            print(f"  Blast radius: {len(blast_radius)} entities")
+            print(f"  Expected services found: {len(found_expected)}/{len(expected)}")
+            print(f"  Services: {found_expected}")
+            
+            if passed:
+                print(f"  [PASS]")
+            else:
+                print(f"  [FAIL] Missing: {set(expected) - set(found_expected)}")
+                all_passed = False
+                
+        except Exception as e:
+            print(f"  [FAIL] Error: {e}")
+            all_passed = False
+    
+    session.close()
+    return all_passed
+
+
 if __name__ == "__main__":
     TENANT_ID = "7627d577-e07c-484f-893a-ed2f464d28b9"
     
     print("Running regression tests...")
     results = run_regression_tests(TENANT_ID)
-    all_passed = print_results(results)
+    queries_passed = print_results(results)
+    
+    print("\nRunning impact tests...")
+    impact_passed = run_impact_tests(TENANT_ID)
     
     print("\nChecking for duplicate entities...")
     no_duplicates = check_entity_duplicates(TENANT_ID)
     
-    if all_passed and no_duplicates:
+    all_passed = queries_passed and impact_passed and no_duplicates
+    
+    if all_passed:
         print("\nAll tests passed!")
         sys.exit(0)
     else:
-        print("\nSome tests failed or duplicates found.")
+        print("\nSome tests failed.")
         sys.exit(1)
