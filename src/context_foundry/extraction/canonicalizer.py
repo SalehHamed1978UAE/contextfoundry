@@ -86,6 +86,9 @@ class Canonicalizer:
             api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
             base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
         )
+        self.embedding_client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY")
+        )
         self._load_canonical_relations()
     
     def _load_canonical_relations(self) -> None:
@@ -181,12 +184,16 @@ Return ONLY the definition, nothing else."""
         return defined_triplets
     
     def _get_embedding(self, text: str) -> List[float]:
-        """Get embedding for text, using cache."""
+        """Get embedding for text, using cache.
+        
+        Uses direct OpenAI API for embeddings (not the Replit proxy which
+        doesn't support the embeddings endpoint).
+        """
         if text in self._embedding_cache:
             return self._embedding_cache[text]
         
         try:
-            response = self.client.embeddings.create(
+            response = self.embedding_client.embeddings.create(
                 model="text-embedding-3-small",
                 input=text
             )

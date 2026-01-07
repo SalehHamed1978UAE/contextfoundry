@@ -56,6 +56,12 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - `relationships.source_chunk_id` (UUID): Links to document_chunks.id for extraction provenance
 - Pipeline: OntologyCentricPipeline processes each chunk individually, storing source_chunk_id for every extracted entity/relationship
 
+### Current Extraction Status (Jan 2026)
+- 467 entities with chunk provenance
+- 285 relationships with chunk provenance
+- 10 documents fully extracted with graph data
+- Embedding endpoint fixed: Uses direct OpenAI API for embeddings (Replit proxy only supports chat completions)
+
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
 - **LLM**: OpenAI `gpt-4o-mini`
