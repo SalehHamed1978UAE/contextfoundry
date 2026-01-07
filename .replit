@@ -92,3 +92,4 @@ run = ["gunicorn", "--bind", "0.0.0.0:5000", "--reuse-port", "--workers", "2", "
 
 [userenv.shared]
 BRAIN_INTERNAL_URL = "http://localhost:3000"
+USE_ONTOLOGY_CENTRIC_PIPELINE = "true"

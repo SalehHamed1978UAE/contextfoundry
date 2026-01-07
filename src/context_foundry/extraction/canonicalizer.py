@@ -343,23 +343,41 @@ Return only YES or NO."""
             if triplet.predicate_embedding:
                 embedding_str = f"[{','.join(str(x) for x in triplet.predicate_embedding)}]"
             
-            self.session.execute(
-                text("""
-                    INSERT INTO ontology.canonical_relations
-                    (id, tenant_id, name, definition, embedding, source_predicates, usage_count)
-                    VALUES (:id, :tenant_id, :name, :definition, :embedding::vector, :predicates, :usage_count)
-                    ON CONFLICT (tenant_id, name) DO NOTHING
-                """),
-                {
-                    "id": new_canonical.id,
-                    "tenant_id": self.tenant_id,
-                    "name": canonical_name,
-                    "definition": triplet.predicate_definition,
-                    "embedding": embedding_str,
-                    "predicates": json.dumps([triplet.predicate]),
-                    "usage_count": 1
-                }
-            )
+            if embedding_str:
+                self.session.execute(
+                    text("""
+                        INSERT INTO ontology.canonical_relations
+                        (id, tenant_id, name, definition, embedding, source_predicates, usage_count)
+                        VALUES (:id, :tenant_id, :name, :definition, cast(:embedding as vector), :predicates, :usage_count)
+                        ON CONFLICT (tenant_id, name) DO NOTHING
+                    """),
+                    {
+                        "id": new_canonical.id,
+                        "tenant_id": self.tenant_id,
+                        "name": canonical_name,
+                        "definition": triplet.predicate_definition,
+                        "embedding": embedding_str,
+                        "predicates": json.dumps([triplet.predicate]),
+                        "usage_count": 1
+                    }
+                )
+            else:
+                self.session.execute(
+                    text("""
+                        INSERT INTO ontology.canonical_relations
+                        (id, tenant_id, name, definition, source_predicates, usage_count)
+                        VALUES (:id, :tenant_id, :name, :definition, :predicates, :usage_count)
+                        ON CONFLICT (tenant_id, name) DO NOTHING
+                    """),
+                    {
+                        "id": new_canonical.id,
+                        "tenant_id": self.tenant_id,
+                        "name": canonical_name,
+                        "definition": triplet.predicate_definition,
+                        "predicates": json.dumps([triplet.predicate]),
+                        "usage_count": 1
+                    }
+                )
             self.session.commit()
             
             self._canonical_cache[canonical_name] = new_canonical
