@@ -1516,10 +1516,27 @@ class RetrievalAgent:
         # Include traversal result with frontier detection for impact queries
         if is_impact_query and target_entity_name and traversal_result:
             if traversal_result.traversal_complete:
-                # Confirmed entities from traversal
-                result["blast_radius_entities"] = sorted([
-                    e.entity_name for e in traversal_result.confirmed_entities
-                ])
+                # Confirmed entities from traversal - filter out noise entity types and dedupe
+                NOISE_ENTITY_TYPES = {
+                    'CONFIDENCE_SCORE', 'TIMESTAMP', 'METADATA', 'NOTE', 
+                    'DOCUMENT', 'RELATIONSHIP', 'CONCEPT', 'UNKNOWN'
+                }
+                # Focus on core system types for impact analysis
+                CORE_IMPACT_TYPES = {
+                    'SERVICE', 'SYSTEM', 'COMPONENT', 'DATABASE', 'APPLICATION',
+                    'API', 'GATEWAY', 'TEAM', 'PERSON'
+                }
+                seen_names = set()
+                filtered_entities = []
+                for e in traversal_result.confirmed_entities:
+                    entity_type_upper = e.entity_type.upper()
+                    if entity_type_upper not in NOISE_ENTITY_TYPES:
+                        if e.entity_name not in seen_names:
+                            seen_names.add(e.entity_name)
+                            # Prioritize core system types
+                            if entity_type_upper in CORE_IMPACT_TYPES:
+                                filtered_entities.append(e.entity_name)
+                result["blast_radius_entities"] = sorted(filtered_entities)
                 result["blast_radius_complete"] = True
                 result["blast_radius_mode"] = traversal_result.mode
                 
