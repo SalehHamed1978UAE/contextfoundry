@@ -505,7 +505,7 @@ Respond with ONLY valid JSON array:
                         {"role": "user", "content": prompt},
                     ],
                     temperature=self.temperature,
-                    max_tokens=2000,
+                    max_tokens=8000,
                 )
                 
                 response_text = response.choices[0].message.content or ""
