@@ -133,6 +133,48 @@ class StagingLoader:
         """
         return entity_type.upper()
     
+    def _ensure_entity_type_exists(self, entity_type: str) -> None:
+        """Ensure entity type exists in ontology.types (required by database trigger).
+        
+        The entities table has a trigger that validates entity_type against
+        ontology.types. This method creates the type if it doesn't exist.
+        
+        Uses a separate connection to avoid SQLAlchemy autoflush issues.
+        """
+        import os
+        import psycopg2
+        
+        normalized_type = entity_type.upper()
+        
+        try:
+            database_url = os.environ.get("DATABASE_URL")
+            with psycopg2.connect(database_url) as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT 1 FROM ontology.types 
+                        WHERE LOWER(type_name) = LOWER(%s) AND status = 'ACTIVE'
+                    """, (normalized_type,))
+                    result = cur.fetchone()
+                    
+                    if not result:
+                        cur.execute("""
+                            INSERT INTO ontology.types (
+                                id, type_name, layer, display_name, description, 
+                                status, confidence, created_at, updated_at
+                            ) VALUES (
+                                gen_random_uuid(), %s, 2, %s, %s,
+                                'ACTIVE', 0.8, NOW(), NOW()
+                            )
+                            ON CONFLICT DO NOTHING
+                        """, (
+                            normalized_type,
+                            entity_type.replace("_", " ").title(),
+                            f"Dynamically created entity type: {entity_type}"
+                        ))
+                        conn.commit()
+        except Exception as e:
+            pass
+    
     def _normalize_relation_type(self, relation_type: str) -> str:
         """Normalize relationship type string for database storage.
         
@@ -245,6 +287,11 @@ class StagingLoader:
                 return existing, "updated"
             
             return existing, "skipped"
+        
+        self._ensure_entity_type_exists(entity_type)
+        
+        from ..utils.logger import logger
+        logger.debug(f"[StagingLoader] Creating entity: {extracted.canonical_name} ({entity_type})")
         
         entity = Entity(
             id=uuid.uuid4(),
@@ -476,9 +523,17 @@ class StagingLoader:
         if commit:
             try:
                 self.session.commit()
+                from ..utils.logger import logger
+                logger.info(f"[StagingLoader] Committed {result.entities_created} entities, {result.relations_created} relations")
             except Exception as e:
+                from ..utils.logger import logger
+                logger.error(f"[StagingLoader] Failed to commit: {str(e)}")
                 result.errors.append(f"Failed to commit transaction: {str(e)}")
                 self.session.rollback()
+        
+        if result.errors:
+            from ..utils.logger import logger
+            logger.warning(f"[StagingLoader] Errors: {result.errors}")
         
         return result
     
