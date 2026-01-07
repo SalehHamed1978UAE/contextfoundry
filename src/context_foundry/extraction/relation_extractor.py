@@ -262,6 +262,7 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
         entities: List[Dict],
         document_id: str,
         chunk_id: str = "",
+        document_type: str = None,
     ) -> List[ExtractedRelation]:
         """
         Extract relations from text using LLM.
@@ -271,6 +272,7 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
             entities: List of known entities (with 'canonical_name' and 'entity_type')
             document_id: ID of the source document
             chunk_id: ID of the source chunk
+            document_type: Type of document (resume, incident_report, etc.)
             
         Returns:
             List of ExtractedRelation objects
@@ -403,3 +405,142 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
                 relation_map[key] = relation
         
         return list(relation_map.values())
+    
+    def extract_with_ontology(
+        self,
+        text: str,
+        entities: List[Dict],
+        document_id: str,
+        document_type: str,
+        relationship_types: List[Dict],
+        chunk_id: str = "",
+    ) -> List[ExtractedRelation]:
+        """
+        Extract relations using ontology-guided prompt.
+        
+        Args:
+            text: Text to extract relations from
+            entities: List of known entities
+            document_id: Document ID
+            document_type: Type of document (resume, incident_report, etc.)
+            relationship_types: List of relationship type definitions with name/definition
+            chunk_id: Chunk ID
+            
+        Returns:
+            List of ExtractedRelation objects
+        """
+        if not text.strip() or not entities:
+            return []
+        
+        entity_names = {
+            e.get("canonical_name", e.get("name", ""))
+            for e in entities
+            if e.get("canonical_name") or e.get("name")
+        }
+        
+        entities_str = self._format_entities_for_prompt(entities)
+        
+        rel_descriptions = []
+        for rt in relationship_types:
+            name = rt.get("name", "UNKNOWN")
+            definition = rt.get("definition", f"{name} relationship")
+            source_types = rt.get("source_types", [])
+            target_types = rt.get("target_types", [])
+            
+            sources = ", ".join(source_types) if source_types else "any"
+            targets = ", ".join(target_types) if target_types else "any"
+            rel_descriptions.append(f"- {name}: {definition} (from {sources} to {targets})")
+        
+        rel_list = "\n".join(rel_descriptions) if rel_descriptions else "No predefined types - extract what you find"
+        
+        prompt = f"""You are an expert at extracting relationships between entities from {document_type} documents.
+
+Given the following text and the list of known entities, extract all relationships.
+
+RECOMMENDED RELATIONSHIP TYPES for {document_type.upper()} documents:
+{rel_list}
+
+Use these types when they fit. If you find a relationship not covered by these types, 
+create a descriptive relationship type in UPPERCASE_UNDERSCORE format.
+
+KNOWN ENTITIES:
+{entities_str}
+
+For each relationship, provide:
+1. relation_type: A relationship type (preferably from the recommended list)
+2. source_name: The name of the source entity (must be from KNOWN ENTITIES)
+3. target_name: The name of the target entity (must be from KNOWN ENTITIES)
+4. source_span: The exact text that indicates this relationship
+5. confidence: Your confidence in this extraction (0.0 to 1.0)
+
+IMPORTANT RULES:
+- Extract ALL relationships mentioned in the text
+- Both source and target entities must be from the KNOWN ENTITIES list
+- Use recommended relationship types when they fit the document type
+- Assign lower confidence (0.5-0.7) if the relationship is implied
+- Assign higher confidence (0.8-1.0) if the relationship is explicitly stated
+
+TEXT:
+{text}
+
+Respond with ONLY valid JSON array:
+[
+  {{
+    "relation_type": "RELATION_TYPE",
+    "source_name": "Source Entity",
+    "target_name": "Target Entity",
+    "source_span": "exact text",
+    "confidence": 0.95
+  }}
+]"""
+
+        system_prompt = f"You are an expert at extracting relationships from {document_type} documents. Respond only with valid JSON."
+        
+        for attempt in range(self.max_retries):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=self.temperature,
+                    max_tokens=2000,
+                )
+                
+                response_text = response.choices[0].message.content or ""
+                raw_relations = self._parse_llm_response(response_text)
+                
+                print(f"[RelationExtractor] Ontology-guided: {len(raw_relations)} raw relations for {document_type}")
+                
+                relations = []
+                for raw in raw_relations:
+                    if not self._validate_relation(raw, entity_names):
+                        continue
+                    
+                    normalized = self._normalize_relation(raw)
+                    
+                    relation = ExtractedRelation(
+                        id=self._generate_relation_id(
+                            normalized["relation_type"],
+                            normalized["source_name"],
+                            normalized["target_name"]
+                        ),
+                        relation_type=normalized["relation_type"],
+                        source_name=normalized["source_name"],
+                        target_name=normalized["target_name"],
+                        source_span=normalized["source_span"],
+                        source_document_id=document_id,
+                        source_chunk_id=chunk_id,
+                        confidence=normalized["confidence"],
+                    )
+                    relations.append(relation)
+                
+                return relations
+                
+            except Exception as e:
+                if attempt == self.max_retries - 1:
+                    print(f"Ontology-guided relation extraction failed: {e}")
+                    return []
+        
+        return []
