@@ -184,31 +184,40 @@ class EntityExtractor:
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
         """Build simplified entity extraction prompt optimized for completeness."""
-        schema = self.schema_loader.schema
-        entity_type_names = ", ".join(schema.entity_types.keys())
+        core_types = "COMPONENT, CONCEPT, SERVICE, PROCESS, PERSON, ORGANIZATION, TEAM, DATABASE, METRIC, INCIDENT, EVENT, DOCUMENT, TOOL, TIME_PERIOD, LOCATION"
         
         prompt = f"""Extract ALL entities from this text. Be EXHAUSTIVE - a short list is a FAILED extraction.
 
-Valid types: {entity_type_names}
+Valid types: {core_types}
 
 ## ENTITY TYPE DEFINITIONS
 
-CONCEPT: Named frameworks, methodologies, models, systems, approaches, architectures
-PERSON: Named individuals AND job roles/titles (Data Steward, CEO, CFO)
-ORGANIZATION: Companies, agencies, departments, ministries, groups that ACT
+COMPONENT: System parts, subsystems, modules, memory types (e.g., "Semantic Memory", "Episodic Memory", "Auth Module", "Core Intellect", "Reasoning Engine")
+CONCEPT: Abstract ideas, approaches, patterns, techniques (e.g., "RAG", "Fine-Tuning", "Tri-Memory System", "Hallucination Prevention")
+SERVICE: Running software services, APIs, microservices that handle requests (e.g., "OrderService", "PaymentAPI")
+PROCESS: Workflows, procedures, phases, stages, lifecycles (e.g., "Cognitive Loop", "Ingestion", "Perception")
+PERSON: Named individuals AND job roles/titles (e.g., "James Rodriguez", "Data Steward", "CEO")
+ORGANIZATION: Companies, agencies, departments, ministries, groups that ACT (e.g., "Context Foundry", "IBM")
+TEAM: Named teams within organizations (e.g., "Commerce Team", "Platform Team")
+DATABASE: Data stores, databases, tables, caches (e.g., "knowledge graph", "STAGING", "TRUSTED")
+METRIC: Measurements, scores, KPIs, confidence values (e.g., "provenance score", "confidence > 0.7")
+INCIDENT: System failures, outages, SEV events (e.g., "INC-2025-1215")
+EVENT: Meetings, milestones, non-failure occurrences
+DOCUMENT: Referenced reports, policies, forms, runbooks
+TOOL: Software tools, utilities, platforms (e.g., "NotebookLM", "Tesseract")
+TIME_PERIOD: Dates, time ranges, deadlines (e.g., "December 2025", "Q4")
 LOCATION: PHYSICAL places ONLY (cities, countries, buildings)
-PROCESS: Workflows, procedures, phases, stages
-EVENT: Meetings, milestones, occurrences
-DATE: Time references (December 2025, Q4, Months 1-6)
-DOCUMENT: Referenced reports, policies, forms
 
-## EXTRACTION RULES
+## CRITICAL RULES
 
-1. Extract ALL capitalized multi-word terms and named concepts
-2. Extract document titles, section headers, and acronyms  
-3. Extract job titles and roles as PERSON
-4. Be EXHAUSTIVE - do not stop until every entity is captured
-5. When uncertain, INCLUDE with confidence 0.7-0.8
+1. NEVER use "RELATIONSHIP" as an entity type - relationships are edges, not nodes
+2. Use COMPONENT for system parts like "Semantic Memory", "Episodic Memory", "Procedural Memory"
+3. Use CONCEPT for abstract ideas like "RAG", "Fine-Tuning", "World Model"
+4. Use SERVICE only for actual running services (OrderService, PaymentAPI)
+5. Use PROCESS for workflow stages like "Ingestion", "Perception", "Learning"
+6. Extract ALL capitalized multi-word terms and named concepts
+7. Be EXHAUSTIVE - do not stop until every entity is captured
+8. When uncertain, INCLUDE with confidence 0.7-0.8
 
 ## OUTPUT FORMAT
 
