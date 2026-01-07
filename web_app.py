@@ -3415,6 +3415,11 @@ def graph_search():
     from sqlalchemy import or_, func
     from datetime import datetime
     
+    # Ensure tenant context is set
+    tenant_id = g.tenant_id or session.get('tenant_id')
+    if not tenant_id:
+        return jsonify({'success': False, 'error': 'No vault context - please select a vault first', 'results': []}), 401
+    
     query = request.args.get('q', '').strip()
     lifecycle_filter = request.args.get('lifecycle_state', 'all')
     limit = int(request.args.get('limit', 10))
@@ -3433,10 +3438,11 @@ def graph_search():
     if not query:
         return jsonify({'success': True, 'results': [], 'message': 'Enter a search term'})
     
-    session = get_session()
-    set_tenant_on_session(session, g.tenant_id)
+    db_session = get_session()
+    set_tenant_on_session(db_session, tenant_id)
+    logger.info(f"[GRAPH_SEARCH] tenant_id={tenant_id}, query='{query}'")
     try:
-        entity_query = session.query(Entity).filter(
+        entity_query = db_session.query(Entity).filter(
             func.lower(Entity.name).contains(query.lower())
         )
         
@@ -3467,11 +3473,13 @@ def graph_search():
                 'confidence': e.confidence or 0.5
             })
         
+        logger.info(f"[GRAPH_SEARCH] Found {len(results)} results for '{query}'")
         return jsonify({'success': True, 'results': results})
     except Exception as e:
+        logger.error(f"[GRAPH_SEARCH] Error: {e}")
         return jsonify({'error': str(e), 'success': False}), 500
     finally:
-        session.close()
+        db_session.close()
 
 @app.route('/api/graph/expand/<entity_id>')
 def graph_expand(entity_id):
