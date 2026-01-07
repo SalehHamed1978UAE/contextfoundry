@@ -1083,6 +1083,11 @@
         
         loadVaultInfo();
         loadDocuments();
+        
+        // Auto-refresh document list every 5 seconds to show status updates
+        setInterval(() => {
+            loadDocuments();
+        }, 5000);
     </script>
 </body>
 </html>
