@@ -1105,7 +1105,16 @@ class RetrievalAgent:
         if depends_pattern:
             return self._normalize_entity_name(depends_pattern.group(1))
         
-        # Pattern 4c: "affected by <Entity>" / "impacted by <Entity>" / "affected by incident <ID>"
+        # Pattern 4c: Incident ID anywhere in query (e.g., INC-2025-1201, TKT-2024-567)
+        # This should catch "Tell me about incident INC-2025-1201", "What happened with INC-2025-1201", etc.
+        incident_id_anywhere = re.search(
+            r'\b([A-Z]{2,5}-\d{4}-\d+)\b',
+            query_text
+        )
+        if incident_id_anywhere:
+            return incident_id_anywhere.group(1).upper()
+        
+        # Pattern 4d: "affected by <Entity>" / "impacted by <Entity>" / "affected by incident <ID>"
         # For incident IDs like INC-2025-1201
         incident_id_pattern = re.search(
             r'\b(?:affected|impacted)\s+by\s+(?:incident\s+)?([A-Z]+-\d{4}-\d+)\b',

@@ -678,6 +678,7 @@ class ContextFoundry:
         try:
             log_entry = QueryLog(
                 id=uuid.UUID(query_id),
+                tenant_id=uuid.UUID(self.tenant_id) if self.tenant_id else None,
                 query_text=query_text,
                 semantic_entities_count=len(bundle.semantic_entities),
                 semantic_relationships_count=len(bundle.semantic_relationships),
