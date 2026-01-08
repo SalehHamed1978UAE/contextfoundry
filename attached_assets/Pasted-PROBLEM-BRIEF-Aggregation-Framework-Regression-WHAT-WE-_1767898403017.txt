@@ -1,0 +1,77 @@
+PROBLEM BRIEF: Aggregation Framework Regression
+
+WHAT WE'RE SEEING:
+
+Before aggregation was added:
+- User: "How many jobs has Saleh done?"
+- System: "Saleh has held multiple positions across various companies, 
+  totaling at least 8 distinct roles... These positions include Director, 
+  Engineer, Executive Director... at companies like CANCAN DIGITAL, 
+  EMIRATES NUCLEAR ENERGY CORPORATION..." [with sources]
+- User: "What are those jobs?"
+- System: [Lists the jobs with details]
+- Conversation flowed naturally
+
+After aggregation was added:
+- User: "How many jobs has Saleh done?"
+- System: "At least 7 jobs" [bare number, no context]
+- User: "What are those jobs?"
+- System: "I don't have enough information to answer this."
+- Conversation is broken
+
+PROBLEMS:
+
+1. RESPONSE QUALITY DEGRADED
+   - Was: Rich answer with explanation, entity names, sources
+   - Now: Bare number with no context
+   
+2. FOLLOW-UP QUESTIONS BROKEN
+   - The system has no memory of what it just counted
+   - "What are those jobs?" returns nothing
+   - Conversation continuity is gone
+
+3. COUNT CHANGED WITHOUT EXPLANATION
+   - Was 8 before, now 7
+   - No way to understand why or drill down
+
+4. NO ACCESS TO UNDERLYING ENTITIES
+   - We count 7 jobs but don't return WHAT those jobs are
+   - The entities that were counted are thrown away
+
+ROOT CAUSE:
+
+The aggregation framework SHORT-CIRCUITS the pipeline:
+
+    if agg_result is not None and agg_result.is_success:
+        return self._format_aggregation_response(agg_result)  # <-- STOPS HERE
+    # Normal pipeline never runs
+
+This means:
+- No entities passed to context
+- No conversation memory updated
+- No LLM to compose a proper response
+- No follow-up capability
+
+WHAT AGGREGATION SHOULD DO:
+
+1. Compute the count (7 jobs) ✓ (this works)
+2. Retrieve the actual entities that were counted (the 7 organizations)
+3. Add BOTH to the context bundle as structured facts
+4. Let the normal reasoning pipeline compose a response using these facts
+5. Let normal conversation memory track the context
+6. Follow-up questions work because entities are in context
+
+THE COUNT IS AN INPUT TO THE RESPONSE, NOT THE ENTIRE RESPONSE.
+
+ARCHITECTURAL FIX:
+
+Change from:
+    Aggregation → Return bare number → Done
+
+To:
+    Aggregation → Compute count + get entities → Add to context bundle → 
+    Normal pipeline composes response → Memory tracks context → 
+    Follow-ups work
+
+Remove the short-circuit. Let aggregation ENHANCE the pipeline, 
+not REPLACE it.

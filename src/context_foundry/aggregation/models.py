@@ -252,6 +252,9 @@ class AggregationResult:
     cat: Optional[CAT] = None
     raw_query: Optional[str] = None
     
+    # The actual entities that were counted - for rich responses and follow-ups
+    counted_entities: List[Dict[str, Any]] = field(default_factory=list)
+    
     @property
     def display_text(self) -> str:
         """Human-readable result string."""

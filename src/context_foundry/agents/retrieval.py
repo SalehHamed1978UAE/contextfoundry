@@ -210,12 +210,31 @@ class RetrievalAgent:
             if result.evidence_envelope:
                 bundle.evidence_envelope = result.evidence_envelope
             
+            # Add counted entities to bundle for rich responses and follow-ups
+            if result.counted_entities:
+                bundle.counted_entities = result.counted_entities
+                # Also add to semantic_entities so reasoning agent can use them
+                for entity in result.counted_entities:
+                    bundle.semantic_entities.append({
+                        "id": entity.get("id"),
+                        "name": entity.get("name"),
+                        "type": entity.get("entity_type", "Organization"),
+                        "relationship_type": entity.get("relationship_type"),
+                        "title": entity.get("title"),
+                        "start_date": entity.get("start_date"),
+                        "end_date": entity.get("end_date"),
+                        "confidence": 1.0,  # From deterministic SQL query
+                        "source": "aggregation_framework",
+                    })
+                logger.info(f"[AGG-DEBUG-5b] Added {len(result.counted_entities)} counted entities to bundle")
+            
             if query_logger:
                 query_logger.log_event("AGGREGATION_RESULT", {
                     "result_kind": result.result_kind.value,
                     "value": result.value,
                     "confidence": result.confidence,
                     "display_text": result.display_text,
+                    "counted_entities_count": len(result.counted_entities) if result.counted_entities else 0,
                 })
             
             logger.info(f"[AGG-DEBUG-6] SUCCESS: {result.display_text} (confidence: {result.confidence:.2f})")
