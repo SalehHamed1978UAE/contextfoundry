@@ -149,7 +149,7 @@ class AgentDecisionLogger:
         """
         session = None
         try:
-            session = get_session(use_rls_role=False)
+            session = get_session(use_rls_role=True)
             set_tenant_context(session, self.tenant_id)
             
             decision_uuid = str(uuid.uuid4())
@@ -562,7 +562,7 @@ class AgentDecisionLogger:
         """
         session = None
         try:
-            session = get_session(use_rls_role=False)
+            session = get_session(use_rls_role=True)
             set_tenant_context(session, self.tenant_id)
             
             decision_uuid = session.execute(text("""

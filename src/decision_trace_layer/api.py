@@ -101,7 +101,7 @@ def create_decision():
     
     session = None
     try:
-        session = get_session(use_rls_role=False)
+        session = get_session(use_rls_role=True)
         set_tenant_context(session, tenant_id)
         
         embedding = get_embedding(f"{data['summary']}. {data['rationale']}")
@@ -229,7 +229,7 @@ def search_precedents():
     
     session = None
     try:
-        session = get_session(use_rls_role=False)
+        session = get_session(use_rls_role=True)
         set_tenant_context(session, tenant_id)
         
         embedding = get_embedding(data['query'])
@@ -305,7 +305,7 @@ def get_decision(decision_id: str):
     
     session = None
     try:
-        session = get_session(use_rls_role=False)
+        session = get_session(use_rls_role=True)
         set_tenant_context(session, tenant_id)
         
         decision = session.execute(text("""
@@ -403,7 +403,7 @@ def record_outcome(decision_id: str):
     
     session = None
     try:
-        session = get_session(use_rls_role=False)
+        session = get_session(use_rls_role=True)
         set_tenant_context(session, tenant_id)
         
         decision_uuid = session.execute(text("""
