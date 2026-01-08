@@ -29,11 +29,27 @@ logger = logging.getLogger(__name__)
 dtl_bp = Blueprint('dtl', __name__, url_prefix='/api/v1/dtl')
 
 
+import time
+import hashlib
+
+EMBEDDING_CACHE: Dict[str, tuple] = {}
+EMBEDDING_CACHE_TTL = 3600  # 1 hour
+
 def get_embedding(text_input: str) -> List[float]:
-    """Get embedding from OpenAI text-embedding-3-small"""
+    """Get embedding from OpenAI text-embedding-3-small with caching"""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not configured")
+    
+    normalized = text_input.lower().strip()[:500]
+    cache_key = hashlib.md5(normalized.encode()).hexdigest()
+    
+    if cache_key in EMBEDDING_CACHE:
+        embedding, timestamp = EMBEDDING_CACHE[cache_key]
+        if time.time() - timestamp < EMBEDDING_CACHE_TTL:
+            logger.debug("[DTL API] Embedding cache hit")
+            return embedding
+        del EMBEDDING_CACHE[cache_key]
     
     response = requests.post(
         "https://api.openai.com/v1/embeddings",
@@ -42,10 +58,17 @@ def get_embedding(text_input: str) -> List[float]:
             "Content-Type": "application/json"
         },
         json={"model": "text-embedding-3-small", "input": text_input},
-        timeout=30.0
+        timeout=10.0
     )
     response.raise_for_status()
-    return response.json()["data"][0]["embedding"]
+    embedding = response.json()["data"][0]["embedding"]
+    
+    if len(EMBEDDING_CACHE) >= 1000:
+        oldest_key = min(EMBEDDING_CACHE.keys(), key=lambda k: EMBEDDING_CACHE[k][1])
+        del EMBEDDING_CACHE[oldest_key]
+    
+    EMBEDDING_CACHE[cache_key] = (embedding, time.time())
+    return embedding
 
 
 def validate_uuid(value: str) -> bool:

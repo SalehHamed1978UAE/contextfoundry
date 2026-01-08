@@ -12,7 +12,7 @@ Integration points:
 - Any other decision function
 
 GUARDRAILS:
-- 300ms timeout on precedent lookup
+- 600ms timeout on precedent lookup
 - No-block: always proceeds even if DTL is down
 - Single hook - no duplicated logic across decision points
 """
@@ -46,7 +46,7 @@ class DecisionType(str, Enum):
 @dataclass
 class OrchestratorConfig:
     """Configuration for the decision orchestrator"""
-    precedent_timeout_seconds: float = 0.3
+    precedent_timeout_seconds: float = 0.6  # 600ms (aligned with PrecedentMiddleware)
     strong_precedent_threshold: float = 0.7
     auto_log_decisions: bool = True
     enable_precedent_lookup: bool = True
