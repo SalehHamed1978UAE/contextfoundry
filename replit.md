@@ -44,9 +44,10 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Entity-Chunk Provenance**: Each entity and relationship has a `source_chunk_id` column linking back to the specific document chunk it was extracted from, enabling full citation tracing.
 - **Decision Trace Layer (DTL)**: Extends Context Foundry with precedent-aware decision memory, capturing rationale, precedents, exceptions, and outcomes. DTL includes 13 tables, 6 enums, and 30 indexes, with 14 RLS policies for tenant isolation. It features hybrid retrieval for precedent search, combining semantic search, full-text search, and entity overlap.
 - **Precedent Middleware & Decision Orchestrator**: Case-Based Reasoning (CBR) integration implementing "retrieve before decide" pattern. Key components:
-  - `PrecedentMiddleware`: Low-level API for precedent retrieval with 300ms timeout and no-block fallback
+  - `PrecedentMiddleware`: Low-level API for precedent retrieval with 600ms timeout and no-block fallback. Features client-side embedding computation with MD5-keyed caching (1-hour TTL, 1k entry cap) to bypass server-side OpenAI API calls.
   - `DecisionOrchestrator`: Single unified hook for all CF agent decision points (query routing, entity resolution, tier selection)
-  - Metrics tracking: call rate, mean/p95 latency, citation vs deviation rates
+  - Metrics tracking: call rate, mean/p95 latency, citation vs deviation rates, plus timing instrumentation (t_queue_ms, t_http_ms, t_server_ms, t_total_ms)
+  - Performance thresholds: ≥95% success rate, ≤5% timeout rate, mean HTTP latency ≤150ms, P95 HTTP latency ≤250ms. Current: 108ms mean, 113ms P95, 100% success, 0% timeout.
   - Integration in `ContextFoundry.query()` via `_route_with_precedents()` method
 
 ## External Dependencies
