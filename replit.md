@@ -53,6 +53,9 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
   - Security: AuthContext enforces tenant isolation. Cross-tenant queries return 0 results.
   - Tests: Parity (inline vs HTTP), Security (cross-tenant isolation), Performance (p95 ≤ 250ms with 10k decisions)
   - Integration in `ContextFoundry.query()` via `_route_with_precedents()` method
+  - **CI Integration (Jan 2026)**:
+    - Normal CI (`.github/workflows/ci.yml`): Runs `TestSmoke` class with `@pytest.mark.smoke` marker - inline-only tests using fixed embeddings (no API keys/HTTP server required)
+    - Nightly CI (`.github/workflows/nightly.yml`): Full parity test (HTTP + inline), security tests, performance tests (requires OPENAI_API_KEY, running Brain service)
 
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)

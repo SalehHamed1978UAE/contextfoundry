@@ -1,0 +1,125 @@
+name: DTL Nightly Parity Tests
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Run at 3 AM UTC daily
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  dtl-parity:
+    name: DTL Full Parity Test (HTTP + Inline)
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: pgvector/pgvector:pg15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: context_foundry_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest gunicorn
+
+      - name: Set up test database
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
+        run: |
+          psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          python scripts/setup_database.py || true
+
+      - name: Seed test data and create API key
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
+        run: |
+          python -c "
+          import os
+          import uuid
+          import hashlib
+          from datetime import datetime, timedelta
+          from sqlalchemy import text, create_engine
+          
+          engine = create_engine(os.environ['DATABASE_URL'])
+          with engine.connect() as conn:
+              # Create test tenant and API key
+              tenant_id = str(uuid.uuid4())
+              raw_key = 'cf_test_' + uuid.uuid4().hex[:12]
+              key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
+              
+              conn.execute(text('''
+                  INSERT INTO api_keys (id, name, key_prefix, key_hash, tenant_id, created_at, expires_at, is_active)
+                  VALUES (CAST(:id AS uuid), :name, :prefix, :hash, CAST(:tid AS uuid), :created, :expires, true)
+              '''), {
+                  'id': str(uuid.uuid4()),
+                  'name': 'CI Test Key',
+                  'prefix': raw_key[:8],
+                  'hash': key_hash,
+                  'tid': tenant_id,
+                  'created': datetime.utcnow(),
+                  'expires': datetime.utcnow() + timedelta(hours=2)
+              })
+              conn.commit()
+              
+              # Save key for later steps
+              with open('ci_api_key.txt', 'w') as f:
+                  f.write(raw_key)
+              with open('ci_tenant_id.txt', 'w') as f:
+                  f.write(tenant_id)
+              
+              print(f'Created test API key with tenant {tenant_id}')
+          "
+
+      - name: Start Brain service
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
+          SESSION_SECRET: ci-test-secret
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          gunicorn -b 0.0.0.0:3000 -w 2 brain.app:app &
+          sleep 5
+          curl -s http://localhost:3000/api/v1/dtl/health || echo "Brain service starting..."
+          sleep 5
+
+      - name: Run Full Parity Test (HTTP + Inline)
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          export CF_API_KEY=$(cat ci_api_key.txt)
+          python -m pytest tests/test_dtl_core.py::TestParity -v --tb=short -m "not smoke"
+
+      - name: Run Security Tests
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
+        run: |
+          export CF_API_KEY=$(cat ci_api_key.txt)
+          python -m pytest tests/test_dtl_core.py::TestSecurity -v --tb=short
+
+      - name: Run Performance Test (if data available)
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
+        run: |
+          python -m pytest tests/test_dtl_core.py::TestPerformance -v --tb=short || true

@@ -51,6 +51,13 @@ jobs:
         run: |
           psql $DATABASE_URL -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
+      - name: Run DTL Smoke Tests (inline-only)
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
+          TESTING: "true"
+        run: |
+          python -m pytest tests/test_dtl_core.py::TestSmoke -v --tb=short -m smoke
+
       - name: Run Contract Tests
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
