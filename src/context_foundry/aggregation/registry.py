@@ -52,27 +52,29 @@ class AggDefinitionRegistry:
             return self._cache[cache_key]
         
         # Query database - check tenant-specific first, then global definitions
+        # Cast to UUID explicitly to ensure proper type matching
         query = text("""
             SELECT concept_key, synonyms, candidates, status
             FROM agg_definitions
-            WHERE (tenant_id = :tenant_id OR tenant_id = '00000000-0000-0000-0000-000000000000')
+            WHERE (tenant_id = :tenant_id::uuid OR tenant_id = '00000000-0000-0000-0000-000000000000'::uuid)
               AND status = 'active'
               AND (concept_key = :concept_key 
                    OR :concept_key = ANY(synonyms))
             ORDER BY 
-                CASE WHEN tenant_id = :tenant_id THEN 0 ELSE 1 END,
+                CASE WHEN tenant_id = :tenant_id::uuid THEN 0 ELSE 1 END,
                 version DESC
             LIMIT 1
         """)
         
+        params = {"tenant_id": str(self.tenant_id), "concept_key": concept_key.lower()}
         logger.info(f"[AGG-REG] Looking for concept_key='{concept_key.lower()}' tenant={self.tenant_id}")
+        logger.info(f"[AGG-REG] SQL params: {params}")
         
-        result = self.session.execute(
-            query,
-            {"tenant_id": str(self.tenant_id), "concept_key": concept_key.lower()},
-        ).fetchone()
+        result = self.session.execute(query, params).fetchone()
         
         logger.info(f"[AGG-REG] Query result: {result}")
+        if result:
+            logger.info(f"[AGG-REG] Found definition: concept_key={result.concept_key}, synonyms={result.synonyms}")
         
         if result is None:
             # Try fuzzy match on synonyms
