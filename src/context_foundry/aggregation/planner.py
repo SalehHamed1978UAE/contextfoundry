@@ -260,26 +260,26 @@ class AggregationPlanner:
         
         filters, filter_params = self._build_filters(cat.filters, cat.time)
         
-        # Add anchor filter if present
+        # Add anchor filter if present (use 't' alias to match template)
         anchor_filter = ""
         if cat.anchor:
-            anchor_filter = "AND r.source_entity_id = :anchor_id"
+            anchor_filter = "AND t.source_entity_id = :anchor_id"
             filter_params["anchor_id"] = str(cat.anchor.entity_id)
         
-        # Add relationship type filter
+        # Add relationship type filter (use 't' alias to match template)
         rel_filter = ""
         if cat.target.relationship_type:
-            rel_filter = "AND r.relationship_type = :rel_type"
+            rel_filter = "AND t.relationship_type = :rel_type"
             filter_params["rel_type"] = cat.target.relationship_type
         
-        grouping_expr = ", ".join(cat.aggregation.grouping_key) if cat.aggregation.grouping_key else "r.target_entity_id"
+        grouping_expr = ", ".join(cat.aggregation.grouping_key) if cat.aggregation.grouping_key else "t.target_entity_id"
         
         sql = template.format(
-            table="relationships r",
+            table="relationships",
             grouping_expr=grouping_expr,
             value_expr=cat.aggregation.value_expr or "1",
-            group_key=", ".join(cat.aggregation.grouping_key) if cat.aggregation.grouping_key else "r.relationship_type",
-            select_expr="r.*",
+            group_key=", ".join(cat.aggregation.grouping_key) if cat.aggregation.grouping_key else "t.relationship_type",
+            select_expr="t.*",
             metric_expr="COUNT(*)",
             filters=f"{anchor_filter} {rel_filter} {'AND ' + filters if filters else ''}",
         )
