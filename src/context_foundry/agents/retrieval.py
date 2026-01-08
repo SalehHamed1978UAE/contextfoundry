@@ -287,6 +287,8 @@ class RetrievalAgent:
                 
                 # Use EntityResolver for person name matching (supports partial/contains match)
                 result = self.entity_resolver.resolve(name, entity_type_hint="PERSON")
+                
+                # Handle successful single match
                 if result.entity and result.confidence >= 0.70:
                     entity_dict = {
                         'id': result.entity.entity_id,
@@ -294,6 +296,17 @@ class RetrievalAgent:
                         'type': result.entity.entity_type,
                     }
                     logger.info(f"[AGG-ANCHOR] Resolved anchor via EntityResolver: id={entity_dict.get('id')}, name={entity_dict.get('name')}, conf={result.confidence:.2f}")
+                    return [entity_dict]
+                
+                # Handle disambiguation - pick the best candidate (highest score)
+                if result.needs_disambiguation and result.candidates:
+                    best = result.candidates[0]  # Already sorted by score
+                    logger.info(f"[AGG-ANCHOR] Disambiguation: picking best candidate '{best.name}' (score={best.score:.2f}) from {len(result.candidates)} matches")
+                    entity_dict = {
+                        'id': best.entity_id,
+                        'name': best.name,
+                        'type': best.entity_type,
+                    }
                     return [entity_dict]
                 
                 # Fallback: try _verify_target_entity_exists (broader search)
