@@ -221,6 +221,68 @@ def create_decision():
             session.close()
 
 
+def _execute_precedent_search(
+    session, 
+    query_text: str,
+    embedding: List[float],
+    tenant_id: str,
+    decision_type_hint: Optional[str],
+    entity_ids: Optional[List[str]],
+    min_confidence: float,
+    limit: int,
+    include_negative: bool
+) -> List[Dict[str, Any]]:
+    """Execute the precedent search query and return formatted results."""
+    result = session.execute(text("""
+        SELECT * FROM search_precedents_api(
+            :query_text,
+            CAST(:embedding AS vector),
+            CAST(:tenant_id AS uuid),
+            :decision_type_hint,
+            CAST(:entity_ids AS uuid[]),
+            :min_confidence,
+            :limit,
+            :include_negative
+        )
+    """), {
+        "query_text": query_text,
+        "embedding": str(embedding),
+        "tenant_id": tenant_id,
+        "decision_type_hint": decision_type_hint,
+        "entity_ids": entity_ids,
+        "min_confidence": min_confidence,
+        "limit": limit,
+        "include_negative": include_negative
+    })
+    
+    rows = result.fetchall()
+    
+    precedents = []
+    for row in rows:
+        precedents.append({
+            "decision_id": str(row.decision_id),
+            "decision_human_id": row.decision_human_id,
+            "summary": row.summary,
+            "decision_type": row.decision_type,
+            "rationale_summary": row.rationale_summary,
+            "choice": row.choice,
+            "decision_timestamp": row.decision_timestamp.isoformat() if row.decision_timestamp else None,
+            "decision_maker_id": str(row.decision_maker_id),
+            "outcome_status": str(row.outcome_status) if row.outcome_status else None,
+            "semantic_rank": row.semantic_rank,
+            "fulltext_rank": row.fulltext_rank,
+            "entity_rank": row.entity_rank,
+            "semantic_score": float(row.semantic_score or 0),
+            "fulltext_score": float(row.fulltext_score or 0),
+            "entity_overlap_score": float(row.entity_overlap_score or 0),
+            "recency_score": float(row.recency_score or 0),
+            "outcome_score": float(row.outcome_score or 0),
+            "category_bonus": float(row.category_bonus or 0),
+            "rrf_score": float(row.rrf_score or 0)
+        })
+    return precedents
+
+
 @dtl_bp.route('/precedents/search', methods=['POST'])
 @require_api_key
 def search_precedents():
@@ -236,8 +298,15 @@ def search_precedents():
     - Category matching bonus
     
     Tenant_id is derived from the authenticated API key.
+    
+    Accepts either:
+    - 'query': Text query (embedding computed server-side)
+    - 'query' + 'embedding': Pre-computed embedding (skips server-side embedding)
     """
+    t_start = time.time()
+    
     data = request.get_json()
+    t_parse = time.time()
     
     if 'query' not in data:
         return jsonify({"error": "Missing required field: query"}), 400
@@ -252,65 +321,49 @@ def search_precedents():
     
     session = None
     try:
+        t_session_start = time.time()
         session = get_session(use_rls_role=True)
         set_tenant_context(session, tenant_id)
+        t_session_end = time.time()
         
-        embedding = get_embedding(data['query'])
+        t_embed_start = time.time()
+        if 'embedding' in data and data['embedding']:
+            embedding = data['embedding']
+            logger.debug("[DTL API] Using pre-computed embedding (fast path)")
+        else:
+            embedding = get_embedding(data['query'])
+        t_embed_end = time.time()
         
-        result = session.execute(text("""
-            SELECT * FROM search_precedents_api(
-                :query_text,
-                CAST(:embedding AS vector),
-                CAST(:tenant_id AS uuid),
-                :decision_type_hint,
-                CAST(:entity_ids AS uuid[]),
-                :min_confidence,
-                :limit,
-                :include_negative
-            )
-        """), {
-            "query_text": data['query'],
-            "embedding": str(embedding),
-            "tenant_id": tenant_id,
-            "decision_type_hint": data.get('decision_type_hint'),
-            "entity_ids": entity_ids,
-            "min_confidence": data.get('min_confidence', 0.0),
-            "limit": data.get('limit', 10),
-            "include_negative": data.get('include_negative_outcomes', True)
-        })
+        t_query_start = time.time()
+        precedents = _execute_precedent_search(
+            session=session,
+            query_text=data['query'],
+            embedding=embedding,
+            tenant_id=tenant_id,
+            decision_type_hint=data.get('decision_type_hint'),
+            entity_ids=entity_ids,
+            min_confidence=data.get('min_confidence', 0.0),
+            limit=data.get('limit', 10),
+            include_negative=data.get('include_negative_outcomes', True)
+        )
+        t_query_end = time.time()
         
-        rows = result.fetchall()
-        
-        precedents = []
-        for row in rows:
-            precedents.append({
-                "decision_id": str(row.decision_id),
-                "decision_human_id": row.decision_human_id,
-                "summary": row.summary,
-                "decision_type": row.decision_type,
-                "rationale_summary": row.rationale_summary,
-                "choice": row.choice,
-                "decision_timestamp": row.decision_timestamp.isoformat() if row.decision_timestamp else None,
-                "decision_maker_id": str(row.decision_maker_id),
-                "outcome_status": str(row.outcome_status) if row.outcome_status else None,
-                "semantic_rank": row.semantic_rank,
-                "fulltext_rank": row.fulltext_rank,
-                "entity_rank": row.entity_rank,
-                "semantic_score": float(row.semantic_score or 0),
-                "fulltext_score": float(row.fulltext_score or 0),
-                "entity_overlap_score": float(row.entity_overlap_score or 0),
-                "recency_score": float(row.recency_score or 0),
-                "outcome_score": float(row.outcome_score or 0),
-                "category_bonus": float(row.category_bonus or 0),
-                "rrf_score": float(row.rrf_score or 0)
-            })
-        
-        return jsonify({
+        t_response_start = time.time()
+        response = jsonify({
             "query": data['query'],
             "tenant_id": tenant_id,
             "count": len(precedents),
-            "precedents": precedents
+            "precedents": precedents,
+            "_timing": {
+                "t_parse_ms": (t_parse - t_start) * 1000,
+                "t_session_ms": (t_session_end - t_session_start) * 1000,
+                "t_embed_ms": (t_embed_end - t_embed_start) * 1000,
+                "t_query_ms": (t_query_end - t_query_start) * 1000,
+                "t_total_ms": (time.time() - t_start) * 1000,
+                "used_precomputed_embedding": 'embedding' in data and data['embedding']
+            }
         })
+        return response
         
     except Exception as e:
         logger.error(f"Precedent search failed: {e}")
