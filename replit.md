@@ -192,7 +192,7 @@ Easy-to-use component for CF agents to log decisions with automatic evidence and
 - **Database-enforced RLS** is the primary security mechanism (use_rls_role=True everywhere)
 - Child tables have tenant_id columns with auto-populate triggers
 - Non-recursive RLS policies prevent infinite recursion errors
-- SECURITY DEFINER function `dtl_check_decision_access()` for sensitivity-level enforcement
-- Cross-tenant precedent links blocked by validation trigger
+- SECURITY DEFINER function `dtl_check_decision_access()` for sensitivity-level enforcement (search_path pinned to pg_catalog, public)
+- Cross-tenant precedent links blocked by validation trigger (logs mismatch details server-side for debugging)
 - Evidence enforcement trigger blocks enacted decisions without evidence
 - Cross-tenant access fails at database level even if API forgets filters
