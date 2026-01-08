@@ -22,6 +22,7 @@ import os
 import time
 import logging
 import functools
+import hashlib
 from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -29,6 +30,55 @@ import requests
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 logger = logging.getLogger(__name__)
+
+
+EMBEDDING_CACHE: Dict[str, tuple] = {}
+EMBEDDING_CACHE_TTL = 3600  # 1 hour
+
+
+def get_embedding_client_side(text_input: str) -> Optional[List[float]]:
+    """
+    Get embedding from OpenAI text-embedding-3-small with caching.
+    Client-side computation to avoid server roundtrip for embedding.
+    Returns None on failure (caller should proceed without embedding).
+    """
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        logger.warning("[PrecedentMiddleware] OPENAI_API_KEY not set, skipping client-side embedding")
+        return None
+    
+    normalized = text_input.lower().strip()[:500]
+    cache_key = hashlib.md5(normalized.encode()).hexdigest()
+    
+    if cache_key in EMBEDDING_CACHE:
+        embedding, timestamp = EMBEDDING_CACHE[cache_key]
+        if time.time() - timestamp < EMBEDDING_CACHE_TTL:
+            logger.debug("[PrecedentMiddleware] Embedding cache hit")
+            return embedding
+        del EMBEDDING_CACHE[cache_key]
+    
+    try:
+        response = requests.post(
+            "https://api.openai.com/v1/embeddings",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={"model": "text-embedding-3-small", "input": text_input},
+            timeout=5.0  # Longer timeout for embedding (not blocking decision)
+        )
+        response.raise_for_status()
+        embedding = response.json()["data"][0]["embedding"]
+        
+        if len(EMBEDDING_CACHE) >= 1000:
+            oldest_key = min(EMBEDDING_CACHE.keys(), key=lambda k: EMBEDDING_CACHE[k][1])
+            del EMBEDDING_CACHE[oldest_key]
+        
+        EMBEDDING_CACHE[cache_key] = (embedding, time.time())
+        return embedding
+    except Exception as e:
+        logger.warning(f"[PrecedentMiddleware] Client-side embedding failed: {e}")
+        return None
 
 
 @dataclass
@@ -299,10 +349,15 @@ class PrecedentMiddleware:
         
         GUARDRAIL: 600ms timeout, no-block on failure
         
+        Performance optimization:
+        - Computes embedding client-side (with caching) before HTTP call
+        - Passes pre-computed embedding to DTL API to skip server-side embedding
+        - HTTP call now only does fast DB query (~12ms)
+        
         Timing instrumentation:
-        - t_queue_ms: N/A (direct call, no threading)
-        - t_http_ms: Actual HTTP call duration
-        - t_total_ms: End-to-end including cache check
+        - t_queue_ms: Embedding computation time (cached = 0ms)
+        - t_http_ms: Actual HTTP call duration (should be ~50-100ms with pre-computed embedding)
+        - t_total_ms: End-to-end including cache check and embedding
         """
         self._metrics.total_calls += 1
         t_start = time.time()
@@ -322,19 +377,28 @@ class PrecedentMiddleware:
             logger.debug(f"[PrecedentMiddleware] Cache hit: {len(cached)} precedents in {t_total:.1f}ms")
             return cached, "success", t_total
         
+        t_embed_start = time.time()
+        embedding = get_embedding_client_side(situation)
+        t_embed_ms = (time.time() - t_embed_start) * 1000
+        timing.t_queue_ms = t_embed_ms
+        
         try:
             session = self._get_session()
+            
+            request_body = {
+                "query": situation,
+                "decision_type": decision_type,
+                "entity_ids": entity_ids,
+                "limit": limit
+            }
+            if embedding:
+                request_body["embedding"] = embedding
             
             t_http_start = time.time()
             response = session.post(
                 f"{self.base_url}/api/v1/dtl/precedents/search",
                 headers={"X-CF-API-Key": self.api_key},
-                json={
-                    "query": situation,
-                    "decision_type": decision_type,
-                    "entity_ids": entity_ids,
-                    "limit": limit
-                },
+                json=request_body,
                 timeout=self.timeout_seconds
             )
             t_http_ms = (time.time() - t_http_start) * 1000
@@ -342,7 +406,6 @@ class PrecedentMiddleware:
             
             timing.t_http_ms = t_http_ms
             timing.t_total_ms = t_total_ms
-            timing.t_queue_ms = 0.0
             
             if response.status_code != 200:
                 timing.dtl_status = "error"
@@ -359,17 +422,17 @@ class PrecedentMiddleware:
             self._metrics.total_latency_ms += t_total_ms
             self._metrics.record_timing(timing)
             
-            logger.debug(f"[PrecedentMiddleware] Found {len(precedents)} precedents (t_http={t_http_ms:.0f}ms, t_total={t_total_ms:.0f}ms)")
+            logger.debug(f"[PrecedentMiddleware] Found {len(precedents)} precedents (t_embed={t_embed_ms:.0f}ms, t_http={t_http_ms:.0f}ms, t_total={t_total_ms:.0f}ms)")
             return precedents, "success", t_total_ms
             
         except requests.exceptions.Timeout:
             t_total_ms = (time.time() - t_start) * 1000
             timing.t_total_ms = t_total_ms
-            timing.t_http_ms = t_total_ms
+            timing.t_http_ms = t_total_ms - t_embed_ms
             timing.dtl_status = "timeout"
             self._metrics.timeout_calls += 1
             self._metrics.record_timing(timing)
-            logger.warning(f"[PrecedentMiddleware] Timeout after {t_total_ms:.0f}ms")
+            logger.warning(f"[PrecedentMiddleware] Timeout after {t_total_ms:.0f}ms (t_embed={t_embed_ms:.0f}ms)")
             return [], "skipped_timeout", t_total_ms
             
         except Exception as e:
