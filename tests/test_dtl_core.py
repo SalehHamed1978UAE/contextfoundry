@@ -157,6 +157,26 @@ class TestSmoke:
             logger.info("Cross-tenant isolation (inline): PASS")
         finally:
             session.close()
+    
+    @pytest.mark.smoke
+    def test_smoke_mode_blocks_embedding_fallback(self):
+        """Verify DTL_SMOKE_MODE=1 raises error if embedding fallback is invoked"""
+        from src.context_foundry.dtl.core import SmokeModeViolation, _compute_embedding_fallback
+        
+        original_value = os.environ.get("DTL_SMOKE_MODE")
+        try:
+            os.environ["DTL_SMOKE_MODE"] = "1"
+            
+            with pytest.raises(SmokeModeViolation) as exc_info:
+                _compute_embedding_fallback("test query")
+            
+            assert "Smoke tests must supply query_embedding" in str(exc_info.value)
+            logger.info("Smoke mode safeguard: PASS")
+        finally:
+            if original_value is None:
+                os.environ.pop("DTL_SMOKE_MODE", None)
+            else:
+                os.environ["DTL_SMOKE_MODE"] = original_value
 
 
 def get_test_embedding(text: str) -> List[float]:

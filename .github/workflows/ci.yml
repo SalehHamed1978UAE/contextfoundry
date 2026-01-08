@@ -55,6 +55,7 @@ jobs:
         env:
           DATABASE_URL: postgresql://test:test@localhost:5432/context_foundry_test
           TESTING: "true"
+          DTL_SMOKE_MODE: "1"
         run: |
           python -m pytest tests/test_dtl_core.py::TestSmoke -v --tb=short -m smoke
 
