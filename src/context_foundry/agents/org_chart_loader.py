@@ -101,9 +101,10 @@ class OrgChartLoader:
         pass
     
     def _entity_exists(self, name: str) -> bool:
-        """Check if entity already exists."""
+        """Check if entity already exists (case-insensitive)."""
+        from sqlalchemy import func
         existing = self.session.query(Entity).filter(
-            Entity.name == name,
+            func.lower(Entity.name) == func.lower(name),
             Entity.lifecycle_state == LifecycleState.TRUSTED.value
         ).first()
         if existing:

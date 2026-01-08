@@ -1163,7 +1163,7 @@ class GardenerAgent:
             
             older_versions = self.session.query(Entity).filter(
                 and_(
-                    Entity.name == promoted.name,
+                    func.lower(Entity.name) == func.lower(promoted.name),
                     Entity.entity_type == promoted.entity_type,
                     Entity.lifecycle_state == LifecycleState.TRUSTED,
                     Entity.id != promoted.id,

@@ -421,8 +421,9 @@ class StagingValidatorAgent:
         conflicts_count = 0
         
         for entity in staging_entities:
+            from sqlalchemy import func
             trusted_same_name = self.session.query(Entity).filter(
-                Entity.name == entity.name,
+                func.lower(Entity.name) == func.lower(entity.name),
                 Entity.lifecycle_state == LifecycleState.TRUSTED,
                 Entity.entity_type == entity.entity_type,
                 Entity.id != entity.id
