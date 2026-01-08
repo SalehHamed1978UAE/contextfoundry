@@ -71,6 +71,12 @@ class AggregationExecutor:
         logger.info(f"Executing plan: strategy={plan.strategy}, hash={plan.plan_hash}")
         
         try:
+            # Rollback any failed transaction state before executing
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            
             # Set tenant context for RLS
             self.session.execute(
                 text("SET LOCAL app.current_tenant_id = :tenant_id"),
