@@ -610,3 +610,75 @@ class AgentDecisionLogger:
     def get_pending_decisions(self) -> List[PendingDecision]:
         """Get decisions that haven't had outcomes recorded."""
         return list(self._pending_decisions.values())
+    
+    def log_decision_event(
+        self,
+        decision_type: str,
+        summary: str,
+        choice: Dict[str, Any],
+        rationale: str,
+        evidence_excerpt: str,
+        entity_ids: Optional[List[str]] = None,
+        context: Optional[Dict[str, Any]] = None,
+        evidence_type: str = "agent_log",
+        source_uri: Optional[str] = None,
+        source_id: Optional[str] = None,
+        sensitivity: str = "internal"
+    ) -> Optional[str]:
+        """
+        Generic method to log any decision event from any agent or module.
+        
+        This is the universal entry point for decision logging. Use this when
+        the specialized methods (log_query_routing_decision, etc.) don't fit
+        your use case.
+        
+        Args:
+            decision_type: Type of decision (e.g., "schema_evolution", "access_grant",
+                          "cache_invalidation", "retry_decision", etc.)
+            summary: Brief human-readable summary of the decision
+            choice: Structured data about what was decided (stored as JSON)
+            rationale: Explanation of why this decision was made
+            evidence_excerpt: Text excerpt supporting the decision (required, min 10 chars)
+            entity_ids: Optional list of entity UUIDs this decision relates to
+            context: Optional additional context data (stored as JSON)
+            evidence_type: Type of evidence - one of: agent_log, doc, manual_note,
+                          slack_msg, email, meeting_segment, jira, pr_comment, code_review
+            source_uri: Optional URI of the evidence source
+            source_id: Optional ID of the evidence source
+            sensitivity: Access level - internal, public, confidential, or restricted
+        
+        Returns:
+            Human-readable decision ID (e.g., DEC-2026-ABC12345) or None on failure
+        
+        Example:
+            logger.log_decision_event(
+                decision_type="cache_invalidation",
+                summary="Invalidated entity cache after bulk import",
+                choice={"invalidated_keys": ["entity:123", "entity:456"], "reason": "bulk_import"},
+                rationale="Bulk import modified 500+ entities, full cache clear required",
+                evidence_excerpt="Import job completed at 2026-01-08 with 523 entities modified"
+            )
+        """
+        if len(evidence_excerpt or "") < 10:
+            logger.error("Evidence excerpt must be at least 10 characters")
+            return None
+        
+        if evidence_type not in VALID_EVIDENCE_TYPES:
+            logger.warning(f"Unknown evidence_type '{evidence_type}', using 'agent_log'")
+            evidence_type = "agent_log"
+        
+        return self._create_decision(
+            decision_type=decision_type,
+            summary=summary,
+            choice=choice,
+            rationale=rationale,
+            evidence=[DecisionEvidence(
+                evidence_type=evidence_type,
+                source_uri=source_uri,
+                source_id=source_id,
+                excerpt=evidence_excerpt
+            )],
+            entity_ids=entity_ids,
+            context=context,
+            sensitivity=sensitivity
+        )
