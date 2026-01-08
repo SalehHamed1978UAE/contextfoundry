@@ -213,7 +213,7 @@ class AggregationService:
             raw_result=raw_result,
             evidence=evidence,
         )
-        logger.info(f"[AGG-EXEC-3] sufficiency: kind={sufficiency.result_kind.value}, value={sufficiency.value}, bounds={sufficiency.bounds}")
+        logger.info(f"[AGG-EXEC-3] sufficiency: kind={sufficiency.result_kind.value}, confidence={sufficiency.confidence}, bounds={sufficiency.bounds}")
         
         # Apply Lincoln-Petersen if RANGE and multi-source
         if (sufficiency.result_kind == ResultKind.RANGE 
