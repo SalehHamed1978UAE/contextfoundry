@@ -5,15 +5,21 @@ Provides semantic + full-text + entity overlap search for finding
 relevant precedent decisions using the search_precedents_api function.
 """
 import os
+import time
+import hashlib
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Tuple
 import requests
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
+
+EMBEDDING_CACHE: Dict[str, Tuple[List[float], float]] = {}
+EMBEDDING_CACHE_TTL = 3600  # 1 hour
+EMBEDDING_CACHE_MAX_SIZE = 1000
 
 
 @dataclass
@@ -76,7 +82,17 @@ class PrecedentSearchClient:
         self.openai_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
     
     def get_embedding(self, text_input: str) -> List[float]:
-        """Get embedding from OpenAI text-embedding-3-small"""
+        """Get embedding from OpenAI text-embedding-3-small with caching"""
+        normalized = text_input.lower().strip()[:500]
+        cache_key = hashlib.md5(normalized.encode()).hexdigest()
+        
+        if cache_key in EMBEDDING_CACHE:
+            embedding, timestamp = EMBEDDING_CACHE[cache_key]
+            if time.time() - timestamp < EMBEDDING_CACHE_TTL:
+                logger.debug(f"[DTL] Embedding cache hit")
+                return embedding
+            del EMBEDDING_CACHE[cache_key]
+        
         response = requests.post(
             "https://api.openai.com/v1/embeddings",
             headers={
@@ -84,10 +100,17 @@ class PrecedentSearchClient:
                 "Content-Type": "application/json"
             },
             json={"model": "text-embedding-3-small", "input": text_input},
-            timeout=30.0
+            timeout=10.0
         )
         response.raise_for_status()
-        return response.json()["data"][0]["embedding"]
+        embedding = response.json()["data"][0]["embedding"]
+        
+        if len(EMBEDDING_CACHE) >= EMBEDDING_CACHE_MAX_SIZE:
+            oldest_key = min(EMBEDDING_CACHE.keys(), key=lambda k: EMBEDDING_CACHE[k][1])
+            del EMBEDDING_CACHE[oldest_key]
+        
+        EMBEDDING_CACHE[cache_key] = (embedding, time.time())
+        return embedding
     
     def search(
         self,

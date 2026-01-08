@@ -79,6 +79,15 @@ class DecisionResult:
     precedent_lookup_latency_ms: float = 0.0
 
 
+@dataclass
+class LookupTiming:
+    """Detailed timing for a single precedent lookup"""
+    t_queue_ms: float = 0.0
+    t_http_ms: float = 0.0
+    t_total_ms: float = 0.0
+    dtl_status: str = "success"
+
+
 @dataclass 
 class PrecedentLookupMetrics:
     """Metrics for monitoring precedent lookup performance"""
@@ -90,13 +99,30 @@ class PrecedentLookupMetrics:
     cited_precedents: int = 0
     deviations: int = 0
     latency_samples: list = None
+    http_latency_samples: list = None
+    queue_latency_samples: list = None
+    cache_hits: int = 0
     
     def __post_init__(self):
         if self.latency_samples is None:
             self.latency_samples = []
+        if self.http_latency_samples is None:
+            self.http_latency_samples = []
+        if self.queue_latency_samples is None:
+            self.queue_latency_samples = []
+    
+    def record_timing(self, timing: LookupTiming):
+        """Record a complete timing sample"""
+        self.latency_samples.append(timing.t_total_ms)
+        self.http_latency_samples.append(timing.t_http_ms)
+        self.queue_latency_samples.append(timing.t_queue_ms)
+        if len(self.latency_samples) > 1000:
+            self.latency_samples = self.latency_samples[-500:]
+            self.http_latency_samples = self.http_latency_samples[-500:]
+            self.queue_latency_samples = self.queue_latency_samples[-500:]
     
     def record_latency(self, latency_ms: float):
-        """Record a latency sample for percentile calculation"""
+        """Record a latency sample for percentile calculation (legacy)"""
         self.latency_samples.append(latency_ms)
         if len(self.latency_samples) > 1000:
             self.latency_samples = self.latency_samples[-500:]
@@ -112,10 +138,30 @@ class PrecedentLookupMetrics:
         return sum(self.latency_samples) / len(self.latency_samples)
     
     @property
+    def mean_http_latency_ms(self) -> float:
+        if not self.http_latency_samples:
+            return 0.0
+        return sum(self.http_latency_samples) / len(self.http_latency_samples)
+    
+    @property
+    def mean_queue_latency_ms(self) -> float:
+        if not self.queue_latency_samples:
+            return 0.0
+        return sum(self.queue_latency_samples) / len(self.queue_latency_samples)
+    
+    @property
     def p95_latency_ms(self) -> float:
         if not self.latency_samples:
             return 0.0
         sorted_samples = sorted(self.latency_samples)
+        idx = int(len(sorted_samples) * 0.95)
+        return sorted_samples[min(idx, len(sorted_samples) - 1)]
+    
+    @property
+    def p95_http_latency_ms(self) -> float:
+        if not self.http_latency_samples:
+            return 0.0
+        sorted_samples = sorted(self.http_latency_samples)
         idx = int(len(sorted_samples) * 0.95)
         return sorted_samples[min(idx, len(sorted_samples) - 1)]
     
@@ -126,6 +172,10 @@ class PrecedentLookupMetrics:
     @property
     def deviation_rate(self) -> float:
         return self.deviations / max(self.total_calls, 1) * 100
+    
+    @property
+    def cache_hit_rate(self) -> float:
+        return self.cache_hits / max(self.total_calls, 1) * 100
 
 
 class PrecedentMiddleware:
@@ -133,16 +183,39 @@ class PrecedentMiddleware:
     Middleware that enforces "retrieve before decide" pattern.
     
     GUARDRAILS:
-    - 300ms timeout on precedent search (configurable)
+    - 600ms timeout on precedent search (configurable)
     - No-block on failure: proceed with decision, log status
+    - Keep-alive HTTP session for connection reuse
+    - Query caching with 5-minute TTL
     """
     
     STRONG_PRECEDENT_THRESHOLD = 0.7
     MIN_PRECEDENTS_TO_FETCH = 5
-    PRECEDENT_TIMEOUT_SECONDS = 0.3  # 300ms
+    PRECEDENT_TIMEOUT_SECONDS = 0.6  # 600ms (increased from 300ms)
+    CACHE_TTL_SECONDS = 300  # 5 minutes
     
-    _executor = ThreadPoolExecutor(max_workers=4)
     _metrics = PrecedentLookupMetrics()
+    _session: Optional[requests.Session] = None
+    _cache: Dict[str, tuple] = {}  # {cache_key: (precedents, timestamp)}
+    _cache_lock = None
+    
+    @classmethod
+    def _get_session(cls) -> requests.Session:
+        """Get or create shared HTTP session with keep-alive"""
+        if cls._session is None:
+            cls._session = requests.Session()
+            cls._session.headers.update({
+                "Content-Type": "application/json",
+                "Connection": "keep-alive"
+            })
+            adapter = requests.adapters.HTTPAdapter(
+                pool_connections=10,
+                pool_maxsize=20,
+                max_retries=0
+            )
+            cls._session.mount("http://", adapter)
+            cls._session.mount("https://", adapter)
+        return cls._session
     
     def __init__(
         self,
@@ -173,39 +246,36 @@ class PrecedentMiddleware:
         """Reset accumulated metrics"""
         cls._metrics = PrecedentLookupMetrics()
     
-    def _do_precedent_search(
-        self,
-        situation: str,
-        decision_type: Optional[str],
-        entity_ids: Optional[List[str]],
-        limit: int
-    ) -> List[Precedent]:
-        """Internal method that performs the actual HTTP call"""
-        response = requests.post(
-            f"{self.base_url}/api/v1/dtl/precedents/search",
-            headers={
-                "X-CF-API-Key": self.api_key,
-                "Content-Type": "application/json"
-            },
-            json={
-                "query": situation,
-                "decision_type": decision_type,
-                "entity_ids": entity_ids,
-                "limit": limit
-            },
-            timeout=self.timeout_seconds
-        )
-        
-        if response.status_code != 200:
-            logger.warning(f"[PrecedentMiddleware] Search failed: {response.status_code}")
-            return []
-        
-        data = response.json()
+    def _get_cache_key(self, situation: str, decision_type: Optional[str], limit: int) -> str:
+        """Generate cache key from query parameters"""
+        normalized = situation.lower().strip()[:200]
+        return f"{self.tenant_id}:{decision_type or 'any'}:{limit}:{hash(normalized)}"
+    
+    def _check_cache(self, cache_key: str) -> Optional[List[Precedent]]:
+        """Check cache for valid entry"""
+        if cache_key in self._cache:
+            precedents, timestamp = self._cache[cache_key]
+            if time.time() - timestamp < self.CACHE_TTL_SECONDS:
+                return precedents
+            del self._cache[cache_key]
+        return None
+    
+    def _store_cache(self, cache_key: str, precedents: List[Precedent]):
+        """Store result in cache"""
+        self._cache[cache_key] = (precedents, time.time())
+        if len(self._cache) > 500:
+            oldest_key = min(self._cache.keys(), key=lambda k: self._cache[k][1])
+            del self._cache[oldest_key]
+    
+    def _parse_precedents(self, data: Any) -> List[Precedent]:
+        """Parse API response into Precedent objects"""
+        if isinstance(data, dict):
+            data = data.get("precedents", [])
         
         precedents = []
         for p in data:
             precedents.append(Precedent(
-                decision_id=p.get("decision_id") or p.get("id"),
+                decision_id=p.get("decision_id") or p.get("decision_human_id") or p.get("id"),
                 summary=p.get("summary") or p.get("decision_summary", ""),
                 choice=p.get("choice") or p.get("decision_choice", {}),
                 rationale=p.get("rationale_summary") or p.get("rationale"),
@@ -213,7 +283,6 @@ class PrecedentMiddleware:
                 outcome_status=p.get("outcome_status"),
                 score=p.get("rrf_score") or p.get("score", 0)
             ))
-        
         return precedents
     
     def retrieve_precedents(
@@ -228,47 +297,89 @@ class PrecedentMiddleware:
         
         Returns: (precedents, status, latency_ms)
         
-        GUARDRAIL: 300ms timeout, no-block on failure
+        GUARDRAIL: 600ms timeout, no-block on failure
+        
+        Timing instrumentation:
+        - t_queue_ms: N/A (direct call, no threading)
+        - t_http_ms: Actual HTTP call duration
+        - t_total_ms: End-to-end including cache check
         """
         self._metrics.total_calls += 1
-        start_time = time.time()
+        t_start = time.time()
+        timing = LookupTiming()
+        
+        cache_key = self._get_cache_key(situation, decision_type, limit)
+        cached = self._check_cache(cache_key)
+        if cached is not None:
+            t_total = (time.time() - t_start) * 1000
+            timing.t_total_ms = t_total
+            timing.t_http_ms = 0.0
+            timing.t_queue_ms = 0.0
+            timing.dtl_status = "success"
+            self._metrics.successful_calls += 1
+            self._metrics.cache_hits += 1
+            self._metrics.record_timing(timing)
+            logger.debug(f"[PrecedentMiddleware] Cache hit: {len(cached)} precedents in {t_total:.1f}ms")
+            return cached, "success", t_total
         
         try:
-            future = self._executor.submit(
-                self._do_precedent_search,
-                situation, decision_type, entity_ids, limit
+            session = self._get_session()
+            
+            t_http_start = time.time()
+            response = session.post(
+                f"{self.base_url}/api/v1/dtl/precedents/search",
+                headers={"X-CF-API-Key": self.api_key},
+                json={
+                    "query": situation,
+                    "decision_type": decision_type,
+                    "entity_ids": entity_ids,
+                    "limit": limit
+                },
+                timeout=self.timeout_seconds
             )
+            t_http_ms = (time.time() - t_http_start) * 1000
+            t_total_ms = (time.time() - t_start) * 1000
             
-            precedents = future.result(timeout=self.timeout_seconds)
-            latency_ms = (time.time() - start_time) * 1000
+            timing.t_http_ms = t_http_ms
+            timing.t_total_ms = t_total_ms
+            timing.t_queue_ms = 0.0
             
+            if response.status_code != 200:
+                timing.dtl_status = "error"
+                self._metrics.error_calls += 1
+                self._metrics.record_timing(timing)
+                logger.warning(f"[PrecedentMiddleware] Search failed: {response.status_code} (t_http={t_http_ms:.0f}ms)")
+                return [], "skipped_error", t_total_ms
+            
+            precedents = self._parse_precedents(response.json())
+            self._store_cache(cache_key, precedents)
+            
+            timing.dtl_status = "success"
             self._metrics.successful_calls += 1
-            self._metrics.total_latency_ms += latency_ms
-            self._metrics.record_latency(latency_ms)
+            self._metrics.total_latency_ms += t_total_ms
+            self._metrics.record_timing(timing)
             
-            return precedents, "success", latency_ms
-            
-        except FuturesTimeoutError:
-            latency_ms = (time.time() - start_time) * 1000
-            self._metrics.timeout_calls += 1
-            self._metrics.record_latency(latency_ms)
-            future.cancel()
-            logger.warning(f"[PrecedentMiddleware] Timeout after {latency_ms:.0f}ms, proceeding without precedents")
-            return [], "skipped_timeout", latency_ms
+            logger.debug(f"[PrecedentMiddleware] Found {len(precedents)} precedents (t_http={t_http_ms:.0f}ms, t_total={t_total_ms:.0f}ms)")
+            return precedents, "success", t_total_ms
             
         except requests.exceptions.Timeout:
-            latency_ms = (time.time() - start_time) * 1000
+            t_total_ms = (time.time() - t_start) * 1000
+            timing.t_total_ms = t_total_ms
+            timing.t_http_ms = t_total_ms
+            timing.dtl_status = "timeout"
             self._metrics.timeout_calls += 1
-            self._metrics.record_latency(latency_ms)
-            logger.warning(f"[PrecedentMiddleware] Request timeout after {latency_ms:.0f}ms")
-            return [], "skipped_timeout", latency_ms
+            self._metrics.record_timing(timing)
+            logger.warning(f"[PrecedentMiddleware] Timeout after {t_total_ms:.0f}ms")
+            return [], "skipped_timeout", t_total_ms
             
         except Exception as e:
-            latency_ms = (time.time() - start_time) * 1000
+            t_total_ms = (time.time() - t_start) * 1000
+            timing.t_total_ms = t_total_ms
+            timing.dtl_status = "error"
             self._metrics.error_calls += 1
-            self._metrics.record_latency(latency_ms)
-            logger.error(f"[PrecedentMiddleware] Error retrieving precedents: {e}")
-            return [], "skipped_error", latency_ms
+            self._metrics.record_timing(timing)
+            logger.error(f"[PrecedentMiddleware] Error: {e} (t_total={t_total_ms:.0f}ms)")
+            return [], "skipped_error", t_total_ms
     
     def log_decision(
         self,
