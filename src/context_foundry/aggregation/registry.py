@@ -51,25 +51,32 @@ class AggDefinitionRegistry:
         if cache_key in self._cache:
             return self._cache[cache_key]
         
-        # Query database
+        # Query database - check tenant-specific first, then global definitions
         query = text("""
             SELECT concept_key, synonyms, candidates, status
             FROM agg_definitions
-            WHERE tenant_id = :tenant_id
+            WHERE (tenant_id = :tenant_id OR tenant_id = '00000000-0000-0000-0000-000000000000')
               AND status = 'active'
               AND (concept_key = :concept_key 
                    OR :concept_key = ANY(synonyms))
-            ORDER BY version DESC
+            ORDER BY 
+                CASE WHEN tenant_id = :tenant_id THEN 0 ELSE 1 END,
+                version DESC
             LIMIT 1
         """)
+        
+        logger.info(f"[AGG-REG] Looking for concept_key='{concept_key.lower()}' tenant={self.tenant_id}")
         
         result = self.session.execute(
             query,
             {"tenant_id": str(self.tenant_id), "concept_key": concept_key.lower()},
         ).fetchone()
         
+        logger.info(f"[AGG-REG] Query result: {result}")
+        
         if result is None:
             # Try fuzzy match on synonyms
+            logger.info(f"[AGG-REG] No exact match, trying fuzzy...")
             return self._fuzzy_match(concept_key, intent_kind)
         
         candidates = result.candidates
