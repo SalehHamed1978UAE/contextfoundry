@@ -311,11 +311,11 @@ def query_knowledge():
     session_id = context.get('session_id')
     trace_id = context.get('trace_id')
     
+    from ..agents.tier1_resolver import Tier1Resolver
+    from ..models.schema import get_session as get_cf_session
+    
+    cf_session = get_cf_session()
     try:
-        from ..agents.tier1_resolver import Tier1Resolver
-        from ..models.schema import get_session as get_cf_session
-        
-        cf_session = get_cf_session()
         resolver = Tier1Resolver(session=cf_session, tenant_id=g.tenant_id)
         resolve_result = resolver.resolve_from_text(query_text)
         
@@ -417,7 +417,6 @@ def query_knowledge():
         
         selected = resolve_result.selected
         if not selected:
-            cf_session.close()
             return jsonify({
                 "status": "NO_MATCHES",
                 "memory_version": 1,
@@ -445,8 +444,6 @@ def query_knowledge():
             trace_id=trace_id,
             analysis_type=analysis_type
         )
-        
-        cf_session.close()
         
         return jsonify({
             "status": "RESOLVED",
@@ -497,6 +494,8 @@ def query_knowledge():
             'error': 'Query processing failed',
             'message': str(e)
         }), 500
+    finally:
+        cf_session.close()
 
 
 @external_api.route('/verify', methods=['POST'])
@@ -770,14 +769,14 @@ def get_entity(name: str):
     try:
         from ..memory.semantic import SemanticMemory
         
-        memory = SemanticMemory(tenant_id=g.tenant_id)  # Uses default session from get_session()
+        memory = SemanticMemory(tenant_id=g.tenant_id)
         
-        entities = memory.search_entities(name, limit=1, threshold=0.9)
+        entities = memory.search_entities(name, limit=1)
         
         if not entities:
-            entities = memory.search_entities(name, limit=5, threshold=0.5)
+            entities = memory.search_entities(name, limit=5)
             if entities:
-                suggestions = [e.get('canonical_name', e.get('name', '')) for e in entities[:3]]
+                suggestions = [getattr(e, 'name', '') for e in entities[:3]]
                 return jsonify({
                     'error': 'Entity not found',
                     'message': f'No exact match for "{name}"',
@@ -792,22 +791,24 @@ def get_entity(name: str):
         entity = entities[0]
         
         result = {
-            'id': entity.get('id'),
-            'name': entity.get('canonical_name', entity.get('name')),
-            'type': entity.get('entity_type'),
-            'confidence': entity.get('confidence'),
-            'lifecycle_state': entity.get('lifecycle_state')
+            'id': str(entity.id) if entity.id else None,
+            'name': entity.name,
+            'type': entity.entity_type,
+            'confidence': float(entity.confidence) if entity.confidence else None,
+            'lifecycle_state': str(entity.lifecycle_state) if entity.lifecycle_state else None
         }
         
         if include_props:
-            result['properties'] = entity.get('properties', {})
-            result['description'] = entity.get('description')
+            result['properties'] = entity.properties or {}
+            result['description'] = entity.description
         
         if include_rels:
-            relationships = memory.get_entity_relationships(entity.get('id'))
+            relationships = memory.get_entity_relationships(entity.id)
+            incoming = [r for r in relationships if r.get('direction') == 'incoming']
+            outgoing = [r for r in relationships if r.get('direction') == 'outgoing']
             result['relationships'] = {
-                'incoming': relationships.get('incoming', []),
-                'outgoing': relationships.get('outgoing', [])
+                'incoming': incoming,
+                'outgoing': outgoing
             }
         
         return jsonify(result)
@@ -853,12 +854,13 @@ def search_entities():
     try:
         from ..memory.semantic import SemanticMemory
         
-        memory = SemanticMemory(tenant_id=g.tenant_id)  # Uses default session from get_session()
+        memory = SemanticMemory(tenant_id=g.tenant_id)
         
+        entity_types = [entity_type] if entity_type else None
         entities = memory.search_entities(
             query, 
-            limit=limit + offset,
-            entity_type=entity_type
+            entity_types=entity_types,
+            limit=limit + offset
         )
         
         paginated = entities[offset:offset + limit]
@@ -866,11 +868,10 @@ def search_entities():
         results = []
         for e in paginated:
             results.append({
-                'id': e.get('id'),
-                'name': e.get('canonical_name', e.get('name')),
-                'type': e.get('entity_type'),
-                'confidence': e.get('confidence'),
-                'similarity': e.get('similarity')
+                'id': str(e.id) if e.id else None,
+                'name': e.name,
+                'type': e.entity_type,
+                'confidence': float(e.confidence) if e.confidence else None
             })
         
         return jsonify({

@@ -98,6 +98,9 @@ class EpisodicMemory:
         source_document_id: str = None
     ) -> Document:
         """Add a document with its OpenAI embedding."""
+        if not self.tenant_id:
+            raise ValueError("EpisodicMemory requires tenant_id to add documents")
+        
         text_for_embedding = f"{title}\n\n{content}"
         embedding = openai_embedding(text_for_embedding, self.embedding_dim)
         
@@ -107,7 +110,8 @@ class EpisodicMemory:
             content=content,
             embedding=embedding,
             doc_metadata=metadata or {},
-            source_document_id=source_document_id
+            source_document_id=source_document_id,
+            tenant_id=self.tenant_id
         )
         self.session.add(doc)
         
@@ -118,7 +122,7 @@ class EpisodicMemory:
             logger.error(f"Failed to add document {title}: {e}")
             raise
         
-        logger.debug(f"Added document: {title} [{doc_type}]")
+        logger.debug(f"Added document: {title} [{doc_type}] for tenant {self.tenant_id[:8]}...")
         return doc
     
     def search_similar(
