@@ -70,7 +70,23 @@ class AggDefinitionRegistry:
         logger.info(f"[AGG-REG] Looking for concept_key='{concept_key.lower()}' tenant={self.tenant_id}")
         logger.info(f"[AGG-REG] SQL params: {params}")
         
-        result = self.session.execute(query, params).fetchone()
+        # Debug: try raw SQL to rule out parameter binding issues
+        try:
+            raw_sql = f"""
+                SELECT concept_key, synonyms, candidates, status
+                FROM agg_definitions
+                WHERE (tenant_id = '{self.tenant_id}' OR tenant_id = '00000000-0000-0000-0000-000000000000')
+                  AND status = 'active'
+                  AND (concept_key = '{concept_key.lower()}' OR '{concept_key.lower()}' = ANY(synonyms))
+                ORDER BY CASE WHEN tenant_id = '{self.tenant_id}' THEN 0 ELSE 1 END, version DESC
+                LIMIT 1
+            """
+            logger.info(f"[AGG-REG] Trying raw SQL...")
+            result = self.session.execute(text(raw_sql)).fetchone()
+            logger.info(f"[AGG-REG] Raw SQL result: {result}")
+        except Exception as e:
+            logger.error(f"[AGG-REG] Raw SQL failed: {e}")
+            result = self.session.execute(query, params).fetchone()
         
         logger.info(f"[AGG-REG] Query result: {result}")
         if result:
