@@ -57,6 +57,46 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
     - Normal CI (`.github/workflows/ci.yml`): Runs `TestSmoke` class with `@pytest.mark.smoke` marker - inline-only tests using fixed embeddings (no API keys/HTTP server required)
     - Nightly CI (`.github/workflows/nightly.yml`): Full parity test (HTTP + inline), security tests, performance tests (requires OPENAI_API_KEY, running Brain service)
 
+## Aggregation Framework (Jan 2026)
+Quantitative query handling ("How many X?", "What's the average Y?") without hallucinating numbers. Implements v1.3 spec for safe counting and aggregation over KG, DTL, and document data.
+
+### Architecture
+- **AggregationService** (`src/context_foundry/aggregation/service.py`): Main orchestrator - call `try_aggregation_query()`
+- **IntentClassifier** (`intent.py`): DSPy classifier with rules fallback for aggregation intent detection
+- **SemanticResolver** → **CAT** (Canonical Aggregation Target): Semantic contract defining "what exactly are we counting?"
+- **AggregationPlanner** (`planner.py`): Maps CAT to deterministic SQL templates (no LLM-generated SQL)
+- **AggregationExecutor** (`executor.py`): Runs SQL with RLS via existing session
+- **SufficiencyGate** (`sufficiency.py`): Decides EXACT vs LOWER_BOUND vs RANGE vs INSUFFICIENT
+- **CaptureRecaptureEstimator** (`crc.py`): Lincoln-Petersen estimation for multi-source RANGE
+- **AnswerFormatter** (`formatter.py`): Composes user-visible answers
+
+### Result Kinds (User-Truthfulness Contract)
+- **EXACT**: Closed-world + deterministic; safe point value
+- **LOWER_BOUND**: Open-world or incomplete; "at least N"
+- **RANGE**: Conflicts or multi-source; "between N and M"
+- **INSUFFICIENT**: Cannot compute safe bounds
+
+### Database Tables (with RLS)
+- `agg_definitions`: Semantic contract registry
+- `aggregation_metadata`: Result cache
+- `doc_entity_mentions`: Document mention index
+
+### Integration Hook
+Aggregation check runs BEFORE tri-memory pipeline in `RetrievalAgent.build_context_bundle()`. If aggregation query detected, returns early with structured result.
+
+### Feature Flags
+```python
+{
+    "aggregation.enabled": True,        # Enable aggregation framework
+    "aggregation.crc_estimation.enabled": True,  # Enable Lincoln-Petersen CRC
+}
+```
+
+### Critical Rules
+1. **NO COUNTING FROM RETRIEVAL** - Never use top-K retrieval results as complete sets
+2. **RLS ALWAYS** - All queries use existing SQLAlchemy session (tenant isolation automatic)
+3. **DETERMINISTIC ONLY** - SQL templates are pre-approved; never generate SQL from LLM
+
 ## Regression Test Suite (Jan 2026)
 Comprehensive regression testing for safe architectural changes. Four-layer test architecture:
 - **Smoke Tests** (`@pytest.mark.smoke`): <30 seconds, no external APIs. Imports, DB connectivity, core class instantiation.
@@ -65,7 +105,7 @@ Comprehensive regression testing for safe architectural changes. Four-layer test
 - **Integration Tests** (`@pytest.mark.integration`): Nightly. Full E2E pipeline.
 
 **Files:**
-- `tests/test_regression_suite.py`: Main regression test module (27 tests pass, 5 skip)
+- `tests/test_regression_suite.py`: Main regression test module (39 tests pass, 5 skip)
 - `scripts/run_regression.py`: Convenience runner script
 
 **Usage:**

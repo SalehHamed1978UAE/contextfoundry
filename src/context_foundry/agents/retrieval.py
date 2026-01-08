@@ -24,6 +24,7 @@ from ..utils.logger import logger, QueryLogger
 from ..config.domain_schema import get_schema_loader, DomainSchema, TraversalResult
 from ..memory.inference import InferenceEngine
 from .entity_resolver import EntityResolver, ResolveResult
+from ..aggregation import AggregationService, AggregationResult
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -97,7 +98,8 @@ class RetrievalAgent:
     SECURITY: Requires tenant_id for defense-in-depth filtering.
     """
     
-    def __init__(self, session: Optional[Session] = None, tenant_id: str = None):
+    def __init__(self, session: Optional[Session] = None, tenant_id: str = None, 
+                 feature_flags: Optional[Dict] = None):
         self.session = session or get_session()
         self.tenant_id = tenant_id
         self.semantic = SemanticMemory(self.session, tenant_id=tenant_id)
@@ -106,6 +108,12 @@ class RetrievalAgent:
         self.entity_resolver = EntityResolver(session=self.session, tenant_id=tenant_id)
         
         self._llm_client = None
+        self._aggregation_service = None
+        
+        self.feature_flags = feature_flags or {
+            "aggregation.enabled": True,
+            "aggregation.crc_estimation.enabled": True,
+        }
         
         if not tenant_id:
             logger.warning("RetrievalAgent initialized without tenant_id")
@@ -121,6 +129,81 @@ class RetrievalAgent:
                 base_url=AI_INTEGRATIONS_OPENAI_BASE_URL
             )
         return self._llm_client
+    
+    @property
+    def aggregation_service(self) -> AggregationService:
+        """Lazy load AggregationService for quantitative queries."""
+        if self._aggregation_service is None and self.tenant_id:
+            self._aggregation_service = AggregationService(
+                session=self.session,
+                tenant_id=uuid.UUID(self.tenant_id) if isinstance(self.tenant_id, str) else self.tenant_id,
+                feature_flags=self.feature_flags,
+            )
+        return self._aggregation_service
+    
+    def _try_aggregation_query(
+        self, 
+        query_text: str, 
+        bundle: ContextBundle,
+        query_logger: Optional[QueryLogger] = None
+    ) -> bool:
+        """
+        Attempt to handle query as an aggregation query.
+        
+        Returns True if handled (bundle populated with aggregation result).
+        Returns False if not an aggregation query (continue normal pipeline).
+        """
+        if not self.feature_flags.get("aggregation.enabled", False):
+            return False
+        
+        if not self.aggregation_service:
+            logger.debug("AggregationService not available - skipping aggregation check")
+            return False
+        
+        try:
+            if not self.aggregation_service.is_aggregation_query(query_text):
+                return False
+            
+            if query_logger:
+                query_logger.log_event("AGGREGATION_QUERY_DETECTED", {
+                    "query": query_text[:100]
+                })
+            
+            logger.info(f"Aggregation query detected: {query_text[:50]}...")
+            
+            result = self.aggregation_service.handle_query(
+                question=query_text,
+                user_ctx=None,
+                anchor_entities=None,
+            )
+            
+            if result is None:
+                return False
+            
+            bundle.is_aggregation_query = True
+            bundle.aggregation_result = result
+            bundle.target_entity_found = result.is_success
+            
+            if result.cat:
+                bundle.aggregation_target = result.cat
+                
+            if result.evidence_envelope:
+                bundle.evidence_envelope = result.evidence_envelope
+            
+            if query_logger:
+                query_logger.log_event("AGGREGATION_RESULT", {
+                    "result_kind": result.result_kind.value,
+                    "value": result.value,
+                    "confidence": result.confidence,
+                    "display_text": result.display_text,
+                })
+            
+            logger.info(f"Aggregation complete: {result.display_text} (confidence: {result.confidence:.2f})")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Aggregation query handling failed: {e}")
+            return False
     
     def analyze_property_query(self, query_text: str) -> Dict:
         """
@@ -217,6 +300,14 @@ class RetrievalAgent:
                 "sequence_intent": sequence_intent,
                 "sequence_reason": sequence_reason
             })
+        
+        # AGGREGATION FRAMEWORK: Check if this is a quantitative query (e.g., "How many X?")
+        # This runs BEFORE tri-memory pipeline to route counting queries appropriately
+        if self._try_aggregation_query(query_text, bundle, query_logger):
+            # Aggregation query handled - populate minimal context and return early
+            logger.info("Query handled by Aggregation Framework - skipping tri-memory pipeline")
+            bundle.calculate_uncertainty()
+            return bundle
         
         if query_type == 'rule':
             logger.info(f"RULE QUERY detected: skipping entity extraction")

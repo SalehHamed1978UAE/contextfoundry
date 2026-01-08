@@ -3,9 +3,12 @@ ContextBundle: The core data structure that aggregates information from all thre
 Every response is built from a ContextBundle, ensuring full provenance tracking.
 """
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
 from datetime import datetime
 import uuid
+
+if TYPE_CHECKING:
+    from ..aggregation.models import CAT, EvidenceEnvelope, AggregationResult
 
 
 @dataclass
@@ -144,6 +147,13 @@ class ContextBundle:
     # Speculative inference - AI-inferred relationships beyond confirmed knowledge
     # Populated by InferenceEngine using transitive dependency, co-occurrence, and shared dependency rules
     speculative_inferences: List[Dict] = field(default_factory=list)  # List of inferred relationships with confidence
+    
+    # Aggregation Framework fields (v1.3) - for quantitative queries
+    # CAT (Canonical Aggregation Target) defines "what exactly are we counting?"
+    aggregation_target: Optional[Any] = None  # CAT object - semantic contract for aggregation
+    aggregation_plan: Optional[Dict] = None  # Execution plan from planner
+    evidence_envelope: Optional[Any] = None  # EvidenceEnvelope - audit trail for reproducibility
+    aggregation_result: Optional[Any] = None  # AggregationResult from service
     
     @property
     def confidence(self) -> float:
@@ -321,6 +331,23 @@ class ContextBundle:
             result["gaps_identified"] = self.gaps_identified
         if self.traversal_result:
             result["traversal_result"] = self.traversal_result
+        
+        # Add aggregation framework fields
+        if self.aggregation_target:
+            result["aggregation_target"] = {
+                "anchor": str(self.aggregation_target.anchor.entity_id) if self.aggregation_target.anchor else None,
+                "target_source": self.aggregation_target.target.source.value if self.aggregation_target.target else None,
+                "semantic_confidence": self.aggregation_target.semantic_confidence,
+            }
+        if self.aggregation_plan:
+            result["aggregation_plan"] = self.aggregation_plan
+        if self.aggregation_result:
+            result["aggregation_result"] = {
+                "result_kind": self.aggregation_result.result_kind.value,
+                "value": self.aggregation_result.value,
+                "display_text": self.aggregation_result.display_text,
+                "confidence": self.aggregation_result.confidence,
+            }
         
         return result
     
