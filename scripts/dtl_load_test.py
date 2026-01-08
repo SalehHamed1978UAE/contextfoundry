@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 
 DTL_BASE_URL = os.environ.get("DTL_BASE_URL", "http://localhost:3000")
 API_KEY = os.environ.get("CF_API_KEY", "cf_dtl_test_12345678abcdef")
-TIMEOUT_SECONDS = 2.0  # 2s for dev (Flask debug overhead), production will be ~100ms
+TIMEOUT_SECONDS = 0.6  # 600ms per spec (production target)
 NUM_QUERIES = 100
 
 TEST_QUERIES = [
