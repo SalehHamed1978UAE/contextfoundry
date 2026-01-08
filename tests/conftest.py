@@ -16,10 +16,22 @@ import os
 
 
 def pytest_configure(config):
-    """Register custom pytest markers."""
+    """Register custom pytest markers for regression testing."""
     config.addinivalue_line(
         "markers",
         "smoke: mark test as inline-only smoke test (no external dependencies)"
+    )
+    config.addinivalue_line(
+        "markers",
+        "fast_regression: mark test as fast regression test (mocked LLM, <3 min)"
+    )
+    config.addinivalue_line(
+        "markers",
+        "component: mark test as component integration test (<5 min)"
+    )
+    config.addinivalue_line(
+        "markers",
+        "integration: mark test as full E2E integration test (nightly only)"
     )
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
