@@ -1329,16 +1329,16 @@ class RetrievalAgent:
             logger.debug(f"Alias resolved: '{target_name}' -> '{alias_entity.name}'")
             return True, alias_entity.to_dict()
         
-        # Try partial match for multi-word names
-        words = target_name.split()
-        if len(words) > 1:
-            # Try searching for the full phrase
+        # Try partial/contains match (e.g., "saleh" -> "Saleh Hamed")
+        # This handles both single-word and multi-word partial matches
+        if len(target_name) >= 3:  # Minimum 3 chars to avoid overly broad matches
             results = self.session.query(Entity).filter(
                 Entity.name.ilike(f"%{target_name}%"),
                 *base_filter
             ).first()
             
             if results:
+                logger.debug(f"Partial match: '{target_name}' -> '{results.name}'")
                 return True, results.to_dict()
         
         return False, None
