@@ -101,6 +101,12 @@ class AggDefinitionRegistry:
         if isinstance(candidates, str):
             candidates = json.loads(candidates)
         
+        # Inject parent-level synonyms into each candidate for scoring
+        parent_synonyms = list(result.synonyms) if result.synonyms else []
+        parent_synonyms.append(result.concept_key)  # Include concept_key as synonym
+        for c in candidates:
+            c["synonyms"] = parent_synonyms
+        
         # Filter by intent kind if specified
         if intent_kind:
             candidates = [
