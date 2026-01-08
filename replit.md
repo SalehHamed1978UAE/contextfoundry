@@ -171,6 +171,20 @@ Combines multiple signals with Reciprocal Rank Fusion (RRF):
 - `src/decision_trace_layer/models.py` - SQLAlchemy ORM + Pydantic models
 - `src/decision_trace_layer/precedent_search.py` - PrecedentSearchClient
 - `src/decision_trace_layer/api.py` - Flask Blueprint (registered in brain/app.py)
+- `src/decision_trace_layer/agent_logger.py` - AgentDecisionLogger for CF agents
+
+### Agent Decision Logger (Jan 2026)
+Easy-to-use component for CF agents to log decisions with automatic evidence and embeddings:
+- `AgentDecisionLogger(tenant_id, decision_maker_id, source_system)` - Initialize logger
+- `log_query_routing_decision()` - Log TIER1_SIMPLE vs TIER2_RLM routing
+- `log_entity_resolution_decision()` - Log entity matching with confidence
+- `log_sufficiency_decision()` - Log SUFFICIENT/PARTIAL/INSUFFICIENT assessments
+- `log_confidence_decision()` - Log quadrant confidence calibration
+- `log_answer_synthesis_decision()` - Log GROUNDED/GAP/INFERRED synthesis
+- `log_extraction_decision()` - Log document extraction decisions
+- `log_duplicate_detection_decision()` - Log duplicate entity detection
+- `record_outcome()` - Record outcomes for previous decisions
+- Features: auto_enact mode, OpenAI embeddings (1536 dims), pgvector-compatible formatting
 
 ### DTL Security Notes
 - All DTL endpoints (except /health) require X-CF-API-Key authentication
