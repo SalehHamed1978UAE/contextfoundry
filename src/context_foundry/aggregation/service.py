@@ -94,9 +94,13 @@ class AggregationService:
         
         Called early in ContextFoundry.query() to decide routing.
         """
-        if not self._is_enabled():
+        enabled = self._is_enabled()
+        logger.info(f"[AGG-SVC-1] is_aggregation_query: enabled={enabled}")
+        if not enabled:
             return False
-        return self.intent_classifier.is_aggregation(question)
+        result = self.intent_classifier.is_aggregation(question)
+        logger.info(f"[AGG-SVC-1] intent_classifier.is_aggregation() = {result}")
+        return result
     
     def handle_query(
         self,
@@ -116,39 +120,52 @@ class AggregationService:
             AggregationResult if this is an aggregation query, None otherwise.
             On error, returns INSUFFICIENT result with explanation.
         """
+        logger.info(f"[AGG-SVC-2] handle_query ENTRY: '{question[:80]}'")
+        
         if not self._is_enabled():
+            logger.info("[AGG-SVC-2] RETURNING None - not enabled")
             return None
         
         try:
             # Step 1: Classify intent
+            logger.info("[AGG-SVC-3] Calling intent_classifier.classify()...")
             intent = self.intent_classifier.classify(question)
+            logger.info(f"[AGG-SVC-3] classify() returned: {intent}")
+            
             if intent is None:
+                logger.info("[AGG-SVC-3] RETURNING None - intent is None")
                 return None  # Not an aggregation query
             
-            logger.info(f"Aggregation intent detected: {intent.kind.value}")
+            logger.info(f"[AGG-SVC-4] Intent: kind={intent.kind.value}, subject='{intent.subject_phrase}', anchors={intent.anchor_entities}")
             
             # Step 2: Resolve anchor entities (if not provided)
             if anchor_entities:
                 intent.anchor_entities = self._convert_anchor_entities(anchor_entities)
             
             # Step 3: Semantic resolution → CAT
+            logger.info(f"[AGG-SVC-5] Calling semantic_resolver.resolve()...")
             cat, alternatives, ambiguity = self.semantic_resolver.resolve(
                 intent=intent,
                 tenant_id=self.tenant_id,
             )
+            logger.info(f"[AGG-SVC-5] resolve() returned: cat={cat}, ambiguity={ambiguity}, alternatives={len(alternatives) if alternatives else 0}")
+            
+            if cat:
+                logger.info(f"[AGG-SVC-6] CAT details: target_source={cat.target.source if cat.target else None}, rel_type={cat.target.relationship_type if cat.target else None}")
             
             # Handle high ambiguity
             if ambiguity >= self.ASK_THRESHOLD:
-                # In interactive mode, we'd return disambiguation UI
-                # For now, we'll run multiple and return alternatives
-                logger.info(f"High ambiguity ({ambiguity:.2f}); running multiple candidates")
+                logger.info(f"[AGG-SVC-6] High ambiguity ({ambiguity:.2f}); running multiple candidates")
             
             # Step 4: Build and execute plans
             cats_to_run = self._select_cats_to_run(cat, alternatives, ambiguity)
+            logger.info(f"[AGG-SVC-7] cats_to_run count: {len(cats_to_run)}")
             results = []
             
-            for cat_i in cats_to_run:
+            for i, cat_i in enumerate(cats_to_run):
+                logger.info(f"[AGG-SVC-8] Executing CAT {i+1}/{len(cats_to_run)}...")
                 result = self._execute_single_cat(cat_i, question)
+                logger.info(f"[AGG-SVC-8] Result: kind={result.result_kind.value}, value={result.value}")
                 results.append((cat_i, result))
             
             # Step 5: Select primary result and format
@@ -179,18 +196,24 @@ class AggregationService:
         """Execute a single CAT through plan → execute → sufficiency pipeline."""
         
         # Build execution plan
+        logger.info(f"[AGG-EXEC-1] Building plan for CAT...")
         plan = self.planner.build_plan(cat)
+        logger.info(f"[AGG-EXEC-1] Plan: {plan}")
         
         # Execute (deterministic SQL/graph)
+        logger.info(f"[AGG-EXEC-2] Executing plan...")
         raw_result, evidence = self.executor.execute(plan)
+        logger.info(f"[AGG-EXEC-2] raw_result: value={getattr(raw_result, 'value', None)}, count={getattr(raw_result, 'count', None)}")
         
         # Evaluate sufficiency
+        logger.info(f"[AGG-EXEC-3] Evaluating sufficiency...")
         sufficiency = self.sufficiency_gate.evaluate(
             cat=cat,
             plan=plan,
             raw_result=raw_result,
             evidence=evidence,
         )
+        logger.info(f"[AGG-EXEC-3] sufficiency: kind={sufficiency.result_kind.value}, value={sufficiency.value}, bounds={sufficiency.bounds}")
         
         # Apply Lincoln-Petersen if RANGE and multi-source
         if (sufficiency.result_kind == ResultKind.RANGE 
