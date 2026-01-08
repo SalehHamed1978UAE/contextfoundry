@@ -161,8 +161,9 @@ class SemanticMemory:
         return rel
     
     def find_entity_by_name(self, name: str, trusted_only: bool = True) -> Optional[Entity]:
-        """Find an entity by exact name match."""
-        query = self.session.query(Entity).filter(Entity.name == name)
+        """Find an entity by case-insensitive name match."""
+        from sqlalchemy import func
+        query = self.session.query(Entity).filter(func.lower(Entity.name) == func.lower(name))
         query = self._apply_tenant_filter(query, Entity)
         if trusted_only:
             query = query.filter(Entity.lifecycle_state == LifecycleState.TRUSTED)

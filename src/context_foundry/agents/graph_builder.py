@@ -781,8 +781,9 @@ class GraphBuilderAgent:
             try:
                 db_entity_type = self._normalize_entity_type(entity.entity_type)
                 
+                from sqlalchemy import func
                 existing = self.session.query(Entity).filter(
-                    Entity.name == entity.canonical_name,
+                    func.lower(Entity.name) == func.lower(entity.canonical_name),
                     Entity.entity_type == db_entity_type
                 ).first()
                 
