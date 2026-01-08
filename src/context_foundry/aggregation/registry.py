@@ -52,16 +52,16 @@ class AggDefinitionRegistry:
             return self._cache[cache_key]
         
         # Query database - check tenant-specific first, then global definitions
-        # Cast to UUID explicitly to ensure proper type matching
+        # Use CAST() instead of :: to avoid SQLAlchemy parameter binding conflicts
         query = text("""
             SELECT concept_key, synonyms, candidates, status
             FROM agg_definitions
-            WHERE (tenant_id = :tenant_id::uuid OR tenant_id = '00000000-0000-0000-0000-000000000000'::uuid)
+            WHERE (tenant_id = CAST(:tenant_id AS uuid) OR tenant_id = CAST('00000000-0000-0000-0000-000000000000' AS uuid))
               AND status = 'active'
               AND (concept_key = :concept_key 
                    OR :concept_key = ANY(synonyms))
             ORDER BY 
-                CASE WHEN tenant_id = :tenant_id::uuid THEN 0 ELSE 1 END,
+                CASE WHEN tenant_id = CAST(:tenant_id AS uuid) THEN 0 ELSE 1 END,
                 version DESC
             LIMIT 1
         """)
