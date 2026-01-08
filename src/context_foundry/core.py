@@ -245,12 +245,30 @@ class ContextFoundry:
     def query_impact(self, entity_name: str) -> Dict:
         """
         Special query: What services are affected if this entity fails?
-        """
-        query_text = f"What services are affected if {entity_name} goes down?"
         
+        Returns structured impact analysis from graph traversal.
+        """
         impact = self.retrieval.get_impact_analysis(entity_name)
         
-        return self.query(query_text)
+        if not impact or not impact.get("affected_entities"):
+            return {
+                "entity_name": entity_name,
+                "status": "NO_IMPACT_DATA",
+                "message": f"No impact data found for {entity_name}",
+                "affected_entities": [],
+                "impact_paths": [],
+                "confidence": 0.0
+            }
+        
+        return {
+            "entity_name": entity_name,
+            "status": "IMPACT_FOUND",
+            "affected_entities": impact.get("affected_entities", []),
+            "impact_paths": impact.get("paths", []),
+            "total_affected": len(impact.get("affected_entities", [])),
+            "max_depth": impact.get("max_depth", 0),
+            "confidence": impact.get("confidence", 0.7)
+        }
     
     def query_escalation(self, context: str) -> Dict:
         """
