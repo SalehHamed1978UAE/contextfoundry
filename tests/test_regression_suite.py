@@ -746,6 +746,232 @@ class TestRegressionVectors:
 
 
 # =============================================================================
+# AGGREGATION FRAMEWORK TESTS - Quantitative query handling
+# =============================================================================
+
+class TestAggregationFramework:
+    """Tests for the Aggregation Framework v1.3."""
+    
+    @pytest.mark.smoke
+    def test_aggregation_models_import(self):
+        """Verify aggregation models import correctly."""
+        from src.context_foundry.aggregation import (
+            AggregationService,
+            AggIntent,
+            CAT,
+            ResultKind,
+            AggregationResult,
+            EvidenceEnvelope,
+        )
+        assert AggregationService is not None
+        assert AggIntent is not None
+        assert CAT is not None
+        assert ResultKind is not None
+        assert AggregationResult is not None
+        assert EvidenceEnvelope is not None
+    
+    @pytest.mark.smoke
+    def test_result_kind_values(self):
+        """Verify ResultKind enum has expected values."""
+        from src.context_foundry.aggregation.models import ResultKind
+        
+        assert ResultKind.EXACT.value == "EXACT"
+        assert ResultKind.LOWER_BOUND.value == "LOWER_BOUND"
+        assert ResultKind.RANGE.value == "RANGE"
+        assert ResultKind.INSUFFICIENT.value == "INSUFFICIENT"
+    
+    @pytest.mark.smoke
+    def test_intent_kind_values(self):
+        """Verify IntentKind enum has expected values."""
+        from src.context_foundry.aggregation.models import IntentKind
+        
+        assert IntentKind.COUNT.value == "COUNT"
+        assert IntentKind.SUM.value == "SUM"
+        assert IntentKind.AVG.value == "AVG"
+        assert IntentKind.MIN.value == "MIN"
+        assert IntentKind.MAX.value == "MAX"
+    
+    @pytest.mark.fast_regression
+    def test_aggregation_result_display_text_exact(self):
+        """Test AggregationResult.display_text for EXACT result."""
+        from src.context_foundry.aggregation.models import AggregationResult, ResultKind
+        
+        result = AggregationResult(
+            result_kind=ResultKind.EXACT,
+            value=5,
+            unit="jobs",
+            confidence=0.95,
+        )
+        
+        assert result.display_text == "5 jobs"
+        assert result.is_success is True
+    
+    @pytest.mark.fast_regression
+    def test_aggregation_result_display_text_lower_bound(self):
+        """Test AggregationResult.display_text for LOWER_BOUND result."""
+        from src.context_foundry.aggregation.models import (
+            AggregationResult, ResultKind, BoundedCount
+        )
+        
+        result = AggregationResult(
+            result_kind=ResultKind.LOWER_BOUND,
+            bounds=BoundedCount(lower=3),
+            unit="items",
+            confidence=0.75,
+        )
+        
+        assert "At least 3" in result.display_text
+        assert result.is_success is True
+    
+    @pytest.mark.fast_regression
+    def test_aggregation_result_display_text_range(self):
+        """Test AggregationResult.display_text for RANGE result."""
+        from src.context_foundry.aggregation.models import (
+            AggregationResult, ResultKind, BoundedCount
+        )
+        
+        result = AggregationResult(
+            result_kind=ResultKind.RANGE,
+            bounds=BoundedCount(lower=3, upper=7),
+            unit="entities",
+            confidence=0.65,
+        )
+        
+        assert "Between 3 and 7" in result.display_text
+        assert result.is_success is True
+    
+    @pytest.mark.fast_regression
+    def test_aggregation_result_display_text_insufficient(self):
+        """Test AggregationResult.display_text for INSUFFICIENT result."""
+        from src.context_foundry.aggregation.models import AggregationResult, ResultKind
+        
+        result = AggregationResult(
+            result_kind=ResultKind.INSUFFICIENT,
+            confidence=0.1,
+        )
+        
+        assert "Insufficient" in result.display_text
+        assert result.is_success is False
+    
+    @pytest.mark.fast_regression
+    def test_context_bundle_aggregation_fields(self):
+        """Test ContextBundle has aggregation framework fields."""
+        from src.context_foundry.models.context_bundle import ContextBundle
+        
+        bundle = ContextBundle(
+            query_id=str(uuid.uuid4()),
+            query_text="How many jobs has Saleh had?"
+        )
+        
+        assert hasattr(bundle, 'aggregation_target')
+        assert hasattr(bundle, 'aggregation_plan')
+        assert hasattr(bundle, 'evidence_envelope')
+        assert hasattr(bundle, 'aggregation_result')
+        
+        assert bundle.aggregation_target is None
+        assert bundle.aggregation_plan is None
+    
+    @pytest.mark.fast_regression
+    def test_retrieval_agent_has_aggregation_service(self):
+        """Test RetrievalAgent has aggregation service."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from src.context_foundry.agents.retrieval import RetrievalAgent
+        
+        tenant_id = str(uuid.uuid4())
+        agent = RetrievalAgent(tenant_id=tenant_id)
+        
+        assert hasattr(agent, 'feature_flags')
+        assert hasattr(agent, 'aggregation_service')
+        assert 'aggregation.enabled' in agent.feature_flags
+    
+    @pytest.mark.fast_regression
+    def test_aggregation_feature_flag_default(self):
+        """Test aggregation is enabled by default."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from src.context_foundry.agents.retrieval import RetrievalAgent
+        
+        tenant_id = str(uuid.uuid4())
+        agent = RetrievalAgent(tenant_id=tenant_id)
+        
+        assert agent.feature_flags.get("aggregation.enabled") is True
+        assert agent.feature_flags.get("aggregation.crc_estimation.enabled") is True
+    
+    @pytest.mark.fast_regression
+    def test_aggregation_hook_called_for_counting_query(self):
+        """Regression: Aggregation hook should intercept 'How many' queries."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from src.context_foundry.agents.retrieval import RetrievalAgent
+        from unittest.mock import MagicMock
+        
+        tenant_id = str(uuid.uuid4())
+        agent = RetrievalAgent(tenant_id=tenant_id)
+        
+        # Mock the aggregation service
+        mock_service = MagicMock()
+        mock_service.is_aggregation_query.return_value = True
+        mock_service.handle_query.return_value = MagicMock(
+            result_kind=MagicMock(value='EXACT'),
+            value=5,
+            is_success=True,
+            cat=None,
+            evidence_envelope=None,
+            display_text='5 jobs',
+            confidence=0.95
+        )
+        agent._aggregation_service = mock_service
+        
+        # Call with aggregation query
+        bundle = agent.build_context_bundle("How many jobs has Saleh had?")
+        
+        # Verify aggregation path was taken
+        assert bundle.is_aggregation_query is True
+        assert mock_service.is_aggregation_query.called
+        assert mock_service.handle_query.called
+    
+    @pytest.mark.fast_regression
+    def test_aggregation_hook_skipped_for_normal_query(self):
+        """Regression: Normal queries should bypass aggregation hook."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from src.context_foundry.agents.retrieval import RetrievalAgent
+        from unittest.mock import MagicMock, patch
+        
+        tenant_id = str(uuid.uuid4())
+        agent = RetrievalAgent(tenant_id=tenant_id)
+        
+        # Mock the aggregation service to return False for is_aggregation_query
+        mock_service = MagicMock()
+        mock_service.is_aggregation_query.return_value = False
+        agent._aggregation_service = mock_service
+        
+        # Mock the LLM client to avoid API calls
+        mock_llm = MagicMock()
+        mock_llm.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content='{"needs_property_search": false}'))]
+        )
+        agent._llm_client = mock_llm
+        
+        # Call with non-aggregation query
+        bundle = agent.build_context_bundle("Who is Saleh Hamed?")
+        
+        # Verify aggregation service was checked but skipped
+        assert mock_service.is_aggregation_query.called
+        assert not mock_service.handle_query.called
+        assert bundle.is_aggregation_query is False
+
+
+# =============================================================================
 # INTEGRATION TESTS - Full pipeline (nightly only)
 # =============================================================================
 
