@@ -822,6 +822,40 @@ def get_extraction_worker_status():
     }
 
 
+def seed_aggregation_definitions(tenant_id: str = None):
+    """Seed aggregation definitions for the aggregation framework."""
+    try:
+        from src.context_foundry.aggregation.seed_definitions import seed_all_definitions
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.orm import sessionmaker
+        import uuid
+        
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            logger.warning("[Brain] DATABASE_URL not set, skipping aggregation definitions seeding")
+            return
+        
+        engine = create_engine(database_url)
+        Session = sessionmaker(bind=engine)
+        
+        # Use provided tenant_id or default system tenant
+        tid = uuid.UUID(tenant_id) if tenant_id else uuid.UUID("00000000-0000-0000-0000-000000000000")
+        
+        with Session() as session:
+            # Set tenant context for RLS
+            session.execute(text(f"SET app.current_tenant = '{tid}'"))
+            
+            stats = seed_all_definitions(session, tid)
+            session.commit()
+            
+            logger.info(f"[Brain] Aggregation definitions seeded: {stats}")
+            
+    except ImportError:
+        logger.debug("[Brain] Aggregation module not available, skipping seeding")
+    except Exception as e:
+        logger.warning(f"[Brain] Failed to seed aggregation definitions: {e}")
+
+
 def init_scheduler():
     global scheduler
     if scheduler is None:
@@ -887,5 +921,6 @@ if __name__ == '__main__':
     
     init_scheduler()
     start_extraction_worker()
+    seed_aggregation_definitions()  # Seed aggregation framework definitions
     logger.info(f"[Brain] Starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
