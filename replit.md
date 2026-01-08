@@ -43,6 +43,11 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Hybrid Retrieval System**: Combines knowledge graph (structured relationships) with RAG (document chunks) to ensure CF is at least as good as basic RAG while providing superior answers for graph-traversable queries.
 - **Entity-Chunk Provenance**: Each entity and relationship has a `source_chunk_id` column linking back to the specific document chunk it was extracted from, enabling full citation tracing.
 - **Decision Trace Layer (DTL)**: Extends Context Foundry with precedent-aware decision memory, capturing rationale, precedents, exceptions, and outcomes. DTL includes 13 tables, 6 enums, and 30 indexes, with 14 RLS policies for tenant isolation. It features hybrid retrieval for precedent search, combining semantic search, full-text search, and entity overlap.
+- **Precedent Middleware & Decision Orchestrator**: Case-Based Reasoning (CBR) integration implementing "retrieve before decide" pattern. Key components:
+  - `PrecedentMiddleware`: Low-level API for precedent retrieval with 300ms timeout and no-block fallback
+  - `DecisionOrchestrator`: Single unified hook for all CF agent decision points (query routing, entity resolution, tier selection)
+  - Metrics tracking: call rate, mean/p95 latency, citation vs deviation rates
+  - Integration in `ContextFoundry.query()` via `_route_with_precedents()` method
 
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)

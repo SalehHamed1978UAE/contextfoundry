@@ -24,8 +24,17 @@ from .rlm.router import QueryComplexityRouter, QueryTier
 from .rlm.executor import RLMExecutor, RLMResult
 from .rlm.schemas import RLMConfig
 
+try:
+    from src.decision_trace_layer.decision_orchestrator import (
+        DecisionOrchestrator, DecisionType, OrchestratorConfig, create_orchestrator_for_tenant
+    )
+    DTL_AVAILABLE = True
+except ImportError:
+    DTL_AVAILABLE = False
+
 
 DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000000"
+CF_DECISION_MAKER_ID = "00000000-0000-0000-0000-cf0000000001"
 
 
 class ContextFoundry:
@@ -43,12 +52,14 @@ class ContextFoundry:
         tenant_id: str = DEFAULT_TENANT_ID,
         session: Optional[Session] = None, 
         enable_rlm: bool = True,
-        rlm_config: Optional[RLMConfig] = None
+        rlm_config: Optional[RLMConfig] = None,
+        enable_precedent_lookup: bool = True
     ):
         self.session = session or get_session()
         self.tenant_id = tenant_id
         self.enable_rlm = enable_rlm
         self.rlm_config = rlm_config
+        self.enable_precedent_lookup = enable_precedent_lookup and DTL_AVAILABLE
         
         self._set_tenant_context()
         
@@ -58,9 +69,22 @@ class ContextFoundry:
         
         self.router = QueryComplexityRouter()
         
+        self._decision_orchestrator = None
+        if self.enable_precedent_lookup:
+            try:
+                self._decision_orchestrator = create_orchestrator_for_tenant(
+                    tenant_id=tenant_id,
+                    decision_maker_id=CF_DECISION_MAKER_ID,
+                    enabled=True
+                )
+                logger.info("Decision orchestrator initialized with precedent lookup")
+            except Exception as e:
+                logger.warning(f"Failed to initialize decision orchestrator: {e}")
+                self._decision_orchestrator = None
+        
         self.is_initialized = False
         
-        logger.info(f"ContextFoundry core initialized for tenant {tenant_id[:8] if tenant_id else 'default'}... (RLM enabled: {enable_rlm})")
+        logger.info(f"ContextFoundry core initialized for tenant {tenant_id[:8] if tenant_id else 'default'}... (RLM enabled: {enable_rlm}, precedents: {self.enable_precedent_lookup})")
     
     def _set_tenant_context(self):
         """Set RLS tenant context on the session."""
@@ -129,6 +153,10 @@ class ContextFoundry:
         
         try:
             tier, signals = self.router.route(query_text)
+            precedent_info = {"status": "disabled", "latency_ms": 0}
+            
+            if self._decision_orchestrator and not force_tier:
+                tier, precedent_info = self._route_with_precedents(query_text, tier, signals)
             
             if force_tier == "tier1":
                 tier = QueryTier.TIER1_SIMPLE
@@ -142,7 +170,8 @@ class ContextFoundry:
                 "as_of_date": as_of_date,
                 "tier": tier.value,
                 "complexity_score": signals.complexity_score,
-                "rlm_enabled": self.enable_rlm
+                "rlm_enabled": self.enable_rlm,
+                "precedent_lookup": precedent_info
             })
             
             if tier == QueryTier.TIER2_RLM and self.enable_rlm:
@@ -276,6 +305,67 @@ class ContextFoundry:
         """
         query_text = f"Who should I escalate to for {context}?"
         return self.query(query_text)
+    
+    def _route_with_precedents(
+        self,
+        query_text: str,
+        default_tier: QueryTier,
+        signals
+    ) -> tuple:
+        """
+        Apply precedent lookup to query routing decision.
+        
+        GUARDRAIL: 300ms timeout, no-block fallback.
+        
+        Returns:
+            (tier, precedent_info) - tier may be overridden by precedent
+        """
+        if not self._decision_orchestrator:
+            return default_tier, {"status": "disabled", "latency_ms": 0}
+        
+        try:
+            def decide_tier(precedents):
+                if precedents:
+                    best = precedents[0]
+                    if best.score >= 0.7:
+                        prior_tier = best.choice.get("tier", default_tier.value)
+                        return {
+                            "choice": {"tier": prior_tier, "from_precedent": True},
+                            "rationale": f"Following precedent {best.summary[:50]}...",
+                            "followed_precedent_id": best.precedent_id
+                        }
+                return {
+                    "choice": {"tier": default_tier.value, "from_precedent": False},
+                    "rationale": f"No strong precedent, using complexity score {signals.complexity_score:.2f}"
+                }
+            
+            result = self._decision_orchestrator.make_decision(
+                decision_type=DecisionType.TIER_SELECTION,
+                situation=f"Query routing for: {query_text[:100]}",
+                decide_fn=decide_tier
+            )
+            
+            chosen_tier_value = result.choice.get("tier", default_tier.value)
+            if chosen_tier_value == "tier1":
+                chosen_tier = QueryTier.TIER1_SIMPLE
+            elif chosen_tier_value == "tier2":
+                chosen_tier = QueryTier.TIER2_RLM
+            else:
+                chosen_tier = default_tier
+            
+            precedent_info = {
+                "status": result.precedent_lookup_status,
+                "latency_ms": result.precedent_lookup_latency_ms,
+                "precedents_considered": result.precedents_considered,
+                "followed": result.precedent_followed,
+                "deviated": result.deviated
+            }
+            
+            return chosen_tier, precedent_info
+            
+        except Exception as e:
+            logger.warning(f"Precedent lookup failed, using default tier: {e}")
+            return default_tier, {"status": "error", "latency_ms": 0, "error": str(e)}
     
     def _query_tier2_rlm(
         self,
