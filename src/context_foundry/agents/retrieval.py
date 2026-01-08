@@ -177,12 +177,19 @@ class RetrievalAgent:
                     "query": query_text[:100]
                 })
             
-            logger.info(f"[AGG-DEBUG-3] Aggregation query detected, calling handle_query()...")
+            logger.info(f"[AGG-DEBUG-3] Aggregation query detected, resolving anchor entities...")
+            
+            # Resolve anchor entities before calling aggregation service
+            resolved_anchors = self._resolve_aggregation_anchors(query_text)
+            if resolved_anchors:
+                logger.info(f"[AGG-DEBUG-3b] Resolved anchors: {[a.get('name') for a in resolved_anchors]}")
+            
+            logger.info(f"[AGG-DEBUG-3c] Calling handle_query()...")
             
             result = self.aggregation_service.handle_query(
                 question=query_text,
                 user_ctx=None,
-                anchor_entities=None,
+                anchor_entities=resolved_anchors,
             )
             
             logger.info(f"[AGG-DEBUG-4] handle_query() returned: {result}")
@@ -217,6 +224,38 @@ class RetrievalAgent:
         except Exception as e:
             logger.error(f"[AGG-DEBUG-ERROR] Aggregation query handling failed: {e}", exc_info=True)
             return False
+    
+    def _resolve_aggregation_anchors(self, query_text: str) -> Optional[List[Dict]]:
+        """
+        Extract and resolve anchor entities from an aggregation query.
+        Uses the same entity resolution pipeline as the main CF flow.
+        
+        Returns list of resolved entity dicts with 'id', 'name', 'type'.
+        """
+        try:
+            target_name = self._extract_target_entity(query_text)
+            if not target_name:
+                potential = self._find_potential_entity_names(query_text)
+                if potential:
+                    target_name = potential[0]
+            
+            if not target_name:
+                logger.info("[AGG-ANCHOR] No anchor entity found in query")
+                return None
+            
+            logger.info(f"[AGG-ANCHOR] Extracted anchor name: '{target_name}'")
+            
+            found, entity_match = self._verify_target_entity_exists(target_name)
+            if found and entity_match:
+                logger.info(f"[AGG-ANCHOR] Resolved anchor: id={entity_match.get('id')}, name={entity_match.get('name')}")
+                return [entity_match]
+            
+            logger.warning(f"[AGG-ANCHOR] Could not resolve anchor entity: '{target_name}'")
+            return None
+            
+        except Exception as e:
+            logger.error(f"[AGG-ANCHOR] Error resolving anchor: {e}")
+            return None
     
     def analyze_property_query(self, query_text: str) -> Dict:
         """
@@ -1138,7 +1177,14 @@ class RetrievalAgent:
         )
         if about_pattern:
             phrase = about_pattern.group(1).strip()
-            if len(phrase) > 2 and phrase.lower() not in {'a', 'an', 'the', 'this', 'that', 'it'}:
+        
+        has_done = re.search(
+            r'\bhas\s+([A-Za-z][a-zA-Z0-9\s-]*?)\s+(?:done|worked|completed|handled|managed|created)',
+            query_text, re.IGNORECASE
+        )
+        if has_done:
+            phrase = has_done.group(1).strip()
+            if len(phrase) > 1 and phrase.lower() not in {'he', 'she', 'it', 'they', 'we', 'who', 'a', 'an', 'the'}:
                 return phrase
         
         with_the = re.search(

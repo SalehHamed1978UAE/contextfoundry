@@ -150,11 +150,18 @@ class SufficiencyGate:
         """
         reasons = []
         
-        # EXACT path
-        if closure_policy == ClosurePolicy.AUTHORITATIVE and confidence >= self.EXACT_THRESHOLD:
-            return ResultKind.EXACT, []
+        # AUTHORITATIVE path - handle both EXACT and LOWER_BOUND
+        if closure_policy == ClosurePolicy.AUTHORITATIVE:
+            if confidence >= self.EXACT_THRESHOLD:
+                return ResultKind.EXACT, []
+            if confidence >= self.BOUNDED_THRESHOLD:
+                reasons.append({
+                    "code": "AUTHORITATIVE_LOW_CONF",
+                    "detail": "Authoritative source but below exact threshold"
+                })
+                return ResultKind.LOWER_BOUND, reasons
         
-        # BOUNDED paths
+        # BOUNDED paths for other closure policies
         if confidence >= self.BOUNDED_THRESHOLD:
             if closure_policy == ClosurePolicy.OPEN_WORLD:
                 reasons.append({
