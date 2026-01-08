@@ -139,12 +139,31 @@ class PrecedentResult:
         }
 
 
+class SmokeModeViolation(Exception):
+    """
+    Raised when network/embedding fallback is invoked during smoke mode.
+    
+    Smoke tests must use fixed embeddings to avoid external dependencies.
+    This ensures CI runs without API keys or network access.
+    """
+    pass
+
+
 def _compute_embedding_fallback(text_input: str) -> Optional[List[float]]:
     """
     Compute embedding as fallback when caller doesn't supply one.
     
     SLOW PATH - This is marked in logs. Callers should pre-compute embeddings.
+    
+    Raises:
+        SmokeModeViolation: If DTL_SMOKE_MODE=1 is set, to fail fast in CI
     """
+    if os.environ.get("DTL_SMOKE_MODE") == "1":
+        raise SmokeModeViolation(
+            "Embedding fallback invoked during smoke mode. "
+            "Smoke tests must supply query_embedding to avoid network calls."
+        )
+    
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         logger.warning("[DTL Core] OPENAI_API_KEY not set, cannot compute embedding")
