@@ -1,0 +1,252 @@
+DTL Validation Pack (Run This Exactly)
+Objective
+
+Prove DTL is useful by validating:
+
+Capture works (golden traces + evidence)
+
+Precedent retrieval works (real queries return useful precedents)
+
+Behavior impact (time saved / fewer escalations / fewer reversals)
+
+Safety (no leakage, no hallucinated precedent)
+
+Phase 0 — Setup (1 hour)
+Required
+
+Use two tenants: TENANT_A and TENANT_B
+
+Use two API keys: API_KEY_A, API_KEY_B
+
+Ensure DTL endpoints require API key auth and tenant_id comes from key.
+
+Output required from Replit
+
+Confirm the tenant IDs used
+
+Confirm the API keys used (redact keys, show last 4 chars)
+
+Phase 1 — Seed “Golden Traces” (50 decisions + evidence)
+What Replit must insert
+
+Seed 50 decisions total (25 Ops + 25 Commercial) into TENANT_A using the production API and agent logger.
+
+Each decision must include:
+
+decision_summary
+
+decision_choice (structured)
+
+rationale_summary
+
+≥1 evidence row with:
+
+evidence_type
+
+source_id or source_uri
+
+excerpt (at least 30 chars)
+
+decision_entity_links:
+
+at least 1 subject
+
+decision maker (agent entity) as decision_maker
+
+optional approver as approver
+
+lifecycle state = enacted
+
+Canonical Ops example themes (25)
+
+Use these patterns; vary details:
+
+bypass LB during auth outage
+
+rollback deployment due to error spikes
+
+disable feature flag temporarily
+
+accept risk: skip non-critical control during incident
+
+increase timeout / rate limit changes
+
+escalation decisions (who/when/why)
+
+Canonical Commercial example themes (25)
+
+approve discount exceptions (15–30%)
+
+approve extended payment terms (60–120 days)
+
+waive penalty due to outage
+
+reject discount due to policy
+
+approve exception with conditions (2-year commit, quarterly review)
+
+Output required from Replit
+
+After seeding, provide:
+
+Total decisions created
+
+Total evidence rows created
+
+% of decisions with ≥1 evidence
+
+A list of 10 sample decision_ids (human IDs)
+
+Phase 2 — Add Outcomes (10 decisions)
+
+Pick 10 decisions (5 Ops, 5 Commercial) and record:
+
+decision_results.outcome_status (positive/neutral/negative)
+
+1–2 metrics:
+
+Ops: ttr_minutes, error_rate_drop, user_impact_reduced
+
+Commercial: deal_won, margin_impact, churn_risk_change
+
+Output required
+
+Which 10 decisions got outcomes (IDs)
+
+How many positive/neutral/negative
+
+Phase 3 — Retrieval Usefulness Test (20 queries)
+
+Run these 20 exact queries against TENANT_A precedent search.
+For each query, return top 5 results with:
+
+decision_id
+
+summary
+
+score
+
+relevance_explanation
+
+evidence excerpt (first 120 chars)
+
+Ops queries (10)
+
+“Auth service outage, suspected load balancer routing issue — have we bypassed LB before?”
+
+“Rollback deployment due to spike in 500 errors — any similar incident precedent?”
+
+“During SEV1 we disabled feature flag X — when was this done and why?”
+
+“We skipped a non-critical security control during incident response — do we have precedent?”
+
+“We increased API timeout to stabilize service — what precedents exist?”
+
+“Rate limiting enabled due to overload — when did we do this previously?”
+
+“Database connection pool exhausted — what decisions were made previously?”
+
+“Disable cache to fix stale auth tokens — any precedent?”
+
+“Escalate to leadership for outage — what threshold/precedent exists?”
+
+“We used workaround instead of permanent fix during incident — similar cases?”
+
+Commercial queries (10)
+
+“Customer requests 25% discount due to outage — have we approved similar?”
+
+“Request for 90-day payment terms — have we granted this before?”
+
+“Waive penalty due to service downtime — precedent?”
+
+“Reject discount beyond policy — do we have examples?”
+
+“Approved discount with condition of 2-year commit — similar precedents?”
+
+“Strategic customer exception — how have we justified exceptions?”
+
+“Competitor pressure cited as rationale for discount — precedents?”
+
+“Approve exception but require quarterly review — precedents?”
+
+“Churn risk high — what decisions did we make historically?”
+
+“We denied terms exception and deal was lost — precedents?”
+
+Scoring requirement (must be included)
+
+For each query, Replit must assign a usefulness score:
+
+2 = clearly useful precedent
+
+1 = somewhat related
+
+0 = useless/noise
+
+Pass criteria
+
+≥12/20 queries score 2
+
+≤3/20 queries are “dangerous false positives” (wrong but looks plausible)
+
+Output required
+
+A table with:
+
+query #
+
+top precedent ID
+
+usefulness score (0/1/2)
+
+short note (“why useful”)
+
+Phase 4 — Safety Tests (10 adversarial)
+
+Run these as TENANT_B against TENANT_A data.
+
+With API_KEY_B, search for a known TENANT_A decision ID → must return 404/none
+
+With API_KEY_B, run query “auth outage bypass LB” → must return 0 results
+
+Try inserting cross-tenant precedent link → must fail
+
+Attempt to enact decision without evidence → must fail
+
+Try reading evidence rows from TENANT_A with TENANT_B key → 0 rows
+
+Output required
+
+For each test: expected vs actual + error text
+
+Phase 5 — Minimal Impact Test (Optional, 2 days)
+
+Pick one workflow (Ops or Commercial).
+Run 10 decisions:
+
+5 with precedent search used
+
+5 without
+
+Track:
+
+time to decision (minutes)
+
+escalations
+reversals
+Pass criteria
+
+precedent-used group shows improvement in at least 1 metric
+
+Deliverables Replit must return to you
+
+Seed stats (50 + evidence coverage)
+
+Outcome stats (10)
+
+Retrieval results + usefulness scoring table (20)
+
+Safety test logs (10)
+
+Any tuning suggestions (weights, entity linking, evidence quality)
