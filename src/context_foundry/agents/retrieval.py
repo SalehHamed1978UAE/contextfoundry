@@ -153,15 +153,23 @@ class RetrievalAgent:
         Returns True if handled (bundle populated with aggregation result).
         Returns False if not an aggregation query (continue normal pipeline).
         """
+        logger.info(f"[AGG-DEBUG-1] _try_aggregation_query ENTRY: '{query_text[:80]}'")
+        logger.info(f"[AGG-DEBUG-1] feature_flag aggregation.enabled = {self.feature_flags.get('aggregation.enabled', False)}")
+        
         if not self.feature_flags.get("aggregation.enabled", False):
+            logger.info("[AGG-DEBUG-1] RETURNING FALSE - aggregation.enabled is False")
             return False
         
         if not self.aggregation_service:
-            logger.debug("AggregationService not available - skipping aggregation check")
+            logger.info("[AGG-DEBUG-1] RETURNING FALSE - aggregation_service is None")
             return False
         
         try:
-            if not self.aggregation_service.is_aggregation_query(query_text):
+            is_agg = self.aggregation_service.is_aggregation_query(query_text)
+            logger.info(f"[AGG-DEBUG-2] is_aggregation_query() returned: {is_agg}")
+            
+            if not is_agg:
+                logger.info("[AGG-DEBUG-2] RETURNING FALSE - not classified as aggregation query")
                 return False
             
             if query_logger:
@@ -169,7 +177,7 @@ class RetrievalAgent:
                     "query": query_text[:100]
                 })
             
-            logger.info(f"Aggregation query detected: {query_text[:50]}...")
+            logger.info(f"[AGG-DEBUG-3] Aggregation query detected, calling handle_query()...")
             
             result = self.aggregation_service.handle_query(
                 question=query_text,
@@ -177,8 +185,13 @@ class RetrievalAgent:
                 anchor_entities=None,
             )
             
+            logger.info(f"[AGG-DEBUG-4] handle_query() returned: {result}")
+            
             if result is None:
+                logger.info("[AGG-DEBUG-4] RETURNING FALSE - handle_query returned None")
                 return False
+            
+            logger.info(f"[AGG-DEBUG-5] result_kind={result.result_kind.value}, value={result.value}, confidence={result.confidence}")
             
             bundle.is_aggregation_query = True
             bundle.aggregation_result = result
@@ -198,11 +211,11 @@ class RetrievalAgent:
                     "display_text": result.display_text,
                 })
             
-            logger.info(f"Aggregation complete: {result.display_text} (confidence: {result.confidence:.2f})")
+            logger.info(f"[AGG-DEBUG-6] SUCCESS: {result.display_text} (confidence: {result.confidence:.2f})")
             return True
             
         except Exception as e:
-            logger.error(f"Aggregation query handling failed: {e}")
+            logger.error(f"[AGG-DEBUG-ERROR] Aggregation query handling failed: {e}", exc_info=True)
             return False
     
     def analyze_property_query(self, query_text: str) -> Dict:
