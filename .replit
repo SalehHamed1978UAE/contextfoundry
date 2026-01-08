@@ -31,10 +31,6 @@ args = "Re-extraction"
 task = "workflow.run"
 args = "RE Agent Batch"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "DTL Gunicorn"
-
 [[workflows.workflow]]
 name = "Start All"
 author = "agent"
@@ -76,18 +72,6 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python scripts/re_agent_batch.py"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "DTL Gunicorn"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd /home/runner/workspace && PYTHONPATH=. gunicorn -w 2 -k gthread --threads 4 -b 0.0.0.0:3001 --timeout 60 \"brain.app:app\""
-waitForPort = 3001
 
 [workflows.workflow.metadata]
 outputType = "console"
