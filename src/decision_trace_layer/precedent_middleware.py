@@ -13,9 +13,12 @@ Every non-trivial agent decision should:
 3. Log the decision with precedent citations
 
 CRITICAL GUARDRAILS:
-- 300ms timeout on precedent search
 - No-block on timeout/error: proceed with decision, log status
 - Single orchestration hook for all decision points
+
+ARCHITECTURE (Library-First):
+- Uses inline adapter for in-process precedent search (no HTTP overhead)
+- All retrieval logic in src/context_foundry/dtl/core.py
 """
 
 import os
@@ -28,6 +31,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import requests
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+
+from src.context_foundry.dtl import inline_search_precedents, AuthContext
 
 logger = logging.getLogger(__name__)
 
@@ -347,16 +352,12 @@ class PrecedentMiddleware:
         
         Returns: (precedents, status, latency_ms)
         
-        GUARDRAIL: 600ms timeout, no-block on failure
-        
-        Performance optimization:
-        - Computes embedding client-side (with caching) before HTTP call
-        - Passes pre-computed embedding to DTL API to skip server-side embedding
-        - HTTP call now only does fast DB query (~12ms)
+        ARCHITECTURE: Uses inline adapter (no HTTP overhead).
+        All retrieval logic in src/context_foundry/dtl/core.py
         
         Timing instrumentation:
         - t_queue_ms: Embedding computation time (cached = 0ms)
-        - t_http_ms: Actual HTTP call duration (should be ~50-100ms with pre-computed embedding)
+        - t_inline_ms: Inline adapter call duration (DB + formatting)
         - t_total_ms: End-to-end including cache check and embedding
         """
         self._metrics.total_calls += 1
@@ -383,38 +384,40 @@ class PrecedentMiddleware:
         timing.t_queue_ms = t_embed_ms
         
         try:
-            session = self._get_session()
-            
-            request_body = {
-                "query": situation,
-                "decision_type": decision_type,
-                "entity_ids": entity_ids,
-                "limit": limit
-            }
-            if embedding:
-                request_body["embedding"] = embedding
-            
-            t_http_start = time.time()
-            response = session.post(
-                f"{self.base_url}/api/v1/dtl/precedents/search",
-                headers={"X-CF-API-Key": self.api_key},
-                json=request_body,
-                timeout=self.timeout_seconds
+            ctx = AuthContext(
+                tenant_id=self.tenant_id,
+                user_id=self.decision_maker_id,
+                role='user'
             )
-            t_http_ms = (time.time() - t_http_start) * 1000
+            
+            t_inline_start = time.time()
+            result = inline_search_precedents(
+                ctx=ctx,
+                query_text=situation,
+                query_embedding=embedding,
+                decision_type_hint=decision_type,
+                required_entity_ids=entity_ids,
+                limit=limit
+            )
+            t_inline_ms = (time.time() - t_inline_start) * 1000
             t_total_ms = (time.time() - t_start) * 1000
             
-            timing.t_http_ms = t_http_ms
+            timing.t_http_ms = t_inline_ms  # Using http_ms field for inline timing
             timing.t_total_ms = t_total_ms
             
-            if response.status_code != 200:
-                timing.dtl_status = "error"
-                self._metrics.error_calls += 1
-                self._metrics.record_timing(timing)
-                logger.warning(f"[PrecedentMiddleware] Search failed: {response.status_code} (t_http={t_http_ms:.0f}ms)")
-                return [], "skipped_error", t_total_ms
+            precedents = [
+                Precedent(
+                    decision_id=p.decision_id,
+                    summary=p.summary,
+                    choice=p.choice,
+                    rationale=p.rationale_summary,
+                    decision_type=p.decision_type,
+                    outcome_status=p.outcome_status,
+                    score=p.rrf_score
+                )
+                for p in result.precedents
+            ]
             
-            precedents = self._parse_precedents(response.json())
             self._store_cache(cache_key, precedents)
             
             timing.dtl_status = "success"
@@ -422,18 +425,8 @@ class PrecedentMiddleware:
             self._metrics.total_latency_ms += t_total_ms
             self._metrics.record_timing(timing)
             
-            logger.debug(f"[PrecedentMiddleware] Found {len(precedents)} precedents (t_embed={t_embed_ms:.0f}ms, t_http={t_http_ms:.0f}ms, t_total={t_total_ms:.0f}ms)")
+            logger.debug(f"[PrecedentMiddleware] Found {len(precedents)} precedents (t_embed={t_embed_ms:.0f}ms, t_inline={t_inline_ms:.0f}ms, t_total={t_total_ms:.0f}ms)")
             return precedents, "success", t_total_ms
-            
-        except requests.exceptions.Timeout:
-            t_total_ms = (time.time() - t_start) * 1000
-            timing.t_total_ms = t_total_ms
-            timing.t_http_ms = t_total_ms - t_embed_ms
-            timing.dtl_status = "timeout"
-            self._metrics.timeout_calls += 1
-            self._metrics.record_timing(timing)
-            logger.warning(f"[PrecedentMiddleware] Timeout after {t_total_ms:.0f}ms (t_embed={t_embed_ms:.0f}ms)")
-            return [], "skipped_timeout", t_total_ms
             
         except Exception as e:
             t_total_ms = (time.time() - t_start) * 1000
