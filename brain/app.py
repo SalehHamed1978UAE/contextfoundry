@@ -56,6 +56,7 @@ signal.signal(signal.SIGINT, shutdown_handler)
 from flask import Flask
 from brain.routes.internal import internal_bp
 from src.decision_trace_layer.api import dtl_bp
+from src.context_foundry.dtl.dtl_http import dtl_core_bp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -67,6 +68,7 @@ if not app.secret_key:
 
 app.register_blueprint(internal_bp)
 app.register_blueprint(dtl_bp)
+app.register_blueprint(dtl_core_bp)
 
 scheduler = None
 extraction_worker_thread = None
