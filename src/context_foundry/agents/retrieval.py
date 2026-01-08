@@ -233,24 +233,57 @@ class RetrievalAgent:
         Returns list of resolved entity dicts with 'id', 'name', 'type'.
         """
         try:
-            target_name = self._extract_target_entity(query_text)
-            if not target_name:
-                potential = self._find_potential_entity_names(query_text)
-                if potential:
-                    target_name = potential[0]
+            potential_names = []
             
-            if not target_name:
+            # Pattern 1: "has <name> done" pattern for person names
+            has_done = re.search(
+                r'\bhas\s+([A-Za-z][a-zA-Z0-9\s-]*?)\s+(?:done|worked|completed|handled|managed|created)',
+                query_text, re.IGNORECASE
+            )
+            if has_done:
+                name = has_done.group(1).strip()
+                if len(name) > 1 and name.lower() not in {'he', 'she', 'it', 'they', 'we', 'who', 'a', 'an', 'the'}:
+                    potential_names.append(name)
+            
+            # Pattern 2: Try standard target entity extraction
+            target_name = self._extract_target_entity(query_text)
+            if target_name and target_name not in potential_names:
+                potential_names.append(target_name)
+            
+            # Pattern 3: Find potential entity names (service/system suffixes)
+            potential = self._find_potential_entity_names(query_text)
+            for p in potential:
+                if p not in potential_names:
+                    potential_names.append(p)
+            
+            if not potential_names:
                 logger.info("[AGG-ANCHOR] No anchor entity found in query")
                 return None
             
-            logger.info(f"[AGG-ANCHOR] Extracted anchor name: '{target_name}'")
+            logger.info(f"[AGG-ANCHOR] Potential anchor names: {potential_names}")
             
-            found, entity_match = self._verify_target_entity_exists(target_name)
-            if found and entity_match:
-                logger.info(f"[AGG-ANCHOR] Resolved anchor: id={entity_match.get('id')}, name={entity_match.get('name')}")
-                return [entity_match]
+            # Try to resolve each potential name
+            for name in potential_names:
+                logger.info(f"[AGG-ANCHOR] Trying to resolve: '{name}'")
+                
+                # Use EntityResolver for person name matching (supports partial/contains match)
+                result = self.entity_resolver.resolve(name, entity_type_hint="PERSON")
+                if result.entity and result.confidence >= 0.70:
+                    entity_dict = {
+                        'id': result.entity.entity_id,
+                        'name': result.entity.name,
+                        'type': result.entity.entity_type,
+                    }
+                    logger.info(f"[AGG-ANCHOR] Resolved anchor via EntityResolver: id={entity_dict.get('id')}, name={entity_dict.get('name')}, conf={result.confidence:.2f}")
+                    return [entity_dict]
+                
+                # Fallback: try _verify_target_entity_exists (broader search)
+                found, entity_match = self._verify_target_entity_exists(name)
+                if found and entity_match:
+                    logger.info(f"[AGG-ANCHOR] Resolved anchor: id={entity_match.get('id')}, name={entity_match.get('name')}")
+                    return [entity_match]
             
-            logger.warning(f"[AGG-ANCHOR] Could not resolve anchor entity: '{target_name}'")
+            logger.warning(f"[AGG-ANCHOR] Could not resolve any anchor entity from: {potential_names}")
             return None
             
         except Exception as e:
