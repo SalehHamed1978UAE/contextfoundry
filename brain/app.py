@@ -921,6 +921,6 @@ if __name__ == '__main__':
     
     init_scheduler()
     start_extraction_worker()
-    seed_aggregation_definitions()  # Seed aggregation framework definitions
+    seed_aggregation_definitions(tenant_id='7627d577-e07c-484f-893a-ed2f464d28b9')  # Seed aggregation framework definitions
     logger.info(f"[Brain] Starting on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
