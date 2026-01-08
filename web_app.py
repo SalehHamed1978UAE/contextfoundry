@@ -2904,20 +2904,36 @@ def internal_query():
         if query_request.query_type == QueryType.SEMANTIC_SEARCH:
             result = foundry.query(query_request.query_text or "")
             
-            entities = result.get('context_bundle', {}).get('blast_radius_entities', [])
-            results = [
-                {
-                    'entity_id': e.get('id', ''),
-                    'entity_type': e.get('type', ''),
-                    'content': e,
-                    'similarity_score': 0.8,
-                    'source_document_id': e.get('source_document_id')
-                }
-                for e in entities[:query_request.max_results or 10]
-            ]
-            
-            input_tokens = 100
-            output_tokens = 50
+            # Handle aggregation queries specially
+            if result.get('is_aggregation'):
+                agg = result.get('aggregation', {})
+                results = [{
+                    'answer': result.get('answer', ''),
+                    'is_aggregation': True,
+                    'result_kind': agg.get('result_kind', 'UNKNOWN'),
+                    'value': agg.get('value'),
+                    'unit': agg.get('unit'),
+                    'bounds': agg.get('bounds'),
+                    'confidence': result.get('confidence', 0),
+                    'assumptions': agg.get('assumptions', [])
+                }]
+                input_tokens = 50
+                output_tokens = 30
+            else:
+                entities = result.get('context_bundle', {}).get('blast_radius_entities', [])
+                results = [
+                    {
+                        'entity_id': e.get('id', ''),
+                        'entity_type': e.get('type', ''),
+                        'content': e,
+                        'similarity_score': 0.8,
+                        'source_document_id': e.get('source_document_id')
+                    }
+                    for e in entities[:query_request.max_results or 10]
+                ]
+                
+                input_tokens = 100
+                output_tokens = 50
             
         elif query_request.query_type == QueryType.VERIFY_STATEMENT:
             result = foundry.query(query_request.statement or "")

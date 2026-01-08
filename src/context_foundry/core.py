@@ -8,6 +8,7 @@ Supports dual-tier query routing:
 """
 import uuid
 import json
+from dataclasses import asdict
 from datetime import datetime
 from typing import Dict, Optional
 from sqlalchemy.orm import Session
@@ -187,6 +188,48 @@ class ContextFoundry:
                 query_logger=query_logger,
                 as_of_date=as_of_date
             )
+            
+            # AGGREGATION FRAMEWORK: Return deterministic result without LLM reasoning
+            if bundle.is_aggregation_query and bundle.aggregation_result:
+                agg_result = bundle.aggregation_result
+                logger.info("Query handled by Aggregation Framework - skipping tri-memory pipeline")
+                
+                response = {
+                    "answer": agg_result.display_text or f"{agg_result.result_kind.value}: {agg_result.value}",
+                    "confidence": agg_result.confidence,
+                    "confidence_level": agg_result.confidence_label.lower() if agg_result.confidence_label else "medium",
+                    "is_aggregation": True,
+                    "aggregation": {
+                        "result_kind": agg_result.result_kind.value,
+                        "value": agg_result.value,
+                        "unit": agg_result.unit,
+                        "bounds": asdict(agg_result.bounds) if agg_result.bounds else None,
+                        "assumptions": agg_result.assumptions or [],
+                    },
+                    "evidence_chain": [{
+                        "type": "aggregation",
+                        "description": f"Deterministic SQL count: {agg_result.value}",
+                        "source": "Aggregation Framework",
+                        "confidence": agg_result.confidence
+                    }],
+                    "uncertainty": {
+                        "reasons": agg_result.assumptions or [],
+                        "uncertain_facts": [],
+                        "would_help": []
+                    },
+                    "rules_applied": [],
+                    "caveats": [f"Result is {agg_result.result_kind.value}. Actual count may differ."] if agg_result.result_kind.value != "EXACT" else [],
+                    "bundle_id": bundle.query_id,
+                    "query_text": bundle.query_text,
+                    "context_bundle": bundle.to_dict()
+                }
+                
+                if save_to_log:
+                    self._save_query_log(query_id, query_text, bundle, response)
+                
+                summary = query_logger.log_complete(success=True, final_confidence=agg_result.confidence)
+                response["query_log"] = summary
+                return response
             
             if bundle.target_entity_name and not bundle.target_entity_found:
                 query_logger.log_event("ENTITY_NOT_FOUND_GUARD", {
