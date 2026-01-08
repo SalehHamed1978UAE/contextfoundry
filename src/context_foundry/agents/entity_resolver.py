@@ -183,6 +183,12 @@ class EntityResolver:
         if not query or not query.strip():
             return ResolveResult(match_stage="empty_query")
         
+        # Clear any failed transaction state before resolving
+        try:
+            self.session.rollback()
+        except Exception:
+            pass
+        
         query = query.strip()
         logger.debug(f"Resolving entity: '{query}' (type_hint={entity_type_hint})")
         

@@ -186,6 +186,9 @@ class SymbolicMemory:
         rules_passed = []
         
         for rule_dict in applicable_rules:
+            # Skip rules without an id (like aggregation_count which is injected, not from DB)
+            if "id" not in rule_dict:
+                continue
             rule = self.session.query(Rule).get(rule_dict["id"])
             if not rule:
                 continue
