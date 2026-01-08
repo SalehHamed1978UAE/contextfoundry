@@ -190,12 +190,11 @@ def _set_rls_context(session: Session, ctx: AuthContext) -> None:
     Set RLS session variables on the database connection.
     
     MUST be called on the same session/connection used for the query.
-    Sets: app.current_tenant_id, app.current_user_id, app.current_user_role
+    Uses existing set_tenant_context for compatibility with RLS policies.
     """
-    session.execute(text(f"SET app.current_tenant_id = '{ctx.tenant_id}'"))
-    session.execute(text(f"SET app.current_user_id = '{ctx.user_id}'"))
-    session.execute(text(f"SET app.current_user_role = '{ctx.role}'"))
-    logger.debug(f"[DTL Core] RLS context set: tenant={ctx.tenant_id}, user={ctx.user_id}, role={ctx.role}")
+    from src.context_foundry.models.schema import set_tenant_context
+    set_tenant_context(session, ctx.tenant_id, role=ctx.role)
+    logger.debug(f"[DTL Core] RLS context set: tenant={ctx.tenant_id}, role={ctx.role}")
 
 
 def search_precedents(

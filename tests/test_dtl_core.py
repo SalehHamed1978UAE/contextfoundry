@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 TOLERANCE = 1e-6
-HTTP_BASE_URL = os.environ.get("DTL_BASE_URL", "http://localhost:5000")
+HTTP_BASE_URL = os.environ.get("DTL_BASE_URL", "http://localhost:3000")
 
 
 def get_test_embedding(text: str) -> List[float]:
