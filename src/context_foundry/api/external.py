@@ -80,21 +80,39 @@ def validate_api_key(key: str) -> Optional[Dict[str, Any]]:
     key_hash = hash_api_key(key)
     
     try:
+        from sqlalchemy import text
         session = get_db_session()
-        api_key = session.query(APIKey).filter(
-            APIKey.key_hash == key_hash,
-            APIKey.revoked_at.is_(None)
-        ).first()
         
-        if not api_key:
+        result = session.execute(text("""
+            SELECT id, name, tenant_id, scopes, is_active, expires_at
+            FROM api_keys 
+            WHERE key_hash = :hash AND is_active = true
+        """), {"hash": key_hash})
+        row = result.fetchone()
+        
+        if not row:
             session.close()
             return None
+        
+        api_key_id, name, tenant_id, scopes, is_active, expires_at = row
+        
+        class ApiKeyResult:
+            pass
+        api_key = ApiKeyResult()
+        api_key.id = api_key_id
+        api_key.name = name
+        api_key.tenant_id = tenant_id
+        api_key.scopes = scopes
+        api_key.expires_at = expires_at
+        api_key.last_used_at = None
         
         if api_key.expires_at and api_key.expires_at < datetime.utcnow():
             session.close()
             return None
         
-        api_key.last_used_at = datetime.utcnow()
+        session.execute(text("""
+            UPDATE api_keys SET last_used_at = :now WHERE id = :id
+        """), {"now": datetime.utcnow(), "id": str(api_key.id)})
         session.commit()
         
         scopes = ['read']

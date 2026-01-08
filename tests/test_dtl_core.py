@@ -58,18 +58,22 @@ def get_test_api_key() -> str:
 
 def get_test_tenant_id() -> str:
     """Get tenant ID from API key or database"""
-    session = get_session()
-    try:
-        from sqlalchemy import text
-        result = session.execute(text("""
-            SELECT DISTINCT tenant_id::text FROM decision_traces LIMIT 1
+    from sqlalchemy import text, create_engine
+    
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        pytest.skip("DATABASE_URL not set")
+    
+    engine = create_engine(database_url)
+    with engine.connect() as conn:
+        # Query api_keys table (no RLS) to get tenant_id
+        result = conn.execute(text("""
+            SELECT tenant_id::text FROM api_keys WHERE is_active = true LIMIT 1
         """))
         row = result.fetchone()
         if row:
             return row[0]
-        pytest.skip("No decisions in database for testing")
-    finally:
-        session.close()
+        pytest.skip("No API keys in database for testing")
 
 
 class TestParity:
