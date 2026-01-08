@@ -118,11 +118,13 @@ class PrecedentSearchClient:
         if entity_ids:
             entity_array = entity_ids
         
+        embedding_str = "[" + ",".join(str(x) for x in embedding) + "]"
+        
         sql = text("""
             SELECT * FROM search_precedents_api(
                 :query_text,
-                :embedding::vector,
-                :tenant_id,
+                CAST(:embedding AS vector),
+                CAST(:tenant_id AS uuid),
                 :decision_type_hint,
                 :entity_ids,
                 :min_confidence,
@@ -133,7 +135,7 @@ class PrecedentSearchClient:
         
         result = self.session.execute(sql, {
             "query_text": query,
-            "embedding": str(embedding),
+            "embedding": embedding_str,
             "tenant_id": self.tenant_id,
             "decision_type_hint": decision_type_hint,
             "entity_ids": entity_array,
