@@ -146,9 +146,21 @@ class EntityResolver:
     
     def __init__(self, session: Optional[Session] = None, tenant_id: Optional[str] = None):
         from uuid import UUID as PyUUID
+        from sqlalchemy import text
         self.session = session or get_session()
         self._tenant_id_str = tenant_id
         self.tenant_id = PyUUID(tenant_id) if isinstance(tenant_id, str) and tenant_id else None
+        
+        # Set RLS context for tenant isolation
+        if self.tenant_id:
+            try:
+                self.session.execute(
+                    text("SET LOCAL app.current_tenant_id = :tenant_id"),
+                    {"tenant_id": str(self.tenant_id)}
+                )
+            except Exception as e:
+                logger.debug(f"EntityResolver: RLS context set failed: {e}")
+        
         logger.info("EntityResolver initialized")
     
     def resolve(
@@ -191,7 +203,7 @@ class EntityResolver:
             return alias_result
         
         contains_result = self._contains_match(query, entity_type_hint)
-        if contains_result.entity and contains_result.confidence >= 0.90:
+        if contains_result.entity and contains_result.confidence >= 0.80:
             logger.info(f"Contains match found: {contains_result.entity.name}")
             return contains_result
         if contains_result.needs_disambiguation:

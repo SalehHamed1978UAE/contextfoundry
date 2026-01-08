@@ -142,12 +142,12 @@ class AggregationPlanner:
         WITH RECURSIVE reachable AS (
             -- Base case: direct relationships
             SELECT 
-                target_entity_id as entity_id,
+                target_id as entity_id,
                 1 as depth,
-                ARRAY[source_entity_id, target_entity_id] as path
+                ARRAY[source_id, target_id] as path
             FROM relationships r
             WHERE r.tenant_id = :tenant_id
-              AND r.source_entity_id = :start_entity_id
+              AND r.source_id = :start_entity_id
               AND r.relationship_type = :relationship_type
               {direction_filter}
             
@@ -155,15 +155,15 @@ class AggregationPlanner:
             
             -- Recursive case
             SELECT 
-                r.target_entity_id,
+                r.target_id,
                 reachable.depth + 1,
-                reachable.path || r.target_entity_id
+                reachable.path || r.target_id
             FROM relationships r
-            JOIN reachable ON r.source_entity_id = reachable.entity_id
+            JOIN reachable ON r.source_id = reachable.entity_id
             WHERE r.tenant_id = :tenant_id
               AND r.relationship_type = :relationship_type
               AND reachable.depth < :max_depth
-              AND NOT r.target_entity_id = ANY(reachable.path)  -- Prevent cycles
+              AND NOT r.target_id = ANY(reachable.path)  -- Prevent cycles
         )
         SELECT COUNT(DISTINCT entity_id) as result
         FROM reachable
@@ -263,7 +263,7 @@ class AggregationPlanner:
         # Add anchor filter if present (use 't' alias to match template)
         anchor_filter = ""
         if cat.anchor:
-            anchor_filter = "AND t.source_entity_id = :anchor_id"
+            anchor_filter = "AND t.source_id = :anchor_id"
             filter_params["anchor_id"] = str(cat.anchor.entity_id)
         
         # Add relationship type filter (use 't' alias to match template)
@@ -272,7 +272,7 @@ class AggregationPlanner:
             rel_filter = "AND t.relationship_type = :rel_type"
             filter_params["rel_type"] = cat.target.relationship_type
         
-        grouping_expr = ", ".join(cat.aggregation.grouping_key) if cat.aggregation.grouping_key else "t.target_entity_id"
+        grouping_expr = ", ".join(cat.aggregation.grouping_key) if cat.aggregation.grouping_key else "t.target_id"
         
         sql = template.format(
             table="relationships",

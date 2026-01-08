@@ -255,6 +255,10 @@ class RetrievalAgent:
             
         except Exception as e:
             logger.error(f"[AGG-ANCHOR] Error resolving anchor: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
             return None
     
     def analyze_property_query(self, query_text: str) -> Dict:

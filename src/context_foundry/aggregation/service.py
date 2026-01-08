@@ -336,6 +336,24 @@ class AggregationService:
                 if i > 0 or question.strip()[0].isupper():
                     potential_names.append(clean_word)
         
+        # Also look for person-name patterns even if lowercase (common in casual queries)
+        # Pattern: "has <name> done", "did <name> do", "for <name>", "by <name>"
+        person_patterns = [
+            r'has\s+(\w+)\s+done',
+            r'did\s+(\w+)\s+do',
+            r'for\s+(\w+)(?:\s|$)',
+            r'by\s+(\w+)(?:\s|$)',
+            r'does\s+(\w+)\s+have',
+        ]
+        for pattern in person_patterns:
+            matches = re.findall(pattern, question.lower())
+            for match in matches:
+                if match not in STOPWORDS and match.lower() not in subject_words:
+                    # Preserve case from original query or use capitalized
+                    original = next((w for w in words if w.lower() == match.lower()), match.capitalize())
+                    if original not in potential_names and clean_word != original:
+                        potential_names.append(original)
+        
         if not potential_names:
             logger.debug(f"[AGG-SVC-ANCHOR] No potential entity names found in: '{question}'")
             return []
@@ -347,7 +365,7 @@ class AggregationService:
             resolver = EntityResolver(session=self.session, tenant_id=str(self.tenant_id))
             
             for name in potential_names:
-                result = resolver.resolve(name, entity_type_hint="Person")
+                result = resolver.resolve(name, entity_type_hint="PERSON")
                 
                 if result.entity and result.confidence >= 0.7:
                     logger.info(f"[AGG-SVC-ANCHOR] Resolved '{name}' -> {result.entity.name} (id={result.entity.entity_id}, conf={result.confidence:.2f})")
@@ -357,9 +375,16 @@ class AggregationService:
                         name=result.entity.name,
                     ))
                 else:
-                    logger.debug(f"[AGG-SVC-ANCHOR] Could not resolve '{name}' (conf={result.confidence:.2f if result else 0})")
+                    conf = result.confidence if result else 0.0
+                    logger.debug(f"[AGG-SVC-ANCHOR] Could not resolve '{name}' (conf={conf:.2f})")
         except Exception as e:
             logger.warning(f"[AGG-SVC-ANCHOR] Entity resolution failed: {e}")
+            # Rollback to recover from failed transaction
+            try:
+                self.session.rollback()
+                logger.debug("[AGG-SVC-ANCHOR] Session rolled back after entity resolution failure")
+            except Exception as rollback_err:
+                logger.warning(f"[AGG-SVC-ANCHOR] Rollback failed: {rollback_err}")
         
         return anchors
     
