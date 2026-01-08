@@ -186,11 +186,13 @@ Easy-to-use component for CF agents to log decisions with automatic evidence and
 - `record_outcome()` - Record outcomes for previous decisions
 - Features: auto_enact mode, OpenAI embeddings (1536 dims), pgvector-compatible formatting
 
-### DTL Security Notes
+### DTL Security Notes (Production-Ready - Jan 2026)
 - All DTL endpoints (except /health) require X-CF-API-Key authentication
-- tenant_id is derived from authenticated API key via g.tenant_id (not from request body)
-- SQL functions use SECURITY DEFINER to bypass RLS recursion (tenant_id filtering in function logic)
-- API endpoints use application-level tenant isolation (explicit WHERE tenant_id = :tenant_id clauses)
-- All UUID inputs validated before use
-- JSON payloads serialized with json.dumps() for safety
-- Cross-tenant access blocked: callers cannot access decisions from other tenants (returns 404)
+- tenant_id derived from authenticated API key via g.tenant_id
+- **Database-enforced RLS** is the primary security mechanism (use_rls_role=True everywhere)
+- Child tables have tenant_id columns with auto-populate triggers
+- Non-recursive RLS policies prevent infinite recursion errors
+- SECURITY DEFINER function `dtl_check_decision_access()` for sensitivity-level enforcement
+- Cross-tenant precedent links blocked by validation trigger
+- Evidence enforcement trigger blocks enacted decisions without evidence
+- Cross-tenant access fails at database level even if API forgets filters
