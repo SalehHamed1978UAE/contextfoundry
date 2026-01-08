@@ -223,7 +223,8 @@ class DTLTestSuite:
         }, API_KEY)
         
         if result["ok"]:
-            precedents = result["data"]
+            data = result["data"]
+            precedents = data.get("precedents", data) if isinstance(data, dict) else data
             if isinstance(precedents, list) and len(precedents) > 0:
                 print_pass(f"Found {len(precedents)} precedents")
                 print_info(f"Top result: {precedents[0].get('summary', 'N/A')[:80]}...")
