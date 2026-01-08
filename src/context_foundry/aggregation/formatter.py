@@ -49,8 +49,8 @@ class AnswerFormatter:
         """
         Format raw result into user-facing AggregationResult.
         """
-        # Determine unit from subject phrase or CAT
-        unit = self._infer_unit(cat)
+        # Determine unit from user's question, not CAT entity type
+        unit = self._infer_unit_from_question(question, cat)
         
         # Get value or bounds
         value = None
@@ -171,10 +171,31 @@ class AnswerFormatter:
         
         return f"{display}{def_clause}."
     
-    def _infer_unit(self, cat: CAT) -> str:
-        """Infer unit label from CAT."""
+    def _infer_unit_from_question(self, question: str, cat: CAT) -> str:
+        """Infer unit label from user's question subject phrase."""
+        import re
+        
+        # Extract subject from common aggregation patterns
+        # "how many X" -> X, "count of X" -> X, "number of X" -> X
+        patterns = [
+            r'how many\s+(\w+)',
+            r'count\s+(?:of\s+)?(\w+)',
+            r'number\s+of\s+(\w+)',
+            r'total\s+(\w+)',
+        ]
+        
+        question_lower = question.lower()
+        for pattern in patterns:
+            match = re.search(pattern, question_lower)
+            if match:
+                subject = match.group(1)
+                # Ensure it's plural
+                if not subject.endswith('s'):
+                    subject += 's'
+                return subject
+        
+        # Fallback to CAT entity type if pattern extraction fails
         if cat.target.entity_type:
-            # Pluralize entity type
             entity = cat.target.entity_type.lower()
             if not entity.endswith("s"):
                 entity += "s"
