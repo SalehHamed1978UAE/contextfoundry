@@ -57,6 +57,24 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
     - Normal CI (`.github/workflows/ci.yml`): Runs `TestSmoke` class with `@pytest.mark.smoke` marker - inline-only tests using fixed embeddings (no API keys/HTTP server required)
     - Nightly CI (`.github/workflows/nightly.yml`): Full parity test (HTTP + inline), security tests, performance tests (requires OPENAI_API_KEY, running Brain service)
 
+## Regression Test Suite (Jan 2026)
+Comprehensive regression testing for safe architectural changes. Four-layer test architecture:
+- **Smoke Tests** (`@pytest.mark.smoke`): <30 seconds, no external APIs. Imports, DB connectivity, core class instantiation.
+- **Fast Regression** (`@pytest.mark.fast_regression`): <3 minutes. Query classification, entity resolution, quadrant confidence, DTL adapter, tenant isolation.
+- **Component Tests** (`@pytest.mark.component`): <5 minutes. API endpoints, service integration.
+- **Integration Tests** (`@pytest.mark.integration`): Nightly. Full E2E pipeline.
+
+**Files:**
+- `tests/test_regression_suite.py`: Main regression test module (27 tests pass, 5 skip)
+- `scripts/run_regression.py`: Convenience runner script
+
+**Usage:**
+```bash
+python scripts/run_regression.py --smoke    # Fastest (30s)
+python scripts/run_regression.py --fast     # Recommended during dev (4s)
+python scripts/run_regression.py --full     # Complete validation
+```
+
 ## External Dependencies
 - **Database**: PostgreSQL (with pgvector for embeddings)
 - **LLM**: OpenAI `gpt-4o-mini`
