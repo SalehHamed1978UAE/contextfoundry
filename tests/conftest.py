@@ -5,11 +5,22 @@ This module provides shared pytest fixtures for:
 - Contract testing (QueryParser, EntityResolver, Memory systems)
 - Integration testing (RetrievalAgent, ReasoningAgent)
 - Knowledge graph fixtures for consistent test data
+
+Pytest markers:
+- smoke: Inline-only tests, safe for CI (no API keys/HTTP server required)
 """
 
 import pytest
 import sys
 import os
+
+
+def pytest_configure(config):
+    """Register custom pytest markers."""
+    config.addinivalue_line(
+        "markers",
+        "smoke: mark test as inline-only smoke test (no external dependencies)"
+    )
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

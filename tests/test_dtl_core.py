@@ -2,9 +2,14 @@
 DTL Core Tests - Parity, Security, and Performance
 
 These tests verify the library-first architecture:
-1. Parity: inline vs HTTP returns identical results
-2. Security: cross-tenant returns 0 results
-3. Performance: inline path p95 under threshold with 10k decisions
+1. Smoke: inline-only tests (no external dependencies, run in CI)
+2. Parity: inline vs HTTP returns identical results (nightly only)
+3. Security: cross-tenant returns 0 results
+4. Performance: inline path p95 under threshold with 10k decisions
+
+Pytest markers:
+- @pytest.mark.smoke: Inline-only tests, safe for CI (no API keys/HTTP)
+- No marker: Full tests requiring API keys and/or HTTP server (nightly)
 """
 
 import os
@@ -30,6 +35,128 @@ logger = logging.getLogger(__name__)
 
 TOLERANCE = 1e-6
 HTTP_BASE_URL = os.environ.get("DTL_BASE_URL", "http://localhost:3000")
+
+
+class TestSmoke:
+    """
+    Inline-only smoke tests for normal CI.
+    
+    These tests run WITHOUT:
+    - API keys (use fixed embeddings)
+    - HTTP server running
+    - External OpenAI calls
+    
+    They verify:
+    - Core library imports correctly
+    - AuthContext construction works
+    - Inline adapter executes without error
+    - Basic search returns expected structure
+    """
+    
+    @pytest.mark.smoke
+    def test_core_imports(self):
+        """Verify core DTL modules import correctly"""
+        from src.context_foundry.dtl.core import AuthContext, search_precedents
+        from src.context_foundry.dtl.dtl_inline import search_precedents as inline_search
+        
+        assert AuthContext is not None
+        assert search_precedents is not None
+        assert inline_search is not None
+        logger.info("Core imports: PASS")
+    
+    @pytest.mark.smoke
+    def test_auth_context_construction(self):
+        """Verify AuthContext can be constructed correctly"""
+        ctx = AuthContext(
+            tenant_id=str(uuid.uuid4()),
+            user_id=str(uuid.uuid4()),
+            role='user'
+        )
+        
+        assert ctx.tenant_id is not None
+        assert ctx.user_id is not None
+        assert ctx.role == 'user'
+        logger.info("AuthContext construction: PASS")
+    
+    @pytest.mark.smoke
+    def test_inline_search_with_fixed_embedding(self):
+        """Verify inline search executes with fixed embedding (no OpenAI)"""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from sqlalchemy import text, create_engine
+        engine = create_engine(database_url)
+        
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT tenant_id::text FROM api_keys WHERE is_active = true LIMIT 1
+            """))
+            row = result.fetchone()
+            if not row:
+                pytest.skip("No tenants available for testing")
+            tenant_id = row[0]
+        
+        ctx = AuthContext(
+            tenant_id=tenant_id,
+            user_id=str(uuid.uuid4()),
+            role='user'
+        )
+        
+        fixed_embedding = [0.1] * 1536
+        
+        session = get_session()
+        try:
+            from src.context_foundry.dtl.dtl_inline import search_precedents as inline_search
+            results = inline_search(
+                session=session,
+                ctx=ctx,
+                query_text="Test query for smoke test",
+                query_embedding=fixed_embedding,
+                limit=5
+            )
+            
+            assert isinstance(results, list)
+            for r in results:
+                assert hasattr(r, 'decision_id')
+                assert hasattr(r, 'rrf_score')
+                assert hasattr(r, 'relevance_explanation')
+            
+            logger.info(f"Inline search smoke test: PASS ({len(results)} results)")
+        finally:
+            session.close()
+    
+    @pytest.mark.smoke
+    def test_cross_tenant_isolation_inline(self):
+        """Verify cross-tenant isolation works (inline, no HTTP)"""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        fake_tenant_id = str(uuid.uuid4())
+        ctx = AuthContext(
+            tenant_id=fake_tenant_id,
+            user_id=str(uuid.uuid4()),
+            role='user'
+        )
+        
+        fixed_embedding = [0.1] * 1536
+        
+        session = get_session()
+        try:
+            from src.context_foundry.dtl.dtl_inline import search_precedents as inline_search
+            results = inline_search(
+                session=session,
+                ctx=ctx,
+                query_text="Test query for isolation",
+                query_embedding=fixed_embedding,
+                limit=5
+            )
+            
+            assert len(results) == 0, f"Expected 0 results for non-existent tenant, got {len(results)}"
+            logger.info("Cross-tenant isolation (inline): PASS")
+        finally:
+            session.close()
 
 
 def get_test_embedding(text: str) -> List[float]:
