@@ -972,6 +972,220 @@ class TestAggregationFramework:
 
 
 # =============================================================================
+# AGGREGATION FRAMEWORK GAPS - entity_dedup_hints, seed_definitions, mentions_indexer
+# =============================================================================
+
+class TestAggregationGaps:
+    """Tests for the 3 aggregation framework gap fixes."""
+    
+    @pytest.mark.fast_regression
+    def test_entity_dedup_hints_table_exists(self):
+        """Test entity_dedup_hints table was created by migration."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from sqlalchemy import create_engine, text
+        
+        engine = create_engine(database_url)
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_name = 'entity_dedup_hints'
+                )
+            """))
+            exists = result.scalar()
+        
+        assert exists is True, "entity_dedup_hints table should exist"
+    
+    @pytest.mark.fast_regression
+    def test_get_ambiguous_merge_rate_function_exists(self):
+        """Test get_ambiguous_merge_rate() function was created."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from sqlalchemy import create_engine, text
+        
+        engine = create_engine(database_url)
+        with engine.connect() as conn:
+            result = conn.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM pg_proc 
+                    WHERE proname = 'get_ambiguous_merge_rate'
+                )
+            """))
+            exists = result.scalar()
+        
+        assert exists is True, "get_ambiguous_merge_rate() function should exist"
+    
+    @pytest.mark.fast_regression
+    def test_seed_definitions_module_import(self):
+        """Test seed_definitions module imports correctly."""
+        from src.context_foundry.aggregation.seed_definitions import (
+            seed_all_definitions,
+            seed_definition,
+            DEFINITIONS,
+        )
+        
+        assert callable(seed_all_definitions)
+        assert callable(seed_definition)
+        assert len(DEFINITIONS) == 10, "Should have 10 domain concept definitions"
+    
+    @pytest.mark.fast_regression
+    def test_seed_definitions_returns_correct_stats(self):
+        """Test seed_all_definitions() returns correct stats format."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from src.context_foundry.aggregation.seed_definitions import seed_all_definitions
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.orm import sessionmaker
+        
+        engine = create_engine(database_url)
+        Session = sessionmaker(bind=engine)
+        
+        tenant_id = uuid.uuid4()
+        
+        with Session() as session:
+            session.execute(text(f"SET app.current_tenant = '{tenant_id}'"))
+            
+            stats = seed_all_definitions(session, tenant_id)
+            session.rollback()  # Don't persist test data
+        
+        assert 'seeded' in stats
+        assert 'failed' in stats
+        assert stats['seeded'] == 10, f"Expected 10 seeded, got {stats['seeded']}"
+        assert stats['failed'] == 0, f"Expected 0 failed, got {stats['failed']}"
+    
+    @pytest.mark.fast_regression
+    def test_mentions_indexer_module_import(self):
+        """Test mentions_indexer module imports correctly."""
+        from src.context_foundry.aggregation.mentions_indexer import (
+            DocEntityMentionsIndexer,
+            EntityMention,
+            index_document_mentions,
+        )
+        
+        assert DocEntityMentionsIndexer is not None
+        assert EntityMention is not None
+        assert callable(index_document_mentions)
+    
+    @pytest.mark.fast_regression
+    def test_hooks_module_import(self):
+        """Test hooks module imports correctly."""
+        from src.context_foundry.aggregation.hooks import (
+            on_document_processed,
+            on_document_deleted,
+            on_entities_merged,
+            record_dedup_hint,
+            on_app_startup,
+            get_dedup_penalty,
+        )
+        
+        assert callable(on_document_processed)
+        assert callable(on_document_deleted)
+        assert callable(on_entities_merged)
+        assert callable(record_dedup_hint)
+        assert callable(on_app_startup)
+        assert callable(get_dedup_penalty)
+    
+    @pytest.mark.fast_regression
+    def test_mentions_indexer_writes_rows(self):
+        """Test DocEntityMentionsIndexer.index_document() writes rows."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from src.context_foundry.aggregation.mentions_indexer import (
+            DocEntityMentionsIndexer,
+            EntityMention,
+        )
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.orm import sessionmaker
+        
+        engine = create_engine(database_url)
+        Session = sessionmaker(bind=engine)
+        
+        tenant_id = uuid.uuid4()
+        doc_id = uuid.uuid4()
+        entity_id = uuid.uuid4()
+        
+        with Session() as session:
+            session.execute(text(f"SET app.current_tenant = '{tenant_id}'"))
+            
+            indexer = DocEntityMentionsIndexer(session, tenant_id)
+            
+            mentions = [
+                EntityMention(entity_id=entity_id, mention_count=3)
+            ]
+            
+            rows_written = indexer.index_document(doc_id, mentions)
+            
+            # Verify the row was written
+            result = session.execute(text("""
+                SELECT COUNT(*) FROM doc_entity_mentions 
+                WHERE tenant_id = :tenant_id AND doc_id = :doc_id
+            """), {"tenant_id": str(tenant_id), "doc_id": str(doc_id)})
+            count = result.scalar()
+            
+            session.rollback()  # Don't persist test data
+        
+        assert rows_written == 1, f"Expected 1 row written, got {rows_written}"
+        assert count == 1, f"Expected 1 row in table, got {count}"
+    
+    @pytest.mark.fast_regression
+    def test_staging_loader_returns_persisted_entities(self):
+        """Test load_entities returns persisted Entity objects with DB IDs."""
+        database_url = os.environ.get("DATABASE_URL")
+        if not database_url:
+            pytest.skip("DATABASE_URL not set")
+        
+        from src.context_foundry.extraction.staging_loader import StagingLoader
+        from src.context_foundry.extraction.entity_extractor import ExtractedEntity
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.orm import sessionmaker
+        
+        engine = create_engine(database_url)
+        Session = sessionmaker(bind=engine)
+        
+        tenant_id = str(uuid.uuid4())
+        doc_id = str(uuid.uuid4())
+        
+        with Session() as session:
+            session.execute(text(f"SET app.current_tenant = '{tenant_id}'"))
+            
+            loader = StagingLoader(session, tenant_id=tenant_id)
+            
+            # Create a test entity
+            extracted = ExtractedEntity(
+                id=str(uuid.uuid4()),
+                entity_type="PERSON",
+                canonical_name=f"Test Person {uuid.uuid4().hex[:8]}",
+                properties={},
+                source_span="test",
+                source_document_id=doc_id,
+                source_chunk_id=str(uuid.uuid4()),
+                source_sentence_idx=0,
+                confidence=0.9,
+                tenant_id=tenant_id,
+            )
+            
+            result, persisted_entities = loader.load_entities([extracted])
+            
+            session.rollback()  # Don't persist test data
+        
+        assert result.entities_created == 1
+        assert len(persisted_entities) == 1
+        db_entity, orig_extracted = persisted_entities[0]
+        assert db_entity is not None
+        assert db_entity.id is not None  # Critical: must have DB ID
+        assert orig_extracted == extracted
+
+
+# =============================================================================
 # INTEGRATION TESTS - Full pipeline (nightly only)
 # =============================================================================
 

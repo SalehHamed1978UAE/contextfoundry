@@ -105,7 +105,7 @@ Comprehensive regression testing for safe architectural changes. Four-layer test
 - **Integration Tests** (`@pytest.mark.integration`): Nightly. Full E2E pipeline.
 
 **Files:**
-- `tests/test_regression_suite.py`: Main regression test module (39 tests pass, 5 skip)
+- `tests/test_regression_suite.py`: Main regression test module (47 tests pass, 5 skip)
 - `scripts/run_regression.py`: Convenience runner script
 
 **Usage:**

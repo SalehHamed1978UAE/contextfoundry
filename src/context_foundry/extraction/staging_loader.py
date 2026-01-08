@@ -409,7 +409,7 @@ class StagingLoader:
     def load_entities(
         self,
         entities: List[ExtractedEntity],
-    ) -> StagingResult:
+    ) -> Tuple[StagingResult, List[Tuple['Entity', ExtractedEntity]]]:
         """
         Load multiple extracted entities into STAGING.
         
@@ -417,9 +417,10 @@ class StagingLoader:
             entities: List of ExtractedEntity to load
             
         Returns:
-            StagingResult with counts
+            Tuple of (StagingResult with counts, List of (persisted Entity, original ExtractedEntity) pairs)
         """
         result = StagingResult()
+        persisted_entities = []  # Track (Entity, ExtractedEntity) pairs for aggregation hooks
         
         for extracted in entities:
             try:
@@ -427,8 +428,12 @@ class StagingLoader:
                 
                 if action == "created":
                     result.entities_created += 1
+                    if entity:
+                        persisted_entities.append((entity, extracted))
                 elif action == "updated":
                     result.entities_updated += 1
+                    if entity:
+                        persisted_entities.append((entity, extracted))
                 elif action == "skipped":
                     result.entities_skipped += 1
                 else:
@@ -437,7 +442,7 @@ class StagingLoader:
             except Exception as e:
                 result.errors.append(f"Error loading entity {extracted.canonical_name}: {str(e)}")
         
-        return result
+        return result, persisted_entities
     
     def load_relations(
         self,
@@ -511,7 +516,7 @@ class StagingLoader:
             result.duplicate_candidates_found = len(dup_detection.candidates)
             result.duplicate_detection = dup_detection.to_dict()
         
-        entity_result = self.load_entities(entities_to_load)
+        entity_result, persisted_entities = self.load_entities(entities_to_load)
         result.entities_created = entity_result.entities_created
         result.entities_updated = entity_result.entities_updated
         result.entities_skipped = entity_result.entities_skipped
@@ -535,6 +540,45 @@ class StagingLoader:
                 self.session.commit()
                 from ..utils.logger import logger
                 logger.info(f"[StagingLoader] Committed {result.entities_created} entities, {result.relations_created} relations")
+                
+                # Wire aggregation framework: Index entity mentions for document
+                # Use persisted_entities which have actual DB IDs
+                if self.tenant_id and persisted_entities:
+                    try:
+                        from ..aggregation.hooks import on_document_processed
+                        # Group entities by document for indexing using actual persisted Entity IDs
+                        doc_entities = {}
+                        for db_entity, extracted_entity in persisted_entities:
+                            doc_id = getattr(extracted_entity, 'source_document_id', None)
+                            if doc_id and db_entity and db_entity.id:
+                                if doc_id not in doc_entities:
+                                    doc_entities[doc_id] = []
+                                doc_entities[doc_id].append({
+                                    'entity_id': db_entity.id,  # Use actual DB entity ID
+                                    'mention_count': 1
+                                })
+                        
+                        # Index each document's entity mentions
+                        for doc_id, doc_entity_list in doc_entities.items():
+                            if doc_id and doc_entity_list:
+                                try:
+                                    doc_uuid = _safe_uuid(doc_id)
+                                    tenant_uuid = uuid.UUID(self.tenant_id)
+                                    if doc_uuid:
+                                        on_document_processed(
+                                            self.session, 
+                                            tenant_uuid, 
+                                            doc_uuid, 
+                                            [e for e in doc_entity_list if e.get('entity_id')]
+                                        )
+                                        self.session.commit()  # Commit aggregation data
+                                except Exception as hook_err:
+                                    logger.debug(f"[StagingLoader] Aggregation hook skipped: {hook_err}")
+                    except ImportError:
+                        pass  # Aggregation module not available
+                    except Exception as agg_err:
+                        logger.debug(f"[StagingLoader] Aggregation indexing skipped: {agg_err}")
+                        
             except Exception as e:
                 from ..utils.logger import logger
                 logger.error(f"[StagingLoader] Failed to commit: {str(e)}")
