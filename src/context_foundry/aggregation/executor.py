@@ -70,6 +70,12 @@ class AggregationExecutor:
         logger.info(f"Executing plan: strategy={plan.strategy}, hash={plan.plan_hash}")
         
         try:
+            # Set tenant context for RLS
+            self.session.execute(
+                text("SET LOCAL app.current_tenant_id = :tenant_id"),
+                {"tenant_id": str(self.tenant_id)}
+            )
+            
             # Set statement timeout
             self.session.execute(
                 text(f"SET LOCAL statement_timeout = '{self.STATEMENT_TIMEOUT_MS}'")

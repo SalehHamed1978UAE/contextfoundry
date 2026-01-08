@@ -70,6 +70,12 @@ class AggDefinitionRegistry:
         logger.info(f"[AGG-REG] Looking for concept_key='{concept_key.lower()}' tenant={self.tenant_id}")
         logger.info(f"[AGG-REG] SQL params: {params}")
         
+        # Set tenant context for RLS
+        self.session.execute(
+            text("SET LOCAL app.current_tenant_id = :tenant_id"),
+            {"tenant_id": str(self.tenant_id)}
+        )
+        
         # Debug: try raw SQL to rule out parameter binding issues
         try:
             raw_sql = f"""

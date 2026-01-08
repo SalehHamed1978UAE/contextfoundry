@@ -2897,7 +2897,9 @@ def internal_query():
         }), 400
     
     try:
-        foundry = get_context_foundry()
+        # Create tenant-specific ContextFoundry instance
+        from src.context_foundry.core import ContextFoundry
+        foundry = ContextFoundry(tenant_id=query_request.tenant_id)
         
         if query_request.query_type == QueryType.SEMANTIC_SEARCH:
             result = foundry.query(query_request.query_text or "")
