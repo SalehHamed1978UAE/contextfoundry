@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from .models import (
     AggIntent,
+    AnchorEntity,
     CAT,
     AggregationResult,
     ResultKind,
@@ -35,6 +36,14 @@ from .crc import CaptureRecaptureEstimator
 from .formatter import AnswerFormatter
 
 logger = logging.getLogger(__name__)
+
+# Stopwords for entity extraction
+STOPWORDS = {
+    'how', 'many', 'what', 'where', 'when', 'who', 'which', 'why', 'is', 'are',
+    'the', 'a', 'an', 'has', 'have', 'had', 'does', 'do', 'did', 'done', 'been',
+    'with', 'for', 'from', 'by', 'on', 'in', 'at', 'to', 'of', 'and', 'or', 'not',
+    'all', 'any', 'each', 'every', 'some', 'most', 'total', 'count', 'number',
+}
 
 
 class AggregationService:
@@ -141,6 +150,12 @@ class AggregationService:
             # Step 2: Resolve anchor entities (if not provided)
             if anchor_entities:
                 intent.anchor_entities = self._convert_anchor_entities(anchor_entities)
+            elif not intent.anchor_entities:
+                # Try to extract and resolve entity names from the query
+                resolved_anchors = self._resolve_anchor_entities(question, intent.subject_phrase)
+                if resolved_anchors:
+                    intent.anchor_entities = resolved_anchors
+                    logger.info(f"[AGG-SVC-4b] Resolved anchors: {[a.name for a in resolved_anchors]}")
             
             # Step 3: Semantic resolution → CAT
             logger.info(f"[AGG-SVC-5] Calling semantic_resolver.resolve()...")
@@ -279,6 +294,74 @@ class AggregationService:
             f"value={result.value}, "
             f"confidence={result.confidence:.2f}"
         )
+    
+    def _resolve_anchor_entities(
+        self, 
+        question: str, 
+        subject_phrase: str
+    ) -> List[AnchorEntity]:
+        """
+        Extract and resolve entity names from the query.
+        
+        Uses simple heuristics to find proper nouns (capitalized words that
+        aren't the subject or common stopwords) and resolves them via EntityResolver.
+        """
+        import re
+        from ..agents.entity_resolver import EntityResolver
+        
+        anchors = []
+        
+        # Extract potential entity names (capitalized words not at sentence start)
+        words = question.split()
+        subject_words = set(subject_phrase.lower().split())
+        
+        potential_names = []
+        for i, word in enumerate(words):
+            # Clean punctuation
+            clean_word = re.sub(r'[^\w]', '', word)
+            if not clean_word:
+                continue
+            
+            # Skip if it's the subject phrase
+            if clean_word.lower() in subject_words:
+                continue
+            
+            # Skip common stopwords
+            if clean_word.lower() in STOPWORDS:
+                continue
+            
+            # Look for capitalized words (not at sentence start)
+            if clean_word[0].isupper() and (i > 0 or clean_word.lower() not in {'how', 'what', 'who', 'where', 'when', 'why'}):
+                # Also check it's not following common question starters
+                if i > 0 or question.strip()[0].isupper():
+                    potential_names.append(clean_word)
+        
+        if not potential_names:
+            logger.debug(f"[AGG-SVC-ANCHOR] No potential entity names found in: '{question}'")
+            return []
+        
+        logger.info(f"[AGG-SVC-ANCHOR] Potential entity names: {potential_names}")
+        
+        # Resolve each potential name
+        try:
+            resolver = EntityResolver(session=self.session, tenant_id=str(self.tenant_id))
+            
+            for name in potential_names:
+                result = resolver.resolve(name, entity_type_hint="Person")
+                
+                if result.entity and result.confidence >= 0.7:
+                    logger.info(f"[AGG-SVC-ANCHOR] Resolved '{name}' -> {result.entity.name} (id={result.entity.entity_id}, conf={result.confidence:.2f})")
+                    anchors.append(AnchorEntity(
+                        entity_id=result.entity.entity_id,
+                        entity_type=result.entity.entity_type,
+                        name=result.entity.name,
+                    ))
+                else:
+                    logger.debug(f"[AGG-SVC-ANCHOR] Could not resolve '{name}' (conf={result.confidence:.2f if result else 0})")
+        except Exception as e:
+            logger.warning(f"[AGG-SVC-ANCHOR] Entity resolution failed: {e}")
+        
+        return anchors
     
     def _is_enabled(self) -> bool:
         """Check if aggregation framework is enabled."""
