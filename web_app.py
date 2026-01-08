@@ -3308,6 +3308,28 @@ def vault_chat():
         foundry = ContextFoundry(tenant_id=tenant_id, session=db_session)
         graph_result = foundry.query(query_text)
         
+        # AGGREGATION RESULT: Return deterministic count directly (no LLM hybridization)
+        if graph_result.get('is_aggregation'):
+            db_session.close()
+            agg = graph_result.get('aggregation', {})
+            return jsonify({
+                'success': True,
+                'answer': graph_result.get('answer', ''),
+                'confidence': graph_result.get('confidence', 0.75),
+                'confidence_level': graph_result.get('confidence_level', 'medium'),
+                'evidence_chain': graph_result.get('evidence_chain', []),
+                'retrieval_method': 'aggregation',
+                'is_aggregation': True,
+                'aggregation': {
+                    'result_kind': agg.get('result_kind'),
+                    'value': agg.get('value'),
+                    'unit': agg.get('unit'),
+                    'bounds': agg.get('bounds'),
+                    'assumptions': agg.get('assumptions', [])
+                },
+                'chunks_used': 0
+            })
+        
         graph_confidence = graph_result.get('confidence', 0)
         graph_answer = graph_result.get('answer', '')
         graph_evidence = graph_result.get('evidence_chain', [])
