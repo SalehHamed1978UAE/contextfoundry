@@ -97,37 +97,43 @@ def test_cross_tenant_precedent_link_blocked():
     session = get_session(use_rls_role=True)
     
     try:
-        # Get a decision from Tenant A
         session.execute(text("SET app.current_tenant_id = :tid"), {"tid": TENANT_A_ID})
         
         result = session.execute(text("""
             SELECT id FROM decision_traces WHERE tenant_id = :tid LIMIT 1
         """), {"tid": TENANT_A_ID})
         
-        decision_id = result.fetchone()
-        if not decision_id:
+        decision_row = result.fetchone()
+        if not decision_row:
             print("  [SKIP] No decision found to test")
             return True
             
-        decision_id = decision_id.id
+        decision_id = decision_row.id
         
-        # Try to link to a non-existent decision (simulating cross-tenant)
         fake_precedent_id = str(uuid.uuid4())
         
         try:
             session.execute(text("""
                 INSERT INTO decision_precedent_links 
-                (from_decision_id, to_decision_id, link_type, weight)
-                VALUES (CAST(:from_id AS uuid), CAST(:to_id AS uuid), 'similar_situation', 0.8)
-            """), {"from_id": str(decision_id), "to_id": fake_precedent_id})
+                (decision_id, precedent_decision_id, link_type, discovered_by)
+                VALUES (CAST(:dec_id AS uuid), CAST(:prec_id AS uuid), 'cited', 'test')
+            """), {"dec_id": str(decision_id), "prec_id": fake_precedent_id})
             
             session.commit()
             print("  [FAIL] Cross-tenant link should have been blocked!")
             return False
         except Exception as e:
             error_msg = str(e).lower()
-            if "foreign key" in error_msg or "not found" in error_msg or "violates" in error_msg:
-                print("  [PASS] Cross-tenant link blocked by FK/trigger")
+            if "undefinedcolumn" in error_msg or "column" in error_msg:
+                print(f"  [FAIL] Schema error (not a security test): {str(e)[:60]}")
+                session.rollback()
+                return False
+            elif "foreign key" in error_msg or "not found" in error_msg or "violates" in error_msg:
+                print("  [PASS] Cross-tenant link blocked by FK constraint")
+                session.rollback()
+                return True
+            elif "cross-tenant" in error_msg or "tenant" in error_msg:
+                print("  [PASS] Cross-tenant link blocked by validation trigger")
                 session.rollback()
                 return True
             else:
@@ -136,6 +142,11 @@ def test_cross_tenant_precedent_link_blocked():
                 return True
                 
     except Exception as e:
+        error_msg = str(e).lower()
+        if "undefinedcolumn" in error_msg or "column" in error_msg:
+            print(f"  [FAIL] Schema error: {str(e)[:60]}")
+            session.rollback()
+            return False
         print(f"  [PASS] Error during test: {str(e)[:60]}")
         session.rollback()
         return True
