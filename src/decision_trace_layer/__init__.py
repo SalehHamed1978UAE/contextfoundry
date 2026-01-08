@@ -22,6 +22,7 @@ from .models import (
     DecisionAccessAudit,
 )
 from .precedent_search import PrecedentSearchClient, PrecedentResult
+from .agent_logger import AgentDecisionLogger, DecisionEvidence as AgentDecisionEvidence, PendingDecision
 
 __all__ = [
     "DecisionTrace",
@@ -39,4 +40,7 @@ __all__ = [
     "DecisionAccessAudit",
     "PrecedentSearchClient",
     "PrecedentResult",
+    "AgentDecisionLogger",
+    "AgentDecisionEvidence",
+    "PendingDecision",
 ]
