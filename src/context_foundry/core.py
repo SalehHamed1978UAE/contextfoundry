@@ -189,47 +189,37 @@ class ContextFoundry:
                 as_of_date=as_of_date
             )
             
-            # AGGREGATION FRAMEWORK: Return deterministic result without LLM reasoning
+            # AGGREGATION FRAMEWORK: Inject aggregation facts into bundle, let reasoning compose rich response
+            # This allows follow-up questions to work because entities are in context
             if bundle.is_aggregation_query and bundle.aggregation_result:
                 agg_result = bundle.aggregation_result
-                logger.info("Query handled by Aggregation Framework - skipping tri-memory pipeline")
+                logger.info("Aggregation query - injecting structured facts into context bundle for reasoning")
                 
-                response = {
-                    "answer": agg_result.display_text or f"{agg_result.result_kind.value}: {agg_result.value}",
+                # Add aggregation facts as structured knowledge for the reasoning agent
+                aggregation_fact = {
+                    "type": "aggregation_fact",
+                    "count": agg_result.value,
+                    "unit": agg_result.unit,
+                    "result_kind": agg_result.result_kind.value,
+                    "display_text": agg_result.display_text,
                     "confidence": agg_result.confidence,
-                    "confidence_level": agg_result.confidence_label.lower() if agg_result.confidence_label else "medium",
-                    "is_aggregation": True,
-                    "aggregation": {
-                        "result_kind": agg_result.result_kind.value,
-                        "value": agg_result.value,
-                        "unit": agg_result.unit,
-                        "bounds": asdict(agg_result.bounds) if agg_result.bounds else None,
-                        "assumptions": agg_result.assumptions or [],
-                    },
-                    "evidence_chain": [{
-                        "type": "aggregation",
-                        "description": f"Deterministic SQL count: {agg_result.value}",
-                        "source": "Aggregation Framework",
-                        "confidence": agg_result.confidence
-                    }],
-                    "uncertainty": {
-                        "reasons": agg_result.assumptions or [],
-                        "uncertain_facts": [],
-                        "would_help": []
-                    },
-                    "rules_applied": [],
-                    "caveats": [f"Result is {agg_result.result_kind.value}. Actual count may differ."] if agg_result.result_kind.value != "EXACT" else [],
-                    "bundle_id": bundle.query_id,
-                    "query_text": bundle.query_text,
-                    "context_bundle": bundle.to_dict()
+                    "entities_counted": len(bundle.counted_entities) if bundle.counted_entities else 0,
                 }
                 
-                if save_to_log:
-                    self._save_query_log(query_id, query_text, bundle, response)
+                # Add to symbolic rules as a deterministic fact
+                bundle.symbolic_rules.append({
+                    "rule_type": "aggregation_count",
+                    "description": f"Deterministic count: {agg_result.display_text}",
+                    "fact": aggregation_fact,
+                    "confidence": 1.0,  # SQL count is deterministic
+                })
                 
-                summary = query_logger.log_complete(success=True, final_confidence=agg_result.confidence)
-                response["query_log"] = summary
-                return response
+                # Log what entities were found for context
+                if bundle.counted_entities:
+                    entity_names = [e.get("name", "Unknown") for e in bundle.counted_entities[:10]]
+                    logger.info(f"Counted entities available for response: {entity_names}")
+                
+                # Continue to normal reasoning pipeline - don't short-circuit!
             
             if bundle.target_entity_name and not bundle.target_entity_found:
                 query_logger.log_event("ENTITY_NOT_FOUND_GUARD", {

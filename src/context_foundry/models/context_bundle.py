@@ -155,6 +155,9 @@ class ContextBundle:
     evidence_envelope: Optional[Any] = None  # EvidenceEnvelope - audit trail for reproducibility
     aggregation_result: Optional[Any] = None  # AggregationResult from service
     
+    # Counted entities from aggregation - for rich responses and follow-up questions
+    counted_entities: List[Dict] = field(default_factory=list)
+    
     @property
     def confidence(self) -> float:
         """Calculate overall confidence from all memory layers."""

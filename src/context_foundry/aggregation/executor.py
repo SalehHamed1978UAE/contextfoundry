@@ -28,6 +28,7 @@ class RawAggregationResult:
     row_count: int = 0
     sources: List["SourceEvidence"] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
+    counted_entities: List[Dict[str, Any]] = field(default_factory=list)
     
     @property
     def has_multiple_sources(self) -> bool:
@@ -122,10 +123,73 @@ class AggregationExecutor:
         else:
             value = row[0]
         
+        # Also fetch the actual entities that were counted (for rich responses)
+        counted_entities = self._fetch_counted_entities(plan)
+        
         return RawAggregationResult(
             value=value,
             metadata={"sample_size": getattr(row, "sample_size", None)},
+            counted_entities=counted_entities,
         )
+    
+    def _fetch_counted_entities(self, plan: ExecutionPlan, limit: int = 20) -> List[Dict[str, Any]]:
+        """
+        Fetch the actual entities that were counted (for rich responses).
+        
+        Derives an entity fetch query from the count plan's SQL and params.
+        """
+        try:
+            # If the plan's SQL is a relationship count, fetch target entities
+            if "relationships" in plan.sql and "source_id" in plan.sql:
+                # Build query to fetch target entity details
+                entity_sql = """
+                    SELECT DISTINCT e.id, e.name, e.entity_type, r.relationship_type,
+                           r.attributes->>'title' as title,
+                           r.attributes->>'start_date' as start_date,
+                           r.attributes->>'end_date' as end_date
+                    FROM relationships r
+                    JOIN entities e ON r.target_id = e.id
+                    WHERE r.tenant_id = :tenant_id
+                      AND r.source_id = :anchor_id
+                      AND r.relationship_type = :rel_type
+                    ORDER BY r.created_at DESC
+                    LIMIT :entity_limit
+                """
+                params = {
+                    "tenant_id": plan.params.get("tenant_id"),
+                    "anchor_id": plan.params.get("anchor_id"),
+                    "rel_type": plan.params.get("rel_type"),
+                    "entity_limit": limit,
+                }
+                
+                result = self.session.execute(text(entity_sql), params)
+                rows = result.fetchall()
+                
+                entities = []
+                for row in rows:
+                    entity = {
+                        "id": str(row.id) if hasattr(row, "id") else None,
+                        "name": row.name if hasattr(row, "name") else None,
+                        "entity_type": row.entity_type if hasattr(row, "entity_type") else None,
+                        "relationship_type": row.relationship_type if hasattr(row, "relationship_type") else None,
+                    }
+                    # Add optional attributes
+                    if hasattr(row, "title") and row.title:
+                        entity["title"] = row.title
+                    if hasattr(row, "start_date") and row.start_date:
+                        entity["start_date"] = row.start_date
+                    if hasattr(row, "end_date") and row.end_date:
+                        entity["end_date"] = row.end_date
+                    entities.append(entity)
+                
+                logger.info(f"Fetched {len(entities)} counted entities for rich response")
+                return entities
+            
+            return []
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch counted entities: {e}")
+            return []
     
     def _execute_graph(self, plan: ExecutionPlan) -> RawAggregationResult:
         """Execute graph traversal."""

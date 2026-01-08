@@ -83,6 +83,7 @@ class AnswerFormatter:
             citations=citations,
             cat=cat,
             raw_query=question,
+            counted_entities=raw_result.counted_entities if raw_result.counted_entities else [],
         )
     
     def format_display_text(self, result: AggregationResult) -> str:
