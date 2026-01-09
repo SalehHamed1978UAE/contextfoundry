@@ -85,7 +85,9 @@ class QueryTimeSemanticAgent:
             kg_result = self._kg_query(parsed)
             doc_result = self._document_search(user_message, parsed)
             
-            logger.info(f"[STAGE 2] KG result: {kg_result.get('count', 0)} items, entity: {kg_result.get('entity', {}).get('name', 'none')}")
+            entity_name = kg_result.get('entity', {})
+            entity_name = entity_name.get('name', 'none') if entity_name else 'none'
+            logger.info(f"[STAGE 2] KG result: {kg_result.get('count', 0)} items, entity: {entity_name}")
             logger.info(f"[STAGE 3] Doc result: {len(doc_result.get('chunks', []))} chunks found")
             
             answer = self._hybrid_synthesis(user_message, parsed, kg_result, doc_result)
