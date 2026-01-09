@@ -3393,6 +3393,7 @@ def vault_chat():
     
     # Tool agent mode (feature flag)
     use_tool_agent = request.args.get('agent', 'false').lower() == 'true'
+    debug_mode = request.args.get('debug', 'false').lower() == 'true'
     session_id = data.get('session_id')
     
     if use_tool_agent:
@@ -3403,7 +3404,7 @@ def vault_chat():
             
             # Initialize conversation store
             effective_session_id = session_id or 'default'
-            logger.info(f"[TOOL_AGENT] session_id={effective_session_id}, query={query_text!r}")
+            logger.info(f"[TOOL_AGENT] session_id={effective_session_id}, query={query_text!r}, debug={debug_mode}")
             conv_store = ConversationStore(db_session, tenant_id, effective_session_id)
             
             # Resolve pronouns from conversation history
@@ -3416,9 +3417,9 @@ def vault_chat():
             for i, msg in enumerate(history[-4:]):
                 logger.info(f"[TOOL_AGENT]   History[{i}]: {msg['role']}: {msg['content'][:100]}...")
             
-            # Run tool agent
+            # Run tool agent with debug mode
             agent = ToolAgent(db_session, tenant_id)
-            agent_result = agent.query(resolved_query, conversation_history=history)
+            agent_result = agent.query(resolved_query, conversation_history=history, debug=debug_mode)
             
             # Store messages
             conv_store.add_message("user", query_text)
@@ -3437,16 +3438,22 @@ def vault_chat():
             
             logger.info(f"[TOOL_AGENT] Answer: {agent_result['answer'][:200]}...")
             
-            return jsonify({
+            response_data = {
                 'success': True,
-                'answer': agent_result['answer'],  # Frontend expects 'answer' key
-                'confidence': 0.75,  # Default confidence for tool agent
+                'answer': agent_result['answer'],
+                'confidence': 0.75,
                 'tool_calls': agent_result.get('tool_calls', []),
                 'iterations': agent_result.get('iterations', 0),
                 'time_ms': agent_result.get('time_ms', 0),
                 'mode': 'tool_agent',
                 'mentioned_entities': mentioned_entities
-            })
+            }
+            
+            # Include debug info if requested
+            if debug_mode and 'debug' in agent_result:
+                response_data['debug'] = agent_result['debug']
+            
+            return jsonify(response_data)
         except Exception as e:
             logger.error(f"Tool agent failed, falling back: {e}")
             # Fall through to existing logic
