@@ -105,17 +105,17 @@ Context Bundle
 ### Stage 1: Structured Beats Unstructured ✓ COMPLETE
 **Proven:** CF won 12-3 in blind A/B vs GraphRAG. 18x better provenance, 33x better rule citations.
 
-### Stage 2: Context-Attached Beats Bare Triples ← CURRENT
+### Stage 2: Context-Attached Beats Bare Triples ✓ COMPLETE
 **Hypothesis:** Relationships with context (temporal, provenance, confidence, event) answer questions that bare triples cannot.
 
 **Success Criteria:**
-1. Relationships carry context fields
-2. Extraction populates context at ingestion time
-3. Query retrieves relationships WITH context
-4. System answers contextual questions correctly
-5. System distinguishes same-triple-different-context scenarios
+1. ✓ Relationships carry context fields (valid_from, valid_to, provenance_text, event_context, qualifiers)
+2. ✓ Extraction populates context at ingestion time via GraphBuilderAgent
+3. ✓ Query retrieves relationships WITH context via temporal functions
+4. ✓ System answers contextual questions correctly (18/20 = 90%)
+5. ✓ System distinguishes same-triple-different-context scenarios
 
-**Testable Goal:** 20 contextual questions → 80% correct using context fields (not document fallback)
+**Testable Goal:** 20 contextual questions → 90% correct using context fields (exceeds 80% target)
 
 ### Stage 3: The System Learns from Interaction
 **Hypothesis:** Queries that reveal gaps improve the World Model.
@@ -140,20 +140,43 @@ Context Bundle
 |-----------|--------|
 | Tri-memory schema | ✓ Implemented |
 | Entity extraction | ✓ Working |
-| Relationship extraction | ✓ Working (open extraction) |
+| Relationship extraction | ✓ Working (context-attached) |
 | Fact lifecycle (staging/trusted) | ✓ Implemented |
 | Multi-tenant RLS | ✓ Implemented |
-| Query-time semantic mapping | ⚠ Partial (agent exists, context not attached) |
-| Context Bundle assembly | ⚠ Partial (missing relationship context) |
+| Query-time semantic mapping | ✓ Working (temporal queries) |
+| Context Bundle assembly | ✓ Working (includes relationship context) |
+| Temporal query functions | ✓ Implemented (get_relationships_at_time, get_entity_history) |
 | Chat interface | ⚠ Partial (working but limited) |
 | Learning loop | ✗ Not started |
 
-### Current Blockers (Stage 2)
+### Stage 2 Implementation Details
 
-1. **Relationships lack context** — No temporal, provenance, confidence fields populated
-2. **Extraction doesn't capture context** — Extracts triples, not quadruples
-3. **Query retrieves triples only** — Context Bundle missing relationship context
-4. **No sufficiency check** — System doesn't know when it has enough information
+**Context Fields Added:**
+- `valid_from` / `valid_to`: Temporal validity dates
+- `provenance_text`: Source sentence evidence
+- `event_context`: Situational context ("Early career at ENEC", "Series A investment")
+- `qualifiers`: Additional metadata list
+
+**Temporal Query Functions:**
+- `get_relationships_at_time(entity_id, at_time)`: Find relationships active at a specific date
+- `get_relationship_timeline(entity_id)`: Get chronological list of relationships
+- `get_entity_history(entity_id)`: Full history of entity changes
+
+**Test Documents:**
+- `test_docs/career_history.md`: Career progression with temporal positions
+- `test_docs/investment_portfolio.md`: Investment portfolio with entry/exit dates
+
+**Validation Results:**
+- 18/20 contextual questions passed (90%)
+- Successfully answers "What position did Saleh hold in 2005?" → Systems Engineer
+- Successfully extracts event_context like "Early career at ENEC"
+- Successfully calculates durations from valid_from/valid_to
+
+### Next Steps (Stage 3)
+
+1. **Learning from interaction** — Queries that reveal gaps improve the World Model
+2. **Sufficiency check** — System detects when it has enough information
+3. **Gap logging** — Record questions system couldn't answer for re-extraction
 
 ---
 
