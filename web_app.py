@@ -3683,12 +3683,18 @@ def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: d
         is_job_query = any(w in query_lower for w in ['job', 'jobs', 'work', 'worked', 'position', 'positions', 'role', 'roles', 'career', 'employment', 'employed'])
         
         if is_job_query and db_session:
-            person_match = re.search(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b', query_text)
-            if not person_match:
-                words = [w for w in query_text.split() if len(w) > 2 and w.lower() not in {'what', 'jobs', 'has', 'done', 'did', 'does', 'the', 'all'}]
+            # Skip common question words when looking for person names
+            skip_words = {'what', 'how', 'who', 'where', 'when', 'which', 'why', 'the', 'a', 'an', 'is', 'are', 'was', 'were', 'did', 'does', 'do', 'has', 'have', 'had'}
+            person_matches = re.findall(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b', query_text)
+            person_name = None
+            for match in person_matches:
+                if match.lower() not in skip_words:
+                    person_name = match
+                    break
+            
+            if not person_name:
+                words = [w for w in query_text.split() if len(w) > 2 and w.lower() not in {'what', 'jobs', 'has', 'done', 'did', 'does', 'the', 'all', 'roles', 'positions'}]
                 person_name = words[0] if words else None
-            else:
-                person_name = person_match.group(1)
             
             if person_name:
                 job_sql = sql_text("""
@@ -3765,7 +3771,8 @@ RULES:
 - If documents have relevant text, cite them as "[Source: document name]"
 - If BOTH sources have info, combine them for a complete answer
 - If neither source has the answer, say "I don't have enough information to answer this."
-- Be concise but accurate"""
+- For enumeration questions (roles, jobs, positions, companies), list ALL items from the graph data - do NOT summarize or group them
+- Use bullet points for lists of items"""
 
         no_graph = "No relevant graph relationships found."
         no_chunks = "No relevant document excerpts found."
@@ -3797,7 +3804,7 @@ Provide a concise, accurate answer with citations."""
                 {"role": "user", "content": user_prompt}
             ],
             temperature=0.0,
-            max_tokens=400
+            max_tokens=600
         )
         
         return response.choices[0].message.content
