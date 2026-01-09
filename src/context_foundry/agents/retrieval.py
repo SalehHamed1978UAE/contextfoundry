@@ -1256,6 +1256,15 @@ class RetrievalAgent:
             if len(phrase) > 1 and phrase.lower() not in {'he', 'she', 'it', 'they', 'we', 'who', 'a', 'an', 'the'}:
                 return phrase
         
+        did_do = re.search(
+            r'\bdid\s+([A-Za-z][a-zA-Z0-9\s-]+?)\s+(?:do|work|have|hold|complete|handle|manage)',
+            query_text, re.IGNORECASE
+        )
+        if did_do:
+            phrase = did_do.group(1).strip()
+            if len(phrase) > 1 and phrase.lower() not in {'he', 'she', 'it', 'they', 'we', 'who', 'a', 'an', 'the'}:
+                return phrase
+        
         with_the = re.search(
             r'(?:issues?|problems?|status|info|information|details?)\s+(?:with|of|for)\s+(?:the\s+)?([A-Za-z][a-zA-Z0-9\s-]*?)(?:\?|$|\.)',
             query_text, re.IGNORECASE

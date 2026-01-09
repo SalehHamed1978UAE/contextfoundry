@@ -102,6 +102,7 @@ Aggregation check runs BEFORE tri-memory pipeline in `RetrievalAgent.build_conte
 - **Rich Response Composition**: Aggregation results now include entity details (company names, etc.) in the answer, not just bare numbers.
 - **Response Metadata**: Added `is_aggregation`, `aggregation_result`, and `counted_entities` to API responses for both `/api/query` and `/api/vault/chat` endpoints.
 - **Conversation Context & Pronoun Resolution**: Follow-up queries now work properly. Frontend tracks chat history with mentioned entities; backend resolves pronouns (he, she, him, etc.) to actual entity names from previous messages. Example: After asking "How many jobs has Saleh done?", the follow-up "What roles did he do?" is resolved to "What roles did Saleh Hamed do?" for accurate retrieval.
+- **Entity Phrase Extraction Fix (Jan 2026)**: Added missing regex pattern for "did X do/work/have/hold" queries in `_extract_entity_phrase_from_query()`. This fixes entity resolution for queries like "What roles did Saleh Hamed do?" which previously failed with 10% confidence due to the entity not being extracted from the query text.
 
 ## Regression Test Suite (Jan 2026)
 Comprehensive regression testing for safe architectural changes. Four-layer test architecture:
