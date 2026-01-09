@@ -187,10 +187,14 @@ class Relationship(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_validated_at = Column(DateTime)
     
-    valid_from = Column(DateTime, default=datetime.utcnow, index=True)
+    valid_from = Column(DateTime, index=True)
     valid_to = Column(DateTime, index=True)
     superseded_by = Column(UUID(as_uuid=True), ForeignKey("relationships.id"))
     change_reason = Column(Text)
+    
+    provenance_text = Column(Text)
+    event_context = Column(Text)
+    qualifiers = Column(JSON, default=dict)
     
     source_entity = relationship("Entity", foreign_keys=[source_id], back_populates="outgoing_relationships")
     target_entity = relationship("Entity", foreign_keys=[target_id], back_populates="incoming_relationships")
@@ -209,6 +213,9 @@ class Relationship(Base):
             "source_sentence": self.source_sentence,
             "valid_from": self.valid_from.isoformat() if self.valid_from else None,
             "valid_to": self.valid_to.isoformat() if self.valid_to else None,
+            "provenance_text": self.provenance_text,
+            "event_context": self.event_context,
+            "qualifiers": self.qualifiers or {},
             "superseded_by": str(self.superseded_by) if self.superseded_by else None,
             "change_reason": self.change_reason
         }
