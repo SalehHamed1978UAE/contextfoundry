@@ -50,6 +50,10 @@ class CanonicalMapper:
         except Exception as e:
             logger.error(f"Error loading canonical mappings: {e}")
     
+    def _normalize_key(self, raw_type: str) -> str:
+        """Normalize key for lookup - handles spaces, underscores, hyphens."""
+        return raw_type.lower().strip().replace("_", " ").replace("-", " ")
+    
     def map_entity_type(self, raw_type: str) -> Tuple[str, bool]:
         """
         Map raw entity type to canonical form.
@@ -59,7 +63,7 @@ class CanonicalMapper:
             - If mapped: canonical type from config, True
             - If not mapped: uppercase raw type, False
         """
-        normalized = raw_type.lower().strip()
+        normalized = self._normalize_key(raw_type)
         
         if normalized in self._entity_mappings:
             return self._entity_mappings[normalized], True
@@ -75,7 +79,7 @@ class CanonicalMapper:
             - If mapped: canonical type from config, True
             - If not mapped: uppercase raw type, False
         """
-        normalized = raw_type.lower().strip()
+        normalized = self._normalize_key(raw_type)
         
         if normalized in self._relationship_mappings:
             return self._relationship_mappings[normalized], True
