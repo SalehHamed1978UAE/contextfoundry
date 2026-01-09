@@ -515,6 +515,56 @@ relationship_types:
           from_target: false
           transitive: true
 
+  # Career/Positions
+  - name: HELD_POSITION
+    description: "Person held a position/role at an organization"
+    source_types:
+      - PERSON
+    target_types:
+      - ORGANIZATION
+      - CONCEPT
+    cardinality: many-to-many
+
+  # Investments
+  - name: INVESTED_IN
+    description: "Organization or Person invested in another Organization"
+    source_types:
+      - ORGANIZATION
+      - PERSON
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+
+  # Leadership/Roles
+  - name: LEADS
+    description: "Person leads a project, team, or organization"
+    source_types:
+      - PERSON
+    target_types:
+      - ORGANIZATION
+      - TEAM
+      - PROCESS
+      - CONCEPT
+    cardinality: many-to-many
+
+  # Research/Collaboration
+  - name: COLLABORATED_WITH
+    description: "Person collaborated with another person on a project or paper"
+    source_types:
+      - PERSON
+    target_types:
+      - PERSON
+    cardinality: many-to-many
+
+  - name: AFFILIATED_WITH
+    description: "Person or Organization is affiliated with another Organization"
+    source_types:
+      - PERSON
+      - ORGANIZATION
+    target_types:
+      - ORGANIZATION
+    cardinality: many-to-many
+
   # Fallback
   - name: RELATED_TO
     description: "Generic relationship between any entities (use when no specific type applies)"

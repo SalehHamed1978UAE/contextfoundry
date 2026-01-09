@@ -29,6 +29,62 @@ from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 from ..ontology_foundry.schema_service import get_ontology_schema_service
 from ..utils.logger import logger
 
+
+def parse_date_string(date_str: str) -> Optional[datetime]:
+    """Parse various date formats to datetime for Stage 2 temporal context.
+    
+    Handles formats like:
+    - "2011-08" (YYYY-MM)
+    - "2011" (YYYY)
+    - "August 2011"
+    - "2011-08-24" (YYYY-MM-DD)
+    - null, None, "", "ongoing", "present" -> None
+    """
+    if not date_str or date_str.lower() in ("null", "none", "ongoing", "present", "current"):
+        return None
+    
+    import re
+    date_str = str(date_str).strip()
+    
+    try:
+        # YYYY-MM format
+        if re.match(r'^\d{4}-\d{2}$', date_str):
+            return datetime.strptime(date_str, "%Y-%m")
+        
+        # YYYY-MM-DD format
+        if re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
+            return datetime.strptime(date_str, "%Y-%m-%d")
+        
+        # YYYY format
+        if re.match(r'^\d{4}$', date_str):
+            return datetime.strptime(date_str, "%Y")
+        
+        # Month YYYY format (e.g., "August 2011")
+        month_year_pattern = r'^(\w+)\s+(\d{4})$'
+        match = re.match(month_year_pattern, date_str)
+        if match:
+            try:
+                return datetime.strptime(date_str, "%B %Y")
+            except ValueError:
+                try:
+                    return datetime.strptime(date_str, "%b %Y")
+                except ValueError:
+                    pass
+        
+        # Fallback: try dateutil parser if available
+        try:
+            from dateutil import parser as date_parser
+            return date_parser.parse(date_str, default=datetime(2000, 1, 1))
+        except ImportError:
+            pass
+        
+        logger.debug(f"Could not parse date string: {date_str}")
+        return None
+        
+    except Exception as e:
+        logger.debug(f"Date parse error for '{date_str}': {e}")
+        return None
+
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -66,10 +122,12 @@ class ExtractedRelationship:
     properties: Dict = field(default_factory=dict)
     confidence: float = 0.5
     source_sentence: str = ""
-    # Context metadata fields (Phase 2: Relationship Context)
+    # Context metadata fields (Stage 2: Context-Attached Knowledge)
     provenance_text: str = ""
     description: str = ""
-    temporal_validity: str = "current"  # current, historical, planned
+    event_context: str = ""  # The situation or event this relationship belongs to
+    valid_from: str = ""  # Start date/time as string (parsed later)
+    valid_to: str = ""  # End date/time as string (parsed later)
     qualifiers: List[Dict] = field(default_factory=list)
     confidence_reasoning: str = ""
 
@@ -94,6 +152,11 @@ Given this text, extract any entities of these EXACT types:
 {entity_types_section}
 
 TYPE PRIORITY - Use SPECIFIC types over GENERIC ones:
+- Use PERSON for: individuals, people, executives, employees, researchers, board members
+  Examples: "John Smith" → PERSON, "Dr. Sarah Chen" → PERSON, "Saleh Hamed" → PERSON
+  In resumes/CVs: The name in the header/title is ALWAYS a PERSON entity
+- Use JOB_TITLE for: specific positions or roles held by people
+  Examples: "Systems Engineer" → JOB_TITLE, "CEO" → JOB_TITLE, "Manager, Systems Design" → JOB_TITLE
 - Use SERVICE (not ORGANIZATION or PROCESS) for: software services, APIs, applications, gateways, microservices
   Examples: "Payment Gateway" → SERVICE, "Authentication Service" → SERVICE, "Order Processing API" → SERVICE
 - Use DATABASE (not ORGANIZATION or PROCESS) for: databases, data stores, warehouses, caches
@@ -102,8 +165,8 @@ TYPE PRIORITY - Use SPECIFIC types over GENERIC ones:
   Examples: "Platform Engineering Team" → TEAM, "Security Team" → TEAM, "DevOps Squad" → TEAM
 - Use INCIDENT (not EVENT) for: operational incidents, outages, issues with IDs
   Examples: "INC-2026-0105-A" → INCIDENT, "Database Outage" → INCIDENT, "Production Incident" → INCIDENT
-- Use ORGANIZATION only for: external companies, agencies, government bodies, corporations
-  Examples: "Acme Corporation" → ORGANIZATION, "AWS" → ORGANIZATION, "Federal Reserve" → ORGANIZATION
+- Use ORGANIZATION for: companies, agencies, government bodies, corporations, universities, research institutions
+  Examples: "Acme Corporation" → ORGANIZATION, "AWS" → ORGANIZATION, "Stanford University" → ORGANIZATION, "Emirates Nuclear Energy Corporation" → ORGANIZATION
 - Use PROCESS only for: abstract business workflows, procedures, methodologies (NOT software services)
   Examples: "Approval Workflow" → PROCESS, "Onboarding Procedure" → PROCESS
 - Use EVENT only for: meetings, conferences, announcements (NOT operational incidents)
@@ -178,43 +241,79 @@ For EACH relationship found, return these fields:
 - properties: Any additional context (as key-value pairs)
 - confidence: 0.0-1.0 how certain you are this relationship exists
 - source_sentence: The EXACT sentence that states this relationship
-- provenance_text: A fuller quote (1-2 sentences) that establishes this relationship
+- provenance_text: Quote the EXACT text passage (1-3 sentences) that supports this relationship
 - description: A brief explanation of what this relationship means in context
-- temporal_validity: "current" (active now), "historical" (past), or "planned" (future)
+- valid_from: When did this relationship START? Use format "YYYY-MM" or "YYYY" or null if ongoing/unknown
+- valid_to: When did this relationship END? Use format "YYYY-MM" or "YYYY" or null if still active/ongoing
+- event_context: What situation, phase, or event is this relationship part of? (e.g., "Phase 1", "first tenure", "Series A", "during restructuring")
 - qualifiers: Array of qualifier objects like {{"type": "purpose", "text": "credential storage"}}
 - confidence_reasoning: Brief explanation of why you assigned this confidence score
 
+TEMPORAL EXTRACTION IS CRITICAL:
+- Look for date ranges like "August 2003 - September 2008" → valid_from: "2003-08", valid_to: "2008-09"
+- Look for "since", "from", "starting" → valid_from with null valid_to
+- Look for "until", "ended", "resigned" → valid_to with context
+- "Present", "current", "ongoing" → valid_to: null
+- If no dates mentioned → valid_from: null, valid_to: null
+
+EVENT CONTEXT IS CRITICAL:
+- Identify phases: "Phase 1", "Phase 2", "first term", "second tenure"
+- Identify investment rounds: "Series A", "Series B", "follow-on"
+- Identify career transitions: "promoted from", "resigned", "appointed"
+- Identify project phases or collaboration periods
+
 QUALIFIER TYPES:
-- "purpose": Why this relationship exists (e.g., "for authentication", "for data storage")
-- "frequency": How often (e.g., "continuous", "daily", "on-demand")
-- "criticality": Importance level (e.g., "critical", "optional", "backup")
-- "condition": When it applies (e.g., "during peak hours", "when primary fails")
+- "purpose": Why this relationship exists (e.g., "for authentication", "data storage")
+- "amount": Financial amounts (e.g., "$2M investment")
+- "role_level": Position level (e.g., "executive", "senior", "junior")
+- "at_organization": Organization context for HELD_POSITION relationships
+- "end_reason": Why relationship ended (e.g., "resignation", "promotion", "exit")
+- "outcome": Result of relationship (e.g., "3x return", "successful launch")
 
 CRITICAL RULES:
 1. Only extract relationships EXPLICITLY stated in the text
 2. Both source and target must be in the entities list
 3. Verify the relationship type matches allowed source→target types
 4. Do NOT infer relationships that aren't directly stated
-5. Confidence reflects how clearly the relationship is stated:
-   - 0.9-1.0: Explicit statement with clear context
-   - 0.7-0.9: Mentioned directly but limited context
+5. ALWAYS look for and extract temporal information (dates, durations, periods)
+6. ALWAYS identify event context when multiple instances of same relationship exist
+7. Confidence reflects how clearly the relationship is stated:
+   - 0.9-1.0: Explicit statement with dates and context
+   - 0.7-0.9: Mentioned directly with some context
    - 0.5-0.7: Implied but supported by text
 
 Respond with ONLY a valid JSON array of relationships. If none found, return [].
 Example format:
 [
   {{
-    "type": "DEPENDS_ON",
-    "source_name": "Auth Service",
-    "target_name": "Users Database",
+    "type": "HELD_POSITION",
+    "source_name": "Saleh Hamed",
+    "target_name": "Systems Engineer",
     "properties": {{}},
     "confidence": 0.95,
-    "source_sentence": "Auth Service depends on Users Database.",
-    "provenance_text": "Auth Service depends on Users Database for credential storage and validation.",
-    "description": "Queries user credentials during authentication",
-    "temporal_validity": "current",
-    "qualifiers": [{{"type": "purpose", "text": "credential storage"}}],
-    "confidence_reasoning": "Explicit dependency statement with clear purpose"
+    "source_sentence": "Systems Engineer (August 2003 - September 2008)",
+    "provenance_text": "Emirates Nuclear Energy Corporation (ENEC) - Systems Engineer (August 2003 - September 2008)",
+    "description": "Saleh's first position at ENEC as a technical contributor",
+    "valid_from": "2003-08",
+    "valid_to": "2008-09",
+    "event_context": "Early career at ENEC",
+    "qualifiers": [{{"type": "at_organization", "text": "ENEC"}}],
+    "confidence_reasoning": "Explicit position with exact dates stated"
+  }},
+  {{
+    "type": "INVESTED_IN",
+    "source_name": "Horizon Ventures",
+    "target_name": "TechStart Inc",
+    "properties": {{}},
+    "confidence": 0.95,
+    "source_sentence": "TechStart Inc (March 2020, $2M) - AI/ML startup",
+    "provenance_text": "Series A Investments: TechStart Inc (March 2020, $2M) - AI/ML startup",
+    "description": "Horizon's initial investment in TechStart during Series A round",
+    "valid_from": "2020-03",
+    "valid_to": null,
+    "event_context": "Series A investment round",
+    "qualifiers": [{{"type": "amount", "text": "$2M"}}, {{"type": "sector", "text": "AI/ML"}}],
+    "confidence_reasoning": "Explicit investment with date and amount"
   }}
 ]"""
 
@@ -687,10 +786,12 @@ class GraphBuilderAgent:
                     properties=r.get("properties", {}),
                     confidence=confidence,
                     source_sentence=r.get("source_sentence", ""),
-                    # Context metadata (Phase 2)
+                    # Context metadata (Stage 2: Context-Attached Knowledge)
                     provenance_text=r.get("provenance_text", ""),
                     description=r.get("description", ""),
-                    temporal_validity=r.get("temporal_validity", "current"),
+                    event_context=r.get("event_context", ""),
+                    valid_from=r.get("valid_from") or "",
+                    valid_to=r.get("valid_to") or "",
                     qualifiers=r.get("qualifiers", []),
                     confidence_reasoning=r.get("confidence_reasoning", "")
                 )
@@ -839,9 +940,14 @@ class GraphBuilderAgent:
                 
             except Exception as e:
                 logger.error(f"Failed to stage entity {entity.canonical_name}: {e}")
-                self.session.rollback()
+                # Continue with next entity instead of rolling back all progress
+                continue
         
-        for existing_entity in self.session.query(Entity).all():
+        # Also map existing entities for this tenant (needed for relationship resolution)
+        from sqlalchemy import func
+        for existing_entity in self.session.query(Entity).filter(
+            Entity.tenant_id == (uuid.UUID(tenant_id) if tenant_id else None)
+        ).all():
             if existing_entity.name not in entity_db_map:
                 entity_db_map[existing_entity.name] = existing_entity.id
         
@@ -872,6 +978,13 @@ class GraphBuilderAgent:
                     "_domain": self.schema.domain
                 }
                 
+                # Parse temporal context for Stage 2
+                valid_from_dt = parse_date_string(rel.valid_from)
+                valid_to_dt = parse_date_string(rel.valid_to)
+                
+                # Prepare qualifiers as JSONB
+                qualifiers_json = rel.qualifiers if rel.qualifiers else None
+                
                 db_rel = Relationship(
                     id=uuid.uuid4(),
                     tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
@@ -883,13 +996,32 @@ class GraphBuilderAgent:
                     confidence=rel.confidence,
                     source_document_id=source_document_id,
                     source_sentence=rel.source_sentence[:500] if rel.source_sentence else None,
-                    extracted_at=datetime.utcnow()
+                    extracted_at=datetime.utcnow(),
+                    # Stage 2: Context-Attached Knowledge fields
+                    valid_from=valid_from_dt,
+                    valid_to=valid_to_dt,
+                    provenance_text=rel.provenance_text[:2000] if rel.provenance_text else None,
+                    event_context=rel.event_context[:500] if rel.event_context else None,
+                    qualifiers=qualifiers_json
                 )
                 self.session.add(db_rel)
                 self.session.flush()  # Get db_rel.id
                 
                 # Create RelationshipContext record (Phase 2: Context Metadata)
                 if rel.provenance_text or rel.description or rel.qualifiers:
+                    # Determine temporal granularity from valid_from/valid_to
+                    temporal_granularity = None
+                    if rel.valid_from or rel.valid_to:
+                        # Detect granularity from date format
+                        if rel.valid_from and len(rel.valid_from) == 7:  # "YYYY-MM"
+                            temporal_granularity = "month"
+                        elif rel.valid_from and len(rel.valid_from) == 4:  # "YYYY"
+                            temporal_granularity = "year"
+                        elif rel.valid_to:
+                            temporal_granularity = "bounded"
+                        else:
+                            temporal_granularity = "current"
+                    
                     context = RelationshipContext(
                         id=uuid.uuid4(),
                         relationship_id=db_rel.id,
@@ -897,8 +1029,9 @@ class GraphBuilderAgent:
                         provenance_text=rel.provenance_text[:2000] if rel.provenance_text else None,
                         description=rel.description[:1000] if rel.description else None,
                         qualifiers=rel.qualifiers if rel.qualifiers else [],
-                        temporal_start=datetime.utcnow() if rel.temporal_validity == "current" else None,
-                        temporal_granularity=rel.temporal_validity,
+                        temporal_start=valid_from_dt,
+                        temporal_end=valid_to_dt,
+                        temporal_granularity=temporal_granularity,
                         extraction_method="graph_builder_llm",
                         extraction_model=self.model,
                         raw_extraction={
@@ -916,8 +1049,9 @@ class GraphBuilderAgent:
                 logger.debug(f"Staged relationship: {rel.source_name} -[{rel.relationship_type}]-> {rel.target_name}")
                 
             except Exception as e:
-                logger.error(f"Failed to stage relationship: {e}")
-                self.session.rollback()
+                logger.error(f"Failed to stage relationship {rel.source_name} -> {rel.target_name}: {e}")
+                # Continue with next relationship instead of rolling back all progress
+                continue
         
         try:
             self.session.commit()
