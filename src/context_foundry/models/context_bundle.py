@@ -488,10 +488,38 @@ class ContextBundle:
             lines.append("\nRELATIONSHIPS:")
             for rel in self.semantic_relationships:
                 conf = rel.get("confidence", 0)
+                rel_id = rel.get("id", "unknown")[:8] if rel.get("id") else ""
+                
+                # Build temporal string (Stage 2: Context-Attached Knowledge)
+                valid_from = rel.get("valid_from")
+                valid_to = rel.get("valid_to")
+                temporal_str = ""
+                if valid_from or valid_to:
+                    from_str = str(valid_from)[:10] if valid_from else "?"
+                    to_str = str(valid_to)[:10] if valid_to else "ongoing"
+                    temporal_str = f" [{from_str} → {to_str}]"
+                
                 lines.append(f"  - {rel.get('source_name')} --[{rel.get('relationship_type')}]--> "
-                           f"{rel.get('target_name')} (confidence: {conf:.2f})")
-                if rel.get("source_sentence"):
+                           f"{rel.get('target_name')}{temporal_str} (confidence: {conf:.2f}) [REL-{rel_id}]")
+                
+                # Event context (Stage 2)
+                if rel.get("event_context"):
+                    lines.append(f"    Context: {rel.get('event_context')}")
+                
+                # Provenance text (Stage 2)
+                if rel.get("provenance_text"):
+                    lines.append(f"    Source: \"{rel.get('provenance_text')}\"")
+                elif rel.get("source_sentence"):
                     lines.append(f"    Source: \"{rel.get('source_sentence')}\"")
+                
+                # Qualifiers (Stage 2)
+                if rel.get("qualifiers"):
+                    qualifiers = rel.get("qualifiers")
+                    if isinstance(qualifiers, list):
+                        qual_strs = [f"{q.get('type', 'qual')}: {q.get('text', q.get('value', ''))}" 
+                                    for q in qualifiers if isinstance(q, dict)]
+                        if qual_strs:
+                            lines.append(f"    Qualifiers: {', '.join(qual_strs)}")
         
         lines.append("\n=== APPLICABLE RULES (SYMBOLIC MEMORY) ===\n")
         if self.symbolic_rules:
