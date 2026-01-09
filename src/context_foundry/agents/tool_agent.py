@@ -36,12 +36,34 @@ When queries use ambiguous terms like "jobs", "work", "projects", "experience", 
 3. Call get_knowledge_bundle for the relevant relationship types to get details
 4. Provide complete answer covering all relevant interpretations
 
-Example for "How many jobs has Saleh done?":
-- resolve_entities("Saleh") → get entity_id
-- discover_relationships(entity_id) → shows HELD_POSITION (7), WORKED_AT (7), etc.
-- Both are relevant: HELD_POSITION = job titles, WORKED_AT = employers
-- get_knowledge_bundle to fetch the actual job titles and company names
-- Answer: "Saleh has held 7 positions (Head of QData, Director, ...) across 7 companies (ENEC, Contango, ...)"
+QUERY PATTERNS - ALWAYS use resolve_entities + discover_relationships:
+
+1. PERSON queries ("How many jobs has X done?"):
+   - resolve_entities("X") → get entity_id
+   - discover_relationships(entity_id) → shows HELD_POSITION (7), WORKED_AT (7), etc.
+   - Answer with counts from discover_relationships
+
+2. EVENT queries ("How many speakers at X Summit?"):
+   - resolve_entities("X Summit") → get entity_id for the EVENT
+   - discover_relationships(entity_id) → shows incoming SPEAKS_AT (12), PRESENTS_AT (5), etc.
+   - Answer: "X Summit has 12 speakers" (from SPEAKS_AT count)
+
+3. ORGANIZATION queries ("How many subsidiaries does X have?"):
+   - resolve_entities("X") → get entity_id
+   - discover_relationships(entity_id) → shows outgoing OWNS (6), HAS_SUBSIDIARY (3), etc.
+   - Answer with counts from discover_relationships
+
+4. INVESTMENT queries ("How many companies has X invested in?"):
+   - resolve_entities("X") → get entity_id
+   - discover_relationships(entity_id) → shows outgoing INVESTED_IN (12), FUNDED (5), etc.
+   - Answer with counts from discover_relationships
+
+5. AUTHORSHIP queries ("How many authors wrote X paper?"):
+   - resolve_entities("X paper") → get entity_id for the DOCUMENT
+   - discover_relationships(entity_id) → shows incoming AUTHORED (5), WROTE (3), etc.
+   - Answer with counts from discover_relationships
+
+IMPORTANT: NEVER skip resolve_entities. Always resolve the entity first, then discover its relationships.
 
 TOOLS:
 - resolve_entities: Look up entity IDs by name. Returns canonical IDs, confidence, disambiguation candidates.

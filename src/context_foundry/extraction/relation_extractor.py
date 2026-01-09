@@ -135,6 +135,29 @@ PROJECT STRUCTURE:
 - DELIVERS: Project delivers a deliverable
 - DEPENDS_ON: Entity depends on another entity
 
+INVESTMENT/FUNDING:
+- INVESTED_IN: Venture capital/fund invested in a company (e.g., "Horizon Ventures - Series B ($15M) - NeuraTech AI" means INVESTED_IN)
+- PORTFOLIO_COMPANY: Company is a portfolio company of a fund
+- FUNDED_BY: Company received funding from investor
+- ACQUIRED: Organization acquired another organization
+
+AUTHORSHIP:
+- AUTHORED: Person authored a document/paper
+- CO_AUTHORED: Person co-authored with another person
+- AFFILIATED_WITH: Person affiliated with an organization (for papers)
+
+CORPORATE STRUCTURE:
+- HAS_SUBSIDIARY: Parent company has a subsidiary
+- OWNS: Organization owns another organization
+- PART_OF: Organization is part of a parent organization
+- HEADQUARTERED_IN: Organization is headquartered in a location
+
+EVENTS:
+- SPEAKS_AT: Person speaks at an event/conference
+- PRESENTED_AT: Person presented at an event
+- KEYNOTE_SPEAKER: Person is keynote speaker at event
+- MODERATES: Person moderates a panel/session
+
 If you find a relationship that doesn't fit these types, CREATE A NEW TYPE that accurately describes it.
 
 KNOWN ENTITIES:
@@ -147,6 +170,35 @@ KNOWN ENTITIES:
 3. Extract ALL relationships - every person on a team should have a relationship to the project
 4. Both source and target entities must be from KNOWN ENTITIES
 5. When multiple people are listed (e.g., "X, Y, and Z"), extract SEPARATE relationships for each
+
+## INVESTMENT DOCUMENT PATTERNS
+
+When processing venture capital/investment documents:
+- If a document has "Portfolio Companies" or "Investments" sections, the FUND/VC firm INVESTED_IN each company listed
+- Pattern: "CompanyName - Series X ($YM)" means the fund INVESTED_IN CompanyName
+- The CEO of a portfolio company is CEO_OF that company, NOT the fund
+- Example: "NeuraTech AI - Series B ($15M)" under "Horizon Ventures Portfolio" means:
+  - Horizon Ventures --INVESTED_IN--> NeuraTech AI
+  - The $15M is a property of the investment, not a separate entity
+
+## AUTHORSHIP PATTERNS
+
+When processing research papers:
+- Authors listed at the top AUTHORED the paper
+- Multiple authors means each person AUTHORED the paper
+- "Department of X, University Y" means the person is AFFILIATED_WITH the organization
+
+## CORPORATE STRUCTURE PATTERNS
+
+When processing org charts:
+- Parent companies have HAS_SUBSIDIARY relationships to child companies
+- "Regional headquarters" or "divisions" are subsidiaries
+
+## EVENT PATTERNS
+
+When processing conference/summit documents:
+- Speakers/presenters SPEAKS_AT the event
+- Panelists MODERATES or PARTICIPATES_IN panels
 
 TEXT:
 {text}
