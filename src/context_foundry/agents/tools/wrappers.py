@@ -105,8 +105,12 @@ class ToolExecutor:
             return {"success": False, "error": str(e)}
     
     def _get_knowledge_bundle(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Get KG relationships for entities using direct SQL."""
+        """Get ALL KG relationships for entities using direct SQL.
+        
+        Returns comprehensive data including relationship_summary with counts by type.
+        """
         from sqlalchemy import text as sql_text
+        from collections import Counter
         
         query = args.get("query", "")
         entity_ids = args.get("entity_ids", [])
@@ -114,7 +118,7 @@ class ToolExecutor:
         try:
             results = []
             
-            # If entity_ids provided, fetch relationships directly
+            # If entity_ids provided, fetch ALL relationships (no limit)
             for entity_id in entity_ids:
                 try:
                     # Get entity info
@@ -135,14 +139,13 @@ class ToolExecutor:
                         "type": entity_row.entity_type
                     }
                     
-                    # Get outgoing relationships
+                    # Get ALL outgoing relationships (no limit)
                     rel_sql = sql_text("""
                         SELECT r.relationship_type, e2.name as target_name, e2.entity_type as target_type
                         FROM relationships r
                         JOIN entities e2 ON r.target_id = e2.id
                         WHERE r.source_id = :eid AND r.tenant_id = :tid
-                        ORDER BY r.relationship_type
-                        LIMIT 20
+                        ORDER BY r.relationship_type, e2.name
                     """)
                     rel_rows = self.session.execute(rel_sql, {
                         "eid": entity_id, "tid": self.tenant_id
@@ -153,8 +156,20 @@ class ToolExecutor:
                         for r in rel_rows
                     ]
                     
+                    # Create relationship_summary with counts by type
+                    type_counts = Counter(r.relationship_type for r in rel_rows)
+                    relationship_summary = {
+                        rel_type: {
+                            "count": count,
+                            "targets": [r["target"] for r in relationships if r["type"] == rel_type]
+                        }
+                        for rel_type, count in type_counts.items()
+                    }
+                    
                     results.append({
                         "entity": entity_info,
+                        "relationship_summary": relationship_summary,
+                        "total_relationships": len(relationships),
                         "relationships": relationships
                     })
                 except Exception as ent_err:
