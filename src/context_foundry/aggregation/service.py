@@ -351,7 +351,8 @@ class AggregationService:
                 if match not in STOPWORDS and match.lower() not in subject_words:
                     # Preserve case from original query or use capitalized
                     original = next((w for w in words if w.lower() == match.lower()), match.capitalize())
-                    if original not in potential_names and clean_word != original:
+                    # Add if not already in potential_names (case-insensitive check)
+                    if original.lower() not in [p.lower() for p in potential_names]:
                         potential_names.append(original)
         
         if not potential_names:
