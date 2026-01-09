@@ -1,0 +1,144 @@
+# Context Foundry: Tool-Calling Agent Architecture
+
+## APPROACH
+
+Keep existing components. Wrap them as tools. Add agent layer on top.
+
+## WHAT TO KEEP (as tools)
+
+1. **Entity Resolution** (existing)
+   - Don't write new LIKE queries
+   - Wrap existing EntityResolver as resolve_entities tool
+   - Preserves canonical IDs, aliases, RLS
+
+2. **Aggregation Service** (existing) 
+   - Keep run_aggregation as a tool
+   - Preserves sufficiency gate, result_kind, evidence
+   - Handles complex cases (filters, time windows, sums)
+   - FIX: Pass anchor_entities from agent, don't extract internally
+
+3. **Document Search** (existing)
+   - Wrap SemanticMemory.search as search_documents tool
+
+4. **KG Retrieval** (existing)
+   - Wrap get_entity_relationships as get_knowledge_bundle tool
+
+## WHAT TO ADD
+
+1. **Tool Agent** (`src/context_foundry/agents/tool_agent.py`)
+   - Entry point for all queries
+   - Calls tools based on reasoning
+   - Composes rich responses
+   - Maintains conversation history
+
+2. **Tool Definitions** (OpenAI function calling format)
+   - resolve_entities
+   - run_aggregation  
+   - get_knowledge_bundle
+   - search_documents
+
+3. **Conversation Store**
+   - Per-session history
+   - RLS on tenant_id (use app.current_tenant consistently!)
+
+4. **Guardrails**
+   - Max tool calls per turn (e.g., 5)
+   - Timeout per tool call
+   - Post-processing: flag numeric claims without tool evidence
+
+## WHAT TO REMOVE
+
+1. Intent classification layer (aggregation vs descriptive)
+2. Aggregation hook that short-circuits pipeline
+3. Pattern matching for entity extraction
+4. Separate pipelines
+
+## TOOL DEFINITIONS
+```python
+TOOLS = [
+    {
+        "name": "resolve_entities",
+        "description": "Resolve entity names to IDs. Use before any KG operation.",
+        "parameters": {
+            "names": {"type": "array", "items": {"type": "string"}}
+        }
+    },
+    {
+        "name": "run_aggregation",
+        "description": "Get deterministic counts/sums from KG. MUST use for any numeric answer about entities.",
+        "parameters": {
+            "question": {"type": "string"},
+            "anchor_entities": {"type": "array", "items": {...}}
+        },
+        "returns": "{result_kind, value, unit, evidence}"
+    },
+    {
+        "name": "get_knowledge_bundle",
+        "description": "Get KG context + document context for an entity.",
+        "parameters": {
+            "query": {"type": "string"},
+            "entity_ids": {"type": "array"}
+        }
+    },
+    {
+        "name": "search_documents",
+        "description": "Search documents for information not in KG.",
+        "parameters": {
+            "query": {"type": "string"},
+            "limit": {"type": "integer", "default": 5}
+        }
+    }
+]
+```
+
+## AGENT PROMPT
+You are Context Foundry, an AI assistant with access to a knowledge graph and documents.
+RULES:
+
+For ANY numeric answer (counts, sums, totals), you MUST use run_aggregation. Never guess numbers.
+Always resolve_entities first before KG operations.
+Use get_knowledge_bundle to get context for rich answers.
+Use search_documents for information not in structured data.
+
+TOOLS:
+
+resolve_entities: Look up entity IDs by name
+run_aggregation: Get exact counts/sums (returns result_kind: EXACT/LOWER_BOUND/RANGE)
+get_knowledge_bundle: Get KG relationships + document context
+search_documents: Search uploaded documents
+
+When answering:
+
+Think about what tools you need
+Call tools to get facts
+Compose response using tool results + context
+For numbers, cite the result_kind (e.g., "exactly 7" for EXACT, "at least 7" for LOWER_BOUND)
+
+
+## IMPLEMENTATION ORDER
+
+1. Create tool wrappers around existing services
+2. Create ToolAgent class with ReAct loop
+3. Create conversation store (watch RLS variable name!)
+4. Add guardrails (max calls, numeric claim checker)
+5. Wire into query endpoint
+6. Remove old aggregation hook
+7. Test all scenarios
+
+## CRITICAL FIXES FROM PREVIOUS ISSUES
+
+- RLS variable: Use `app.current_tenant` consistently (not `app.current_tenant_id`)
+- Entity resolution: Case-insensitive, use existing resolver
+- Anchor passing: Agent resolves entities THEN passes to run_aggregation
+- Conversation memory: Store with tenant RLS
+
+## SUCCESS CRITERIA
+
+- "How many jobs has Saleh done?" → calls resolve_entities → run_aggregation → rich response
+- "how many jobs has saleh done?" → same result (case handled by resolver)
+- "What are those jobs?" → uses conversation history, lists jobs
+- "What roles did he have?" → resolves "he" from history
+- Numbers always have tool evidence
+- No pattern matching anywhere
+
+This preserves the valuable work (aggregation framework, entity resolution, sufficiency gates) while fixing the integration problem (agent orchestrates instead of separate pipelines).
