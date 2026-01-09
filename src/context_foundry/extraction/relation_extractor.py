@@ -112,32 +112,41 @@ class RelationExtractor:
         
         prompt = f"""You are an expert at extracting relationships between entities from documents.
 
-Given the following text and the list of known entities, extract all relationships.
+Given the following text and the list of known entities, extract ALL relationships.
 
-RELATIONSHIP TYPE SELECTION:
-- If the document is a RESUME/CV: Use HR relationship types like WORKED_AT, EDUCATED_AT, HAS_SKILL, HAS_ROLE, REPORTS_TO
-- If the document is about IT infrastructure: Use types from this list when they fit exactly:
-{rel_list}
-- Otherwise: Create descriptive relationship types that accurately describe the connection (e.g., COLLABORATED_WITH, INVESTED_IN, FOUNDED, LED_PROJECT)
+## OPEN CAPTURE MODE
+
+You may use ANY relationship type that accurately describes the connection. Common types include:
+
+PROJECT MEMBERSHIP:
+- WORKS_ON: Person works on a project (e.g., "David Kim is on Project Phoenix")
+- LEADS: Person leads/directs a project or team
+- MANAGES: Person manages a team or project
+- MEMBER_OF: Person is a member of a team or organization
+
+EMPLOYMENT:
+- WORKS_AT: Person works at an organization
+- HAS_ROLE: Person has a job title/role
+- REPORTS_TO: Person reports to another person
+
+PROJECT STRUCTURE:
+- HAS_MILESTONE: Project has a milestone
+- HAS_BUDGET: Project/org has a budget amount
+- DELIVERS: Project delivers a deliverable
+- DEPENDS_ON: Entity depends on another entity
+
+If you find a relationship that doesn't fit these types, CREATE A NEW TYPE that accurately describes it.
 
 KNOWN ENTITIES:
 {entities_str}
 
-For each relationship, provide:
-1. relation_type: A relationship type that accurately describes the connection
-2. source_name: The name of the source entity (must be from KNOWN ENTITIES)
-3. target_name: The name of the target entity (must be from KNOWN ENTITIES)
-4. source_span: The exact text that indicates this relationship
-5. confidence: Your confidence in this extraction (0.0 to 1.0)
+## CRITICAL RULES
 
-IMPORTANT RULES:
-- Extract ALL relationships mentioned in the text
-- Both source and target entities must be from the KNOWN ENTITIES list
-- When text mentions multiple targets (e.g., "X, Y, and Z"), extract a SEPARATE relationship for each target
-- Assign lower confidence (0.5-0.7) if the relationship is implied but not explicit
-- Assign higher confidence (0.8-1.0) if the relationship is explicitly stated
-- Extract relationships that are explicitly stated OR implied by document structure and context
-- For resumes: A person listed under a company heading implies WORKED_AT relationship
+1. When a PERSON is listed under a PROJECT heading (e.g., "Core Team Members"), extract WORKS_ON relationship to the project
+2. When a PERSON has a title like "Project Director", extract both HAS_ROLE and LEADS relationships
+3. Extract ALL relationships - every person on a team should have a relationship to the project
+4. Both source and target entities must be from KNOWN ENTITIES
+5. When multiple people are listed (e.g., "X, Y, and Z"), extract SEPARATE relationships for each
 
 TEXT:
 {text}
