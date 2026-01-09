@@ -310,6 +310,13 @@ class ToolAgent:
             resolved = [e for e in entities if e.get("resolved")]
             return f"Resolved {len(resolved)}/{len(entities)} entities"
         
+        if "outgoing" in result or "incoming" in result:
+            outgoing = result.get("outgoing", [])
+            incoming = result.get("incoming", [])
+            out_strs = [f"{t['type']}({t['count']})" for t in outgoing[:3]]
+            in_strs = [f"{t['type']}({t['count']})" for t in incoming[:3]]
+            return f"Outgoing: {', '.join(out_strs) or 'none'} | Incoming: {', '.join(in_strs) or 'none'}"
+        
         if "relationship_types" in result:
             types = result["relationship_types"]
             type_strs = [f"{t['type']}({t['count']})" for t in types[:5]]
