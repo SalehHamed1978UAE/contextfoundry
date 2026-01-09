@@ -183,30 +183,30 @@ class EntityExtractor:
         return self.schema_loader.get_valid_entity_types()
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
-        """Build simplified entity extraction prompt optimized for completeness."""
-        core_types = "COMPONENT, CONCEPT, SERVICE, PROCESS, PERSON, ORGANIZATION, TEAM, DATABASE, METRIC, INCIDENT, EVENT, DOCUMENT, TOOL, TIME_PERIOD, LOCATION"
+        """Build open capture entity extraction prompt - accepts any entity type."""
         
         prompt = f"""Extract ALL entities from this text. Be EXHAUSTIVE - a short list is a FAILED extraction.
 
-Valid types: {core_types}
+## OPEN CAPTURE MODE
 
-## ENTITY TYPE DEFINITIONS
+You may use ANY entity type that accurately describes what you find. Common types include:
+PERSON, ORGANIZATION, PROJECT, TEAM, DOCUMENT, LOCATION, EVENT, DATE, CONCEPT, PROCESS, SERVICE, DATABASE, TOOL, PRODUCT, ROLE, SKILL, MILESTONE, BUDGET, DELIVERABLE
 
-COMPONENT: System parts, subsystems, modules, memory types (e.g., "Semantic Memory", "Episodic Memory", "Auth Module", "Core Intellect", "Reasoning Engine")
-CONCEPT: Abstract ideas, approaches, patterns, techniques (e.g., "RAG", "Fine-Tuning", "Tri-Memory System", "Hallucination Prevention")
-SERVICE: Running software services, APIs, microservices that handle requests (e.g., "OrderService", "PaymentAPI")
-PROCESS: Workflows, procedures, phases, stages, lifecycles (e.g., "Cognitive Loop", "Ingestion", "Perception")
-PERSON: Named individuals AND job roles/titles (e.g., "James Rodriguez", "Data Steward", "CEO")
-ORGANIZATION: Companies, agencies, departments, ministries, groups that ACT (e.g., "Context Foundry", "IBM")
-TEAM: Named teams within organizations (e.g., "Commerce Team", "Platform Team")
-DATABASE: Data stores, databases, tables, caches (e.g., "knowledge graph", "STAGING", "TRUSTED")
-METRIC: Measurements, scores, KPIs, confidence values (e.g., "provenance score", "confidence > 0.7")
-INCIDENT: System failures, outages, SEV events (e.g., "INC-2025-1215")
-EVENT: Meetings, milestones, non-failure occurrences
-DOCUMENT: Referenced reports, policies, forms, runbooks
-TOOL: Software tools, utilities, platforms (e.g., "NotebookLM", "Tesseract")
-TIME_PERIOD: Dates, time ranges, deadlines (e.g., "December 2025", "Q4")
-LOCATION: PHYSICAL places ONLY (cities, countries, buildings)
+## ENTITY TYPE GUIDANCE
+
+PERSON: Named individuals (e.g., "David Kim", "Maria Chen", "James Wilson")
+PROJECT: Named initiatives, projects, programs (e.g., "Project Phoenix", "Digital Transformation Initiative")
+ORGANIZATION: Companies, agencies, departments (e.g., "Acme Corp", "Engineering Department")
+TEAM: Named teams (e.g., "Commerce Team", "Core Team")
+ROLE: Job titles and positions (e.g., "Solutions Architect", "Project Director", "Technical Lead")
+MILESTONE: Project milestones, phases (e.g., "Phase 1", "MVP Launch")
+BUDGET: Monetary amounts associated with projects/orgs (e.g., "$2.4 million budget")
+DELIVERABLE: Outputs, products, features (e.g., "Data Pipeline", "Analytics Dashboard")
+SKILL: Technical skills, competencies (e.g., "Python", "Machine Learning")
+DATE: Specific dates or time periods (e.g., "March 2024", "December 2025")
+LOCATION: Physical places (e.g., "San Francisco", "Building A")
+
+If you find something that doesn't fit these types, CREATE A NEW TYPE that accurately describes it.
 
 ## CRITICAL RULES
 
@@ -295,12 +295,20 @@ Return valid JSON array only (no markdown):
             return []
     
     def _validate_entity(self, entity: Dict) -> bool:
-        """Validate extracted entity has required fields and valid type."""
+        """Validate extracted entity has required fields.
+        
+        OPEN CAPTURE: Accept any entity type - schema validation is done downstream
+        by the canonical mapper (Phase 2). This enables domain-agnostic extraction.
+        """
         if "entity_type" not in entity:
             return False
         if "canonical_name" not in entity and "name" not in entity:
             return False
-        if entity["entity_type"].upper() not in self.get_valid_entity_types():
+        
+        # OPEN CAPTURE: Accept any entity type - no longer reject unknown types
+        # The raw_entity_type will be preserved and mapped to canonical types later
+        entity_type = entity["entity_type"].upper()
+        if not entity_type or len(entity_type) < 2:
             return False
         
         name = entity.get("canonical_name") or entity.get("name", "")
