@@ -183,58 +183,17 @@ class EntityExtractor:
         return self.schema_loader.get_valid_entity_types()
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
-        """Build open capture entity extraction prompt - accepts any entity type."""
+        """Build minimal open capture entity extraction prompt."""
         
-        prompt = f"""Extract ALL entities from this text. Be EXHAUSTIVE - a short list is a FAILED extraction.
+        prompt = f"""Extract all entities from this text.
 
-## OPEN CAPTURE MODE
+Use whatever entity type best describes each thing you find.
+Be exhaustive - extract every named person, organization, place, concept, etc.
 
-You may use ANY entity type that accurately describes what you find. Common types include:
-PERSON, ORGANIZATION, PROJECT, TEAM, DOCUMENT, LOCATION, EVENT, DATE, CONCEPT, PROCESS, SERVICE, DATABASE, TOOL, PRODUCT, ROLE, SKILL, MILESTONE, BUDGET, DELIVERABLE
+Return JSON array only (no markdown):
+[{{"entity_type": "type", "canonical_name": "exact name", "confidence": 0.9}}]
 
-## ENTITY TYPE GUIDANCE
-
-PERSON: Named individuals (e.g., "David Kim", "Maria Chen", "James Wilson")
-PROJECT: Named initiatives, projects, programs (e.g., "Project Phoenix", "Digital Transformation Initiative")
-ORGANIZATION: Companies, agencies, departments (e.g., "Acme Corp", "Engineering Department")
-TEAM: Named teams (e.g., "Commerce Team", "Core Team")
-ROLE: Job titles and positions (e.g., "Solutions Architect", "Project Director", "Technical Lead")
-MILESTONE: Project milestones, phases (e.g., "Phase 1", "MVP Launch")
-BUDGET: Monetary amounts associated with projects/orgs (e.g., "$2.4 million budget")
-DELIVERABLE: Outputs, products, features (e.g., "Data Pipeline", "Analytics Dashboard")
-SKILL: Technical skills, competencies (e.g., "Python", "Machine Learning")
-DATE: Specific dates or time periods (e.g., "March 2024", "December 2025")
-LOCATION: Physical places (e.g., "San Francisco", "Building A")
-
-If you find something that doesn't fit these types, CREATE A NEW TYPE that accurately describes it.
-
-## CRITICAL RULES
-
-1. NEVER use "RELATIONSHIP" as an entity type - relationships are edges, not nodes
-2. Use COMPONENT for system parts like "Semantic Memory", "Episodic Memory", "Procedural Memory"
-3. Use CONCEPT for abstract ideas like "RAG", "Fine-Tuning", "World Model"
-4. Use SERVICE only for actual running services (OrderService, PaymentAPI)
-5. Use PROCESS for workflow stages like "Ingestion", "Perception", "Learning"
-6. Extract ALL capitalized multi-word terms and named concepts
-7. Be EXHAUSTIVE - do not stop until every entity is captured
-8. When uncertain, INCLUDE with confidence 0.7-0.8
-
-## DO NOT EXTRACT
-
-- Raw numbers like "0.95", "2024", "100" - these are VALUES, not entities
-- JSON field values from code examples (e.g., if you see "confidence": 0.95, do NOT extract "0.95")
-- Timestamps like "2026-01-06T10:30:00Z"
-- Percentages like "95%" or "95% confidence"
-- Code block contents - only extract entities mentioned in prose text
-- Short strings under 3 characters
-
-## OUTPUT FORMAT
-
-Return valid JSON array only (no markdown):
-[{{"entity_type": "TYPE", "canonical_name": "exact text", "confidence": 0.9}}]
-
-## TEXT TO EXTRACT
-
+TEXT:
 {text}"""
         return prompt
     
@@ -437,12 +396,24 @@ Return valid JSON array only (no markdown):
         return entity
     
     def _normalize_entity(self, entity: Dict) -> Dict:
-        """Normalize entity fields."""
+        """Normalize entity fields with open capture canonical mapping."""
+        from .canonical_mapper import get_canonical_mapper
+        
         if "name" in entity and "canonical_name" not in entity:
             entity["canonical_name"] = entity.pop("name")
         
         entity["canonical_name"] = entity["canonical_name"].strip()
-        entity["entity_type"] = entity["entity_type"].upper()
+        
+        raw_type = entity["entity_type"]
+        entity["raw_entity_type"] = raw_type
+        
+        mapper = get_canonical_mapper()
+        canonical_type, is_mapped = mapper.map_entity_type(raw_type)
+        entity["entity_type"] = canonical_type
+        entity["is_mapped"] = is_mapped
+        
+        if not is_mapped:
+            logger.debug(f"[OpenCapture] Unmapped entity type: '{raw_type}' → '{canonical_type}'")
         
         entity = self._correct_entity_type(entity)
         

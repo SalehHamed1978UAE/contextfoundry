@@ -93,126 +93,21 @@ class RelationExtractor:
         return self.schema_loader.get_valid_relationship_types()
     
     def _build_relation_extraction_prompt(self, text: str, entities_str: str) -> str:
-        """Build dynamic relation extraction prompt from active schema."""
-        schema = self.schema_loader.schema
-        domain = schema.domain
+        """Build minimal open capture relation extraction prompt."""
         
-        rel_descriptions = []
-        for name, rel_config in schema.relationship_types.items():
-            desc = rel_config.description or f"{name} relationship"
-            sources = "/".join(rel_config.source_types) if rel_config.source_types else "any"
-            targets = "/".join(rel_config.target_types) if rel_config.target_types else "any"
-            cardinality_note = " (one target only)" if rel_config.is_many_to_one() else ""
-            
-            rel_descriptions.append(f"- {name}: {desc}")
-            rel_descriptions.append(f"  Source types: {sources} → Target types: {targets}{cardinality_note}")
-        
-        rel_list = "\n".join(rel_descriptions)
-        rel_type_names = ", ".join(schema.relationship_types.keys())
-        
-        prompt = f"""You are an expert at extracting relationships between entities from documents.
+        prompt = f"""Extract all relationships between the entities in this text.
 
-Given the following text and the list of known entities, extract ALL relationships.
-
-## OPEN CAPTURE MODE
-
-You may use ANY relationship type that accurately describes the connection. Common types include:
-
-PROJECT MEMBERSHIP:
-- WORKS_ON: Person works on a project (e.g., "David Kim is on Project Phoenix")
-- LEADS: Person leads/directs a project or team
-- MANAGES: Person manages a team or project
-- MEMBER_OF: Person is a member of a team or organization
-
-EMPLOYMENT:
-- WORKS_AT: Person works at an organization
-- HAS_ROLE: Person has a job title/role
-- REPORTS_TO: Person reports to another person
-
-PROJECT STRUCTURE:
-- HAS_MILESTONE: Project has a milestone
-- HAS_BUDGET: Project/org has a budget amount
-- DELIVERS: Project delivers a deliverable
-- DEPENDS_ON: Entity depends on another entity
-
-INVESTMENT/FUNDING:
-- INVESTED_IN: Venture capital/fund invested in a company (e.g., "Horizon Ventures - Series B ($15M) - NeuraTech AI" means INVESTED_IN)
-- PORTFOLIO_COMPANY: Company is a portfolio company of a fund
-- FUNDED_BY: Company received funding from investor
-- ACQUIRED: Organization acquired another organization
-
-AUTHORSHIP:
-- AUTHORED: Person authored a document/paper
-- CO_AUTHORED: Person co-authored with another person
-- AFFILIATED_WITH: Person affiliated with an organization (for papers)
-
-CORPORATE STRUCTURE:
-- HAS_SUBSIDIARY: Parent company has a subsidiary
-- OWNS: Organization owns another organization
-- PART_OF: Organization is part of a parent organization
-- HEADQUARTERED_IN: Organization is headquartered in a location
-
-EVENTS:
-- SPEAKS_AT: Person speaks at an event/conference
-- PRESENTED_AT: Person presented at an event
-- KEYNOTE_SPEAKER: Person is keynote speaker at event
-- MODERATES: Person moderates a panel/session
-
-If you find a relationship that doesn't fit these types, CREATE A NEW TYPE that accurately describes it.
+Use whatever relationship type best describes each connection.
+Both source and target must be from the known entities list.
 
 KNOWN ENTITIES:
 {entities_str}
 
-## CRITICAL RULES
-
-1. When a PERSON is listed under a PROJECT heading (e.g., "Core Team Members"), extract WORKS_ON relationship to the project
-2. When a PERSON has a title like "Project Director", extract both HAS_ROLE and LEADS relationships
-3. Extract ALL relationships - every person on a team should have a relationship to the project
-4. Both source and target entities must be from KNOWN ENTITIES
-5. When multiple people are listed (e.g., "X, Y, and Z"), extract SEPARATE relationships for each
-
-## INVESTMENT DOCUMENT PATTERNS
-
-When processing venture capital/investment documents:
-- If a document has "Portfolio Companies" or "Investments" sections, the FUND/VC firm INVESTED_IN each company listed
-- Pattern: "CompanyName - Series X ($YM)" means the fund INVESTED_IN CompanyName
-- The CEO of a portfolio company is CEO_OF that company, NOT the fund
-- Example: "NeuraTech AI - Series B ($15M)" under "Horizon Ventures Portfolio" means:
-  - Horizon Ventures --INVESTED_IN--> NeuraTech AI
-  - The $15M is a property of the investment, not a separate entity
-
-## AUTHORSHIP PATTERNS
-
-When processing research papers:
-- Authors listed at the top AUTHORED the paper
-- Multiple authors means each person AUTHORED the paper
-- "Department of X, University Y" means the person is AFFILIATED_WITH the organization
-
-## CORPORATE STRUCTURE PATTERNS
-
-When processing org charts:
-- Parent companies have HAS_SUBSIDIARY relationships to child companies
-- "Regional headquarters" or "divisions" are subsidiaries
-
-## EVENT PATTERNS
-
-When processing conference/summit documents:
-- Speakers/presenters SPEAKS_AT the event
-- Panelists MODERATES or PARTICIPATES_IN panels
+Return JSON array only (no markdown):
+[{{"source_name": "...", "relation_type": "...", "target_name": "...", "confidence": 0.9}}]
 
 TEXT:
-{text}
-
-Respond with ONLY valid JSON array, no markdown code blocks or other text. Format:
-[
-  {{
-    "relation_type": "RELATION_TYPE",
-    "source_name": "Source Entity",
-    "target_name": "Target Entity",
-    "source_span": "exact text showing relationship",
-    "confidence": 0.95
-  }}
-]"""
+{text}"""
         return prompt
     
     def _build_system_prompt(self) -> str:
@@ -302,10 +197,22 @@ Respond with ONLY valid JSON array, no markdown code blocks or other text. Forma
         return source_found and target_found
     
     def _normalize_relation(self, relation: Dict) -> Dict:
-        """Normalize relation fields."""
+        """Normalize relation fields with open capture canonical mapping."""
+        from .canonical_mapper import get_canonical_mapper
+        
         relation["source_name"] = self._strip_type_prefix(relation["source_name"])
         relation["target_name"] = self._strip_type_prefix(relation["target_name"])
-        relation["relation_type"] = relation["relation_type"].upper()
+        
+        raw_type = relation["relation_type"]
+        relation["raw_relationship_type"] = raw_type
+        
+        mapper = get_canonical_mapper()
+        canonical_type, is_mapped = mapper.map_relationship_type(raw_type)
+        relation["relation_type"] = canonical_type
+        relation["is_mapped"] = is_mapped
+        
+        if not is_mapped:
+            logger.debug(f"[OpenCapture] Unmapped relationship type: '{raw_type}' → '{canonical_type}'")
         
         if "confidence" not in relation:
             relation["confidence"] = 0.75
