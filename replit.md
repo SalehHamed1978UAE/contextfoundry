@@ -36,6 +36,7 @@ Three logical schemas: `ontology` (schema governance), `context` (instance gover
 - **Bulk Ingestion System**: Multi-file/ZIP uploads, S3/Google Drive connectors, and content deduplication.
 - **Automatic Domain Detection**: Semantic routing classifies documents for domain-specific extraction.
 - **Chunked Extraction**: Splits documents into overlapping chunks to prevent LLM output saturation.
+- **Open Capture Extraction (Jan 2026)**: Extraction system accepts ANY entity/relationship types without schema validation. LLM extracts what it finds (PROJECT, ROLE, BUDGET, WORKS_ON, LEADS, etc.) rather than being constrained to pre-defined types. This prevents silent schema drops where valid knowledge was discarded because the type wasn't in domain_schema.yaml. Phase 1 of 3-phase Canonical Mapping Pipeline.
 - **Ontology-Centric Pipeline**: Document-aware extraction that learns entity/relationship types from documents rather than forcing pre-defined schemas.
 - **Query/Reasoning System**: Provides GROUNDED, GAP, and INFERRED responses with hallucination guards, using a 4-AI consensus design, including a 3-step query pipeline for interpretation, retrieval, and synthesis.
 - **EntityResolver**: Multi-stage pipeline (exact, alias, normalized, semantic, fuzzy match) with disambiguation for robust entity matching.
