@@ -97,6 +97,11 @@ Aggregation check runs BEFORE tri-memory pipeline in `RetrievalAgent.build_conte
 2. **RLS ALWAYS** - All queries use existing SQLAlchemy session (tenant isolation automatic)
 3. **DETERMINISTIC ONLY** - SQL templates are pre-approved; never generate SQL from LLM
 
+### Recent Fixes (Jan 2026)
+- **EntityResolver RLS Context Preservation**: Fixed issue where session rollback cleared tenant RLS context. Now re-sets `SET LOCAL app.current_tenant_id` at the start of each resolve() call.
+- **Rich Response Composition**: Aggregation results now include entity details (company names, etc.) in the answer, not just bare numbers.
+- **Response Metadata**: Added `is_aggregation`, `aggregation_result`, and `counted_entities` to API responses for both `/api/query` and `/api/vault/chat` endpoints.
+
 ## Regression Test Suite (Jan 2026)
 Comprehensive regression testing for safe architectural changes. Four-layer test architecture:
 - **Smoke Tests** (`@pytest.mark.smoke`): <30 seconds, no external APIs. Imports, DB connectivity, core class instantiation.
