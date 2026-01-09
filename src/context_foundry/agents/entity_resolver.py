@@ -183,13 +183,18 @@ class EntityResolver:
         if not query or not query.strip():
             return ResolveResult(match_stage="empty_query")
         
-        # Clear any failed transaction state before resolving
-        try:
-            self.session.rollback()
-        except Exception:
-            pass
-        
         query = query.strip()
+        
+        # Re-set RLS context in case previous rollback cleared it
+        if self.tenant_id:
+            try:
+                from sqlalchemy import text
+                self.session.execute(
+                    text("SET LOCAL app.current_tenant_id = :tenant_id"),
+                    {"tenant_id": str(self.tenant_id)}
+                )
+            except Exception:
+                pass
         logger.debug(f"Resolving entity: '{query}' (type_hint={entity_type_hint})")
         
         exact_result = self._exact_match(query, entity_type_hint)

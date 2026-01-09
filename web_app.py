@@ -3262,6 +3262,12 @@ def query():
         }
         response['tiered_results'] = tiered_results
         
+        # Include aggregation data if present
+        if result.get('is_aggregation'):
+            response['is_aggregation'] = True
+            response['aggregation_result'] = result.get('aggregation_result', {})
+            response['counted_entities'] = result.get('counted_entities', [])
+        
         return jsonify(response)
     except Exception as e:
         reset_context_foundry()
@@ -3311,7 +3317,7 @@ def vault_chat():
         # AGGREGATION RESULT: Return deterministic count directly (no LLM hybridization)
         if graph_result.get('is_aggregation'):
             db_session.close()
-            agg = graph_result.get('aggregation', {})
+            agg = graph_result.get('aggregation_result', {})
             return jsonify({
                 'success': True,
                 'answer': graph_result.get('answer', ''),
@@ -3327,6 +3333,7 @@ def vault_chat():
                     'bounds': agg.get('bounds'),
                     'assumptions': agg.get('assumptions', [])
                 },
+                'counted_entities': graph_result.get('counted_entities', []),
                 'chunks_used': 0
             })
         

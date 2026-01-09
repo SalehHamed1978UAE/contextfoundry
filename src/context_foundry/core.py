@@ -269,6 +269,40 @@ class ContextFoundry:
                 response, bundle, query_logger=query_logger
             )
             
+            # Add aggregation metadata to response if this was an aggregation query
+            if bundle.is_aggregation_query and bundle.aggregation_result:
+                agg_result = bundle.aggregation_result
+                response["is_aggregation"] = True
+                response["aggregation_result"] = {
+                    "result_kind": agg_result.result_kind.value,
+                    "value": agg_result.value,
+                    "unit": agg_result.unit,
+                    "display_text": agg_result.display_text,
+                    "confidence": agg_result.confidence,
+                }
+                if bundle.counted_entities:
+                    response["counted_entities"] = bundle.counted_entities
+                # Use aggregation confidence as primary if higher
+                if agg_result.confidence > response.get("confidence", 0):
+                    response["confidence"] = agg_result.confidence
+                
+                # Compose rich answer with entity details
+                anchor_name = None
+                if agg_result.cat and agg_result.cat.anchor:
+                    anchor_name = agg_result.cat.anchor.name
+                
+                if bundle.counted_entities and len(bundle.counted_entities) > 0:
+                    entity_names = [e.get("name", "Unknown") for e in bundle.counted_entities]
+                    if anchor_name:
+                        if agg_result.result_kind.value == "LOWER_BOUND":
+                            response["answer"] = f"{anchor_name} has worked at {agg_result.value} companies: {', '.join(entity_names)}."
+                        else:
+                            response["answer"] = f"{anchor_name} has worked at {agg_result.value} companies: {', '.join(entity_names)}."
+                    else:
+                        response["answer"] = f"{agg_result.display_text}: {', '.join(entity_names)}."
+                else:
+                    response["answer"] = agg_result.display_text
+            
             if display_output:
                 display_response(response)
             
