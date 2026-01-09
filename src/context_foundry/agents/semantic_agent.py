@@ -37,11 +37,21 @@ class QueryTimeSemanticAgent:
         self.conversation_history: List[Dict] = []
         self.max_latency_ms = 2500
         
+        self._set_rls_context()
+        
         self.llm_client = OpenAI(
             api_key=AI_INTEGRATIONS_OPENAI_API_KEY,
             base_url=AI_INTEGRATIONS_OPENAI_BASE_URL,
         )
         self.model = "gpt-4o-mini"
+    
+    def _set_rls_context(self):
+        """Set RLS tenant context on the session."""
+        try:
+            self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+            logger.debug(f"RLS context set for tenant: {self.tenant_id[:8]}...")
+        except Exception as e:
+            logger.warning(f"Failed to set RLS context: {e}")
     
     def _llm_generate(self, prompt: str) -> str:
         """Generate LLM response."""
@@ -205,10 +215,16 @@ Return only valid JSON."""
                 WHERE tenant_id = :tenant_id
                 AND LOWER(name) ILIKE :pattern
                 AND lifecycle_state = 'TRUSTED'
-                ORDER BY LENGTH(name)
+                ORDER BY 
+                    CASE WHEN LOWER(name) LIKE :prefix_pattern THEN 0 ELSE 1 END,
+                    LENGTH(name)
                 LIMIT 1
             """),
-            {"tenant_id": self.tenant_id, "name": name, "pattern": f"%{name}%"}
+            {
+                "tenant_id": self.tenant_id, 
+                "pattern": f"%{name}%",
+                "prefix_pattern": f"{name.lower()}%"
+            }
         ).fetchone()
         
         if result:
