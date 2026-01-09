@@ -104,6 +104,38 @@ Aggregation check runs BEFORE tri-memory pipeline in `RetrievalAgent.build_conte
 - **Conversation Context & Pronoun Resolution**: Follow-up queries now work properly. Frontend tracks chat history with mentioned entities; backend resolves pronouns (he, she, him, etc.) to actual entity names from previous messages. Example: After asking "How many jobs has Saleh done?", the follow-up "What roles did he do?" is resolved to "What roles did Saleh Hamed do?" for accurate retrieval.
 - **Entity Phrase Extraction Fix (Jan 2026)**: Added missing regex pattern for "did X do/work/have/hold" queries in `_extract_entity_phrase_from_query()`. This fixes entity resolution for queries like "What roles did Saleh Hamed do?" which previously failed with 10% confidence due to the entity not being extracted from the query text.
 
+## Tool-Calling Agent Architecture (Jan 2026)
+Replaces regex/pattern matching with LLM-driven tool calling for query handling. Uses OpenAI function calling to orchestrate existing services.
+
+### Components
+- **ToolAgent** (`src/context_foundry/agents/tool_agent.py`): ReAct-style agent with max 5 tool calls, 800 token limit
+- **Tool Definitions** (`src/context_foundry/agents/tools/definitions.py`): OpenAI function calling schema
+- **Tool Wrappers** (`src/context_foundry/agents/tools/wrappers.py`): ToolExecutor wrapping existing services
+- **Conversation Store** (`src/context_foundry/agents/conversation_store.py`): Session history for pronoun resolution
+
+### Available Tools
+1. **resolve_entities**: Maps names to canonical entity IDs via EntityResolver
+2. **run_aggregation**: Deterministic counts/sums via AggregationService (returns EXACT/LOWER_BOUND/RANGE)
+3. **get_knowledge_bundle**: Fetches KG relationships for entities via direct SQL
+4. **search_documents**: Vector search over document chunks via EpisodicMemory
+
+### Integration
+- Feature flag: Add `?agent=true` to `/api/vault/chat` endpoint
+- Fallback: If agent fails, gracefully falls back to existing hybrid answer pipeline
+- Conversation context: Stores session history in `platform.conversation_messages` table for pronoun resolution
+
+### Agent Workflow
+1. LLM reasons about which tools to call
+2. Calls `resolve_entities` to map names to IDs
+3. Calls `run_aggregation` for counting queries (enforced by system prompt)
+4. Calls `get_knowledge_bundle` for relationship enumeration
+5. Composes rich response with citations and result_kind
+
+### Guardrails
+- Max 5 tool calls per query
+- Numeric claim validator warns if numbers appear without aggregation evidence
+- All SQL is parameterized with tenant RLS
+
 ## Regression Test Suite (Jan 2026)
 Comprehensive regression testing for safe architectural changes. Four-layer test architecture:
 - **Smoke Tests** (`@pytest.mark.smoke`): <30 seconds, no external APIs. Imports, DB connectivity, core class instantiation.
