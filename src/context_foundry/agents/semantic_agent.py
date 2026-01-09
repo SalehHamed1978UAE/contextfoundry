@@ -16,9 +16,10 @@ Key principle: KG accelerates queries and provides structure. Documents remain s
 import json
 import logging
 import os
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from typing import Optional, List, Dict, Any
-from sqlalchemy import text
+from sqlalchemy import text, create_engine
+from sqlalchemy.orm import Session
 from openai import OpenAI
 
 logger = logging.getLogger(__name__)
@@ -73,7 +74,7 @@ class QueryTimeSemanticAgent:
         
         Flow:
         1. Parse query
-        2. KG query + Doc search (PARALLEL)
+        2. KG query + Doc search (PARALLEL - both execute concurrently)
         3. Synthesize from BOTH sources (docs are source of truth)
         """
         self.conversation_history.append({"role": "user", "content": user_message})
@@ -82,8 +83,7 @@ class QueryTimeSemanticAgent:
             parsed = self._parse_query(user_message)
             logger.info(f"[STAGE 1] Parsed: {parsed}")
             
-            kg_result = self._kg_query(parsed)
-            doc_result = self._document_search(user_message, parsed)
+            kg_result, doc_result = self._parallel_search(user_message, parsed)
             
             entity_name = kg_result.get('entity', {})
             entity_name = entity_name.get('name', 'none') if entity_name else 'none'
@@ -131,6 +131,87 @@ class QueryTimeSemanticAgent:
                 "sources": {},
                 "method": "error"
             }
+    
+    def _parallel_search(self, user_message: str, parsed: dict) -> tuple:
+        """
+        Execute KG query and document search in PARALLEL.
+        
+        KG query runs on main thread (uses existing session).
+        Document search runs in background thread with its own session.
+        This approach is thread-safe while still achieving parallelism.
+        """
+        doc_result = {"chunks": []}
+        
+        def run_doc_search():
+            try:
+                db_url = os.environ.get("DATABASE_URL")
+                if not db_url:
+                    return {"chunks": []}
+                
+                engine = create_engine(db_url)
+                with Session(engine) as doc_session:
+                    doc_session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+                    return self._document_search_with_session(user_message, parsed, doc_session)
+            except Exception as e:
+                logger.error(f"Document search error: {e}")
+                return {"chunks": []}
+        
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            doc_future = executor.submit(run_doc_search)
+            
+            try:
+                kg_result = self._kg_query(parsed)
+            except Exception as e:
+                logger.error(f"KG query error: {e}")
+                kg_result = {"entity": None, "results": [], "count": 0}
+            
+            doc_result = doc_future.result(timeout=10)
+        
+        logger.debug("[PARALLEL] Both KG and doc searches completed")
+        return kg_result, doc_result
+    
+    def _document_search_with_session(self, query: str, parsed: dict, session) -> dict:
+        """Document search using provided session (for thread safety)."""
+        subject_name = parsed.get("subject", {}).get("text", "")
+        search_terms = [subject_name] if subject_name else query.split()[:3]
+        
+        chunks = []
+        for term in search_terms[:2]:
+            if not term:
+                continue
+            try:
+                results = session.execute(
+                    text("""
+                        SELECT dc.id, dc.text, dc.document_id, d.title as doc_title
+                        FROM document_chunks dc
+                        LEFT JOIN documents d ON d.id = dc.document_id
+                        WHERE dc.tenant_id = :tenant_id
+                        AND dc.text ILIKE :pattern
+                        LIMIT 10
+                    """),
+                    {"tenant_id": self.tenant_id, "pattern": f"%{term}%"}
+                ).fetchall()
+                
+                for row in results:
+                    chunk_data = {
+                        "id": str(row.id) if row.id else None,
+                        "text": row.text,
+                        "document_id": str(row.document_id) if row.document_id else None,
+                        "doc_title": row.doc_title
+                    }
+                    if chunk_data not in chunks:
+                        chunks.append(chunk_data)
+            except Exception as e:
+                logger.warning(f"Document search failed for term '{term}': {e}")
+        
+        seen_ids = set()
+        unique_chunks = []
+        for c in chunks:
+            if c["id"] not in seen_ids:
+                seen_ids.add(c["id"])
+                unique_chunks.append(c)
+        
+        return {"chunks": unique_chunks[:5]}
     
     def _kg_query(self, parsed: dict) -> dict:
         """STAGE 2: Query the knowledge graph."""
