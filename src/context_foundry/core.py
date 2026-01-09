@@ -282,6 +282,14 @@ class ContextFoundry:
                 }
                 if bundle.counted_entities:
                     response["counted_entities"] = bundle.counted_entities
+                # Include anchor entity for pronoun resolution in follow-ups
+                if agg_result.cat and agg_result.cat.anchor:
+                    anchor = agg_result.cat.anchor
+                    response["primary_entity"] = {
+                        "id": str(anchor.entity_id) if anchor.entity_id else None,
+                        "name": anchor.name,
+                        "type": "PERSON"  # Anchor entities are typically PERSON
+                    }
                 # Use aggregation confidence as primary if higher
                 if agg_result.confidence > response.get("confidence", 0):
                     response["confidence"] = agg_result.confidence

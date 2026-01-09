@@ -702,6 +702,9 @@
         const sendBtn = document.getElementById('sendBtn');
         const fileInput = document.getElementById('fileInput');
         const dropZone = document.getElementById('dropZone');
+        const chatMessages = document.getElementById('chatMessages');
+        
+        let chatHistory = [];
         
         async function loadVaultInfo() {
             try {
@@ -983,7 +986,10 @@
                 const response = await fetch('/api/vault/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: message })
+                    body: JSON.stringify({ 
+                        query: message,
+                        history: chatHistory
+                    })
                 });
                 
                 const data = await response.json();
@@ -1004,6 +1010,17 @@
                             ${data.evidence_chain && data.evidence_chain.length ? `<span class="evidence-count">${data.evidence_chain.length} sources</span>` : ''}
                         </div>
                     `;
+                    
+                    chatHistory.push({ role: 'user', content: message });
+                    chatHistory.push({ 
+                        role: 'assistant', 
+                        content: data.answer || '',
+                        entities: data.mentioned_entities || data.counted_entities || []
+                    });
+                    
+                    if (chatHistory.length > 20) {
+                        chatHistory = chatHistory.slice(-20);
+                    }
                 } else {
                     assistantDiv.innerHTML = `<div class="message-content error">Error: ${escapeHtml(data.error || 'Query failed')}</div>`;
                 }
