@@ -97,42 +97,105 @@ class ToolExecutor:
                 "value": result.value,
                 "unit": result.unit,
                 "display_text": result.display_text,
-                "evidence": result.evidence.to_dict() if result.evidence and hasattr(result.evidence, 'to_dict') else None,
-                "counted_entities": result.counted_entities if hasattr(result, 'counted_entities') else None
+                "evidence_envelope": result.evidence_envelope.to_dict() if result.evidence_envelope and hasattr(result.evidence_envelope, 'to_dict') else None,
+                "counted_entities": getattr(result, 'counted_entities', []) or []
             }
         except Exception as e:
             logger.error(f"[TOOL] Aggregation failed: {e}")
             return {"success": False, "error": str(e)}
     
     def _get_knowledge_bundle(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Get KG relationships for entities."""
+        """Get KG relationships for entities using direct SQL."""
+        from sqlalchemy import text as sql_text
+        
         query = args.get("query", "")
         entity_ids = args.get("entity_ids", [])
         
         try:
-            entities = self.semantic_memory.search_entities(query, limit=10)
+            results = []
             
-            entity_results = []
-            for entity in entities:
-                entity_dict = entity.to_dict() if hasattr(entity, 'to_dict') else {"name": str(entity)}
-                
-                relationships = []
-                if hasattr(entity, 'id'):
-                    try:
-                        rels = self.semantic_memory.get_entity_relationships(entity.id, max_depth=1)
-                        relationships = rels[:5] if rels else []
-                    except Exception as rel_err:
-                        logger.debug(f"[TOOL] Could not get relationships: {rel_err}")
-                
-                entity_results.append({
-                    "entity": entity_dict,
-                    "relationships": relationships
-                })
+            # If entity_ids provided, fetch relationships directly
+            for entity_id in entity_ids:
+                try:
+                    # Get entity info
+                    entity_sql = sql_text("""
+                        SELECT id, name, entity_type, description
+                        FROM entities WHERE id = :eid AND tenant_id = :tid
+                    """)
+                    entity_row = self.session.execute(entity_sql, {
+                        "eid": entity_id, "tid": self.tenant_id
+                    }).fetchone()
+                    
+                    if not entity_row:
+                        continue
+                    
+                    entity_info = {
+                        "id": str(entity_row.id),
+                        "name": entity_row.name,
+                        "type": entity_row.entity_type
+                    }
+                    
+                    # Get outgoing relationships
+                    rel_sql = sql_text("""
+                        SELECT r.relationship_type, e2.name as target_name, e2.entity_type as target_type
+                        FROM relationships r
+                        JOIN entities e2 ON r.target_id = e2.id
+                        WHERE r.source_id = :eid AND r.tenant_id = :tid
+                        ORDER BY r.relationship_type
+                        LIMIT 20
+                    """)
+                    rel_rows = self.session.execute(rel_sql, {
+                        "eid": entity_id, "tid": self.tenant_id
+                    }).fetchall()
+                    
+                    relationships = [
+                        {"type": r.relationship_type, "target": r.target_name, "target_type": r.target_type}
+                        for r in rel_rows
+                    ]
+                    
+                    results.append({
+                        "entity": entity_info,
+                        "relationships": relationships
+                    })
+                except Exception as ent_err:
+                    logger.debug(f"[TOOL] Entity {entity_id} lookup failed: {ent_err}")
+            
+            # Also search by query if no entity_ids or as supplement
+            if query and not results:
+                try:
+                    # Search for entities matching query
+                    search_sql = sql_text("""
+                        SELECT id, name, entity_type FROM entities
+                        WHERE tenant_id = :tid AND LOWER(name) LIKE :pattern
+                        LIMIT 5
+                    """)
+                    search_rows = self.session.execute(search_sql, {
+                        "tid": self.tenant_id, "pattern": f"%{query.lower()}%"
+                    }).fetchall()
+                    
+                    for row in search_rows:
+                        rel_sql = sql_text("""
+                            SELECT r.relationship_type, e2.name as target_name
+                            FROM relationships r
+                            JOIN entities e2 ON r.target_id = e2.id
+                            WHERE r.source_id = :eid AND r.tenant_id = :tid
+                            LIMIT 15
+                        """)
+                        rel_rows = self.session.execute(rel_sql, {
+                            "eid": str(row.id), "tid": self.tenant_id
+                        }).fetchall()
+                        
+                        results.append({
+                            "entity": {"id": str(row.id), "name": row.name, "type": row.entity_type},
+                            "relationships": [{"type": r.relationship_type, "target": r.target_name} for r in rel_rows]
+                        })
+                except Exception as search_err:
+                    logger.debug(f"[TOOL] Search failed: {search_err}")
             
             return {
                 "query": query,
                 "entity_ids": entity_ids,
-                "results": entity_results[:10]
+                "results": results
             }
         except Exception as e:
             logger.error(f"[TOOL] Knowledge bundle failed: {e}")
