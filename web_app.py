@@ -3443,18 +3443,18 @@ def vault_chat():
         graph_answer = graph_result.get('answer', '')
         graph_evidence = graph_result.get('evidence_chain', [])
         
-        chunk_result = _get_relevant_chunks(query_text, tenant_id, db_session)
+        chunk_result = _get_relevant_chunks(resolved_query, tenant_id, db_session)
         
         if chunk_result['chunks']:
             hybrid_answer = _generate_hybrid_answer(
-                query_text, 
+                resolved_query, 
                 graph_result, 
                 chunk_result, 
                 tenant_id,
                 db_session
             )
             
-            entity_citations = _get_entity_chunk_citations(query_text, tenant_id, db_session)
+            entity_citations = _get_entity_chunk_citations(resolved_query, tenant_id, db_session)
             
             combined_confidence = max(graph_confidence, chunk_result.get('relevance_score', 0.3))
             if graph_confidence > 0 and chunk_result['chunks']:
