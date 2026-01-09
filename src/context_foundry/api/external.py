@@ -279,6 +279,58 @@ def _get_entity_relationships(session, entity_id: str, max_hops: int = 2) -> dic
     return grounded_facts
 
 
+def _handle_semantic_agent_query(query_text: str, context: dict, start_time: float):
+    """
+    Handle query using Query-Time Semantic Mapping agent.
+    
+    This is the new approach that uses LLM at query time to match user language
+    against actual KG types, rather than pre-defined synonym mappings.
+    """
+    import time
+    from ..models.schema import get_session as get_cf_session
+    from ..agents.semantic_agent import QueryTimeSemanticAgent
+    
+    cf_session = get_cf_session()
+    try:
+        agent = QueryTimeSemanticAgent(
+            session=cf_session,
+            tenant_id=g.tenant_id
+        )
+        
+        result = agent.query(query_text)
+        elapsed_ms = (time.time() - start_time) * 1000
+        
+        confidence = result.get("confidence", 0.5)
+        status = "RESOLVED" if confidence >= 0.6 else "LOW_CONFIDENCE"
+        
+        return jsonify({
+            "status": status,
+            "memory_version": 1,
+            "confidence": confidence,
+            "answer": {
+                "text": result.get("answer", ""),
+                "grounded_facts": result.get("sources", []),
+                "method": result.get("method", "unknown")
+            },
+            "audit": {
+                "elapsed_ms": elapsed_ms,
+                "agent": "semantic_agent"
+            }
+        })
+        
+    except Exception as e:
+        import logging
+        logging.error(f"Semantic agent error: {e}", exc_info=True)
+        elapsed_ms = (time.time() - start_time) * 1000
+        return jsonify({
+            "status": "ERROR",
+            "error": str(e),
+            "audit": {"elapsed_ms": elapsed_ms}
+        }), 500
+    finally:
+        cf_session.close()
+
+
 @external_api.route('/query', methods=['POST'])
 @require_api_key
 def query_knowledge():
@@ -286,6 +338,8 @@ def query_knowledge():
     Natural language query endpoint with entity extraction.
     
     Accepts raw text and extracts entities using Tier 1 Resolver.
+    
+    Feature flag: ?semantic_agent=true uses Query-Time Semantic Mapping agent.
     
     Input:
         {
@@ -323,6 +377,11 @@ def query_knowledge():
     query_text = data['query'].strip()
     analysis_type = data.get('analysis_type', 'general')
     context = data.get('context', {})
+    
+    use_semantic_agent = request.args.get('semantic_agent', 'false').lower() == 'true'
+    
+    if use_semantic_agent:
+        return _handle_semantic_agent_query(query_text, context, start_time)
     
     app_id = context.get('app_id', 'unknown')
     user_id = context.get('user_id')
