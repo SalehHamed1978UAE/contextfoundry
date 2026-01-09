@@ -42,6 +42,14 @@ The system is composed of two main services: Platform Foundation (handling multi
 - **EntityResolver:** Multi-stage pipeline for robust entity matching and disambiguation.
 - **RLM Integration (Recursive Language Model):** For complex multi-hop queries, including a `QueryComplexityRouter`, specialized `Memory APIs`, `REPLSandbox`, `RLMExecutor`, and `SubQueryAPI`.
 - **Hybrid Retrieval System:** Combines knowledge graph and RAG for comprehensive answers.
+- **Query-Time Semantic Mapping Agent:** LLM-driven query understanding that matches user queries against actual KG types at runtime. Key features:
+    - **Parallel Execution:** KG query and document search run concurrently (thread-safe with separate sessions).
+    - **Hybrid Synthesis:** LLM receives BOTH KG results AND document content, synthesizing the most complete answer.
+    - **Documents as Source of Truth:** When KG and documents conflict, documents win (extraction may have missed information).
+    - **Semantic Type Matching:** LLM matches user phrases like "jobs" to KG types like HELD_POSITION without pre-defined synonym mappings.
+    - **Query Parsing:** Extracts key concepts from queries (e.g., "How many jobs has X done?" → subject="X", relationship="jobs").
+    - **Confidence Levels:** hybrid_kg_docs (0.9), kg_only (0.85), docs_only (0.7), no_data (0.2).
+    - **Learning Loop:** Caches successful type mappings for faster future queries.
 - **Entity-Chunk Provenance:** Links extracted entities/relationships to source document chunks for citation tracing.
 - **Decision Trace Layer (DTL):** Extends Context Foundry with precedent-aware decision memory, capturing rationale, precedents, exceptions, and outcomes. Features hybrid retrieval for precedent search.
 - **Precedent Middleware:** Library-first architecture for Case-Based Reasoning (CBR) integration, enabling "retrieve before decide" patterns. Includes a core library, HTTP adapter, and inline adapter for efficient integration.

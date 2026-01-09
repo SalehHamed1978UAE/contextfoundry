@@ -173,7 +173,12 @@ class QueryTimeSemanticAgent:
     def _document_search_with_session(self, query: str, parsed: dict, session) -> dict:
         """Document search using provided session (for thread safety)."""
         subject_name = parsed.get("subject", {}).get("text", "")
-        search_terms = [subject_name] if subject_name else query.split()[:3]
+        
+        if subject_name:
+            name_parts = subject_name.split()
+            search_terms = name_parts[:2] if name_parts else [subject_name]
+        else:
+            search_terms = query.split()[:3]
         
         chunks = []
         for term in search_terms[:2]:
@@ -275,7 +280,11 @@ class QueryTimeSemanticAgent:
         
         subject_name = parsed.get("subject", {}).get("text", "")
         
-        search_terms = [subject_name] if subject_name else query.split()[:3]
+        if subject_name:
+            name_parts = subject_name.split()
+            search_terms = name_parts[:2] if name_parts else [subject_name]
+        else:
+            search_terms = query.split()[:3]
         
         chunks = []
         for term in search_terms[:2]:
@@ -384,10 +393,17 @@ Query: "{query}"
 Return JSON with:
 - intent: "count", "list", "describe", or "compare"
 - subject: {{"text": "entity name", "likely_entity_types": ["TYPE1", "TYPE2"]}}
-- relationship: {{"text": "relationship phrase", "likely_relationship_types": ["TYPE1", "TYPE2"]}}
+- relationship: {{"text": "key concept being asked about", "likely_relationship_types": ["TYPE1", "TYPE2"]}}
 - object: {{"text": "target entity", "likely_entity_types": ["TYPE1"]}} (optional)
 
-For likely_types, suggest what KG types might match (e.g., PERSON, ORGANIZATION, INVESTED_IN, WORKED_AT).
+IMPORTANT for relationship.text:
+- Extract the KEY CONCEPT being asked about, not just verbs
+- "How many jobs has X done?" -> relationship.text = "jobs" (not "has done")
+- "What positions did X hold?" -> relationship.text = "positions" 
+- "Who works on Project Y?" -> relationship.text = "works on"
+- "What skills does X have?" -> relationship.text = "skills"
+
+For likely_types, suggest KG relationship types (e.g., HELD_POSITION, WORKED_AT, HAS_SKILL, INVESTED_IN).
 Resolve pronouns using conversation context (e.g., "he" → actual name from context).
 
 Return only valid JSON."""
@@ -494,17 +510,23 @@ Return only valid JSON."""
                 logger.info(f"[CACHE HIT] '{user_phrase}' → {matched}")
                 return matched
         
-        prompt = f"""Which of these relationship types match the phrase "{user_phrase}"?
+        prompt = f"""Which of these relationship types match the concept "{user_phrase}"?
 
 Available types: {available_types}
 
 Return ONLY types from this list that are semantically relevant.
-Return as JSON array. If none match, return [].
+Return as JSON array. If none match well, return [].
 
-Examples:
-- "invested in" with ["INVESTED_IN", "EMPLOYS"] → ["INVESTED_IN"]
-- "jobs" with ["HELD_POSITION", "WORKED_AT"] → ["HELD_POSITION", "WORKED_AT"]
-- "positions" with ["HELD_POSITION", "WORKED_AT"] → ["HELD_POSITION"]
+Semantic matching examples:
+- "jobs" → HELD_POSITION, WORKED_AT (jobs = positions held, places worked)
+- "positions" → HELD_POSITION (positions = roles held)
+- "skills" → HAS_SKILL (skills = abilities)
+- "education" → EDUCATED_AT, HAS_DEGREE (education = schools, degrees)
+- "invested in" → INVESTED_IN (direct match)
+- "team members" → WORKS_ON, LEADS (team = who works on something)
+- "people" → WORKS_ON, LEADS (people on project = workers and leaders)
+- "works on" → WORKS_ON, WORKED_ON (direct match)
+- "team" → WORKS_ON, LEADS (team members)
 
 Your answer (JSON array only):"""
 
