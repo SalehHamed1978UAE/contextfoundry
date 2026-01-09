@@ -96,6 +96,7 @@ class Entity(Base):
     tenant_id = Column(UUID(as_uuid=True), index=True)
     name = Column(String(255), nullable=False, index=True)
     entity_type = Column(String(100), nullable=False, index=True)
+    raw_entity_type = Column(String(200), index=True)  # Open capture: LLM's original type before canonical mapping
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
     validation_status = Column(SQLEnum(ValidationStatus), default=ValidationStatus.PENDING, index=True)
     
@@ -167,6 +168,7 @@ class Relationship(Base):
     source_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
     target_id = Column(UUID(as_uuid=True), ForeignKey("entities.id"), nullable=False, index=True)
     relationship_type = Column(String(100), nullable=False, index=True)
+    raw_relationship_type = Column(String(200), index=True)  # Open capture: LLM's original type before canonical mapping
     lifecycle_state = Column(SQLEnum(LifecycleState), default=LifecycleState.STAGING, index=True)
     validation_status = Column(SQLEnum(ValidationStatus), default=ValidationStatus.PENDING, index=True)
     
