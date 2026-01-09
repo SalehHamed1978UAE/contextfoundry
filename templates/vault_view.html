@@ -957,6 +957,10 @@
         
         sendBtn.addEventListener('click', sendMessage);
         
+        // Generate unique session ID for conversation continuity
+        const chatSessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        console.log('[Chat] Session ID:', chatSessionId);
+        
         async function sendMessage() {
             const message = chatInput.value.trim();
             if (!message) return;
@@ -983,12 +987,13 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
             
             try {
-                const response = await fetch('/api/vault/chat', {
+                const response = await fetch('/api/vault/chat?agent=true', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         query: message,
-                        history: chatHistory
+                        history: chatHistory,
+                        session_id: chatSessionId
                     })
                 });
                 

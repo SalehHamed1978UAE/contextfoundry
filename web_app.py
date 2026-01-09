@@ -3402,13 +3402,19 @@ def vault_chat():
             set_tenant_context(db_session, tenant_id)
             
             # Initialize conversation store
-            conv_store = ConversationStore(db_session, tenant_id, session_id or 'default')
+            effective_session_id = session_id or 'default'
+            logger.info(f"[TOOL_AGENT] session_id={effective_session_id}, query={query_text!r}")
+            conv_store = ConversationStore(db_session, tenant_id, effective_session_id)
             
             # Resolve pronouns from conversation history
             resolved_query = conv_store.resolve_pronouns(query_text)
+            logger.info(f"[TOOL_AGENT] Pronoun resolved: {query_text!r} -> {resolved_query!r}")
             
             # Get conversation history
             history = conv_store.get_history()
+            logger.info(f"[TOOL_AGENT] Loaded {len(history)} messages from conversation history")
+            for i, msg in enumerate(history[-4:]):
+                logger.info(f"[TOOL_AGENT]   History[{i}]: {msg['role']}: {msg['content'][:100]}...")
             
             # Run tool agent
             agent = ToolAgent(db_session, tenant_id)
@@ -3429,13 +3435,17 @@ def vault_chat():
             
             db_session.close()
             
+            logger.info(f"[TOOL_AGENT] Answer: {agent_result['answer'][:200]}...")
+            
             return jsonify({
                 'success': True,
-                'response': agent_result['answer'],
+                'answer': agent_result['answer'],  # Frontend expects 'answer' key
+                'confidence': 0.75,  # Default confidence for tool agent
                 'tool_calls': agent_result.get('tool_calls', []),
                 'iterations': agent_result.get('iterations', 0),
                 'time_ms': agent_result.get('time_ms', 0),
-                'mode': 'tool_agent'
+                'mode': 'tool_agent',
+                'mentioned_entities': mentioned_entities
             })
         except Exception as e:
             logger.error(f"Tool agent failed, falling back: {e}")
