@@ -283,8 +283,8 @@ class ToolExecutor:
             entity_name = entity_row.name if entity_row else "Unknown"
             entity_type = entity_row.entity_type if entity_row else "Unknown"
             
-            # Count relationships by type (outgoing, only TRUSTED)
-            rel_sql = sql_text("""
+            # Count OUTGOING relationships (entity is the source)
+            outgoing_sql = sql_text("""
                 SELECT relationship_type, COUNT(*) as count
                 FROM relationships
                 WHERE tenant_id = :tid
@@ -293,23 +293,44 @@ class ToolExecutor:
                 GROUP BY relationship_type
                 ORDER BY count DESC
             """)
-            rel_rows = self.session.execute(rel_sql, {
+            outgoing_rows = self.session.execute(outgoing_sql, {
                 "tid": self.tenant_id, "eid": entity_id
             }).fetchall()
             
-            relationship_types = [
+            outgoing = [
                 {"type": r.relationship_type, "count": r.count}
-                for r in rel_rows
+                for r in outgoing_rows
             ]
             
-            logger.info(f"[TOOL] discover_relationships for {entity_name}: {relationship_types}")
+            # Count INCOMING relationships (entity is the target)
+            incoming_sql = sql_text("""
+                SELECT relationship_type, COUNT(*) as count
+                FROM relationships
+                WHERE tenant_id = :tid
+                  AND target_id = :eid
+                  AND lifecycle_state = 'TRUSTED'
+                GROUP BY relationship_type
+                ORDER BY count DESC
+            """)
+            incoming_rows = self.session.execute(incoming_sql, {
+                "tid": self.tenant_id, "eid": entity_id
+            }).fetchall()
+            
+            incoming = [
+                {"type": r.relationship_type, "count": r.count}
+                for r in incoming_rows
+            ]
+            
+            logger.info(f"[TOOL] discover_relationships for {entity_name}: outgoing={outgoing}, incoming={incoming}")
             
             return {
                 "entity_id": entity_id,
                 "entity_name": entity_name,
                 "entity_type": entity_type,
-                "relationship_types": relationship_types,
-                "total_types": len(relationship_types)
+                "outgoing": outgoing,
+                "incoming": incoming,
+                "total_outgoing": len(outgoing),
+                "total_incoming": len(incoming)
             }
         except Exception as e:
             logger.error(f"[TOOL] discover_relationships failed: {e}")

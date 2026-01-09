@@ -97,13 +97,13 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "discover_relationships",
-            "description": "Discover all relationship types for an entity with counts. Use this FIRST when query terms are ambiguous (jobs, work, projects, experience) to see what data is available before counting or fetching details.",
+            "description": "Discover all relationship types for an entity with counts in BOTH directions. Returns 'outgoing' (entity is source) and 'incoming' (entity is target). Example: For Project Phoenix, outgoing=[DELIVERS, HAS_MILESTONE] and incoming=[LEADS(3)] means 3 people LEAD this project. Use this FIRST when query terms are ambiguous.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "entity_id": {
                         "type": "string",
-                        "description": "The entity UUID to discover relationships for"
+                        "description": "The entity UUID to discover relationships for (from resolve_entities)"
                     }
                 },
                 "required": ["entity_id"]
