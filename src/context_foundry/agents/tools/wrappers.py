@@ -38,6 +38,8 @@ class ToolExecutor:
             return self._get_knowledge_bundle(arguments)
         elif tool_name == "search_documents":
             return self._search_documents(arguments)
+        elif tool_name == "discover_relationships":
+            return self._discover_relationships(arguments)
         else:
             return {"error": f"Unknown tool: {tool_name}"}
     
@@ -238,3 +240,60 @@ class ToolExecutor:
         except Exception as e:
             logger.error(f"[TOOL] Document search failed: {e}")
             return {"query": query, "chunks": [], "error": str(e)}
+    
+    def _discover_relationships(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        """Discover all relationship types for an entity with counts.
+        
+        Returns a list of relationship types with their counts, helping the agent
+        understand what data is available before making counting decisions.
+        """
+        from sqlalchemy import text as sql_text
+        
+        entity_id = args.get("entity_id", "")
+        
+        if not entity_id:
+            return {"error": "entity_id is required", "relationship_types": []}
+        
+        try:
+            # Get entity name for context
+            entity_sql = sql_text("""
+                SELECT name, entity_type FROM entities 
+                WHERE id = :eid AND tenant_id = :tid
+            """)
+            entity_row = self.session.execute(entity_sql, {
+                "eid": entity_id, "tid": self.tenant_id
+            }).fetchone()
+            
+            entity_name = entity_row.name if entity_row else "Unknown"
+            entity_type = entity_row.entity_type if entity_row else "Unknown"
+            
+            # Count relationships by type (outgoing)
+            rel_sql = sql_text("""
+                SELECT relationship_type, COUNT(*) as count
+                FROM relationships
+                WHERE tenant_id = :tid
+                  AND source_id = :eid
+                GROUP BY relationship_type
+                ORDER BY count DESC
+            """)
+            rel_rows = self.session.execute(rel_sql, {
+                "tid": self.tenant_id, "eid": entity_id
+            }).fetchall()
+            
+            relationship_types = [
+                {"type": r.relationship_type, "count": r.count}
+                for r in rel_rows
+            ]
+            
+            logger.info(f"[TOOL] discover_relationships for {entity_name}: {relationship_types}")
+            
+            return {
+                "entity_id": entity_id,
+                "entity_name": entity_name,
+                "entity_type": entity_type,
+                "relationship_types": relationship_types,
+                "total_types": len(relationship_types)
+            }
+        except Exception as e:
+            logger.error(f"[TOOL] discover_relationships failed: {e}")
+            return {"entity_id": entity_id, "relationship_types": [], "error": str(e)}
