@@ -60,6 +60,8 @@ from src.context_foundry.agents.scheduler import (
 )
 from src.context_foundry.agents.gardener import GardenerConfig
 from src.context_foundry.agents.identity_resolver import IdentityResolutionConfig
+from src.context_foundry.agents.tool_agent import ToolAgent
+from src.context_foundry.agents.conversation_store import ConversationStore
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET")
@@ -3388,6 +3390,56 @@ def vault_chat():
     
     resolved_query = _resolve_pronouns(query_text, chat_history)
     logger.info(f"[vault_chat] Original: {query_text!r} -> Resolved: {resolved_query!r}")
+    
+    # Tool agent mode (feature flag)
+    use_tool_agent = request.args.get('agent', 'false').lower() == 'true'
+    session_id = data.get('session_id')
+    
+    if use_tool_agent:
+        try:
+            from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
+            db_session = get_db_session()
+            set_tenant_context(db_session, tenant_id)
+            
+            # Initialize conversation store
+            conv_store = ConversationStore(db_session, tenant_id, session_id or 'default')
+            
+            # Resolve pronouns from conversation history
+            resolved_query = conv_store.resolve_pronouns(query_text)
+            
+            # Get conversation history
+            history = conv_store.get_history()
+            
+            # Run tool agent
+            agent = ToolAgent(db_session, tenant_id)
+            agent_result = agent.query(resolved_query, conversation_history=history)
+            
+            # Store messages
+            conv_store.add_message("user", query_text)
+            
+            # Extract mentioned entities from agent results
+            mentioned_entities = []
+            for tc in agent_result.get('tool_calls', []):
+                if tc.get('tool') == 'resolve_entities':
+                    for e in tc.get('result', {}).get('entities', []):
+                        if e.get('resolved'):
+                            mentioned_entities.append(e['resolved']['name'])
+            
+            conv_store.add_message("assistant", agent_result['answer'], entities=mentioned_entities)
+            
+            db_session.close()
+            
+            return jsonify({
+                'success': True,
+                'response': agent_result['answer'],
+                'tool_calls': agent_result.get('tool_calls', []),
+                'iterations': agent_result.get('iterations', 0),
+                'time_ms': agent_result.get('time_ms', 0),
+                'mode': 'tool_agent'
+            })
+        except Exception as e:
+            logger.error(f"Tool agent failed, falling back: {e}")
+            # Fall through to existing logic
     
     try:
         from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
