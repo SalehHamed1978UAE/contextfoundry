@@ -267,12 +267,13 @@ class ToolExecutor:
             entity_name = entity_row.name if entity_row else "Unknown"
             entity_type = entity_row.entity_type if entity_row else "Unknown"
             
-            # Count relationships by type (outgoing)
+            # Count relationships by type (outgoing, only TRUSTED)
             rel_sql = sql_text("""
                 SELECT relationship_type, COUNT(*) as count
                 FROM relationships
                 WHERE tenant_id = :tid
                   AND source_id = :eid
+                  AND lifecycle_state = 'TRUSTED'
                 GROUP BY relationship_type
                 ORDER BY count DESC
             """)
