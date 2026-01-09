@@ -239,6 +239,10 @@ class ToolExecutor:
             }
         except Exception as e:
             logger.error(f"[TOOL] Document search failed: {e}")
+            try:
+                self.session.rollback()
+            except:
+                pass
             return {"query": query, "chunks": [], "error": str(e)}
     
     def _discover_relationships(self, args: Dict[str, Any]) -> Dict[str, Any]:
@@ -248,11 +252,23 @@ class ToolExecutor:
         understand what data is available before making counting decisions.
         """
         from sqlalchemy import text as sql_text
+        from uuid import UUID as UUID_type
         
         entity_id = args.get("entity_id", "")
         
         if not entity_id:
-            return {"error": "entity_id is required", "relationship_types": []}
+            return {"error": "entity_id is required. Call resolve_entities first to get the UUID.", "relationship_types": []}
+        
+        # Validate UUID format before running SQL
+        try:
+            UUID_type(entity_id)
+        except (ValueError, AttributeError):
+            return {
+                "error": f"'{entity_id}' is not a valid UUID. You must call resolve_entities first to get the entity_id.",
+                "entity_id": entity_id,
+                "relationship_types": [],
+                "hint": "Call resolve_entities(['name']) first, then use the returned entity_id"
+            }
         
         try:
             # Get entity name for context
@@ -297,4 +313,8 @@ class ToolExecutor:
             }
         except Exception as e:
             logger.error(f"[TOOL] discover_relationships failed: {e}")
+            try:
+                self.session.rollback()
+            except:
+                pass
             return {"entity_id": entity_id, "relationship_types": [], "error": str(e)}
