@@ -92,5 +92,22 @@ TOOL_DEFINITIONS = [
                 "required": ["query"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "discover_relationships",
+            "description": "Discover all relationship types for an entity with counts. Use this FIRST when query terms are ambiguous (jobs, work, projects, experience) to see what data is available before counting or fetching details.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "entity_id": {
+                        "type": "string",
+                        "description": "The entity UUID to discover relationships for"
+                    }
+                },
+                "required": ["entity_id"]
+            }
+        }
     }
 ]
