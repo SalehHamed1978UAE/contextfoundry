@@ -31,13 +31,13 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "run_aggregation",
-            "description": "Get deterministic counts/sums from knowledge graph. MUST use for any numeric answer.",
+            "description": "Get deterministic counts/sums from knowledge graph. MUST use for any numeric answer. For ambiguous terms like 'jobs' (could mean positions or companies), call this MULTIPLE TIMES with different phrasings: 'positions held' AND 'companies worked at' to gather complete information.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "question": {
                         "type": "string",
-                        "description": "The counting/aggregation question"
+                        "description": "The counting/aggregation question. Be specific: 'positions held by X' or 'companies X worked at'"
                     },
                     "anchor_entities": {
                         "type": "array",
@@ -53,7 +53,7 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "get_knowledge_bundle",
-            "description": "Get KG relationships and context for entities.",
+            "description": "Get ALL relationships for entities from the knowledge graph. Returns comprehensive data: all relationship types, targets, and counts. Use this to understand the full picture before composing answers.",
             "parameters": {
                 "type": "object",
                 "properties": {
