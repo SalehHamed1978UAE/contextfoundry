@@ -3283,6 +3283,87 @@ def stats():
         reset_context_foundry()
         return jsonify({'error': str(e), 'success': False}), 500
 
+def _resolve_pronouns(query_text: str, history: list) -> str:
+    """Resolve pronouns (he, she, they, it) using context from chat history.
+    
+    Looks for entities mentioned in previous assistant responses and replaces
+    pronouns with the entity names for clearer queries.
+    """
+    if not history:
+        return query_text
+    
+    import re
+    
+    pronouns = {
+        'he': ['PERSON'],
+        'him': ['PERSON'],
+        'his': ['PERSON'],
+        'she': ['PERSON'],
+        'her': ['PERSON'],
+        'they': ['PERSON', 'ORGANIZATION'],
+        'them': ['PERSON', 'ORGANIZATION'],
+        'their': ['PERSON', 'ORGANIZATION'],
+        'it': ['ORGANIZATION', 'PROJECT', 'DOCUMENT'],
+        'its': ['ORGANIZATION', 'PROJECT', 'DOCUMENT'],
+    }
+    
+    query_lower = query_text.lower()
+    has_pronoun = any(re.search(rf'\b{p}\b', query_lower) for p in pronouns.keys())
+    
+    if not has_pronoun:
+        return query_text
+    
+    last_entities = []
+    last_person = None
+    last_org = None
+    
+    for msg in reversed(history):
+        if msg.get('role') == 'assistant':
+            entities = msg.get('entities', [])
+            if entities:
+                for ent in entities:
+                    if isinstance(ent, dict):
+                        ent_type = ent.get('type', '').upper()
+                        ent_name = ent.get('name', '')
+                    else:
+                        ent_type = 'UNKNOWN'
+                        ent_name = str(ent)
+                    
+                    if ent_type == 'PERSON' and not last_person:
+                        last_person = ent_name
+                    elif ent_type in ['ORGANIZATION', 'ORG', 'COMPANY'] and not last_org:
+                        last_org = ent_name
+                
+                if last_person or last_org:
+                    break
+            
+            content = msg.get('content', '')
+            if not last_person:
+                person_match = re.search(r'([A-Z][a-z]+ [A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)', content)
+                if person_match:
+                    last_person = person_match.group(1)
+            
+            if last_person:
+                break
+    
+    resolved = query_text
+    if last_person:
+        for pronoun in ['he', 'him', 'his', 'she', 'her']:
+            pattern = rf'\b{pronoun}\b'
+            if re.search(pattern, resolved, re.IGNORECASE):
+                resolved = re.sub(pattern, last_person, resolved, count=1, flags=re.IGNORECASE)
+                break
+    
+    if last_org:
+        for pronoun in ['it', 'its', 'they', 'them', 'their']:
+            pattern = rf'\b{pronoun}\b'
+            if re.search(pattern, resolved, re.IGNORECASE):
+                resolved = re.sub(pattern, last_org, resolved, count=1, flags=re.IGNORECASE)
+                break
+    
+    return resolved
+
+
 @app.route('/api/vault/chat', methods=['POST'])
 def vault_chat():
     """Session-based chat endpoint for vault view (no API key required).
@@ -3300,9 +3381,13 @@ def vault_chat():
     
     data = request.get_json()
     query_text = data.get('query', '').strip()
+    chat_history = data.get('history', [])
     
     if not query_text:
         return jsonify({'error': 'No query provided'}), 400
+    
+    resolved_query = _resolve_pronouns(query_text, chat_history)
+    logger.info(f"[vault_chat] Original: {query_text!r} -> Resolved: {resolved_query!r}")
     
     try:
         from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
@@ -3312,12 +3397,28 @@ def vault_chat():
         set_tenant_context(db_session, tenant_id)
         
         foundry = ContextFoundry(tenant_id=tenant_id, session=db_session)
-        graph_result = foundry.query(query_text)
+        graph_result = foundry.query(resolved_query)
         
         # AGGREGATION RESULT: Return deterministic count directly (no LLM hybridization)
         if graph_result.get('is_aggregation'):
             db_session.close()
             agg = graph_result.get('aggregation_result', {})
+            
+            # Build entities list for frontend pronoun tracking
+            mentioned_entities = []
+            primary_entity = graph_result.get('primary_entity')
+            if primary_entity:
+                mentioned_entities.append(primary_entity)
+            
+            # Add counted entities (organizations, etc.)
+            counted = graph_result.get('counted_entities', [])
+            for ent in counted[:5]:
+                mentioned_entities.append({
+                    'id': ent.get('id'),
+                    'name': ent.get('name'),
+                    'type': ent.get('entity_type', 'ORGANIZATION')
+                })
+            
             return jsonify({
                 'success': True,
                 'answer': graph_result.get('answer', ''),
@@ -3333,7 +3434,8 @@ def vault_chat():
                     'bounds': agg.get('bounds'),
                     'assumptions': agg.get('assumptions', [])
                 },
-                'counted_entities': graph_result.get('counted_entities', []),
+                'counted_entities': counted,
+                'mentioned_entities': mentioned_entities,
                 'chunks_used': 0
             })
         
