@@ -38,6 +38,11 @@ Key architectural features include:
 - **Deterministic Document Fallback**: Automatically triggers document search when the knowledge graph lacks specific data, ensuring comprehensive factual queries.
 - **Context Injection**: Passes `vault_context` to the `ToolAgent` and `QueryPipeline` for target entity resolution when no explicit entity is in the query.
 - **QA Evidence Alignment**: `AnswerVerifierAgent` combines pre-fetched pipeline data with tool call results for robust verification.
+- **Shared Response Helpers**: Centralized functions in `src/context_foundry/utils/response_helpers.py` ensure consistent evidence gathering, confidence calculation, and response formatting across CLI and Web interfaces. Key components:
+  - `QAEvidence` dataclass: Unified evidence structure from pipeline + tool calls
+  - `build_qa_evidence()`: Combines retrieval results and tool call data
+  - `calculate_confidence()`: Single formula for confidence scoring based on QA verdict and evidence
+  - `build_response()`: Consistent response dictionary format for all code paths
 
 ## External Dependencies
 
