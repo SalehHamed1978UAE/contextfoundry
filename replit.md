@@ -32,6 +32,12 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 Key architectural features include:
 - **Tenant Context and RLS**: Enhanced `TenantSession` with failure tracking and `ensure_tenant_context()` helper for Row-Level Security.
 - **Query Pipeline**: Features `QueryClassifier` for LLM-based query classification, `RoleResolver` for resolving roles (e.g., CEO) to individuals, and `RetrievalRouter` for intelligent routing to `GRAPH_ONLY`, `DOCS_ONLY`, or `HYBRID` strategies, with automatic fallback for list queries.
+- **Role Resolution (3-Stage)**: Enhanced `RoleResolver` with fallback stages:
+  - Stage 1: Exact relationship lookup (HOLDS_POSITION relationships in KG)
+  - Stage 2: Fuzzy property matching (ILIKE search on entity properties)
+  - Stage 3: Document chunk search (pattern matching for "Name, Role" in text)
+- **Implicit Role Extraction**: `GraphBuilder` automatically creates HOLDS_POSITION relationships from entity properties (position/title/role fields) during ingestion.
+- **Relationship Type Standard**: Standardized on `HOLDS_POSITION` for job role relationships (handles legacy `HELD_POSITION`, `HOLD_POSITION` variations).
 - **QA Verifier**: A two-layer verification system (Structural rules + LLM semantic check) to ensure answer quality, rejecting unsupported or off-topic responses and providing detailed verdicts.
 - **Dynamic Confidence Scoring**: Replaces hardcoded confidence with computed scores based on answer quality and evidence.
 - **Source Attribution**: Extracts and displays sources from various tool types, with a user-friendly frontend display.

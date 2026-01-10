@@ -1,0 +1,65 @@
+
+Updated FIX 2
+================================================================================
+FIX 2: IMPROVE ROLE EXTRACTION IN GRAPHBUILDER
+================================================================================
+
+The extraction prompt must reliably extract role relationships.
+
+PATTERN TYPE A: Explicit role mentions
+- "Sarah Chen, CEO" → Sarah Chen -[HOLDS_POSITION]-> CEO
+- "CEO Sarah Chen" → Sarah Chen -[HOLDS_POSITION]-> CEO
+- "Sarah Chen serves as Chief Executive Officer" → Sarah Chen -[HOLDS_POSITION]-> CEO
+- "Marcus Williams was promoted to CTO" → Marcus Williams -[HOLDS_POSITION]-> CTO
+
+PATTERN TYPE B: Properties that imply relationships
+- Entity: Sarah Chen {position: "CEO"} → ALSO CREATE: Sarah Chen -[HOLDS_POSITION]-> CEO
+- Entity: Marcus Williams {title: "CTO"} → ALSO CREATE: Marcus Williams -[HOLDS_POSITION]-> CTO
+- Entity: James O'Brien {role: "CFO"} → ALSO CREATE: James O'Brien -[HOLDS_POSITION]-> CFO
+
+IMPLEMENTATION:
+
+In GraphBuilder, after entity extraction:
+```python
+def _create_implicit_role_relationships(self, entities: List[Entity], tenant_id: str):
+    """
+    Create HOLDS_POSITION relationships from entity properties.
+    
+    If an entity has position/title/role property, create the relationship.
+    """
+    role_properties = ['position', 'title', 'role', 'job_title']
+    
+    for entity in entities:
+        if entity.entity_type != 'PERSON':
+            continue
+            
+        for prop in role_properties:
+            if prop in entity.properties:
+                role_value = entity.properties[prop]
+                
+                # Normalize the role
+                normalized_role = self._normalize_role(role_value)
+                
+                # Find or create the role entity
+                role_entity = self._get_or_create_entity(
+                    name=normalized_role,
+                    entity_type='ROLE',
+                    tenant_id=tenant_id
+                )
+                
+                # Create the relationship
+                self._create_relationship(
+                    source=entity,
+                    relationship_type='HOLDS_POSITION',
+                    target=role_entity,
+                    tenant_id=tenant_id
+                )
+                
+                logger.info(f"[EXTRACTION] Created implicit role: {entity.name} -[HOLDS_POSITION]-> {normalized_role}")
+```
+
+This ensures role relationships are created whether the LLM:
+- Extracts them explicitly as relationships
+- OR extracts them as entity properties
+
+Both patterns should result in the same HOLDS_POSITION relationship.

@@ -3865,7 +3865,7 @@ def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: d
                     JOIN entities e2 ON r.target_id = e2.id
                     WHERE r.tenant_id = :tenant_id
                     AND LOWER(e1.name) LIKE :person_pattern
-                    AND r.relationship_type IN ('HELD_POSITION', 'WORKED_AT', 'EMPLOYED_BY', 'EMPLOYED_AT')
+                    AND r.relationship_type IN ('HOLDS_POSITION', 'HELD_POSITION', 'HOLD_POSITION', 'WORKED_AT', 'EMPLOYED_BY', 'EMPLOYED_AT')
                     ORDER BY r.relationship_type, e2.name
                 """)
                 job_rows = db_session.execute(job_sql, {
@@ -3874,7 +3874,7 @@ def _generate_hybrid_answer(query_text: str, graph_result: dict, chunk_result: d
                 }).fetchall()
                 
                 if job_rows:
-                    positions = [r.target for r in job_rows if r.relationship_type == 'HELD_POSITION']
+                    positions = [r.target for r in job_rows if r.relationship_type in ('HOLDS_POSITION', 'HELD_POSITION', 'HOLD_POSITION')]
                     companies = [r.target for r in job_rows if r.relationship_type in ('WORKED_AT', 'EMPLOYED_BY', 'EMPLOYED_AT')]
                     
                     lines = []

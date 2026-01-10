@@ -47,7 +47,7 @@ QUERY PATTERNS - ALWAYS use resolve_entities + discover_relationships:
 
 1. PERSON queries ("How many jobs has X done?"):
    - resolve_entities("X") → get entity_id
-   - discover_relationships(entity_id) → shows HELD_POSITION (7), WORKED_AT (7), etc.
+   - discover_relationships(entity_id) → shows HOLDS_POSITION (7), WORKED_AT (7), etc.
    - Answer with counts from discover_relationships
 
 2. EVENT queries ("How many speakers at X Summit?"):
