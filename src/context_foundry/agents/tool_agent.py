@@ -209,27 +209,39 @@ class ToolAgent:
         """Synthesize answer directly from pre-fetched data without tool calls."""
         context_parts = []
         
+        classification = pipeline_result.classification
+        expects_list = classification.expects_list if classification else False
+        
+        entity_limit = 10 if expects_list else 5
+        rel_limit = 20 if expects_list else 10
+        chunk_limit = 10 if expects_list else 5
+        chunk_text_limit = 1200 if expects_list else 800
+        
         if pipeline_result.role_resolution and pipeline_result.role_resolution.is_resolved:
             context_parts.append(f"Role resolution: {pipeline_result.role_resolution.role} = {pipeline_result.role_resolution.resolved_name}")
         
         if pipeline_result.entities:
-            entity_info = [f"{e['name']} ({e['type']})" for e in pipeline_result.entities[:5]]
+            entity_info = [f"{e['name']} ({e['type']})" for e in pipeline_result.entities[:entity_limit]]
             context_parts.append(f"Entities found: {', '.join(entity_info)}")
         
         if pipeline_result.relationships:
             rel_info = []
-            for r in pipeline_result.relationships[:10]:
+            for r in pipeline_result.relationships[:rel_limit]:
                 rel_info.append(f"{r.get('source', '?')} --[{r.get('type', '?')}]--> {r.get('target', '?')}")
             context_parts.append(f"Relationships:\n" + "\n".join(rel_info))
         
         if pipeline_result.chunks:
             context_parts.append("Document content:")
-            for chunk in pipeline_result.chunks[:5]:
-                text = chunk.get('text', '')[:800]
+            for chunk in pipeline_result.chunks[:chunk_limit]:
+                text = chunk.get('text', '')[:chunk_text_limit]
                 doc = chunk.get('document', 'Unknown')
                 context_parts.append(f"\n[From {doc}]\n{text}")
         
         context = "\n\n".join(context_parts)
+        
+        list_instruction = ""
+        if expects_list:
+            list_instruction = "\n\nIMPORTANT: This question expects a LIST of items. Make sure to enumerate ALL items mentioned in the retrieved information. Do not stop at just one example - list every relevant item you can find in the data."
         
         synthesis_prompt = f"""Based on the following retrieved information, answer the user's question.
 
@@ -238,9 +250,10 @@ QUESTION: {question}
 RETRIEVED INFORMATION:
 {context}
 
-Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not."""
+Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}"""
 
         try:
+            max_tokens = 900 if expects_list else 600
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -248,7 +261,7 @@ Provide a clear, comprehensive answer based on the information above. If specifi
                     {"role": "user", "content": synthesis_prompt}
                 ],
                 temperature=0.0,
-                max_tokens=600
+                max_tokens=max_tokens
             )
             return response.choices[0].message.content or "Unable to generate answer."
         except Exception as e:
