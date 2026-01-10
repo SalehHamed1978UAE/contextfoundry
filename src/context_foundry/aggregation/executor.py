@@ -94,7 +94,10 @@ class AggregationExecutor:
             elif plan.strategy == ExecutionStrategy.GRAPH_TRAVERSAL:
                 result = self._execute_graph(plan)
             elif plan.strategy == ExecutionStrategy.CACHE:
-                result = self._execute_cache(plan)
+                raise ValueError(
+                    "Caching is not yet implemented. "
+                    "Please use a different execution strategy (SQL_AGG or GRAPH_TRAVERSAL)."
+                )
             else:
                 raise ValueError(f"Unsupported strategy: {plan.strategy}")
             
@@ -198,7 +201,3 @@ class AggregationExecutor:
             metadata={"max_depth": plan.max_depth},
         )
     
-    def _execute_cache(self, plan: ExecutionPlan) -> RawAggregationResult:
-        """Return cached result."""
-        # In production, would query aggregation_metadata table
-        raise NotImplementedError("Cache execution not yet implemented")
