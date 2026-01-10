@@ -144,6 +144,22 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
   - Tell me about DataFlow AI → HYBRID strategy (PASS)
   - Role resolution (CEO/CTO/CFO) → all resolved (PASS)
 
+### Context Injection & QA Evidence Alignment ✅ COMPLETE (Jan 2026)
+- **Problem solved**: LLM seeing pre-processing context would skip tool calls, causing QA Verifier to reject as UNSUPPORTED
+- **FIX 1 - Context Injection**:
+  - web_app.py fetches vault name from platform.tenants table
+  - Passes vault_context → ToolAgent → QueryPipeline
+  - QueryPipeline injects vault_context as target_entity only when: (1) no explicit entity in query, AND (2) role resolution failed/absent
+  - Role resolution runs BEFORE vault_context injection to preserve explicit entities (e.g., "Who is the CTO of DataFlow AI?")
+- **FIX 2 - QA Evidence Alignment**:
+  - Added `verify_from_retrieval_result()` method to AnswerVerifierAgent
+  - Combines pipeline pre-fetched data (entities, relationships, chunks, resolved role) + tool call results
+  - Resolved role counts as entity evidence: role_resolution.is_resolved → adds resolved_name
+- **Test results** (all passing, 3x consistency):
+  - "Who is the CTO?" (vault context) → Marcus Williams (PASS)
+  - "What is the CEO's salary?" → Sarah Chen, $850K (PASS)
+  - "Who is the CTO of TechVentures?" (3x) → Marcus Williams 3/3 (CONSISTENT)
+
 ## Key Files
 - `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management
