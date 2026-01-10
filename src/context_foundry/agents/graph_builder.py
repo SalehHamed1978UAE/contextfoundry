@@ -883,9 +883,11 @@ class GraphBuilderAgent:
                 db_entity_type = self._normalize_entity_type(entity.entity_type)
                 
                 from sqlalchemy import func
+                tid = uuid.UUID(tenant_id) if tenant_id else None
                 existing = self.session.query(Entity).filter(
                     func.lower(Entity.name) == func.lower(entity.canonical_name),
-                    Entity.entity_type == db_entity_type
+                    Entity.entity_type == db_entity_type,
+                    Entity.tenant_id == tid
                 ).first()
                 
                 if existing:
