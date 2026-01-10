@@ -263,12 +263,17 @@ class AnswerVerifierAgent:
         relationships = getattr(retrieval, 'relationships', []) or []
         chunks = getattr(retrieval, 'chunks', []) or []
         
-        # Extract document names from chunks
+        # Extract document names and text excerpts from chunks
         chunk_sources = []
+        chunk_excerpts = []
         for chunk in chunks[:5]:
             if isinstance(chunk, dict):
                 doc_name = chunk.get('document', chunk.get('source', 'unknown'))
                 chunk_sources.append(doc_name)
+                # Include text excerpt for LLM to verify answer against
+                text = chunk.get('text', '')[:400]
+                if text:
+                    chunk_excerpts.append(f"[{doc_name}]: {text}")
         
         data_summary = {
             "entities_found": len(entity_names),
@@ -277,6 +282,7 @@ class AnswerVerifierAgent:
             "relationship_types": list(set(self._get_type(r) for r in relationships[:20])),
             "chunks_found": len(chunks),
             "chunk_sources": list(set(chunk_sources))[:5],
+            "chunk_excerpts": chunk_excerpts[:3],  # Include first 3 chunk excerpts for verification
             "has_data": len(entity_names) > 0 or len(relationships) > 0 or len(chunks) > 0
         }
         
