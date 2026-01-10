@@ -305,7 +305,7 @@ User Query
 - Context Graph paper: arXiv:2406.11160 (Xu et al., 2024)
 - CF vs GraphRAG A/B Evaluation (Dec 8, 2025)
 - Frank's World: "Context Graphs: AI's Next Big Idea" (Jan 6, 2026)
-- Full Reference: `attached_assets/CF_Foundational_Reference_v1_1767985040129.md`
+- Full Reference: `attached_assets/CF_Foundational_Reference_v1.2_1768030556025.md`
 
 ---
 
