@@ -405,7 +405,7 @@ IMPORTANT for relationship.text:
 - "Who works on Project Y?" -> relationship.text = "works on"
 - "What skills does X have?" -> relationship.text = "skills"
 
-For likely_types, suggest KG relationship types (e.g., HELD_POSITION, WORKED_AT, HAS_SKILL, INVESTED_IN).
+For likely_types, suggest KG relationship types (e.g., HOLDS_POSITION, WORKED_AT, HAS_SKILL, INVESTED_IN).
 Resolve pronouns using conversation context (e.g., "he" → actual name from context).
 
 Return only valid JSON."""
@@ -520,8 +520,8 @@ Return ONLY types from this list that are semantically relevant.
 Return as JSON array. If none match well, return [].
 
 Semantic matching examples:
-- "jobs" → HELD_POSITION, WORKED_AT (jobs = positions held, places worked)
-- "positions" → HELD_POSITION (positions = roles held)
+- "jobs" → HOLDS_POSITION, WORKED_AT (jobs = positions held, places worked)
+- "positions" → HOLDS_POSITION (positions = roles held)
 - "skills" → HAS_SKILL (skills = abilities)
 - "education" → EDUCATED_AT, HAS_DEGREE (education = schools, degrees)
 - "invested in" → INVESTED_IN (direct match)

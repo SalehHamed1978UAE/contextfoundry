@@ -86,7 +86,7 @@ DEFAULT_ONTOLOGIES = {
             RelationshipTypeSchema("HOLDS_CERTIFICATION", "Person holds a professional certification", ["PERSON"], ["CERTIFICATION"]),
             RelationshipTypeSchema("HAS_DEGREE", "Person holds an educational degree", ["PERSON"], ["DEGREE"]),
             RelationshipTypeSchema("LOCATED_IN", "Entity is located in a place", ["ORGANIZATION", "PERSON"], ["LOCATION"]),
-            RelationshipTypeSchema("HELD_POSITION", "Person held a job title at an organization", ["PERSON"], ["JOB_TITLE"]),
+            RelationshipTypeSchema("HOLDS_POSITION", "Person holds a job title at an organization", ["PERSON"], ["JOB_TITLE", "ROLE"]),
             RelationshipTypeSchema("WORKED_ON", "Person worked on a project", ["PERSON"], ["PROJECT"]),
         ]
     ),

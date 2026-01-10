@@ -1,0 +1,198 @@
+GENERALIZED FIX: ROLE EXTRACTION AND RESOLUTION
+
+We're deleting the test vault and starting fresh. Before that, fix the system
+so ANY vault with role information works correctly.
+
+================================================================================
+FIX 1: STANDARDIZE RELATIONSHIP TYPE NAMING
+================================================================================
+
+Pick ONE name and use it EVERYWHERE:
+
+STANDARD NAME: HOLDS_POSITION
+
+Update these locations:
+- [ ] Extraction prompt (GraphBuilder) — use HOLDS_POSITION
+- [ ] GraphBuilder relationship creation — use HOLDS_POSITION  
+- [ ] RoleResolver lookup — search for HOLDS_POSITION
+- [ ] Any schema definitions — use HOLDS_POSITION
+
+Search codebase for:
+- HELD_POSITION
+- HOLD_POSITION
+- holds_position
+- held_position
+
+Replace ALL with HOLDS_POSITION.
+
+================================================================================
+FIX 2: IMPROVE ROLE EXTRACTION IN GRAPHBUILDER
+================================================================================
+
+The extraction prompt must reliably extract role relationships.
+
+Patterns to handle:
+- "Sarah Chen, CEO" → Sarah Chen -[HOLDS_POSITION]-> CEO
+- "CEO Sarah Chen" → Sarah Chen -[HOLDS_POSITION]-> CEO
+- "Sarah Chen serves as Chief Executive Officer" → Sarah Chen -[HOLDS_POSITION]-> CEO
+- "Marcus Williams, CTO" → Marcus Williams -[HOLDS_POSITION]-> CTO
+- "Marcus Williams was promoted to CTO" → Marcus Williams -[HOLDS_POSITION]-> CTO
+
+Update the extraction prompt to:
+1. Explicitly list common role patterns
+2. Normalize role names (CTO = Chief Technology Officer)
+3. Create BOTH the role entity AND the relationship
+
+Example prompt addition:
+ROLE EXTRACTION RULES:
+
+When you see "Person Name, Role" or "Role Person Name", create:
+
+PERSON entity for the name
+ROLE entity for the role (normalize: CEO, CTO, CFO, etc.)
+HOLDS_POSITION relationship connecting them
+
+
+Common role normalizations:
+
+Chief Executive Officer, CEO → CEO
+Chief Technology Officer, CTO → CTO
+Chief Financial Officer, CFO → CFO
+Vice President, VP → VP of [Department]
+
+
+
+
+================================================================================
+FIX 3: ROLE RESOLVER SHOULD USE SEMANTIC MATCHING
+================================================================================
+
+Current: RoleResolver only does exact relationship lookup.
+Required: RoleResolver should handle variations.
+
+When user asks "Who is the CEO?":
+1. First: Look for HOLDS_POSITION relationship where target = "CEO"
+2. If not found: Look for target ILIKE '%CEO%' OR target ILIKE '%Chief Executive%'
+3. If not found: Use EntityResolver to find CEO entity, then find who HOLDS_POSITION to it
+```python
+def resolve_role(self, role_query: str, tenant_id: str) -> Optional[str]:
+    """
+    Resolve a role to a person name.
+    
+    Handles: CEO, Chief Executive Officer, chief executive, ceo, etc.
+    """
+    # Normalize the role query
+    normalized = self._normalize_role(role_query)  # "ceo" → "CEO"
+    
+    # Stage 1: Exact relationship lookup
+    result = self._lookup_holds_position(normalized, tenant_id)
+    if result:
+        return result
+    
+    # Stage 2: Fuzzy relationship lookup (ILIKE)
+    result = self._fuzzy_lookup_holds_position(role_query, tenant_id)
+    if result:
+        return result
+    
+    # Stage 3: Find role entity, then find holder
+    role_entity = self.entity_resolver.resolve(role_query, tenant_id)
+    if role_entity:
+        result = self._find_position_holder(role_entity.id, tenant_id)
+        if result:
+            return result
+    
+    return None
+
+def _normalize_role(self, role: str) -> str:
+    """Normalize role variations to standard form."""
+    role_map = {
+        'chief executive officer': 'CEO',
+        'chief technology officer': 'CTO', 
+        'chief financial officer': 'CFO',
+        'chief operating officer': 'COO',
+        'chief data officer': 'CDO',
+        'ceo': 'CEO',
+        'cto': 'CTO',
+        'cfo': 'CFO',
+        'coo': 'COO',
+        'cdo': 'CDO',
+    }
+    return role_map.get(role.lower().strip(), role.upper())
+```
+
+================================================================================
+FIX 4: ADD ENTITY EMBEDDINGS (FOR SEMANTIC RESOLUTION)
+================================================================================
+
+Entities need embeddings for semantic search to work.
+
+1. Add embedding column to entities table (if not exists):
+   ALTER TABLE entities ADD COLUMN IF NOT EXISTS embedding vector(1536);
+
+2. Generate embeddings when creating entities:
+   - In GraphBuilder, after creating entity, generate embedding for entity name
+   - Store in embedding column
+
+3. Update EntityResolver semantic stage to use entity embeddings
+
+================================================================================
+FIX 5: EXTRACTION VALIDATION
+================================================================================
+
+After extraction completes, validate that expected relationship types exist:
+```python
+def validate_extraction(self, tenant_id: str, document_id: str):
+    """Validate extraction created expected relationships."""
+    
+    # Check for role relationships
+    role_rels = self.session.execute(
+        text("""
+            SELECT COUNT(*) FROM relationships 
+            WHERE tenant_id = :tenant_id 
+            AND relationship_type = 'HOLDS_POSITION'
+        """),
+        {"tenant_id": tenant_id}
+    ).scalar()
+    
+    if role_rels == 0:
+        logger.warning(f"[EXTRACTION] No HOLDS_POSITION relationships created for {document_id}")
+    
+    # Log extraction summary
+    logger.info(f"[EXTRACTION] Summary for {document_id}:")
+    logger.info(f"  - Entities: {entity_count}")
+    logger.info(f"  - Relationships: {rel_count}")
+    logger.info(f"  - HOLDS_POSITION: {role_rels}")
+```
+
+================================================================================
+VERIFICATION AFTER FIXES
+================================================================================
+
+After implementing fixes, I will:
+
+1. Delete test vault
+2. Create new vault
+3. Upload 4 TechVentures documents
+4. Let extraction run automatically
+5. Verify in database:
+   - SELECT * FROM relationships WHERE relationship_type = 'HOLDS_POSITION';
+   - Should see Sarah Chen → CEO, Marcus Williams → CTO, etc.
+
+6. Run test queries:
+   - "Who is the CEO?" → Sarah Chen ✅
+   - "Who is the CTO?" → Marcus Williams ✅
+   - "What is the CEO's salary?" → $850,000 ✅
+   - "Who is the CTO of TechVentures?" → Marcus Williams ✅
+
+All should pass without manual intervention.
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+The system is fixed when:
+1. Fresh vault + document upload → automatic extraction
+2. Extraction creates HOLDS_POSITION relationships
+3. Role queries resolve correctly
+4. No manual database fixes needed
+5. Works for ANY domain with roles (not just TechVentures)

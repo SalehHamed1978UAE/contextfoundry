@@ -149,7 +149,7 @@ class OntologyCentricPipeline:
                     {"name": "PART_OF", "definition": "Entity is part of or belongs to another", "source_types": [], "target_types": []},
                     {"name": "WORKS_WITH", "definition": "Entity works with or collaborates with another", "source_types": [], "target_types": []},
                     {"name": "HAS_PROPERTY", "definition": "Entity has a property or attribute", "source_types": [], "target_types": []},
-                    {"name": "HELD_POSITION", "definition": "Person held a job position at organization", "source_types": ["PERSON"], "target_types": ["ROLE", "POSITION"]},
+                    {"name": "HOLDS_POSITION", "definition": "Person holds a job position", "source_types": ["PERSON"], "target_types": ["ROLE", "JOB_TITLE", "POSITION"]},
                     {"name": "WORKED_AT", "definition": "Person worked at an organization", "source_types": ["PERSON"], "target_types": ["ORGANIZATION"]},
                 ]
                 logger.warning(f"[OntologyCentricPipeline] No relationship types in ontology for {document_type}, using fallback")

@@ -543,12 +543,13 @@ relationship_types:
           transitive: true
 
   # Career/Positions
-  - name: HELD_POSITION
-    description: "Person held a position/role (target must be JOB_TITLE or CONCEPT, not ORGANIZATION)"
+  - name: HOLDS_POSITION
+    description: "Person holds a position/role (target must be JOB_TITLE, ROLE, or CONCEPT, not ORGANIZATION)"
     source_types:
       - PERSON
     target_types:
       - JOB_TITLE
+      - ROLE
       - CONCEPT
     cardinality: many-to-many
 

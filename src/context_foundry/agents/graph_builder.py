@@ -272,7 +272,7 @@ QUALIFIER TYPES:
 - "purpose": Why this relationship exists (e.g., "for authentication", "data storage")
 - "amount": Financial amounts (e.g., "$2M investment")
 - "role_level": Position level (e.g., "executive", "senior", "junior")
-- "at_organization": Organization context for HELD_POSITION relationships
+- "at_organization": Organization context for HOLDS_POSITION relationships
 - "end_reason": Why relationship ended (e.g., "resignation", "promotion", "exit")
 - "outcome": Result of relationship (e.g., "3x return", "successful launch")
 
@@ -289,16 +289,26 @@ CRITICAL RULES:
    - 0.5-0.7: Implied but supported by text
 
 ROLE/POSITION EXTRACTION (VERY IMPORTANT):
-When a person is mentioned with a job title, ALWAYS create a HELD_POSITION relationship.
+When a person is mentioned with a job title, ALWAYS create a HOLDS_POSITION relationship.
 
-Pattern recognition for titles:
-- "Sarah Chen, Chief Executive Officer" → HELD_POSITION: Sarah Chen → CEO (with qualifier at_organization)
-- "Marcus Williams was promoted to CTO" → HELD_POSITION: Marcus Williams → CTO
-- "James O'Brien serves as CFO" → HELD_POSITION: James O'Brien → CFO
-- "Dr. Amira Hassan, Chief Data Officer" → HELD_POSITION: Dr. Amira Hassan → Chief Data Officer
+Pattern recognition for titles (create HOLDS_POSITION for ALL of these):
+- "Sarah Chen, CEO" → HOLDS_POSITION: Sarah Chen → CEO
+- "CEO Sarah Chen" → HOLDS_POSITION: Sarah Chen → CEO  
+- "Sarah Chen, Chief Executive Officer" → HOLDS_POSITION: Sarah Chen → CEO (normalize to CEO)
+- "Marcus Williams was promoted to CTO" → HOLDS_POSITION: Marcus Williams → CTO
+- "James O'Brien serves as CFO" → HOLDS_POSITION: James O'Brien → CFO
+- "Dr. Amira Hassan, Chief Data Officer" → HOLDS_POSITION: Dr. Amira Hassan → CDO
 
-Common titles to recognize (extract as HELD_POSITION target):
-- CEO, CTO, CFO, COO, CDO (and full forms like Chief Executive Officer)
+ROLE NORMALIZATION (use abbreviated form as target):
+- Chief Executive Officer → CEO
+- Chief Technology Officer → CTO
+- Chief Financial Officer → CFO
+- Chief Operating Officer → COO
+- Chief Data Officer → CDO
+- Vice President → VP
+
+Common titles to recognize (extract as HOLDS_POSITION target):
+- CEO, CTO, CFO, COO, CDO (ALWAYS use abbreviation as entity name)
 - President, Vice President, SVP, EVP
 - Director, Managing Director, General Counsel
 - Founder, Co-founder, Partner, Managing Partner
@@ -306,26 +316,26 @@ Common titles to recognize (extract as HELD_POSITION target):
 
 For each person-title pattern found:
 1. Create PERSON entity for the individual
-2. Create JOB_TITLE entity for the position (e.g., "Chief Executive Officer" or "CEO")
-3. Create HELD_POSITION relationship: Person → JOB_TITLE
+2. Create JOB_TITLE or ROLE entity for the position (use abbreviation: "CEO" not "Chief Executive Officer")
+3. Create HOLDS_POSITION relationship: Person → JOB_TITLE
 4. Add qualifier "at_organization" with the company name if mentioned
 
 RELATIONSHIP TYPE CONSTRAINTS (VERY IMPORTANT):
-- HELD_POSITION: Source must be PERSON, Target must be JOB_TITLE or CONCEPT (NOT ORGANIZATION)
-  WRONG: John Smith --[HELD_POSITION]--> TechCorp (TechCorp is ORG, not job title)
-  RIGHT: John Smith --[HELD_POSITION]--> CTO
+- HOLDS_POSITION: Source must be PERSON, Target must be JOB_TITLE, ROLE, or CONCEPT (NOT ORGANIZATION)
+  WRONG: John Smith --[HOLDS_POSITION]--> TechCorp (TechCorp is ORG, not job title)
+  RIGHT: John Smith --[HOLDS_POSITION]--> CTO
   RIGHT: John Smith --[WORKS_AT]--> TechCorp
 - WORKS_AT / EMPLOYED_BY: Source must be PERSON, Target must be ORGANIZATION
 - REPORTS_TO: Source and Target must both be PERSON
 - HAS_COMPENSATION / EARNS: Use for salary/compensation facts. Source is PERSON, Target is CONCEPT (the amount)
   RIGHT: John Smith --[HAS_COMPENSATION]--> $200,000 annual salary
-  WRONG: Embedding salary as a qualifier on HELD_POSITION
+  WRONG: Embedding salary as a qualifier on HOLDS_POSITION
 
 Respond with ONLY a valid JSON array of relationships. If none found, return [].
 Example format:
 [
   {{
-    "type": "HELD_POSITION",
+    "type": "HOLDS_POSITION",
     "source_name": "Saleh Hamed",
     "target_name": "Systems Engineer",
     "properties": {{}},
@@ -590,6 +600,10 @@ class GraphBuilderAgent:
                 logger.error(f"[{doc_id}] {error_msg}")
                 errors.append(error_msg)
         
+        all_entities, all_relationships = self.create_implicit_role_relationships(
+            all_entities, all_relationships
+        )
+        
         entities_staged, relationships_staged = self.write_to_staging(
             entities=all_entities,
             relationships=all_relationships,
@@ -612,8 +626,23 @@ class GraphBuilderAgent:
             staged=True
         )
         
+        holds_position_count = sum(
+            1 for r in all_relationships 
+            if r.relationship_type in ('HOLDS_POSITION', 'HELD_POSITION', 'HOLD_POSITION')
+        )
+        person_entities = [e for e in all_entities if e.entity_type == 'PERSON']
+        role_entities = [e for e in all_entities if e.entity_type in ('ROLE', 'JOB_TITLE')]
+        
         logger.info(f"[{doc_id}] Ingestion complete: {result.entities_extracted} entities, "
                    f"{result.relationships_extracted} relationships extracted")
+        logger.info(f"[{doc_id}] Extraction summary:")
+        logger.info(f"  - PERSON entities: {len(person_entities)}")
+        logger.info(f"  - ROLE/JOB_TITLE entities: {len(role_entities)}")
+        logger.info(f"  - HOLDS_POSITION relationships: {holds_position_count}")
+        
+        if person_entities and holds_position_count == 0:
+            logger.warning(f"[{doc_id}] WARNING: Found {len(person_entities)} PERSON entities but no HOLDS_POSITION relationships!")
+            logger.warning(f"[{doc_id}] Role resolution may fail for this document. Check extraction quality.")
         
         return result
     
@@ -845,6 +874,92 @@ class GraphBuilderAgent:
             logger.error(f"Relationship extraction failed: {e}")
             return []
     
+    def create_implicit_role_relationships(
+        self, entities: List[ExtractedEntity], relationships: List[ExtractedRelationship]
+    ) -> Tuple[List[ExtractedEntity], List[ExtractedRelationship]]:
+        """
+        Create HOLDS_POSITION relationships from entity properties.
+        
+        If a PERSON entity has position/title/role property, create:
+        1. A ROLE entity for the position
+        2. A HOLDS_POSITION relationship from person to role
+        
+        Returns:
+            Tuple of (updated_entities, updated_relationships)
+        """
+        ROLE_PROPERTIES = ['position', 'title', 'role', 'job_title', 'job', 'current_position']
+        
+        ROLE_NORMALIZATIONS = {
+            'chief executive officer': 'CEO',
+            'chief technology officer': 'CTO',
+            'chief financial officer': 'CFO',
+            'chief operating officer': 'COO',
+            'chief data officer': 'CDO',
+            'chief marketing officer': 'CMO',
+            'chief information officer': 'CIO',
+            'vice president': 'VP',
+            'senior vice president': 'SVP',
+            'executive vice president': 'EVP',
+        }
+        
+        new_entities = list(entities)
+        new_relationships = list(relationships)
+        existing_entity_names = {e.canonical_name.lower() for e in entities}
+        existing_rel_keys = {
+            (r.source_name.lower(), r.relationship_type, r.target_name.lower())
+            for r in relationships
+        }
+        
+        for entity in entities:
+            if entity.entity_type != 'PERSON':
+                continue
+            
+            props = entity.properties or {}
+            
+            for prop_name in ROLE_PROPERTIES:
+                if prop_name not in props:
+                    continue
+                
+                role_value = str(props[prop_name]).strip()
+                if not role_value or len(role_value) < 2:
+                    continue
+                
+                normalized_role = ROLE_NORMALIZATIONS.get(role_value.lower(), role_value)
+                
+                if normalized_role.lower() not in existing_entity_names:
+                    role_entity = ExtractedEntity(
+                        entity_type='JOB_TITLE',
+                        canonical_name=normalized_role,
+                        properties={'normalized_from': role_value},
+                        confidence=0.85,
+                        source_sentence=f"Inferred from {entity.canonical_name}'s {prop_name} property",
+                        aliases=[role_value] if role_value != normalized_role else []
+                    )
+                    new_entities.append(role_entity)
+                    existing_entity_names.add(normalized_role.lower())
+                    logger.info(f"[IMPLICIT_ROLE] Created JOB_TITLE entity: {normalized_role}")
+                
+                rel_key = (entity.canonical_name.lower(), 'HOLDS_POSITION', normalized_role.lower())
+                if rel_key not in existing_rel_keys:
+                    role_rel = ExtractedRelationship(
+                        relationship_type='HOLDS_POSITION',
+                        source_name=entity.canonical_name,
+                        target_name=normalized_role,
+                        properties={},
+                        confidence=0.85,
+                        source_sentence=f"Inferred from {entity.canonical_name}'s {prop_name}: {role_value}",
+                        provenance_text=f"Property extraction: {entity.canonical_name} has {prop_name}={role_value}",
+                        description=f"{entity.canonical_name} holds position {normalized_role}",
+                    )
+                    new_relationships.append(role_rel)
+                    existing_rel_keys.add(rel_key)
+                    logger.info(f"[IMPLICIT_ROLE] Created HOLDS_POSITION: {entity.canonical_name} → {normalized_role}")
+        
+        if len(new_entities) > len(entities) or len(new_relationships) > len(relationships):
+            logger.info(f"[IMPLICIT_ROLE] Added {len(new_entities) - len(entities)} entities, {len(new_relationships) - len(relationships)} relationships")
+        
+        return new_entities, new_relationships
+    
     def write_to_staging(self, entities: List[ExtractedEntity], 
                          relationships: List[ExtractedRelationship],
                          source_document_id: str,
@@ -952,6 +1067,13 @@ class GraphBuilderAgent:
                     "_domain": self.schema.domain
                 }
                 
+                entity_name_embedding = None
+                try:
+                    embed_text = f"{entity.canonical_name}: {entity.entity_type}"
+                    entity_name_embedding = openai_embedding(embed_text, dim=1536)
+                except Exception as embed_e:
+                    logger.debug(f"Failed to generate embedding for entity {entity.canonical_name}: {embed_e}")
+                
                 db_entity = Entity(
                     id=uuid.uuid4(),
                     tenant_id=uuid.UUID(tenant_id) if tenant_id else None,
@@ -963,7 +1085,8 @@ class GraphBuilderAgent:
                     source_document_id=source_document_id,
                     source_sentence=entity.source_sentence[:500] if entity.source_sentence else None,
                     extracted_at=datetime.utcnow(),
-                    extraction_method="graph_builder_llm"
+                    extraction_method="graph_builder_llm",
+                    name_embedding=entity_name_embedding
                 )
                 self.session.add(db_entity)
                 self.session.flush()

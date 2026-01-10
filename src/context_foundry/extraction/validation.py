@@ -390,7 +390,9 @@ def run_validation_report() -> Dict:
 
 # Schema-level relationship validation (Part 2.2 of MVP Verification)
 VALID_RELATIONSHIP_TARGETS = {
+    "HOLDS_POSITION": ["JOB_TITLE", "ROLE", "CONCEPT"],
     "HELD_POSITION": ["JOB_TITLE", "ROLE", "CONCEPT"],
+    "HOLD_POSITION": ["JOB_TITLE", "ROLE", "CONCEPT"],
     "WORKS_AT": ["ORGANIZATION", "COMPANY"],
     "EMPLOYED_BY": ["ORGANIZATION", "COMPANY"],
     "REPORTS_TO": ["PERSON"],
