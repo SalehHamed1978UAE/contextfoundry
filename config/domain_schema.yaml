@@ -517,11 +517,31 @@ relationship_types:
 
   # Career/Positions
   - name: HELD_POSITION
-    description: "Person held a position/role at an organization"
+    description: "Person held a position/role (target must be JOB_TITLE or CONCEPT, not ORGANIZATION)"
     source_types:
       - PERSON
     target_types:
-      - ORGANIZATION
+      - JOB_TITLE
+      - CONCEPT
+    cardinality: many-to-many
+
+  # Compensation
+  - name: HAS_COMPENSATION
+    description: "Person has compensation/salary"
+    source_types:
+      - PERSON
+    target_types:
+      - CONCEPT
+    cardinality: many-to-many
+    examples:
+      - "John earns $200,000 annually"
+      - "CEO compensation is $5M"
+
+  - name: EARNS
+    description: "Alternative for compensation relationships"
+    source_types:
+      - PERSON
+    target_types:
       - CONCEPT
     cardinality: many-to-many
 

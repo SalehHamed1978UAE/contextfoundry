@@ -386,3 +386,62 @@ def run_validation_report() -> Dict:
     print(f"  F1 Score: {result.overall_relation_metrics.f1:.1%}")
     
     return report
+
+
+# Schema-level relationship validation (Part 2.2 of MVP Verification)
+VALID_RELATIONSHIP_TARGETS = {
+    "HELD_POSITION": ["JOB_TITLE", "ROLE", "CONCEPT"],
+    "WORKS_AT": ["ORGANIZATION", "COMPANY"],
+    "EMPLOYED_BY": ["ORGANIZATION", "COMPANY"],
+    "REPORTS_TO": ["PERSON"],
+    "HAS_COMPENSATION": ["CONCEPT", "MONETARY_VALUE"],
+    "EARNS": ["CONCEPT", "MONETARY_VALUE"],
+    "MEMBER_OF": ["ORGANIZATION", "TEAM", "GROUP"],
+    "LEADS": ["ORGANIZATION", "TEAM", "PROCESS", "CONCEPT"],
+    "MANAGES": ["ORGANIZATION", "TEAM", "PROCESS", "SERVICE", "DATABASE"],
+    "OWNS": ["ORGANIZATION", "SERVICE", "DATABASE", "PROCESS"],
+}
+
+
+def validate_relationship_target(rel_type: str, source_type: str, target_type: str) -> Tuple[bool, str]:
+    """
+    Validate that relationship connects appropriate entity types.
+    
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    rel_type_upper = rel_type.upper()
+    target_type_upper = target_type.upper()
+    
+    if rel_type_upper not in VALID_RELATIONSHIP_TARGETS:
+        return True, ""  # Unknown type, allow for now
+    
+    valid_targets = VALID_RELATIONSHIP_TARGETS[rel_type_upper]
+    if target_type_upper in valid_targets:
+        return True, ""
+    
+    return False, f"Invalid target type '{target_type}' for {rel_type}. Expected one of: {valid_targets}"
+
+
+def validate_compensation_extraction(relationships: List[Dict]) -> List[Dict]:
+    """
+    Check if compensation data is being extracted correctly.
+    Flags relationships where salary/compensation is embedded as a qualifier instead of HAS_COMPENSATION.
+    """
+    issues = []
+    for rel in relationships:
+        rel_type = rel.get('type', '')
+        qualifiers = rel.get('qualifiers', [])
+        
+        # Check for compensation embedded in qualifiers
+        for qual in qualifiers:
+            qual_text = str(qual.get('text', '')).lower()
+            if any(term in qual_text for term in ['$', 'salary', 'compensation', 'annual', 'earn']):
+                issues.append({
+                    'relationship_type': rel_type,
+                    'issue': 'compensation_in_qualifier',
+                    'message': f"Compensation data '{qual.get('text')}' should be extracted as HAS_COMPENSATION relationship, not as qualifier on {rel_type}",
+                    'qualifier': qual
+                })
+    
+    return issues
