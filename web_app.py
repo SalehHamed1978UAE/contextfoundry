@@ -3419,6 +3419,7 @@ def vault_chat():
     
     if use_tool_agent:
         try:
+            from sqlalchemy import text
             from src.context_foundry.models.schema import set_tenant_context, get_session as get_db_session
             db_session = get_db_session()
             set_tenant_context(db_session, tenant_id)
@@ -3506,7 +3507,38 @@ def vault_chat():
                         source_documents.append(doc_name)
                         chunk_count += 1  # Count these as useful data
             
+            # Also count data from pipeline_result (for direct answer path)
+            pipeline_result = agent_result.get('pipeline_result')
+            if pipeline_result:
+                pr_entities = pipeline_result.get('entities') if isinstance(pipeline_result, dict) else getattr(pipeline_result, 'entities', None)
+                pr_relationships = pipeline_result.get('relationships') if isinstance(pipeline_result, dict) else getattr(pipeline_result, 'relationships', None)
+                pr_chunks = pipeline_result.get('chunks') if isinstance(pipeline_result, dict) else getattr(pipeline_result, 'chunks', None)
+                
+                if pr_entities:
+                    entity_count += len(pr_entities)
+                    for e in pr_entities:
+                        if isinstance(e, dict):
+                            ename = e.get('name')
+                        else:
+                            ename = getattr(e, 'name', None)
+                        if ename and ename not in mentioned_entities:
+                            mentioned_entities.append(ename)
+                if pr_relationships:
+                    relationship_count += len(pr_relationships)
+                if pr_chunks:
+                    chunk_count += len(pr_chunks)
+                    for chunk in pr_chunks:
+                        if isinstance(chunk, dict):
+                            doc_name = chunk.get('document') or chunk.get('doc_name') or chunk.get('source')
+                        else:
+                            doc_name = getattr(chunk, 'document', None) or getattr(chunk, 'source', None)
+                        if doc_name and doc_name not in source_documents:
+                            source_documents.append(doc_name)
+                
+                logger.info(f"[CONFIDENCE] Pipeline data: entities={len(pr_entities) if pr_entities else 0}, rels={len(pr_relationships) if pr_relationships else 0}, chunks={len(pr_chunks) if pr_chunks else 0}")
+            
             has_useful_data = entity_count > 0 or chunk_count > 0 or relationship_count > 0
+            logger.info(f"[CONFIDENCE] Total: entity_count={entity_count}, chunk_count={chunk_count}, rel_count={relationship_count}, has_useful_data={has_useful_data}")
             
             # Compute confidence based on answer quality
             # Use agent-provided confidence if available, otherwise compute
