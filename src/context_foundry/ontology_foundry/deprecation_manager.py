@@ -20,8 +20,8 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from src.context_foundry.models.schema import get_session, Entity
-from src.context_foundry.ontology_foundry.schema_version_manager import SchemaVersionManager
+from ..models.schema import get_session, Entity
+from .schema_version_manager import SchemaVersionManager
 
 logger = logging.getLogger(__name__)
 

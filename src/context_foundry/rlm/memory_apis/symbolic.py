@@ -77,7 +77,7 @@ class SymbolicMemoryAPI:
         Raises:
             StaleEntityError: If entity no longer exists
         """
-        from src.context_foundry.models.schema import Entity, Relationship
+        from ...models.schema import Entity, Relationship
         
         entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
@@ -158,7 +158,7 @@ class SymbolicMemoryAPI:
         Raises:
             StaleEntityError: If source or target entity no longer exists
         """
-        from src.context_foundry.models.schema import Entity, Relationship
+        from ...models.schema import Entity, Relationship
         
         source = self._session.query(Entity).filter(
             Entity.id == source_id,
@@ -271,7 +271,7 @@ class SymbolicMemoryAPI:
         Raises:
             StaleEntityError: If entity no longer exists
         """
-        from src.context_foundry.models.schema import Entity, Relationship
+        from ...models.schema import Entity, Relationship
         
         entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
@@ -365,7 +365,7 @@ class SymbolicMemoryAPI:
         Raises:
             StaleEntityError: If start entity no longer exists
         """
-        from src.context_foundry.models.schema import Entity, Relationship
+        from ...models.schema import Entity, Relationship
         
         start_entity = self._session.query(Entity).filter(
             Entity.id == start_id,
@@ -502,7 +502,7 @@ class SymbolicMemoryAPI:
         Returns:
             List of rule dictionaries
         """
-        from src.context_foundry.models.schema import Entity, Rule
+        from ...models.schema import Entity, Rule
         
         entity = self._session.query(Entity).filter(
             Entity.id == entity_id,

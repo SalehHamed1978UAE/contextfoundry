@@ -15,13 +15,20 @@ from uuid import uuid4
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from packages.interface_types.src import (
-    ExtractionRequest,
-    ExtractionResult,
-    ExtractionErrorCode,
-    TokensConsumed,
-)
-from packages.interface_types.src.extraction import ExtractionError
+try:
+    from packages.interface_types.src import (
+        ExtractionRequest,
+        ExtractionResult,
+        ExtractionErrorCode,
+        TokensConsumed,
+    )
+    from packages.interface_types.src.extraction import ExtractionError
+except ImportError as e:
+    raise ImportError(
+        f"Missing dependency: packages.interface_types. "
+        f"This module requires the interface_types package. "
+        f"Either install it or use the extraction pipeline directly. Error: {e}"
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -174,7 +181,7 @@ class ExtractionWorker:
         This is where we call the existing extraction logic.
         Returns structured result with token counts.
         """
-        from src.context_foundry.core import ContextFoundry
+        from ..core import ContextFoundry
         
         foundry = ContextFoundry(tenant_id=tenant_id)
         

@@ -211,7 +211,7 @@ def _set_rls_context(session: Session, ctx: AuthContext) -> None:
     MUST be called on the same session/connection used for the query.
     Uses existing set_tenant_context for compatibility with RLS policies.
     """
-    from src.context_foundry.models.schema import set_tenant_context
+    from ..models.schema import set_tenant_context
     set_tenant_context(session, ctx.tenant_id, role=ctx.role)
     logger.debug(f"[DTL Core] RLS context set: tenant={ctx.tenant_id}, role={ctx.role}")
 

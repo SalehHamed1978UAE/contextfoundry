@@ -17,7 +17,7 @@ from sqlalchemy.orm import relationship
 from pgvector.sqlalchemy import Vector
 from pydantic import BaseModel, Field
 
-from src.context_foundry.models.schema import Base
+from context_foundry.models.schema import Base
 
 
 class DecisionLifecycle(str, Enum):

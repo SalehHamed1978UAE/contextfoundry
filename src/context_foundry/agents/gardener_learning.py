@@ -43,7 +43,7 @@ class GardenerLearningProcessor:
     def graph_builder(self):
         """Lazy load GraphBuilderAgent to avoid circular imports."""
         if self._graph_builder is None:
-            from src.context_foundry.agents.graph_builder import GraphBuilderAgent
+            from .graph_builder import GraphBuilderAgent
             self._graph_builder = GraphBuilderAgent(session=self.session)
         return self._graph_builder
     

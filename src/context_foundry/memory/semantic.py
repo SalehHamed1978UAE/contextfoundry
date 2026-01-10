@@ -75,7 +75,7 @@ class SemanticMemory:
         aliases: list = None
     ) -> Entity:
         """Add an entity to the knowledge graph with optional aliases."""
-        from .schema import EntityAlias
+        from ..models.schema import EntityAlias
         
         entity = Entity(
             name=name,

@@ -21,8 +21,8 @@ from flask import Blueprint, request, jsonify, g
 from sqlalchemy import text
 import requests
 
-from src.context_foundry.models.schema import get_session, set_tenant_context
-from src.context_foundry.api.external import require_api_key
+from context_foundry.models.schema import get_session, set_tenant_context
+from context_foundry.api.external import require_api_key
 
 logger = logging.getLogger(__name__)
 

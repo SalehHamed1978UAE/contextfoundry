@@ -27,7 +27,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.attributes import flag_modified
 
-from src.context_foundry.models.schema import Base, get_engine, get_session
+from ..models.schema import Base, get_engine, get_session
 
 logger = logging.getLogger(__name__)
 

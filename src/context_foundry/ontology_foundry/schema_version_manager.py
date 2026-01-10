@@ -15,7 +15,7 @@ import json
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from src.context_foundry.models.schema import get_session
+from ..models.schema import get_session
 
 logger = logging.getLogger(__name__)
 

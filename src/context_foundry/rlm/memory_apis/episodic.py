@@ -60,7 +60,7 @@ class EpisodicMemoryAPI:
         Returns:
             List of ChunkMatch objects with similarity scores
         """
-        from src.context_foundry.models.schema import Document, DocumentChunk
+        from ...models.schema import Document, DocumentChunk
         
         doc_type_clause = "AND d.doc_type = :doc_type" if document_type else ""
         
@@ -196,7 +196,7 @@ class EpisodicMemoryAPI:
         Returns:
             ChunkDetail object
         """
-        from src.context_foundry.models.schema import Document, DocumentChunk
+        from ...models.schema import Document, DocumentChunk
         
         chunk = self._session.query(DocumentChunk).filter(
             DocumentChunk.id == chunk_id,
@@ -253,7 +253,7 @@ class EpisodicMemoryAPI:
         Returns:
             List of ChunkSummary objects ordered by chunk_index
         """
-        from src.context_foundry.models.schema import DocumentChunk
+        from ...models.schema import DocumentChunk
         
         chunks = self._session.query(DocumentChunk).filter(
             DocumentChunk.document_id == document_id,
@@ -289,7 +289,7 @@ class EpisodicMemoryAPI:
         Returns:
             ProvenanceInfo object
         """
-        from src.context_foundry.models.schema import Document, DocumentChunk
+        from ...models.schema import Document, DocumentChunk
         
         chunk = self._session.query(DocumentChunk).filter(
             DocumentChunk.id == chunk_id,
