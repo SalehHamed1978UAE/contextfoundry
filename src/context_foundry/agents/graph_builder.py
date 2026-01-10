@@ -282,6 +282,17 @@ CRITICAL RULES:
    - 0.7-0.9: Mentioned directly with some context
    - 0.5-0.7: Implied but supported by text
 
+RELATIONSHIP TYPE CONSTRAINTS (VERY IMPORTANT):
+- HELD_POSITION: Source must be PERSON, Target must be JOB_TITLE or CONCEPT (NOT ORGANIZATION)
+  WRONG: John Smith --[HELD_POSITION]--> TechCorp (TechCorp is ORG, not job title)
+  RIGHT: John Smith --[HELD_POSITION]--> CTO
+  RIGHT: John Smith --[WORKS_AT]--> TechCorp
+- WORKS_AT / EMPLOYED_BY: Source must be PERSON, Target must be ORGANIZATION
+- REPORTS_TO: Source and Target must both be PERSON
+- HAS_COMPENSATION / EARNS: Use for salary/compensation facts. Source is PERSON, Target is CONCEPT (the amount)
+  RIGHT: John Smith --[HAS_COMPENSATION]--> $200,000 annual salary
+  WRONG: Embedding salary as a qualifier on HELD_POSITION
+
 Respond with ONLY a valid JSON array of relationships. If none found, return [].
 Example format:
 [
