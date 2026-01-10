@@ -2,7 +2,7 @@
 
 ## Overview
 
-Context Foundry is a **Cognitive Operating System for the Enterprise** designed to provide AI systems with a coherent, evolving understanding of organizational reality. It aims to solve limitations of traditional RAG, agent-based, fine-tuning, and triple KG approaches by building a dynamic "World Model" that compounds knowledge over time, is grounded in verifiable sources, and remains trustworthy by admitting uncertainty. The project's vision is to create a domain-agnostic, single substrate that serves all enterprise AI applications, moving beyond static knowledge representations to a system that learns and adapts. Key capabilities include a Tri-Memory System (Semantic, Episodic, Symbolic), a robust Fact Lifecycle (Staging, Trusted, Archived), and Context-Attached Knowledge, ensuring relationships carry rich metadata like temporal validity and provenance. The ultimate goal is to enable AI to reason over structured truth, eliminating hallucination and providing reliable, context-aware answers.
+Context Foundry is a **Cognitive Operating System for the Enterprise** designed to provide AI systems with a coherent, evolving understanding of organizational reality. It aims to build a dynamic "World Model" that compounds knowledge over time, is grounded in verifiable sources, and remains trustworthy by admitting uncertainty. The project's vision is to create a domain-agnostic, single substrate that serves all enterprise AI applications, moving beyond static knowledge representations to a system that learns and adapts. Key capabilities include a Tri-Memory System (Semantic, Episodic, Symbolic), a robust Fact Lifecycle (Staging, Trusted, Archived), and Context-Attached Knowledge, ensuring relationships carry rich metadata like temporal validity and provenance. The ultimate goal is to enable AI to reason over structured truth, eliminating hallucination and providing reliable, context-aware answers.
 
 ## User Preferences
 
@@ -29,6 +29,16 @@ The system employs several key agents:
 
 The **Query Flow** involves parsing, entity resolution, context bundle retrieval, a sufficiency check, reasoning by an LLM, validation against symbolic rules, response generation (with confidence and provenance), and an asynchronous learning step to identify and address knowledge gaps.
 
+Key architectural features include:
+- **Tenant Context and RLS**: Enhanced `TenantSession` with failure tracking and `ensure_tenant_context()` helper for Row-Level Security.
+- **Query Pipeline**: Features `QueryClassifier` for LLM-based query classification, `RoleResolver` for resolving roles (e.g., CEO) to individuals, and `RetrievalRouter` for intelligent routing to `GRAPH_ONLY`, `DOCS_ONLY`, or `HYBRID` strategies, with automatic fallback for list queries.
+- **QA Verifier**: A two-layer verification system (Structural rules + LLM semantic check) to ensure answer quality, rejecting unsupported or off-topic responses and providing detailed verdicts.
+- **Dynamic Confidence Scoring**: Replaces hardcoded confidence with computed scores based on answer quality and evidence.
+- **Source Attribution**: Extracts and displays sources from various tool types, with a user-friendly frontend display.
+- **Deterministic Document Fallback**: Automatically triggers document search when the knowledge graph lacks specific data, ensuring comprehensive factual queries.
+- **Context Injection**: Passes `vault_context` to the `ToolAgent` and `QueryPipeline` for target entity resolution when no explicit entity is in the query.
+- **QA Evidence Alignment**: `AnswerVerifierAgent` combines pre-fetched pipeline data with tool call results for robust verification.
+
 ## External Dependencies
 
 - **Database:** PostgreSQL (with pgvector for embeddings)
@@ -38,150 +48,3 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - **Web Framework:** Flask
 - **Deployment:** Gunicorn
 - **Authentication:** Magic Link, API Keys, JWT Sessions, Google OAuth
-
-## Development Progress
-
-### Stage 3: Learning from Interaction ✅ COMPLETE (Jan 2026)
-- Sufficiency signals compute correctly (coverage, freshness, source_agreement, relationship_density)
-- Learning tickets created with deduplication (hit_count increments on repeated queries)
-- Priority formula: `priority = base_severity * (1 + 0.2 * hit_count)`, capped at 1.0
-- GardenerLearningProcessor processes tickets with structured resolution payload
-- End-to-end verification: confidence improved from 0.00 → 0.48 after ingesting salary data
-
-### Stage 4: One Substrate, Many Applications ✅ COMPLETE (Jan 2026)
-- Goal: Prove the same World Model can power multiple use cases
-- Q&A Agent (working) - uses World Model for reasoning and answers
-- Entity Profile Generator (working) - uses same World Model for structured profiles
-- Both applications share: Entity/Relationship models, ContextBundle structure, Sufficiency computation
-- Demo script: `scripts/stage4_demo.py` proves both apps against same data
-
-### MVP Verification ✅ COMPLETE (Jan 2026)
-- **RLS Context Stability**: Enhanced TenantSession with failure tracking, logging, and fail-closed behavior
-- **Aggregation Cache Guard**: Replaced NotImplementedError with clear ValueError message
-- **Extraction Quality**: HAS_COMPENSATION relationship type validated, HELD_POSITION targets job titles correctly
-- **Tenant Context Helper**: Created `ensure_tenant_context()` helper and `@require_tenant` decorator
-- **Test Coverage**: 151 tests total (was 39)
-  - Aggregation planner/executor (34 tests)
-  - Ontology foundry schema service (30 tests)
-  - E2E smoke test workflow (4 tests)
-  - DTL integration with precedent routing (28 tests)
-  - Tenant context utilities (16 tests)
-  - Existing MVP tests (39 tests)
-
-### Demo UI Improvements ✅ COMPLETE (Jan 2026)
-- **Dynamic Confidence Scoring**: Replaced hardcoded 0.75 with computed confidence based on answer quality
-  - 0.85 for answers with resolved entities
-  - 0.70 for answers with chunks/relationships
-  - 0.50 for unclear answers
-  - 0.15 for "no information" with no supporting data
-  - Uses agent-provided confidence when available
-- **Source Attribution**: Extracts sources from multiple tool types (search_chunks, summarize_chunks, retrieve_documents) and agent_result['chunk_sources']
-- **Frontend Source Display**: Truncates long doc names (>40 chars) with tooltip, "+N more" for overflow, handles both dict and string source formats
-
-### QA Verifier ✅ COMPLETE (Jan 2026)
-- **Two-layer verification**: Structural rules + LLM semantic check
-- **Layer 1 (Structural)**: Rejects empty answers, flags suspicious (no data + detailed answer)
-- **Layer 2 (LLM)**: Semantic understanding - intent match, evidence check, honesty evaluation
-- **NO KEYWORDS**: LLM handles all semantic understanding (no brittle keyword matching)
-- **Verdict statuses**: SUPPORTED, OFF_TOPIC, INSUFFICIENT, UNSUPPORTED, SUSPICIOUS, REJECTED, REVIEW
-- **Pipeline integration**: Blocks off-topic answers with low confidence and user-friendly messages
-- **Test coverage**: 18 unit tests covering all scenarios
-
-### Deterministic Document Fallback ✅ COMPLETE (Jan 2026)
-- **Problem solved**: Factual queries failed when KG had relationships but not specific data (e.g., staff count)
-- **Solution**: Automatic document search fallback triggers when KG queried but no document chunks found yet
-- **Key methods in ToolAgent**:
-  - `_analyze_retrieval_results()` - Tracks entities, relationships, chunks from tool calls
-  - `_needs_document_fallback()` - Triggers when: KG queried AND docs not searched AND 0 chunks
-  - `_execute_document_fallback()` - Uses ToolExecutor to search documents, injects results
-- **Text search fallback**: SQL-based keyword search when vector embeddings unavailable
-- **Test results**: All 4 Green Future queries pass (founder, revenue, staff count, salary unknown)
-
-### Vault-Tenant Mismatch Fix ✅ COMPLETE (Jan 2026)
-- **Problem solved**: Queries used stale session tenant_id instead of current vault's tenant_id
-- **Solution**: vault_chat endpoint accepts vault_id from request as authoritative source
-- **Key changes**:
-  - Frontend passes `vault_id` in every chat request body
-  - Backend detects mismatch between request vault_id and session tenant_id
-  - Logs warning on mismatch and updates session to use correct tenant
-- **Text search improvements**:
-  - Keywords include 3-letter terms (CEO, CFO) with `len(w) >= 3`
-  - AND/OR ranking prioritizes chunks matching ALL keywords
-  - Chunk truncation increased from 500 to 1500 chars for richer context
-- **Test results**: TechVentures queries now return correct data (Sarah Chen: $850K base, $2.05M total)
-
-### Role-Based Query Support ✅ COMPLETE (Jan 2026)
-- **Problem solved**: Queries like "CEO's salary" failed because knowledge graph lacked job title relationships
-- **Solution**: Enhanced GraphBuilder to extract HELD_POSITION relationships linking people to job titles
-- **Key changes**:
-  - Added JOB_TITLE entity type to domain schema (CEO, CTO, CFO, etc.)
-  - Enhanced GraphBuilder prompts with explicit pattern matching: "[Person], [Title]" → extract both PERSON and JOB_TITLE
-  - Added abbreviation expansion in text search (CEO ↔ Chief Executive Officer) using OR logic
-  - Re-extracted TechVentures documents creating 11 HELD_POSITION relationships
-- **Test results**:
-  - "Who is the CEO?" → Sarah Chen (PASS)
-  - "CEO's salary" → $850K (PASS)
-  - "CFO's compensation" → $480K (PASS)
-  - "Who is the CTO?" → Marcus Williams (PASS)
-  - "Sarah Chen's salary" → $850K (PASS)
-
-### Query Pipeline Phase 2 ✅ COMPLETE (Jan 2026)
-- **Problem solved**: List queries like "portfolio companies" got incomplete answers when KG lacked coverage
-- **Solution**: Intelligent query routing with automatic HYBRID fallback for list queries
-- **Components**:
-  - `QueryClassifier` - LLM-based classification: query_type, retrieval_strategy, has_role_reference, expects_list
-  - `RoleResolver` - Resolves roles (CEO/CTO/CFO) to people via HELD_POSITION relationships in KG
-  - `RetrievalRouter` - Routes to GRAPH_ONLY | DOCS_ONLY | HYBRID with higher limits (15 vs 5) for list queries
-- **Key changes**:
-  - List queries auto-override from GRAPH_ONLY → HYBRID (ensures document coverage when KG sparse)
-  - Pre-processing pipeline runs before ToolAgent tool loop
-  - Context injection with resolved role info passed to LLM
-- **Test coverage**: 20 unit tests + 6 success criteria
-- **Test results**:
-  - CEO's salary → Sarah Chen, $850K (PASS)
-  - Portfolio companies → HYBRID strategy, 11 document chunks (PASS)
-  - Who reports to CEO → expects_list + CEO resolved (PASS)
-  - Tell me about DataFlow AI → HYBRID strategy (PASS)
-  - Role resolution (CEO/CTO/CFO) → all resolved (PASS)
-
-### Vector Search Fix ✅ COMPLETE (Jan 2026)
-- **Problem solved**: CEO salary queries failed because RetrievalRouter used text search only
-- **Root cause**: `use_vector=False` in RetrievalRouter._search_documents() bypassed vector embeddings
-- **Why text search failed**: Searched for "CEO" but compensation memo has "Chief Executive Officer"
-- **Fix**: Changed to `use_vector=True` enabling semantic matching via embeddings
-- **Key insight**: Vector embeddings match "CEO salary" → "Chief Executive Officer compensation"
-- **Test results**:
-  - "Who is the CTO?" → Marcus Williams (PASS)
-  - "CEO's salary" → $850K (PASS)
-  - "Portfolio companies" → CloudMatrix, HealthSync, SecureNode (PASS)
-
-### Context Injection & QA Evidence Alignment ✅ COMPLETE (Jan 2026)
-- **Problem solved**: LLM seeing pre-processing context would skip tool calls, causing QA Verifier to reject as UNSUPPORTED
-- **FIX 1 - Context Injection**:
-  - web_app.py fetches vault name from platform.tenants table
-  - Passes vault_context → ToolAgent → QueryPipeline
-  - QueryPipeline injects vault_context as target_entity only when: (1) no explicit entity in query, AND (2) role resolution failed/absent
-  - Role resolution runs BEFORE vault_context injection to preserve explicit entities (e.g., "Who is the CTO of DataFlow AI?")
-- **FIX 2 - QA Evidence Alignment**:
-  - Added `verify_from_retrieval_result()` method to AnswerVerifierAgent
-  - Combines pipeline pre-fetched data (entities, relationships, chunks, resolved role) + tool call results
-  - Resolved role counts as entity evidence: role_resolution.is_resolved → adds resolved_name
-- **Test results** (all passing, 3x consistency):
-  - "Who is the CTO?" (vault context) → Marcus Williams (PASS)
-  - "What is the CEO's salary?" → Sarah Chen, $850K (PASS)
-  - "Who is the CTO of TechVentures?" (3x) → Marcus Williams 3/3 (CONSISTENT)
-
-## Key Files
-- `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
-- `src/context_foundry/models/schema.py` - TenantSession with RLS context management
-- `src/context_foundry/aggregation/executor.py` - Query execution with tenant context
-- `src/context_foundry/agents/query_classifier.py` - LLM-based query classification with list query detection
-- `src/context_foundry/agents/role_resolver.py` - Resolve roles (CEO/CTO/CFO) to people via HELD_POSITION
-- `src/context_foundry/agents/retrieval_router.py` - Intelligent routing to GRAPH_ONLY/DOCS_ONLY/HYBRID
-- `tests/test_tenant_context.py` - Tenant context utility tests
-- `tests/test_aggregation.py` - Aggregation planner/executor tests
-- `tests/test_ontology_foundry.py` - Schema service validation tests
-- `tests/test_e2e_smoke.py` - Full workflow integration test
-- `tests/test_dtl_integration.py` - DTL precedent routing tests
-- `tests/test_query_pipeline.py` - Query pipeline unit and integration tests (20 tests)
-- `tests/test_techventures_queries.py` - TechVentures end-to-end query tests
