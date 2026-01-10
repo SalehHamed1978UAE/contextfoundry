@@ -264,13 +264,83 @@ class ToolAgent:
                         "content": json.dumps(result)
                     })
             else:
-                answer = message.content or "I couldn't find an answer."
+                analysis = self._analyze_retrieval_results(tool_calls_made)
+                fallback_triggered = False
+                
+                logger.info(f"[RETRIEVAL] Pre-answer analysis: entities={analysis['entities_found']}, "
+                           f"relationships={analysis['relationships_found']}, chunks={analysis['chunks_found']}, "
+                           f"kg_tools={analysis['kg_tools_called']}, doc_tools={analysis['doc_tools_called']}")
+                
+                if self._needs_document_fallback(question, analysis):
+                    fallback_triggered = True
+                    logger.info(f"[RETRIEVAL] Executing document fallback for: {question[:50]}...")
+                    
+                    fallback_result = self._execute_document_fallback(question)
+                    
+                    if fallback_result.get('chunks'):
+                        fallback_record = {
+                            "tool": "search_documents",
+                            "arguments": {"query": question, "limit": 5},
+                            "result": fallback_result,
+                            "time_ms": 0,
+                            "fallback": True
+                        }
+                        tool_calls_made.append(fallback_record)
+                        tool_results.append(fallback_result)
+                        
+                        analysis["chunks_found"] += len(fallback_result.get('chunks', []))
+                        analysis["doc_tools_called"].append("search_documents (fallback)")
+                        
+                        fallback_tool_call_id = "fallback_search_docs"
+                        messages.append({
+                            "role": "assistant",
+                            "content": None,
+                            "tool_calls": [{
+                                "id": fallback_tool_call_id,
+                                "type": "function",
+                                "function": {
+                                    "name": "search_documents",
+                                    "arguments": json.dumps({"query": question, "limit": 5})
+                                }
+                            }]
+                        })
+                        messages.append({
+                            "role": "tool",
+                            "tool_call_id": fallback_tool_call_id,
+                            "content": json.dumps(fallback_result)
+                        })
+                        
+                        logger.info(f"[RETRIEVAL] Re-running synthesis with {len(fallback_result.get('chunks', []))} fallback chunks")
+                        
+                        try:
+                            synthesis_response = self.client.chat.completions.create(
+                                model=self.model,
+                                messages=messages,
+                                tools=TOOL_DEFINITIONS,
+                                tool_choice="none",
+                                temperature=0.0,
+                                max_tokens=800
+                            )
+                            answer = synthesis_response.choices[0].message.content or "I couldn't find an answer."
+                        except Exception as e:
+                            logger.error(f"[RETRIEVAL] Synthesis after fallback failed: {e}")
+                            answer = message.content or "I couldn't find an answer."
+                    else:
+                        answer = message.content or "I couldn't find an answer."
+                else:
+                    answer = message.content or "I couldn't find an answer."
+                
+                logger.info(f"[RETRIEVAL] Final: entities={analysis['entities_found']}, "
+                           f"relationships={analysis['relationships_found']}, chunks={analysis['chunks_found']}. "
+                           f"Fallback: {fallback_triggered}")
                 
                 if debug_info:
                     debug_info["reasoning_trace"].append({
                         "iteration": iteration + 1,
                         "action": "final_answer",
-                        "raw_answer": answer
+                        "raw_answer": answer,
+                        "fallback_triggered": fallback_triggered,
+                        "retrieval_analysis": analysis
                     })
                 
                 answer = self._validate_numeric_claims(answer, tool_results)
@@ -282,7 +352,9 @@ class ToolAgent:
                     "tool_calls": tool_calls_made,
                     "iterations": iteration + 1,
                     "time_ms": int(total_time * 1000),
-                    "success": True
+                    "success": True,
+                    "retrieval_analysis": analysis,
+                    "fallback_triggered": fallback_triggered
                 }
                 if debug_info:
                     result["debug"] = debug_info
@@ -356,3 +428,76 @@ class ToolAgent:
             return f"Found {len(chunks)} document chunks"
         
         return f"Result with keys: {list(result.keys())[:5]}"
+    
+    def _analyze_retrieval_results(self, tool_calls: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Analyze what data was retrieved from tool calls."""
+        analysis = {
+            "entities_found": 0,
+            "relationships_found": 0,
+            "chunks_found": 0,
+            "kg_tools_called": [],
+            "doc_tools_called": [],
+        }
+        
+        for tc in tool_calls:
+            tool_name = tc.get('tool') or tc.get('name', '')
+            result = tc.get('result', {})
+            
+            if isinstance(result, str):
+                try:
+                    result = json.loads(result)
+                except:
+                    result = {}
+            
+            if tool_name in ('resolve_entities', 'get_knowledge_bundle', 'discover_relationships'):
+                analysis["kg_tools_called"].append(tool_name)
+                
+                entities = result.get('entities', [])
+                if entities:
+                    resolved = [e for e in entities if e.get("resolved")]
+                    analysis["entities_found"] += len(resolved)
+                
+                analysis["relationships_found"] += len(result.get('relationships', []))
+                analysis["relationships_found"] += len(result.get('incoming', []))
+                analysis["relationships_found"] += len(result.get('outgoing', []))
+                
+                for r in result.get('results', []):
+                    analysis["relationships_found"] += len(r.get('relationships', []))
+            
+            if tool_name in ('search_documents', 'search_chunks'):
+                analysis["doc_tools_called"].append(tool_name)
+                analysis["chunks_found"] += len(result.get('chunks', []))
+        
+        return analysis
+    
+    def _needs_document_fallback(self, query: str, analysis: Dict[str, Any]) -> bool:
+        """
+        Determine if we should fallback to document search.
+        
+        Fallback triggers when:
+        - KG was queried but returned minimal data
+        - AND documents weren't already searched
+        """
+        if analysis["doc_tools_called"]:
+            return False
+        
+        if not analysis["kg_tools_called"]:
+            return False
+        
+        if analysis["relationships_found"] >= 3 or analysis["entities_found"] >= 2:
+            return False
+        
+        logger.info(f"[RETRIEVAL] KG returned minimal data. Entities: {analysis['entities_found']}, "
+                    f"Relationships: {analysis['relationships_found']}. Triggering document fallback.")
+        return True
+    
+    def _execute_document_fallback(self, query: str, limit: int = 5) -> Dict[str, Any]:
+        """Execute document search as fallback using ToolExecutor."""
+        try:
+            result = self.tool_executor.execute('search_documents', {'query': query, 'limit': limit})
+            chunks_found = len(result.get('chunks', []))
+            logger.info(f"[RETRIEVAL] Document fallback returned {chunks_found} chunks")
+            return result
+        except Exception as e:
+            logger.error(f"[RETRIEVAL] Document fallback failed: {e}")
+            return {"chunks": [], "error": str(e)}
