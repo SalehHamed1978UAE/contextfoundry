@@ -99,8 +99,8 @@ def run_full_e2e():
         ).all()
         
         entity_dicts = [{'id': str(e.id), 'name': e.name, 'entity_type': e.entity_type} for e in entities]
-        rel_dicts = [{'source_entity_id': str(r.source_entity_id), 'target_entity_id': str(r.target_entity_id), 
-                      'relationship_type': r.relationship_type, 'valid_from': r.valid_from} for r in rels]
+        rel_dicts = [{'source_entity_id': str(r.source_id), 'target_entity_id': str(r.target_id), 
+                      'relationship_type': r.relationship_type, 'valid_from': getattr(r, 'valid_from', None)} for r in rels]
         
         signals = compute_sufficiency(
             query_entities=["Sarah Chen"],
@@ -258,8 +258,8 @@ def run_full_e2e():
         ).all()
         
         entity_dicts = [{'id': str(e.id), 'name': e.name, 'entity_type': e.entity_type} for e in entities]
-        rel_dicts = [{'source_entity_id': str(r.source_entity_id), 'target_entity_id': str(r.target_entity_id),
-                      'relationship_type': r.relationship_type, 'valid_from': r.valid_from} for r in rels]
+        rel_dicts = [{'source_entity_id': str(r.source_id), 'target_entity_id': str(r.target_id),
+                      'relationship_type': r.relationship_type, 'valid_from': getattr(r, 'valid_from', None)} for r in rels]
         
         signals = compute_sufficiency(
             query_entities=["Sarah Chen"],
