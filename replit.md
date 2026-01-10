@@ -125,12 +125,36 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
   - "Who is the CTO?" → Marcus Williams (PASS)
   - "Sarah Chen's salary" → $850K (PASS)
 
+### Query Pipeline Phase 2 ✅ COMPLETE (Jan 2026)
+- **Problem solved**: List queries like "portfolio companies" got incomplete answers when KG lacked coverage
+- **Solution**: Intelligent query routing with automatic HYBRID fallback for list queries
+- **Components**:
+  - `QueryClassifier` - LLM-based classification: query_type, retrieval_strategy, has_role_reference, expects_list
+  - `RoleResolver` - Resolves roles (CEO/CTO/CFO) to people via HELD_POSITION relationships in KG
+  - `RetrievalRouter` - Routes to GRAPH_ONLY | DOCS_ONLY | HYBRID with higher limits (15 vs 5) for list queries
+- **Key changes**:
+  - List queries auto-override from GRAPH_ONLY → HYBRID (ensures document coverage when KG sparse)
+  - Pre-processing pipeline runs before ToolAgent tool loop
+  - Context injection with resolved role info passed to LLM
+- **Test coverage**: 20 unit tests + 6 success criteria
+- **Test results**:
+  - CEO's salary → Sarah Chen, $850K (PASS)
+  - Portfolio companies → HYBRID strategy, 11 document chunks (PASS)
+  - Who reports to CEO → expects_list + CEO resolved (PASS)
+  - Tell me about DataFlow AI → HYBRID strategy (PASS)
+  - Role resolution (CEO/CTO/CFO) → all resolved (PASS)
+
 ## Key Files
 - `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management
 - `src/context_foundry/aggregation/executor.py` - Query execution with tenant context
+- `src/context_foundry/agents/query_classifier.py` - LLM-based query classification with list query detection
+- `src/context_foundry/agents/role_resolver.py` - Resolve roles (CEO/CTO/CFO) to people via HELD_POSITION
+- `src/context_foundry/agents/retrieval_router.py` - Intelligent routing to GRAPH_ONLY/DOCS_ONLY/HYBRID
 - `tests/test_tenant_context.py` - Tenant context utility tests
 - `tests/test_aggregation.py` - Aggregation planner/executor tests
 - `tests/test_ontology_foundry.py` - Schema service validation tests
 - `tests/test_e2e_smoke.py` - Full workflow integration test
 - `tests/test_dtl_integration.py` - DTL precedent routing tests
+- `tests/test_query_pipeline.py` - Query pipeline unit and integration tests (20 tests)
+- `tests/test_techventures_queries.py` - TechVentures end-to-end query tests
