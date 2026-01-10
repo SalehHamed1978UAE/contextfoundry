@@ -60,7 +60,7 @@ class SemanticMemoryAPI:
         Returns:
             List of EntitySummary objects
         """
-        from src.context_foundry.models.schema import Entity, Relationship
+        from ...models.schema import Entity, Relationship
         
         query = self._session.query(Entity).filter(
             Entity.tenant_id == self._tenant_id
@@ -135,7 +135,7 @@ class SemanticMemoryAPI:
         Returns:
             List of EntityMatch objects with similarity scores
         """
-        from src.context_foundry.models.schema import Entity, Relationship
+        from ...models.schema import Entity, Relationship
         
         lifecycle_filter = [LifecycleState.TRUSTED]
         if include_staging:
@@ -275,7 +275,7 @@ class SemanticMemoryAPI:
         Raises:
             StaleEntityError: If entity no longer exists
         """
-        from src.context_foundry.models.schema import Entity
+        from ...models.schema import Entity
         
         entity = self._session.query(Entity).filter(
             Entity.id == entity_id,
@@ -333,7 +333,7 @@ class SemanticMemoryAPI:
         Returns:
             List of EntitySummary objects
         """
-        from src.context_foundry.models.schema import Entity, Relationship
+        from ...models.schema import Entity, Relationship
         
         lifecycle_filter = [LifecycleState.TRUSTED]
         if include_staging:
@@ -388,7 +388,7 @@ class SemanticMemoryAPI:
         Raises:
             StaleEntityError: If entity no longer exists
         """
-        from src.context_foundry.models.schema import Entity
+        from ...models.schema import Entity
         
         entity = self._session.query(Entity).filter(
             Entity.id == entity_id,

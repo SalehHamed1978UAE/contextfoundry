@@ -22,7 +22,7 @@ from psycopg2.extras import RealDictCursor
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
-from src.context_foundry.evaluation.query_set import QuerySet, EvaluationQuery
+from .query_set import QuerySet, EvaluationQuery
 
 
 class ResponseCategory(str, Enum):

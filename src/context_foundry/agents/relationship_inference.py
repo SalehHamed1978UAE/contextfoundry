@@ -33,7 +33,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from openai import OpenAI
 
-from src.context_foundry.models.schema import (
+from ..models.schema import (
     get_session, Entity, Relationship, Document, DocumentChunk, EntityMention,
     InferenceRun, InferenceRunChunk, ProposedRelationship, OntologyRelationshipType,
     LifecycleState, InferenceRunStatus, ProposedRelationshipStatus, InferenceMethod

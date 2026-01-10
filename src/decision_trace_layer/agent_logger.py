@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 import requests
 from sqlalchemy import text
 
-from src.context_foundry.models.schema import get_session, set_tenant_context
+from context_foundry.models.schema import get_session, set_tenant_context
 
 logger = logging.getLogger(__name__)
 

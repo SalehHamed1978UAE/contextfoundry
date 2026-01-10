@@ -18,8 +18,8 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from src.context_foundry.agents.query_interpreter import QueryInterpreter, QueryIntent
-from src.context_foundry.agents.directed_retriever import DirectedGraphRetriever, RetrievalResult
+from .query_interpreter import QueryInterpreter, QueryIntent
+from .directed_retriever import DirectedGraphRetriever, RetrievalResult
 
 logger = logging.getLogger(__name__)
 

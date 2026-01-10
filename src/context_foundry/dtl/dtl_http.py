@@ -15,8 +15,8 @@ from typing import Dict, Any, List, Optional
 
 from flask import Blueprint, request, jsonify, g
 
-from src.context_foundry.api.external import require_api_key
-from src.context_foundry.models.schema import get_session
+from ..api.external import require_api_key
+from ..models.schema import get_session
 from .core import AuthContext, search_precedents
 
 logger = logging.getLogger(__name__)

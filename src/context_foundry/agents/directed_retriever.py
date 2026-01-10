@@ -18,8 +18,8 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from src.context_foundry.agents.query_interpreter import QueryIntent
-from src.context_foundry.agents.entity_resolver import EntityResolver
+from .query_interpreter import QueryIntent
+from .entity_resolver import EntityResolver
 
 logger = logging.getLogger(__name__)
 

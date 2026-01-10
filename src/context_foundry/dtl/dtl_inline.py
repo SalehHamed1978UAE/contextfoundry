@@ -16,7 +16,7 @@ import logging
 from dataclasses import dataclass
 from typing import List, Optional
 
-from src.context_foundry.models.schema import get_session
+from ..models.schema import get_session
 from .core import AuthContext, PrecedentResult, search_precedents
 
 logger = logging.getLogger(__name__)
