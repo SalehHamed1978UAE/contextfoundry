@@ -46,6 +46,9 @@ class LearningTicketAgent:
         """
         Create learning tickets for detected gaps.
         
+        Uses proper transaction handling - all tickets are created atomically.
+        If any ticket creation fails, all changes are rolled back.
+        
         Args:
             gaps: List of gap dictionaries from SufficiencySignals.gaps_detected
             query_id: Optional ID of the query that detected these gaps
@@ -53,24 +56,36 @@ class LearningTicketAgent:
             
         Returns:
             List of ticket IDs (new or existing)
+            
+        Raises:
+            Exception: If any ticket creation fails (all changes rolled back)
         """
+        for gap in gaps:
+            if not gap.get('type'):
+                raise ValueError(f"Gap missing required 'type' field: {gap}")
+        
         self.session.execute(
             text(f"SET app.current_tenant_id = '{self.tenant_id}'")
         )
         
         ticket_ids = []
         
-        for gap in gaps:
-            existing = self._find_similar_ticket(gap)
+        try:
+            for gap in gaps:
+                existing = self._find_similar_ticket(gap)
+                
+                if existing:
+                    self._increment_ticket_priority(existing['id'], existing['hit_count'])
+                    ticket_ids.append(existing['id'])
+                else:
+                    ticket_id = self._create_ticket(gap, query_id, source_chunk_ids)
+                    ticket_ids.append(ticket_id)
             
-            if existing:
-                self._increment_ticket_priority(existing['id'], existing['hit_count'])
-                ticket_ids.append(existing['id'])
-            else:
-                ticket_id = self._create_ticket(gap, query_id, source_chunk_ids)
-                ticket_ids.append(ticket_id)
-        
-        return ticket_ids
+            self.session.commit()
+            return ticket_ids
+        except Exception:
+            self.session.rollback()
+            raise
     
     def _find_similar_ticket(self, gap: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Find an existing pending ticket for the same gap."""
@@ -140,7 +155,7 @@ class LearningTicketAgent:
         priority = base_severity * (1 + 0.2 * hit_count)
         return min(1.0, priority)
     
-    def _increment_ticket_priority(self, ticket_id: str, current_hit_count: int):
+    def _increment_ticket_priority(self, ticket_id: str, current_hit_count: int, commit: bool = False):
         """Increment hit count and update priority using explicit formula."""
         new_hit_count = current_hit_count + 1
         
@@ -170,13 +185,15 @@ class LearningTicketAgent:
                 'priority': new_priority
             }
         )
-        self.session.commit()
+        if commit:
+            self.session.commit()
     
     def _create_ticket(
         self,
         gap: Dict[str, Any],
         query_id: str = None,
-        source_chunk_ids: List[str] = None
+        source_chunk_ids: List[str] = None,
+        commit: bool = False
     ) -> str:
         """Create a new learning ticket."""
         self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
@@ -223,7 +240,8 @@ class LearningTicketAgent:
                 'priority': priority
             }
         )
-        self.session.commit()
+        if commit:
+            self.session.commit()
         
         return ticket_id
     

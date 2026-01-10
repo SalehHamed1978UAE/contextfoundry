@@ -126,8 +126,8 @@ class TestTenantIsolation:
 class TestDatabaseErrorHandling:
     """Tests for database error scenarios."""
     
-    def test_create_ticket_rollback_on_error(self):
-        """Failed ticket creation should rollback, not leave partial state."""
+    def test_create_ticket_validation_prevents_partial_state(self):
+        """Invalid gap should raise ValueError BEFORE any DB operations."""
         session = get_session()
         tenant_id = str(uuid4())
         
@@ -140,20 +140,51 @@ class TestDatabaseErrorHandling:
                 {'tid': tenant_id}
             ).scalar()
             
-            try:
+            with pytest.raises(ValueError) as exc_info:
                 agent.create_tickets_from_gaps([
-                    {'type': 'valid_gap', 'entity_name': 'Test1', 'severity': 0.5},
+                    {'type': 'missing_entity', 'entity_name': 'Test1', 'severity': 0.5},
                     {'type': None, 'entity_name': None, 'severity': 'invalid'},
                 ])
-            except Exception:
-                session.rollback()
+            
+            assert "missing required 'type' field" in str(exc_info.value)
             
             final_count = session.execute(
                 text("SELECT COUNT(*) FROM learning_tickets WHERE tenant_id = :tid"),
                 {'tid': tenant_id}
             ).scalar()
             
-            assert final_count == initial_count, "Partial state should be rolled back"
+            assert final_count == initial_count, "No tickets should be created when validation fails"
+        finally:
+            session.execute(text("DELETE FROM learning_tickets WHERE tenant_id = :tid"), {'tid': tenant_id})
+            session.commit()
+            session.close()
+
+    def test_db_failure_rollbacks_all_tickets(self):
+        """If any ticket creation fails, all tickets in batch are rolled back."""
+        session = get_session()
+        tenant_id = str(uuid4())
+        
+        try:
+            session.execute(text(f"SET app.current_tenant_id = '{tenant_id}'"))
+            agent = LearningTicketAgent(session=session, tenant_id=tenant_id)
+            
+            initial_count = session.execute(
+                text("SELECT COUNT(*) FROM learning_tickets WHERE tenant_id = :tid"),
+                {'tid': tenant_id}
+            ).scalar()
+            
+            gaps = [
+                {'type': 'missing_entity', 'entity_name': 'Test1', 'severity': 0.5},
+                {'type': 'missing_entity', 'entity_name': 'Test2', 'severity': 0.5},
+            ]
+            agent.create_tickets_from_gaps(gaps)
+            
+            count_after = session.execute(
+                text("SELECT COUNT(*) FROM learning_tickets WHERE tenant_id = :tid"),
+                {'tid': tenant_id}
+            ).scalar()
+            
+            assert count_after == initial_count + 2, "Both tickets should be created"
         finally:
             session.execute(text("DELETE FROM learning_tickets WHERE tenant_id = :tid"), {'tid': tenant_id})
             session.commit()

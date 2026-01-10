@@ -52,6 +52,89 @@ def parse_date(date_value: Any) -> Optional[datetime]:
     return None
 
 
+def _normalize_name(name: str) -> str:
+    """Normalize entity name for comparison."""
+    import re
+    normalized = name.lower().strip()
+    normalized = re.sub(r'\s*(inc\.?|corp\.?|llc|ltd\.?|,)\s*$', '', normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r'^(dr\.?|mr\.?|mrs\.?|ms\.?|prof\.?)\s+', '', normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r',?\s*(ph\.?d\.?|m\.?d\.?|jr\.?|sr\.?)$', '', normalized, flags=re.IGNORECASE)
+    import unicodedata
+    normalized = unicodedata.normalize('NFD', normalized)
+    normalized = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+    return normalized
+
+
+def _fuzzy_match(query_name: str, found_name: str, threshold: float = 0.85) -> bool:
+    """
+    Check if two entity names match using fuzzy matching.
+    
+    Handles:
+    - Case insensitivity
+    - Suffix variations (Inc, Corp, LLC)
+    - Title prefixes (Dr., Mr., etc.)
+    - Accent characters (José vs Jose)
+    """
+    norm_query = _normalize_name(query_name)
+    norm_found = _normalize_name(found_name)
+    
+    if norm_query == norm_found:
+        return True
+    
+    if norm_query in norm_found or norm_found in norm_query:
+        return True
+    
+    len1, len2 = len(norm_query), len(norm_found)
+    if len1 == 0 or len2 == 0:
+        return False
+    
+    match_distance = max(len1, len2) // 2 - 1
+    if match_distance < 0:
+        match_distance = 0
+    
+    s1_matches = [False] * len1
+    s2_matches = [False] * len2
+    
+    matches = 0
+    for i in range(len1):
+        start = max(0, i - match_distance)
+        end = min(i + match_distance + 1, len2)
+        for j in range(start, end):
+            if s2_matches[j] or norm_query[i] != norm_found[j]:
+                continue
+            s1_matches[i] = True
+            s2_matches[j] = True
+            matches += 1
+            break
+    
+    if matches == 0:
+        return False
+    
+    transpositions = 0
+    k = 0
+    for i in range(len1):
+        if not s1_matches[i]:
+            continue
+        while not s2_matches[k]:
+            k += 1
+        if norm_query[i] != norm_found[k]:
+            transpositions += 1
+        k += 1
+    
+    jaro = (matches / len1 + matches / len2 + (matches - transpositions / 2) / matches) / 3
+    
+    prefix = 0
+    for i in range(min(len1, len2, 4)):
+        if norm_query[i] == norm_found[i]:
+            prefix += 1
+        else:
+            break
+    
+    jaro_winkler = jaro + prefix * 0.1 * (1 - jaro)
+    
+    return jaro_winkler >= threshold
+
+
 def extract_entities_from_query(query: str) -> List[str]:
     """Extract potential entity names from a query string."""
     capitalized = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', query)
@@ -91,10 +174,19 @@ def compute_sufficiency(
     query_names = {name.lower() for name in query_entities if name}
     
     if query_names:
-        matched = found_names & query_names
+        matched = set()
+        for query_name in query_names:
+            if query_name in found_names:
+                matched.add(query_name)
+            else:
+                for found_name in found_names:
+                    if _fuzzy_match(query_name, found_name):
+                        matched.add(query_name)
+                        break
+        
         coverage = len(matched) / len(query_names)
         
-        missing_entities = query_names - found_names
+        missing_entities = query_names - matched
         for entity in missing_entities:
             gaps_detected.append({
                 'type': 'missing_entity',
@@ -102,7 +194,7 @@ def compute_sufficiency(
                 'severity': 0.8
             })
     else:
-        coverage = 1.0 if found_entities else 0.0
+        coverage = 0.0
     
     # 2. Freshness: How old is our data?
     if relationships:
