@@ -28,6 +28,7 @@ from ..models.schema import (
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 from ..ontology_foundry.schema_service import get_ontology_schema_service
 from ..utils.logger import logger
+from ..memory.episodic import openai_embedding
 
 
 def parse_date_string(date_str: str) -> Optional[datetime]:
@@ -889,6 +890,12 @@ class GraphBuilderAgent:
                 chunks_stored = 0
                 for chunk in chunks:
                     try:
+                        chunk_embedding = None
+                        try:
+                            chunk_embedding = openai_embedding(chunk.text, dim=1536)
+                        except Exception as embed_e:
+                            logger.warning(f"Failed to generate embedding for chunk {chunk.chunk_index}: {embed_e}")
+                        
                         db_chunk = DocumentChunk(
                             id=uuid.uuid4(),
                             document_id=doc.id,
@@ -900,7 +907,8 @@ class GraphBuilderAgent:
                             chunk_metadata={
                                 "source_document_id": source_document_id,
                                 "document_title": document_title
-                            }
+                            },
+                            embedding=chunk_embedding
                         )
                         self.session.add(db_chunk)
                         chunks_stored += 1
@@ -908,7 +916,7 @@ class GraphBuilderAgent:
                         logger.warning(f"Failed to store chunk {chunk.chunk_index}: {chunk_e}")
                 
                 self.session.flush()
-                logger.info(f"Stored {chunks_stored} document chunks for RAG retrieval")
+                logger.info(f"Stored {chunks_stored} document chunks with embeddings for RAG retrieval")
             
         except Exception as e:
             logger.error(f"Failed to create document record: {e}")

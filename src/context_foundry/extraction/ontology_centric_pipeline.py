@@ -27,6 +27,7 @@ from .staging_loader import StagingLoader, StagingResult
 
 from ..utils.logger import logger
 from ..models.schema import DocumentChunk
+from ..memory.episodic import openai_embedding
 
 
 @dataclass
@@ -290,6 +291,12 @@ class OntologyCentricPipeline:
             
             stored_chunks = []
             for idx, (chunk_text, char_start, char_end) in enumerate(chunks_data):
+                chunk_embedding = None
+                try:
+                    chunk_embedding = openai_embedding(chunk_text, dim=1536)
+                except Exception as embed_e:
+                    logger.warning(f"[OntologyCentricPipeline] Failed to generate embedding for chunk {idx}: {embed_e}")
+                
                 chunk = DocumentChunk(
                     id=uuid.uuid4(),
                     document_id=document_id,
@@ -298,13 +305,14 @@ class OntologyCentricPipeline:
                     text=chunk_text,
                     char_start=char_start,
                     char_end=char_end,
-                    chunk_metadata={"source": "ontology_centric_pipeline"}
+                    chunk_metadata={"source": "ontology_centric_pipeline"},
+                    embedding=chunk_embedding
                 )
                 self.session.add(chunk)
                 stored_chunks.append(chunk)
             
             self.session.flush()
-            logger.info(f"[OntologyCentricPipeline] Stored {len(stored_chunks)} chunks for document {document_id}")
+            logger.info(f"[OntologyCentricPipeline] Stored {len(stored_chunks)} chunks with embeddings for document {document_id}")
             return stored_chunks
             
         except Exception as e:
