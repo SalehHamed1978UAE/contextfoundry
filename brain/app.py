@@ -642,6 +642,55 @@ def process_extraction_queue():
                             f"{relations_count} relationships for tenant {tenant_id}"
                         )
                         
+                        from src.context_foundry.models.schema import DocumentChunk
+                        from src.context_foundry.memory.episodic import openai_embedding
+                        import uuid as uuid_module
+                        
+                        existing_chunks = session.execute(
+                            text("SELECT COUNT(*) FROM document_chunks WHERE document_id = :doc_id"),
+                            {"doc_id": document_id}
+                        ).scalar()
+                        
+                        if existing_chunks == 0 and text_content:
+                            chunk_size = 2000
+                            overlap = 400
+                            chunks_created = 0
+                            start_pos = 0
+                            chunk_idx = 0
+                            
+                            while start_pos < len(text_content):
+                                end_pos = min(start_pos + chunk_size, len(text_content))
+                                chunk_text = text_content[start_pos:end_pos].strip()
+                                
+                                if chunk_text:
+                                    chunk_embedding = None
+                                    try:
+                                        chunk_embedding = openai_embedding(chunk_text, dim=1536)
+                                    except Exception as embed_e:
+                                        logger.warning(f"[ExtractionWorker] Failed to generate embedding for chunk {chunk_idx}: {embed_e}")
+                                    
+                                    db_chunk = DocumentChunk(
+                                        id=uuid_module.uuid4(),
+                                        document_id=document_id,
+                                        tenant_id=tenant_id,
+                                        chunk_index=chunk_idx,
+                                        text=chunk_text,
+                                        char_start=start_pos,
+                                        char_end=end_pos,
+                                        chunk_metadata={"source": "extraction_worker"},
+                                        embedding=chunk_embedding
+                                    )
+                                    session.add(db_chunk)
+                                    chunks_created += 1
+                                    chunk_idx += 1
+                                
+                                start_pos = end_pos - overlap
+                                if start_pos >= len(text_content):
+                                    break
+                            
+                            session.commit()
+                            logger.info(f"[ExtractionWorker] Created {chunks_created} document chunks with embeddings")
+                        
                     except Exception as e:
                         logger.error(f"[ExtractionWorker] Staging error: {e}")
                         import traceback

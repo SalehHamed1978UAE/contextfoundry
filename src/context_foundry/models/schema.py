@@ -762,7 +762,7 @@ class InferenceMethod(str, Enum):
 
 
 class DocumentChunk(Base):
-    """Document chunks for RE processing."""
+    """Document chunks for RE processing with vector embeddings."""
     __tablename__ = "document_chunks"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -774,6 +774,7 @@ class DocumentChunk(Base):
     char_end = Column(Integer)
     chunk_metadata = Column(JSON, default=dict)
     created_at = Column(DateTime, default=datetime.utcnow)
+    embedding = Column(Vector(1536))
     
     __table_args__ = (
         Index('idx_chunks_doc_index', 'document_id', 'chunk_index', unique=True),
