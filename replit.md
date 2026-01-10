@@ -55,7 +55,21 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - Both applications share: Entity/Relationship models, ContextBundle structure, Sufficiency computation
 - Demo script: `scripts/stage4_demo.py` proves both apps against same data
 
-## Extraction Quality TODOs
-1. Add `HAS_COMPENSATION` relationship type to domain_schema.yaml
-2. Validate relationship type → target type constraints in extraction validation
-3. Improve extraction prompt to handle compensation facts as dedicated relationships
+### MVP Verification ✅ COMPLETE (Jan 2026)
+- **RLS Context Stability**: Enhanced TenantSession with failure tracking, logging, and fail-closed behavior
+- **Aggregation Cache Guard**: Replaced NotImplementedError with clear ValueError message
+- **Extraction Quality**: HAS_COMPENSATION relationship type validated, HELD_POSITION targets job titles correctly
+- **Test Coverage**: 135 tests total (was 39)
+  - Aggregation planner/executor (34 tests)
+  - Ontology foundry schema service (30 tests)
+  - E2E smoke test workflow (4 tests)
+  - DTL integration with precedent routing (28 tests)
+  - Existing MVP tests (39 tests)
+
+## Key Files
+- `src/context_foundry/models/schema.py` - TenantSession with RLS context management
+- `src/context_foundry/aggregation/executor.py` - Query execution with tenant context
+- `tests/test_aggregation.py` - Aggregation planner/executor tests
+- `tests/test_ontology_foundry.py` - Schema service validation tests
+- `tests/test_e2e_smoke.py` - Full workflow integration test
+- `tests/test_dtl_integration.py` - DTL precedent routing tests
