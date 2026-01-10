@@ -35,10 +35,10 @@ class ExtractionPostProcessor:
         return {
             'HOLD_POSITION': {
                 'patterns': [
-                    r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*(Chief\s+\w+\s+Officer|CEO|CFO|CTO|CIO|COO|CDO|CMO|CNO|VP\s+\w+|Director\s+\w+|Managing\s+Partner|Senior\s+Partner|Partner|Chair\w*)',
-                    r'^(?:Dr\.|Mr\.|Ms\.|Mrs\.)\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*(Chief\s+\w+\s+Officer|CEO|CFO|CTO|CIO|COO)',
-                    r'^(CEO|CFO|CTO|CIO|COO)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)',
-                    r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+),\s*(CEO|CFO|CTO|CIO|COO|Managing\s+Partner)',
+                    {'regex': r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*(Chief\s+\w+\s+Officer|CEO|CFO|CTO|CIO|COO|CDO|CMO|CNO|VP\s+\w+|Director\s+\w+|Managing\s+Partner|Senior\s+Partner|Partner|Chair\w*)', 'inverted': False},
+                    {'regex': r'^(?:Dr\.|Mr\.|Ms\.|Mrs\.)\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*(Chief\s+\w+\s+Officer|CEO|CFO|CTO|CIO|COO)', 'inverted': False},
+                    {'regex': r'^(CEO|CFO|CTO|CIO|COO)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)', 'inverted': True},
+                    {'regex': r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+),\s*(CEO|CFO|CTO|CIO|COO|Managing\s+Partner)', 'inverted': False},
                 ],
                 'source_type': 'PERSON',
                 'target_type': 'ROLE',
@@ -114,10 +114,17 @@ class ExtractionPostProcessor:
         
         return entities, relationships
     
-    def _find_patterns_line_by_line(self, text: str, patterns: List[str]) -> Set[Tuple[str, str]]:
+    def _find_patterns_line_by_line(self, text: str, patterns: List) -> Set[Tuple[str, str]]:
         """
         Find all matches for given patterns, processing line-by-line.
         Prevents cross-line matching issues.
+        
+        Patterns can be:
+        - Simple string: r'pattern'
+        - Dict with inverted flag: {'regex': r'pattern', 'inverted': True/False}
+        
+        For inverted patterns (e.g., "CFO John Smith"), swap capture groups so
+        PERSON is always source and ROLE is always target.
         """
         found = set()
         lines = text.split('\n')
@@ -127,14 +134,25 @@ class ExtractionPostProcessor:
             if not line:
                 continue
                 
-            for pattern in patterns:
+            for pattern_config in patterns:
+                if isinstance(pattern_config, dict):
+                    pattern = pattern_config['regex']
+                    inverted = pattern_config.get('inverted', False)
+                else:
+                    pattern = pattern_config
+                    inverted = False
+                
                 for match in re.finditer(pattern, line, re.IGNORECASE):
                     groups = match.groups()
                     if len(groups) >= 2:
-                        source = groups[0].strip()
-                        target = groups[1].strip()
+                        if inverted:
+                            source = groups[1].strip()
+                            target = groups[0].strip()
+                        else:
+                            source = groups[0].strip()
+                            target = groups[1].strip()
+                        
                         source_words = len(source.split())
-                        target_words = len(target.split())
                         if source_words >= 2 and source_words <= 4 and len(target) > 2:
                             found.add((source, target))
         
