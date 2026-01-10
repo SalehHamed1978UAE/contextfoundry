@@ -112,13 +112,17 @@ class GardenerLearningProcessor:
             return {'ticket_id': str(ticket['id']), **resolution_payload}
             
         except Exception as e:
+            self.session.rollback()  # Rollback failed transaction before updating
             error_payload = {
                 'action': 'error',
                 'improved': False,
-                'error': str(e),
-                'notes': f"Processing failed: {str(e)}"
+                'error': str(e)[:200],
+                'notes': f"Processing failed: {str(e)[:100]}"
             }
-            self._update_ticket_status(ticket['id'], 'pending', error_payload)
+            try:
+                self._update_ticket_status(ticket['id'], 'ignored', error_payload)
+            except Exception:
+                pass  # Don't fail on failed error logging
             return {'ticket_id': str(ticket['id']), **error_payload}
     
     def _handle_missing_entity(self, ticket: Dict[str, Any]) -> Dict[str, Any]:
@@ -234,6 +238,7 @@ class GardenerLearningProcessor:
         resolution: Dict[str, Any] = None
     ):
         """Update ticket status with structured resolution payload."""
+        self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
         self.session.execute(
             text("""
                 UPDATE learning_tickets
@@ -260,7 +265,7 @@ class GardenerLearningProcessor:
             text("""
                 SELECT id FROM document_chunks
                 WHERE tenant_id = :tenant_id
-                AND LOWER(content) LIKE LOWER(:pattern)
+                AND LOWER(text) LIKE LOWER(:pattern)
                 LIMIT 10
             """),
             {
@@ -299,7 +304,7 @@ class GardenerLearningProcessor:
         """Get a document chunk by ID."""
         result = self.session.execute(
             text("""
-                SELECT id, content, document_id
+                SELECT id, text as content, document_id
                 FROM document_chunks
                 WHERE id = :chunk_id
             """),

@@ -179,6 +179,7 @@ class LearningTicketAgent:
         source_chunk_ids: List[str] = None
     ) -> str:
         """Create a new learning ticket."""
+        self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
         ticket_id = str(uuid.uuid4())
         
         gap_type = gap.get('type', 'unknown')
