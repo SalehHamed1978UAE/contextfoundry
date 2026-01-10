@@ -8,6 +8,8 @@ from .extraction_pipeline import ExtractionPipeline
 from .staging_loader import StagingLoader, StagingResult
 from .duplicate_detector import DuplicateDetector, DuplicateCandidate, DuplicateDetectionResult
 from .validation import ExtractionValidator, ValidationSample, ValidationResult, run_validation_report
+from .post_processor import ExtractionPostProcessor
+from .validator import GapValidator, ExtractionGap, GapSeverity
 
 __all__ = [
     "EntityExtractor", 
@@ -24,4 +26,8 @@ __all__ = [
     "ValidationSample",
     "ValidationResult",
     "run_validation_report",
+    "ExtractionPostProcessor",
+    "GapValidator",
+    "ExtractionGap",
+    "GapSeverity",
 ]
