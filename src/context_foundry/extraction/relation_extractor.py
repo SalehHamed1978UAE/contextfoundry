@@ -11,10 +11,13 @@ from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from datetime import datetime
 import hashlib
+import logging
 
 from openai import OpenAI
 
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
+
+logger = logging.getLogger(__name__)
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
