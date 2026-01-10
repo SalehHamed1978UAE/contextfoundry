@@ -1,0 +1,72 @@
+EXTRACTION QUALITY FIXES
+
+These bugs cause wrong relationship types in the knowledge graph:
+
+### Fix 1: Add HAS_COMPENSATION relationship type
+
+File: config/domain_schema.yaml
+
+Add to relationship_types section:
+
+  HAS_COMPENSATION:
+    description: "Person receives compensation/salary"
+    valid_sources: [PERSON]
+    valid_targets: [MONETARY_VALUE, AMOUNT, CONCEPT]
+
+### Fix 2: Add relationship target validation
+
+File: src/context_foundry/extraction/validation.py
+
+Add function:
+
+RELATIONSHIP_TARGET_CONSTRAINTS = {
+    "HELD_POSITION": ["JOB_TITLE", "ROLE", "POSITION"],
+    "WORKS_AT": ["ORGANIZATION", "COMPANY"],
+    "REPORTS_TO": ["PERSON"],
+    "HAS_COMPENSATION": ["MONETARY_VALUE", "AMOUNT", "CONCEPT"],
+    "MEMBER_OF": ["ORGANIZATION", "TEAM", "GROUP"],
+    "LEADS": ["ORGANIZATION", "TEAM", "PROJECT"],
+    "MANAGES": ["PERSON", "TEAM", "PROJECT"],
+}
+
+def validate_relationship_target(rel_type: str, target_type: str) -> bool:
+    """Return True if target type is valid for this relationship type."""
+    if rel_type not in RELATIONSHIP_TARGET_CONSTRAINTS:
+        return True  # Unknown type, allow
+    return target_type in RELATIONSHIP_TARGET_CONSTRAINTS[rel_type]
+
+### Fix 3: Update extraction prompt
+
+File: src/context_foundry/agents/graph_builder.py
+
+Find the extraction prompt and add these rules:
+
+RELATIONSHIP EXTRACTION RULES:
+- HELD_POSITION: Target must be a JOB TITLE (CTO, VP Engineering), NOT an organization
+- WORKS_AT: Target must be an ORGANIZATION
+- HAS_COMPENSATION: Use for salary/pay. Target is the amount.
+- REPORTS_TO: Both source and target must be PERSON
+
+EXAMPLES:
+✓ CORRECT: Sarah Chen --[HELD_POSITION]--> CTO
+✗ WRONG:   Sarah Chen --[HELD_POSITION]--> GlobalTech (org, not job title)
+
+✓ CORRECT: Sarah Chen --[WORKS_AT]--> GlobalTech
+✓ CORRECT: Sarah Chen --[HAS_COMPENSATION]--> $450,000
+
+Never embed salary as a qualifier on HELD_POSITION. Create separate HAS_COMPENSATION relationship.
+
+### Fix 4: Call validation during extraction
+
+In the extraction pipeline, after extracting relationships, call validate_relationship_target() 
+and log warnings for invalid combinations. Optionally reject them.
+
+### Test
+
+After fixes, ingest this text:
+"John Smith is CEO of TechCorp earning $500,000 annually."
+
+Verify:
+- John Smith --[HELD_POSITION]--> CEO (not TechCorp)
+- John Smith --[WORKS_AT]--> TechCorp
+- John Smith --[HAS_COMPENSATION]--> $500,000
