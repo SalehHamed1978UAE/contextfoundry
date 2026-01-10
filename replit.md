@@ -144,6 +144,17 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
   - Tell me about DataFlow AI → HYBRID strategy (PASS)
   - Role resolution (CEO/CTO/CFO) → all resolved (PASS)
 
+### Vector Search Fix ✅ COMPLETE (Jan 2026)
+- **Problem solved**: CEO salary queries failed because RetrievalRouter used text search only
+- **Root cause**: `use_vector=False` in RetrievalRouter._search_documents() bypassed vector embeddings
+- **Why text search failed**: Searched for "CEO" but compensation memo has "Chief Executive Officer"
+- **Fix**: Changed to `use_vector=True` enabling semantic matching via embeddings
+- **Key insight**: Vector embeddings match "CEO salary" → "Chief Executive Officer compensation"
+- **Test results**:
+  - "Who is the CTO?" → Marcus Williams (PASS)
+  - "CEO's salary" → $850K (PASS)
+  - "Portfolio companies" → CloudMatrix, HealthSync, SecureNode (PASS)
+
 ### Context Injection & QA Evidence Alignment ✅ COMPLETE (Jan 2026)
 - **Problem solved**: LLM seeing pre-processing context would skip tool calls, causing QA Verifier to reject as UNSUPPORTED
 - **FIX 1 - Context Injection**:
