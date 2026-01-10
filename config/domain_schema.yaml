@@ -31,6 +31,33 @@ entity_types:
       - organization
       - email
 
+  - name: JOB_TITLE
+    description: "A job title, role, or position held by a person - CEO, CTO, Manager, Director"
+    keywords:
+      - title
+      - role
+      - position
+      - CEO
+      - CTO
+      - CFO
+      - COO
+      - CDO
+      - Chief Executive Officer
+      - Chief Technology Officer
+      - Chief Financial Officer
+      - President
+      - Vice President
+      - Director
+      - Manager
+      - General Counsel
+      - Partner
+    required_fields:
+      - canonical_name
+    optional_fields:
+      - abbreviation
+      - level
+      - department
+
   - name: ORGANIZATION
     description: "Any formal group - company, government agency, department, ministry, committee, team"
     keywords:

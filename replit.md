@@ -110,6 +110,21 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
   - Chunk truncation increased from 500 to 1500 chars for richer context
 - **Test results**: TechVentures queries now return correct data (Sarah Chen: $850K base, $2.05M total)
 
+### Role-Based Query Support ✅ COMPLETE (Jan 2026)
+- **Problem solved**: Queries like "CEO's salary" failed because knowledge graph lacked job title relationships
+- **Solution**: Enhanced GraphBuilder to extract HELD_POSITION relationships linking people to job titles
+- **Key changes**:
+  - Added JOB_TITLE entity type to domain schema (CEO, CTO, CFO, etc.)
+  - Enhanced GraphBuilder prompts with explicit pattern matching: "[Person], [Title]" → extract both PERSON and JOB_TITLE
+  - Added abbreviation expansion in text search (CEO ↔ Chief Executive Officer) using OR logic
+  - Re-extracted TechVentures documents creating 11 HELD_POSITION relationships
+- **Test results**:
+  - "Who is the CEO?" → Sarah Chen (PASS)
+  - "CEO's salary" → $850K (PASS)
+  - "CFO's compensation" → $480K (PASS)
+  - "Who is the CTO?" → Marcus Williams (PASS)
+  - "Sarah Chen's salary" → $850K (PASS)
+
 ## Key Files
 - `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management

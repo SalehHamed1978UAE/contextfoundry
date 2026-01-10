@@ -155,8 +155,13 @@ TYPE PRIORITY - Use SPECIFIC types over GENERIC ones:
 - Use PERSON for: individuals, people, executives, employees, researchers, board members
   Examples: "John Smith" → PERSON, "Dr. Sarah Chen" → PERSON, "Saleh Hamed" → PERSON
   In resumes/CVs: The name in the header/title is ALWAYS a PERSON entity
-- Use JOB_TITLE for: specific positions or roles held by people
+- Use JOB_TITLE for: specific positions or roles held by people (EXTRACT THESE AS SEPARATE ENTITIES!)
   Examples: "Systems Engineer" → JOB_TITLE, "CEO" → JOB_TITLE, "Manager, Systems Design" → JOB_TITLE
+  CRITICAL: When you see "Sarah Chen, Chief Executive Officer" you MUST extract BOTH:
+    - PERSON: "Sarah Chen"
+    - JOB_TITLE: "Chief Executive Officer"
+  Common job titles to recognize: CEO, CTO, CFO, COO, CDO, President, Vice President, Director, 
+  General Counsel, Managing Partner, Board Member, Chairman (and their full forms)
 - Use SERVICE (not ORGANIZATION or PROCESS) for: software services, APIs, applications, gateways, microservices
   Examples: "Payment Gateway" → SERVICE, "Authentication Service" → SERVICE, "Order Processing API" → SERVICE
 - Use DATABASE (not ORGANIZATION or PROCESS) for: databases, data stores, warehouses, caches
@@ -281,6 +286,28 @@ CRITICAL RULES:
    - 0.9-1.0: Explicit statement with dates and context
    - 0.7-0.9: Mentioned directly with some context
    - 0.5-0.7: Implied but supported by text
+
+ROLE/POSITION EXTRACTION (VERY IMPORTANT):
+When a person is mentioned with a job title, ALWAYS create a HELD_POSITION relationship.
+
+Pattern recognition for titles:
+- "Sarah Chen, Chief Executive Officer" → HELD_POSITION: Sarah Chen → CEO (with qualifier at_organization)
+- "Marcus Williams was promoted to CTO" → HELD_POSITION: Marcus Williams → CTO
+- "James O'Brien serves as CFO" → HELD_POSITION: James O'Brien → CFO
+- "Dr. Amira Hassan, Chief Data Officer" → HELD_POSITION: Dr. Amira Hassan → Chief Data Officer
+
+Common titles to recognize (extract as HELD_POSITION target):
+- CEO, CTO, CFO, COO, CDO (and full forms like Chief Executive Officer)
+- President, Vice President, SVP, EVP
+- Director, Managing Director, General Counsel
+- Founder, Co-founder, Partner, Managing Partner
+- Board Member, Chairman
+
+For each person-title pattern found:
+1. Create PERSON entity for the individual
+2. Create JOB_TITLE entity for the position (e.g., "Chief Executive Officer" or "CEO")
+3. Create HELD_POSITION relationship: Person → JOB_TITLE
+4. Add qualifier "at_organization" with the company name if mentioned
 
 RELATIONSHIP TYPE CONSTRAINTS (VERY IMPORTANT):
 - HELD_POSITION: Source must be PERSON, Target must be JOB_TITLE or CONCEPT (NOT ORGANIZATION)
