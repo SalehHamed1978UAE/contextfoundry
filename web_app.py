@@ -3518,7 +3518,7 @@ def vault_chat():
                     if tool_name == 'get_relationships':
                         retrieval_relationships.extend(result.get('relationships', []))
                     
-                    if tool_name in ('search_chunks', 'summarize_chunks', 'retrieve_documents'):
+                    if tool_name in ('search_chunks', 'summarize_chunks', 'retrieve_documents', 'search_documents'):
                         retrieval_chunks.extend(result.get('chunks', []))
                 
                 retrieval = {
