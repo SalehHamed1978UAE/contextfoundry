@@ -1,0 +1,95 @@
+TWO CRITICAL FIXES - IMPLEMENT NOW
+
+FIX 1: CONTEXT INJECTION
+
+The vault context must be available to every query.
+
+A) web_app.py - Pass vault context:
+```python
+# Where vault_chat or query endpoint calls ToolAgent:
+result = tool_agent.query(
+    query_text=query,
+    vault_context=vault.name  # or vault.organization_name
+)
+```
+
+B) ToolAgent.query() - Accept and use vault_context:
+```python
+def query(self, query_text: str, vault_context: str = None, ...):
+    retrieval_result = self.retrieval_router.retrieve(
+        query=query_text,
+        vault_context=vault_context
+    )
+```
+
+C) RetrievalRouter.retrieve() - Default target_entity from context:
+```python
+def retrieve(self, query: str, vault_context: str = None, ...):
+    classification = self.classifier.classify(query)
+    
+    # KEY FIX: Use vault context when no explicit entity
+    if not classification.target_entity and vault_context:
+        classification.target_entity = vault_context
+        logger.info(f"[ROUTER] Injected vault context: {vault_context}")
+    
+    # Continue with role resolution, routing, etc.
+```
+
+D) Multi-entity fallback - If no context but data exists:
+```python
+# If has_role_reference and no target_entity and no vault_context:
+# Query ALL matching roles in tenant and return them
+if classification.has_role_reference and not classification.target_entity:
+    all_matches = self.role_resolver.resolve_all(
+        role=classification.role_referenced,
+        tenant_id=self.tenant_id
+    )
+    if all_matches:
+        # Return list: "Marcus @ TechVentures, Maya @ DataFlow..."
+```
+
+---
+
+FIX 2: QA EVIDENCE ALIGNMENT
+
+Pre-fetched pipeline data must count as evidence.
+
+A) ToolAgent - Pass retrieval_result to QA:
+```python
+# In direct answer path:
+verdict = self.qa_verifier.verify_from_retrieval_result(
+    question=query_text,
+    answer=answer,
+    retrieval=retrieval_result  # Contains pre-fetched entities, relationships, chunks
+)
+```
+
+B) qa_verifier.py - Count pipeline data:
+```python
+def verify_from_retrieval_result(self, question: str, answer: str, retrieval) -> QAVerdict:
+    class RetrievalAdapter:
+        def __init__(self, r):
+            self.entities = r.entities if hasattr(r, 'entities') else []
+            self.relationships = r.relationships if hasattr(r, 'relationships') else []
+            self.chunks = r.chunks if hasattr(r, 'chunks') else []
+            
+            # Resolved role counts as entity evidence
+            if hasattr(r, 'resolved_role') and r.resolved_role:
+                self.entity_name = r.resolved_role.get('person_name')
+                self.entity_found = True
+            else:
+                self.entity_found = len(self.entities) > 0
+    
+    return self.verify(question, answer, RetrievalAdapter(retrieval))
+```
+
+---
+
+TEST AFTER FIX:
+
+In TechVentures vault, run:
+1. "Who is the CTO?" → Should return Marcus Williams
+2. "Who is the CTO?" (run 3 times) → Should be consistent every time
+3. "What is the CEO's salary?" → Should return $850K
+
+All three must pass before moving on.
