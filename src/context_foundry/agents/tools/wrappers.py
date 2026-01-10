@@ -255,42 +255,64 @@ class ToolExecutor:
                          'just', 'also', 'now', 'the', 'and', 'but', 'for', 'are', 'was', 'were',
                          'been', 'being', 'have', 'has', 'had', 'having', 'does', 'doing',
                          'would', 'could', 'should', 'might', 'many', 'much', 'any'}
+            
+            # Expand abbreviations to full forms for better matching
+            abbreviation_expansions = {
+                'ceo': 'chief executive officer',
+                'cto': 'chief technology officer',
+                'cfo': 'chief financial officer',
+                'coo': 'chief operating officer',
+                'cdo': 'chief data officer',
+                'vp': 'vice president',
+                'svp': 'senior vice president',
+                'evp': 'executive vice president',
+            }
+            
             keywords = [w for w in words if len(w) >= 3 and w not in stopwords]
-            if not keywords:
+            
+            # Separate regular keywords from abbreviation expansions
+            regular_keywords = []
+            abbreviation_alternatives = []  # list of (abbrev, expansion) tuples
+            
+            for kw in keywords:
+                if kw in abbreviation_expansions:
+                    abbreviation_alternatives.append((kw, abbreviation_expansions[kw]))
+                    logger.info(f"[TOOL] Will expand '{kw}' to '{abbreviation_expansions[kw]}' (OR)")
+                else:
+                    regular_keywords.append(kw)
+            
+            if not regular_keywords and not abbreviation_alternatives:
                 return {"query": query, "chunks": [], "fallback": "no_keywords"}
             
-            # Use AND logic for better relevance when multiple keywords exist
-            # Fall back to OR if AND returns no results
-            if len(keywords) > 1:
-                and_clauses = " AND ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
-                or_clauses = " OR ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
-                fallback_sql = sql_text(f"""
-                    (SELECT dc.id, dc.text, 1 as score
-                    FROM document_chunks dc
-                    WHERE dc.tenant_id = :tid
-                    AND ({and_clauses}))
-                    UNION ALL
-                    (SELECT dc.id, dc.text, 0 as score
-                    FROM document_chunks dc
-                    WHERE dc.tenant_id = :tid
-                    AND ({or_clauses})
-                    AND NOT ({and_clauses}))
-                    ORDER BY score DESC, id
-                    LIMIT :lim
-                """)
-            else:
-                like_clauses = " OR ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
-                fallback_sql = sql_text(f"""
-                    SELECT dc.id, dc.text
-                    FROM document_chunks dc
-                    WHERE dc.tenant_id = :tid
-                    AND ({like_clauses})
-                    ORDER BY dc.created_at DESC
-                    LIMIT :lim
-                """)
+            # Build SQL with: (regular_keywords AND) AND (abbrev1 OR expansion1) AND (abbrev2 OR expansion2)
             params = {"tid": self.tenant_id, "lim": limit}
-            for i, kw in enumerate(keywords):
-                params[f"kw{i}"] = f"%{kw}%"
+            
+            conditions = []
+            param_idx = 0
+            
+            # Add regular keyword conditions (AND between them)
+            for kw in regular_keywords:
+                conditions.append(f"LOWER(dc.text) LIKE :kw{param_idx}")
+                params[f"kw{param_idx}"] = f"%{kw}%"
+                param_idx += 1
+            
+            # Add abbreviation alternatives (abbrev OR expansion for each)
+            for abbrev, expansion in abbreviation_alternatives:
+                conditions.append(f"(LOWER(dc.text) LIKE :kw{param_idx} OR LOWER(dc.text) LIKE :kw{param_idx+1})")
+                params[f"kw{param_idx}"] = f"%{abbrev}%"
+                params[f"kw{param_idx+1}"] = f"%{expansion}%"
+                param_idx += 2
+            
+            where_clause = " AND ".join(conditions) if conditions else "TRUE"
+            
+            fallback_sql = sql_text(f"""
+                SELECT dc.id, dc.text
+                FROM document_chunks dc
+                WHERE dc.tenant_id = :tid
+                AND ({where_clause})
+                ORDER BY dc.created_at DESC
+                LIMIT :lim
+            """)
             
             rows = self.session.execute(fallback_sql, params).fetchall()
             logger.info(f"[TOOL] Text fallback returned {len(rows)} chunks for keywords: {keywords}")
