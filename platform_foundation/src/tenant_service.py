@@ -134,9 +134,10 @@ class TenantService:
                     vault['document_count'] = 0
                     try:
                         cur.execute("""
-                            SELECT COUNT(*) FROM platform.documents WHERE tenant_id = %s
+                            SELECT COUNT(*) as cnt FROM platform.documents WHERE tenant_id = %s
                         """, (str(vault['id']),))
-                        vault['document_count'] = cur.fetchone()[0]
+                        result = cur.fetchone()
+                        vault['document_count'] = result['cnt'] if result else 0
                     except Exception:
                         pass
                 
