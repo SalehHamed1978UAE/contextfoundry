@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from ..models.schema import get_session, Entity, Relationship, LifecycleState
 from ..models.context_bundle import ContextBundle
 from .sufficiency import compute_sufficiency
+from ..shared.tenant_context import ensure_tenant_context
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +137,7 @@ class EntityProfileGenerator:
         if not tid:
             raise ValueError("tenant_id must be provided")
         
-        self.session.execute(text(f"SET app.current_tenant_id = '{tid}'"))
+        ensure_tenant_context(self.session, tid)
         
         entity = self.session.query(Entity).filter(
             Entity.tenant_id == tid,

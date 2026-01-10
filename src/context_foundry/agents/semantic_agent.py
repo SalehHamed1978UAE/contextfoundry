@@ -22,6 +22,8 @@ from sqlalchemy import text, create_engine
 from sqlalchemy.orm import Session
 from openai import OpenAI
 
+from ..shared.tenant_context import ensure_tenant_context, TenantContextError
+
 logger = logging.getLogger(__name__)
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
@@ -53,9 +55,9 @@ class QueryTimeSemanticAgent:
     def _set_rls_context(self):
         """Set RLS tenant context on the session."""
         try:
-            self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+            ensure_tenant_context(self.session, self.tenant_id)
             logger.debug(f"RLS context set for tenant: {self.tenant_id[:8]}...")
-        except Exception as e:
+        except TenantContextError as e:
             logger.warning(f"Failed to set RLS context: {e}")
     
     def _llm_generate(self, prompt: str) -> str:
@@ -150,7 +152,7 @@ class QueryTimeSemanticAgent:
                 
                 engine = create_engine(db_url)
                 with Session(engine) as doc_session:
-                    doc_session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+                    ensure_tenant_context(doc_session, self.tenant_id)
                     return self._document_search_with_session(user_message, parsed, doc_session)
             except Exception as e:
                 logger.error(f"Document search error: {e}")

@@ -30,6 +30,8 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy import text
 from rich import print as rprint
 
+from ..shared.tenant_context import ensure_tenant_context
+
 
 class GardenerLearningProcessor:
     """Processes learning tickets to improve the World Model."""
@@ -49,9 +51,7 @@ class GardenerLearningProcessor:
     
     def process_pending_tickets(self, max_tickets: int = 10) -> List[Dict[str, Any]]:
         """Process highest priority learning tickets."""
-        self.session.execute(
-            text(f"SET app.current_tenant_id = '{self.tenant_id}'")
-        )
+        ensure_tenant_context(self.session, self.tenant_id)
         
         tickets = self.session.execute(
             text("""
@@ -238,7 +238,7 @@ class GardenerLearningProcessor:
         resolution: Dict[str, Any] = None
     ):
         """Update ticket status with structured resolution payload."""
-        self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+        ensure_tenant_context(self.session, self.tenant_id)
         self.session.execute(
             text("""
                 UPDATE learning_tickets
