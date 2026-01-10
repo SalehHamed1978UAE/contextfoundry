@@ -153,19 +153,29 @@ class AnswerVerifierAgent:
         entity_name = None
         
         if retrieval_result:
-            if hasattr(retrieval_result, 'entities') and retrieval_result.entities:
-                entities.extend(retrieval_result.entities)
+            def get_field(obj, field, default=None):
+                """Get field from object (attribute) or dict (key)."""
+                if isinstance(obj, dict):
+                    return obj.get(field, default)
+                return getattr(obj, field, default)
             
-            if hasattr(retrieval_result, 'relationships') and retrieval_result.relationships:
-                relationships.extend(retrieval_result.relationships)
+            rr_entities = get_field(retrieval_result, 'entities')
+            if rr_entities:
+                entities.extend(rr_entities)
             
-            if hasattr(retrieval_result, 'chunks') and retrieval_result.chunks:
-                chunks.extend(retrieval_result.chunks)
+            rr_relationships = get_field(retrieval_result, 'relationships')
+            if rr_relationships:
+                relationships.extend(rr_relationships)
             
-            if hasattr(retrieval_result, 'role_resolution') and retrieval_result.role_resolution:
-                rr = retrieval_result.role_resolution
-                if hasattr(rr, 'is_resolved') and rr.is_resolved:
-                    entity_name = getattr(rr, 'resolved_name', None)
+            rr_chunks = get_field(retrieval_result, 'chunks')
+            if rr_chunks:
+                chunks.extend(rr_chunks)
+            
+            rr_role = get_field(retrieval_result, 'role_resolution')
+            if rr_role:
+                is_resolved = get_field(rr_role, 'is_resolved', False)
+                if is_resolved:
+                    entity_name = get_field(rr_role, 'resolved_name')
                     if entity_name:
                         entities.append({'name': entity_name, 'type': 'PERSON', 'from_role_resolution': True})
         
@@ -307,10 +317,12 @@ RESPOND WITH JSON ONLY:
 }}
 
 STATUS MEANINGS:
-- SUPPORTED: Addresses question appropriately (with evidence OR honest uncertainty)
+- SUPPORTED: Addresses question with available evidence. Answers that honestly acknowledge data limitations are SUPPORTED, not INSUFFICIENT.
 - OFF_TOPIC: Answers a different question than asked
-- INSUFFICIENT: Right topic but missing key information
-- UNSUPPORTED: Makes claims without supporting evidence"""
+- INSUFFICIENT: Only use when answer omits available data or fails to acknowledge uncertainty when it should
+- UNSUPPORTED: Makes specific claims (names, numbers, facts) without any supporting evidence
+
+IMPORTANT: An answer that says "I found X, Y, Z but detailed financial data is not available" is SUPPORTED because it honestly acknowledges limits."""
 
         try:
             response = self.llm_client.chat.completions.create(
