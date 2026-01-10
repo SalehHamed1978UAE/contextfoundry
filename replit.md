@@ -38,3 +38,22 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - **Web Framework:** Flask
 - **Deployment:** Gunicorn
 - **Authentication:** Magic Link, API Keys, JWT Sessions, Google OAuth
+
+## Development Progress
+
+### Stage 3: Learning from Interaction ✅ COMPLETE (Jan 2026)
+- Sufficiency signals compute correctly (coverage, freshness, source_agreement, relationship_density)
+- Learning tickets created with deduplication (hit_count increments on repeated queries)
+- Priority formula: `priority = base_severity * (1 + 0.2 * hit_count)`, capped at 1.0
+- GardenerLearningProcessor processes tickets with structured resolution payload
+- End-to-end verification: confidence improved from 0.00 → 0.48 after ingesting salary data
+
+### Stage 4: One Substrate, Many Applications (In Progress)
+- Goal: Prove the same World Model can power multiple use cases
+- Q&A Agent (working)
+- Entity Profile Generator (building)
+
+## Extraction Quality TODOs
+1. Add `HAS_COMPENSATION` relationship type to domain_schema.yaml
+2. Validate relationship type → target type constraints in extraction validation
+3. Improve extraction prompt to handle compensation facts as dedicated relationships
