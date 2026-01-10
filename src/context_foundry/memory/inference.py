@@ -106,7 +106,12 @@ class SpeculativeResult:
 
 
 class InferenceRule:
-    """Base class for inference rules."""
+    """
+    Abstract base class for inference rules.
+    
+    Subclasses must implement the apply() method.
+    See TransitiveDependencyRule for an example implementation.
+    """
     
     def __init__(self, rule_id: str, name: str, confidence_modifier: float):
         self.rule_id = rule_id
@@ -120,8 +125,21 @@ class InferenceRule:
         schema: DomainSchema,
         visited_entities: Set[str]
     ) -> List[InferredRelationship]:
-        """Apply this rule to a frontier node and return inferred relationships."""
-        raise NotImplementedError
+        """
+        Apply this rule to a frontier node and return inferred relationships.
+        
+        This is an abstract method - subclasses must override it.
+        
+        Args:
+            frontier_node: The frontier node to apply the rule to
+            session: Database session for querying relationships
+            schema: Domain schema for type validation
+            visited_entities: Set of already-visited entity IDs to avoid cycles
+            
+        Returns:
+            List of inferred relationships discovered by this rule
+        """
+        raise NotImplementedError("Subclasses must implement apply()")
 
 
 class TransitiveDependencyRule(InferenceRule):
