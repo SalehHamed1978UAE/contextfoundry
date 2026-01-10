@@ -219,23 +219,73 @@ class ToolExecutor:
             return {"query": query, "entity_ids": entity_ids, "results": [], "error": str(e)}
     
     def _search_documents(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Wrap EpisodicMemory.search_similar()"""
+        """Wrap EpisodicMemory.search_similar() with text fallback."""
+        from sqlalchemy import text as sql_text
+        
         query = args.get("query", "")
         limit = args.get("limit", 5)
         
         try:
             results = self.episodic_memory.search_similar(query, limit=limit)
             
+            if results:
+                logger.info(f"[TOOL] Vector search returned {len(results)} chunks")
+                return {
+                    "query": query,
+                    "chunks": [
+                        {
+                            "text": r.get("content", r.get("text", ""))[:500],
+                            "document": r.get("source_document"),
+                            "similarity": r.get("similarity", 0)
+                        }
+                        for r in results
+                    ]
+                }
+            
+            logger.info(f"[TOOL] Vector search returned 0 chunks, falling back to text search")
+            import re
+            words = re.findall(r'\b[a-zA-Z]+\b', query.lower())
+            stopwords = {'what', 'where', 'when', 'which', 'who', 'whom', 'whose', 'that', 'this', 
+                         'these', 'those', 'have', 'has', 'had', 'does', 'did', 'will', 'would', 
+                         'could', 'should', 'might', 'must', 'shall', 'from', 'with', 'about',
+                         'into', 'through', 'during', 'before', 'after', 'above', 'below',
+                         'between', 'under', 'again', 'further', 'then', 'once', 'here', 'there',
+                         'when', 'where', 'why', 'how', 'all', 'each', 'few', 'more', 'most',
+                         'other', 'some', 'such', 'only', 'own', 'same', 'than', 'very',
+                         'just', 'also', 'now', 'the', 'and', 'but', 'for', 'are', 'was', 'were',
+                         'been', 'being', 'have', 'has', 'had', 'having', 'does', 'doing',
+                         'would', 'could', 'should', 'might', 'many', 'much', 'any'}
+            keywords = [w for w in words if len(w) > 3 and w not in stopwords]
+            if not keywords:
+                return {"query": query, "chunks": [], "fallback": "no_keywords"}
+            
+            like_clauses = " OR ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
+            fallback_sql = sql_text(f"""
+                SELECT dc.id, dc.text
+                FROM document_chunks dc
+                WHERE dc.tenant_id = :tid
+                AND ({like_clauses})
+                ORDER BY dc.created_at DESC
+                LIMIT :lim
+            """)
+            params = {"tid": self.tenant_id, "lim": limit}
+            for i, kw in enumerate(keywords):
+                params[f"kw{i}"] = f"%{kw}%"
+            
+            rows = self.session.execute(fallback_sql, params).fetchall()
+            logger.info(f"[TOOL] Text fallback returned {len(rows)} chunks for keywords: {keywords}")
+            
             return {
                 "query": query,
                 "chunks": [
                     {
-                        "text": r.get("content", r.get("text", ""))[:500],
-                        "document": r.get("source_document"),
-                        "similarity": r.get("similarity", 0)
+                        "text": row.text[:500] if row.text else "",
+                        "document": "Document chunk",
+                        "similarity": 0.5
                     }
-                    for r in results
-                ]
+                    for row in rows
+                ],
+                "fallback": "text_search"
             }
         except Exception as e:
             logger.error(f"[TOOL] Document search failed: {e}")

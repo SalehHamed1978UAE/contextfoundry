@@ -475,8 +475,12 @@ class ToolAgent:
         Determine if we should fallback to document search.
         
         Fallback triggers when:
-        - KG was queried but returned minimal data
-        - AND documents weren't already searched
+        - Documents weren't already searched
+        - AND KG was queried (so we have some context)
+        - AND no chunks have been found yet
+        
+        The goal is to ALWAYS supplement KG data with document search for factual
+        queries, since KG relationships may not contain the specific facts requested.
         """
         if analysis["doc_tools_called"]:
             return False
@@ -484,11 +488,12 @@ class ToolAgent:
         if not analysis["kg_tools_called"]:
             return False
         
-        if analysis["relationships_found"] >= 3 or analysis["entities_found"] >= 2:
+        if analysis["chunks_found"] > 0:
             return False
         
-        logger.info(f"[RETRIEVAL] KG returned minimal data. Entities: {analysis['entities_found']}, "
-                    f"Relationships: {analysis['relationships_found']}. Triggering document fallback.")
+        logger.info(f"[RETRIEVAL] KG queried but no document search yet. "
+                    f"Entities: {analysis['entities_found']}, Relationships: {analysis['relationships_found']}. "
+                    f"Triggering document fallback to supplement KG data.")
         return True
     
     def _execute_document_fallback(self, query: str, limit: int = 5) -> Dict[str, Any]:
