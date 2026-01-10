@@ -3436,13 +3436,20 @@ def vault_chat():
                 tool_name = tc.get('tool', '')
                 result = tc.get('result', {})
                 
+                # Handle JSON string results
+                if isinstance(result, str):
+                    try:
+                        result = json.loads(result)
+                    except json.JSONDecodeError:
+                        result = {}
+                
                 if tool_name == 'resolve_entities':
                     for e in result.get('entities', []):
                         if e.get('resolved'):
                             mentioned_entities.append(e['resolved']['name'])
                             entity_count += 1
                             
-                if tool_name in ('search_chunks', 'summarize_chunks', 'retrieve_documents'):
+                if tool_name in ('search_chunks', 'summarize_chunks', 'retrieve_documents', 'search_documents'):
                     chunks = result.get('chunks', [])
                     for chunk in chunks:
                         doc_name = chunk.get('document') or chunk.get('doc_name') or chunk.get('source')
@@ -3509,6 +3516,13 @@ def vault_chat():
                 for tc in agent_result.get('tool_calls', []):
                     tool_name = tc.get('tool', '')
                     result = tc.get('result', {})
+                    
+                    # Handle JSON string results
+                    if isinstance(result, str):
+                        try:
+                            result = json.loads(result)
+                        except json.JSONDecodeError:
+                            result = {}
                     
                     if tool_name == 'resolve_entities':
                         for e in result.get('entities', []):
