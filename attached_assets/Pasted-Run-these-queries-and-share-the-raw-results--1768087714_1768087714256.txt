@@ -1,0 +1,116 @@
+Run these queries and share the raw results.
+
+================================================================================
+DIAGNOSIS A: WHAT ROLES EXIST IN EACH VAULT?
+================================================================================
+
+LAW FIRM VAULT:
+
+SELECT name, entity_type 
+FROM entities 
+WHERE tenant_id = '<law_firm_tenant_id>'
+AND entity_type = 'ROLE'
+ORDER BY name;
+
+SELECT name, entity_type 
+FROM entities 
+WHERE tenant_id = '<law_firm_tenant_id>'
+AND entity_type = 'PERSON'
+ORDER BY name;
+
+HOSPITAL VAULT:
+
+SELECT name, entity_type 
+FROM entities 
+WHERE tenant_id = '<hospital_tenant_id>'
+AND entity_type = 'ROLE'
+ORDER BY name;
+
+SELECT name, entity_type 
+FROM entities 
+WHERE tenant_id = '<hospital_tenant_id>'
+AND entity_type = 'PERSON'
+ORDER BY name;
+
+================================================================================
+DIAGNOSIS B: WHAT HOLDS_POSITION RELATIONSHIPS EXIST?
+================================================================================
+
+LAW FIRM:
+
+SELECT 
+    e1.name as person,
+    r.relationship_type,
+    e2.name as role
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = '<law_firm_tenant_id>'
+AND r.relationship_type = 'HOLDS_POSITION'
+ORDER BY e1.name;
+
+HOSPITAL:
+
+SELECT 
+    e1.name as person,
+    r.relationship_type,
+    e2.name as role
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = '<hospital_tenant_id>'
+AND r.relationship_type = 'HOLDS_POSITION'
+ORDER BY e1.name;
+
+================================================================================
+DIAGNOSIS C: WHAT REPORTS_TO RELATIONSHIPS EXIST?
+================================================================================
+
+LAW FIRM:
+
+SELECT 
+    e1.name as person,
+    r.relationship_type,
+    e2.name as reports_to
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = '<law_firm_tenant_id>'
+AND r.relationship_type = 'REPORTS_TO'
+ORDER BY e1.name;
+
+HOSPITAL:
+
+SELECT 
+    e1.name as person,
+    r.relationship_type,
+    e2.name as reports_to
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = '<hospital_tenant_id>'
+AND r.relationship_type = 'REPORTS_TO'
+ORDER BY e1.name;
+
+================================================================================
+DIAGNOSIS D: TRACE THE FAILED QUERIES
+================================================================================
+
+Run these 3 queries with FULL DEBUG LOGGING:
+
+1. LAW FIRM: "Who is the CFO?"
+2. HOSPITAL: "Who leads the oncology department?"
+3. HOSPITAL: "What is the CIO's compensation?"
+
+For each, capture:
+- Role resolution attempt (what did RoleResolver search for? what did it return?)
+- Chunks retrieved (which documents? what text excerpts?)
+- Raw LLM answer BEFORE QA
+- QA verdict
+
+================================================================================
+OUTPUT
+================================================================================
+
+Share the raw SQL results and query traces.
+No analysis yet — just data.
