@@ -168,66 +168,27 @@ class RetrievalRouter:
         role_resolution: Optional[RoleResolution] = None,
         limit: int = 5
     ) -> List[Dict[str, Any]]:
-        """Search document chunks."""
-        chunks = []
+        """Search document chunks using unified DocumentSearcher."""
+        from src.context_foundry.search.document_searcher import DocumentSearcher
         
-        search_terms = []
-        words = query.lower().split()
-        stopwords = {'what', 'who', 'where', 'when', 'how', 'is', 'are', 'the', 'a', 'an', 'of', 'to', 'in', 'for', 'does'}
-        
-        for word in words:
-            if len(word) >= 3 and word not in stopwords:
-                word_lower = word.rstrip("'s")
-                if word_lower in self.ABBREVIATION_EXPANSIONS:
-                    search_terms.append(word_lower)
-                    search_terms.append(self.ABBREVIATION_EXPANSIONS[word_lower])
-                else:
-                    search_terms.append(word_lower)
-        
+        search_query = query
         if role_resolution and role_resolution.is_resolved:
-            name_parts = role_resolution.resolved_name.lower().split()
-            search_terms.extend(name_parts)
+            search_query = f"{query} {role_resolution.resolved_name}"
         
-        if not search_terms:
-            return chunks
+        searcher = DocumentSearcher(self.session, self.tenant_id)
+        results = searcher.search(search_query, limit=limit, use_vector=False)
         
-        try:
-            conditions = []
-            params = {"tenant_id": self.tenant_id, "limit": limit}
-            
-            for i, term in enumerate(search_terms):
-                conditions.append(f"LOWER(dc.text) LIKE :term{i}")
-                params[f"term{i}"] = f"%{term}%"
-            
-            or_clause = " OR ".join(conditions)
-            
-            chunk_query = text(f"""
-                SELECT dc.id, dc.text, d.name as doc_name
-                FROM document_chunks dc
-                LEFT JOIN platform.documents d ON dc.document_id = d.id
-                WHERE dc.tenant_id = :tenant_id
-                AND ({or_clause})
-                ORDER BY dc.created_at DESC
-                LIMIT :limit
-            """)
-            
-            results = self.session.execute(chunk_query, params).fetchall()
-            
-            chunks = [
-                {
-                    "id": str(r.id),
-                    "text": r.text[:1500] if r.text else "",
-                    "document": r.doc_name or "Unknown document",
-                    "similarity": 0.7
-                }
-                for r in results
-            ]
-            
-            logger.info(f"[ROUTER] Document search found {len(chunks)} chunks for terms: {search_terms[:5]}...")
-            
-        except Exception as e:
-            logger.error(f"[ROUTER] Document search failed: {e}")
+        chunks = [
+            {
+                "id": r.get("id", ""),
+                "text": r.get("text", ""),
+                "document": r.get("document_name", "Unknown document"),
+                "similarity": r.get("similarity", 0.6)
+            }
+            for r in results
+        ]
         
+        logger.info(f"[ROUTER] Document search found {len(chunks)} chunks")
         return chunks
     
     def route(
