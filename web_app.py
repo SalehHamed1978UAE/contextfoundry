@@ -3459,149 +3459,66 @@ def vault_chat():
             # Store messages
             conv_store.add_message("user", query_text)
             
-            # Extract mentioned entities and source documents from agent results
-            mentioned_entities = []
-            source_documents = []
-            has_useful_data = False
-            entity_count = 0
-            chunk_count = 0
-            relationship_count = 0
+            # Use confidence and evidence from ToolAgent (computed via shared helpers)
+            computed_confidence = agent_result.get('confidence', 0.5)
+            evidence = agent_result.get('evidence', {})
             
-            for tc in agent_result.get('tool_calls', []):
-                tool_name = tc.get('tool', '')
-                result = tc.get('result', {})
-                
-                # Handle JSON string results
-                if isinstance(result, str):
-                    try:
-                        result = json.loads(result)
-                    except json.JSONDecodeError:
-                        result = {}
-                
-                if tool_name == 'resolve_entities':
-                    for e in result.get('entities', []):
-                        if e.get('resolved'):
-                            mentioned_entities.append(e['resolved']['name'])
-                            entity_count += 1
-                            
-                if tool_name in ('search_chunks', 'summarize_chunks', 'retrieve_documents', 'search_documents'):
-                    chunks = result.get('chunks', [])
-                    for chunk in chunks:
-                        doc_name = chunk.get('document') or chunk.get('doc_name') or chunk.get('source')
-                        if doc_name and doc_name not in source_documents:
-                            source_documents.append(doc_name)
-                    chunk_count += len(chunks)
-                    
-                if tool_name == 'get_relationships':
-                    rels = result.get('relationships', [])
-                    relationship_count += len(rels)
+            # Extract mentioned entities from evidence
+            mentioned_entities = evidence.get('entity_names', []) if evidence else []
+            source_documents = evidence.get('chunk_sources', []) if evidence else []
             
-            # Also check if agent_result has chunk_sources directly
-            if agent_result.get('chunk_sources'):
-                for src in agent_result['chunk_sources']:
-                    if isinstance(src, dict):
-                        doc_name = src.get('document') or src.get('doc_name') or src.get('name')
-                    else:
-                        doc_name = str(src) if src else None
-                    if doc_name and doc_name not in source_documents:
-                        source_documents.append(doc_name)
-                        chunk_count += 1  # Count these as useful data
+            # Also extract from sources field as fallback
+            if not source_documents and agent_result.get('sources'):
+                source_documents = agent_result['sources']
             
-            # Also count data from pipeline_result (for direct answer path)
-            pipeline_result = agent_result.get('pipeline_result')
-            if pipeline_result:
-                pr_entities = pipeline_result.get('entities') if isinstance(pipeline_result, dict) else getattr(pipeline_result, 'entities', None)
-                pr_relationships = pipeline_result.get('relationships') if isinstance(pipeline_result, dict) else getattr(pipeline_result, 'relationships', None)
-                pr_chunks = pipeline_result.get('chunks') if isinstance(pipeline_result, dict) else getattr(pipeline_result, 'chunks', None)
-                
-                if pr_entities:
-                    entity_count += len(pr_entities)
-                    for e in pr_entities:
-                        if isinstance(e, dict):
-                            ename = e.get('name')
-                        else:
-                            ename = getattr(e, 'name', None)
-                        if ename and ename not in mentioned_entities:
-                            mentioned_entities.append(ename)
-                if pr_relationships:
-                    relationship_count += len(pr_relationships)
-                if pr_chunks:
-                    chunk_count += len(pr_chunks)
-                    for chunk in pr_chunks:
-                        if isinstance(chunk, dict):
-                            doc_name = chunk.get('document') or chunk.get('doc_name') or chunk.get('source')
-                        else:
-                            doc_name = getattr(chunk, 'document', None) or getattr(chunk, 'source', None)
-                        if doc_name and doc_name not in source_documents:
-                            source_documents.append(doc_name)
-                
-                logger.info(f"[CONFIDENCE] Pipeline data: entities={len(pr_entities) if pr_entities else 0}, rels={len(pr_relationships) if pr_relationships else 0}, chunks={len(pr_chunks) if pr_chunks else 0}")
-            
-            has_useful_data = entity_count > 0 or chunk_count > 0 or relationship_count > 0
-            logger.info(f"[CONFIDENCE] Total: entity_count={entity_count}, chunk_count={chunk_count}, rel_count={relationship_count}, has_useful_data={has_useful_data}")
-            
-            # Compute confidence based on answer quality
-            # Use agent-provided confidence if available, otherwise compute
-            agent_confidence = agent_result.get('confidence')
-            
-            if agent_confidence is not None:
-                computed_confidence = agent_confidence
-            else:
-                answer_text = agent_result.get('answer', '').lower()
-                # Only flag as "no info" if BOTH the phrase matches AND we have no data
-                definitive_no_info_phrases = [
-                    "i don't have enough information",
-                    "i do not have information",
-                    "no information found",
-                    "no relevant information",
-                    "unable to find any information",
-                    "i couldn't find any"
-                ]
-                answer_indicates_no_info = any(phrase in answer_text for phrase in definitive_no_info_phrases)
-                
-                if answer_indicates_no_info and not has_useful_data:
-                    computed_confidence = 0.15  # Low confidence: says no info AND has no data
-                elif has_useful_data and entity_count > 0:
-                    computed_confidence = 0.85  # High confidence with resolved entities
-                elif has_useful_data:
-                    computed_confidence = 0.70  # Medium-high with chunks/relationships
-                elif answer_indicates_no_info:
-                    computed_confidence = 0.30  # Low-medium: says no info but may have partial
-                else:
-                    computed_confidence = 0.50  # Medium: unclear, no tool data but answer provided
+            logger.info(f"[CONFIDENCE] Using agent-computed confidence: {computed_confidence}")
+            logger.info(f"[CONFIDENCE] Evidence: {evidence}")
             
             # === QA VERIFIER: Semantic check before returning answer ===
-            try:
-                from src.context_foundry.agents.qa_verifier import AnswerVerifierAgent
-                
-                verifier = AnswerVerifierAgent()
-                qa_verdict = verifier.verify_from_retrieval_result(
-                    question=resolved_query,
-                    answer=agent_result.get('answer', ''),
-                    retrieval_result=agent_result.get('pipeline_result'),
-                    tool_calls=agent_result.get('tool_calls', [])
-                )
-                
-                logger.info(f"[QA_VERIFIER] Verdict: {qa_verdict.status} - {qa_verdict.reason}")
-                
-                # Add verdict to result
-                agent_result['qa_verdict'] = qa_verdict.to_dict()
-                
-                # Block answers that don't address the question
-                if qa_verdict.status in ('OFF_TOPIC', 'INSUFFICIENT', 'UNSUPPORTED', 'SUSPICIOUS'):
-                    if qa_verdict.status == 'OFF_TOPIC':
-                        agent_result['answer'] = "I found related information but it doesn't directly answer your question. Could you rephrase?"
-                    elif qa_verdict.status == 'INSUFFICIENT':
-                        agent_result['answer'] = f"I have partial information but cannot fully answer this. {qa_verdict.reason}"
-                    elif qa_verdict.status == 'SUSPICIOUS':
-                        agent_result['answer'] = "I couldn't find reliable data. Could you try rephrasing your question?"
-                    else:  # UNSUPPORTED
-                        agent_result['answer'] = "I don't have verified information to answer this question."
-                    computed_confidence = 0.15
-                    logger.info(f"[QA_VERIFIER] Answer replaced due to {qa_verdict.status} verdict")
+            # This may adjust the answer if verdict is poor
+            qa_verdict_dict = agent_result.get('qa_verdict')
+            
+            if not qa_verdict_dict:
+                try:
+                    from src.context_foundry.agents.qa_verifier import AnswerVerifierAgent
+                    from src.context_foundry.utils.response_helpers import build_qa_evidence, calculate_confidence
                     
-            except Exception as e:
-                logger.warning(f"[QA_VERIFIER] Verification failed, proceeding with original answer: {e}")
+                    verifier = AnswerVerifierAgent()
+                    qa_verdict = verifier.verify_from_retrieval_result(
+                        question=resolved_query,
+                        answer=agent_result.get('answer', ''),
+                        retrieval_result=agent_result.get('pipeline_result'),
+                        tool_calls=agent_result.get('tool_calls', [])
+                    )
+                    
+                    logger.info(f"[QA_VERIFIER] Verdict: {qa_verdict.status} - {qa_verdict.reason}")
+                    
+                    qa_verdict_dict = qa_verdict.to_dict()
+                    agent_result['qa_verdict'] = qa_verdict_dict
+                    
+                    # Recalculate confidence using shared helper based on QA verdict
+                    qa_evidence = build_qa_evidence(
+                        retrieval_result=agent_result.get('pipeline_result'),
+                        tool_calls=agent_result.get('tool_calls', [])
+                    )
+                    computed_confidence = calculate_confidence(
+                        qa_verdict.status, qa_evidence, agent_result.get('answer', '')
+                    )
+                    
+                    # Block answers that don't address the question
+                    if qa_verdict.status in ('OFF_TOPIC', 'INSUFFICIENT', 'UNSUPPORTED', 'SUSPICIOUS'):
+                        if qa_verdict.status == 'OFF_TOPIC':
+                            agent_result['answer'] = "I found related information but it doesn't directly answer your question. Could you rephrase?"
+                        elif qa_verdict.status == 'INSUFFICIENT':
+                            agent_result['answer'] = f"I have partial information but cannot fully answer this. {qa_verdict.reason}"
+                        elif qa_verdict.status == 'SUSPICIOUS':
+                            agent_result['answer'] = "I couldn't find reliable data. Could you try rephrasing your question?"
+                        else:  # UNSUPPORTED
+                            agent_result['answer'] = "I don't have verified information to answer this question."
+                        logger.info(f"[QA_VERIFIER] Answer replaced due to {qa_verdict.status} verdict")
+                        
+                except Exception as e:
+                    logger.warning(f"[QA_VERIFIER] Verification failed, proceeding with original answer: {e}")
             # === END QA VERIFIER ===
             
             conv_store.add_message("assistant", agent_result['answer'], entities=mentioned_entities)

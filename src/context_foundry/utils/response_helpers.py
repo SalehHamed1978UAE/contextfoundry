@@ -25,7 +25,16 @@ class QAEvidence:
     
     @property
     def entity_count(self) -> int:
-        return len(self.entities) + len(self.entity_names)
+        entity_ids = set()
+        for e in self.entities:
+            if isinstance(e, dict):
+                eid = e.get('id') or e.get('name')
+            else:
+                eid = getattr(e, 'id', None) or getattr(e, 'name', None)
+            if eid:
+                entity_ids.add(eid)
+        unique_names = set(n for n in self.entity_names if n not in entity_ids)
+        return len(entity_ids) + len(unique_names)
     
     @property
     def relationship_count(self) -> int:
