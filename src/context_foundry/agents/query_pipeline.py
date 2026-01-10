@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from .query_interpreter import QueryInterpreter, QueryIntent
 from .directed_retriever import DirectedGraphRetriever, RetrievalResult
+from .qa_verifier import AnswerVerifierAgent
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,8 @@ class PipelineResult:
     step3_confidence: float = 0.0
     step3_duration_ms: float = 0.0
     
+    qa_verdict: Optional[Dict] = None
+    
     total_duration_ms: float = 0.0
     error: Optional[str] = None
     
@@ -52,6 +55,7 @@ class PipelineResult:
             "step3_answer": self.step3_answer,
             "step3_confidence": self.step3_confidence,
             "step3_duration_ms": self.step3_duration_ms,
+            "qa_verdict": self.qa_verdict,
             "total_duration_ms": self.total_duration_ms,
             "error": self.error
         }
@@ -138,6 +142,7 @@ class QueryPipeline:
             tenant_id=str(tenant_id)
         )
         self.retriever = DirectedGraphRetriever(session, tenant_id)
+        self.qa_verifier = AnswerVerifierAgent(llm_model=model)
         
         from openai import OpenAI
         self.openai_client = OpenAI()
@@ -180,6 +185,36 @@ class QueryPipeline:
             result.step3_duration_ms = (datetime.now() - step3_start).total_seconds() * 1000
             
             logger.info(f"[Step 3] Synthesized answer with confidence {confidence:.2f}")
+            
+            # Step 4: QA Verification
+            verdict = self.qa_verifier.verify(
+                question=query_text,
+                answer=result.step3_answer,
+                retrieval=retrieval
+            )
+            
+            result.qa_verdict = {"status": verdict.status, "reason": verdict.reason}
+            
+            if verdict.status not in ["SUPPORTED", "NEEDS_LLM"]:
+                logger.warning(f"[QA] Blocked: {verdict.status} - {verdict.reason}")
+                
+                if verdict.status == "OFF_TOPIC":
+                    result.step3_answer = "I found related information but it doesn't directly answer your question. Could you rephrase?"
+                    result.step3_confidence = 0.15
+                elif verdict.status == "INSUFFICIENT":
+                    result.step3_answer = f"I have partial information but cannot fully answer this. {verdict.reason}"
+                    result.step3_confidence = 0.25
+                elif verdict.status == "UNSUPPORTED":
+                    result.step3_answer = "I don't have verified information to answer this question."
+                    result.step3_confidence = 0.1
+                elif verdict.status == "SUSPICIOUS":
+                    result.step3_answer = "I couldn't find reliable data. Could you try rephrasing your question?"
+                    result.step3_confidence = 0.15
+                else:  # REJECTED, REVIEW
+                    result.step3_answer = "I couldn't generate a reliable answer."
+                    result.step3_confidence = 0.1
+                
+                result.error = verdict.reason
             
         except Exception as e:
             logger.error(f"Pipeline execution failed: {e}")
