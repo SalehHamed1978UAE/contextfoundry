@@ -163,7 +163,8 @@ class ToolAgent:
         self,
         question: str,
         conversation_history: Optional[List[Dict[str, str]]] = None,
-        debug: bool = False
+        debug: bool = False,
+        vault_context: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Process a query using tool-calling agent.
@@ -172,15 +173,16 @@ class ToolAgent:
             question: User's question
             conversation_history: Previous messages for context
             debug: If True, include detailed diagnostic info in response
+            vault_context: Name of the current vault (for entity resolution)
             
         Returns:
-            Dict with answer, tool_calls, evidence, etc.
+            Dict with answer, tool_calls, evidence, pipeline_result, etc.
         """
         start_time = time.time()
         
         pipeline_result = None
         try:
-            pipeline_result = self.query_pipeline.process(question)
+            pipeline_result = self.query_pipeline.process(question, vault_context=vault_context)
             logger.info(f"[AGENT] Pipeline: strategy={pipeline_result.strategy_used}, has_data={pipeline_result.has_data}")
         except Exception as e:
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
@@ -416,7 +418,8 @@ class ToolAgent:
                     "time_ms": int(total_time * 1000),
                     "success": True,
                     "retrieval_analysis": analysis,
-                    "fallback_triggered": fallback_triggered
+                    "fallback_triggered": fallback_triggered,
+                    "pipeline_result": pipeline_result
                 }
                 if debug_info:
                     result["debug"] = debug_info

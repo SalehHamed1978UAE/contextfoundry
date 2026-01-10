@@ -3423,6 +3423,19 @@ def vault_chat():
             db_session = get_db_session()
             set_tenant_context(db_session, tenant_id)
             
+            # Get vault name for context injection
+            vault_context = None
+            try:
+                vault_row = db_session.execute(
+                    text("SELECT name FROM platform.tenants WHERE id = :tid"),
+                    {'tid': tenant_id}
+                ).fetchone()
+                if vault_row:
+                    vault_context = vault_row[0]
+                    logger.info(f"[TOOL_AGENT] Vault context: {vault_context}")
+            except Exception as e:
+                logger.warning(f"[TOOL_AGENT] Could not get vault name: {e}")
+            
             # Initialize conversation store
             effective_session_id = session_id or 'default'
             logger.info(f"[TOOL_AGENT] session_id={effective_session_id}, query={query_text!r}, debug={debug_mode}")
@@ -3438,9 +3451,9 @@ def vault_chat():
             for i, msg in enumerate(history[-4:]):
                 logger.info(f"[TOOL_AGENT]   History[{i}]: {msg['role']}: {msg['content'][:100]}...")
             
-            # Run tool agent with debug mode
+            # Run tool agent with debug mode and vault context
             agent = ToolAgent(db_session, tenant_id)
-            agent_result = agent.query(resolved_query, conversation_history=history, debug=debug_mode)
+            agent_result = agent.query(resolved_query, conversation_history=history, debug=debug_mode, vault_context=vault_context)
             
             # Store messages
             conv_store.add_message("user", query_text)
@@ -3530,9 +3543,10 @@ def vault_chat():
                 from src.context_foundry.agents.qa_verifier import AnswerVerifierAgent
                 
                 verifier = AnswerVerifierAgent()
-                qa_verdict = verifier.verify_from_tool_calls(
+                qa_verdict = verifier.verify_from_retrieval_result(
                     question=resolved_query,
                     answer=agent_result.get('answer', ''),
+                    retrieval_result=agent_result.get('pipeline_result'),
                     tool_calls=agent_result.get('tool_calls', [])
                 )
                 

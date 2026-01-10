@@ -131,6 +131,81 @@ class AnswerVerifierAgent:
         
         return self.verify(question, answer, ToolResultAdapter(chunks, entities, relationships))
     
+    def verify_from_retrieval_result(
+        self, 
+        question: str, 
+        answer: str, 
+        retrieval_result: Any,
+        tool_calls: list = None
+    ) -> QAVerdict:
+        """
+        Adapter for pre-fetched pipeline data + tool calls.
+        
+        Combines evidence from:
+        1. Pipeline pre-fetched data (entities, relationships, chunks, resolved role)
+        2. Tool call results (as before)
+        
+        This ensures QA Verifier sees ALL evidence, even if LLM skipped tool calls.
+        """
+        entities = []
+        relationships = []
+        chunks = []
+        entity_name = None
+        
+        if retrieval_result:
+            if hasattr(retrieval_result, 'entities') and retrieval_result.entities:
+                entities.extend(retrieval_result.entities)
+            
+            if hasattr(retrieval_result, 'relationships') and retrieval_result.relationships:
+                relationships.extend(retrieval_result.relationships)
+            
+            if hasattr(retrieval_result, 'chunks') and retrieval_result.chunks:
+                chunks.extend(retrieval_result.chunks)
+            
+            if hasattr(retrieval_result, 'role_resolution') and retrieval_result.role_resolution:
+                rr = retrieval_result.role_resolution
+                if hasattr(rr, 'is_resolved') and rr.is_resolved:
+                    entity_name = getattr(rr, 'resolved_name', None)
+                    if entity_name:
+                        entities.append({'name': entity_name, 'type': 'PERSON', 'from_role_resolution': True})
+        
+        if tool_calls:
+            for tc in tool_calls:
+                tool_name = tc.get('tool') or tc.get('name', '')
+                result = tc.get('result', {})
+                
+                if isinstance(result, str):
+                    try:
+                        result = json.loads(result)
+                    except json.JSONDecodeError:
+                        result = {}
+                
+                if tool_name in ('search_documents', 'search_chunks', 'summarize_chunks', 'retrieve_documents'):
+                    chunks.extend(result.get('chunks', []))
+                
+                if tool_name == 'resolve_entities':
+                    for entity_wrapper in result.get('entities', []):
+                        resolved = entity_wrapper.get('resolved')
+                        if resolved:
+                            entities.append(resolved)
+                
+                if tool_name in ('get_knowledge_bundle', 'discover_relationships'):
+                    relationships.extend(result.get('relationships', []))
+                    relationships.extend(result.get('incoming', []))
+                    relationships.extend(result.get('outgoing', []))
+        
+        class CombinedAdapter:
+            def __init__(self, c, e, r, en):
+                self.chunks = c
+                self.entities = e
+                self.relationships = r
+                self.entity_name = en or (e[0].get('name') if e and isinstance(e[0], dict) else None)
+                self.entity_found = len(c) > 0 or len(e) > 0 or en is not None
+        
+        logger.info(f"[QA] Combined evidence: entities={len(entities)}, rels={len(relationships)}, chunks={len(chunks)}, resolved_name={entity_name}")
+        
+        return self.verify(question, answer, CombinedAdapter(chunks, entities, relationships, entity_name))
+    
     def _structural_rules(self, retrieval: Any, answer: str) -> QAVerdict:
         """
         Check DATA STRUCTURE only. No text analysis.

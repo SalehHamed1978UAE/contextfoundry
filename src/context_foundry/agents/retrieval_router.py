@@ -311,24 +311,35 @@ class QueryPipeline:
         self.role_resolver = RoleResolver(session, tenant_id)
         self.router = RetrievalRouter(session, tenant_id)
     
-    def process(self, query: str) -> RetrievalResult:
+    def process(self, query: str, vault_context: str = None) -> RetrievalResult:
         """
         Process a query through the full pipeline.
         
         1. Classify the query
-        2. Resolve any role references
+        2. Resolve any role references (using vault_context if no explicit entity)
         3. Route to optimal retrieval strategy
         
+        Args:
+            query: User's query
+            vault_context: Name of the current vault for entity resolution
+            
         Returns:
             RetrievalResult with all retrieved data
         """
-        logger.info(f"[PIPELINE] Processing query: '{query}'")
+        logger.info(f"[PIPELINE] Processing query: '{query}' (vault_context={vault_context})")
         
         classification = self.classifier.classify(query)
         
         role_resolution = None
         if classification.has_role_reference and classification.role_referenced:
             role_resolution = self.role_resolver.resolve(classification.role_referenced)
+        
+        if not classification.target_entity and vault_context:
+            if not role_resolution or not role_resolution.is_resolved:
+                logger.info(f"[PIPELINE] Injected vault context as target_entity: {vault_context}")
+                classification.target_entity = vault_context
+            else:
+                logger.info(f"[PIPELINE] Skipping vault context injection - role already resolved")
         
         result = self.router.route(query, classification, role_resolution)
         
