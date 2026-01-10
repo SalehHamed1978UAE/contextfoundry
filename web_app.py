@@ -3424,29 +3424,97 @@ def vault_chat():
             # Store messages
             conv_store.add_message("user", query_text)
             
-            # Extract mentioned entities from agent results
+            # Extract mentioned entities and source documents from agent results
             mentioned_entities = []
+            source_documents = []
+            has_useful_data = False
+            entity_count = 0
+            chunk_count = 0
+            relationship_count = 0
+            
             for tc in agent_result.get('tool_calls', []):
-                if tc.get('tool') == 'resolve_entities':
-                    for e in tc.get('result', {}).get('entities', []):
+                tool_name = tc.get('tool', '')
+                result = tc.get('result', {})
+                
+                if tool_name == 'resolve_entities':
+                    for e in result.get('entities', []):
                         if e.get('resolved'):
                             mentioned_entities.append(e['resolved']['name'])
+                            entity_count += 1
+                            
+                if tool_name in ('search_chunks', 'summarize_chunks', 'retrieve_documents'):
+                    chunks = result.get('chunks', [])
+                    for chunk in chunks:
+                        doc_name = chunk.get('document') or chunk.get('doc_name') or chunk.get('source')
+                        if doc_name and doc_name not in source_documents:
+                            source_documents.append(doc_name)
+                    chunk_count += len(chunks)
+                    
+                if tool_name == 'get_relationships':
+                    rels = result.get('relationships', [])
+                    relationship_count += len(rels)
+            
+            # Also check if agent_result has chunk_sources directly
+            if agent_result.get('chunk_sources'):
+                for src in agent_result['chunk_sources']:
+                    if isinstance(src, dict):
+                        doc_name = src.get('document') or src.get('doc_name') or src.get('name')
+                    else:
+                        doc_name = str(src) if src else None
+                    if doc_name and doc_name not in source_documents:
+                        source_documents.append(doc_name)
+                        chunk_count += 1  # Count these as useful data
+            
+            has_useful_data = entity_count > 0 or chunk_count > 0 or relationship_count > 0
+            
+            # Compute confidence based on answer quality
+            # Use agent-provided confidence if available, otherwise compute
+            agent_confidence = agent_result.get('confidence')
+            
+            if agent_confidence is not None:
+                computed_confidence = agent_confidence
+            else:
+                answer_text = agent_result.get('answer', '').lower()
+                # Only flag as "no info" if BOTH the phrase matches AND we have no data
+                definitive_no_info_phrases = [
+                    "i don't have enough information",
+                    "i do not have information",
+                    "no information found",
+                    "no relevant information",
+                    "unable to find any information",
+                    "i couldn't find any"
+                ]
+                answer_indicates_no_info = any(phrase in answer_text for phrase in definitive_no_info_phrases)
+                
+                if answer_indicates_no_info and not has_useful_data:
+                    computed_confidence = 0.15  # Low confidence: says no info AND has no data
+                elif has_useful_data and entity_count > 0:
+                    computed_confidence = 0.85  # High confidence with resolved entities
+                elif has_useful_data:
+                    computed_confidence = 0.70  # Medium-high with chunks/relationships
+                elif answer_indicates_no_info:
+                    computed_confidence = 0.30  # Low-medium: says no info but may have partial
+                else:
+                    computed_confidence = 0.50  # Medium: unclear, no tool data but answer provided
             
             conv_store.add_message("assistant", agent_result['answer'], entities=mentioned_entities)
             
             db_session.close()
             
             logger.info(f"[TOOL_AGENT] Answer: {agent_result['answer'][:200]}...")
+            logger.info(f"[TOOL_AGENT] Confidence: {computed_confidence}, Sources: {source_documents}")
             
             response_data = {
                 'success': True,
                 'answer': agent_result['answer'],
-                'confidence': 0.75,
+                'confidence': computed_confidence,
+                'confidence_level': 'high' if computed_confidence >= 0.7 else ('medium' if computed_confidence >= 0.4 else 'low'),
                 'tool_calls': agent_result.get('tool_calls', []),
                 'iterations': agent_result.get('iterations', 0),
                 'time_ms': agent_result.get('time_ms', 0),
                 'mode': 'tool_agent',
-                'mentioned_entities': mentioned_entities
+                'mentioned_entities': mentioned_entities,
+                'chunk_sources': [{'document': doc} for doc in source_documents]
             }
             
             # Include debug info if requested
