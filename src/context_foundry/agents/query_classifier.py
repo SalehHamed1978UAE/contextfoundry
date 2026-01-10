@@ -1,18 +1,196 @@
 """
 Query Classifier and Data Sufficiency Checker
 
-Implements the 4-LLM consensus Data Gates architecture to prevent hallucination:
-- Classify queries by type (existence, relationship, impact, general)
+Implements query classification for intelligent routing:
+- Classify queries by type (RELATIONSHIP, ATTRIBUTE, AGGREGATION, EXPLORATION)
+- Detect role references (CEO, CTO, CFO) that need resolution
+- Detect list queries that expect multiple results
 - Check data sufficiency before routing to LLM
 - Gate queries that lack sufficient data for safe answering
 """
 
+import json
+from dataclasses import dataclass
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from typing import Optional
-import logging
+from openai import OpenAI
 
-logger = logging.getLogger(__name__)
+from src.context_foundry.utils.logger import logger
+
+
+@dataclass
+class QueryClassification:
+    """Result of query classification for intelligent routing."""
+    query_type: str              # RELATIONSHIP | ATTRIBUTE | AGGREGATION | EXPLORATION
+    retrieval_strategy: str      # GRAPH_ONLY | DOCS_ONLY | HYBRID
+    target_entity: Optional[str] # Entity mentioned in query
+    has_role_reference: bool     # Does query reference a role (CEO, CTO)?
+    role_referenced: Optional[str]  # The role if referenced (CEO, CTO, etc.)
+    expects_list: bool           # Does query expect multiple results?
+    confidence: float
+    reasoning: str
+    
+    def to_dict(self) -> dict:
+        return {
+            "query_type": self.query_type,
+            "retrieval_strategy": self.retrieval_strategy,
+            "target_entity": self.target_entity,
+            "has_role_reference": self.has_role_reference,
+            "role_referenced": self.role_referenced,
+            "expects_list": self.expects_list,
+            "confidence": self.confidence,
+            "reasoning": self.reasoning
+        }
+
+
+class QueryClassifier:
+    """Classifies queries for intelligent routing."""
+    
+    ROLE_KEYWORDS = {
+        'ceo', 'cto', 'cfo', 'coo', 'cdo', 'cmo', 'cio', 'ciso',
+        'chief executive officer', 'chief technology officer', 
+        'chief financial officer', 'chief operating officer',
+        'chief data officer', 'chief marketing officer',
+        'president', 'vp', 'vice president', 'director',
+        'general counsel', 'controller', 'treasurer'
+    }
+    
+    LIST_INDICATORS = {
+        'portfolio companies', 'companies', 'who reports', 'reports to',
+        'list all', 'what are the', 'which teams', 'how many',
+        'employees', 'members', 'executives', 'investments'
+    }
+    
+    def __init__(self, llm_model: str = "gpt-4o-mini"):
+        self.llm_client = OpenAI()
+        self.llm_model = llm_model
+    
+    def _quick_role_check(self, query: str) -> tuple:
+        """Fast regex-free check for role references."""
+        query_lower = query.lower()
+        for role in self.ROLE_KEYWORDS:
+            if role in query_lower:
+                return True, role.upper()
+        return False, None
+    
+    def _quick_list_check(self, query: str) -> bool:
+        """Fast check for list query indicators."""
+        query_lower = query.lower()
+        for indicator in self.LIST_INDICATORS:
+            if indicator in query_lower:
+                return True
+        return False
+    
+    def classify(self, query: str) -> QueryClassification:
+        """Classify a query and determine retrieval strategy."""
+        
+        has_role, role_name = self._quick_role_check(query)
+        expects_list = self._quick_list_check(query)
+        
+        prompt = f"""Classify this query for a knowledge retrieval system.
+
+QUERY: "{query}"
+
+Analyze and return:
+
+1. QUERY_TYPE:
+   - RELATIONSHIP: Questions about connections (who owns, founded, depends on, reports to)
+   - ATTRIBUTE: Questions about specific facts/properties (salary, revenue, date, count)
+   - AGGREGATION: Questions requiring counts/sums (how many, total, count of)
+   - EXPLORATION: Open-ended questions (tell me about, describe, what is)
+
+2. RETRIEVAL_STRATEGY:
+   - GRAPH_ONLY: Relationships stored in knowledge graph (ownership, dependencies, org structure)
+   - DOCS_ONLY: Specific values likely only in documents (numbers, dates, detailed descriptions)
+   - HYBRID: Need both, or exploration queries
+
+3. TARGET_ENTITY: The main entity being asked about (company name, person name, etc.)
+
+4. HAS_ROLE_REFERENCE: Does the query reference a job role/title instead of a person's name?
+   - true if: "CEO's salary", "what does the CTO do", "who reports to CFO"
+   - false if: "Sarah Chen's salary", "what does Marcus do"
+
+5. ROLE_REFERENCED: If has_role_reference is true, what role? (CEO, CTO, CFO, President, etc.)
+
+6. EXPECTS_LIST: Does the query expect multiple items in response?
+   - true if: "what companies", "who reports to", "list all", "what are the", "which teams"
+   - false if: "who is the CEO", "what is the revenue", "when was it founded"
+
+RESPOND WITH JSON ONLY:
+{{
+    "query_type": "RELATIONSHIP | ATTRIBUTE | AGGREGATION | EXPLORATION",
+    "retrieval_strategy": "GRAPH_ONLY | DOCS_ONLY | HYBRID",
+    "target_entity": "entity name or null",
+    "has_role_reference": true | false,
+    "role_referenced": "role name or null",
+    "expects_list": true | false,
+    "confidence": 0.0-1.0,
+    "reasoning": "one sentence explanation"
+}}"""
+
+        try:
+            response = self.llm_client.chat.completions.create(
+                model=self.llm_model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                max_tokens=300
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            if "```" in content:
+                parts = content.split("```")
+                for part in parts:
+                    part = part.strip()
+                    if part.startswith("json"):
+                        part = part[4:].strip()
+                    if part.startswith("{"):
+                        content = part
+                        break
+            
+            result = json.loads(content)
+            
+            llm_has_role = result.get("has_role_reference", False)
+            llm_role = result.get("role_referenced")
+            llm_expects_list = result.get("expects_list", False)
+            
+            final_expects_list = expects_list or llm_expects_list
+            
+            strategy = result.get("retrieval_strategy", "HYBRID")
+            if final_expects_list and strategy == "GRAPH_ONLY":
+                logger.info(f"[CLASSIFIER] Overriding GRAPH_ONLY → HYBRID for list query (KG coverage uncertain)")
+                strategy = "HYBRID"
+            
+            classification = QueryClassification(
+                query_type=result.get("query_type", "EXPLORATION"),
+                retrieval_strategy=strategy,
+                target_entity=result.get("target_entity"),
+                has_role_reference=has_role or llm_has_role,
+                role_referenced=role_name or llm_role,
+                expects_list=final_expects_list,
+                confidence=result.get("confidence", 0.5),
+                reasoning=result.get("reasoning", "")
+            )
+            
+            logger.info(f"[CLASSIFIER] Query: '{query[:50]}...' if len(query) > 50 else '{query}'")
+            logger.info(f"[CLASSIFIER] Type: {classification.query_type}, Strategy: {classification.retrieval_strategy}")
+            logger.info(f"[CLASSIFIER] Role ref: {classification.has_role_reference} ({classification.role_referenced}), List: {classification.expects_list}")
+            
+            return classification
+            
+        except Exception as e:
+            logger.error(f"[CLASSIFIER] Classification failed: {e}")
+            return QueryClassification(
+                query_type="EXPLORATION",
+                retrieval_strategy="HYBRID",
+                target_entity=None,
+                has_role_reference=has_role,
+                role_referenced=role_name,
+                expects_list=expects_list,
+                confidence=0.0,
+                reasoning=f"Classification failed: {e}"
+            )
 
 
 def classify_query(query: str) -> str:

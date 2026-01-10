@@ -2,6 +2,11 @@
 Tool-Calling Agent for Context Foundry.
 
 Implements ReAct-style reasoning: Think → Tool Call → Observe → Repeat → Answer
+
+Enhanced with Query Pipeline for intelligent routing:
+- QueryClassifier: Detects query type, role references, list expectations
+- RoleResolver: Resolves role references (CEO → Sarah Chen)
+- RetrievalRouter: Routes to optimal retrieval strategy
 """
 import json
 import logging
@@ -16,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from .tools.definitions import TOOL_DEFINITIONS
 from .tools.wrappers import ToolExecutor
+from .retrieval_router import QueryPipeline, RetrievalResult
 from ..models.schema import set_tenant_context
 
 logger = logging.getLogger(__name__)
@@ -104,11 +110,54 @@ class ToolAgent:
         set_tenant_context(session, tenant_id)
         
         self.tool_executor = ToolExecutor(session, tenant_id)
+        self.query_pipeline = QueryPipeline(session, tenant_id)
         
         self.client = OpenAI(
             api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
             base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
         )
+    
+    def _build_context_injection(self, pipeline_result: RetrievalResult) -> str:
+        """Build context string from pipeline pre-processing results."""
+        context_parts = []
+        
+        if pipeline_result.role_resolution and pipeline_result.role_resolution.is_resolved:
+            role = pipeline_result.role_resolution.role
+            name = pipeline_result.role_resolution.resolved_name
+            context_parts.append(f"ROLE RESOLVED: {role} = {name}")
+        
+        if pipeline_result.classification:
+            cls = pipeline_result.classification
+            if cls.expects_list:
+                context_parts.append(f"NOTE: This query expects a LIST of results (use limit=15)")
+            if cls.query_type:
+                context_parts.append(f"QUERY TYPE: {cls.query_type}")
+        
+        if pipeline_result.entities:
+            entity_names = [e['name'] for e in pipeline_result.entities[:5]]
+            context_parts.append(f"PRE-FETCHED ENTITIES: {', '.join(entity_names)}")
+        
+        if pipeline_result.relationships:
+            rel_summary = {}
+            for r in pipeline_result.relationships[:10]:
+                rel_type = r.get('type', 'UNKNOWN')
+                rel_summary[rel_type] = rel_summary.get(rel_type, 0) + 1
+            rel_str = ", ".join([f"{k}({v})" for k, v in rel_summary.items()])
+            context_parts.append(f"PRE-FETCHED RELATIONSHIPS: {rel_str}")
+        
+        if pipeline_result.chunks:
+            doc_names = list(set([c.get('document', 'Unknown') for c in pipeline_result.chunks[:5]]))
+            context_parts.append(f"PRE-FETCHED DOCUMENTS: {', '.join(doc_names[:3])}")
+            chunks_preview = []
+            for chunk in pipeline_result.chunks[:3]:
+                text = chunk.get('text', '')[:200]
+                chunks_preview.append(f"- {text}...")
+            if chunks_preview:
+                context_parts.append("DOCUMENT EXCERPTS:\n" + "\n".join(chunks_preview))
+        
+        if context_parts:
+            return "\n\n[PRE-PROCESSING CONTEXT]\n" + "\n".join(context_parts) + "\n[END PRE-PROCESSING]"
+        return ""
     
     def query(
         self,
@@ -129,13 +178,21 @@ class ToolAgent:
         """
         start_time = time.time()
         
+        pipeline_result = None
+        try:
+            pipeline_result = self.query_pipeline.process(question)
+            logger.info(f"[AGENT] Pipeline: strategy={pipeline_result.strategy_used}, has_data={pipeline_result.has_data}")
+        except Exception as e:
+            logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
+        
         debug_info = {
             "tool_calls": [],
             "reasoning_trace": [],
             "context_loaded": {
                 "system_prompt": AGENT_SYSTEM_PROMPT,
                 "conversation_history": conversation_history[-6:] if conversation_history else [],
-                "user_question": question
+                "user_question": question,
+                "pipeline_result": pipeline_result.to_dict() if pipeline_result else None
             },
             "raw_llm_responses": [],
             "messages_sent": []
@@ -147,7 +204,12 @@ class ToolAgent:
             for msg in conversation_history[-6:]:
                 messages.append(msg)
         
-        messages.append({"role": "user", "content": question})
+        user_message = question
+        if pipeline_result and pipeline_result.has_data:
+            context_injection = self._build_context_injection(pipeline_result)
+            user_message = question + context_injection
+        
+        messages.append({"role": "user", "content": user_message})
         
         tool_calls_made = []
         tool_results = []
