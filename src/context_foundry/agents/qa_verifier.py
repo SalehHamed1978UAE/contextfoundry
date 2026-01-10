@@ -195,6 +195,11 @@ class AnswerVerifierAgent:
             "has_data": len(entity_names) > 0 or len(relationships) > 0 or len(chunks) > 0
         }
         
+        # DEBUG LOGGING
+        logger.info(f"[QA_DEBUG] Question: {question}")
+        logger.info(f"[QA_DEBUG] Answer preview: {answer[:200]}...")
+        logger.info(f"[QA_DEBUG] Data summary: {json.dumps(data_summary)}")
+        
         prompt = f"""You are a QA verification system for a knowledge base.
 
 QUESTION ASKED:
@@ -242,6 +247,9 @@ STATUS MEANINGS:
             
             content = response.choices[0].message.content.strip()
             
+            # DEBUG LOGGING
+            logger.info(f"[QA_DEBUG] LLM raw response: {content}")
+            
             # Parse JSON (handle markdown wrapping)
             if "```" in content:
                 parts = content.split("```")
@@ -254,6 +262,7 @@ STATUS MEANINGS:
                         break
             
             result = json.loads(content)
+            logger.info(f"[QA_DEBUG] Parsed result: {result}")
             return QAVerdict(result["status"], result["reason"])
             
         except json.JSONDecodeError as e:
