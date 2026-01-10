@@ -20,6 +20,8 @@ from typing import List, Dict, Any, Optional
 from sqlalchemy import text
 from rich import print as rprint
 
+from ..shared.tenant_context import ensure_tenant_context
+
 
 BASE_SEVERITY = {
     'missing_entity': 0.8,
@@ -64,9 +66,7 @@ class LearningTicketAgent:
             if not gap.get('type'):
                 raise ValueError(f"Gap missing required 'type' field: {gap}")
         
-        self.session.execute(
-            text(f"SET app.current_tenant_id = '{self.tenant_id}'")
-        )
+        ensure_tenant_context(self.session, self.tenant_id)
         
         ticket_ids = []
         
@@ -196,7 +196,7 @@ class LearningTicketAgent:
         commit: bool = False
     ) -> str:
         """Create a new learning ticket."""
-        self.session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+        ensure_tenant_context(self.session, self.tenant_id)
         ticket_id = str(uuid.uuid4())
         
         gap_type = gap.get('type', 'unknown')
@@ -247,9 +247,7 @@ class LearningTicketAgent:
     
     def get_pending_tickets(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get pending tickets ordered by priority."""
-        self.session.execute(
-            text(f"SET app.current_tenant_id = '{self.tenant_id}'")
-        )
+        ensure_tenant_context(self.session, self.tenant_id)
         
         result = self.session.execute(
             text("""
@@ -269,9 +267,7 @@ class LearningTicketAgent:
     
     def get_ticket_stats(self) -> Dict[str, Any]:
         """Get statistics about learning tickets."""
-        self.session.execute(
-            text(f"SET app.current_tenant_id = '{self.tenant_id}'")
-        )
+        ensure_tenant_context(self.session, self.tenant_id)
         
         result = self.session.execute(
             text("""

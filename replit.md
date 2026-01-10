@@ -59,16 +59,20 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - **RLS Context Stability**: Enhanced TenantSession with failure tracking, logging, and fail-closed behavior
 - **Aggregation Cache Guard**: Replaced NotImplementedError with clear ValueError message
 - **Extraction Quality**: HAS_COMPENSATION relationship type validated, HELD_POSITION targets job titles correctly
-- **Test Coverage**: 135 tests total (was 39)
+- **Tenant Context Helper**: Created `ensure_tenant_context()` helper and `@require_tenant` decorator
+- **Test Coverage**: 151 tests total (was 39)
   - Aggregation planner/executor (34 tests)
   - Ontology foundry schema service (30 tests)
   - E2E smoke test workflow (4 tests)
   - DTL integration with precedent routing (28 tests)
+  - Tenant context utilities (16 tests)
   - Existing MVP tests (39 tests)
 
 ## Key Files
+- `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management
 - `src/context_foundry/aggregation/executor.py` - Query execution with tenant context
+- `tests/test_tenant_context.py` - Tenant context utility tests
 - `tests/test_aggregation.py` - Aggregation planner/executor tests
 - `tests/test_ontology_foundry.py` - Schema service validation tests
 - `tests/test_e2e_smoke.py` - Full workflow integration test
