@@ -3508,58 +3508,28 @@ def vault_chat():
             try:
                 from src.context_foundry.agents.qa_verifier import AnswerVerifierAgent
                 
-                # Build retrieval context from tool_calls
-                retrieval_entities = []
-                retrieval_relationships = []
-                retrieval_chunks = []
-                
-                for tc in agent_result.get('tool_calls', []):
-                    tool_name = tc.get('tool', '')
-                    result = tc.get('result', {})
-                    
-                    # Handle JSON string results
-                    if isinstance(result, str):
-                        try:
-                            result = json.loads(result)
-                        except json.JSONDecodeError:
-                            result = {}
-                    
-                    if tool_name == 'resolve_entities':
-                        for e in result.get('entities', []):
-                            if e.get('resolved'):
-                                retrieval_entities.append(e['resolved'])
-                    
-                    if tool_name == 'get_relationships':
-                        retrieval_relationships.extend(result.get('relationships', []))
-                    
-                    if tool_name in ('search_chunks', 'summarize_chunks', 'retrieve_documents', 'search_documents'):
-                        retrieval_chunks.extend(result.get('chunks', []))
-                
-                retrieval = {
-                    'entities': retrieval_entities,
-                    'relationships': retrieval_relationships,
-                    'chunks': retrieval_chunks
-                }
-                
                 verifier = AnswerVerifierAgent()
-                qa_verdict = verifier.verify(
+                qa_verdict = verifier.verify_from_tool_calls(
                     question=resolved_query,
                     answer=agent_result.get('answer', ''),
-                    retrieval=retrieval
+                    tool_calls=agent_result.get('tool_calls', [])
                 )
                 
                 logger.info(f"[QA_VERIFIER] Verdict: {qa_verdict.status} - {qa_verdict.reason}")
                 
+                # Add verdict to result
+                agent_result['qa_verdict'] = qa_verdict.to_dict()
+                
                 # Block answers that don't address the question
                 if qa_verdict.status in ('OFF_TOPIC', 'INSUFFICIENT', 'UNSUPPORTED', 'SUSPICIOUS'):
                     if qa_verdict.status == 'OFF_TOPIC':
-                        agent_result['answer'] = "I found information about that topic, but it doesn't directly answer your question. Could you rephrase or ask about a specific aspect?"
+                        agent_result['answer'] = "I found related information but it doesn't directly answer your question. Could you rephrase?"
                     elif qa_verdict.status == 'INSUFFICIENT':
-                        agent_result['answer'] = f"I have partial information: {qa_verdict.reason} Would you like me to search for more details?"
+                        agent_result['answer'] = f"I have partial information but cannot fully answer this. {qa_verdict.reason}"
                     elif qa_verdict.status == 'SUSPICIOUS':
-                        agent_result['answer'] = "I don't have verified information to answer this question confidently. Could you provide more context?"
+                        agent_result['answer'] = "I couldn't find reliable data. Could you try rephrasing your question?"
                     else:  # UNSUPPORTED
-                        agent_result['answer'] = "I don't have enough verified information to answer this question. The knowledge base may not contain this specific information yet."
+                        agent_result['answer'] = "I don't have verified information to answer this question."
                     computed_confidence = 0.15
                     logger.info(f"[QA_VERIFIER] Answer replaced due to {qa_verdict.status} verdict")
                     

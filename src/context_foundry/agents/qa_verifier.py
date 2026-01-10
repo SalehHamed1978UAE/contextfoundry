@@ -3,6 +3,7 @@ Answer Verification Agent
 
 Ensures responses address user questions.
 NO KEYWORDS. Data checks + LLM understanding only.
+Supports both graph-based and document-based retrieval.
 """
 
 import json
@@ -18,10 +19,16 @@ from src.context_foundry.utils.logger import logger
 class QAVerdict:
     status: str  # SUPPORTED | OFF_TOPIC | INSUFFICIENT | UNSUPPORTED | REJECTED | REVIEW | SUSPICIOUS
     reason: str
+    
+    def to_dict(self) -> dict:
+        return {"status": self.status, "reason": self.reason}
 
 
 class AnswerVerifierAgent:
-    """Two-layer verification: structural rules + LLM semantic check."""
+    """
+    Two-layer verification: structural rules + LLM semantic check.
+    Supports graph retrieval (entities/relationships) and document retrieval (chunks).
+    """
     
     def __init__(self, llm_model: str = "gpt-4o-mini"):
         api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
@@ -45,8 +52,8 @@ class AnswerVerifierAgent:
         # Layer 1: Structural checks
         structural_verdict = self._structural_rules(retrieval, answer)
         
-        if structural_verdict.status in ("REJECTED", "SUSPICIOUS"):
-            logger.info(f"[QA] Structural flag: {structural_verdict.status} - {structural_verdict.reason}")
+        if structural_verdict.status == "REJECTED":
+            logger.info(f"[QA] Structural rejection: {structural_verdict.reason}")
             return structural_verdict
         
         # Layer 2: LLM semantic verification
@@ -55,22 +62,99 @@ class AnswerVerifierAgent:
         
         return llm_verdict
     
+    def verify_from_bundle(self, question: str, bundle: Any, answer: str) -> QAVerdict:
+        """
+        Adapter for core.py which uses ContextBundle.
+        """
+        class BundleAdapter:
+            def __init__(self, b):
+                self.entity_name = getattr(b, 'target_entity_name', None)
+                self.entity_found = getattr(b, 'target_entity_found', True)
+                self.entities = getattr(b, 'semantic_entities', []) or []
+                self.relationships = getattr(b, 'semantic_relationships', []) or []
+                self.chunks = []
+        
+        return self.verify(question, answer, BundleAdapter(bundle))
+    
+    def verify_from_tool_calls(self, question: str, answer: str, tool_calls: list) -> QAVerdict:
+        """
+        Adapter for ToolAgent which returns tool_calls with document chunks.
+        
+        Extracts:
+        - chunks from search_documents, search_chunks, etc.
+        - entities from resolve_entities
+        - relationships from get_knowledge_bundle, discover_relationships
+        """
+        chunks = []
+        entities = []
+        relationships = []
+        
+        for tc in tool_calls:
+            tool_name = tc.get('tool') or tc.get('name', '')
+            result = tc.get('result', {})
+            
+            # Parse JSON string if needed
+            if isinstance(result, str):
+                try:
+                    result = json.loads(result)
+                except json.JSONDecodeError:
+                    result = {}
+            
+            # Extract chunks from search tools
+            if tool_name in ('search_documents', 'search_chunks', 'summarize_chunks', 'retrieve_documents'):
+                chunks.extend(result.get('chunks', []))
+            
+            # Extract entities from resolve_entities
+            # Returns: {"entities": [{"resolved": {...}}, ...]}
+            if tool_name == 'resolve_entities':
+                for entity_wrapper in result.get('entities', []):
+                    resolved = entity_wrapper.get('resolved')
+                    if resolved:
+                        entities.append(resolved)
+            
+            # Extract relationships from knowledge tools
+            if tool_name in ('get_knowledge_bundle', 'discover_relationships'):
+                relationships.extend(result.get('relationships', []))
+                relationships.extend(result.get('incoming', []))
+                relationships.extend(result.get('outgoing', []))
+                if result.get('relationship_summary'):
+                    relationships.append(result.get('relationship_summary'))
+        
+        # Create adapter object
+        class ToolResultAdapter:
+            def __init__(self, c, e, r):
+                self.chunks = c
+                self.entities = e
+                self.relationships = r
+                self.entity_name = e[0].get('name') if e and isinstance(e[0], dict) else None
+                self.entity_found = len(c) > 0 or len(e) > 0
+        
+        return self.verify(question, answer, ToolResultAdapter(chunks, entities, relationships))
+    
     def _structural_rules(self, retrieval: Any, answer: str) -> QAVerdict:
-        """Check DATA STRUCTURE only. No text analysis."""
+        """
+        Check DATA STRUCTURE only. No text analysis.
+        Recognizes entities, relationships, AND chunks as valid data.
+        """
         
         if not answer or not answer.strip():
             return QAVerdict("REJECTED", "Empty answer")
         
-        # Check what data exists (handle various RetrievalResult structures)
+        # Check all possible data sources
         has_entity = bool(
             getattr(retrieval, 'entity_name', None) or
             getattr(retrieval, 'entities', None) or
-            getattr(retrieval, 'affected_entities', None) or
-            getattr(retrieval, 'entity_found', False)
+            getattr(retrieval, 'affected_entities', None)
         )
+        
         relationships = getattr(retrieval, 'relationships', []) or []
         has_relationships = len(relationships) > 0
-        has_data = has_entity or has_relationships
+        
+        # Check for document chunks
+        chunks = getattr(retrieval, 'chunks', []) or []
+        has_chunks = len(chunks) > 0
+        
+        has_data = has_entity or has_relationships or has_chunks
         
         if not has_data and len(answer) > 200:
             return QAVerdict("SUSPICIOUS", "No data retrieved but detailed answer generated")
@@ -78,25 +162,37 @@ class AnswerVerifierAgent:
         return QAVerdict("NEEDS_LLM", "Structural checks passed")
     
     def _llm_verify(self, question: str, answer: str, retrieval: Any) -> QAVerdict:
-        """LLM handles ALL semantic understanding."""
+        """
+        LLM handles ALL semantic understanding.
+        Includes entity, relationship, AND chunk info in data summary.
+        """
         
-        # Build data summary from actual retrieval structure
+        # Build entity names list
         entity_names = []
         if getattr(retrieval, 'entity_name', None):
             entity_names.append(retrieval.entity_name)
         if getattr(retrieval, 'entities', None):
-            entity_names.extend([self._get_name(e) for e in list(retrieval.entities)[:10]])
-        if getattr(retrieval, 'affected_entities', None):
-            entity_names.extend([self._get_name(e) for e in list(retrieval.affected_entities)[:10]])
+            for e in list(retrieval.entities)[:10]:
+                entity_names.append(self._get_name(e))
         
         relationships = getattr(retrieval, 'relationships', []) or []
+        chunks = getattr(retrieval, 'chunks', []) or []
+        
+        # Extract document names from chunks
+        chunk_sources = []
+        for chunk in chunks[:5]:
+            if isinstance(chunk, dict):
+                doc_name = chunk.get('document', chunk.get('source', 'unknown'))
+                chunk_sources.append(doc_name)
         
         data_summary = {
             "entities_found": len(entity_names),
             "entity_names": list(set(entity_names))[:10],
             "relationships_found": len(relationships),
             "relationship_types": list(set(self._get_type(r) for r in relationships[:20])),
-            "has_data": len(entity_names) > 0 or len(relationships) > 0
+            "chunks_found": len(chunks),
+            "chunk_sources": list(set(chunk_sources))[:5],
+            "has_data": len(entity_names) > 0 or len(relationships) > 0 or len(chunks) > 0
         }
         
         prompt = f"""You are a QA verification system for a knowledge base.
@@ -112,10 +208,11 @@ DATA RETRIEVED FROM KNOWLEDGE BASE:
 
 EVALUATE:
 
-1. INTENT MATCH - Does the answer address what was asked?
+1. INTENT MATCH - Does the answer address what was actually asked?
    - WHO/WHICH TEAM → should name person(s) or team(s)
    - WHAT/HOW → should explain concept or process
    - WHERE/WHEN → should provide location or time
+   - LIST/COMPARE → should cover multiple items
 
 2. EVIDENCE - Is answer supported by retrieved data?
    - If data exists: answer should reflect it
@@ -145,6 +242,7 @@ STATUS MEANINGS:
             
             content = response.choices[0].message.content.strip()
             
+            # Parse JSON (handle markdown wrapping)
             if "```" in content:
                 parts = content.split("```")
                 for part in parts:
@@ -166,6 +264,7 @@ STATUS MEANINGS:
             return QAVerdict("REVIEW", f"Verification failed: {type(e).__name__}")
     
     def _get_name(self, entity: Any) -> str:
+        """Safely get entity name."""
         if hasattr(entity, 'name'):
             return entity.name
         if isinstance(entity, dict):
@@ -173,6 +272,7 @@ STATUS MEANINGS:
         return str(entity)
     
     def _get_type(self, relationship: Any) -> str:
+        """Safely get relationship type."""
         if hasattr(relationship, 'relationship_type'):
             return relationship.relationship_type
         if hasattr(relationship, 'type'):
