@@ -159,6 +159,102 @@ class ToolAgent:
             return "\n\n[PRE-PROCESSING CONTEXT]\n" + "\n".join(context_parts) + "\n[END PRE-PROCESSING]"
         return ""
     
+    def _can_answer_directly(self, pipeline_result: RetrievalResult) -> bool:
+        """
+        Determine if pre-retrieval gathered enough to answer without tool loop.
+        
+        This is the KEY DECISION POINT:
+        - True → Synthesize directly from pre-fetched data (skip tools)
+        - False → Run ReAct tool loop
+        """
+        if not pipeline_result or not pipeline_result.classification:
+            return False
+        
+        classification = pipeline_result.classification
+        num_chunks = len(pipeline_result.chunks)
+        num_entities = len(pipeline_result.entities)
+        num_relationships = len(pipeline_result.relationships)
+        has_resolved_role = pipeline_result.role_resolution and pipeline_result.role_resolution.is_resolved
+        
+        if has_resolved_role and num_chunks >= 3:
+            logger.info(f"[AGENT] Direct answer: role resolved + {num_chunks} chunks")
+            return True
+        
+        if classification.query_type == "RELATIONSHIP" and num_relationships >= 1:
+            logger.info(f"[AGENT] Direct answer: relationship query + {num_relationships} relationships found")
+            return True
+        
+        if classification.query_type == "ATTRIBUTE" and num_chunks >= 2:
+            logger.info(f"[AGENT] Direct answer: attribute query + {num_chunks} chunks")
+            return True
+        
+        if classification.query_type == "EXPLORATION":
+            if num_chunks >= 3:
+                logger.info(f"[AGENT] Direct answer: exploration + {num_chunks} chunks")
+                return True
+            if num_entities >= 1 and num_relationships >= 2:
+                logger.info(f"[AGENT] Direct answer: exploration + entity with {num_relationships} relationships")
+                return True
+        
+        if classification.query_type == "AGGREGATION" and classification.expects_list:
+            if num_chunks >= 5 or num_relationships >= 3:
+                logger.info(f"[AGENT] Direct answer: aggregation with list data")
+                return True
+        
+        logger.info(f"[AGENT] Insufficient for direct answer: type={classification.query_type}, "
+                    f"chunks={num_chunks}, entities={num_entities}, rels={num_relationships}")
+        return False
+    
+    def _synthesize_direct_answer(self, question: str, pipeline_result: RetrievalResult) -> str:
+        """Synthesize answer directly from pre-fetched data without tool calls."""
+        context_parts = []
+        
+        if pipeline_result.role_resolution and pipeline_result.role_resolution.is_resolved:
+            context_parts.append(f"Role resolution: {pipeline_result.role_resolution.role} = {pipeline_result.role_resolution.resolved_name}")
+        
+        if pipeline_result.entities:
+            entity_info = [f"{e['name']} ({e['type']})" for e in pipeline_result.entities[:5]]
+            context_parts.append(f"Entities found: {', '.join(entity_info)}")
+        
+        if pipeline_result.relationships:
+            rel_info = []
+            for r in pipeline_result.relationships[:10]:
+                rel_info.append(f"{r.get('source', '?')} --[{r.get('type', '?')}]--> {r.get('target', '?')}")
+            context_parts.append(f"Relationships:\n" + "\n".join(rel_info))
+        
+        if pipeline_result.chunks:
+            context_parts.append("Document content:")
+            for chunk in pipeline_result.chunks[:5]:
+                text = chunk.get('text', '')[:800]
+                doc = chunk.get('document', 'Unknown')
+                context_parts.append(f"\n[From {doc}]\n{text}")
+        
+        context = "\n\n".join(context_parts)
+        
+        synthesis_prompt = f"""Based on the following retrieved information, answer the user's question.
+
+QUESTION: {question}
+
+RETRIEVED INFORMATION:
+{context}
+
+Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not."""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant that answers questions based on provided information."},
+                    {"role": "user", "content": synthesis_prompt}
+                ],
+                temperature=0.0,
+                max_tokens=600
+            )
+            return response.choices[0].message.content or "Unable to generate answer."
+        except Exception as e:
+            logger.error(f"[AGENT] Direct synthesis failed: {e}")
+            return f"Error synthesizing answer: {str(e)}"
+    
     def query(
         self,
         question: str,
@@ -186,6 +282,19 @@ class ToolAgent:
             logger.info(f"[AGENT] Pipeline: strategy={pipeline_result.strategy_used}, has_data={pipeline_result.has_data}")
         except Exception as e:
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
+        
+        if pipeline_result and self._can_answer_directly(pipeline_result):
+            logger.info("[AGENT] Using DIRECT ANSWER path (skipping tool loop)")
+            answer = self._synthesize_direct_answer(question, pipeline_result)
+            return {
+                "answer": answer,
+                "tool_calls": [],
+                "iterations": 0,
+                "time_ms": int((time.time() - start_time) * 1000),
+                "success": True,
+                "pipeline_result": pipeline_result.to_dict(),
+                "direct_answer": True
+            }
         
         debug_info = {
             "tool_calls": [],
