@@ -1,0 +1,175 @@
+RLS HELPER IMPLEMENTATION
+
+Create a tenant context wrapper that prevents data leakage across tenants.
+
+### File: src/context_foundry/shared/tenant_context.py
+
+from contextlib import contextmanager
+from sqlalchemy import text
+from functools import wraps
+
+class TenantContextError(Exception):
+    """Raised when tenant context is missing or invalid."""
+    pass
+
+@contextmanager
+def tenant_session(session, tenant_id: str):
+    """
+    Context manager that ensures tenant context is set for all operations.
+    Re-asserts tenant after commits/rollbacks to prevent leakage.
+    
+    Usage:
+        with tenant_session(session, tenant_id) as s:
+            # all operations here are tenant-scoped
+            s.query(Entity).all()  # only returns this tenant's entities
+    """
+    if not tenant_id:
+        raise TenantContextError("tenant_id is required")
+    
+    # Validate UUID format
+    try:
+        from uuid import UUID
+        UUID(tenant_id)
+    except ValueError:
+        raise TenantContextError(f"Invalid tenant_id format: {tenant_id}")
+    
+    def set_tenant():
+        session.execute(text(f"SET app.current_tenant_id = :tid"), {"tid": tenant_id})
+    
+    try:
+        set_tenant()
+        yield session
+    except Exception:
+        session.rollback()
+        set_tenant()  # Re-assert after rollback
+        raise
+    finally:
+        # Re-assert after any operation (commit may have cleared it)
+        try:
+            set_tenant()
+        except Exception:
+            pass  # Session may be closed
+
+
+def require_tenant(func):
+    """
+    Decorator that ensures tenant_id is set before method execution.
+    Use on agent methods that access the database.
+    
+    Usage:
+        class MyAgent:
+            def __init__(self, session, tenant_id):
+                self.session = session
+                self.tenant_id = tenant_id
+            
+            @require_tenant
+            def query(self, text):
+                # tenant context guaranteed here
+                ...
+    """
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if not hasattr(self, 'tenant_id') or not self.tenant_id:
+            raise TenantContextError(f"{func.__name__} requires tenant_id")
+        
+        self.session.execute(
+            text("SET app.current_tenant_id = :tid"), 
+            {"tid": self.tenant_id}
+        )
+        return func(self, *args, **kwargs)
+    return wrapper
+
+
+### Update key agents to use this
+
+Example for QueryPipeline:
+
+from ..shared.tenant_context import tenant_session, require_tenant, TenantContextError
+
+class QueryPipeline:
+    def __init__(self, session, tenant_id: str):
+        self.session = session
+        self.tenant_id = tenant_id
+    
+    def query(self, query_text: str):
+        with tenant_session(self.session, self.tenant_id):
+            # All DB operations here are tenant-scoped
+            ...
+
+
+### Add tests
+
+File: tests/test_tenant_context.py
+
+import pytest
+from uuid import uuid4
+from src.context_foundry.shared.tenant_context import (
+    tenant_session, require_tenant, TenantContextError
+)
+
+def test_tenant_session_sets_context(db_session):
+    tenant_id = str(uuid4())
+    with tenant_session(db_session, tenant_id):
+        result = db_session.execute(
+            text("SELECT current_setting('app.current_tenant_id', true)")
+        ).scalar()
+        assert result == tenant_id
+
+def test_tenant_session_rejects_none():
+    with pytest.raises(TenantContextError):
+        with tenant_session(None, None):
+            pass
+
+def test_tenant_session_rejects_invalid_uuid(db_session):
+    with pytest.raises(TenantContextError):
+        with tenant_session(db_session, "not-a-uuid"):
+            pass
+
+def test_tenant_session_reasserts_after_rollback(db_session):
+    tenant_id = str(uuid4())
+    with tenant_session(db_session, tenant_id):
+        db_session.rollback()
+        # Should still be set after rollback
+        result = db_session.execute(
+            text("SELECT current_setting('app.current_tenant_id', true)")
+        ).scalar()
+        assert result == tenant_id
+
+def test_require_tenant_decorator(db_session):
+    class FakeAgent:
+        def __init__(self, session, tenant_id):
+            self.session = session
+            self.tenant_id = tenant_id
+        
+        @require_tenant
+        def do_thing(self):
+            return "done"
+    
+    agent = FakeAgent(db_session, str(uuid4()))
+    assert agent.do_thing() == "done"
+
+def test_require_tenant_raises_without_tenant(db_session):
+    class FakeAgent:
+        def __init__(self, session):
+            self.session = session
+            self.tenant_id = None
+        
+        @require_tenant
+        def do_thing(self):
+            return "done"
+    
+    agent = FakeAgent(db_session)
+    with pytest.raises(TenantContextError):
+        agent.do_thing()
+
+
+### Prioritized rollout
+
+1. Create tenant_context.py with helper + decorator
+2. Add tests, verify they pass
+3. Update these high-risk agents first:
+   - QueryPipeline
+   - GraphBuilderAgent  
+   - GardenerLearningProcessor
+   - LearningTicketAgent
+4. Grep for raw "SET app.current_tenant_id" and replace with helper

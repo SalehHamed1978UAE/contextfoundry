@@ -1163,27 +1163,65 @@ class TenantSession:
     
     PostgreSQL's SET command is reset by commit/rollback. This wrapper tracks
     the tenant_id and automatically re-sets it when the next query is executed.
+    
+    Also tracks context failures to prevent silent fallback to full-table scans.
     """
+    
+    _logger = None
+    
+    @classmethod
+    def _get_logger(cls):
+        if cls._logger is None:
+            import logging
+            cls._logger = logging.getLogger(__name__)
+        return cls._logger
     
     def __init__(self, session, tenant_id: str, role: str = 'user'):
         self._session = session
         self.tenant_id = tenant_id
         self.role = role
         self._context_valid = False
+        self._context_failures = 0
+        self._last_failure_reason = None
         self._ensure_context()
     
     def _ensure_context(self):
-        """Set the tenant context on the session if not already set."""
+        """Set the tenant context on the session if not already set.
+        
+        Tracks failures and logs warnings to prevent silent RLS bypass.
+        """
         if not self._context_valid:
-            if self.tenant_id:
-                self._session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
-            if self.role == 'admin':
-                self._session.execute(text("SET app.role = 'admin'"))
-            self._context_valid = True
+            try:
+                if self.tenant_id:
+                    self._session.execute(text(f"SET app.current_tenant_id = '{self.tenant_id}'"))
+                if self.role == 'admin':
+                    self._session.execute(text("SET app.role = 'admin'"))
+                self._context_valid = True
+            except Exception as e:
+                self._context_failures += 1
+                self._last_failure_reason = str(e)
+                self._get_logger().warning(
+                    f"RLS context set failed (attempt {self._context_failures}): {e}. "
+                    f"tenant_id={self.tenant_id}, role={self.role}"
+                )
+                raise RuntimeError(
+                    f"Failed to set tenant context for RLS. "
+                    f"This could result in unauthorized data access. Error: {e}"
+                ) from e
     
     def _invalidate_context(self):
         """Mark context as needing refresh (after commit/rollback)."""
         self._context_valid = False
+    
+    @property
+    def context_failures(self) -> int:
+        """Number of times context setting has failed."""
+        return self._context_failures
+    
+    @property  
+    def last_failure_reason(self) -> str:
+        """Reason for the last context failure, if any."""
+        return self._last_failure_reason
     
     def commit(self):
         """Commit and mark context as needing refresh."""
@@ -1207,6 +1245,26 @@ class TenantSession:
         self._ensure_context()
         return self._session.query(*args, **kwargs)
     
+    def add(self, instance, _warn=True):
+        """Add with context ensured."""
+        self._ensure_context()
+        return self._session.add(instance, _warn=_warn)
+    
+    def add_all(self, instances):
+        """Add all with context ensured."""
+        self._ensure_context()
+        return self._session.add_all(instances)
+    
+    def delete(self, instance):
+        """Delete with context ensured."""
+        self._ensure_context()
+        return self._session.delete(instance)
+    
+    def flush(self, objects=None):
+        """Flush with context ensured."""
+        self._ensure_context()
+        return self._session.flush(objects=objects)
+    
     def __getattr__(self, name):
         """Proxy all other attributes to the underlying session."""
         return getattr(self._session, name)
@@ -1219,6 +1277,29 @@ class TenantSession:
         except Exception:
             pass
         self._session.close()
+
+
+def wrap_session_with_tenant(session, tenant_id: str, role: str = 'user') -> TenantSession:
+    """Wrap an existing session with tenant context management.
+    
+    Use this when you already have a session (e.g., from Flask request context)
+    and need to ensure RLS tenant context is maintained across commit/rollback.
+    
+    The returned TenantSession will:
+    - Set tenant context immediately
+    - Re-assert context after every commit/rollback
+    - Track and log any context-setting failures
+    - Raise RuntimeError if context cannot be set (fail-closed)
+    
+    Args:
+        session: Existing SQLAlchemy session to wrap
+        tenant_id: UUID string of the tenant
+        role: 'user' (default) or 'admin' (bypasses RLS)
+        
+    Returns:
+        TenantSession wrapper with auto-restore tenant context
+    """
+    return TenantSession(session, tenant_id, role)
 
 
 @contextmanager
