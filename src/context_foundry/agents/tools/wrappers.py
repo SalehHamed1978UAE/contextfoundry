@@ -255,19 +255,39 @@ class ToolExecutor:
                          'just', 'also', 'now', 'the', 'and', 'but', 'for', 'are', 'was', 'were',
                          'been', 'being', 'have', 'has', 'had', 'having', 'does', 'doing',
                          'would', 'could', 'should', 'might', 'many', 'much', 'any'}
-            keywords = [w for w in words if len(w) > 3 and w not in stopwords]
+            keywords = [w for w in words if len(w) >= 3 and w not in stopwords]
             if not keywords:
                 return {"query": query, "chunks": [], "fallback": "no_keywords"}
             
-            like_clauses = " OR ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
-            fallback_sql = sql_text(f"""
-                SELECT dc.id, dc.text
-                FROM document_chunks dc
-                WHERE dc.tenant_id = :tid
-                AND ({like_clauses})
-                ORDER BY dc.created_at DESC
-                LIMIT :lim
-            """)
+            # Use AND logic for better relevance when multiple keywords exist
+            # Fall back to OR if AND returns no results
+            if len(keywords) > 1:
+                and_clauses = " AND ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
+                or_clauses = " OR ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
+                fallback_sql = sql_text(f"""
+                    (SELECT dc.id, dc.text, 1 as score
+                    FROM document_chunks dc
+                    WHERE dc.tenant_id = :tid
+                    AND ({and_clauses}))
+                    UNION ALL
+                    (SELECT dc.id, dc.text, 0 as score
+                    FROM document_chunks dc
+                    WHERE dc.tenant_id = :tid
+                    AND ({or_clauses})
+                    AND NOT ({and_clauses}))
+                    ORDER BY score DESC, id
+                    LIMIT :lim
+                """)
+            else:
+                like_clauses = " OR ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
+                fallback_sql = sql_text(f"""
+                    SELECT dc.id, dc.text
+                    FROM document_chunks dc
+                    WHERE dc.tenant_id = :tid
+                    AND ({like_clauses})
+                    ORDER BY dc.created_at DESC
+                    LIMIT :lim
+                """)
             params = {"tid": self.tenant_id, "lim": limit}
             for i, kw in enumerate(keywords):
                 params[f"kw{i}"] = f"%{kw}%"
@@ -279,7 +299,7 @@ class ToolExecutor:
                 "query": query,
                 "chunks": [
                     {
-                        "text": row.text[:500] if row.text else "",
+                        "text": row.text[:1500] if row.text else "",
                         "document": "Document chunk",
                         "similarity": 0.5
                     }
