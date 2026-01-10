@@ -48,10 +48,12 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - GardenerLearningProcessor processes tickets with structured resolution payload
 - End-to-end verification: confidence improved from 0.00 → 0.48 after ingesting salary data
 
-### Stage 4: One Substrate, Many Applications (In Progress)
+### Stage 4: One Substrate, Many Applications ✅ COMPLETE (Jan 2026)
 - Goal: Prove the same World Model can power multiple use cases
-- Q&A Agent (working)
-- Entity Profile Generator (building)
+- Q&A Agent (working) - uses World Model for reasoning and answers
+- Entity Profile Generator (working) - uses same World Model for structured profiles
+- Both applications share: Entity/Relationship models, ContextBundle structure, Sufficiency computation
+- Demo script: `scripts/stage4_demo.py` proves both apps against same data
 
 ## Extraction Quality TODOs
 1. Add `HAS_COMPENSATION` relationship type to domain_schema.yaml
