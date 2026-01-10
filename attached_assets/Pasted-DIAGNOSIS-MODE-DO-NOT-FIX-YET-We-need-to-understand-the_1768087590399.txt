@@ -1,0 +1,100 @@
+DIAGNOSIS MODE — DO NOT FIX YET
+
+We need to understand the root causes before making changes.
+
+================================================================================
+DIAGNOSIS 1: ROLE EXTRACTION AUDIT
+================================================================================
+
+For EACH vault (Law Firm, Hospital), run:
+
+SELECT name, entity_type, properties 
+FROM entities 
+WHERE tenant_id = '<tenant_id>'
+AND entity_type IN ('ROLE', 'POSITION', 'TITLE', 'PERSON')
+ORDER BY entity_type, name;
+
+Questions to answer:
+- What ROLE entities exist?
+- Is "CFO" a separate entity from "COO"?
+- Is "Chief Information Officer" extracted?
+- Is "Oncology Chair" or "Department Head" extracted?
+- Are PERSON entities created for all executives?
+
+================================================================================
+DIAGNOSIS 2: RELATIONSHIP AUDIT
+================================================================================
+
+For EACH vault, run:
+
+SELECT 
+    e1.name as source,
+    r.relationship_type,
+    e2.name as target
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = '<tenant_id>'
+ORDER BY r.relationship_type, e1.name;
+
+Questions to answer:
+- What HOLDS_POSITION relationships exist?
+- Is there Sarah Kim → HOLDS_POSITION → Oncology Chair?
+- Is there Thomas Bradley → HOLDS_POSITION → CFO?
+- What REPORTS_TO relationships exist?
+- Why did Hospital have REPORTS_TO but Law Firm didn't?
+
+================================================================================
+DIAGNOSIS 3: FAILED QUERY TRACE
+================================================================================
+
+For each failed query, trace the full pipeline:
+
+QUERY: "Who is the CFO?" (Law Firm)
+1. Classification result
+2. Role resolution attempt (what did it search for? what did it find?)
+3. Entity lookup (did it find Thomas Bradley?)
+4. Chunks retrieved (which docs? what text?)
+5. Raw LLM answer BEFORE QA
+6. Where did it get "Amanda Foster" from?
+
+QUERY: "Who leads the oncology department?" (Hospital)
+1. Same trace as above
+2. Where did it get "Sandra Williams" from?
+
+QUERY: "What is the CIO's compensation?" (Hospital)
+1. Same trace as above
+2. Why did it say "unknown" when data exists?
+
+QUERY: "Who reports to Amanda Foster?" (Law Firm)
+1. Same trace as above
+2. Was REPORTS_TO relationship searched?
+3. What relationships exist for Amanda Foster?
+
+================================================================================
+DIAGNOSIS 4: CHUNK RETRIEVAL AUDIT
+================================================================================
+
+For the CIO compensation query, check:
+
+SELECT dc.text, d.title
+FROM document_chunks dc
+JOIN documents d ON dc.document_id = d.id
+WHERE dc.tenant_id = '<hospital_tenant_id>'
+AND (LOWER(dc.text) LIKE '%robert thompson%' OR LOWER(dc.text) LIKE '%cio%' OR LOWER(dc.text) LIKE '%information officer%');
+
+Questions:
+- Does the chunk with CIO compensation exist?
+- Does it have an embedding?
+- Why wasn't it retrieved for the query?
+
+================================================================================
+OUTPUT FORMAT
+================================================================================
+
+For each diagnosis, provide:
+1. Raw query results
+2. Observations
+3. Hypothesis for root cause
+
+DO NOT propose fixes yet. Just gather data.
