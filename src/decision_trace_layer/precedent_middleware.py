@@ -32,7 +32,7 @@ from datetime import datetime
 import requests
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
-from context_foundry.dtl import inline_search_precedents, AuthContext
+from src.context_foundry.dtl import inline_search_precedents, AuthContext
 
 logger = logging.getLogger(__name__)
 
