@@ -23,6 +23,7 @@ from .tools.definitions import TOOL_DEFINITIONS
 from .tools.wrappers import ToolExecutor
 from .retrieval_router import QueryPipeline, RetrievalResult
 from ..models.schema import set_tenant_context
+from ..utils.response_helpers import build_qa_evidence, calculate_confidence, build_response
 
 logger = logging.getLogger(__name__)
 
@@ -299,15 +300,20 @@ Provide a clear, comprehensive answer based on the information above. If specifi
         if pipeline_result and self._can_answer_directly(pipeline_result):
             logger.info("[AGENT] Using DIRECT ANSWER path (skipping tool loop)")
             answer = self._synthesize_direct_answer(question, pipeline_result)
-            return {
-                "answer": answer,
-                "tool_calls": [],
-                "iterations": 0,
-                "time_ms": int((time.time() - start_time) * 1000),
-                "success": True,
-                "pipeline_result": pipeline_result.to_dict(),
-                "direct_answer": True
-            }
+            
+            evidence = build_qa_evidence(retrieval_result=pipeline_result)
+            confidence = calculate_confidence("SUPPORTED", evidence, answer)
+            
+            return build_response(
+                answer=answer,
+                confidence=confidence,
+                evidence=evidence,
+                iterations=0,
+                time_ms=int((time.time() - start_time) * 1000),
+                success=True,
+                pipeline_result=pipeline_result,
+                extra={"direct_answer": True}
+            )
         
         debug_info = {
             "tool_calls": [],
@@ -533,27 +539,46 @@ Provide a clear, comprehensive answer based on the information above. If specifi
                 
                 total_time = time.time() - start_time
                 
-                result = {
-                    "answer": answer,
-                    "tool_calls": tool_calls_made,
-                    "iterations": iteration + 1,
-                    "time_ms": int(total_time * 1000),
-                    "success": True,
-                    "retrieval_analysis": analysis,
-                    "fallback_triggered": fallback_triggered,
-                    "pipeline_result": pipeline_result
-                }
+                evidence = build_qa_evidence(
+                    retrieval_result=pipeline_result,
+                    tool_calls=tool_calls_made
+                )
+                
+                qa_status = "SUPPORTED" if evidence.has_data else "INSUFFICIENT"
+                confidence = calculate_confidence(qa_status, evidence, answer)
+                
+                result = build_response(
+                    answer=answer,
+                    confidence=confidence,
+                    evidence=evidence,
+                    tool_calls=tool_calls_made,
+                    iterations=iteration + 1,
+                    time_ms=int(total_time * 1000),
+                    success=True,
+                    pipeline_result=pipeline_result,
+                    extra={
+                        "retrieval_analysis": analysis,
+                        "fallback_triggered": fallback_triggered
+                    }
+                )
                 if debug_info:
                     result["debug"] = debug_info
                 return result
         
-        result = {
-            "answer": "I reached the maximum number of tool calls. Please try a simpler question.",
-            "tool_calls": tool_calls_made,
-            "iterations": self.MAX_TOOL_CALLS,
-            "time_ms": int((time.time() - start_time) * 1000),
-            "success": False
-        }
+        evidence = build_qa_evidence(
+            retrieval_result=pipeline_result,
+            tool_calls=tool_calls_made
+        )
+        result = build_response(
+            answer="I reached the maximum number of tool calls. Please try a simpler question.",
+            confidence=0.0,
+            evidence=evidence,
+            tool_calls=tool_calls_made,
+            iterations=self.MAX_TOOL_CALLS,
+            time_ms=int((time.time() - start_time) * 1000),
+            success=False,
+            pipeline_result=pipeline_result
+        )
         if debug_info:
             result["debug"] = debug_info
         return result
