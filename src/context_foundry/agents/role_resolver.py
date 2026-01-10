@@ -304,28 +304,95 @@ class RoleResolver:
         return RoleResolution(role=role)
     
     def _extract_person_from_role_pattern(self, text: str, role: str, normalized: str) -> Optional[str]:
-        """Extract person name from text patterns like 'Sarah Chen, CEO' or 'CEO Sarah Chen'."""
+        """
+        Extract person name from text patterns like 'Sarah Chen, CEO' or 'CEO Sarah Chen'.
+        
+        CRITICAL: Only matches the SPECIFIC role requested, not any C-suite role.
+        Uses role expansions to match both abbreviations and full names.
+        """
         import re
         
-        text_lower = text.lower()
-        role_lower = role.lower()
-        normalized_lower = normalized.lower()
+        # Expand abbreviations to ALL variants for matching
+        ROLE_EXPANSIONS = {
+            'ceo': ['CEO', 'Chief Executive Officer'],
+            'cfo': ['CFO', 'Chief Financial Officer'],
+            'cto': ['CTO', 'Chief Technology Officer'],
+            'cio': ['CIO', 'Chief Information Officer'],
+            'coo': ['COO', 'Chief Operating Officer'],
+            'cdo': ['CDO', 'Chief Data Officer'],
+            'cmo': ['CMO', 'Chief Medical Officer', 'Chief Marketing Officer'],
+            'cno': ['CNO', 'Chief Nursing Officer'],
+            'cpo': ['CPO', 'Chief Product Officer'],
+            'cro': ['CRO', 'Chief Revenue Officer'],
+            'ciso': ['CISO', 'Chief Information Security Officer'],
+            'managing partner': ['Managing Partner'],
+            'senior partner': ['Senior Partner'],
+            'partner': ['Partner'],
+            'general counsel': ['General Counsel'],
+            'vp': ['VP', 'Vice President'],
+            'svp': ['SVP', 'Senior Vice President'],
+            'evp': ['EVP', 'Executive Vice President'],
+        }
         
-        patterns = [
-            rf"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+),?\s*(?:{re.escape(role_lower)}|{re.escape(normalized_lower)})",
-            rf"(?:{re.escape(role_lower)}|{re.escape(normalized_lower)})\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)",
-            rf"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+(?:is|serves as|as)\s+(?:the\s+)?(?:{re.escape(role_lower)}|{re.escape(normalized_lower)})",
-            rf"([A-Z][a-z]+(?:\s+[A-Z]\.?\s+)?[A-Z][a-z]+)\s*[-–]\s*(?:{re.escape(role_lower)}|{re.escape(normalized_lower)})",
-            rf"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–]\s*Chief\s+\w+\s+Officer",
-        ]
+        # Get all variants for the requested role
+        role_lower = role.lower().strip()
+        normalized_lower = normalized.lower().strip()
         
-        for pattern in patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                name = match.group(1).strip()
-                name = re.sub(r'\s+', ' ', name)
-                if len(name) > 3 and len(name) < 50:
-                    return name
+        # Build list of all role variants to match
+        role_variants = set()
+        role_variants.add(role_lower)
+        role_variants.add(normalized_lower)
+        
+        # Add expansions if this is a known abbreviation
+        if role_lower in ROLE_EXPANSIONS:
+            for expansion in ROLE_EXPANSIONS[role_lower]:
+                role_variants.add(expansion.lower())
+        
+        # Also check if the role matches any expansion (e.g., "chief financial officer" -> add "cfo")
+        for abbrev, expansions in ROLE_EXPANSIONS.items():
+            for exp in expansions:
+                if role_lower == exp.lower() or normalized_lower == exp.lower():
+                    role_variants.add(abbrev)
+                    for e in expansions:
+                        role_variants.add(e.lower())
+                    break
+        
+        # Process text line-by-line to avoid matching across line boundaries
+        lines = text.split('\n')
+        
+        for role_variant in role_variants:
+            role_escaped = re.escape(role_variant)
+            
+            # Patterns for THIS SPECIFIC ROLE only - match within single lines
+            patterns = [
+                # "Thomas Bradley - Chief Financial Officer" or "Thomas Bradley - CFO"
+                rf"^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*{role_escaped}",
+                # With prefix: "Dr. Margaret Chen - CEO"
+                rf"^(?:Dr\.|Mr\.|Ms\.|Mrs\.)\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*{role_escaped}",
+                # "Chief Financial Officer Thomas Bradley" or "CFO Thomas Bradley"
+                rf"^{role_escaped}\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)",
+                # "Thomas Bradley, CFO" or "Thomas Bradley, Chief Financial Officer"
+                rf"^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+),\s*{role_escaped}",
+                # "Thomas Bradley is the CFO"
+                rf"^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+(?:is|serves as|as)\s+(?:the\s+)?{role_escaped}",
+            ]
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                    
+                for pattern in patterns:
+                    match = re.search(pattern, line, re.IGNORECASE)
+                    if match:
+                        name = match.group(1).strip()
+                        # Clean up extra whitespace
+                        name = re.sub(r'\s+', ' ', name)
+                        # Validate: reasonable name length (2-3 words typical for names)
+                        word_count = len(name.split())
+                        if len(name) > 3 and len(name) < 50 and word_count >= 2 and word_count <= 4:
+                            logger.debug(f"[ROLE_RESOLVER] Stage 3 matched: '{role_variant}' → '{name}'")
+                            return name
         
         return None
     
