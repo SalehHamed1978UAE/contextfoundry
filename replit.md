@@ -87,6 +87,16 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - **Pipeline integration**: Blocks off-topic answers with low confidence and user-friendly messages
 - **Test coverage**: 18 unit tests covering all scenarios
 
+### Deterministic Document Fallback ✅ COMPLETE (Jan 2026)
+- **Problem solved**: Factual queries failed when KG had relationships but not specific data (e.g., staff count)
+- **Solution**: Automatic document search fallback triggers when KG queried but no document chunks found yet
+- **Key methods in ToolAgent**:
+  - `_analyze_retrieval_results()` - Tracks entities, relationships, chunks from tool calls
+  - `_needs_document_fallback()` - Triggers when: KG queried AND docs not searched AND 0 chunks
+  - `_execute_document_fallback()` - Uses ToolExecutor to search documents, injects results
+- **Text search fallback**: SQL-based keyword search when vector embeddings unavailable
+- **Test results**: All 4 Green Future queries pass (founder, revenue, staff count, salary unknown)
+
 ## Key Files
 - `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management
