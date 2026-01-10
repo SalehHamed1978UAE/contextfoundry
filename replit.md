@@ -68,6 +68,16 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
   - Tenant context utilities (16 tests)
   - Existing MVP tests (39 tests)
 
+### Demo UI Improvements ✅ COMPLETE (Jan 2026)
+- **Dynamic Confidence Scoring**: Replaced hardcoded 0.75 with computed confidence based on answer quality
+  - 0.85 for answers with resolved entities
+  - 0.70 for answers with chunks/relationships
+  - 0.50 for unclear answers
+  - 0.15 for "no information" with no supporting data
+  - Uses agent-provided confidence when available
+- **Source Attribution**: Extracts sources from multiple tool types (search_chunks, summarize_chunks, retrieve_documents) and agent_result['chunk_sources']
+- **Frontend Source Display**: Truncates long doc names (>40 chars) with tooltip, "+N more" for overflow, handles both dict and string source formats
+
 ## Key Files
 - `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management
