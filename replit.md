@@ -78,6 +78,15 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - **Source Attribution**: Extracts sources from multiple tool types (search_chunks, summarize_chunks, retrieve_documents) and agent_result['chunk_sources']
 - **Frontend Source Display**: Truncates long doc names (>40 chars) with tooltip, "+N more" for overflow, handles both dict and string source formats
 
+### QA Verifier ✅ COMPLETE (Jan 2026)
+- **Two-layer verification**: Structural rules + LLM semantic check
+- **Layer 1 (Structural)**: Rejects empty answers, flags suspicious (no data + detailed answer)
+- **Layer 2 (LLM)**: Semantic understanding - intent match, evidence check, honesty evaluation
+- **NO KEYWORDS**: LLM handles all semantic understanding (no brittle keyword matching)
+- **Verdict statuses**: SUPPORTED, OFF_TOPIC, INSUFFICIENT, UNSUPPORTED, SUSPICIOUS, REJECTED, REVIEW
+- **Pipeline integration**: Blocks off-topic answers with low confidence and user-friendly messages
+- **Test coverage**: 18 unit tests covering all scenarios
+
 ## Key Files
 - `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management
