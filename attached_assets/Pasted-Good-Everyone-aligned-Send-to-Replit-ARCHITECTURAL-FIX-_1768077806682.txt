@@ -1,0 +1,187 @@
+Good. Everyone aligned. Send to Replit:
+
+ARCHITECTURAL FIX: UNIFY SEARCH + IMPROVE DIRECT ANSWER LOGIC
+
+================================================================================
+PROBLEM
+================================================================================
+
+"Tell me about CloudMatrix" returns 15% confidence despite 4 chunks existing.
+
+Root cause:
+1. Two different search implementations (RetrievalRouter vs ToolExecutor)
+2. _can_answer_directly() doesn't handle EXPLORATION queries
+3. LLM runs tool loop even when pre-processing already has the data
+
+================================================================================
+FIX 1: UNIFY DOCUMENT SEARCH
+================================================================================
+
+ToolExecutor.search_documents should delegate to the same search logic 
+that RetrievalRouter uses.
+
+Option A: ToolExecutor calls RetrievalRouter's search method
+Option B: Both call a shared DocumentSearcher class
+
+Preferred: Option B (cleaner separation)
+
+Create: src/context_foundry/search/document_searcher.py
+```python
+class DocumentSearcher:
+    """Single source of truth for document search."""
+    
+    def __init__(self, session, tenant_id):
+        self.session = session
+        self.tenant_id = tenant_id
+    
+    def search(self, query: str, limit: int = 5, offset: int = 0) -> List[dict]:
+        """
+        Search documents using consistent logic.
+        
+        1. Try vector similarity search
+        2. Fall back to text search with LIKE
+        3. Return chunks with metadata
+        """
+        # Vector search first
+        chunks = self._vector_search(query, limit + offset)
+        
+        # If insufficient, supplement with text search
+        if len(chunks) < limit:
+            text_chunks = self._text_search(query, limit, offset)
+            # Merge and dedupe
+            chunks = self._merge_results(chunks, text_chunks, limit)
+        
+        return chunks[offset:offset + limit]
+    
+    def _text_search(self, query: str, limit: int, offset: int = 0) -> List[dict]:
+        """
+        Text search using LIKE with OR logic for keywords.
+        This is the same logic that works in RetrievalRouter.
+        """
+        keywords = [w.strip('?.,!') for w in query.split() if len(w.strip('?.,!')) >= 3]
+        
+        if not keywords:
+            return []
+        
+        # OR logic for keywords (any keyword matches)
+        conditions = " OR ".join([f"LOWER(dc.text) LIKE :kw{i}" for i in range(len(keywords))])
+        params = {f"kw{i}": f"%{kw.lower()}%" for i, kw in enumerate(keywords)}
+        params["tenant_id"] = self.tenant_id
+        params["limit"] = limit
+        params["offset"] = offset
+        
+        sql = f"""
+            SELECT dc.id, dc.text, d.title as document_name
+            FROM document_chunks dc
+            JOIN documents d ON dc.document_id = d.id
+            WHERE dc.tenant_id = :tenant_id
+            AND ({conditions})
+            ORDER BY dc.created_at DESC
+            LIMIT :limit OFFSET :offset
+        """
+        
+        result = self.session.execute(text(sql), params)
+        return [{"id": row.id, "text": row.text, "document_name": row.document_name} for row in result.fetchall()]
+```
+
+Then update:
+- RetrievalRouter to use DocumentSearcher
+- ToolExecutor to use DocumentSearcher
+
+================================================================================
+FIX 2: IMPROVE _can_answer_directly()
+================================================================================
+
+File: src/context_foundry/agents/tool_agent.py
+
+Current logic is incomplete. Add EXPLORATION handling:
+```python
+def _can_answer_directly(self, query: str, retrieval: RetrievalResult) -> bool:
+    """
+    Determine if pre-retrieval gathered enough to answer without tool loop.
+    
+    This is the KEY DECISION POINT:
+    - True → Synthesize directly from pre-fetched data (skip tools)
+    - False → Run ReAct tool loop
+    """
+    classification = retrieval.classification
+    
+    # If we resolved a role and found chunks, we have the answer
+    if retrieval.resolved_role and len(retrieval.chunks) >= 3:
+        logger.info("[AGENT] Direct answer: role resolved + chunks")
+        return True
+    
+    # Relationship queries with relationships found
+    if classification.query_type == "RELATIONSHIP" and len(retrieval.relationships) >= 1:
+        logger.info("[AGENT] Direct answer: relationship query + relationships found")
+        return True
+    
+    # Attribute queries with sufficient chunks
+    if classification.query_type == "ATTRIBUTE" and len(retrieval.chunks) >= 2:
+        logger.info("[AGENT] Direct answer: attribute query + chunks")
+        return True
+    
+    # EXPLORATION queries - THIS WAS MISSING
+    if classification.query_type == "EXPLORATION":
+        has_sufficient_chunks = len(retrieval.chunks) >= 3
+        has_entity_context = len(retrieval.entities) >= 1 and len(retrieval.relationships) >= 2
+        
+        if has_sufficient_chunks:
+            logger.info(f"[AGENT] Direct answer: exploration + {len(retrieval.chunks)} chunks")
+            return True
+        
+        if has_entity_context:
+            logger.info(f"[AGENT] Direct answer: exploration + entity with relationships")
+            return True
+    
+    # AGGREGATION queries with list data
+    if classification.query_type == "AGGREGATION" and classification.expects_list:
+        if len(retrieval.chunks) >= 5 or len(retrieval.relationships) >= 3:
+            logger.info("[AGENT] Direct answer: aggregation with list data")
+            return True
+    
+    logger.info(f"[AGENT] Insufficient for direct answer: type={classification.query_type}, "
+                f"chunks={len(retrieval.chunks)}, entities={len(retrieval.entities)}, "
+                f"rels={len(retrieval.relationships)}")
+    return False
+```
+
+================================================================================
+FIX 3: REMOVE PROMPT HACKS (if any were added)
+================================================================================
+
+Do NOT add instructions like "trust pre-fetched context" to the system prompt.
+The architecture should handle this via _can_answer_directly().
+
+If such instructions exist, remove them.
+
+================================================================================
+VERIFICATION
+================================================================================
+
+After fixes, test these queries:
+
+| Query | Expected Path | Expected Result |
+|-------|---------------|-----------------|
+| "Tell me about CloudMatrix" | Direct (3+ chunks) | Portfolio company details, 85%+ |
+| "Tell me about HealthSync" | Direct (3+ chunks) | Portfolio company details, 85%+ |
+| "Tell me about SecureNode" | Direct (3+ chunks) | Portfolio company details, 85%+ |
+| "Who is the CEO?" | Direct (role resolved) | Sarah Chen, 85%+ |
+| "What portfolio companies?" | Direct (aggregation) | All 3 companies, 85%+ |
+
+Logs should show:
+[AGENT] Direct answer: exploration + 4 chunks
+
+NOT:
+[AGENT] Running tool loop...
+[TOOL] resolve_entities called...
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+1. Single search implementation used by both RetrievalRouter and ToolExecutor
+2. _can_answer_directly() returns True for EXPLORATION with 3+ chunks
+3. "Tell me about CloudMatrix" returns 85%+ confidence with actual portfolio data
+4. No prompt hacks needed
+5. Architecture controls behavior, not LLM instructions
