@@ -3377,11 +3377,32 @@ def vault_chat():
     if not session.get('user_id'):
         return jsonify({'error': 'Unauthorized'}), 401
     
-    tenant_id = g.tenant_id or session.get('tenant_id')
+    data = request.get_json()
+    
+    # Get vault_id from request (authoritative) or fall back to session
+    request_vault_id = data.get('vault_id')
+    session_tenant_id = g.tenant_id or session.get('tenant_id')
+    
+    # Determine effective tenant_id with mismatch detection
+    if request_vault_id:
+        tenant_id = request_vault_id
+        if session_tenant_id and request_vault_id != session_tenant_id:
+            logger.warning(f"[VAULT_QUERY] TENANT MISMATCH DETECTED!")
+            logger.warning(f"[VAULT_QUERY]   Request vault_id: {request_vault_id}")
+            logger.warning(f"[VAULT_QUERY]   Session tenant_id: {session_tenant_id}")
+            logger.warning(f"[VAULT_QUERY]   Using request vault_id as authoritative source")
+            # Update session to match the vault being queried
+            session['tenant_id'] = request_vault_id
+            g.tenant_id = request_vault_id
+    else:
+        tenant_id = session_tenant_id
+        logger.debug(f"[VAULT_QUERY] No vault_id in request, using session tenant: {tenant_id}")
+    
     if not tenant_id:
         return jsonify({'error': 'No vault context'}), 400
     
-    data = request.get_json()
+    logger.info(f"[VAULT_QUERY] Effective tenant_id: {tenant_id}")
+    
     query_text = data.get('query', '').strip()
     chat_history = data.get('history', [])
     
