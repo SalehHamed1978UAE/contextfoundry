@@ -176,7 +176,7 @@ class RetrievalRouter:
             search_query = f"{query} {role_resolution.resolved_name}"
         
         searcher = DocumentSearcher(self.session, self.tenant_id)
-        results = searcher.search(search_query, limit=limit, use_vector=False)
+        results = searcher.search(search_query, limit=limit, use_vector=True)
         
         chunks = [
             {
