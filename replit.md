@@ -97,6 +97,19 @@ The **Query Flow** involves parsing, entity resolution, context bundle retrieval
 - **Text search fallback**: SQL-based keyword search when vector embeddings unavailable
 - **Test results**: All 4 Green Future queries pass (founder, revenue, staff count, salary unknown)
 
+### Vault-Tenant Mismatch Fix ✅ COMPLETE (Jan 2026)
+- **Problem solved**: Queries used stale session tenant_id instead of current vault's tenant_id
+- **Solution**: vault_chat endpoint accepts vault_id from request as authoritative source
+- **Key changes**:
+  - Frontend passes `vault_id` in every chat request body
+  - Backend detects mismatch between request vault_id and session tenant_id
+  - Logs warning on mismatch and updates session to use correct tenant
+- **Text search improvements**:
+  - Keywords include 3-letter terms (CEO, CFO) with `len(w) >= 3`
+  - AND/OR ranking prioritizes chunks matching ALL keywords
+  - Chunk truncation increased from 500 to 1500 chars for richer context
+- **Test results**: TechVentures queries now return correct data (Sarah Chen: $850K base, $2.05M total)
+
 ## Key Files
 - `src/context_foundry/shared/tenant_context.py` - Tenant context helpers for RLS
 - `src/context_foundry/models/schema.py` - TenantSession with RLS context management
