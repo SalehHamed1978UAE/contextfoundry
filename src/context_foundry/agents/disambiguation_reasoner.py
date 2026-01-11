@@ -101,7 +101,13 @@ class DisambiguationReasoner:
         matches: List[Dict[str, Any]],
         vault_context: str
     ) -> List[Dict[str, Any]]:
-        """Find matches where organization matches vault context."""
+        """
+        Find matches where ANY organization matches vault context.
+        
+        Each match may have multiple organizations (e.g., Sarah Chen works at
+        TechVentures, HR Operations, and Board Committee). We check if ANY
+        of them match the vault context.
+        """
         if not vault_context:
             return []
         
@@ -110,18 +116,31 @@ class DisambiguationReasoner:
         
         exact_matches = []
         for match in matches:
-            org = (match.get("organization") or "").lower()
-            if not org:
+            organizations = match.get("organizations", [])
+            if not organizations and match.get("organization"):
+                organizations = [match.get("organization")]
+            
+            if not organizations:
                 continue
             
-            if org in vault_lower or vault_lower in org:
-                exact_matches.append(match)
-                continue
-            
-            for word in vault_words:
-                if word in org:
+            for org in organizations:
+                org_lower = (org or "").lower()
+                if not org_lower:
+                    continue
+                
+                if org_lower in vault_lower or vault_lower in org_lower:
+                    logger.info(f"[DISAMB] Vault match: {match.get('name')} has org '{org}' matching vault '{vault_context}'")
                     exact_matches.append(match)
                     break
+                
+                for word in vault_words:
+                    if word in org_lower:
+                        logger.info(f"[DISAMB] Vault word match: {match.get('name')} has org '{org}' matching vault word '{word}'")
+                        exact_matches.append(match)
+                        break
+                else:
+                    continue
+                break
         
         return exact_matches
     
@@ -134,8 +153,14 @@ class DisambiguationReasoner:
     ) -> DisambiguationResult:
         """Use LLM to reason about which match(es) best answer the user's intent."""
         
+        def format_orgs(m: Dict[str, Any]) -> str:
+            orgs = m.get('organizations', [])
+            if not orgs and m.get('organization'):
+                orgs = [m.get('organization')]
+            return ', '.join(orgs) if orgs else 'Unknown'
+        
         matches_description = "\n".join([
-            f"- {m.get('name', 'Unknown')} ({m.get('role', 'unknown role')}) → works at: {m.get('organization', 'Unknown')}"
+            f"- {m.get('name', 'Unknown')} ({m.get('role', 'unknown role')}) → organizations: [{format_orgs(m)}]"
             for m in matches
         ])
         

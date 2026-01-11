@@ -1,0 +1,68 @@
+GENERAL FIX: COMPLETE RELATIONSHIP CONTEXT FOR DISAMBIGUATION
+
+The problem isn't the disambiguation logic — it's that we're passing INCOMPLETE data to it.
+
+CURRENT (Broken):
+- Match found: Sarah Chen (CEO)
+- Org passed: "HR Operations" (first WORKS_AT found)
+- Vault context: "TechVentures Test"
+- Result: No match → wrong answer
+
+CORRECT (General):
+- Match found: Sarah Chen (CEO)
+- ALL relationships gathered:
+  - WORKS_AT: [TechVentures, HR Operations, Board Committee]
+  - HOLDS_POSITION: [CEO, Board Member]
+  - REPORTS_TO: [Board of Directors]
+- Vault context: "TechVentures Test"
+- Result: "TechVentures" in orgs → correct answer
+
+IMPLEMENTATION:
+
+```python
+def build_match_with_full_context(entity_id: str) -> Dict:
+    """Gather ALL relationships for an entity before disambiguation."""
+    
+    entity = get_entity(entity_id)
+    
+    # Get ALL organizations (not just first)
+    works_at = get_all_relationships(entity_id, 'WORKS_AT')
+    organizations = [rel.target.name for rel in works_at]
+    
+    # Get ALL roles
+    holds_position = get_all_relationships(entity_id, 'HOLDS_POSITION')
+    roles = [rel.target.name for rel in holds_position]
+    
+    # Get reporting relationships
+    reports_to = get_all_relationships(entity_id, 'REPORTS_TO')
+    managers = [rel.target.name for rel in reports_to]
+    
+    return {
+        "id": entity_id,
+        "name": entity.name,
+        "type": entity.entity_type,
+        "roles": roles,
+        "organizations": organizations,  # ALL of them
+        "reports_to": managers,
+        "properties": entity.properties
+    }
+
+def prepare_matches_for_disambiguation(raw_matches: List) -> List[Dict]:
+    """Enrich all matches with complete relationship context."""
+    return [build_match_with_full_context(m.id) for m in raw_matches]
+THEN the fast path works:
+def has_vault_match(match: Dict, vault_context: str) -> bool:
+    """Check if ANY of the entity's organizations match vault context."""
+    return any(
+        vault_context.lower() in org.lower() 
+        for org in match.get('organizations', [])
+    )
+
+exact_matches = [m for m in matches if has_vault_match(m, vault_context)]
+THE PRINCIPLE:
+Before reasoning about ambiguity, GATHER COMPLETE CONTEXT.
+Don't make decisions based on partial data.
+This is general — applies to any disambiguation, not just CEO queries.
+---
+
+The fix is: **Always gather complete relationship context before disambiguation.** The reasoning (LLM or rules) can only be as good as the data it receives.
