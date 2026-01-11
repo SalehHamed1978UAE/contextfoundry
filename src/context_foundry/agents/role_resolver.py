@@ -252,10 +252,9 @@ class RoleResolver:
         Returns a RoleResolution with all_matches populated, allowing callers
         to decide how to handle multiple matches (e.g., ask user to clarify).
         
-        Context is derived from GRAPH RELATIONSHIPS (WORKS_AT, EMPLOYED_BY, MEMBER_OF)
-        rather than entity properties, following the principle that context comes
-        from graph traversal. When multiple organization relationships exist,
-        prioritizes the vault context organization.
+        IMPORTANT: Each match includes ALL organizations the person is connected to,
+        not just one. This allows disambiguation to check if ANY organization matches
+        the vault context.
         
         Args:
             role: The role to resolve (e.g., "CEO", "Managing Partner")
@@ -272,62 +271,33 @@ class RoleResolver:
         
         role_clauses = " OR ".join([f"e.properties::text ILIKE :role{i}" for i in range(len(role_variations))])
         
-        vault_pattern = f"%{vault_context}%" if vault_context else "%NEVER_MATCH%"
-        vault_words_pattern = f"%{vault_context.split()[0]}%" if vault_context else "%NEVER_MATCH%"
-        
         query = text(f"""
-            WITH org_rels AS (
-                -- All WORKS_AT relationships with priority scoring
-                -- Priority 1: Organization name matches vault context (bidirectional)
-                -- Priority 2: Non-department/team organizations
-                -- Priority 3: Everything else
+            WITH all_orgs AS (
+                -- Get ALL organizations for each person (not just one)
                 SELECT 
                     r.source_id as person_id,
-                    target.name as org_name,
-                    CASE 
-                        WHEN target.name ILIKE :vault_pattern 
-                             OR :vault_context ILIKE '%' || target.name || '%'
-                             OR target.name ILIKE :vault_words_pattern THEN 1
-                        WHEN target.name NOT ILIKE '%Operations%' 
-                             AND target.name NOT ILIKE '%Department%'
-                             AND target.name NOT ILIKE '%Team%' THEN 2
-                        ELSE 3
-                    END as priority
+                    array_agg(DISTINCT target.name) as organizations
                 FROM relationships r
                 JOIN entities target ON r.target_id = target.id
                 WHERE r.relationship_type IN ('WORKS_AT', 'EMPLOYED_BY', 'MEMBER_OF')
                 AND r.tenant_id = :tenant_id
                 AND target.entity_type = 'ORGANIZATION'
-            ),
-            best_org AS (
-                SELECT DISTINCT ON (person_id)
-                    person_id,
-                    org_name
-                FROM org_rels
-                ORDER BY person_id, priority ASC
+                GROUP BY r.source_id
             )
             SELECT DISTINCT ON (e.id)
                 e.id as person_id,
                 e.name as person_name,
                 e.properties as props,
-                COALESCE(
-                    bo.org_name,
-                    e.properties->>'organization'
-                ) as organization
+                COALESCE(ao.organizations, ARRAY[]::text[]) as organizations
             FROM entities e
-            LEFT JOIN best_org bo ON bo.person_id = e.id
+            LEFT JOIN all_orgs ao ON ao.person_id = e.id
             WHERE e.tenant_id = :tenant_id
             AND e.entity_type = 'PERSON'
             AND ({role_clauses})
             ORDER BY e.id, e.created_at DESC
         """)
         
-        params = {
-            "tenant_id": self.tenant_id, 
-            "vault_pattern": vault_pattern,
-            "vault_words_pattern": vault_words_pattern,
-            "vault_context": vault_context or ""
-        }
+        params = {"tenant_id": self.tenant_id}
         for i, variation in enumerate(role_variations):
             params[f"role{i}"] = f"%{variation}%"
         
@@ -340,14 +310,21 @@ class RoleResolver:
                     props = row.props or {}
                     role_value = props.get('position') or props.get('role') or props.get('title') or role
                     
+                    orgs_list = list(row.organizations) if row.organizations else []
+                    if not orgs_list and props.get('organization'):
+                        orgs_list = [props.get('organization')]
+                    
                     all_matches.append({
                         "name": row.person_name,
                         "entity_id": str(row.person_id),
                         "role": role_value,
-                        "organization": row.organization
+                        "organizations": orgs_list,
+                        "organization": orgs_list[0] if orgs_list else None
                     })
             
             logger.info(f"[ROLE_RESOLVER] Found {len(all_matches)} matches for '{role}'")
+            for m in all_matches:
+                logger.info(f"[ROLE_RESOLVER]   - {m['name']} ({m['role']}) orgs: {m.get('organizations', [])}")
             
             if len(all_matches) == 1:
                 match = all_matches[0]

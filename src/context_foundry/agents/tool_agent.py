@@ -272,6 +272,34 @@ Provide a clear, comprehensive answer based on the information above. If specifi
             logger.error(f"[AGENT] Direct synthesis failed: {e}")
             return f"Error synthesizing answer: {str(e)}"
     
+    def _get_vault_matching_org(self, match: Dict[str, Any], vault_context: Optional[str]) -> Optional[str]:
+        """
+        Find the organization from match that best matches vault context.
+        
+        If the match has multiple organizations (e.g., TechVentures, HR Operations),
+        return the one that matches the vault context for display purposes.
+        """
+        if not vault_context:
+            orgs = match.get("organizations", [])
+            return orgs[0] if orgs else match.get("organization")
+        
+        vault_lower = vault_context.lower()
+        vault_words = [w.lower() for w in vault_context.split() if len(w) > 2]
+        
+        organizations = match.get("organizations", [])
+        if not organizations and match.get("organization"):
+            organizations = [match.get("organization")]
+        
+        for org in organizations:
+            org_lower = (org or "").lower()
+            if org_lower in vault_lower or vault_lower in org_lower:
+                return org
+            for word in vault_words:
+                if word in org_lower:
+                    return org
+        
+        return organizations[0] if organizations else match.get("organization")
+    
     def _build_disambiguation_response(
         self,
         question: str,
@@ -336,7 +364,8 @@ Provide a clear, comprehensive answer based on the information above. If specifi
         
         primary_name = primary.get("name", "Unknown")
         primary_role = primary.get("role", query_term)
-        primary_org = primary.get("organization", vault_context or "")
+        
+        primary_org = self._get_vault_matching_org(primary, vault_context) or vault_context or ""
         
         if ambiguity_type == "role":
             answer = f"The {query_term} of {primary_org} is {primary_name}."
@@ -347,8 +376,11 @@ Provide a clear, comprehensive answer based on the information above. If specifi
             alt_lines = []
             for alt in alternatives:
                 alt_name = alt.get("name", "Unknown")
-                alt_org = alt.get("organization", "")
                 alt_role = alt.get("role", "")
+                alt_orgs = alt.get("organizations", [])
+                if not alt_orgs and alt.get("organization"):
+                    alt_orgs = [alt.get("organization")]
+                alt_org = alt_orgs[0] if alt_orgs else ""
                 if alt_org:
                     alt_lines.append(f"- {alt_name} ({alt_role} of {alt_org})")
                 else:
