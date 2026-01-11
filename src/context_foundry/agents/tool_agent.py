@@ -212,11 +212,12 @@ class ToolAgent:
         
         classification = pipeline_result.classification
         expects_list = classification.expects_list if classification else False
+        is_attribute_query = classification.query_type == "ATTRIBUTE" if classification else False
         
         entity_limit = 10 if expects_list else 5
         rel_limit = 20 if expects_list else 10
         chunk_limit = 10 if expects_list else 5
-        chunk_text_limit = 1200 if expects_list else 800
+        chunk_text_limit = 1600 if (expects_list or is_attribute_query) else 800
         
         if pipeline_result.role_resolution and pipeline_result.role_resolution.is_resolved:
             context_parts.append(f"Role resolution: {pipeline_result.role_resolution.role} = {pipeline_result.role_resolution.resolved_name}")

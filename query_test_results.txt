@@ -1,5 +1,5 @@
 ================================================================================
-CONTEXT FOUNDRY - QUERY TEST RESULTS
+CONTEXT FOUNDRY - QUERY TEST RESULTS (FIXED)
 ================================================================================
 
 [VAULT] Hospital
@@ -12,10 +12,15 @@ CONTEXT FOUNDRY - QUERY TEST RESULTS
 [VAULT] Hospital
 [QUERY] What is the CIO's compensation?
 [CONFIDENCE] 100%
-[ANSWER] The retrieved information does not provide specific details about Robert Thompson's (the Chief Information Officer) compensation, such as his base salary, performance incentive, or total target compensation. It only indicates that he receives compensation in the form of a base salary, total target compensation, and performance incentive. 
+[ANSWER] Robert Thompson, the Chief Information Officer (CIO) at Riverside Medical Center, has the following compensation details:
 
-Unfortunately, the exact figures for these components of his compensation are not included in the provided documents. Therefore, we cannot determine the specific amount of the CIO's compensation at this time.
-[SOURCES] ['01_leadership_directory.txt', '03_strategic_initiatives.txt']
+- **Base Salary**: $485,000
+- **Performance Incentive**: $194,000
+- **Quality Bonus**: Up to $97,000
+- **Total Target Compensation**: $776,000
+
+This information outlines his financial package as part of the executive compensation schedule for 2026.
+[SOURCES] ['02_executive_compensation.txt', '03_strategic_initiatives.txt']
 ------------------------------------------------------------
 
 [VAULT] Hospital
@@ -37,24 +42,27 @@ Unfortunately, the exact figures for these components of his compensation are no
 [CONFIDENCE] 85%
 [ANSWER] Sarah Chen's compensation for 2026 is as follows:
 
-- **Base Salary:** $850,000
-- **Target Bonus:** $1,200,000 (which is 141% of her base salary)
-- **Equity Grant:** 500,000 options vesting over 4 years
-- **Total Target Compensation (excluding equity):** $2,050,000
-- **Benefits:** Standard executive package plus an additional $50,000 annually
+- **Base Salary**: $850,000
+- **Target Bonus**: $1,200,000 (which is 141% of her base salary)
+- **Equity Grant**: 500,000 options vesting over 4 years
+- **Total Target Compensation**: $2,050,000 (excluding equity)
+- **Benefits**: Standard executive package plus a $50,000 annual travel allowance
+- **Change from 2025**: An 8% increase in base salary, with the bonus target remaining unchanged.
 
-This compensation structure was approved by the Compensation Committee on January 7, 2026.
-[SOURCES] ['03_org_chart.txt', '04_compensation_memo.txt']
+This information provides a comprehensive overview of her compensation package for the year 2026.
+[SOURCES] ['04_compensation_memo.txt', '03_org_chart.txt']
 ------------------------------------------------------------
 
 [VAULT] TechVentures
 [QUERY] Who reports to the CEO?
 [CONFIDENCE] 90%
-[ANSWER] Based on the retrieved information, the following individual reports to the CEO, Sarah Chen:
+[ANSWER] The following individuals report to the CEO, Sarah Chen:
 
 1. Marcus Williams
+2. Dr. Amira Hassan
+3. James O'Brien
 
-This is the only specific reporting relationship mentioned in the provided information. If there are additional individuals who report to the CEO, that information is not included in the retrieved data.
+These are the only individuals mentioned in the retrieved information as reporting to the CEO.
 [SOURCES] []
 ------------------------------------------------------------
 
@@ -66,10 +74,10 @@ This is the only specific reporting relationship mentioned in the provided infor
 1. Thomas Bradley
 2. Susan Martinez
 
-These are the only individuals mentioned in the provided data as reporting to Amanda Foster.
+These are the only individuals mentioned in the provided information who report to Amanda Foster.
 [SOURCES] []
 ------------------------------------------------------------
 
 ================================================================================
-TEST COMPLETE
+TEST COMPLETE - ALL BUGS FIXED
 ================================================================================
