@@ -308,6 +308,7 @@ Provide a clear, comprehensive answer based on the information above. If specifi
             return build_response(
                 answer=answer,
                 confidence=confidence,
+                qa_verdict={"status": "SUPPORTED", "reason": "Direct answer from pipeline data"},
                 evidence=evidence,
                 iterations=0,
                 time_ms=int((time.time() - start_time) * 1000),
@@ -551,6 +552,7 @@ Provide a clear, comprehensive answer based on the information above. If specifi
                 result = build_response(
                     answer=answer,
                     confidence=confidence,
+                    qa_verdict={"status": qa_status, "reason": f"Evidence: {evidence.entity_count} entities, {evidence.relationship_count} rels, {evidence.chunk_count} chunks"},
                     evidence=evidence,
                     tool_calls=tool_calls_made,
                     iterations=iteration + 1,
@@ -573,6 +575,7 @@ Provide a clear, comprehensive answer based on the information above. If specifi
         result = build_response(
             answer="I reached the maximum number of tool calls. Please try a simpler question.",
             confidence=0.0,
+            qa_verdict={"status": "INSUFFICIENT", "reason": "Max tool calls reached without finding answer"},
             evidence=evidence,
             tool_calls=tool_calls_made,
             iterations=self.MAX_TOOL_CALLS,

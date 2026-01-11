@@ -1,0 +1,296 @@
+====================================================================================================
+CONTEXT FOUNDRY - PHASE 2.6 FINAL TEST RESULTS
+Fix: Added qa_verdict to ToolAgent response to prevent double QA verification
+====================================================================================================
+
+====================================================================================================
+VAULT: TECHVENTURES TEST (10 queries)
+====================================================================================================
+
+[1/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the CEO?
+ANSWER: The CEO is Sarah Chen. She holds the position at TechVentures and is located in San Francisco, CA. Additionally, she has a background as a former partner at Sequoia Capital and holds an MBA from Stanford.
+--------------------------------------------------------------------------------
+
+[2/10] PASS | Confidence: 100% | Verdict: SUPPORTED
+QUERY: What is the CEO's salary?
+ANSWER: The CEO, Sarah Chen, has a base salary of $850,000 for the year 2026. Additionally, she has a target bonus of $1,200,000, which is 141% of her base salary. Her total target compensation, excluding equity, amounts to $2,050,000.
+SOURCES: ['03_org_chart.txt', '04_compensation_memo.txt']
+--------------------------------------------------------------------------------
+
+[3/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the CTO?
+ANSWER: The Chief Technology Officer (CTO) is Marcus Williams. He also holds the position of Vice President of Engineering and has a background as a former Engineering Director at Google Cloud. Marcus Williams works at SecureNode and TechVentures, and he is located in San Francisco, CA. Additionally, he reports to Sarah Chen and receives a compensation package approved by the TechVentures Board Compensati...
+--------------------------------------------------------------------------------
+
+[4/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the CTO of TechVentures?
+ANSWER: The Chief Technology Officer (CTO) of TechVentures is Marcus Williams. He is currently working at TechVentures and has a background as a former Engineering Director at Google Cloud.
+--------------------------------------------------------------------------------
+
+[5/10] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: What is Sarah Chen's compensation?
+ANSWER: Sarah Chen's compensation for 2026 is as follows:
+
+- **Base Salary**: $850,000
+- **Target Bonus**: $1,200,000 (which is 141% of her base salary)
+- **Equity Grant**: 500,000 options vesting over 4 years
+- **Total Target Compensation**: $2,050,000 (excluding equity)
+- **Benefits**: Standard executive package plus a $50,000 annual travel allowance
+- **Change from 2025**: There is an 8% increase in he...
+SOURCES: ['03_org_chart.txt', '04_compensation_memo.txt']
+--------------------------------------------------------------------------------
+
+[6/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who reports to the CEO?
+ANSWER: The following individuals report to the CEO, Sarah Chen:
+
+1. Marcus Williams
+2. Dr. Amira Hassan
+3. James O'Brien
+
+These are the only individuals mentioned in the retrieved information as reporting to the CEO.
+--------------------------------------------------------------------------------
+
+[7/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: What portfolio companies does TechVentures have?
+ANSWER: TechVentures has the following portfolio companies:
+
+1. **CloudMatrix**
+   - Provides enterprise infrastructure automation software for managing hybrid cloud environments.
+   - Founded in 2021.
+   - Investment Amount: $45 Million (Series B).
+   - Ownership Stake: 22%.
+   - Board Seat: Sarah Chen (TechVentures CEO).
+
+2. **SecureNode**
+   - Provides zero-trust network security for distributed enterp...
+SOURCES: ['02_portfolio_summary.txt', '03_org_chart.txt', '01_leadership_memo.txt']
+--------------------------------------------------------------------------------
+
+[8/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Tell me about CloudMatrix
+ANSWER: CloudMatrix is a portfolio company under TechVentures, specializing in enterprise infrastructure automation software designed to assist large organizations. The company is currently led by CEO Sarah Chen, who is also the founder of TechVentures. 
+
+As of the latest quarterly report for Q4 2025, CloudMatrix is in the process of preparing for its first commercial contract, which is expected to be fin...
+SOURCES: ['02_portfolio_summary.txt', '03_org_chart.txt']
+--------------------------------------------------------------------------------
+
+[9/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Tell me about HealthSync
+ANSWER: HealthSync is a technology company that specializes in developing interoperability software designed to connect hospital electronic health record (EHR) systems. The company was founded in 2020 by former engineers from Epic Systems, a well-known provider of EHR solutions.
+
+### Key Details:
+- **Investment**: HealthSync raised $30 million in a Series A funding round, which took place in August 2023. ...
+SOURCES: ['02_portfolio_summary.txt', '03_org_chart.txt']
+--------------------------------------------------------------------------------
+
+[10/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Tell me about SecureNode
+ANSWER: SecureNode is a company that specializes in zero-trust network security for distributed enterprise environments. It was founded in 2024 by former Google security engineers. The company has received a seed investment of $20 million, which was made in February 2025, and it holds a 35% ownership stake from its investors.
+
+The leadership team at SecureNode includes:
+- **CEO**: Ahmed Malik (Founder)
+- ...
+SOURCES: ['02_portfolio_summary.txt', '03_org_chart.txt']
+--------------------------------------------------------------------------------
+====================================================================================================
+VAULT: LAW FIRM VAULT (9 queries)
+====================================================================================================
+
+[1/9] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the Managing Partner?
+ANSWER: The Managing Partner is Elizabeth Morrison. She works at Morrison & Sterling LLP and has various roles and responsibilities, including overseeing individuals like Amanda Foster and Richard Sterling, who report to her. Additionally, she is associated with several entities as a key contact.
+--------------------------------------------------------------------------------
+
+[2/9] PASS | Confidence: 100% | Verdict: SUPPORTED
+QUERY: What is the Managing Partner's compensation?
+ANSWER: The compensation for Elizabeth Morrison, the Managing Partner of Morrison & Sterling LLP, is as follows:
+
+- **Base Draw**: $1,200,000
+- **Performance Bonus**: $800,000
+- **Equity Points**: 150 (out of a total of 1000)
+- **Total Expected Compensation**: $2,400,000
+- **Additional Firm Vehicle Allowance**: $24,000 per year
+
+This information provides a comprehensive overview of her compensation struct...
+SOURCES: ['03_client_roster.txt', '02_partner_compensation.txt', '01_firm_overview.txt']
+--------------------------------------------------------------------------------
+
+[3/9] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the CFO?
+ANSWER: The CFO is Thomas Bradley. He works at Morrison & Sterling LLP and reports to Amanda Foster. However, specific details about his salary and bonus are not provided in the retrieved information.
+--------------------------------------------------------------------------------
+
+[4/9] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the COO?
+ANSWER: The Chief Operating Officer (COO) is Amanda Foster. She works at Morrison & Sterling LLP and reports to Elizabeth Morrison. Additionally, Thomas Bradley and Susan Martinez report to her. Specific details about her salary and bonus are mentioned but not provided in numerical terms.
+--------------------------------------------------------------------------------
+
+[5/9] PASS | Confidence: 75% | Verdict: SUPPORTED
+QUERY: Who reports to Amanda Foster?
+ANSWER: Based on the retrieved information, the following individuals report to Amanda Foster:
+
+1. Thomas Bradley
+2. Susan Martinez
+
+These are the only individuals mentioned in the provided data as reporting to Amanda Foster.
+--------------------------------------------------------------------------------
+
+[6/9] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: What practice groups does the firm have?
+ANSWER: The firm, Morrison & Sterling LLP, has the following five practice groups:
+
+1. **Corporate & M&A**
+   - Led by: Elizabeth Morrison
+   - Partners: 12
+   - Associates: 28
+   - Revenue: $45M annually
+
+2. **Litigation**
+   - Led by: Richard Sterling
+   - Partners: 8
+   - Associates: 22
+   - Revenue: $32M annually
+
+3. **Intellectual Property**
+   - Led by: Priya Patel
+   - Partners: 6
+   - Associates: ...
+SOURCES: ['03_client_roster.txt', '02_partner_compensation.txt', '01_firm_overview.txt']
+--------------------------------------------------------------------------------
+
+[7/9] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: Tell me about the litigation practice
+ANSWER: The litigation practice at Morrison & Sterling LLP is led by Richard Sterling, who is a Senior Partner and co-founder of the firm. He has been instrumental in developing the firm's litigation practice group since its inception in 1998. Richard Sterling reports directly to the Managing Partner, Elizabeth Morrison, on matters related to firm management.
+
+The firm has a strong focus on litigation, as...
+SOURCES: ['03_client_roster.txt', '02_partner_compensation.txt', '01_firm_overview.txt']
+--------------------------------------------------------------------------------
+
+[8/9] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: Who are the Tier 1 clients?
+ANSWER: The Tier 1 clients of Morrison & Sterling LLP, which have an annual billing of over $2 million, are as follows:
+
+1. **Nexus Technologies Inc.**
+   - Industry: Enterprise Software
+   - Annual Billing: $4.2M
+   - Relationship Partner: Elizabeth Morrison
+   - Services: M&A advisory, corporate governance
+   - Relationship Since: 2015
+   - Key Contact: CEO Robert Huang
+
+2. **Atlantic Healthcare Systems...
+SOURCES: ['03_client_roster.txt', '02_partner_compensation.txt', '01_firm_overview.txt']
+--------------------------------------------------------------------------------
+
+[9/9] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: What is Richard Sterling's compensation?
+ANSWER: Richard Sterling's compensation as a Senior Partner in Litigation at Morrison & Sterling LLP is structured as follows:
+
+- **Base Draw:** $950,000
+- **Performance Bonus:** $600,000
+- **Equity Points:** 120
+- **Total Expected Compensation:** $1,850,000
+
+This total expected compensation does not include any additional allowances or benefits that may be provided by the firm.
+SOURCES: ['03_client_roster.txt', '02_partner_compensation.txt', '01_firm_overview.txt']
+--------------------------------------------------------------------------------
+====================================================================================================
+VAULT: HOSPITAL VAULT (10 queries)
+====================================================================================================
+
+[1/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the CEO?
+ANSWER: The CEO is Dr. Margaret Chen. She holds the position of Chief Executive Officer at Riverside Medical Center and reports to the Board of Directors.
+--------------------------------------------------------------------------------
+
+[2/10] PASS | Confidence: 100% | Verdict: SUPPORTED
+QUERY: What is the CEO's salary?
+ANSWER: Dr. Margaret Chen, the Chief Executive Officer of Riverside Medical Center, has a base salary of $1,450,000. Additionally, her total target compensation, which includes performance incentives and bonuses, amounts to $2,965,000.
+SOURCES: ['01_leadership_directory.txt', '02_executive_compensation.txt', '03_strategic_initiatives.txt']
+--------------------------------------------------------------------------------
+
+[3/10] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: Who is the CMO?
+ANSWER: The Chief Medical Officer (CMO) at Riverside Medical Center is Dr. William Patterson. He was appointed in 2022 and has a background of 20 years in academic medicine, specializing in cardiology.
+SOURCES: ['01_leadership_directory.txt', '02_executive_compensation.txt', '03_strategic_initiatives.txt']
+--------------------------------------------------------------------------------
+
+[4/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who is the CIO?
+ANSWER: The Chief Information Officer (CIO) is Robert Thompson. He works at Riverside Medical Center and leads the Digital Health Transformation. Additionally, he reports to Sandra Williams. While specific details about his compensation, such as total target compensation, base salary, and performance incentive, are mentioned, the exact figures are not provided in the retrieved information.
+--------------------------------------------------------------------------------
+
+[5/10] PASS | Confidence: 100% | Verdict: SUPPORTED
+QUERY: What is the CIO's compensation?
+ANSWER: Robert Thompson, the Chief Information Officer (CIO) at Riverside Medical Center, has the following compensation details:
+
+- **Base Salary**: $485,000
+- **Performance Incentive**: $194,000
+- **Quality Bonus**: Up to $97,000
+- **Total Target Compensation**: $776,000
+
+This information outlines his compensation structure, including the base salary, performance incentives, and potential bonuses.
+SOURCES: ['01_leadership_directory.txt', '02_executive_compensation.txt', '03_strategic_initiatives.txt']
+--------------------------------------------------------------------------------
+
+[6/10] PASS | Confidence: 90% | Verdict: SUPPORTED
+QUERY: Who reports to the CEO?
+ANSWER: The following individuals report to the CEO, Dr. Margaret Chen:
+
+1. Dr. William Patterson
+2. Sandra Williams
+3. James Rodriguez
+
+These are the only individuals mentioned in the retrieved information who report to Dr. Margaret Chen.
+--------------------------------------------------------------------------------
+
+[7/10] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: What departments does the hospital have?
+ANSWER: The hospital, Riverside Medical Center, has the following departments:
+
+1. **Cardiology**
+   - Department Head: Dr. Michael Foster
+   - Staff: 12 physicians, 45 nurses
+   - Annual Procedures: 2,800
+   - Department Revenue: $42M
+
+2. **Oncology**
+   - Department Head: Dr. Sarah Kim
+   - Staff: 8 physicians, 38 nurses
+   - Annual Patient Visits: 15,000
+   - Department Revenue: $38M
+
+3. **Orthopedics*...
+SOURCES: ['01_leadership_directory.txt', '02_executive_compensation.txt', '03_strategic_initiatives.txt']
+--------------------------------------------------------------------------------
+
+[8/10] PASS | Confidence: 85% | Verdict: SUPPORTED
+QUERY: Tell me about the cardiac initiative
+ANSWER: The Cardiac Initiative at Riverside Medical Center is formally known as the "Cardiac Center of Excellence." It is a strategic initiative approved by the board in November 2025, with a planned investment of $45 million over three years. The initiative is led by Dr. Michael Foster, the Chair of Cardiology, and has Dr. William Patterson, the Chief Medical Officer, as the executive sponsor.
+
+### Key C...
+SOURCES: ['01_leadership_directory.txt', '02_executive_compensation.txt', '03_strategic_initiatives.txt']
+--------------------------------------------------------------------------------
+
+[9/10] PASS | Confidence: 70% | Verdict: SUPPORTED
+QUERY: Who leads the oncology department?
+ANSWER: Dr. Sarah Kim leads the oncology department as she is identified as the head of the Oncology Expansion and holds the position of Oncology Chair. This indicates that she is in a leadership role within the oncology department. There is no additional information provided about other leaders or the structure of the department.
+--------------------------------------------------------------------------------
+
+[10/10] PASS | Confidence: 70% | Verdict: SUPPORTED
+QUERY: Who leads the cardiology department?
+ANSWER: The cardiology department is led by Dr. Michael Foster, who holds the position of Cardiology Chair. There is no additional information provided about other members of the department or their roles.
+--------------------------------------------------------------------------------
+
+====================================================================================================
+SUMMARY
+====================================================================================================
+Total Queries: 29
+Successful (>=50% confidence): 29
+Success Rate: 100.0%
+
+KEY FIX: ToolAgent now includes qa_verdict in response, preventing
+non-deterministic second QA verification in web_app.py
+====================================================================================================
