@@ -438,7 +438,7 @@ class QueryPipeline:
         
         role_resolution = None
         if classification.has_role_reference and classification.role_referenced:
-            role_resolution = self.role_resolver.resolve_all(classification.role_referenced)
+            role_resolution = self.role_resolver.resolve_all(classification.role_referenced, vault_context=vault_context)
             
             if role_resolution.has_multiple_matches:
                 logger.info(f"[PIPELINE] Multiple matches for role '{classification.role_referenced}': {len(role_resolution.all_matches)}")

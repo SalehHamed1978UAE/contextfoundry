@@ -245,7 +245,7 @@ class RoleResolver:
         logger.info(f"[ROLE_RESOLVER] No resolution found for role: '{role}'")
         return RoleResolution(role=role)
     
-    def resolve_all(self, role: str) -> RoleResolution:
+    def resolve_all(self, role: str, vault_context: Optional[str] = None) -> RoleResolution:
         """
         Find ALL people who hold a given role across the entire vault.
         
@@ -254,15 +254,17 @@ class RoleResolver:
         
         Context is derived from GRAPH RELATIONSHIPS (WORKS_AT, EMPLOYED_BY, MEMBER_OF)
         rather than entity properties, following the principle that context comes
-        from graph traversal.
+        from graph traversal. When multiple organization relationships exist,
+        prioritizes the vault context organization.
         
         Args:
             role: The role to resolve (e.g., "CEO", "Managing Partner")
+            vault_context: Optional vault name to prioritize as organization context
             
         Returns:
             RoleResolution with all_matches list containing all people with this role
         """
-        logger.info(f"[ROLE_RESOLVER] Finding all matches for role: '{role}'")
+        logger.info(f"[ROLE_RESOLVER] Finding all matches for role: '{role}' (vault_context={vault_context})")
         
         role_variations = self._get_role_variations(role)
         all_matches = []
@@ -270,39 +272,51 @@ class RoleResolver:
         
         role_clauses = " OR ".join([f"e.properties::text ILIKE :role{i}" for i in range(len(role_variations))])
         
+        vault_pattern = f"%{vault_context}%" if vault_context else "%NEVER_MATCH%"
+        
         query = text(f"""
+            WITH org_rels AS (
+                -- All WORKS_AT relationships with priority scoring
+                SELECT 
+                    r.source_id as person_id,
+                    target.name as org_name,
+                    CASE 
+                        WHEN target.name ILIKE :vault_pattern THEN 1
+                        WHEN target.name NOT ILIKE '%Operations%' 
+                             AND target.name NOT ILIKE '%Department%'
+                             AND target.name NOT ILIKE '%Team%' THEN 2
+                        ELSE 3
+                    END as priority
+                FROM relationships r
+                JOIN entities target ON r.target_id = target.id
+                WHERE r.relationship_type IN ('WORKS_AT', 'EMPLOYED_BY', 'MEMBER_OF')
+                AND r.tenant_id = :tenant_id
+                AND target.entity_type = 'ORGANIZATION'
+            ),
+            best_org AS (
+                SELECT DISTINCT ON (person_id)
+                    person_id,
+                    org_name
+                FROM org_rels
+                ORDER BY person_id, priority ASC
+            )
             SELECT DISTINCT ON (e.id)
                 e.id as person_id,
                 e.name as person_name,
                 e.properties as props,
                 COALESCE(
-                    org_rel.org_name,
+                    bo.org_name,
                     e.properties->>'organization'
                 ) as organization
             FROM entities e
-            LEFT JOIN LATERAL (
-                SELECT target.name as org_name
-                FROM relationships r
-                JOIN entities target ON r.target_id = target.id
-                WHERE r.source_id = e.id
-                AND r.relationship_type IN ('WORKS_AT', 'EMPLOYED_BY', 'MEMBER_OF')
-                AND target.entity_type = 'ORGANIZATION'
-                ORDER BY 
-                    CASE r.relationship_type 
-                        WHEN 'WORKS_AT' THEN 1 
-                        WHEN 'EMPLOYED_BY' THEN 2 
-                        ELSE 3 
-                    END,
-                    r.confidence DESC NULLS LAST
-                LIMIT 1
-            ) org_rel ON true
+            LEFT JOIN best_org bo ON bo.person_id = e.id
             WHERE e.tenant_id = :tenant_id
             AND e.entity_type = 'PERSON'
             AND ({role_clauses})
             ORDER BY e.id, e.created_at DESC
         """)
         
-        params = {"tenant_id": self.tenant_id}
+        params = {"tenant_id": self.tenant_id, "vault_pattern": vault_pattern}
         for i, variation in enumerate(role_variations):
             params[f"role{i}"] = f"%{variation}%"
         
