@@ -58,7 +58,7 @@ VAULT_CONFIG = {
         ]
     },
     "HOSPITAL": {
-        "tenant_id": "8d02fa60-6f2f-424f-a1ed-65b7f98fec31",
+        "tenant_id": "cfd85449-f49b-4528-8694-897a44e75cc9",
         "vault_context": "Riverside Medical Center",
         "queries": [
             "Who is the CEO?",
@@ -74,8 +74,8 @@ VAULT_CONFIG = {
         ]
     },
     "MANUFACTURING": {
-        "tenant_id": "3e858604-a86e-46f4-b2a2-f75d96cb43ef",
-        "vault_context": "Orion Manufacturing",
+        "tenant_id": "cee56898-383d-451e-b2ec-ef2cc4b1baef",
+        "vault_context": "Titan Manufacturing Corp",
         "queries": [
             "Who is the CEO?",
             "What is the CEO's compensation?",
