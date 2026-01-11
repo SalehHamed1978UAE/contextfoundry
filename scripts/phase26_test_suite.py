@@ -3,6 +3,9 @@
 Phase 26 Final Test Suite - All 5 Vaults
 
 Runs all 49 queries across 5 vaults and reports results.
+
+IMPORTANT: Vault tenant IDs are looked up dynamically at runtime by name pattern.
+This prevents stale tenant IDs when vaults are recreated.
 """
 
 import os
@@ -27,7 +30,7 @@ from src.context_foundry.agents.tool_agent import ToolAgent
 
 VAULT_CONFIG = {
     "TECHVENTURES": {
-        "tenant_id": "351a152a-15fb-4a40-939b-c1190cfbffe1",
+        "name_pattern": "TechVentures",
         "vault_context": "TechVentures",
         "queries": [
             "Who is the CEO?",
@@ -43,7 +46,7 @@ VAULT_CONFIG = {
         ]
     },
     "LAW FIRM": {
-        "tenant_id": "82295c1d-78c7-4048-967f-4550edb3c0c3",
+        "name_pattern": "Law Firm",
         "vault_context": "Morrison & Sterling LLP",
         "queries": [
             "Who is the Managing Partner?",
@@ -58,7 +61,7 @@ VAULT_CONFIG = {
         ]
     },
     "HOSPITAL": {
-        "tenant_id": "cfd85449-f49b-4528-8694-897a44e75cc9",
+        "name_pattern": "Hospital",
         "vault_context": "Riverside Medical Center",
         "queries": [
             "Who is the CEO?",
@@ -74,7 +77,7 @@ VAULT_CONFIG = {
         ]
     },
     "MANUFACTURING": {
-        "tenant_id": "cee56898-383d-451e-b2ec-ef2cc4b1baef",
+        "name_pattern": "Titan",
         "vault_context": "Titan Manufacturing Corp",
         "queries": [
             "Who is the CEO?",
@@ -90,8 +93,8 @@ VAULT_CONFIG = {
         ]
     },
     "ACCELERATOR": {
-        "tenant_id": "aae9fb11-bf8b-4b6d-b7fb-49179fb7160f",
-        "vault_context": "San Francisco",
+        "name_pattern": "Launchpad",
+        "vault_context": "Launchpad Ventures",
         "queries": [
             "Who is the Managing Partner?",
             "What is the Managing Partner's compensation?",
@@ -106,6 +109,71 @@ VAULT_CONFIG = {
         ]
     }
 }
+
+
+def get_tenant_id_by_name(session, name_pattern: str) -> str:
+    """
+    Look up tenant ID by vault name pattern at runtime.
+    
+    This prevents stale tenant IDs when vaults are recreated.
+    
+    Args:
+        session: Database session
+        name_pattern: Partial name to match (case-insensitive)
+        
+    Returns:
+        Tenant ID as string
+        
+    Raises:
+        ValueError: If no matching vault found
+    """
+    result = session.execute(
+        text("""
+            SELECT id, name FROM platform.tenants 
+            WHERE name ILIKE :pattern
+            ORDER BY name
+            LIMIT 1
+        """),
+        {"pattern": f"%{name_pattern}%"}
+    ).fetchone()
+    
+    if not result:
+        raise ValueError(f"Vault matching '{name_pattern}' not found in platform.tenants")
+    
+    return str(result.id)
+
+
+def validate_vaults(session) -> Dict[str, str]:
+    """
+    Validate all vaults exist and return their tenant IDs.
+    
+    Fails fast if any vault is missing.
+    
+    Returns:
+        Dict mapping vault name to tenant_id
+    """
+    print("\n" + "=" * 60)
+    print(" VAULT VALIDATION - Dynamic ID Lookup")
+    print("=" * 60)
+    
+    tenant_ids = {}
+    all_valid = True
+    
+    for vault_name, config in VAULT_CONFIG.items():
+        try:
+            tenant_id = get_tenant_id_by_name(session, config["name_pattern"])
+            tenant_ids[vault_name] = tenant_id
+            print(f"[OK] {vault_name}: {tenant_id}")
+        except ValueError as e:
+            print(f"[FAIL] {vault_name}: NOT FOUND ({config['name_pattern']})")
+            all_valid = False
+    
+    print("=" * 60)
+    
+    if not all_valid:
+        raise ValueError("One or more vaults not found. Cannot proceed with tests.")
+    
+    return tenant_ids
 
 
 @dataclass
@@ -222,6 +290,13 @@ def main():
     print(" PHASE 26 FINAL TEST SUITE - ALL 5 VAULTS")
     print(" " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("="*80)
+    
+    session = get_session()
+    tenant_ids = validate_vaults(session)
+    session.close()
+    
+    for vault_name, tenant_id in tenant_ids.items():
+        VAULT_CONFIG[vault_name]["tenant_id"] = tenant_id
     
     all_results = []
     vault_summaries = {}
