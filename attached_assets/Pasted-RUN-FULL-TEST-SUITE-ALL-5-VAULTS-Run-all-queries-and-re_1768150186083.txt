@@ -1,0 +1,89 @@
+RUN FULL TEST SUITE — ALL 5 VAULTS
+
+Run all queries and report results in a table.
+
+================================================================================
+TECHVENTURES (10 queries)
+================================================================================
+
+1. Who is the CEO?
+2. What is the CEO's salary?
+3. Who is the CTO?
+4. Who is the CTO of TechVentures?
+5. What is Sarah Chen's compensation?
+6. Who reports to the CEO?
+7. What portfolio companies does TechVentures have?
+8. Tell me about CloudMatrix
+9. Tell me about HealthSync
+10. Tell me about SecureNode
+
+================================================================================
+LAW FIRM (9 queries)
+================================================================================
+
+1. Who is the Managing Partner?
+2. What is the Managing Partner's compensation?
+3. Who is the CFO?
+4. Who is the COO?
+5. Who reports to Amanda Foster?
+6. What practice groups does the firm have?
+7. Tell me about the litigation practice
+8. Who are the Tier 1 clients?
+9. What is Richard Sterling's compensation?
+
+================================================================================
+HOSPITAL (10 queries)
+================================================================================
+
+1. Who is the CEO?
+2. What is the CEO's salary?
+3. Who is the CMO?
+4. Who is the CIO?
+5. What is the CIO's compensation?
+6. Who reports to the CEO?
+7. What departments does the hospital have?
+8. Tell me about the cardiac initiative
+9. Who leads the oncology department?
+10. Who leads the cardiology department?
+
+================================================================================
+MANUFACTURING (10 queries)
+================================================================================
+
+1. Who is the CEO?
+2. What is the CEO's compensation?
+3. Who is the COO?
+4. Who is the CTO?
+5. Who reports to the CEO?
+6. Who manages the Detroit plant?
+7. What is the Detroit plant manager's compensation?
+8. What plants does the company have?
+9. Tell me about the automation initiative
+10. Who leads quality assurance?
+
+================================================================================
+ACCELERATOR (10 queries)
+================================================================================
+
+1. Who is the Managing Partner?
+2. What is the Managing Partner's compensation?
+3. Who are the General Partners?
+4. Who reports to Alexandra Kim?
+5. What portfolio companies are in Cohort 12?
+6. Tell me about CloudAI
+7. Tell me about NeuralBox
+8. What is David Park's compensation?
+9. Who leads the Healthcare investments?
+10. What is the accelerator program structure?
+
+================================================================================
+OUTPUT FORMAT
+================================================================================
+
+For each query, report:
+[PASS/FAIL] Vault: Query → Answer (Confidence%)
+
+At the end:
+SUMMARY: X/49 passed (Y%)
+
+Export results to: phase26_final_test_results.txt
