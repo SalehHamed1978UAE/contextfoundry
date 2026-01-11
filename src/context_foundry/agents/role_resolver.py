@@ -273,15 +273,21 @@ class RoleResolver:
         role_clauses = " OR ".join([f"e.properties::text ILIKE :role{i}" for i in range(len(role_variations))])
         
         vault_pattern = f"%{vault_context}%" if vault_context else "%NEVER_MATCH%"
+        vault_words_pattern = f"%{vault_context.split()[0]}%" if vault_context else "%NEVER_MATCH%"
         
         query = text(f"""
             WITH org_rels AS (
                 -- All WORKS_AT relationships with priority scoring
+                -- Priority 1: Organization name matches vault context (bidirectional)
+                -- Priority 2: Non-department/team organizations
+                -- Priority 3: Everything else
                 SELECT 
                     r.source_id as person_id,
                     target.name as org_name,
                     CASE 
-                        WHEN target.name ILIKE :vault_pattern THEN 1
+                        WHEN target.name ILIKE :vault_pattern 
+                             OR :vault_context ILIKE '%' || target.name || '%'
+                             OR target.name ILIKE :vault_words_pattern THEN 1
                         WHEN target.name NOT ILIKE '%Operations%' 
                              AND target.name NOT ILIKE '%Department%'
                              AND target.name NOT ILIKE '%Team%' THEN 2
@@ -316,7 +322,12 @@ class RoleResolver:
             ORDER BY e.id, e.created_at DESC
         """)
         
-        params = {"tenant_id": self.tenant_id, "vault_pattern": vault_pattern}
+        params = {
+            "tenant_id": self.tenant_id, 
+            "vault_pattern": vault_pattern,
+            "vault_words_pattern": vault_words_pattern,
+            "vault_context": vault_context or ""
+        }
         for i, variation in enumerate(role_variations):
             params[f"role{i}"] = f"%{variation}%"
         
