@@ -1,0 +1,70 @@
+# BROKEN - matches any tenant
+existing = self.session.query(Entity).filter(
+    func.lower(Entity.name) == func.lower(name),
+).first()
+
+# FIXED - matches only current tenant
+existing = self.session.query(Entity).filter(
+    func.lower(Entity.name) == func.lower(name),
+    Entity.tenant_id == self.tenant_id
+).first()
+```
+
+This caused cross-tenant relationship pollution.
+
+---
+
+## Send to Replit
+```
+YES - FIX ALL ENTITY LOOKUPS TO BE TENANT-SCOPED
+
+This is the correct root cause. Fix it everywhere.
+
+================================================================================
+FIND ALL INSTANCES
+================================================================================
+
+Search the entire codebase for entity lookups without tenant filtering:
+
+grep -rn "session.query(Entity).filter" --include="*.py"
+grep -rn "Entity.name ==" --include="*.py"
+grep -rn "_entity_exists" --include="*.py"
+
+================================================================================
+FIX PATTERN
+================================================================================
+
+Every entity lookup must include tenant_id:
+
+# BEFORE (broken)
+existing = self.session.query(Entity).filter(
+    func.lower(Entity.name) == func.lower(name)
+).first()
+
+# AFTER (fixed)
+existing = self.session.query(Entity).filter(
+    func.lower(Entity.name) == func.lower(name),
+    Entity.tenant_id == self.tenant_id
+).first()
+
+================================================================================
+FILES TO CHECK
+================================================================================
+
+Based on your findings, at minimum:
+- graph_loader.py (line 83)
+- org_chart_loader.py (_entity_exists method)
+- Any other file with entity resolution logic
+
+================================================================================
+AFTER FIXING
+================================================================================
+
+1. Verify with grep that no tenant-unfiltered queries remain
+2. Delete TechVentures Test vault
+3. Recreate it with same documents
+4. Test "Who is the CEO?" → should return Sarah Chen without manual DB fixes
+
+================================================================================
+
+This is the right fix. It prevents cross-tenant data pollution at the source.
