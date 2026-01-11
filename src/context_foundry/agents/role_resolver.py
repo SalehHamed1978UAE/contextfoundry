@@ -161,7 +161,8 @@ class RoleResolver:
                 AND r.relationship_type = 'WORKS_AT'
                 AND LOWER(target.name) LIKE :org_pattern
             """), {"entity_id": entity_id, "org_pattern": f"%{organization.lower()}%"})
-            return result.scalar() > 0
+            count = result.scalar() or 0
+            return count > 0
         except Exception as e:
             logger.error(f"[ROLE_RESOLVER] _check_entity_has_organization failed: {e}")
             return False
@@ -251,6 +252,10 @@ class RoleResolver:
         Returns a RoleResolution with all_matches populated, allowing callers
         to decide how to handle multiple matches (e.g., ask user to clarify).
         
+        Context is derived from GRAPH RELATIONSHIPS (WORKS_AT, EMPLOYED_BY, MEMBER_OF)
+        rather than entity properties, following the principle that context comes
+        from graph traversal.
+        
         Args:
             role: The role to resolve (e.g., "CEO", "Managing Partner")
             
@@ -270,15 +275,25 @@ class RoleResolver:
                 e.id as person_id,
                 e.name as person_name,
                 e.properties as props,
-                COALESCE(e.properties->>'organization', org_rel.org_name) as organization
+                COALESCE(
+                    org_rel.org_name,
+                    e.properties->>'organization'
+                ) as organization
             FROM entities e
             LEFT JOIN LATERAL (
                 SELECT target.name as org_name
                 FROM relationships r
                 JOIN entities target ON r.target_id = target.id
                 WHERE r.source_id = e.id
-                AND r.relationship_type = 'WORKS_AT'
+                AND r.relationship_type IN ('WORKS_AT', 'EMPLOYED_BY', 'MEMBER_OF')
                 AND target.entity_type = 'ORGANIZATION'
+                ORDER BY 
+                    CASE r.relationship_type 
+                        WHEN 'WORKS_AT' THEN 1 
+                        WHEN 'EMPLOYED_BY' THEN 2 
+                        ELSE 3 
+                    END,
+                    r.confidence DESC NULLS LAST
                 LIMIT 1
             ) org_rel ON true
             WHERE e.tenant_id = :tenant_id
