@@ -1,0 +1,70 @@
+HOSPITAL AND MANUFACTURING VAULTS BROKEN — 9 FAILURES
+
+TechVentures, Law Firm, and Accelerator all work (100%).
+Hospital (50%) and Manufacturing (60%) are broken.
+
+================================================================================
+HOSPITAL FAILURES
+================================================================================
+
+These queries WORKED before but now fail:
+
+1. Who is the CIO? → 25% "couldn't find"
+2. What is the CIO's compensation? → 25% "couldn't find"
+3. Who reports to the CEO? → 25% "need to identify specific CEO"
+4. What departments does the hospital have? → 25% "couldn't find entity"
+5. Tell me about cardiac initiative → 25% "couldn't find"
+
+Also suspicious:
+- "Who is the CEO?" returned "Bond issuance" (70%) — NOT Dr. Margaret Chen
+
+DEBUG:
+
+1. Check Hospital vault has chunks:
+   SELECT COUNT(*) FROM document_chunks WHERE tenant_id = '<hospital_tenant_id>';
+
+2. Check Hospital entities exist:
+   SELECT name, entity_type FROM entities 
+   WHERE tenant_id = '<hospital_tenant_id>' 
+   AND entity_type = 'PERSON'
+   ORDER BY name;
+
+3. Check if "Dr. Margaret Chen" exists:
+   SELECT * FROM entities 
+   WHERE tenant_id = '<hospital_tenant_id>' 
+   AND name ILIKE '%margaret%';
+
+================================================================================
+MANUFACTURING FAILURES
+================================================================================
+
+1. What is the CEO's compensation? → 25%
+2. Who reports to the CEO? → 25%
+3. Detroit plant manager's compensation → 25%
+4. Tell me about automation initiative → 25%
+
+Also wrong data:
+- COO returned "Johnathan Smith" — should be "Linda Chen"
+- References "Orion Manufacturing" — should be "Titan Manufacturing"
+
+This looks like WRONG VAULT DATA. Manufacturing vault may have data from a different company.
+
+DEBUG:
+
+1. Check what company name is in Manufacturing vault:
+   SELECT DISTINCT properties->>'company', properties->>'organization' 
+   FROM entities 
+   WHERE tenant_id = '<manufacturing_tenant_id>';
+
+2. Check documents in Manufacturing vault:
+   SELECT filename FROM documents 
+   WHERE tenant_id = '<manufacturing_tenant_id>';
+
+================================================================================
+
+Something is wrong with these two vaults. Either:
+1. Wrong documents uploaded
+2. Extraction failed
+3. Cross-tenant pollution again
+
+Investigate before proceeding.
