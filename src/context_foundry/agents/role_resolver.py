@@ -10,6 +10,7 @@ CEO → Sarah Chen
 CTO → Marcus Williams
 """
 
+import re
 from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -148,6 +149,32 @@ class RoleResolver:
         
         return list(set(variations))
     
+    def _build_role_field_clauses(self, role_variations: List[str], entity_alias: str = "e") -> tuple:
+        """
+        Build SQL clauses for matching roles in specific JSON fields with word boundaries.
+        
+        Returns:
+            tuple: (sql_clause_string, params_dict)
+            
+        This prevents substring matches like "Director" matching "CTO" by:
+        1. Only searching relevant fields (position, role, title, job_title)
+        2. Using word boundary regex patterns
+        """
+        role_field_clauses = []
+        params = {}
+        
+        for i, variation in enumerate(role_variations):
+            escaped = re.escape(variation)
+            params[f"role{i}"] = f"(^|[^a-zA-Z]){escaped}($|[^a-zA-Z])"
+            role_field_clauses.append(f"""(
+                {entity_alias}.properties->>'position' ~* :role{i}
+                OR {entity_alias}.properties->>'role' ~* :role{i}
+                OR {entity_alias}.properties->>'title' ~* :role{i}
+                OR {entity_alias}.properties->>'job_title' ~* :role{i}
+            )""")
+        
+        return " OR ".join(role_field_clauses), params
+    
     def _check_entity_has_organization(self, entity_id: Optional[str], organization: Optional[str]) -> bool:
         """Check if an entity has a WORKS_AT relationship to the organization."""
         if not entity_id or not organization:
@@ -269,7 +296,7 @@ class RoleResolver:
         all_matches = []
         seen_ids = set()
         
-        role_clauses = " OR ".join([f"e.properties::text ILIKE :role{i}" for i in range(len(role_variations))])
+        role_clauses, role_params = self._build_role_field_clauses(role_variations)
         
         query = text(f"""
             WITH all_orgs AS (
@@ -297,9 +324,7 @@ class RoleResolver:
             ORDER BY e.id, e.created_at DESC
         """)
         
-        params = {"tenant_id": self.tenant_id}
-        for i, variation in enumerate(role_variations):
-            params[f"role{i}"] = f"%{variation}%"
+        params = {"tenant_id": self.tenant_id, **role_params}
         
         try:
             results = self.session.execute(query, params).fetchall()
@@ -426,19 +451,23 @@ class RoleResolver:
     
     def _stage2_fuzzy_relationship(self, role: str, organization: Optional[str] = None) -> RoleResolution:
         """
-        Stage 2: Fuzzy ILIKE matching on entity properties.
+        Stage 2: Field-specific matching on entity properties with word boundaries.
         
         Prioritizes entities that:
         1. Have organization matching the vault context
         2. Have 'position' field (more formal, likely main org CEO)
         3. Don't have a different organization specified (portfolio company CEOs)
+        
+        Uses word boundary regex to prevent substring matches (e.g., "Director" matching "CTO").
         """
         role_variations = self._get_role_variations(role)
         org_pattern = f"%{organization}%" if organization else "%NEVER_MATCH_PLACEHOLDER%"
         
-        role_clauses = " OR ".join([f"e.properties::text ILIKE :role{i}" for i in range(len(role_variations))])
+        role_clauses, role_params = self._build_role_field_clauses(role_variations)
         
         first_variation = role_variations[0] if role_variations else role.lower()
+        first_escaped = re.escape(first_variation)
+        exact_role_pattern = f"(^|[^a-zA-Z]){first_escaped}($|[^a-zA-Z])"
         
         query = text(f"""
             SELECT 
@@ -447,12 +476,12 @@ class RoleResolver:
                 e.properties,
                 CASE 
                     WHEN e.properties::text ILIKE :org_pattern THEN 5
-                    WHEN (e.properties->>'position' ILIKE :exact_role OR e.properties->>'role' ILIKE :exact_role)
-                         AND e.properties::text ILIKE '%"position"%' 
-                         AND e.properties::text NOT ILIKE '%"organization"%' THEN 4
-                    WHEN e.properties::text ILIKE '%"position"%' 
-                         AND e.properties::text NOT ILIKE '%"organization"%' THEN 2
-                    WHEN e.properties::text NOT ILIKE '%"organization"%' THEN 1
+                    WHEN (e.properties->>'position' ~* :exact_role OR e.properties->>'role' ~* :exact_role)
+                         AND e.properties ? 'position'
+                         AND NOT e.properties ? 'organization' THEN 4
+                    WHEN e.properties ? 'position'
+                         AND NOT e.properties ? 'organization' THEN 2
+                    WHEN NOT e.properties ? 'organization' THEN 1
                     ELSE 0
                 END as priority_score
             FROM entities e
@@ -466,10 +495,9 @@ class RoleResolver:
         params = {
             "tenant_id": self.tenant_id, 
             "org_pattern": org_pattern,
-            "exact_role": f"%{first_variation}%"
+            "exact_role": exact_role_pattern,
+            **role_params
         }
-        for i, variation in enumerate(role_variations):
-            params[f"role{i}"] = f"%{variation}%"
         
         try:
             results = self.session.execute(query, params).fetchall()
