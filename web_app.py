@@ -3412,8 +3412,8 @@ def vault_chat():
     resolved_query = _resolve_pronouns(query_text, chat_history)
     logger.info(f"[vault_chat] Original: {query_text!r} -> Resolved: {resolved_query!r}")
     
-    # Tool agent mode (feature flag)
-    use_tool_agent = request.args.get('agent', 'false').lower() == 'true'
+    # Tool agent mode (enabled by default, opt-out with ?agent=false)
+    use_tool_agent = request.args.get('agent', 'true').lower() != 'false'
     debug_mode = request.args.get('debug', 'false').lower() == 'true'
     session_id = data.get('session_id')
     
