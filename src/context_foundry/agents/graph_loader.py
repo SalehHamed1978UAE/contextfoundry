@@ -80,7 +80,10 @@ class GraphLoaderAgent:
                 entity_name = entity_data["name"]
                 
                 from sqlalchemy import func
-                existing = self.session.query(Entity).filter(func.lower(Entity.name) == func.lower(entity_name)).first()
+                existing = self.session.query(Entity).filter(
+                    func.lower(Entity.name) == func.lower(entity_name),
+                    Entity.tenant_id == self.tenant_id
+                ).first()
                 if existing:
                     self.entity_map[entity_name] = existing.id
                     if "id" in entity_data:
