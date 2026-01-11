@@ -1,0 +1,159 @@
+Send to Replit
+IMPLEMENT LLM REASONING FOR DISAMBIGUATION
+
+All analysis confirms: Use LLM to reason about ambiguous matches, not hard-coded rules.
+
+================================================================================
+ARCHITECTURE
+================================================================================
+
+Graph Query → Multiple Matches?
+                    ↓ Yes
+            ┌──────────────┐
+            │ LLM Reasoner │ ← "Given context, which match(es) answer the user's intent?"
+            └──────────────┘
+                    ↓
+            Best Answer(s) with Explanation
+
+================================================================================
+IMPLEMENTATION
+================================================================================
+```python
+async def resolve_disambiguation(
+    query: str, 
+    matches: List[Dict], 
+    vault_context: str
+) -> Dict:
+    """Resolve ambiguous matches using LLM reasoning."""
+    
+    # Fast path: single match = no reasoning needed
+    if len(matches) == 1:
+        return {
+            "single_answer": True,
+            "primary_result": matches[0],
+            "alternatives": []
+        }
+    
+    # Fast path: exact vault name match = obvious answer
+    exact_matches = [m for m in matches if vault_context.lower() in (m.get('org') or '').lower()]
+    if len(exact_matches) == 1:
+        return {
+            "single_answer": True,
+            "primary_result": exact_matches[0],
+            "alternatives": [m for m in matches if m != exact_matches[0]]
+        }
+    
+    # Complex case: let LLM reason
+    return await llm_reason_about_matches(query, matches, vault_context)
+
+
+async def llm_reason_about_matches(
+    query: str,
+    matches: List[Dict],
+    vault_context: str
+) -> Dict:
+    """Use LLM to reason about which match(es) best answer the user's intent."""
+    
+    # Format matches with their relationships
+    matches_description = "\n".join([
+        f"- {m['name']} ({m['role']}) → works at: {m.get('organizations', ['Unknown'])}"
+        for m in matches
+    ])
+    
+    prompt = f"""The user asked: "{query}"
+Vault context: "{vault_context}"
+
+I found these matches in the knowledge graph:
+{matches_description}
+
+Reason about which match(es) best answer the user's intent:
+1. Consider the vault context - what organization is this vault about?
+2. Consider the relationships - who works where?
+3. Determine if there's a clear primary answer or if multiple are relevant
+
+Respond in JSON only:
+{{
+    "reasoning": "brief explanation of your analysis",
+    "single_answer": true if one clear best answer else false,
+    "primary_result": {{"name": "...", "role": "...", "org": "..."}},
+    "show_alternatives": true if user should see other options,
+    "alternatives": [{{"name": "...", "role": "...", "org": "..."}}]
+}}"""
+    
+    response = await llm.complete(prompt, response_format="json")
+    return json.loads(response)
+```
+
+================================================================================
+INTEGRATION POINT
+================================================================================
+
+In the query pipeline, after role resolution returns multiple matches:
+```python
+# In tool_agent.py or query_pipeline.py
+
+if len(role_matches) > 1:
+    disambiguation = await resolve_disambiguation(
+        query=user_query,
+        matches=role_matches,
+        vault_context=vault.name
+    )
+    
+    if disambiguation["single_answer"]:
+        # Clear winner - proceed with single answer
+        resolved_entity = disambiguation["primary_result"]
+    else:
+        # Ambiguous - format response showing options
+        return build_disambiguation_response(disambiguation)
+```
+
+================================================================================
+EXAMPLE FLOW
+================================================================================
+
+User: "Who is the CEO?"
+Vault: "TechVentures Test"
+
+Graph returns:
+- Sarah Chen (CEO) → works at: [TechVentures, HR Operations]
+- Robert Kim (CEO) → works at: [CloudMatrix]
+- Dr. Patricia Vance (CEO) → works at: [HealthSync]
+- Ahmed Malik (CEO) → works at: [SecureNode]
+
+LLM reasons:
+"The vault is 'TechVentures Test'. Sarah Chen works at TechVentures.
+The others are CEOs of portfolio companies (CloudMatrix, HealthSync, SecureNode).
+The user likely wants the TechVentures CEO."
+
+Result:
+{
+    "reasoning": "Vault context is TechVentures. Sarah Chen is the only CEO who works at TechVentures.",
+    "single_answer": true,
+    "primary_result": {"name": "Sarah Chen", "role": "CEO", "org": "TechVentures"},
+    "show_alternatives": true,
+    "alternatives": [
+        {"name": "Robert Kim", "role": "CEO", "org": "CloudMatrix"},
+        {"name": "Dr. Patricia Vance", "role": "CEO", "org": "HealthSync"},
+        {"name": "Ahmed Malik", "role": "CEO", "org": "SecureNode"}
+    ]
+}
+
+Response to user:
+"The CEO of TechVentures is Sarah Chen.
+
+Note: Your documents also mention CEOs of portfolio companies:
+- Robert Kim (CloudMatrix)
+- Dr. Patricia Vance (HealthSync)
+- Ahmed Malik (SecureNode)"
+
+================================================================================
+KEY PRINCIPLES
+================================================================================
+
+1. Graph provides FACTS (who holds what role, who works where)
+2. LLM provides REASONING (which fact answers the user's intent)
+3. Fast paths for obvious cases (single match, exact vault match)
+4. LLM only called when genuinely ambiguous
+5. Response is structured JSON, not free-form text
+
+This is the general solution for ALL disambiguation - roles, entities, projects, departments.
