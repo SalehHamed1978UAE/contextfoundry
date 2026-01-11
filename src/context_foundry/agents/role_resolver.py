@@ -283,6 +283,10 @@ class RoleResolver:
         not just one. This allows disambiguation to check if ANY organization matches
         the vault context.
         
+        Uses TWO sources to find role matches:
+        1. Entity properties (position, role, title fields)
+        2. HOLDS_POSITION/HOLD_POSITION relationships
+        
         Args:
             role: The role to resolve (e.g., "CEO", "Managing Partner")
             vault_context: Optional vault name to prioritize as organization context
@@ -296,11 +300,12 @@ class RoleResolver:
         all_matches = []
         seen_ids = set()
         
+        import json as json_module
+        
         role_clauses, role_params = self._build_role_field_clauses(role_variations)
         
-        query = text(f"""
+        property_query = text(f"""
             WITH all_orgs AS (
-                -- Get ALL organizations for each person using JSON for reliable parsing
                 SELECT 
                     r.source_id as person_id,
                     json_agg(DISTINCT target.name) as organizations_json
@@ -315,7 +320,8 @@ class RoleResolver:
                 e.id as person_id,
                 e.name as person_name,
                 e.properties as props,
-                COALESCE(ao.organizations_json::text, '[]') as organizations_json
+                COALESCE(ao.organizations_json::text, '[]') as organizations_json,
+                NULL as role_from_relationship
             FROM entities e
             LEFT JOIN all_orgs ao ON ao.person_id = e.id
             WHERE e.tenant_id = :tenant_id
@@ -324,25 +330,58 @@ class RoleResolver:
             ORDER BY e.id, e.created_at DESC
         """)
         
+        role_like_clauses = " OR ".join([f"LOWER(target.name) LIKE :role_like{i}" for i in range(len(role_variations))])
+        type_placeholders = ", ".join([f":rel_type{i}" for i in range(len(self.POSITION_RELATIONSHIP_TYPES))])
+        
+        relationship_query = text(f"""
+            WITH all_orgs AS (
+                SELECT 
+                    r.source_id as person_id,
+                    json_agg(DISTINCT target.name) as organizations_json
+                FROM relationships r
+                JOIN entities target ON r.target_id = target.id
+                WHERE r.relationship_type IN ('WORKS_AT', 'EMPLOYED_BY', 'MEMBER_OF')
+                AND r.tenant_id = :tenant_id
+                AND target.entity_type = 'ORGANIZATION'
+                GROUP BY r.source_id
+            )
+            SELECT DISTINCT ON (source.id)
+                source.id as person_id,
+                source.name as person_name,
+                source.properties as props,
+                COALESCE(ao.organizations_json::text, '[]') as organizations_json,
+                target.name as role_from_relationship
+            FROM relationships r
+            JOIN entities source ON r.source_id = source.id
+            JOIN entities target ON r.target_id = target.id
+            LEFT JOIN all_orgs ao ON ao.person_id = source.id
+            WHERE r.tenant_id = :tenant_id
+            AND r.relationship_type IN ({type_placeholders})
+            AND source.entity_type = 'PERSON'
+            AND ({role_like_clauses})
+            ORDER BY source.id, r.confidence DESC, r.created_at DESC
+        """)
+        
         params = {"tenant_id": self.tenant_id, **role_params}
         
+        rel_params = {"tenant_id": self.tenant_id}
+        for i, rel_type in enumerate(self.POSITION_RELATIONSHIP_TYPES):
+            rel_params[f"rel_type{i}"] = rel_type
+        for i, variation in enumerate(role_variations):
+            rel_params[f"role_like{i}"] = f"%{variation}%"
+        
         try:
-            results = self.session.execute(query, params).fetchall()
-            
-            for row in results:
+            prop_results = self.session.execute(property_query, params).fetchall()
+            for row in prop_results:
                 if str(row.person_id) not in seen_ids:
                     seen_ids.add(str(row.person_id))
                     props = row.props or {}
                     role_value = props.get('position') or props.get('role') or props.get('title') or role
                     
-                    import json
                     raw_orgs = row.organizations_json
-                    logger.info(f"[ROLE_RESOLVER] DEBUG: {row.person_name} raw_orgs={repr(raw_orgs)}")
                     try:
-                        orgs_list = json.loads(raw_orgs) if raw_orgs else []
-                        logger.info(f"[ROLE_RESOLVER] DEBUG: {row.person_name} parsed_orgs={orgs_list}")
-                    except (json.JSONDecodeError, TypeError) as e:
-                        logger.error(f"[ROLE_RESOLVER] DEBUG: {row.person_name} JSON parse error: {e}")
+                        orgs_list = json_module.loads(raw_orgs) if raw_orgs else []
+                    except (json_module.JSONDecodeError, TypeError):
                         orgs_list = []
                     if not orgs_list and props.get('organization'):
                         orgs_list = [props.get('organization')]
@@ -353,6 +392,30 @@ class RoleResolver:
                         "role": role_value,
                         "organizations": orgs_list,
                         "organization": orgs_list[0] if orgs_list else None
+                    })
+            
+            rel_results = self.session.execute(relationship_query, rel_params).fetchall()
+            for row in rel_results:
+                if str(row.person_id) not in seen_ids:
+                    seen_ids.add(str(row.person_id))
+                    props = row.props or {}
+                    role_value = row.role_from_relationship or props.get('position') or role
+                    
+                    raw_orgs = row.organizations_json
+                    try:
+                        orgs_list = json_module.loads(raw_orgs) if raw_orgs else []
+                    except (json_module.JSONDecodeError, TypeError):
+                        orgs_list = []
+                    if not orgs_list and props.get('organization'):
+                        orgs_list = [props.get('organization')]
+                    
+                    all_matches.append({
+                        "name": row.person_name,
+                        "entity_id": str(row.person_id),
+                        "role": role_value,
+                        "organizations": orgs_list,
+                        "organization": orgs_list[0] if orgs_list else None,
+                        "source": "relationship"
                     })
             
             logger.info(f"[ROLE_RESOLVER] Found {len(all_matches)} matches for '{role}'")
