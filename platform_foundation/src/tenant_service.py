@@ -183,8 +183,26 @@ class TenantService:
             
         Returns:
             Created vault record
+            
+        Raises:
+            ValueError: If user already has a vault with this name
         """
         import re
+        
+        # Check for existing vault with same name for this user
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT t.id, t.name FROM platform.tenants t
+                    JOIN platform.user_tenants ut ON t.id = ut.tenant_id
+                    WHERE ut.user_id = %s AND ut.role = 'owner' AND LOWER(t.name) = LOWER(%s)
+                """, (str(user_id), name))
+                existing = cur.fetchone()
+                
+                if existing:
+                    logger.warning(f"User {user_id} already has vault named '{name}' (id: {existing['id']})")
+                    raise ValueError(f"A vault named '{name}' already exists. Please choose a different name.")
+        
         base_slug = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
         slug = f"{base_slug}-{uuid4().hex[:8]}"
         
