@@ -15,6 +15,12 @@ import concurrent.futures
 
 from src.context_foundry.agents.query_classifier import QueryClassification
 from src.context_foundry.agents.role_resolver import RoleResolution
+from src.context_foundry.agents.query_intent_detector import (
+    QueryIntent,
+    QueryIntentDetector,
+    DirectedRelationshipRetriever,
+    DirectedAttributeRetriever
+)
 from src.context_foundry.utils.logger import logger
 
 
@@ -191,11 +197,54 @@ class RetrievalRouter:
         logger.info(f"[ROUTER] Document search found {len(chunks)} chunks")
         return chunks
     
+    def _search_documents_for_attribute(
+        self,
+        intent: QueryIntent,
+        resolved_name: Optional[str],
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        """Search document chunks for specific attribute using intent's search terms."""
+        from src.context_foundry.search.document_searcher import DocumentSearcher
+        
+        entity_name = resolved_name or intent.target_entity
+        if not entity_name:
+            return []
+        
+        search_terms = intent.search_terms
+        if not search_terms:
+            search_terms = [intent.attribute_type.lower()] if intent.attribute_type else []
+        
+        searcher = DocumentSearcher(self.session, self.tenant_id)
+        all_chunks = []
+        seen_ids = set()
+        
+        for term in search_terms[:3]:
+            search_query = f"{entity_name} {term}"
+            results = searcher.search(search_query, limit=limit, use_vector=True)
+            
+            for r in results:
+                chunk_id = r.get("id", "")
+                if chunk_id and chunk_id not in seen_ids:
+                    seen_ids.add(chunk_id)
+                    all_chunks.append({
+                        "id": chunk_id,
+                        "text": r.get("text", ""),
+                        "document": r.get("document_name", "Unknown"),
+                        "similarity": r.get("similarity", 0.6)
+                    })
+            
+            if len(all_chunks) >= limit:
+                break
+        
+        logger.info(f"[ROUTER] Attribute search found {len(all_chunks)} chunks for {entity_name}")
+        return all_chunks[:limit]
+    
     def route(
         self,
         query: str,
         classification: QueryClassification,
-        role_resolution: Optional[RoleResolution] = None
+        role_resolution: Optional[RoleResolution] = None,
+        intent: Optional[QueryIntent] = None
     ) -> RetrievalResult:
         """
         Route query to optimal retrieval strategy.
@@ -204,6 +253,7 @@ class RetrievalRouter:
             query: The user's query
             classification: Query classification result
             role_resolution: Optional resolved role info
+            intent: Optional QueryIntent for directed retrieval
             
         Returns:
             RetrievalResult with combined data
@@ -213,7 +263,6 @@ class RetrievalRouter:
         
         expanded_query = query
         if role_resolution and role_resolution.is_resolved:
-            from src.context_foundry.agents.role_resolver import RoleResolver
             expanded_query = f"{query} (Note: {role_resolution.role} = {role_resolution.resolved_name})"
         
         logger.info(f"[ROUTER] Routing with strategy={strategy}, limit={limit}, expects_list={classification.expects_list}")
@@ -224,6 +273,39 @@ class RetrievalRouter:
             classification=classification,
             expanded_query=expanded_query
         )
+        
+        if intent and intent.intent_type == "relationship" and intent.relationship_type:
+            directed_retriever = DirectedRelationshipRetriever(self.session, self.tenant_id)
+            relationships = directed_retriever.retrieve(intent, limit=limit)
+            
+            if relationships:
+                result.relationships = relationships
+                logger.info(f"[ROUTER] Directed relationship retrieval found {len(relationships)} matches")
+                
+                entities, _ = self._search_graph(query, classification, role_resolution, limit)
+                result.entities = entities
+                
+                result.strategy_used = "DIRECTED_RELATIONSHIP"
+                return result
+            else:
+                logger.info("[ROUTER] Directed retrieval empty, falling back to standard")
+        
+        if intent and intent.intent_type == "attribute" and intent.attribute_type:
+            resolved_name = role_resolution.resolved_name if role_resolution and role_resolution.is_resolved else None
+            chunks = self._search_documents_for_attribute(intent, resolved_name, limit)
+            
+            if chunks:
+                result.chunks = chunks
+                
+                entities, relationships = self._search_graph(query, classification, role_resolution, limit)
+                result.entities = entities
+                result.relationships = relationships
+                
+                logger.info(f"[ROUTER] Directed attribute retrieval found {len(chunks)} chunks")
+                result.strategy_used = "DIRECTED_ATTRIBUTE"
+                return result
+            else:
+                logger.info("[ROUTER] Directed attribute retrieval empty, falling back to standard")
         
         if strategy == "GRAPH_ONLY":
             entities, relationships = self._search_graph(query, classification, role_resolution, limit)
@@ -258,7 +340,7 @@ class QueryPipeline:
     """
     Complete query pre-processing pipeline.
     
-    Runs: Classification → Role Resolution → Retrieval Routing
+    Runs: Classification → Role Resolution → Intent Detection → Retrieval Routing
     """
     
     def __init__(self, session: Session, tenant_id: str):
@@ -270,6 +352,7 @@ class QueryPipeline:
         
         self.classifier = QueryClassifier()
         self.role_resolver = RoleResolver(session, tenant_id)
+        self.intent_detector = QueryIntentDetector(session, tenant_id)
         self.router = RetrievalRouter(session, tenant_id)
     
     def process(self, query: str, vault_context: str = None) -> RetrievalResult:
@@ -278,7 +361,8 @@ class QueryPipeline:
         
         1. Classify the query
         2. Resolve any role references (using vault_context if no explicit entity)
-        3. Route to optimal retrieval strategy
+        3. Detect structured intent (relationship/attribute)
+        4. Route to optimal retrieval strategy
         
         Args:
             query: User's query
@@ -302,7 +386,13 @@ class QueryPipeline:
             else:
                 logger.info(f"[PIPELINE] Skipping vault context injection - role already resolved")
         
-        result = self.router.route(query, classification, role_resolution)
+        resolved_entity = role_resolution.resolved_name if role_resolution and role_resolution.is_resolved else None
+        intent = self.intent_detector.detect(query, resolved_entity)
+        
+        if intent.intent_type != "general":
+            logger.info(f"[PIPELINE] Detected intent: {intent.intent_type}={intent.relationship_type or intent.attribute_type}")
+        
+        result = self.router.route(query, classification, role_resolution, intent)
         
         logger.info(f"[PIPELINE] Complete: strategy={result.strategy_used}, has_data={result.has_data}")
         
