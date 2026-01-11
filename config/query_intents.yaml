@@ -1,0 +1,132 @@
+relationship_queries:
+  REPORTS_TO:
+    indicators:
+      - "reports to"
+      - "managed by"
+      - "works for"
+      - "supervisor of"
+      - "boss of"
+      - "direct reports"
+    inverse_indicators:
+      - "manages"
+      - "supervises"
+      - "has reports"
+      - "who manages"
+    entity_position: "target"
+    
+  HOLDS_POSITION:
+    indicators:
+      - "role is"
+      - "position is"
+      - "title is"
+      - "what does"
+      - "job is"
+    inverse_indicators: []
+    entity_position: "source"
+    
+  LEADS:
+    indicators:
+      - "leads"
+      - "heads"
+      - "runs"
+      - "in charge of"
+      - "chairs"
+      - "head of"
+      - "who leads"
+      - "who heads"
+    inverse_indicators:
+      - "led by"
+      - "headed by"
+      - "run by"
+      - "chaired by"
+    entity_position: "source"
+    target_types:
+      - "DEPARTMENT"
+      - "TEAM"
+      - "DIVISION"
+      - "UNIT"
+    
+  INVESTED_IN:
+    indicators:
+      - "invested in"
+      - "stake in"
+      - "owns"
+      - "ownership"
+      - "portfolio"
+      - "investment in"
+    inverse_indicators:
+      - "owned by"
+      - "funded by"
+    entity_position: "source"
+
+attribute_queries:
+  COMPENSATION:
+    indicators:
+      - "compensation"
+      - "salary"
+      - "pay"
+      - "bonus"
+      - "earnings"
+      - "makes"
+      - "paid"
+      - "income"
+      - "total compensation"
+      - "base salary"
+      - "annual salary"
+    search_terms:
+      - "compensation"
+      - "salary"
+      - "bonus"
+      - "base salary"
+      - "total compensation"
+      - "annual"
+      - "earnings"
+      
+  LOCATION:
+    indicators:
+      - "where"
+      - "located"
+      - "based"
+      - "office"
+      - "headquarters"
+      - "address"
+    search_terms:
+      - "location"
+      - "office"
+      - "based in"
+      - "headquarters"
+      - "address"
+      
+  TENURE:
+    indicators:
+      - "how long"
+      - "joined"
+      - "started"
+      - "appointed"
+      - "tenure"
+      - "since when"
+      - "when did"
+    search_terms:
+      - "joined"
+      - "appointed"
+      - "since"
+      - "started"
+      - "hired"
+      
+  EDUCATION:
+    indicators:
+      - "education"
+      - "degree"
+      - "graduated"
+      - "studied"
+      - "school"
+      - "university"
+      - "college"
+    search_terms:
+      - "education"
+      - "degree"
+      - "graduated"
+      - "university"
+      - "college"
+      - "MBA"
+      - "PhD"
