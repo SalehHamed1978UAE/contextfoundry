@@ -1,0 +1,216 @@
+Solution: Path Audit + Enforcement
+1. Code Path Diagram (Document What Exists)
+Create: docs/QUERY_PATHS.md
+
+Every query must go through these steps IN THIS ORDER:
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        ENTRY POINTS                              │
+├─────────────────────────────────────────────────────────────────┤
+│  CLI: test_queries.py                                           │
+│  Web: web_app.py /api/vault/<id>/chat                          │
+│  API: (future)                                                  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     MUST CALL: ToolAgent.query()                │
+│                     (Single entry point for all queries)        │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  INTERNAL STEPS (inside ToolAgent):                             │
+│  1. QueryClassifier.classify()                                  │
+│  2. QueryIntentDetector.detect()                                │
+│  3. RoleResolver.resolve() (if needed)                          │
+│  4. RetrievalRouter.retrieve()                                  │
+│  5. LLM synthesis                                               │
+│  6. QA Verifier (ONCE)                                          │
+│  7. build_qa_evidence() ← shared helper                         │
+│  8. calculate_confidence() ← shared helper                      │
+│  9. build_response() ← shared helper                            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     RETURN TO ENTRY POINT                       │
+│         Entry point ONLY formats for output (JSON, text)        │
+│         Entry point does NOT re-run QA or recalculate conf      │
+└─────────────────────────────────────────────────────────────────┘
+
+2. Path Verification Script (Audit Automatically)
+python# scripts/audit_query_paths.py
+"""
+Audit all query entry points to verify they use shared helpers.
+
+Run this after any code changes to catch path divergence.
+"""
+
+import ast
+import os
+from pathlib import Path
+
+REQUIRED_PATTERNS = {
+    'web_app.py': {
+        'must_call': ['ToolAgent.query', 'tool_agent.query'],
+        'must_not_call': ['qa_verifier.verify', 'QAVerifier'],  # Should not run QA directly
+        'must_not_contain': ['confidence =', 'qa_verdict ='],  # Should not calculate these
+    },
+    'tool_agent.py': {
+        'must_call': ['build_qa_evidence', 'calculate_confidence', 'build_response'],
+        'must_call_once': ['qa_verifier', 'QAVerifier'],  # QA should run exactly once
+    },
+}
+
+def audit_file(filepath: str, rules: dict) -> list:
+    """Audit a file against rules."""
+    violations = []
+    
+    with open(filepath) as f:
+        content = f.read()
+    
+    for pattern in rules.get('must_call', []):
+        if pattern not in content:
+            violations.append(f"MISSING: {filepath} must call {pattern}")
+    
+    for pattern in rules.get('must_not_call', []):
+        if pattern in content:
+            # Check if it's in the forbidden section (after ToolAgent.query returns)
+            violations.append(f"VIOLATION: {filepath} should not call {pattern} directly")
+    
+    for pattern in rules.get('must_not_contain', []):
+        # Check for direct assignment (not in shared helper)
+        if pattern in content:
+            violations.append(f"WARNING: {filepath} contains '{pattern}' - should use shared helper")
+    
+    return violations
+
+def main():
+    all_violations = []
+    
+    for filename, rules in REQUIRED_PATTERNS.items():
+        filepath = find_file(filename)
+        if filepath:
+            violations = audit_file(filepath, rules)
+            all_violations.extend(violations)
+    
+    if all_violations:
+        print("❌ PATH AUDIT FAILED")
+        for v in all_violations:
+            print(f"  - {v}")
+        return 1
+    else:
+        print("✅ PATH AUDIT PASSED")
+        return 0
+
+if __name__ == "__main__":
+    exit(main())
+
+3. Integration Test (Verify Same Results)
+python# tests/test_path_consistency.py
+"""
+Verify CLI and Web return identical results for the same query.
+"""
+
+import pytest
+from tool_agent import ToolAgent
+from web_app import handle_chat_request  # or however web calls work
+
+TEST_QUERIES = [
+    ("Who is the CEO?", "hospital_tenant_id"),
+    ("Who reports to the CEO?", "hospital_tenant_id"),
+    ("What is the CIO's compensation?", "hospital_tenant_id"),
+]
+
+@pytest.mark.parametrize("query,tenant_id", TEST_QUERIES)
+def test_cli_web_consistency(query, tenant_id):
+    """CLI and Web must return same confidence for same query."""
+    
+    # CLI path
+    agent = ToolAgent(tenant_id=tenant_id)
+    cli_result = agent.query(query)
+    
+    # Web path (simulated)
+    web_result = simulate_web_request(query, tenant_id)
+    
+    # Must match
+    assert cli_result['confidence'] == web_result['confidence'], \
+        f"Path mismatch: CLI={cli_result['confidence']}, Web={web_result['confidence']}"
+    
+    assert cli_result['qa_verdict'] == web_result['qa_verdict'], \
+        f"QA mismatch: CLI={cli_result['qa_verdict']}, Web={web_result['qa_verdict']}"
+```
+
+---
+
+### 4. Architectural Rule (Enforce Going Forward)
+```
+RULE: Single Query Entry Point
+
+All query processing MUST go through ToolAgent.query().
+
+Entry points (web_app.py, CLI, API) may ONLY:
+1. Parse input
+2. Call ToolAgent.query()
+3. Format output
+
+Entry points may NOT:
+- Run QA verification
+- Calculate confidence
+- Build evidence
+- Make LLM calls
+
+These are INTERNAL to ToolAgent and use shared helpers.
+
+Any PR that adds query logic outside ToolAgent.query() will be rejected.
+```
+
+---
+
+## Send to Replit
+```
+SYSTEMATIC FIX: ENFORCE SINGLE QUERY PATH
+
+We keep finding "fixed in CLI, broken in Web" bugs because there's no enforcement.
+
+IMMEDIATE FIX:
+
+1. Remove duplicate QA in web_app.py (lines 3477-3522)
+2. web_app.py should ONLY:
+   - Parse the request
+   - Call tool_agent.query()
+   - Format the response for JSON output
+3. web_app.py should NOT:
+   - Run QA verification
+   - Calculate confidence
+   - Build evidence
+   - Any query logic
+
+VERIFICATION:
+
+After fix, add this test:
+```python
+def test_web_cli_same_result():
+    query = "Who reports to the CEO?"
+    tenant_id = get_hospital_tenant_id()
+    
+    # CLI
+    cli_result = ToolAgent(tenant_id).query(query)
+    
+    # Web (via API call)
+    web_result = requests.post(f"/api/vault/{vault_id}/chat", json={"query": query}).json()
+    
+    assert cli_result['confidence'] == web_result['confidence']
+```
+
+ONGOING ENFORCEMENT:
+
+Create scripts/audit_query_paths.py that checks:
+- web_app.py does not contain QAVerifier calls
+- web_app.py does not contain confidence calculations
+- All paths call ToolAgent.query()
+
+Run this in CI/pre-commit.
+
+NO MORE DUPLICATE PATHS.
