@@ -73,6 +73,7 @@ class RoleResolver:
         'HOLDS_POSITION',
         'HELD_POSITION', 
         'HOLD_POSITION',
+        'HAS_POSITION',
         'HAS_ROLE',
         'HAS_TITLE'
     ]
