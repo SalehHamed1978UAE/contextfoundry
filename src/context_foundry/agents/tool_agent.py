@@ -306,7 +306,11 @@ Provide a clear, comprehensive answer based on the information above. If specifi
             context = match.get("organization") or match.get("context") or match.get("department")
             role_or_type = match.get("role") or match.get("type") or match.get("category")
             
-            if context and role_or_type:
+            if ambiguity_type == "role" and context:
+                match_lines.append(f"- {name} ({role_or_type} of {context})")
+            elif ambiguity_type == "role":
+                match_lines.append(f"- {name} ({role_or_type})")
+            elif context and role_or_type:
                 match_lines.append(f"- {name} ({role_or_type} at {context})")
             elif context:
                 match_lines.append(f"- {name} ({context})")
@@ -378,7 +382,7 @@ Which one would you like to know more about? Please specify by name."""
         except Exception as e:
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
         
-        if pipeline_result and pipeline_result.needs_disambiguation:
+        if pipeline_result and pipeline_result.needs_disambiguation and pipeline_result.ambiguity:
             logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - returning disambiguation response")
             return self._build_disambiguation_response(question, pipeline_result, start_time)
         
