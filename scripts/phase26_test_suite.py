@@ -291,7 +291,7 @@ def main():
     print(" " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     print("="*80)
     
-    session = get_session()
+    session = get_session(use_rls_role=False)
     tenant_ids = validate_vaults(session)
     session.close()
     
