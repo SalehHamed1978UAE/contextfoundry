@@ -49,6 +49,13 @@ Key architectural features include:
   - `build_qa_evidence()`: Combines retrieval results and tool call data
   - `calculate_confidence()`: Single formula for confidence scoring based on QA verdict and evidence
   - `build_response()`: Consistent response dictionary format for all code paths
+- **Ambiguity Detection & Disambiguation**: Generalized pattern for handling queries that match multiple entities:
+  - `AmbiguityResult` dataclass: Query-agnostic structure for ambiguous results (roles, entities, departments, projects, locations, metrics)
+  - `RoleResolver.resolve_all()`: Finds all people holding a role across the vault
+  - `RetrievalResult.needs_disambiguation`: Property to detect when disambiguation is needed
+  - `ToolAgent._build_disambiguation_response()`: Generalized formatter for all ambiguity types
+  - When a query matches multiple items, the system returns all matches and asks user to clarify rather than guessing
+  - Principle: "Organizational object permanence" - admit what's ambiguous, don't hallucinate a single answer
 
 ## External Dependencies
 

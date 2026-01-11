@@ -25,6 +25,44 @@ from src.context_foundry.utils.logger import logger
 
 
 @dataclass
+class AmbiguityResult:
+    """
+    Generalized ambiguity result for queries that match multiple entities.
+    
+    Extensible pattern for:
+    - Role queries: "Who is the CEO?" → Multiple CEOs
+    - Entity queries: "Tell me about Sarah" → Multiple Sarahs
+    - Department queries: "Engineering team status" → Multiple eng teams
+    - Project queries: "Expansion status" → Multiple expansions
+    - Location queries: "Austin office" → Multiple Austin locations
+    
+    This structure allows the ToolAgent to handle any type of ambiguity
+    with a single response formatter.
+    """
+    ambiguity_type: str  # "role", "entity", "department", "project", "location", "metric"
+    query_term: str  # The ambiguous term from the query
+    matches: List[Dict[str, Any]] = field(default_factory=list)  # All matching items
+    
+    @property
+    def has_multiple_matches(self) -> bool:
+        return len(self.matches) > 1
+    
+    @property
+    def single_match(self) -> Optional[Dict[str, Any]]:
+        """Return the single match if only one exists."""
+        return self.matches[0] if len(self.matches) == 1 else None
+    
+    def to_dict(self) -> dict:
+        return {
+            "ambiguity_type": self.ambiguity_type,
+            "query_term": self.query_term,
+            "matches": self.matches,
+            "has_multiple_matches": self.has_multiple_matches,
+            "match_count": len(self.matches)
+        }
+
+
+@dataclass
 class RetrievalResult:
     """Combined result from retrieval operations."""
     entities: List[Dict[str, Any]] = field(default_factory=list)
@@ -34,6 +72,9 @@ class RetrievalResult:
     role_resolution: Optional[RoleResolution] = None
     classification: Optional[QueryClassification] = None
     expanded_query: Optional[str] = None
+    query: Optional[str] = None
+    intent: Optional[Any] = None
+    ambiguity: Optional[AmbiguityResult] = None
     
     def to_dict(self) -> dict:
         return {
@@ -43,8 +84,15 @@ class RetrievalResult:
             "strategy_used": self.strategy_used,
             "role_resolution": self.role_resolution.to_dict() if self.role_resolution else None,
             "classification": self.classification.to_dict() if self.classification else None,
-            "expanded_query": self.expanded_query
+            "expanded_query": self.expanded_query,
+            "query": self.query,
+            "ambiguity": self.ambiguity.to_dict() if self.ambiguity else None
         }
+    
+    @property
+    def needs_disambiguation(self) -> bool:
+        """Check if the result requires user disambiguation."""
+        return self.ambiguity is not None and self.ambiguity.has_multiple_matches
     
     @property
     def has_data(self) -> bool:
@@ -390,7 +438,29 @@ class QueryPipeline:
         
         role_resolution = None
         if classification.has_role_reference and classification.role_referenced:
-            role_resolution = self.role_resolver.resolve(classification.role_referenced)
+            role_resolution = self.role_resolver.resolve_all(classification.role_referenced)
+            
+            if role_resolution.has_multiple_matches:
+                logger.info(f"[PIPELINE] Multiple matches for role '{classification.role_referenced}': {len(role_resolution.all_matches)}")
+                
+                ambiguity = AmbiguityResult(
+                    ambiguity_type="role",
+                    query_term=classification.role_referenced,
+                    matches=role_resolution.all_matches
+                )
+                
+                result = RetrievalResult(
+                    entities=[],
+                    relationships=[],
+                    chunks=[],
+                    strategy_used="DISAMBIGUATION",
+                    query=query,
+                    classification=classification,
+                    role_resolution=role_resolution,
+                    intent=None,
+                    ambiguity=ambiguity
+                )
+                return result
         
         if not classification.target_entity and vault_context:
             if not role_resolution or not role_resolution.is_resolved:
