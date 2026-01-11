@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session
 from .tools.definitions import TOOL_DEFINITIONS
 from .tools.wrappers import ToolExecutor
 from .retrieval_router import QueryPipeline, RetrievalResult, AmbiguityResult
+from .disambiguation_reasoner import DisambiguationReasoner, DisambiguationResult
 from ..models.schema import set_tenant_context
 from ..utils.response_helpers import build_qa_evidence, calculate_confidence, build_response, QAEvidence
 
@@ -112,6 +113,7 @@ class ToolAgent:
         
         self.tool_executor = ToolExecutor(session, tenant_id)
         self.query_pipeline = QueryPipeline(session, tenant_id)
+        self.disambiguator = DisambiguationReasoner(model=model)
         
         self.client = OpenAI(
             api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
@@ -274,32 +276,119 @@ Provide a clear, comprehensive answer based on the information above. If specifi
         self,
         question: str,
         pipeline_result,
-        start_time: float
+        start_time: float,
+        vault_context: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Build a response asking user to clarify when multiple items match a query.
+        Build a response for ambiguous queries using LLM reasoning.
         
-        This is a generalized handler for all types of ambiguity:
-        - role: "Who is the CEO?" → Multiple CEOs
-        - entity: "Tell me about Sarah" → Multiple Sarahs
-        - department: "Engineering team" → Multiple teams
-        - project: "The expansion" → Multiple expansions
-        - location: "Austin office" → Multiple locations
-        - metric: "The ARR" → Multiple companies with ARR
+        This method uses DisambiguationReasoner to determine:
+        1. Fast path: Single match or exact vault match → direct answer
+        2. LLM reasoning: Determine best match based on vault context
         
-        Args:
-            question: Original user question
-            pipeline_result: Pipeline result with ambiguity containing all matches
-            start_time: Query start time
-            
-        Returns:
-            Response dict with disambiguation message
+        If a clear primary answer is found, returns that answer with alternatives.
+        Otherwise, asks user to clarify.
         """
         ambiguity = pipeline_result.ambiguity
         ambiguity_type = ambiguity.ambiguity_type if ambiguity else "item"
         query_term = ambiguity.query_term if ambiguity else "the item"
         all_matches = ambiguity.matches if ambiguity else []
         
+        disambiguation_result = self.disambiguator.resolve(
+            query=question,
+            matches=all_matches,
+            vault_context=vault_context or "",
+            ambiguity_type=ambiguity_type
+        )
+        
+        if disambiguation_result.single_answer and disambiguation_result.primary_result:
+            return self._build_resolved_disambiguation_response(
+                question=question,
+                query_term=query_term,
+                ambiguity_type=ambiguity_type,
+                disambiguation_result=disambiguation_result,
+                pipeline_result=pipeline_result,
+                start_time=start_time,
+                vault_context=vault_context
+            )
+        
+        return self._build_clarification_response(
+            query_term=query_term,
+            ambiguity_type=ambiguity_type,
+            all_matches=all_matches,
+            pipeline_result=pipeline_result,
+            start_time=start_time
+        )
+    
+    def _build_resolved_disambiguation_response(
+        self,
+        question: str,
+        query_term: str,
+        ambiguity_type: str,
+        disambiguation_result: DisambiguationResult,
+        pipeline_result,
+        start_time: float,
+        vault_context: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Build response when disambiguation found a clear primary answer."""
+        primary = disambiguation_result.primary_result
+        alternatives = disambiguation_result.alternatives
+        
+        primary_name = primary.get("name", "Unknown")
+        primary_role = primary.get("role", query_term)
+        primary_org = primary.get("organization", vault_context or "")
+        
+        if ambiguity_type == "role":
+            answer = f"The {query_term} of {primary_org} is {primary_name}."
+        else:
+            answer = f"{primary_name} is the {primary_role}."
+        
+        if disambiguation_result.show_alternatives and alternatives:
+            alt_lines = []
+            for alt in alternatives:
+                alt_name = alt.get("name", "Unknown")
+                alt_org = alt.get("organization", "")
+                alt_role = alt.get("role", "")
+                if alt_org:
+                    alt_lines.append(f"- {alt_name} ({alt_role} of {alt_org})")
+                else:
+                    alt_lines.append(f"- {alt_name} ({alt_role})")
+            
+            if alt_lines:
+                answer += "\n\nNote: Your documents also mention other " + query_term + "s:\n" + "\n".join(alt_lines)
+        
+        evidence = QAEvidence(
+            entity_names=[primary_name],
+            chunk_sources=[]
+        )
+        
+        return build_response(
+            answer=answer,
+            confidence=0.9,
+            qa_verdict={"status": "SUPPORTED", "reason": disambiguation_result.reasoning},
+            evidence=evidence,
+            iterations=0,
+            time_ms=int((time.time() - start_time) * 1000),
+            success=True,
+            pipeline_result=pipeline_result,
+            extra={
+                "disambiguation": True,
+                "resolved": True,
+                "primary_match": primary,
+                "alternatives": alternatives,
+                "used_llm": disambiguation_result.used_llm
+            }
+        )
+    
+    def _build_clarification_response(
+        self,
+        query_term: str,
+        ambiguity_type: str,
+        all_matches: List[Dict[str, Any]],
+        pipeline_result,
+        start_time: float
+    ) -> Dict[str, Any]:
+        """Build response asking user to clarify when no clear primary match."""
         match_lines = []
         for match in all_matches:
             name = match.get("name", "Unknown")
@@ -383,8 +472,8 @@ Which one would you like to know more about? Please specify by name."""
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
         
         if pipeline_result and pipeline_result.needs_disambiguation and pipeline_result.ambiguity:
-            logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - returning disambiguation response")
-            return self._build_disambiguation_response(question, pipeline_result, start_time)
+            logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - using disambiguation reasoner")
+            return self._build_disambiguation_response(question, pipeline_result, start_time, vault_context=vault_context)
         
         if pipeline_result and self._can_answer_directly(pipeline_result):
             logger.info("[AGENT] Using DIRECT ANSWER path (skipping tool loop)")
