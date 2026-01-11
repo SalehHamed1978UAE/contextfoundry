@@ -21,9 +21,9 @@ from sqlalchemy.orm import Session
 
 from .tools.definitions import TOOL_DEFINITIONS
 from .tools.wrappers import ToolExecutor
-from .retrieval_router import QueryPipeline, RetrievalResult
+from .retrieval_router import QueryPipeline, RetrievalResult, AmbiguityResult
 from ..models.schema import set_tenant_context
-from ..utils.response_helpers import build_qa_evidence, calculate_confidence, build_response
+from ..utils.response_helpers import build_qa_evidence, calculate_confidence, build_response, QAEvidence
 
 logger = logging.getLogger(__name__)
 
@@ -270,6 +270,86 @@ Provide a clear, comprehensive answer based on the information above. If specifi
             logger.error(f"[AGENT] Direct synthesis failed: {e}")
             return f"Error synthesizing answer: {str(e)}"
     
+    def _build_disambiguation_response(
+        self,
+        question: str,
+        pipeline_result,
+        start_time: float
+    ) -> Dict[str, Any]:
+        """
+        Build a response asking user to clarify when multiple items match a query.
+        
+        This is a generalized handler for all types of ambiguity:
+        - role: "Who is the CEO?" → Multiple CEOs
+        - entity: "Tell me about Sarah" → Multiple Sarahs
+        - department: "Engineering team" → Multiple teams
+        - project: "The expansion" → Multiple expansions
+        - location: "Austin office" → Multiple locations
+        - metric: "The ARR" → Multiple companies with ARR
+        
+        Args:
+            question: Original user question
+            pipeline_result: Pipeline result with ambiguity containing all matches
+            start_time: Query start time
+            
+        Returns:
+            Response dict with disambiguation message
+        """
+        ambiguity = pipeline_result.ambiguity
+        ambiguity_type = ambiguity.ambiguity_type if ambiguity else "item"
+        query_term = ambiguity.query_term if ambiguity else "the item"
+        all_matches = ambiguity.matches if ambiguity else []
+        
+        match_lines = []
+        for match in all_matches:
+            name = match.get("name", "Unknown")
+            context = match.get("organization") or match.get("context") or match.get("department")
+            role_or_type = match.get("role") or match.get("type") or match.get("category")
+            
+            if context and role_or_type:
+                match_lines.append(f"- {name} ({role_or_type} at {context})")
+            elif context:
+                match_lines.append(f"- {name} ({context})")
+            elif role_or_type:
+                match_lines.append(f"- {name} ({role_or_type})")
+            else:
+                match_lines.append(f"- {name}")
+        
+        matches_text = "\n".join(match_lines)
+        
+        type_descriptions = {
+            "role": f"people with the {query_term} role",
+            "entity": f"people named {query_term}",
+            "department": f"departments matching {query_term}",
+            "project": f"projects matching {query_term}",
+            "location": f"locations matching {query_term}",
+            "metric": f"items with {query_term}"
+        }
+        type_desc = type_descriptions.get(ambiguity_type, f"matches for {query_term}")
+        
+        answer = f"""I found multiple {type_desc}:
+
+{matches_text}
+
+Which one would you like to know more about? Please specify by name."""
+        
+        evidence = QAEvidence(
+            entity_names=[m.get("name", "") for m in all_matches],
+            chunk_sources=[]
+        )
+        
+        return build_response(
+            answer=answer,
+            confidence=1.0,
+            qa_verdict={"status": "DISAMBIGUATION_NEEDED", "reason": f"Multiple matches for {ambiguity_type} '{query_term}'"},
+            evidence=evidence,
+            iterations=0,
+            time_ms=int((time.time() - start_time) * 1000),
+            success=True,
+            pipeline_result=pipeline_result,
+            extra={"disambiguation": True, "ambiguity_type": ambiguity_type, "match_count": len(all_matches), "all_matches": all_matches}
+        )
+    
     def query(
         self,
         question: str,
@@ -297,6 +377,10 @@ Provide a clear, comprehensive answer based on the information above. If specifi
             logger.info(f"[AGENT] Pipeline: strategy={pipeline_result.strategy_used}, has_data={pipeline_result.has_data}")
         except Exception as e:
             logger.warning(f"[AGENT] Pipeline pre-processing failed (continuing without): {e}")
+        
+        if pipeline_result and pipeline_result.needs_disambiguation:
+            logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - returning disambiguation response")
+            return self._build_disambiguation_response(question, pipeline_result, start_time)
         
         if pipeline_result and self._can_answer_directly(pipeline_result):
             logger.info("[AGENT] Using DIRECT ANSWER path (skipping tool loop)")

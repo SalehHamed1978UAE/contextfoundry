@@ -27,7 +27,8 @@ class RoleResolution:
         resolved_entity_id: Optional[str] = None,
         confidence: float = 0.0,
         alternatives: Optional[List[Dict[str, Any]]] = None,
-        resolution_method: str = "none"
+        resolution_method: str = "none",
+        all_matches: Optional[List[Dict[str, Any]]] = None
     ):
         self.role = role
         self.resolved_name = resolved_name
@@ -35,10 +36,16 @@ class RoleResolution:
         self.confidence = confidence
         self.alternatives = alternatives or []
         self.resolution_method = resolution_method
+        self.all_matches = all_matches or []
     
     @property
     def is_resolved(self) -> bool:
         return self.resolved_name is not None
+    
+    @property
+    def has_multiple_matches(self) -> bool:
+        """Returns True if multiple people hold this role."""
+        return len(self.all_matches) > 1
     
     def to_dict(self) -> dict:
         return {
@@ -48,7 +55,9 @@ class RoleResolution:
             "confidence": self.confidence,
             "is_resolved": self.is_resolved,
             "alternatives": self.alternatives,
-            "resolution_method": self.resolution_method
+            "resolution_method": self.resolution_method,
+            "all_matches": self.all_matches,
+            "has_multiple_matches": self.has_multiple_matches
         }
 
 
@@ -139,9 +148,58 @@ class RoleResolver:
         
         return list(set(variations))
     
+    def _check_entity_has_organization(self, entity_id: Optional[str], organization: Optional[str]) -> bool:
+        """Check if an entity has a WORKS_AT relationship to the organization."""
+        if not entity_id or not organization:
+            return False
+        try:
+            result = self.session.execute(text("""
+                SELECT COUNT(*) as cnt
+                FROM relationships r
+                JOIN entities target ON r.target_id = target.id
+                WHERE r.source_id = :entity_id
+                AND r.relationship_type = 'WORKS_AT'
+                AND LOWER(target.name) LIKE :org_pattern
+            """), {"entity_id": entity_id, "org_pattern": f"%{organization.lower()}%"})
+            return result.scalar() > 0
+        except Exception as e:
+            logger.error(f"[ROLE_RESOLVER] _check_entity_has_organization failed: {e}")
+            return False
+    
+    def _check_entity_is_main_org_role(self, entity_id: Optional[str]) -> bool:
+        """
+        Check if an entity is the main org role holder.
+        
+        Main org role holders typically have:
+        - 'position' field (more formal specification)
+        - No 'organization' field in properties (portfolio company CEOs have this)
+        """
+        if not entity_id:
+            return False
+        try:
+            result = self.session.execute(text("""
+                SELECT properties::text as props
+                FROM entities
+                WHERE id = :entity_id
+            """), {"entity_id": entity_id})
+            row = result.fetchone()
+            if row:
+                props = row.props or ""
+                has_position = '"position"' in props
+                has_organization = '"organization"' in props
+                return has_position and not has_organization
+            return False
+        except Exception as e:
+            logger.error(f"[ROLE_RESOLVER] _check_entity_is_main_org_role failed: {e}")
+            return False
+    
     def resolve(self, role: str, organization: Optional[str] = None) -> RoleResolution:
         """
         Resolve a role to the person who holds it using 3-stage lookup.
+        
+        Now checks both Stage 1 (relationships) and Stage 2 (properties) to find
+        the best match based on organization context, rather than stopping at
+        Stage 1 if any result is found.
         
         Args:
             role: The role to resolve (e.g., "CEO", "Chief Technology Officer")
@@ -150,17 +208,33 @@ class RoleResolver:
         Returns:
             RoleResolution with resolved person info
         """
-        logger.info(f"[ROLE_RESOLVER] Resolving role: '{role}'")
+        logger.info(f"[ROLE_RESOLVER] Resolving role: '{role}' (org={organization})")
         
-        result = self._stage1_exact_relationship(role)
-        if result.is_resolved:
-            logger.info(f"[ROLE_RESOLVER] Stage 1 (exact): '{role}' → '{result.resolved_name}'")
-            return result
+        stage1_result = self._stage1_exact_relationship(role, organization)
+        stage2_result = self._stage2_fuzzy_relationship(role, organization)
         
-        result = self._stage2_fuzzy_relationship(role)
-        if result.is_resolved:
-            logger.info(f"[ROLE_RESOLVER] Stage 2 (fuzzy): '{role}' → '{result.resolved_name}'")
-            return result
+        if stage1_result.is_resolved and stage2_result.is_resolved:
+            stage1_has_org = self._check_entity_has_organization(stage1_result.resolved_entity_id, organization)
+            stage2_has_org = self._check_entity_has_organization(stage2_result.resolved_entity_id, organization)
+            stage2_is_main = self._check_entity_is_main_org_role(stage2_result.resolved_entity_id)
+            
+            if stage2_is_main and not stage1_has_org:
+                logger.info(f"[ROLE_RESOLVER] Stage 2 entity is main org role: '{role}' → '{stage2_result.resolved_name}'")
+                return stage2_result
+            elif stage1_result.confidence >= stage2_result.confidence:
+                logger.info(f"[ROLE_RESOLVER] Stage 1 (exact): '{role}' → '{stage1_result.resolved_name}'")
+                return stage1_result
+            else:
+                logger.info(f"[ROLE_RESOLVER] Stage 2 (fuzzy): '{role}' → '{stage2_result.resolved_name}'")
+                return stage2_result
+        
+        if stage1_result.is_resolved:
+            logger.info(f"[ROLE_RESOLVER] Stage 1 (exact): '{role}' → '{stage1_result.resolved_name}'")
+            return stage1_result
+        
+        if stage2_result.is_resolved:
+            logger.info(f"[ROLE_RESOLVER] Stage 2 (fuzzy): '{role}' → '{stage2_result.resolved_name}'")
+            return stage2_result
         
         result = self._stage3_document_search(role)
         if result.is_resolved:
@@ -170,9 +244,106 @@ class RoleResolver:
         logger.info(f"[ROLE_RESOLVER] No resolution found for role: '{role}'")
         return RoleResolution(role=role)
     
-    def _stage1_exact_relationship(self, role: str) -> RoleResolution:
-        """Stage 1: Exact relationship lookup with multiple type names."""
+    def resolve_all(self, role: str) -> RoleResolution:
+        """
+        Find ALL people who hold a given role across the entire vault.
+        
+        Returns a RoleResolution with all_matches populated, allowing callers
+        to decide how to handle multiple matches (e.g., ask user to clarify).
+        
+        Args:
+            role: The role to resolve (e.g., "CEO", "Managing Partner")
+            
+        Returns:
+            RoleResolution with all_matches list containing all people with this role
+        """
+        logger.info(f"[ROLE_RESOLVER] Finding all matches for role: '{role}'")
+        
         role_variations = self._get_role_variations(role)
+        all_matches = []
+        seen_ids = set()
+        
+        role_clauses = " OR ".join([f"e.properties::text ILIKE :role{i}" for i in range(len(role_variations))])
+        
+        query = text(f"""
+            SELECT DISTINCT ON (e.id)
+                e.id as person_id,
+                e.name as person_name,
+                e.properties as props,
+                COALESCE(e.properties->>'organization', org_rel.org_name) as organization
+            FROM entities e
+            LEFT JOIN LATERAL (
+                SELECT target.name as org_name
+                FROM relationships r
+                JOIN entities target ON r.target_id = target.id
+                WHERE r.source_id = e.id
+                AND r.relationship_type = 'WORKS_AT'
+                AND target.entity_type = 'ORGANIZATION'
+                LIMIT 1
+            ) org_rel ON true
+            WHERE e.tenant_id = :tenant_id
+            AND e.entity_type = 'PERSON'
+            AND ({role_clauses})
+            ORDER BY e.id, e.created_at DESC
+        """)
+        
+        params = {"tenant_id": self.tenant_id}
+        for i, variation in enumerate(role_variations):
+            params[f"role{i}"] = f"%{variation}%"
+        
+        try:
+            results = self.session.execute(query, params).fetchall()
+            
+            for row in results:
+                if str(row.person_id) not in seen_ids:
+                    seen_ids.add(str(row.person_id))
+                    props = row.props or {}
+                    role_value = props.get('position') or props.get('role') or props.get('title') or role
+                    
+                    all_matches.append({
+                        "name": row.person_name,
+                        "entity_id": str(row.person_id),
+                        "role": role_value,
+                        "organization": row.organization
+                    })
+            
+            logger.info(f"[ROLE_RESOLVER] Found {len(all_matches)} matches for '{role}'")
+            
+            if len(all_matches) == 1:
+                match = all_matches[0]
+                return RoleResolution(
+                    role=role,
+                    resolved_name=match["name"],
+                    resolved_entity_id=match["entity_id"],
+                    confidence=0.9,
+                    resolution_method="resolve_all_single",
+                    all_matches=all_matches
+                )
+            elif len(all_matches) > 1:
+                return RoleResolution(
+                    role=role,
+                    resolved_name=None,
+                    confidence=0.0,
+                    resolution_method="resolve_all_multiple",
+                    all_matches=all_matches
+                )
+            
+        except Exception as e:
+            logger.error(f"[ROLE_RESOLVER] resolve_all failed: {e}")
+        
+        return RoleResolution(role=role)
+    
+    def _stage1_exact_relationship(self, role: str, organization: Optional[str] = None) -> RoleResolution:
+        """
+        Stage 1: Exact relationship lookup with multiple type names.
+        
+        Prioritizes entities that:
+        1. Have organization matching the vault context
+        2. Have 'position' field (more formal, likely main org CEO)
+        3. Don't have a different organization specified (portfolio company CEOs)
+        """
+        role_variations = self._get_role_variations(role)
+        org_pattern = f"%{organization}%" if organization else "%NEVER_MATCH_PLACEHOLDER%"
         
         type_placeholders = ", ".join([f":type{i}" for i in range(len(self.POSITION_RELATIONSHIP_TYPES))])
         like_clauses = " OR ".join([f"LOWER(target.name) LIKE :role{i}" for i in range(len(role_variations))])
@@ -183,18 +354,25 @@ class RoleResolver:
                 source.name as person_name,
                 target.name as role_name,
                 r.relationship_type,
-                r.confidence as relationship_confidence
+                r.confidence as relationship_confidence,
+                CASE 
+                    WHEN source.properties::text ILIKE :org_pattern THEN 3
+                    WHEN source.properties::text ILIKE '%"position"%' 
+                         AND source.properties::text NOT ILIKE '%"organization"%' THEN 2
+                    WHEN source.properties::text NOT ILIKE '%"organization"%' THEN 1
+                    ELSE 0
+                END as priority_score
             FROM relationships r
             JOIN entities source ON r.source_id = source.id
             JOIN entities target ON r.target_id = target.id
             WHERE r.tenant_id = :tenant_id
             AND r.relationship_type IN ({type_placeholders})
             AND ({like_clauses})
-            ORDER BY r.confidence DESC, r.created_at DESC
+            ORDER BY priority_score DESC, r.confidence DESC, r.created_at DESC
             LIMIT 5
         """)
         
-        params = {"tenant_id": self.tenant_id}
+        params = {"tenant_id": self.tenant_id, "org_pattern": org_pattern}
         for i, rel_type in enumerate(self.POSITION_RELATIONSHIP_TYPES):
             params[f"type{i}"] = rel_type
         for i, variation in enumerate(role_variations):
@@ -221,31 +399,55 @@ class RoleResolver:
         
         return RoleResolution(role=role)
     
-    def _stage2_fuzzy_relationship(self, role: str) -> RoleResolution:
-        """Stage 2: Fuzzy ILIKE matching on entity properties."""
-        normalized = self._normalize_role(role)
+    def _stage2_fuzzy_relationship(self, role: str, organization: Optional[str] = None) -> RoleResolution:
+        """
+        Stage 2: Fuzzy ILIKE matching on entity properties.
         
-        query = text("""
+        Prioritizes entities that:
+        1. Have organization matching the vault context
+        2. Have 'position' field (more formal, likely main org CEO)
+        3. Don't have a different organization specified (portfolio company CEOs)
+        """
+        role_variations = self._get_role_variations(role)
+        org_pattern = f"%{organization}%" if organization else "%NEVER_MATCH_PLACEHOLDER%"
+        
+        role_clauses = " OR ".join([f"e.properties::text ILIKE :role{i}" for i in range(len(role_variations))])
+        
+        first_variation = role_variations[0] if role_variations else role.lower()
+        
+        query = text(f"""
             SELECT 
                 e.id as person_id,
                 e.name as person_name,
-                e.properties
+                e.properties,
+                CASE 
+                    WHEN e.properties::text ILIKE :org_pattern THEN 5
+                    WHEN (e.properties->>'position' ILIKE :exact_role OR e.properties->>'role' ILIKE :exact_role)
+                         AND e.properties::text ILIKE '%"position"%' 
+                         AND e.properties::text NOT ILIKE '%"organization"%' THEN 4
+                    WHEN e.properties::text ILIKE '%"position"%' 
+                         AND e.properties::text NOT ILIKE '%"organization"%' THEN 2
+                    WHEN e.properties::text NOT ILIKE '%"organization"%' THEN 1
+                    ELSE 0
+                END as priority_score
             FROM entities e
             WHERE e.tenant_id = :tenant_id
             AND e.entity_type = 'PERSON'
-            AND (
-                e.properties::text ILIKE :role_pattern1
-                OR e.properties::text ILIKE :role_pattern2
-            )
+            AND ({role_clauses})
+            ORDER BY priority_score DESC, e.created_at DESC
             LIMIT 5
         """)
         
+        params = {
+            "tenant_id": self.tenant_id, 
+            "org_pattern": org_pattern,
+            "exact_role": f"%{first_variation}%"
+        }
+        for i, variation in enumerate(role_variations):
+            params[f"role{i}"] = f"%{variation}%"
+        
         try:
-            results = self.session.execute(query, {
-                "tenant_id": self.tenant_id,
-                "role_pattern1": f"%{normalized}%",
-                "role_pattern2": f"%{role}%"
-            }).fetchall()
+            results = self.session.execute(query, params).fetchall()
             
             if results:
                 best = results[0]
