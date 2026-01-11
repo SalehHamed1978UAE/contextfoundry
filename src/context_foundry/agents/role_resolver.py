@@ -273,10 +273,10 @@ class RoleResolver:
         
         query = text(f"""
             WITH all_orgs AS (
-                -- Get ALL organizations for each person (not just one)
+                -- Get ALL organizations for each person using JSON for reliable parsing
                 SELECT 
                     r.source_id as person_id,
-                    array_agg(DISTINCT target.name) as organizations
+                    json_agg(DISTINCT target.name) as organizations_json
                 FROM relationships r
                 JOIN entities target ON r.target_id = target.id
                 WHERE r.relationship_type IN ('WORKS_AT', 'EMPLOYED_BY', 'MEMBER_OF')
@@ -288,7 +288,7 @@ class RoleResolver:
                 e.id as person_id,
                 e.name as person_name,
                 e.properties as props,
-                COALESCE(ao.organizations, ARRAY[]::text[]) as organizations
+                COALESCE(ao.organizations_json::text, '[]') as organizations_json
             FROM entities e
             LEFT JOIN all_orgs ao ON ao.person_id = e.id
             WHERE e.tenant_id = :tenant_id
@@ -310,7 +310,15 @@ class RoleResolver:
                     props = row.props or {}
                     role_value = props.get('position') or props.get('role') or props.get('title') or role
                     
-                    orgs_list = list(row.organizations) if row.organizations else []
+                    import json
+                    raw_orgs = row.organizations_json
+                    logger.info(f"[ROLE_RESOLVER] DEBUG: {row.person_name} raw_orgs={repr(raw_orgs)}")
+                    try:
+                        orgs_list = json.loads(raw_orgs) if raw_orgs else []
+                        logger.info(f"[ROLE_RESOLVER] DEBUG: {row.person_name} parsed_orgs={orgs_list}")
+                    except (json.JSONDecodeError, TypeError) as e:
+                        logger.error(f"[ROLE_RESOLVER] DEBUG: {row.person_name} JSON parse error: {e}")
+                        orgs_list = []
                     if not orgs_list and props.get('organization'):
                         orgs_list = [props.get('organization')]
                     
