@@ -527,6 +527,7 @@ class DirectedAttributeRetriever:
         self,
         intent: QueryIntent,
         resolved_name: Optional[str] = None,
+        original_role: Optional[str] = None,
         limit: int = 5
     ) -> List[Dict[str, Any]]:
         """
@@ -535,6 +536,7 @@ class DirectedAttributeRetriever:
         Args:
             intent: QueryIntent with attribute_type and search_terms
             resolved_name: Resolved person name (from role resolution)
+            original_role: Original role/title term (e.g., "CIO") for additional search
             limit: Max results
             
         Returns:
@@ -553,12 +555,20 @@ class DirectedAttributeRetriever:
             search_terms = [intent.attribute_type.lower()]
         
         all_chunks = []
-        for term in search_terms[:3]:
-            search_query = f"{entity_name} {term}"
-            chunks = self._search_documents(search_query, limit=limit)
-            all_chunks.extend(chunks)
-            
-            if len(all_chunks) >= limit:
+        
+        search_entities = [entity_name]
+        if original_role and original_role.lower() != entity_name.lower():
+            search_entities.append(original_role)
+        
+        for entity in search_entities:
+            for term in search_terms[:2]:
+                search_query = f"{entity} {term}"
+                chunks = self._search_documents(search_query, limit=limit)
+                all_chunks.extend(chunks)
+                
+                if len(all_chunks) >= limit * 2:
+                    break
+            if len(all_chunks) >= limit * 2:
                 break
         
         seen_ids = set()
@@ -568,7 +578,7 @@ class DirectedAttributeRetriever:
                 seen_ids.add(chunk['id'])
                 unique_chunks.append(chunk)
         
-        logger.info(f"[ATTR_RETRIEVER] Found {len(unique_chunks)} chunks for {entity_name} + {intent.attribute_type}")
+        logger.info(f"[ATTR_RETRIEVER] Found {len(unique_chunks)} chunks for {entity_name}/{original_role} + {intent.attribute_type}")
         return unique_chunks[:limit]
     
     def _search_documents(self, query: str, limit: int = 5) -> List[Dict]:

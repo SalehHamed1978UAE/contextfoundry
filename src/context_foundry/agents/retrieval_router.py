@@ -201,9 +201,14 @@ class RetrievalRouter:
         self,
         intent: QueryIntent,
         resolved_name: Optional[str],
+        original_role: Optional[str] = None,
         limit: int = 5
     ) -> List[Dict[str, Any]]:
-        """Search document chunks for specific attribute using intent's search terms."""
+        """Search document chunks for specific attribute using intent's search terms.
+        
+        Searches with both resolved_name (e.g., "Robert Thompson") AND original_role (e.g., "CIO")
+        to improve recall when vector embeddings don't match person names well.
+        """
         from src.context_foundry.search.document_searcher import DocumentSearcher
         
         entity_name = resolved_name or intent.target_entity
@@ -214,29 +219,36 @@ class RetrievalRouter:
         if not search_terms:
             search_terms = [intent.attribute_type.lower()] if intent.attribute_type else []
         
+        search_entities = [entity_name]
+        if original_role and original_role.lower() != entity_name.lower():
+            search_entities.append(original_role)
+        
         searcher = DocumentSearcher(self.session, self.tenant_id)
         all_chunks = []
         seen_ids = set()
         
-        for term in search_terms[:3]:
-            search_query = f"{entity_name} {term}"
-            results = searcher.search(search_query, limit=limit, use_vector=True)
-            
-            for r in results:
-                chunk_id = r.get("id", "")
-                if chunk_id and chunk_id not in seen_ids:
-                    seen_ids.add(chunk_id)
-                    all_chunks.append({
-                        "id": chunk_id,
-                        "text": r.get("text", ""),
-                        "document": r.get("document_name", "Unknown"),
-                        "similarity": r.get("similarity", 0.6)
-                    })
-            
-            if len(all_chunks) >= limit:
+        for entity in search_entities:
+            for term in search_terms[:2]:
+                search_query = f"{entity} {term}"
+                results = searcher.search(search_query, limit=limit, use_vector=True)
+                
+                for r in results:
+                    chunk_id = r.get("id", "")
+                    if chunk_id and chunk_id not in seen_ids:
+                        seen_ids.add(chunk_id)
+                        all_chunks.append({
+                            "id": chunk_id,
+                            "text": r.get("text", ""),
+                            "document": r.get("document_name", "Unknown"),
+                            "similarity": r.get("similarity", 0.6)
+                        })
+                
+                if len(all_chunks) >= limit * 2:
+                    break
+            if len(all_chunks) >= limit * 2:
                 break
         
-        logger.info(f"[ROUTER] Attribute search found {len(all_chunks)} chunks for {entity_name}")
+        logger.info(f"[ROUTER] Attribute search found {len(all_chunks)} chunks for {entity_name}/{original_role}")
         return all_chunks[:limit]
     
     def route(
@@ -292,7 +304,8 @@ class RetrievalRouter:
         
         if intent and intent.intent_type == "attribute" and intent.attribute_type:
             resolved_name = role_resolution.resolved_name if role_resolution and role_resolution.is_resolved else None
-            chunks = self._search_documents_for_attribute(intent, resolved_name, limit)
+            original_role = role_resolution.role if role_resolution and role_resolution.is_resolved else None
+            chunks = self._search_documents_for_attribute(intent, resolved_name, original_role, limit)
             
             if chunks:
                 result.chunks = chunks
