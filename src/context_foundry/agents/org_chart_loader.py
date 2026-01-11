@@ -105,7 +105,8 @@ class OrgChartLoader:
         from sqlalchemy import func
         existing = self.session.query(Entity).filter(
             func.lower(Entity.name) == func.lower(name),
-            Entity.lifecycle_state == LifecycleState.TRUSTED.value
+            Entity.lifecycle_state == LifecycleState.TRUSTED.value,
+            Entity.tenant_id == self.tenant_id
         ).first()
         if existing:
             self.entity_map[name] = existing
