@@ -1157,3 +1157,9 @@ yta-general-utils = [{ index = "pytorch-cpu", marker = "platform_system == 'Linu
 zensvi = [{ index = "pytorch-cpu", marker = "platform_system == 'Linux'" }]
 zetascale = [{ index = "pytorch-cpu", marker = "platform_system == 'Linux'" }]
 zuko = [{ index = "pytorch-cpu", marker = "platform_system == 'Linux'" }]
+
+[tool.pytest.ini_options]
+markers = [
+    "regression: mark test as regression test (run frequently)",
+    "critical: mark test as critical (must pass for deployment)",
+]
