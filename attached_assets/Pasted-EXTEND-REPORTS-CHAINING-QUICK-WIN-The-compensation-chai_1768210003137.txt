@@ -1,0 +1,112 @@
+EXTEND REPORTS CHAINING — QUICK WIN
+
+The compensation chaining works. Now extend it to "reports" queries.
+
+================================================================================
+THE PROBLEM
+================================================================================
+
+Current behavior (TechVentures):
+"Who reports to the CEO?" → Returns "The CEO is Sarah Chen" ❌
+
+Expected behavior:
+"Who reports to the CEO?" → Returns list of direct reports ✅
+
+Note: This ALREADY WORKS for Riverside (returns actual reports).
+We need to fix why it doesn't work for TechVentures.
+
+================================================================================
+INVESTIGATION FIRST
+================================================================================
+
+Before coding, check why Riverside works but TechVentures doesn't:
+
+1. Check if REPORTS_TO relationships exist for TechVentures:
+```sql
+SELECT e1.name as subordinate, e2.name as manager
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE r.relationship_type = 'REPORTS_TO'
+AND r.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+LIMIT 20;
+```
+
+2. Check if "reports" is detected as an attribute intent:
+   - Add a log line in the chaining code to see what intent is detected
+   - Query: "Who reports to the CEO?"
+   - What does intent_detector return?
+
+3. Check if TechVentures has multiple CEO matches:
+   - Multiple matches might bypass the chaining logic
+   - Look at the role_resolution result
+
+================================================================================
+LIKELY FIX
+================================================================================
+
+The issue is probably one of:
+
+A. Intent not detected as "attribute" for "reports" queries
+   → Fix: Add "reports" to attribute indicators in intent detector config
+
+B. Multiple CEO matches bypass chaining
+   → Fix: The chaining logic should still work with vault_context
+
+C. Missing REPORTS_TO relationships for TechVentures
+   → Fix: Add reporting patterns to post_processor.py or backfill
+
+================================================================================
+IMPLEMENTATION
+================================================================================
+
+Once you identify the root cause, fix it. Most likely:
+
+1. In retrieval_router.py, ensure "reports" queries trigger chaining:
+```python
+# In _rewrite_query_with_person()
+elif attr_upper == "REPORTS" or "report" in query_lower:
+    if "reports to" in query_lower or "report to" in query_lower:
+        # "Who does the CEO report to?"
+        return f"Who does {person_name} report to?"
+    else:
+        # "Who reports to the CEO?"
+        return f"Who reports to {person_name}?"
+```
+
+2. In intent_detector config, ensure "reports" is recognized:
+```python
+# Check query_intent_detector.py or its config
+"REPORTS": {
+    "indicators": ["reports", "report to", "direct reports", "manages", "team"],
+    "search_terms": ["reports_to", "direct_reports", "manager"]
+}
+```
+
+================================================================================
+AFTER FIX
+================================================================================
+
+Test these queries manually:
+- "Who reports to the CEO?" (TechVentures) → Should return list of reports
+- "Who reports to the CEO?" (Riverside) → Should still work
+- "Who does the CFO report to?" → Should return manager
+- "What is the CEO's salary?" → Should still work (no regression)
+
+Then run E2E test:
+```bash
+python scripts/e2e_lifecycle_test.py
+```
+
+Save to: /mnt/user-data/outputs/e2e_reports_chaining.txt
+
+================================================================================
+REPORT BACK
+================================================================================
+
+1. What was the root cause?
+2. What did you change?
+3. Test results for the 4 queries above
+4. E2E test results
+
+================================================================================

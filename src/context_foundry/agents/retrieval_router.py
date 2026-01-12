@@ -437,8 +437,8 @@ class QueryPipeline:
         if attr_upper == "COMPENSATION" or "salary" in query_lower or "pay" in query_lower or "make" in query_lower:
             return f"What is {person_name}'s compensation?"
         
-        elif attr_upper == "REPORTS" or "report" in query_lower:
-            if "reports to" in query_lower or "report to" in query_lower:
+        elif attr_upper in ("REPORTS", "REPORTS_TO") or "report" in query_lower:
+            if "does" in query_lower and "report to" in query_lower:
                 return f"Who does {person_name} report to?"
             else:
                 return f"Who reports to {person_name}?"
@@ -476,21 +476,25 @@ class QueryPipeline:
         if classification.has_role_reference and classification.role_referenced:
             role_resolution = self.role_resolver.resolve_all(classification.role_referenced, vault_context=vault_context)
             
-            if (intent 
-                and intent.intent_type == "attribute" 
+            should_chain = (
+                intent 
+                and intent.intent_type in ("attribute", "relationship")
                 and role_resolution.is_resolved 
-                and not role_resolution.has_multiple_matches):
-                
+                and not role_resolution.has_multiple_matches
+            )
+            
+            if should_chain:
                 person_name = role_resolution.resolved_name
+                intent_key = intent.attribute_type or intent.relationship_type
                 rewritten_query = self._rewrite_query_with_person(
-                    query, person_name, intent.attribute_type
+                    query, person_name, intent_key
                 )
                 
-                logger.info(f"[PIPELINE] Chaining role→attribute: '{query}' → '{rewritten_query}'")
+                logger.info(f"[PIPELINE] Chaining role→{intent.intent_type}: '{query}' → '{rewritten_query}'")
                 return self.process(rewritten_query, vault_context)
             
             if role_resolution.has_multiple_matches:
-                if intent and intent.intent_type == "attribute" and vault_context:
+                if intent and intent.intent_type in ("attribute", "relationship") and vault_context:
                     primary_match = role_resolution.all_matches[0] if role_resolution.all_matches else None
                     if primary_match:
                         orgs = primary_match.get("organizations", [])
@@ -503,10 +507,11 @@ class QueryPipeline:
                         if has_vault_match:
                             person_name = primary_match.get("name")
                             if person_name:
+                                intent_key = intent.attribute_type or intent.relationship_type
                                 rewritten_query = self._rewrite_query_with_person(
-                                    query, person_name, intent.attribute_type
+                                    query, person_name, intent_key
                                 )
-                                logger.info(f"[PIPELINE] Chaining role→attribute (vault match): '{query}' → '{rewritten_query}'")
+                                logger.info(f"[PIPELINE] Chaining role→{intent.intent_type} (vault match): '{query}' → '{rewritten_query}'")
                                 return self.process(rewritten_query, vault_context)
                 
                 logger.info(f"[PIPELINE] Multiple matches for role '{classification.role_referenced}': {len(role_resolution.all_matches)} - disambiguation required")

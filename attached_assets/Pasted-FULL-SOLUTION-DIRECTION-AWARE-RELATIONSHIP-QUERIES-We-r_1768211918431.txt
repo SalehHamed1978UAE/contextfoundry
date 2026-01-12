@@ -1,0 +1,366 @@
+FULL SOLUTION: DIRECTION-AWARE RELATIONSHIP QUERIES
+
+We're building the proper solution, not a quick fix. This adds relationship
+direction awareness to the query pipeline.
+
+================================================================================
+OVERVIEW
+================================================================================
+
+PROBLEM:
+"Who reports to the CEO?" and "Who does the CEO report to?" both involve
+REPORTS_TO relationship but in OPPOSITE directions. Current system doesn't
+distinguish them.
+
+SOLUTION:
+Add direction field to QueryIntent. Intent detector classifies direction.
+Rewrite logic uses direction field, not string pattern matching.
+
+ARCHITECTURE:
+
+QueryIntent {
+    intent_type: "relationship"
+    relationship_type: "REPORTS_TO"
+    direction: "inbound" | "outbound"    # NEW
+    target_role: "subordinates" | "manager"  # NEW (optional, for clarity)
+}
+
+Direction meanings:
+- inbound: Entity is the TARGET. Find who points TO them.
+  "Who reports to Sarah?" → Find sources of REPORTS_TO edges to Sarah
+  
+- outbound: Entity is the SOURCE. Find what they point TO.
+  "Who does Sarah report to?" → Find targets of REPORTS_TO edges from Sarah
+
+================================================================================
+STEP 1: DIAGNOSIS (Do this first)
+================================================================================
+
+Before coding, document the current state:
+
+1. RELATIONSHIP TYPE INVENTORY
+
+Run SQL:
+```sql
+SELECT relationship_type, COUNT(*) as count
+FROM relationships
+GROUP BY relationship_type
+ORDER BY count DESC;
+```
+
+For each type with >10 occurrences, document:
+- Has directionality? (Yes/No)
+- Inbound query example
+- Outbound query example
+
+2. CURRENT INTENT DETECTOR
+
+Find QueryIntentDetector and share:
+- File path
+- The detect() method
+- How relationship queries are currently classified
+- The QueryIntent class/dataclass definition
+
+3. PIPELINE TRACE
+
+For "Who reports to the CEO?", log each step:
+- classifier.classify() output
+- intent_detector.detect() output
+- role_resolver.resolve_all() output
+- What gets passed to rewrite
+- Final query executed
+
+================================================================================
+STEP 2: UPDATE QueryIntent DATACLASS
+================================================================================
+
+Find the QueryIntent definition and add:
+```python
+@dataclass
+class QueryIntent:
+    intent_type: str  # "attribute", "relationship", "identity", etc.
+    
+    # For attribute queries
+    attribute_type: Optional[str] = None  # "COMPENSATION", "DEPARTMENT", etc.
+    
+    # For relationship queries (NEW)
+    relationship_type: Optional[str] = None  # "REPORTS_TO", "MANAGES", etc.
+    direction: Optional[str] = None  # "inbound" | "outbound" | "both"
+    target_role: Optional[str] = None  # Human-readable: "subordinates", "manager"
+    
+    # Existing fields...
+    search_terms: List[str] = field(default_factory=list)
+    confidence: float = 0.0
+```
+
+================================================================================
+STEP 3: ADD DIRECTION PATTERNS TO INTENT DETECTOR
+================================================================================
+
+Create direction pattern configuration:
+```python
+RELATIONSHIP_DIRECTION_PATTERNS = {
+    "REPORTS_TO": {
+        "inbound": {
+            # Asking for people who report TO the subject (subordinates)
+            "patterns": [
+                r"who reports to",
+                r"reports to (?:the )?(\w+)",  # "reports to the CEO"
+                r"direct reports",
+                r"who does .+ manage",
+                r"team members",
+                r"subordinates",
+                r"works? under",
+                r"people under",
+                r"staff of",
+            ],
+            "target_role": "subordinates"
+        },
+        "outbound": {
+            # Asking for who the subject reports TO (manager)
+            "patterns": [
+                r"who does .+ report to",
+                r"does .+ report to",
+                r"report to whom",
+                r"manager of",
+                r"who supervises",
+                r"boss of",
+                r"works? for",
+                r"reports up to",
+            ],
+            "target_role": "manager"
+        }
+    },
+    "MANAGES": {
+        "inbound": {
+            # "Who does X manage?"
+            "patterns": [r"who does .+ manage", r"manages who", r"team of"],
+            "target_role": "subordinates"
+        },
+        "outbound": {
+            # "Who manages X?"
+            "patterns": [r"who manages", r"managed by", r"supervisor of"],
+            "target_role": "manager"
+        }
+    },
+    "OWNS": {
+        "inbound": {
+            "patterns": [r"what does .+ own", r"owns what", r"owned by .+"],
+            "target_role": "owned_entities"
+        },
+        "outbound": {
+            "patterns": [r"who owns", r"owner of", r"owned by"],
+            "target_role": "owner"
+        }
+    },
+    "INVESTED_IN": {
+        "inbound": {
+            "patterns": [r"who invested in", r"investors of", r"backed by"],
+            "target_role": "investors"
+        },
+        "outbound": {
+            "patterns": [r"what did .+ invest", r"investments of", r"portfolio of"],
+            "target_role": "investments"
+        }
+    }
+}
+```
+
+Update detect() method:
+```python
+def detect(self, query: str, resolved_entity=None) -> QueryIntent:
+    query_lower = query.lower()
+    
+    # Check relationship patterns with direction
+    for rel_type, directions in RELATIONSHIP_DIRECTION_PATTERNS.items():
+        for direction, config in directions.items():
+            for pattern in config["patterns"]:
+                if re.search(pattern, query_lower):
+                    return QueryIntent(
+                        intent_type="relationship",
+                        relationship_type=rel_type,
+                        direction=direction,
+                        target_role=config["target_role"],
+                        confidence=0.9
+                    )
+    
+    # Fall back to existing detection logic...
+```
+
+================================================================================
+STEP 4: UPDATE REWRITE LOGIC IN RETRIEVAL ROUTER
+================================================================================
+
+In retrieval_router.py, update the chaining logic:
+```python
+# In process() method, after role resolution:
+
+if intent and intent.intent_type == "relationship" and role_resolution.is_resolved:
+    resolved_person = role_resolution.matches[0]
+    person_name = resolved_person.entity_name
+    
+    rewritten_query = self._rewrite_relationship_query(
+        person_name=person_name,
+        relationship_type=intent.relationship_type,
+        direction=intent.direction
+    )
+    
+    logger.info(f"[QueryPipeline] Chaining relationship: '{query}' → '{rewritten_query}'")
+    return self.process(rewritten_query, vault_context)
+```
+
+Add new rewrite method:
+```python
+def _rewrite_relationship_query(
+    self,
+    person_name: str,
+    relationship_type: str,
+    direction: str
+) -> str:
+    """
+    Rewrite relationship query with resolved person name.
+    Direction determines the query structure.
+    """
+    
+    if relationship_type == "REPORTS_TO":
+        if direction == "inbound":
+            return f"Who reports to {person_name}?"
+        else:  # outbound
+            return f"Who does {person_name} report to?"
+    
+    elif relationship_type == "MANAGES":
+        if direction == "inbound":
+            return f"Who does {person_name} manage?"
+        else:
+            return f"Who manages {person_name}?"
+    
+    elif relationship_type == "OWNS":
+        if direction == "inbound":
+            return f"What does {person_name} own?"
+        else:
+            return f"Who owns {person_name}?"
+    
+    elif relationship_type == "INVESTED_IN":
+        if direction == "inbound":
+            return f"Who invested in {person_name}?"
+        else:
+            return f"What has {person_name} invested in?"
+    
+    else:
+        # Generic fallback
+        return f"What is {person_name}'s relationship to others?"
+```
+
+================================================================================
+STEP 5: HANDLE AMBIGUOUS QUERIES
+================================================================================
+
+For queries like "Tell me about the CEO's reporting structure":
+```python
+def _rewrite_relationship_query(self, person_name, relationship_type, direction):
+    # Handle "both" direction
+    if direction == "both":
+        # Return a query that asks for both directions
+        if relationship_type == "REPORTS_TO":
+            return f"Who reports to {person_name} and who does {person_name} report to?"
+    
+    # ... rest of method
+```
+
+Add "both" patterns:
+```python
+"REPORTS_TO": {
+    # ... inbound and outbound ...
+    "both": {
+        "patterns": [
+            r"reporting structure",
+            r"reporting relationships",
+            r"org chart for",
+            r"hierarchy of",
+        ],
+        "target_role": "full_hierarchy"
+    }
+}
+```
+
+================================================================================
+STEP 6: TESTING
+================================================================================
+
+Create comprehensive test cases:
+```python
+TEST_CASES = [
+    # REPORTS_TO - Inbound (subordinates)
+    ("Who reports to the CEO?", "REPORTS_TO", "inbound", "subordinates"),
+    ("Who are the CEO's direct reports?", "REPORTS_TO", "inbound", "subordinates"),
+    ("Who does the CEO manage?", "REPORTS_TO", "inbound", "subordinates"),
+    ("List everyone under the CFO", "REPORTS_TO", "inbound", "subordinates"),
+    
+    # REPORTS_TO - Outbound (manager)
+    ("Who does the CEO report to?", "REPORTS_TO", "outbound", "manager"),
+    ("Who is the CTO's manager?", "REPORTS_TO", "outbound", "manager"),
+    ("Who supervises the COO?", "REPORTS_TO", "outbound", "manager"),
+    
+    # REPORTS_TO - Both
+    ("What is the CEO's reporting structure?", "REPORTS_TO", "both", "full_hierarchy"),
+    
+    # Other relationship types
+    ("What does TechVentures own?", "OWNS", "inbound", "owned_entities"),
+    ("Who owns CloudMatrix?", "OWNS", "outbound", "owner"),
+    ("Who invested in HealthSync?", "INVESTED_IN", "inbound", "investors"),
+    
+    # Should NOT match relationship (attribute queries)
+    ("What is the CEO's salary?", "COMPENSATION", None, None),
+    ("Who is the CEO?", "IDENTITY", None, None),
+]
+
+def test_intent_detection():
+    detector = QueryIntentDetector()
+    
+    for query, expected_type, expected_direction, expected_role in TEST_CASES:
+        intent = detector.detect(query)
+        
+        if expected_direction:  # Relationship query
+            assert intent.intent_type == "relationship"
+            assert intent.relationship_type == expected_type
+            assert intent.direction == expected_direction
+            assert intent.target_role == expected_role
+        else:  # Attribute or identity query
+            assert intent.intent_type == "attribute" or intent.relationship_type != expected_type
+        
+        print(f"✓ {query}")
+```
+
+Run full E2E test after implementation:
+```bash
+python scripts/e2e_lifecycle_test.py
+```
+
+Save to: /mnt/user-data/outputs/e2e_direction_aware.txt
+
+================================================================================
+DELIVERABLES
+================================================================================
+
+1. Diagnosis report (relationship inventory, current intent detector, pipeline trace)
+2. Updated QueryIntent dataclass
+3. RELATIONSHIP_DIRECTION_PATTERNS configuration
+4. Updated intent detector with direction detection
+5. Updated rewrite logic using direction field
+6. Test results for all query variations
+7. E2E test results
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+After implementation:
+
+✅ "Who reports to the CEO?" → Returns list of direct reports
+✅ "Who does the CEO report to?" → Returns the CEO's manager (or board)
+✅ "What is the CEO's salary?" → Still works (no regression)
+✅ "Who is the CEO?" → Still works (no regression)
+✅ All 5 vaults pass E2E test
+✅ Query variations in test suite all pass
+
+================================================================================

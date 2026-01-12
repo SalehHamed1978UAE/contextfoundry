@@ -58,13 +58,15 @@ Key architectural features include:
   - Healthcare role aliases: CMO resolves to "Chief Medical Officer" in healthcare contexts
   - `GapDetector`: Validates relationship targets against constraints
   - `backfill_extraction.py`: Script to reprocess existing vaults with new patterns
-- **Role→Attribute Query Chaining (Phase 2.7)**: Query pipeline now chains role-based attribute queries:
-  - For "What is the CEO's salary?", detects ATTRIBUTE intent early, resolves CEO → Person, rewrites to "What is Sarah Chen's compensation?"
+- **Role→Attribute/Relationship Query Chaining (Phase 2.7+)**: Query pipeline now chains role-based queries:
+  - Attribute chaining: "What is the CEO's salary?" → "What is Sarah Chen's compensation?"
+  - Relationship chaining: "Who reports to the CEO?" → "Who reports to Sarah Chen?"
   - Single-match: chains directly (safe)
   - Multi-match with vault context match: chains to vault-matched person (safe)  
   - Multi-match without clear context: preserves disambiguation flow (asks user to clarify)
   - `RoleResolver.resolve_all()` now sorts matches by vault_context priority (exact match → partial → none)
-  - `QueryPipeline._rewrite_query_with_person()` maps attribute types to appropriate query formats
+  - `QueryPipeline._rewrite_query_with_person()` maps attribute AND relationship types to appropriate query formats
+  - Direction-aware rewriting: "Who reports to X?" vs "Who does X report to?" handled correctly
   - Recursion-safe: rewritten queries drop role tokens, preventing infinite loops
 - **Ambiguity Detection & Disambiguation**: Generalized pattern for handling queries that match multiple entities:
   - `AmbiguityResult` dataclass: Query-agnostic structure for ambiguous results (roles, entities, departments, projects, locations, metrics)
