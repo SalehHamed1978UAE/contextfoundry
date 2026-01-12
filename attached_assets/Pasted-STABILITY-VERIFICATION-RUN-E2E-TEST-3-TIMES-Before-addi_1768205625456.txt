@@ -1,0 +1,71 @@
+STABILITY VERIFICATION — RUN E2E TEST 3 TIMES
+
+Before adding new features, we need to verify the system is stable and consistent.
+
+================================================================================
+TASK
+================================================================================
+
+Run the E2E test 3 times and save each result:
+```bash
+# Run 1
+python scripts/e2e_lifecycle_test.py
+cp /path/to/results.txt /mnt/user-data/outputs/e2e_stability_run1.txt
+
+# Run 2
+python scripts/e2e_lifecycle_test.py
+cp /path/to/results.txt /mnt/user-data/outputs/e2e_stability_run2.txt
+
+# Run 3
+python scripts/e2e_lifecycle_test.py
+cp /path/to/results.txt /mnt/user-data/outputs/e2e_stability_run3.txt
+```
+
+================================================================================
+WHAT TO COMPARE
+================================================================================
+
+After all 3 runs, create a comparison summary:
+
+1. EXTRACTION COUNTS
+   | Vault | Run 1 Entities | Run 2 Entities | Run 3 Entities | Variance |
+   
+   Some variance is expected (LLM non-determinism), but it should be reasonable.
+
+2. KEY QUERY ANSWERS
+   Check these queries across all 3 runs — answers should be IDENTICAL:
+   
+   | Query | Run 1 | Run 2 | Run 3 | Consistent? |
+   |-------|-------|-------|-------|-------------|
+   | TechVentures: "What is the CEO's salary?" | | | | |
+   | Riverside: "What is the CEO's salary?" | | | | |
+   | Morrison: "What is the Managing Partner's compensation?" | | | | |
+   | Riverside: "Who is the CMO?" | | | | |
+   | TechVentures: "Who is the CEO?" | | | | |
+
+3. ANY FAILURES
+   Note any queries that failed or returned unexpected results.
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+✅ PASS if:
+- All 3 runs complete without errors
+- Key query answers are consistent across runs
+- No regressions from previous fixes
+
+⚠️ INVESTIGATE if:
+- Extraction counts vary by more than 20%
+- Any key query gives different answers between runs
+- Any previously-fixed bug reappears
+
+================================================================================
+DELIVERABLES
+================================================================================
+
+1. Three result files in /mnt/user-data/outputs/
+2. Comparison summary (table format)
+3. Your assessment: STABLE or NEEDS INVESTIGATION
+
+================================================================================
