@@ -1,0 +1,87 @@
+PHASE 1 VERIFICATION — REAL DOCUMENT TEST
+
+Test Ontology Foundry by uploading a document with unknown relationship patterns.
+
+================================================================================
+TEST: UPLOAD DOCUMENT WITH NOVEL RELATIONSHIPS
+================================================================================
+
+1. Create a test document with relationship types that are NOT in your 
+   known_relationship_types set:
+
+Create file: test_data/ontology_test_doc.txt
+TECHVENTURES CORPORATE ACTIVITY REPORT - Q4 2025
+ACQUISITIONS
+TechVentures acquired SecureNode for $50M in December 2025. The acquisition
+strengthens our cybersecurity portfolio. SecureNode was founded in 2020 and
+has 45 employees.
+TechVentures also purchased DataFlow AI for $30M, bringing advanced analytics
+capabilities in-house.
+PARTNERSHIPS
+Sarah Chen partnered with CloudMatrix to develop joint enterprise solutions.
+The partnership includes co-marketing agreements and shared engineering resources.
+TechVentures formed a strategic alliance with HealthSync for healthcare data
+integration projects.
+ADVISORY RELATIONSHIPS
+James O'Brien advises NeuralBox on financial strategy. He has been mentoring
+their CEO since 2024.
+Dr. Patricia Vance consults for three portfolio companies on regulatory matters.
+BOARD CHANGES
+Robert Kim joined the board of DataFlow AI in October 2025.
+Elizabeth Warren was appointed to the advisory board of SecureNode.
+
+2. Upload this document to a test vault (e.g., TechVentures)
+
+3. After extraction completes, check for candidates:
+```bash
+# Check stats
+curl http://localhost:5000/api/ontology/stats
+
+# List candidates  
+curl http://localhost:5000/api/ontology/candidates
+```
+
+================================================================================
+EXPECTED CANDIDATES
+================================================================================
+
+Depending on what's in your known_relationship_types, you might see:
+
+| Pattern in Doc | Normalized | Should Be Candidate? |
+|----------------|------------|---------------------|
+| "acquired" | ACQUIRED | YES (if not in known types) |
+| "purchased" | ACQUIRED | YES (synonym → ACQUIRED) |
+| "partnered with" | PARTNERED_WITH | YES |
+| "strategic alliance" | PARTNERED_WITH or ALLIED_WITH | YES |
+| "advises" | ADVISES | YES |
+| "mentoring" | MENTORED_BY | YES |
+| "consults for" | CONSULTS_FOR | YES |
+| "joined the board" | BOARD_MEMBER_OF | NO (already known) |
+
+================================================================================
+WHAT TO REPORT
+================================================================================
+
+1. Output of GET /api/ontology/stats
+2. Output of GET /api/ontology/candidates (or first few candidates)
+3. For each candidate found:
+   - normalized_name
+   - confidence_score
+   - document_count
+   - mention_count
+   - example_mentions (first one)
+
+4. Any candidates that should have been detected but weren't
+5. Any errors in the extraction logs
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+✅ At least 2-3 new candidates detected from the test document
+✅ Confidence scores around 0.49 (1 doc, 1 mention) or higher
+✅ Example mentions contain the actual text from the document
+✅ Pending extractions exist for each candidate
+✅ No errors in extraction process
+
+================================================================================
