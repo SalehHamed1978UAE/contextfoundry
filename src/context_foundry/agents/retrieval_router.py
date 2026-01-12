@@ -423,27 +423,48 @@ class QueryPipeline:
         self,
         original_query: str,
         person_name: Optional[str],
-        attribute_type: Optional[str]
+        intent_key: Optional[str],
+        direction: Optional[str] = None
     ) -> str:
         """
         Rewrite a role-based query to use the resolved person's name.
+        Uses direction field when available for relationship queries.
         
         "What is the CEO's salary?" → "What is Sarah Chen's compensation?"
-        "Who reports to the CFO?" → "Who reports to James O'Brien?"
+        "Who reports to the CFO?" → "Who reports to James O'Brien?" (inbound)
+        "Who does the CFO report to?" → "Who does James O'Brien report to?" (outbound)
         """
-        attr_upper = (attribute_type or "").upper()
+        key_upper = (intent_key or "").upper()
         query_lower = original_query.lower()
         
-        if attr_upper == "COMPENSATION" or "salary" in query_lower or "pay" in query_lower or "make" in query_lower:
+        if key_upper == "COMPENSATION" or "salary" in query_lower or "pay" in query_lower or "make" in query_lower:
             return f"What is {person_name}'s compensation?"
         
-        elif attr_upper in ("REPORTS", "REPORTS_TO") or "report" in query_lower:
-            if "does" in query_lower and "report to" in query_lower:
+        elif key_upper in ("REPORTS", "REPORTS_TO"):
+            if direction == "outbound":
                 return f"Who does {person_name} report to?"
             else:
                 return f"Who reports to {person_name}?"
         
-        elif attr_upper == "DEPARTMENT":
+        elif key_upper == "MANAGES":
+            if direction == "inbound":
+                return f"Who does {person_name} manage?"
+            else:
+                return f"Who manages {person_name}?"
+        
+        elif key_upper == "OWNS":
+            if direction == "inbound":
+                return f"What does {person_name} own?"
+            else:
+                return f"Who owns {person_name}?"
+        
+        elif key_upper == "INVESTED_IN":
+            if direction == "inbound":
+                return f"Who invested in {person_name}?"
+            else:
+                return f"What has {person_name} invested in?"
+        
+        elif key_upper == "DEPARTMENT":
             return f"What department is {person_name} in?"
         
         else:
@@ -487,10 +508,10 @@ class QueryPipeline:
                 person_name = role_resolution.resolved_name
                 intent_key = intent.attribute_type or intent.relationship_type
                 rewritten_query = self._rewrite_query_with_person(
-                    query, person_name, intent_key
+                    query, person_name, intent_key, direction=intent.direction
                 )
                 
-                logger.info(f"[PIPELINE] Chaining role→{intent.intent_type}: '{query}' → '{rewritten_query}'")
+                logger.info(f"[PIPELINE] Chaining role→{intent.intent_type} (dir={intent.direction}): '{query}' → '{rewritten_query}'")
                 return self.process(rewritten_query, vault_context)
             
             if role_resolution.has_multiple_matches:
@@ -509,9 +530,9 @@ class QueryPipeline:
                             if person_name:
                                 intent_key = intent.attribute_type or intent.relationship_type
                                 rewritten_query = self._rewrite_query_with_person(
-                                    query, person_name, intent_key
+                                    query, person_name, intent_key, direction=intent.direction
                                 )
-                                logger.info(f"[PIPELINE] Chaining role→{intent.intent_type} (vault match): '{query}' → '{rewritten_query}'")
+                                logger.info(f"[PIPELINE] Chaining role→{intent.intent_type} (dir={intent.direction}, vault match): '{query}' → '{rewritten_query}'")
                                 return self.process(rewritten_query, vault_context)
                 
                 logger.info(f"[PIPELINE] Multiple matches for role '{classification.role_referenced}': {len(role_resolution.all_matches)} - disambiguation required")
