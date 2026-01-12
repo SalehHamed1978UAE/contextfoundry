@@ -351,7 +351,7 @@ class CandidateStore:
         existing_doc_ids = {m.get('document_id') for m in example_mentions}
         is_new_document = document_id not in existing_doc_ids
         
-        if example_text and len(example_mentions) < 10:
+        if example_text and len(example_mentions) < 5:
             example_mentions.append({
                 'text': example_text[:500],
                 'document_id': document_id
