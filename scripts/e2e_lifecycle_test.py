@@ -201,6 +201,7 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             ("public", "relationships", "tenant_id = :tid"),
             ("public", "entities", "tenant_id = :tid"),
             ("public", "document_chunks", "tenant_id = :tid"),
+            ("platform", "extraction_results", "request_id IN (SELECT request_id FROM platform.extraction_requests WHERE tenant_id = :tid)"),
             ("platform", "extraction_requests", "tenant_id = :tid"),
             ("platform", "documents", "tenant_id = :tid"),
             ("platform", "user_tenants", "tenant_id = :tid"),
@@ -247,6 +248,16 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         )
         
         tenant_id = str(result.fetchone()[0])
+        
+        user_id = "e067496f-2947-4a40-a37e-a59668e08332"
+        session.execute(
+            text("""
+                INSERT INTO platform.user_tenants (user_id, tenant_id, role, created_at)
+                VALUES (:user_id, :tenant_id, 'owner', NOW())
+            """),
+            {"user_id": user_id, "tenant_id": tenant_id}
+        )
+        
         session.commit()
         session.close()
         
