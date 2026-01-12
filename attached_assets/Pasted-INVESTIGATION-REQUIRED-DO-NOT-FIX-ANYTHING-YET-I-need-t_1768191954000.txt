@@ -1,0 +1,245 @@
+INVESTIGATION REQUIRED — DO NOT FIX ANYTHING YET
+
+I need to understand the root causes before any fixes. Run these diagnostic queries and share the COMPLETE output.
+
+================================================================================
+BUG 1: TechVentures role queries returning wrong answer type
+================================================================================
+
+Query: "What is the CEO's salary?" 
+Actual: "The CEO is Sarah Chen..." (wrong — should return salary)
+
+Query: "Who reports to the CEO?"
+Actual: "The CEO is Sarah Chen..." (wrong — should return list of reports)
+
+INVESTIGATE:
+
+1. What entities exist with CEO role in TechVentures?
+```sql
+SELECT 
+    e.id,
+    e.name,
+    e.entity_type,
+    e.properties->>'position' as position,
+    e.properties->>'title' as title,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND (
+    e.properties::text ILIKE '%CEO%'
+    OR e.properties::text ILIKE '%Chief Executive%'
+    OR e.name ILIKE '%CEO%'
+);
+```
+
+2. What relationships exist for Sarah Chen?
+```sql
+SELECT 
+    e1.name as source,
+    r.relationship_type,
+    e2.name as target,
+    r.properties
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND (e1.name ILIKE '%Sarah Chen%' OR e2.name ILIKE '%Sarah Chen%');
+```
+
+3. Is there compensation data for Sarah Chen?
+```sql
+SELECT 
+    e.name,
+    e.properties->>'salary' as salary,
+    e.properties->>'base_salary' as base_salary,
+    e.properties->>'compensation' as compensation,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND e.name ILIKE '%Sarah Chen%';
+```
+
+4. Who has REPORTS_TO relationships with the CEO?
+```sql
+SELECT 
+    e1.name as person,
+    r.relationship_type,
+    e2.name as reports_to
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND r.relationship_type IN ('REPORTS_TO', 'MANAGED_BY', 'WORKS_FOR')
+AND e2.name ILIKE '%Sarah Chen%';
+```
+
+5. Trace the actual query execution. Add debug logging to show:
+   - What the RoleResolver returns for "CEO" in TechVentures
+   - What context is passed to the LLM
+   - What the LLM prompt looks like
+
+================================================================================
+BUG 2: CFO/CMO not found when data exists
+================================================================================
+
+Morrison: "Who is the CFO?" → "Does not specify"
+Riverside: "Who is the CMO?" → "Does not specify"
+
+INVESTIGATE:
+
+1. What CFO entities exist in Morrison & Sterling?
+```sql
+SELECT 
+    e.id,
+    e.name,
+    e.entity_type,
+    e.properties->>'position' as position,
+    e.properties->>'title' as title,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Morrison & Sterling')
+AND (
+    e.properties::text ILIKE '%CFO%'
+    OR e.properties::text ILIKE '%Chief Financial%'
+    OR e.properties::text ILIKE '%Finance%'
+    OR e.name ILIKE '%Thomas Bradley%'
+);
+```
+
+2. What CMO entities exist in Riverside?
+```sql
+SELECT 
+    e.id,
+    e.name,
+    e.entity_type,
+    e.properties->>'position' as position,
+    e.properties->>'title' as title,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Riverside Medical Center')
+AND (
+    e.properties::text ILIKE '%CMO%'
+    OR e.properties::text ILIKE '%Chief Medical%'
+    OR e.properties::text ILIKE '%Medical Officer%'
+    OR e.name ILIKE '%William Patterson%'
+);
+```
+
+3. What does RoleResolver return for "CFO" in Morrison?
+
+Run this in Python:
+```python
+from role_resolver import RoleResolver
+
+session = get_session(use_rls_role=False)
+tenant_id = "..." # Morrison & Sterling tenant ID
+
+resolver = RoleResolver(session, tenant_id)
+result = resolver.resolve_role("CFO")
+print(f"CFO resolution: {result}")
+
+result = resolver.resolve_role("Chief Financial Officer")
+print(f"Chief Financial Officer resolution: {result}")
+```
+
+================================================================================
+BUG 3: CloudAI not found in Launchpad
+================================================================================
+
+Query: "Tell me about CloudAI"
+Actual: "CloudAI is not explicitly mentioned"
+
+INVESTIGATE:
+
+1. Does CloudAI entity exist?
+```sql
+SELECT 
+    e.id,
+    e.name,
+    e.entity_type,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+AND (
+    e.name ILIKE '%CloudAI%'
+    OR e.name ILIKE '%Cloud AI%'
+    OR e.name ILIKE '%Cloud-AI%'
+);
+```
+
+2. What IS in the source documents? Check the raw document for CloudAI mention:
+```sql
+SELECT 
+    d.filename,
+    d.content
+FROM documents d
+WHERE d.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+AND d.content ILIKE '%CloudAI%';
+```
+
+3. If CloudAI is in documents but not entities, extraction failed.
+   If CloudAI is not in documents, the test query is wrong.
+
+================================================================================
+BUG 4: Portfolio companies incomplete + garbage
+================================================================================
+
+Query: "What portfolio companies does TechVentures have?"
+Actual: "SecureNode, 75th percentile" (missing CloudMatrix, HealthSync; "75th percentile" is garbage)
+
+INVESTIGATE:
+
+1. What ORGANIZATION entities exist in TechVentures?
+```sql
+SELECT 
+    e.id,
+    e.name,
+    e.entity_type,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND e.entity_type = 'ORGANIZATION';
+```
+
+2. What relationships indicate "portfolio company"?
+```sql
+SELECT 
+    e1.name as company,
+    r.relationship_type,
+    e2.name as investor,
+    r.properties
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND r.relationship_type IN ('INVESTED_IN', 'PORTFOLIO_COMPANY', 'OWNS', 'HAS_INVESTMENT');
+```
+
+3. Where does "75th percentile" come from?
+```sql
+SELECT 
+    e.name,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND (e.name ILIKE '%percentile%' OR e.properties::text ILIKE '%percentile%');
+```
+
+================================================================================
+OUTPUT FORMAT
+================================================================================
+
+For each query above, show:
+1. The SQL query you ran
+2. The COMPLETE result (all rows, all columns)
+3. Any errors if the query failed
+
+DO NOT SUMMARIZE. Show raw output.
+
+================================================================================
+REMEMBER
+================================================================================
+
+- DO NOT FIX ANYTHING
+- Just run the diagnostics and share results
+- I will analyze and decide what to fix
