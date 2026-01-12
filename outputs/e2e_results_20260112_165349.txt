@@ -1,0 +1,366 @@
+================================================================================
+E2E LIFECYCLE TEST RESULTS
+================================================================================
+Run Date: 2026-01-12 16:53:49
+================================================================================
+
+================================================================================
+VAULT: TechVentures
+================================================================================
+Documents Uploaded: 4
+  - 01_leadership_memo.txt
+  - 02_portfolio_summary.txt
+  - 03_org_chart.txt
+  - 04_compensation_memo.txt
+
+Extraction Results:
+  - Chunks: 9
+  - Entities: 145
+  - Relationships: 18
+
+--------------------------------------------------------------------------------
+QUERY 1/10: Who is the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO of TechVentures is Sarah Chen.
+
+Note: Your documents also mention other CEOs:
+- Ahmed Malik (CEO of SecureNode)
+- Dr. Patricia Vance (CEO)
+- Robert Kim (CEO of CloudMatrix)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/10: What is the CEO's salary?
+--------------------------------------------------------------------------------
+ANSWER:
+The retrieved information does not specify the salary of the CEO, Sarah Chen. It provides details about her background, role, and the organizational structure but does not include any financial compensation figures. Therefore, I cannot provide the CEO's salary based on the available information.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/10: Who is the CTO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CTO of TechVentures is Marcus Williams.
+
+Note: Your documents also mention other CTOs:
+- Priya Sharma (CTO of SecureNode)
+- Jennifer Walsh (CTO of CloudMatrix)
+- Michael Torres (CTO)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/10: Who is the CTO of TechVentures?
+--------------------------------------------------------------------------------
+ANSWER:
+The CTO of TechVentures is Marcus Williams.
+
+Note: Your documents also mention other CTOs:
+- Priya Sharma (CTO of SecureNode)
+- Jennifer Walsh (CTO of CloudMatrix)
+- Michael Torres (CTO)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/10: What is Sarah Chen's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The retrieved information does not provide specific details about Sarah Chen's compensation. It mentions her role as the Chief Executive Officer of TechVentures and includes her background and organizational responsibilities, but there are no figures or descriptions related to her salary or compensation package. Therefore, it is unclear what her compensation is based on the available information.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/10: Who reports to the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+The following individuals report directly to CEO Sarah Chen at TechVentures:
+
+1. **Marcus Williams** - Chief Technology Officer (CTO)
+2. **James O'Brien** - Chief Financial Officer (CFO)
+3. **Dr. Amira Hassan** - Chief Data Officer (CDO) (reports to Marcus Williams, but is part of the executive team reporting to the CEO)
+
+These are the C-level executives mentioned in the retrieved information who report directly to the CEO.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/10: What portfolio companies does TechVentures have?
+--------------------------------------------------------------------------------
+ANSWER:
+Based on the retrieved information, TechVentures has invested in the following portfolio company:
+
+1. SECURENODE
+
+This is the only specific portfolio company mentioned in the provided information. If there are additional companies in TechVentures' portfolio, that information is not included in the retrieved data.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/10: Tell me about CloudMatrix
+--------------------------------------------------------------------------------
+ANSWER:
+CloudMatrix is a portfolio company under TechVentures, specializing in enterprise infrastructure automation software designed to assist large organizations. The company is currently led by CEO Sarah Chen, who also serves as the CEO of TechVentures. 
+
+As of the latest quarterly report for Q4 2025, CloudMatrix is in the process of preparing for its first commercial contract, which is expected to be finalized in Q2 2026. The company is part of a broader portfolio managed by TechVentures, which has total assets under management of $2.1 billion and has deployed $95 million across its active portfolio companies.
+
+While specific financial metrics or employee counts for CloudMatrix are not provided in the retrieved information, it is noted that Sarah Chen, as CEO, oversees the company directly. The organization is positioned for growth, with a Series C funding round targeted for Q3 2026.
+
+Overall, CloudMatrix is focused on providing innovative solutions in the realm of enterprise infrastructure, and it is currently in a critical phase of development as it approaches its first commercial contract.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/10: Tell me about HealthSync
+--------------------------------------------------------------------------------
+ANSWER:
+HealthSync is a portfolio company that specializes in developing interoperability software designed to connect hospital electronic health record (EHR) systems. The company was founded in 2020 by former engineers from Epic Systems. 
+
+### Key Details:
+- **Investment**: HealthSync received a $30 million investment during its Series A funding round, which took place in August 2023. TechVentures holds a 28% ownership stake in the company, and James O'Brien, the CFO of TechVentures, has a board seat at HealthSync.
+- **Leadership**: The company is led by Dr. Patricia Vance as CEO, Michael Torres as CTO, and Amanda Richardson as COO.
+- **Current Metrics**: 
+  - HealthSync is currently in the pilot phase and is pre-revenue, with expectations for its first commercial contract in Q2 2026.
+  - The company has established 50 active pilot partnerships with hospitals.
+  - It has a total of 34 employees.
+
+### Future Outlook:
+HealthSync is targeting significant growth as it moves towards its first commercial contract and continues to expand its partnerships within the healthcare sector.
+
+If you have any more specific questions or need further details, feel free to ask!
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 10/10: Tell me about SecureNode
+--------------------------------------------------------------------------------
+ANSWER:
+SecureNode is a portfolio company that specializes in zero-trust network security for distributed enterprise environments. It was founded in 2024 by former Google security engineers. Here are some key details about SecureNode:
+
+### Company Overview
+- **Founded**: 2024
+- **Founders**: Ahmed Malik (CEO) and Priya Sharma (CTO)
+- **Focus**: Provides zero-trust network security solutions.
+
+### Investment Details
+- **Investment Amount**: $20 Million (Seed round)
+- **Investment Date**: February 2025
+- **Ownership Stake**: 35%
+- **Board Seat**: Marcus Williams, who is the CTO of TechVentures.
+
+### Current Metrics
+- **Annual Recurring Revenue**: $180,000 (early stage)
+- **Enterprise Pilots**: 5 active pilots
+- **Employee Count**: 18
+- **Burn Rate**: $280,000 per month
+
+### Leadership
+- **CEO**: Ahmed Malik
+- **CTO**: Priya Sharma
+- **VP Sales**: Christopher Lee
+
+### Additional Context
+SecureNode is part of the TechVentures portfolio, which has a total of $2.1 billion in assets under management and has deployed $95 million across its active portfolio companies. The company is currently in the early stages of revenue generation and is working on establishing its market presence through pilot programs.
+
+If you have any more specific questions or need further details, feel free to ask!
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+
+================================================================================
+VAULT: Morrison & Sterling
+================================================================================
+Documents Uploaded: 3
+  - 01_firm_overview.txt
+  - 02_partner_compensation.txt
+  - 03_client_roster.txt
+
+Extraction Results:
+  - Chunks: 4
+  - Entities: 100
+  - Relationships: 16
+
+--------------------------------------------------------------------------------
+QUERY 1/9: Who is the Managing Partner?
+--------------------------------------------------------------------------------
+ANSWER:
+The Managing Partner is Elizabeth Morrison. She works at Morrison & Sterling LLP and leads the Corporate & M&A division.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/9: What is the Managing Partner's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The Managing Partner, Elizabeth Morrison, has a total compensation package as follows:
+
+- **Base Draw:** $1,200,000
+- **Performance Bonus:** $800,000
+- **Equity Points:** 150 (of 1000 total)
+- **Total Expected Compensation:** $2,400,000
+- **Additional Benefits:** Firm vehicle allowance of $24,000 per year
+
+In summary, Elizabeth Morrison's total expected compensation for 2026 is $2,400,000, plus an annual vehicle allowance of $24,000.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/9: Who is the CFO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CFO is Thomas Bradley, who works at Morrison & Sterling LLP.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/9: Who is the COO?
+--------------------------------------------------------------------------------
+ANSWER:
+The Chief Operating Officer (COO) is Amanda Foster. She works at Morrison & Sterling LLP.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/9: Who reports to Amanda Foster?
+--------------------------------------------------------------------------------
+ANSWER:
+Amanda Foster, who is the Chief Operating Officer at Morrison & Sterling LLP, has the following individuals reporting to her:
+
+1. Thomas Bradley - Chief Financial Officer
+2. Susan Martinez - Director of Human Resources
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/9: What practice groups does the firm have?
+--------------------------------------------------------------------------------
+ANSWER:
+The firm, Morrison & Sterling LLP, has the following five practice groups:
+
+1. **Corporate & M&A**
+   - Led by: Elizabeth Morrison
+   - Partners: 12
+   - Associates: 28
+   - Revenue: $45M annually
+
+2. **Litigation**
+   - Led by: Richard Sterling
+   - Partners: 8
+   - Associates: 22
+   - Revenue: $32M annually
+
+3. **Intellectual Property**
+   - Led by: Priya Patel
+   - Partners: 6
+   - Associates: 15
+   - Revenue: $28M annually
+
+4. **Employment Law**
+   - Led by: David Chen
+   - Partners: 5
+   - Associates: 12
+   - Revenue: $18M annually
+
+5. **Real Estate**
+   - Led by: Michael Torres
+   - Partners: 4
+   - Associates: 10
+   - Revenue: $15M annually
+
+This list includes all the practice groups mentioned in the retrieved information.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/9: Tell me about the litigation practice
+--------------------------------------------------------------------------------
+ANSWER:
+The litigation practice at Morrison & Sterling LLP is led by Richard Sterling, who is a Senior Partner and co-founder of the firm. He has been instrumental in developing the firm's litigation practice group since its inception in 1998. Richard Sterling reports directly to the Managing Partner, Elizabeth Morrison, regarding firm management matters.
+
+The firm has a strong focus on litigation, as evidenced by its significant client relationships. One of the major clients for the litigation practice is Pinnacle Financial Group, which has an annual billing of $2.8 million for litigation defense services. This indicates that the litigation practice is a vital component of the firm's overall service offerings and contributes substantially to its revenue.
+
+In terms of compensation, Richard Sterling's expected total compensation for 2026 is approximately $1.85 million, which includes a base draw of $950,000 and a performance bonus of $600,000. This compensation structure reflects the importance of the litigation practice within the firm.
+
+While the retrieved information provides insights into the leadership and financial aspects of the litigation practice, it does not detail specific types of litigation cases handled or the overall strategy of the practice group. Therefore, while we know that the litigation practice is robust and financially significant, further details about the specific areas of litigation or notable cases would require additional information.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/9: Who are the Tier 1 clients?
+--------------------------------------------------------------------------------
+ANSWER:
+The Tier 1 clients of Morrison & Sterling LLP, which have an annual billing of over $2 million, are as follows:
+
+1. **Nexus Technologies Inc.**
+   - Industry: Enterprise Software
+   - Annual Billing: $4.2M
+   - Relationship Partner: Elizabeth Morrison
+   - Services: M&A advisory, corporate governance
+   - Relationship Since: 2015
+   - Key Contact: CEO Robert Huang
+
+2. **Atlantic Healthcare Systems**
+   - Industry: Healthcare
+   - Annual Billing: $3.1M
+   - Relationship Partner: David Chen
+   - Services: Employment law, regulatory compliance
+   - Relationship Since: 2018
+   - Key Contact: General Counsel Maria Santos
+
+3. **Pinnacle Financial Group**
+   - Industry: Financial Services
+   - Annual Billing: $2.8M
+   - Relationship Partner: Richard Sterling
+   - Services: Litigation defense, regulatory matters
+   - Relationship Since: 2012
+   - Key Contact: Chief Legal Officer James Wright
+
+4. **GlobalTech Manufacturing**
+   - Industry: Industrial
+   - Annual Billing: $2.4M
+   - Relationship Partner: Priya Patel
+   - Services: Patent litigation, IP portfolio management
+   - Relationship Since: 2020
+   - Key Contact: VP Legal Affairs Christine Park
+
+These clients represent significant revenue for the firm and are key partners in various industries.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/9: What is Richard Sterling's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+Richard Sterling's compensation as a Senior Partner in Litigation at Morrison & Sterling LLP is structured as follows:
+
+- **Base Draw:** $950,000
+- **Performance Bonus:** $600,000
+- **Equity Points:** 120
+- **Total Expected Compensation:** $1,850,000
+
+This total expected compensation does not include any additional benefits or allowances that may be provided by the firm.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
