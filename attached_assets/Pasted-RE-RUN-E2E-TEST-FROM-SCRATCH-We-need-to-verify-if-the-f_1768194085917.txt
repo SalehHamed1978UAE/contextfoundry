@@ -1,0 +1,79 @@
+RE-RUN E2E TEST FROM SCRATCH
+
+We need to verify if the failures are consistent or random.
+
+================================================================================
+INSTRUCTIONS
+================================================================================
+
+1. DELETE all 5 vaults completely:
+   - TechVentures
+   - Morrison & Sterling
+   - Riverside Medical Center
+   - Titan Manufacturing
+   - Launchpad Ventures
+
+2. RUN the full E2E test from scratch:
+   - Create vaults
+   - Upload documents
+   - Run extraction
+   - Run all 49 queries
+   - Save full answers to output file
+
+3. SAVE results to a NEW file:
+   /mnt/user-data/outputs/e2e_results_RUN2_YYYYMMDD_HHMMSS.txt
+
+4. DO NOT look at the previous results while running
+   We need an independent second run
+
+================================================================================
+AFTER THE TEST
+================================================================================
+
+Compare RUN 1 vs RUN 2:
+
+1. Same extraction counts?
+   - Chunks per vault
+   - Entities per vault
+   - Relationships per vault
+
+2. Same query answers?
+   - Compare each of the 49 answers side by side
+
+3. Same bugs?
+   - Does "What is the CEO's salary?" still fail for TechVentures?
+   - Does "Who is the CMO?" still fail for Riverside?
+   - Is CloudAI still missing from Launchpad?
+
+================================================================================
+CRITICAL
+================================================================================
+
+- DO NOT fix anything before running
+- DO NOT modify extraction prompts
+- DO NOT modify role resolver
+- Run with EXACTLY the same code as RUN 1
+
+We need to know: Are the bugs consistent or random?
+
+================================================================================
+OUTPUT FORMAT
+================================================================================
+
+After RUN 2 completes, provide:
+
+1. The full output file (all 49 answers)
+
+2. A comparison table:
+
+| Metric | RUN 1 | RUN 2 | Same? |
+|--------|-------|-------|-------|
+| TechVentures entities | 174 | ??? | |
+| TechVentures relationships | 87 | ??? | |
+| "What is CEO's salary?" answer | Wrong | ??? | |
+| CloudAI extracted? | No | ??? | |
+| ... | | | |
+
+3. Conclusion: Are failures consistent or random?
+
+================================================================================
