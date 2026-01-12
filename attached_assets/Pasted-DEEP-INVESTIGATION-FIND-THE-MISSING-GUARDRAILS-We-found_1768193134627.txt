@@ -1,0 +1,285 @@
+DEEP INVESTIGATION — FIND THE MISSING GUARDRAILS
+
+We found 7 bugs. Now we need to understand WHY they happened so we can prevent them.
+
+DO NOT FIX ANYTHING. Just investigate and report.
+
+================================================================================
+INVESTIGATION 1: WHY IS COMPENSATION NOT LINKED TO PEOPLE?
+================================================================================
+
+The extraction created:
+- Entity: "Sarah Chen" (PERSON)
+- Entity: "$850,000" (AMOUNT)
+- But NO relationship between them
+
+Questions to answer:
+
+1. What does the source document say about Sarah Chen's compensation?
+```sql
+SELECT 
+    dc.chunk_index,
+    dc.content
+FROM document_chunks dc
+JOIN documents d ON dc.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND dc.content ILIKE '%Sarah Chen%'
+AND dc.content ILIKE '%850%';
+```
+
+2. What prompt is sent to the LLM for entity extraction? Show me the actual prompt template.
+
+3. What prompt is sent to the LLM for relationship extraction? Show me the actual prompt template.
+
+4. Does the extraction pipeline have a step that links AMOUNT entities to PERSON entities?
+
+5. Compare to Riverside where compensation IS linked:
+```sql
+SELECT 
+    e1.name as person,
+    r.relationship_type,
+    e2.name as target
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Riverside Medical Center')
+AND r.relationship_type IN ('RECEIVES_COMPENSATION', 'HAS_SALARY', 'EARNS');
+```
+
+Why did Riverside get compensation relationships but TechVentures didn't?
+
+================================================================================
+INVESTIGATION 2: WHY DOES "WHO REPORTS TO CEO" RETURN WRONG ANSWER?
+================================================================================
+
+The data exists:
+- James O'Brien → REPORTS_TO → Sarah Chen
+- Marcus Williams → REPORTS_TO → Sarah Chen
+- Dr. Amira Hassan → REPORTS_TO → Sarah Chen
+
+But the query returns "The CEO is Sarah Chen" instead of the list.
+
+Questions to answer:
+
+1. Trace the query execution step by step. Add logging to show:
+   a. What the user query is
+   b. What the RoleResolver returns
+   c. What entities/relationships are retrieved
+   d. What context is sent to the LLM
+   e. What the LLM prompt looks like
+   f. What the LLM returns
+
+2. Run this specific query with full debug output:
+```python
+# Enable verbose logging
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+from tool_agent import ToolAgent
+session = get_session(use_rls_role=True)
+tenant_id = "..." # TechVentures
+session.execute(text(f"SET app.current_tenant_id = '{tenant_id}'"))
+
+agent = ToolAgent(session, tenant_id)
+result = agent.query("Who reports to the CEO?", vault_context="TechVentures")
+print(result)
+```
+
+3. Compare to Riverside where this query WORKS:
+   - Run same query against Riverside
+   - Show the execution trace
+   - What's different?
+
+================================================================================
+INVESTIGATION 3: WHY DOESN'T ROLERESOLVER FIND THE CMO?
+================================================================================
+
+The data exists:
+- Dr. William Patterson → HOLD_POSITION → Chief Medical Officer
+
+But "Who is the CMO?" returns "Does not specify"
+
+Questions to answer:
+
+1. What does RoleResolver.resolve_role("CMO") return for Riverside?
+```python
+from services.role_resolver import RoleResolver
+
+session = get_session(use_rls_role=False)
+tenant_id = "..." # Riverside Medical Center
+
+resolver = RoleResolver(session, tenant_id)
+
+# Test exact matches
+print("CMO:", resolver.resolve_role("CMO"))
+print("Chief Medical Officer:", resolver.resolve_role("Chief Medical Officer"))
+print("Medical Officer:", resolver.resolve_role("Medical Officer"))
+
+# Test what DOES work
+print("CEO:", resolver.resolve_role("CEO"))
+print("CIO:", resolver.resolve_role("CIO"))
+print("COO:", resolver.resolve_role("COO"))
+```
+
+2. Show me the RoleResolver code. What role patterns does it match?
+
+3. What's the difference between CMO and CIO lookup? CIO works, CMO doesn't.
+
+4. Is "CMO" in the list of recognized role abbreviations?
+
+================================================================================
+INVESTIGATION 4: WHY WAS CLOUDAI NOT EXTRACTED?
+================================================================================
+
+Document contains CloudAI with full details. Entity was not created.
+
+Questions to answer:
+
+1. What chunk contains CloudAI?
+```sql
+SELECT 
+    dc.chunk_index,
+    dc.content,
+    LENGTH(dc.content) as chunk_length
+FROM document_chunks dc
+JOIN documents d ON dc.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+AND dc.content ILIKE '%CloudAI%';
+```
+
+2. What entities were extracted from that specific chunk?
+```sql
+-- First get the chunk that has CloudAI
+-- Then find entities extracted from same document
+
+SELECT 
+    e.name,
+    e.entity_type,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'Launchpad Ventures')
+AND e.entity_type = 'PORTFOLIO_COMPANY';
+```
+
+3. Is there a limit on entities per chunk? Could CloudAI have been dropped due to a limit?
+
+4. Show me the extraction prompt. Is there a limit on how many entities the LLM is asked to extract?
+
+5. What's the chunk size? Is CloudAI in a very long chunk where it might get lost?
+
+================================================================================
+INVESTIGATION 5: WHY WAS "75th PERCENTILE" EXTRACTED AS INVESTMENT?
+================================================================================
+
+This is garbage extraction. A metric was treated as an investment target.
+
+Questions to answer:
+
+1. What's the source text that contains "75th percentile"?
+```sql
+SELECT 
+    dc.content
+FROM document_chunks dc
+JOIN documents d ON dc.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND dc.content ILIKE '%75th percentile%';
+```
+
+2. What entity was created?
+```sql
+SELECT 
+    e.id,
+    e.name,
+    e.entity_type,
+    e.properties
+FROM entities e
+WHERE e.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND e.name ILIKE '%percentile%';
+```
+
+3. What relationship was created?
+```sql
+SELECT 
+    e1.name as source,
+    r.relationship_type,
+    e2.name as target,
+    r.properties
+FROM relationships r
+JOIN entities e1 ON r.source_id = e1.id
+JOIN entities e2 ON r.target_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM platform.tenants WHERE name = 'TechVentures')
+AND (e1.name ILIKE '%percentile%' OR e2.name ILIKE '%percentile%');
+```
+
+4. Does the extraction pipeline validate entity types? Is there a check that INVESTED_IN targets should be ORGANIZATION type?
+
+5. Does the extraction pipeline have any garbage filtering?
+
+================================================================================
+INVESTIGATION 6: EXTRACTION CONSISTENCY CHECK
+================================================================================
+
+Compare extraction results across vaults to find patterns.
+
+1. Entity counts per type per vault:
+```sql
+SELECT 
+    t.name as vault,
+    e.entity_type,
+    COUNT(*) as count
+FROM entities e
+JOIN platform.tenants t ON e.tenant_id = t.id
+WHERE t.name IN ('TechVentures', 'Morrison & Sterling', 'Riverside Medical Center', 'Titan Manufacturing', 'Launchpad Ventures')
+GROUP BY t.name, e.entity_type
+ORDER BY t.name, count DESC;
+```
+
+2. Relationship counts per type per vault:
+```sql
+SELECT 
+    t.name as vault,
+    r.relationship_type,
+    COUNT(*) as count
+FROM relationships r
+JOIN platform.tenants t ON r.tenant_id = t.id
+WHERE t.name IN ('TechVentures', 'Morrison & Sterling', 'Riverside Medical Center', 'Titan Manufacturing', 'Launchpad Ventures')
+GROUP BY t.name, r.relationship_type
+ORDER BY t.name, count DESC;
+```
+
+3. Which vaults have RECEIVES_COMPENSATION relationships?
+```sql
+SELECT 
+    t.name as vault,
+    COUNT(*) as compensation_relationships
+FROM relationships r
+JOIN platform.tenants t ON r.tenant_id = t.id
+WHERE r.relationship_type IN ('RECEIVES_COMPENSATION', 'HAS_SALARY', 'EARNS', 'COMPENSATION')
+GROUP BY t.name;
+```
+
+4. Which vaults have HOLD_POSITION relationships?
+```sql
+SELECT 
+    t.name as vault,
+    COUNT(*) as position_relationships
+FROM relationships r
+JOIN platform.tenants t ON r.tenant_id = t.id
+WHERE r.relationship_type IN ('HOLDS_POSITION', 'HAS_POSITION', 'HOLD_POSITION', 'HAS_ROLE')
+GROUP BY t.name;
+```
+
+================================================================================
+OUTPUT FORMAT
+================================================================================
+
+For each investigation:
+1. Show the query/code you ran
+2. Show the COMPLETE output (no summarizing)
+3. Note any errors
+
+DO NOT FIX ANYTHING.
+DO NOT SUGGEST FIXES.
+Just gather the data and report.
+
+================================================================================
