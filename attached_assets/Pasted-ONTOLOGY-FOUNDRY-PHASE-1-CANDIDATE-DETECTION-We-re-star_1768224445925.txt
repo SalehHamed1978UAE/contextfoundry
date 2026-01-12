@@ -1,0 +1,1152 @@
+ONTOLOGY FOUNDRY — PHASE 1: CANDIDATE DETECTION
+
+We're starting Phase 3 of Context Foundry: Ontology Foundry. This lets the 
+system LEARN new relationship and entity types from documents instead of 
+discarding unknown patterns.
+
+================================================================================
+THE PROBLEM
+================================================================================
+
+Currently, Context Foundry only extracts what it already knows.
+
+Document says: "TechVentures acquired SecureNode for $50M"
+System thinks: "I don't know ACQUIRED" → discards the relationship
+User asks: "What companies has TechVentures acquired?"
+System says: "I don't have that information"
+
+The data was there. The system threw it away.
+
+================================================================================
+THE SOLUTION
+================================================================================
+
+Store unknown patterns as CANDIDATES for human review.
+
+Document says: "TechVentures acquired SecureNode for $50M"
+System thinks: "I don't know ACQUIRED, but this looks like a relationship"
+System does: Stores it as a CANDIDATE with the extraction data
+Admin sees: "New relationship type detected: ACQUIRED (72% confidence)"
+Admin clicks: [Approve]
+System does: Adds ACQUIRED to schema, backfills all pending extractions
+User asks: "What companies has TechVentures acquired?"
+System says: "SecureNode ($50M)"
+
+No data lost. Schema evolves. System gets smarter.
+
+================================================================================
+PHASE 1 DELIVERABLES
+================================================================================
+
+1. Database tables
+2. CandidateNormalizer (synonym mapping)
+3. CandidateStore (storage and retrieval)
+4. Updated GraphBuilder (dual-path extraction)
+5. Flask API endpoints
+6. Tests
+
+================================================================================
+FILES TO CREATE
+================================================================================
+
+1. migrations/ontology_foundry_tables.sql
+2. src/context_foundry/ontology/__init__.py
+3. src/context_foundry/ontology/normalizer.py
+4. src/context_foundry/ontology/candidate_store.py
+5. src/context_foundry/ontology_routes.py
+
+FILES TO MODIFY:
+6. GraphBuilder (or extraction pipeline) — add dual-path logic
+7. web_app.py — register ontology blueprint
+
+================================================================================
+FILE 1: DATABASE MIGRATIONS
+================================================================================
+
+Create: migrations/ontology_foundry_tables.sql
+```sql
+-- ============================================================
+-- ONTOLOGY CANDIDATES TABLE
+-- Stores detected patterns that aren't in the current schema
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS ontology_candidates (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    
+    -- What was detected
+    candidate_type VARCHAR(50) NOT NULL,      -- 'RELATIONSHIP' | 'ENTITY' | 'ATTRIBUTE'
+    proposed_name VARCHAR(100) NOT NULL,      -- Name as proposed by LLM
+    normalized_name VARCHAR(100) NOT NULL,    -- Canonical name after synonym mapping
+    
+    -- For relationships
+    source_entity_type VARCHAR(100),          -- e.g., 'ORGANIZATION'
+    target_entity_type VARCHAR(100),          -- e.g., 'COMPANY'
+    
+    -- Evidence
+    detected_properties JSONB DEFAULT '{}',   -- {amount: 'currency', date: 'date', ...}
+    example_mentions JSONB DEFAULT '[]',      -- [{text: '...', document_id: '...'}, ...]
+    document_count INT DEFAULT 1,
+    mention_count INT DEFAULT 1,
+    
+    -- Confidence
+    confidence_score FLOAT DEFAULT 0.5,
+    
+    -- Governance
+    status VARCHAR(20) DEFAULT 'PENDING',     -- 'PENDING'|'APPROVED'|'REJECTED'|'MERGED'
+    reviewed_by UUID,
+    reviewed_at TIMESTAMP,
+    merged_into UUID REFERENCES ontology_candidates(id),
+    
+    -- Scope
+    is_global BOOLEAN DEFAULT FALSE,          -- Can be promoted to all tenants
+    
+    -- Cleanup
+    expires_at TIMESTAMP,                     -- Auto-delete pending candidates after this
+    
+    -- Metadata
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    
+    -- Constraints
+    CONSTRAINT valid_candidate_type CHECK (candidate_type IN ('RELATIONSHIP', 'ENTITY', 'ATTRIBUTE')),
+    CONSTRAINT valid_status CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'MERGED'))
+);
+
+-- Indexes
+CREATE INDEX idx_ontology_candidates_tenant_status 
+    ON ontology_candidates(tenant_id, status);
+CREATE INDEX idx_ontology_candidates_normalized_name 
+    ON ontology_candidates(tenant_id, normalized_name);
+CREATE INDEX idx_ontology_candidates_confidence 
+    ON ontology_candidates(tenant_id, confidence_score DESC);
+CREATE INDEX idx_ontology_candidates_expires 
+    ON ontology_candidates(expires_at) WHERE status = 'PENDING';
+
+-- ============================================================
+-- PENDING EXTRACTIONS TABLE
+-- Stores actual extracted data waiting for schema approval
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS pending_extractions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id UUID NOT NULL,
+    candidate_id UUID NOT NULL REFERENCES ontology_candidates(id) ON DELETE CASCADE,
+    
+    -- The actual extracted data
+    source_entity_name VARCHAR(255),
+    source_entity_type VARCHAR(100),
+    target_entity_name VARCHAR(255),
+    target_entity_type VARCHAR(100),
+    relationship_type VARCHAR(100),           -- The normalized type name
+    properties JSONB DEFAULT '{}',
+    
+    -- Provenance
+    document_id UUID,
+    chunk_id UUID,
+    chunk_text TEXT,                          -- The text that triggered this extraction
+    
+    -- Status
+    status VARCHAR(20) DEFAULT 'PENDING',     -- 'PENDING' | 'APPLIED' | 'DISCARDED'
+    applied_at TIMESTAMP,                     -- When backfilled to KG
+    
+    created_at TIMESTAMP DEFAULT NOW(),
+    
+    -- Constraints
+    CONSTRAINT valid_extraction_status CHECK (status IN ('PENDING', 'APPLIED', 'DISCARDED'))
+);
+
+-- Indexes
+CREATE INDEX idx_pending_extractions_tenant 
+    ON pending_extractions(tenant_id);
+CREATE INDEX idx_pending_extractions_candidate 
+    ON pending_extractions(candidate_id);
+CREATE INDEX idx_pending_extractions_status 
+    ON pending_extractions(status);
+```
+
+================================================================================
+FILE 2: PACKAGE INIT
+================================================================================
+
+Create: src/context_foundry/ontology/__init__.py
+```python
+from .normalizer import CandidateNormalizer
+from .candidate_store import CandidateStore
+
+__all__ = ["CandidateNormalizer", "CandidateStore"]
+```
+
+================================================================================
+FILE 3: CANDIDATE NORMALIZER
+================================================================================
+
+Create: src/context_foundry/ontology/normalizer.py
+```python
+"""
+Canonical Name Normalizer
+
+Maps LLM-proposed relationship/entity names to canonical forms.
+Prevents fragmented candidates for semantically equivalent patterns.
+
+Example:
+    "INVESTS_IN", "MADE_INVESTMENT", "FUNDED" → all normalize to "INVESTED_IN"
+"""
+
+import re
+from typing import Dict
+
+from src.context_foundry.utils.logger import logger
+
+# ============================================================
+# SYNONYM MAPPINGS
+# ============================================================
+
+RELATIONSHIP_SYNONYMS: Dict[str, str] = {
+    # Investment patterns
+    "INVESTS_IN": "INVESTED_IN",
+    "MADE_INVESTMENT_IN": "INVESTED_IN",
+    "MADE_INVESTMENT": "INVESTED_IN",
+    "FUNDED": "INVESTED_IN",
+    "BACKS": "INVESTED_IN",
+    "BACKED": "INVESTED_IN",
+    "PORTFOLIO_COMPANY_OF": "INVESTED_IN",
+    "LED_ROUND_IN": "INVESTED_IN",
+    "PARTICIPATED_IN_ROUND": "INVESTED_IN",
+    
+    # Employment patterns
+    "EMPLOYED_BY": "WORKS_AT",
+    "EMPLOYEE_OF": "WORKS_AT",
+    "WORKS_FOR": "WORKS_AT",
+    "MEMBER_OF": "WORKS_AT",
+    "JOINED": "WORKS_AT",
+    "EMPLOYED_AT": "WORKS_AT",
+    
+    # Ownership patterns
+    "OWNED_BY": "OWNS",
+    "SUBSIDIARY_OF": "OWNS",
+    "PARENT_OF": "OWNS",
+    "HAS_SUBSIDIARY": "OWNS",
+    "CONTROLS": "OWNS",
+    "PARENT_COMPANY_OF": "OWNS",
+    
+    # Leadership/Position patterns
+    "LEADS": "HOLDS_POSITION",
+    "MANAGES": "HOLDS_POSITION",
+    "HEADS": "HOLDS_POSITION",
+    "RUNS": "HOLDS_POSITION",
+    "IS_CEO_OF": "HOLDS_POSITION",
+    "IS_CTO_OF": "HOLDS_POSITION",
+    "IS_CFO_OF": "HOLDS_POSITION",
+    "SERVES_AS": "HOLDS_POSITION",
+    "APPOINTED_AS": "HOLDS_POSITION",
+    "PROMOTED_TO": "HOLDS_POSITION",
+    
+    # Board patterns
+    "ON_BOARD_OF": "BOARD_MEMBER_OF",
+    "BOARD_DIRECTOR_OF": "BOARD_MEMBER_OF",
+    "SERVES_ON_BOARD": "BOARD_MEMBER_OF",
+    "SITS_ON_BOARD": "BOARD_MEMBER_OF",
+    "BOARD_SEAT_AT": "BOARD_MEMBER_OF",
+    
+    # Reporting patterns
+    "MANAGED_BY": "REPORTS_TO",
+    "SUPERVISED_BY": "REPORTS_TO",
+    "REPORTS_INTO": "REPORTS_TO",
+    
+    # Location patterns
+    "HEADQUARTERED_IN": "LOCATED_IN",
+    "BASED_IN": "LOCATED_IN",
+    "HAS_OFFICE_IN": "LOCATED_IN",
+    "OPERATES_IN": "LOCATED_IN",
+    
+    # Founding patterns
+    "STARTED": "FOUNDED",
+    "CREATED": "FOUNDED",
+    "ESTABLISHED": "FOUNDED",
+    "CO_FOUNDED": "FOUNDED",
+    
+    # Acquisition patterns
+    "BOUGHT": "ACQUIRED",
+    "PURCHASED": "ACQUIRED",
+    "TOOK_OVER": "ACQUIRED",
+    
+    # Partnership patterns
+    "PARTNERS_WITH": "PARTNERED_WITH",
+    "COLLABORATES_WITH": "PARTNERED_WITH",
+    "ALLIED_WITH": "PARTNERED_WITH",
+}
+
+ENTITY_SYNONYMS: Dict[str, str] = {
+    # Organization variants
+    "COMPANY": "ORGANIZATION",
+    "CORPORATION": "ORGANIZATION",
+    "FIRM": "ORGANIZATION",
+    "STARTUP": "ORGANIZATION",
+    "ENTERPRISE": "ORGANIZATION",
+    "BUSINESS": "ORGANIZATION",
+    "INSTITUTION": "ORGANIZATION",
+    "AGENCY": "ORGANIZATION",
+    
+    # Person variants
+    "INDIVIDUAL": "PERSON",
+    "EMPLOYEE": "PERSON",
+    "EXECUTIVE": "PERSON",
+    "FOUNDER": "PERSON",
+    "LEADER": "PERSON",
+    
+    # Role variants
+    "POSITION": "JOB_TITLE",
+    "TITLE": "JOB_TITLE",
+    "ROLE": "JOB_TITLE",
+    
+    # Money variants
+    "SALARY": "COMPENSATION",
+    "PAY": "COMPENSATION",
+    "EARNINGS": "COMPENSATION",
+    "REMUNERATION": "COMPENSATION",
+}
+
+
+class CandidateNormalizer:
+    """Normalizes candidate names to canonical forms."""
+    
+    def __init__(self):
+        self.relationship_synonyms = RELATIONSHIP_SYNONYMS.copy()
+        self.entity_synonyms = ENTITY_SYNONYMS.copy()
+    
+    def normalize_relationship(self, name: str) -> str:
+        """Normalize a relationship type name."""
+        normalized = self._clean_name(name)
+        
+        if normalized in self.relationship_synonyms:
+            logger.debug(f"[Normalizer] {name} → {self.relationship_synonyms[normalized]}")
+            return self.relationship_synonyms[normalized]
+        
+        return normalized
+    
+    def normalize_entity(self, name: str) -> str:
+        """Normalize an entity type name."""
+        normalized = self._clean_name(name)
+        
+        if normalized in self.entity_synonyms:
+            logger.debug(f"[Normalizer] {name} → {self.entity_synonyms[normalized]}")
+            return self.entity_synonyms[normalized]
+        
+        return normalized
+    
+    def _clean_name(self, name: str) -> str:
+        """Clean and standardize a name."""
+        # Uppercase
+        name = name.upper()
+        
+        # Replace spaces and hyphens with underscores
+        name = re.sub(r'[\s\-]+', '_', name)
+        
+        # Remove non-alphanumeric except underscores
+        name = re.sub(r'[^A-Z0-9_]', '', name)
+        
+        # Collapse multiple underscores
+        name = re.sub(r'_+', '_', name)
+        
+        # Strip leading/trailing underscores
+        name = name.strip('_')
+        
+        return name
+    
+    def add_synonym(self, synonym: str, canonical: str, type: str = "RELATIONSHIP"):
+        """Add a custom synonym mapping."""
+        synonym = self._clean_name(synonym)
+        canonical = self._clean_name(canonical)
+        
+        if type == "RELATIONSHIP":
+            self.relationship_synonyms[synonym] = canonical
+        else:
+            self.entity_synonyms[synonym] = canonical
+        
+        logger.info(f"[Normalizer] Added synonym: {synonym} → {canonical}")
+```
+
+================================================================================
+FILE 4: CANDIDATE STORE
+================================================================================
+
+Create: src/context_foundry/ontology/candidate_store.py
+```python
+"""
+Candidate Store
+
+Handles storage and retrieval of ontology candidates and pending extractions.
+"""
+
+import json
+from typing import List, Dict, Optional
+from uuid import UUID
+from datetime import datetime, timedelta
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from src.context_foundry.ontology.normalizer import CandidateNormalizer
+from src.context_foundry.utils.logger import logger
+
+
+class CandidateStore:
+    """Store for ontology candidates and pending extractions."""
+    
+    # Expiration period for pending candidates (days)
+    CANDIDATE_EXPIRY_DAYS = 90
+    
+    def __init__(self, session: Session, tenant_id: UUID):
+        self.session = session
+        self.tenant_id = tenant_id
+        self.normalizer = CandidateNormalizer()
+    
+    def add_relationship_candidate(
+        self,
+        proposed_name: str,
+        normalized_name: str,
+        source_entity_type: str,
+        target_entity_type: str,
+        source_entity_name: str,
+        target_entity_name: str,
+        properties: Optional[Dict] = None,
+        original_text: Optional[str] = None,
+        document_id: Optional[str] = None,
+        chunk_id: Optional[str] = None
+    ) -> UUID:
+        """
+        Add a relationship candidate or update existing one.
+        
+        If a candidate with the same normalized_name exists:
+        - Increment document_count and mention_count
+        - Add to example_mentions
+        - Recalculate confidence
+        
+        Always creates a pending_extraction record.
+        
+        Returns the candidate_id.
+        """
+        properties = properties or {}
+        
+        # Check for existing candidate
+        existing = self._get_existing_candidate(normalized_name, "RELATIONSHIP")
+        
+        if existing:
+            candidate_id = existing['id']
+            logger.debug(f"[OntologyFoundry] Updating existing candidate: {normalized_name}")
+            self._update_candidate_evidence(
+                candidate_id=candidate_id,
+                example_text=original_text,
+                document_id=document_id,
+                properties=properties
+            )
+        else:
+            logger.info(f"[OntologyFoundry] New candidate created: {normalized_name}")
+            candidate_id = self._create_candidate(
+                candidate_type="RELATIONSHIP",
+                proposed_name=proposed_name,
+                normalized_name=normalized_name,
+                source_entity_type=source_entity_type,
+                target_entity_type=target_entity_type,
+                example_text=original_text,
+                document_id=document_id,
+                properties=properties
+            )
+        
+        # Always create pending extraction
+        self._create_pending_extraction(
+            candidate_id=candidate_id,
+            source_entity_name=source_entity_name,
+            source_entity_type=source_entity_type,
+            target_entity_name=target_entity_name,
+            target_entity_type=target_entity_type,
+            relationship_type=normalized_name,
+            properties=properties,
+            document_id=document_id,
+            chunk_id=chunk_id,
+            chunk_text=original_text
+        )
+        
+        return candidate_id
+    
+    def add_entity_candidate(
+        self,
+        proposed_name: str,
+        normalized_name: str,
+        entity_name: str,
+        properties: Optional[Dict] = None,
+        original_text: Optional[str] = None,
+        document_id: Optional[str] = None
+    ) -> UUID:
+        """Add an entity type candidate."""
+        properties = properties or {}
+        
+        existing = self._get_existing_candidate(normalized_name, "ENTITY")
+        
+        if existing:
+            candidate_id = existing['id']
+            logger.debug(f"[OntologyFoundry] Updating existing entity candidate: {normalized_name}")
+            self._update_candidate_evidence(
+                candidate_id=candidate_id,
+                example_text=original_text,
+                document_id=document_id,
+                properties=properties
+            )
+        else:
+            logger.info(f"[OntologyFoundry] New entity candidate created: {normalized_name}")
+            candidate_id = self._create_candidate(
+                candidate_type="ENTITY",
+                proposed_name=proposed_name,
+                normalized_name=normalized_name,
+                example_text=original_text,
+                document_id=document_id,
+                properties=properties
+            )
+        
+        return candidate_id
+    
+    def get_pending_candidates(
+        self,
+        candidate_type: Optional[str] = None,
+        min_confidence: float = 0.0
+    ) -> List[Dict]:
+        """Get pending candidates, sorted by confidence descending."""
+        
+        query = """
+            SELECT 
+                id, candidate_type, proposed_name, normalized_name,
+                source_entity_type, target_entity_type,
+                detected_properties, example_mentions,
+                document_count, mention_count, confidence_score,
+                status, created_at, expires_at
+            FROM ontology_candidates
+            WHERE tenant_id = :tenant_id
+              AND status = 'PENDING'
+              AND confidence_score >= :min_confidence
+        """
+        
+        params = {
+            'tenant_id': str(self.tenant_id),
+            'min_confidence': min_confidence
+        }
+        
+        if candidate_type:
+            query += " AND candidate_type = :candidate_type"
+            params['candidate_type'] = candidate_type
+        
+        query += " ORDER BY confidence_score DESC"
+        
+        result = self.session.execute(text(query), params)
+        
+        candidates = []
+        for row in result:
+            candidate = dict(row._mapping)
+            # Convert UUID to string for JSON serialization
+            candidate['id'] = str(candidate['id'])
+            # Parse JSON fields if they're strings
+            if isinstance(candidate.get('detected_properties'), str):
+                candidate['detected_properties'] = json.loads(candidate['detected_properties'])
+            if isinstance(candidate.get('example_mentions'), str):
+                candidate['example_mentions'] = json.loads(candidate['example_mentions'])
+            candidates.append(candidate)
+        
+        return candidates
+    
+    def get_candidate_by_id(self, candidate_id: UUID) -> Optional[Dict]:
+        """Get a single candidate by ID."""
+        query = """
+            SELECT *
+            FROM ontology_candidates
+            WHERE id = :candidate_id AND tenant_id = :tenant_id
+        """
+        
+        result = self.session.execute(text(query), {
+            'candidate_id': str(candidate_id),
+            'tenant_id': str(self.tenant_id)
+        }).fetchone()
+        
+        if not result:
+            return None
+        
+        candidate = dict(result._mapping)
+        candidate['id'] = str(candidate['id'])
+        if isinstance(candidate.get('detected_properties'), str):
+            candidate['detected_properties'] = json.loads(candidate['detected_properties'])
+        if isinstance(candidate.get('example_mentions'), str):
+            candidate['example_mentions'] = json.loads(candidate['example_mentions'])
+        
+        return candidate
+    
+    def get_pending_extractions(self, candidate_id: UUID) -> List[Dict]:
+        """Get all pending extractions for a candidate."""
+        query = """
+            SELECT *
+            FROM pending_extractions
+            WHERE candidate_id = :candidate_id
+              AND tenant_id = :tenant_id
+              AND status = 'PENDING'
+            ORDER BY created_at
+        """
+        
+        result = self.session.execute(text(query), {
+            'candidate_id': str(candidate_id),
+            'tenant_id': str(self.tenant_id)
+        })
+        
+        extractions = []
+        for row in result:
+            extraction = dict(row._mapping)
+            extraction['id'] = str(extraction['id'])
+            extraction['candidate_id'] = str(extraction['candidate_id'])
+            if isinstance(extraction.get('properties'), str):
+                extraction['properties'] = json.loads(extraction['properties'])
+            extractions.append(extraction)
+        
+        return extractions
+    
+    def get_stats(self) -> Dict[str, Dict[str, int]]:
+        """Get counts by candidate type and status."""
+        query = """
+            SELECT candidate_type, status, COUNT(*) as count
+            FROM ontology_candidates
+            WHERE tenant_id = :tenant_id
+            GROUP BY candidate_type, status
+        """
+        
+        result = self.session.execute(text(query), {
+            'tenant_id': str(self.tenant_id)
+        })
+        
+        stats = {
+            "RELATIONSHIP": {"PENDING": 0, "APPROVED": 0, "REJECTED": 0},
+            "ENTITY": {"PENDING": 0, "APPROVED": 0, "REJECTED": 0},
+            "ATTRIBUTE": {"PENDING": 0, "APPROVED": 0, "REJECTED": 0}
+        }
+        
+        for row in result:
+            if row.candidate_type in stats and row.status in stats[row.candidate_type]:
+                stats[row.candidate_type][row.status] = row.count
+        
+        return stats
+    
+    # ============================================================
+    # Private methods
+    # ============================================================
+    
+    def _get_existing_candidate(
+        self, 
+        normalized_name: str, 
+        candidate_type: str
+    ) -> Optional[Dict]:
+        """Find existing candidate by normalized name."""
+        query = """
+            SELECT id, document_count, mention_count, example_mentions
+            FROM ontology_candidates
+            WHERE tenant_id = :tenant_id
+              AND normalized_name = :normalized_name
+              AND candidate_type = :candidate_type
+              AND status = 'PENDING'
+        """
+        
+        result = self.session.execute(text(query), {
+            'tenant_id': str(self.tenant_id),
+            'normalized_name': normalized_name,
+            'candidate_type': candidate_type
+        }).fetchone()
+        
+        if not result:
+            return None
+        
+        return dict(result._mapping)
+    
+    def _create_candidate(
+        self,
+        candidate_type: str,
+        proposed_name: str,
+        normalized_name: str,
+        source_entity_type: Optional[str] = None,
+        target_entity_type: Optional[str] = None,
+        example_text: Optional[str] = None,
+        document_id: Optional[str] = None,
+        properties: Optional[Dict] = None
+    ) -> UUID:
+        """Create a new candidate."""
+        example_mentions = []
+        if example_text:
+            example_mentions.append({
+                'text': example_text[:500],  # Truncate long text
+                'document_id': document_id
+            })
+        
+        expires_at = datetime.utcnow() + timedelta(days=self.CANDIDATE_EXPIRY_DAYS)
+        
+        # Initial confidence based on single mention
+        confidence = self._calculate_confidence(1, 1)
+        
+        query = """
+            INSERT INTO ontology_candidates (
+                tenant_id, candidate_type, proposed_name, normalized_name,
+                source_entity_type, target_entity_type,
+                detected_properties, example_mentions,
+                document_count, mention_count, confidence_score,
+                expires_at
+            ) VALUES (
+                :tenant_id, :candidate_type, :proposed_name, :normalized_name,
+                :source_entity_type, :target_entity_type,
+                :detected_properties, :example_mentions,
+                1, 1, :confidence_score,
+                :expires_at
+            )
+            RETURNING id
+        """
+        
+        result = self.session.execute(text(query), {
+            'tenant_id': str(self.tenant_id),
+            'candidate_type': candidate_type,
+            'proposed_name': proposed_name,
+            'normalized_name': normalized_name,
+            'source_entity_type': source_entity_type,
+            'target_entity_type': target_entity_type,
+            'detected_properties': json.dumps(properties or {}),
+            'example_mentions': json.dumps(example_mentions),
+            'confidence_score': confidence,
+            'expires_at': expires_at
+        })
+        
+        self.session.commit()
+        
+        row = result.fetchone()
+        return UUID(str(row.id)) if row else None
+    
+    def _update_candidate_evidence(
+        self,
+        candidate_id: UUID,
+        example_text: Optional[str],
+        document_id: Optional[str],
+        properties: Optional[Dict]
+    ):
+        """Update an existing candidate with new evidence."""
+        # Get current state
+        current = self.get_candidate_by_id(candidate_id)
+        if not current:
+            return
+        
+        # Update mentions
+        example_mentions = current.get('example_mentions', [])
+        if isinstance(example_mentions, str):
+            example_mentions = json.loads(example_mentions)
+        
+        # Check if this document already contributed
+        existing_doc_ids = {m.get('document_id') for m in example_mentions}
+        is_new_document = document_id not in existing_doc_ids
+        
+        # Add example (keep max 10)
+        if example_text and len(example_mentions) < 10:
+            example_mentions.append({
+                'text': example_text[:500],
+                'document_id': document_id
+            })
+        
+        # Update counts
+        new_doc_count = current['document_count'] + (1 if is_new_document else 0)
+        new_mention_count = current['mention_count'] + 1
+        
+        # Recalculate confidence
+        new_confidence = self._calculate_confidence(new_doc_count, new_mention_count)
+        
+        query = """
+            UPDATE ontology_candidates
+            SET document_count = :doc_count,
+                mention_count = :mention_count,
+                example_mentions = :example_mentions,
+                confidence_score = :confidence_score,
+                updated_at = NOW()
+            WHERE id = :candidate_id
+        """
+        
+        self.session.execute(text(query), {
+            'candidate_id': str(candidate_id),
+            'doc_count': new_doc_count,
+            'mention_count': new_mention_count,
+            'example_mentions': json.dumps(example_mentions),
+            'confidence_score': new_confidence
+        })
+        
+        self.session.commit()
+        
+        logger.debug(f"[OntologyFoundry] Updated candidate {candidate_id}: "
+                    f"docs={new_doc_count}, mentions={new_mention_count}, confidence={new_confidence}")
+    
+    def _create_pending_extraction(
+        self,
+        candidate_id: UUID,
+        source_entity_name: str,
+        source_entity_type: str,
+        target_entity_name: str,
+        target_entity_type: str,
+        relationship_type: str,
+        properties: Optional[Dict],
+        document_id: Optional[str],
+        chunk_id: Optional[str],
+        chunk_text: Optional[str]
+    ):
+        """Create a pending extraction record."""
+        query = """
+            INSERT INTO pending_extractions (
+                tenant_id, candidate_id,
+                source_entity_name, source_entity_type,
+                target_entity_name, target_entity_type,
+                relationship_type, properties,
+                document_id, chunk_id, chunk_text
+            ) VALUES (
+                :tenant_id, :candidate_id,
+                :source_entity_name, :source_entity_type,
+                :target_entity_name, :target_entity_type,
+                :relationship_type, :properties,
+                :document_id, :chunk_id, :chunk_text
+            )
+        """
+        
+        self.session.execute(text(query), {
+            'tenant_id': str(self.tenant_id),
+            'candidate_id': str(candidate_id),
+            'source_entity_name': source_entity_name,
+            'source_entity_type': source_entity_type,
+            'target_entity_name': target_entity_name,
+            'target_entity_type': target_entity_type,
+            'relationship_type': relationship_type,
+            'properties': json.dumps(properties or {}),
+            'document_id': document_id,
+            'chunk_id': chunk_id,
+            'chunk_text': chunk_text[:1000] if chunk_text else None
+        })
+        
+        self.session.commit()
+    
+    def _calculate_confidence(self, document_count: int, mention_count: int) -> float:
+        """
+        Calculate confidence score based on evidence.
+        
+        Formula:
+        - 40% from document diversity (full score at 3+ docs)
+        - 30% from mention frequency (full score at 5+ mentions)
+        - 30% base score
+        
+        Examples:
+        - 1 doc, 1 mention → 0.13 + 0.06 + 0.30 = 0.49 (49%)
+        - 2 docs, 3 mentions → 0.27 + 0.18 + 0.30 = 0.75 (75%)
+        - 3 docs, 5 mentions → 0.40 + 0.30 + 0.30 = 1.00 (100%)
+        """
+        doc_score = min(document_count / 3.0, 1.0) * 0.40
+        mention_score = min(mention_count / 5.0, 1.0) * 0.30
+        base_score = 0.30
+        
+        return round(doc_score + mention_score + base_score, 2)
+```
+
+================================================================================
+FILE 5: FLASK API ROUTES
+================================================================================
+
+Create: src/context_foundry/ontology_routes.py
+```python
+"""
+Ontology Foundry API Endpoints (Flask)
+
+Phase 1: Read-only endpoints for candidates
+"""
+
+from flask import Blueprint, request, jsonify, g
+from uuid import UUID
+
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from src.context_foundry.utils.logger import logger
+
+ontology_bp = Blueprint('ontology', __name__, url_prefix='/api/ontology')
+
+
+@ontology_bp.route('/candidates', methods=['GET'])
+def get_candidates():
+    """
+    Get ontology candidates for review.
+    Returns candidates sorted by confidence descending.
+    
+    Query params:
+    - type: Filter by RELATIONSHIP, ENTITY, or ATTRIBUTE
+    - min_confidence: Minimum confidence threshold (default 0.0)
+    """
+    candidate_type = request.args.get('type')
+    min_confidence = request.args.get('min_confidence', type=float, default=0.0)
+    
+    store = CandidateStore(g.db_session, g.tenant_id)
+    candidates = store.get_pending_candidates(
+        candidate_type=candidate_type,
+        min_confidence=min_confidence
+    )
+    
+    logger.info(f"[OntologyAPI] Retrieved {len(candidates)} candidates")
+    
+    return jsonify({
+        "candidates": candidates,
+        "count": len(candidates)
+    })
+
+
+@ontology_bp.route('/candidates/<candidate_id>', methods=['GET'])
+def get_candidate(candidate_id):
+    """
+    Get a single candidate with its pending extractions.
+    """
+    store = CandidateStore(g.db_session, g.tenant_id)
+    
+    try:
+        candidate = store.get_candidate_by_id(UUID(candidate_id))
+    except ValueError:
+        return jsonify({"error": "Invalid candidate ID"}), 400
+    
+    if not candidate:
+        return jsonify({"error": "Candidate not found"}), 404
+    
+    extractions = store.get_pending_extractions(UUID(candidate_id))
+    
+    return jsonify({
+        "candidate": candidate,
+        "pending_extractions": extractions,
+        "extraction_count": len(extractions)
+    })
+
+
+@ontology_bp.route('/stats', methods=['GET'])
+def get_stats():
+    """
+    Get candidate counts by type and status.
+    """
+    store = CandidateStore(g.db_session, g.tenant_id)
+    stats = store.get_stats()
+    
+    return jsonify({
+        "stats": stats,
+        "total_pending": sum(s.get("PENDING", 0) for s in stats.values())
+    })
+```
+
+Then register the blueprint in your main app (web_app.py):
+```python
+from src.context_foundry.ontology_routes import ontology_bp
+
+app.register_blueprint(ontology_bp)
+```
+
+================================================================================
+FILE 6: GRAPHBUILDER INTEGRATION
+================================================================================
+
+Find your GraphBuilder class (or wherever extraction happens) and add dual-path 
+routing. Unknown types go to candidates, known types go to the knowledge graph.
+```python
+from sqlalchemy import text
+from src.context_foundry.ontology.normalizer import CandidateNormalizer
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from src.context_foundry.utils.logger import logger
+
+
+class GraphBuilder:
+    """
+    Update your existing GraphBuilder to support dual-path extraction.
+    """
+    
+    def __init__(self, session, tenant_id):
+        self.session = session
+        self.tenant_id = tenant_id
+        self.normalizer = CandidateNormalizer()
+        self.candidate_store = CandidateStore(session, tenant_id)
+        
+        # Load known types dynamically (not hardcoded)
+        self.known_relationship_types = self._load_known_relationship_types()
+        self.known_entity_types = self._load_known_entity_types()
+    
+    def _load_known_relationship_types(self) -> set:
+        """Load approved relationship types from schema + approved candidates."""
+        # Query approved types from ontology_candidates
+        query = """
+            SELECT DISTINCT normalized_name 
+            FROM ontology_candidates 
+            WHERE tenant_id = :tenant_id 
+              AND candidate_type = 'RELATIONSHIP' 
+              AND status = 'APPROVED'
+        """
+        result = self.session.execute(text(query), {'tenant_id': str(self.tenant_id)})
+        approved = {row.normalized_name for row in result}
+        
+        # Base types that are always known
+        base_types = {
+            'WORKS_AT', 'HOLDS_POSITION', 'REPORTS_TO', 
+            'HAS_COMPENSATION', 'FOUNDED', 'LOCATED_IN',
+            'INVESTED_IN', 'OWNS', 'BOARD_MEMBER_OF',
+            'MANAGES', 'MEMBER_OF', 'PART_OF'
+        }
+        
+        return base_types | approved
+    
+    def _load_known_entity_types(self) -> set:
+        """Load approved entity types from schema + approved candidates."""
+        query = """
+            SELECT DISTINCT normalized_name 
+            FROM ontology_candidates 
+            WHERE tenant_id = :tenant_id 
+              AND candidate_type = 'ENTITY' 
+              AND status = 'APPROVED'
+        """
+        result = self.session.execute(text(query), {'tenant_id': str(self.tenant_id)})
+        approved = {row.normalized_name for row in result}
+        
+        base_types = {
+            'PERSON', 'ORGANIZATION', 'JOB_TITLE', 
+            'COMPENSATION', 'DEPARTMENT', 'PROJECT', 'METRIC',
+            'DOCUMENT', 'LOCATION', 'DATE'
+        }
+        
+        return base_types | approved
+    
+    def process_extracted_relationship(
+        self,
+        relationship_type: str,
+        source_entity_name: str,
+        source_entity_type: str,
+        target_entity_name: str,
+        target_entity_type: str,
+        properties: dict = None,
+        document_id: str = None,
+        chunk_id: str = None,
+        chunk_text: str = None
+    ) -> dict:
+        """
+        Process an extracted relationship.
+        
+        Known types → write to KG
+        Unknown types → write to candidates
+        """
+        properties = properties or {}
+        
+        # Normalize the type name
+        normalized_type = self.normalizer.normalize_relationship(relationship_type)
+        
+        if normalized_type in self.known_relationship_types:
+            # KNOWN TYPE: Write to knowledge graph as before
+            logger.debug(f"[GraphBuilder] Known type {normalized_type} → KG")
+            self._write_relationship_to_kg(
+                relationship_type=normalized_type,
+                source_entity_name=source_entity_name,
+                source_entity_type=source_entity_type,
+                target_entity_name=target_entity_name,
+                target_entity_type=target_entity_type,
+                properties=properties,
+                document_id=document_id
+            )
+            return {"action": "written_to_kg", "type": normalized_type}
+        
+        else:
+            # UNKNOWN TYPE: Store as candidate
+            logger.info(f"[GraphBuilder] Unknown type {relationship_type} → candidate as {normalized_type}")
+            candidate_id = self.candidate_store.add_relationship_candidate(
+                proposed_name=relationship_type,
+                normalized_name=normalized_type,
+                source_entity_type=source_entity_type,
+                target_entity_type=target_entity_type,
+                source_entity_name=source_entity_name,
+                target_entity_name=target_entity_name,
+                properties=properties,
+                original_text=chunk_text,
+                document_id=document_id,
+                chunk_id=chunk_id
+            )
+            
+            return {
+                "action": "stored_as_candidate", 
+                "type": normalized_type, 
+                "candidate_id": str(candidate_id)
+            }
+    
+    def _write_relationship_to_kg(
+        self,
+        relationship_type: str,
+        source_entity_name: str,
+        source_entity_type: str,
+        target_entity_name: str,
+        target_entity_type: str,
+        properties: dict,
+        document_id: str
+    ):
+        """
+        Write relationship to knowledge graph.
+        
+        KEEP YOUR EXISTING IMPLEMENTATION HERE.
+        This is just a placeholder showing the signature.
+        """
+        # Your existing code to write to entities/relationships tables
+        pass
+```
+
+IMPORTANT: Integrate this into your existing extraction flow. The key change is:
+- Before: All extracted relationships go to KG
+- After: Check if type is known → KG, else → candidates
+
+================================================================================
+SUCCESS CRITERIA
+================================================================================
+
+Phase 1 is complete when:
+
+☐ Database tables created (ontology_candidates, pending_extractions)
+☐ CandidateNormalizer maps synonyms correctly
+☐ CandidateStore adds and updates candidates
+☐ CandidateStore stores pending extractions
+☐ Confidence increases with more evidence
+☐ GraphBuilder routes unknown types to candidates
+☐ GraphBuilder writes known types to KG as before
+☐ API GET /api/ontology/candidates returns candidates sorted by confidence
+☐ API GET /api/ontology/candidates/{id} returns candidate with extractions
+☐ API GET /api/ontology/stats returns counts
+☐ All existing E2E tests still pass (no regression)
+
+================================================================================
+TEST SCENARIO
+================================================================================
+
+1. Upload a document with unknown relationship patterns like:
+   - "TechVentures acquired SecureNode for $50M"
+   - "Sarah Chen partnered with DataFlow"
+   
+2. Call GET /api/ontology/candidates
+
+3. Verify you see:
+   - ACQUIRED as a candidate (72% confidence with 1 doc, 1 mention)
+   - PARTNERED_WITH as a candidate
+   - Example mentions showing the original text
+   - Pending extractions with source/target entities
+
+4. Upload another document mentioning "acquired" 
+
+5. Call GET /api/ontology/candidates again
+
+6. Verify:
+   - ACQUIRED confidence increased (more docs/mentions)
+   - New extraction added to pending_extractions
+
+7. Run existing E2E test to ensure no regression:
+   python scripts/e2e_lifecycle_test.py
+
+================================================================================
+WHAT NOT TO BUILD YET
+================================================================================
+
+Save these for later phases:
+- POST /api/ontology/candidates/{id}/approve (Phase 2)
+- POST /api/ontology/candidates/{id}/reject (Phase 2)
+- Backfill logic (Phase 2)
+- UI (Phase 3)
+- Auto-approve (Phase 4)
+
+Focus ONLY on detection and storage for Phase 1.
+
+================================================================================
