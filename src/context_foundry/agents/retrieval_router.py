@@ -402,6 +402,9 @@ class QueryPipeline:
     Complete query pre-processing pipeline.
     
     Runs: Classification → Role Resolution → Intent Detection → Retrieval Routing
+    
+    Supports role→attribute chaining: "What is the CEO's salary?" becomes
+    "What is Sarah Chen's compensation?" when CEO resolves to Sarah Chen.
     """
     
     def __init__(self, session: Session, tenant_id: str):
@@ -416,14 +419,45 @@ class QueryPipeline:
         self.intent_detector = QueryIntentDetector(session, tenant_id)
         self.router = RetrievalRouter(session, tenant_id)
     
+    def _rewrite_query_with_person(
+        self,
+        original_query: str,
+        person_name: Optional[str],
+        attribute_type: Optional[str]
+    ) -> str:
+        """
+        Rewrite a role-based query to use the resolved person's name.
+        
+        "What is the CEO's salary?" → "What is Sarah Chen's compensation?"
+        "Who reports to the CFO?" → "Who reports to James O'Brien?"
+        """
+        attr_upper = (attribute_type or "").upper()
+        query_lower = original_query.lower()
+        
+        if attr_upper == "COMPENSATION" or "salary" in query_lower or "pay" in query_lower or "make" in query_lower:
+            return f"What is {person_name}'s compensation?"
+        
+        elif attr_upper == "REPORTS" or "report" in query_lower:
+            if "reports to" in query_lower or "report to" in query_lower:
+                return f"Who does {person_name} report to?"
+            else:
+                return f"Who reports to {person_name}?"
+        
+        elif attr_upper == "DEPARTMENT":
+            return f"What department is {person_name} in?"
+        
+        else:
+            return f"Tell me about {person_name}"
+    
     def process(self, query: str, vault_context: str = None) -> RetrievalResult:
         """
         Process a query through the full pipeline.
         
         1. Classify the query
-        2. Resolve any role references (using vault_context if no explicit entity)
-        3. Detect structured intent (relationship/attribute)
-        4. Route to optimal retrieval strategy
+        2. Detect intent early (for role→attribute chaining)
+        3. Resolve any role references (using vault_context if no explicit entity)
+        4. Chain attribute queries if role resolves to single person
+        5. Route to optimal retrieval strategy
         
         Args:
             query: User's query
@@ -436,12 +470,46 @@ class QueryPipeline:
         
         classification = self.classifier.classify(query)
         
+        intent = self.intent_detector.detect(query, resolved_entity=None)
+        
         role_resolution = None
         if classification.has_role_reference and classification.role_referenced:
             role_resolution = self.role_resolver.resolve_all(classification.role_referenced, vault_context=vault_context)
             
+            if (intent 
+                and intent.intent_type == "attribute" 
+                and role_resolution.is_resolved 
+                and not role_resolution.has_multiple_matches):
+                
+                person_name = role_resolution.resolved_name
+                rewritten_query = self._rewrite_query_with_person(
+                    query, person_name, intent.attribute_type
+                )
+                
+                logger.info(f"[PIPELINE] Chaining role→attribute: '{query}' → '{rewritten_query}'")
+                return self.process(rewritten_query, vault_context)
+            
             if role_resolution.has_multiple_matches:
-                logger.info(f"[PIPELINE] Multiple matches for role '{classification.role_referenced}': {len(role_resolution.all_matches)}")
+                if intent and intent.intent_type == "attribute" and vault_context:
+                    primary_match = role_resolution.all_matches[0] if role_resolution.all_matches else None
+                    if primary_match:
+                        orgs = primary_match.get("organizations", [])
+                        vault_lower = vault_context.lower() if vault_context else ""
+                        has_vault_match = any(
+                            org and vault_lower in org.lower() 
+                            for org in orgs
+                        )
+                        
+                        if has_vault_match:
+                            person_name = primary_match.get("name")
+                            if person_name:
+                                rewritten_query = self._rewrite_query_with_person(
+                                    query, person_name, intent.attribute_type
+                                )
+                                logger.info(f"[PIPELINE] Chaining role→attribute (vault match): '{query}' → '{rewritten_query}'")
+                                return self.process(rewritten_query, vault_context)
+                
+                logger.info(f"[PIPELINE] Multiple matches for role '{classification.role_referenced}': {len(role_resolution.all_matches)} - disambiguation required")
                 
                 ambiguity = AmbiguityResult(
                     ambiguity_type="role",
@@ -457,7 +525,7 @@ class QueryPipeline:
                     query=query,
                     classification=classification,
                     role_resolution=role_resolution,
-                    intent=None,
+                    intent=intent,
                     ambiguity=ambiguity
                 )
                 return result
