@@ -1,0 +1,107 @@
+CRITICAL: E2E TEST FAILURES DETECTED
+
+The E2E test has 6 complete failures (12%) and 4 partial failures (20% total issues).
+We need to diagnose whether this is a regression from Ontology Foundry or a pre-existing issue.
+
+================================================================================
+IMMEDIATE DIAGNOSTIC NEEDED
+================================================================================
+
+1. CHECK TECHVENTURES COMPENSATION DATA
+
+The compensation_memo.txt was uploaded but compensation queries fail.
+```sql
+-- Check if compensation entities were extracted
+SELECT name, entity_type, properties 
+FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures' LIMIT 1)
+  AND (name ILIKE '%sarah%' OR name ILIKE '%chen%' OR name ILIKE '%compensation%' OR name ILIKE '%salary%')
+LIMIT 20;
+
+-- Check if compensation relationships exist
+SELECT r.relationship_type, 
+       e1.name as source, 
+       e2.name as target,
+       r.properties
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures' LIMIT 1)
+  AND (r.relationship_type ILIKE '%compens%' OR r.relationship_type ILIKE '%salary%' 
+       OR r.properties::text ILIKE '%salary%' OR r.properties::text ILIKE '%compens%')
+LIMIT 20;
+
+-- Check chunks for compensation content
+SELECT c.id, c.content 
+FROM chunks c
+JOIN documents d ON c.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures' LIMIT 1)
+  AND c.content ILIKE '%compensation%'
+LIMIT 5;
+```
+
+2. CHECK IF CFO/CMO/COO/CTO ENTITIES EXIST
+```sql
+-- Check for C-level entities across all vaults
+SELECT v.name as vault, e.name, e.entity_type
+FROM entities e
+JOIN vaults v ON e.tenant_id = v.id
+WHERE e.name ILIKE '%CFO%' 
+   OR e.name ILIKE '%CMO%' 
+   OR e.name ILIKE '%COO%' 
+   OR e.name ILIKE '%CTO%'
+   OR e.entity_type ILIKE '%CFO%'
+   OR e.entity_type ILIKE '%CMO%'
+ORDER BY v.name;
+
+-- Check HOLDS_POSITION relationships
+SELECT v.name as vault, 
+       e1.name as person, 
+       r.relationship_type,
+       e2.name as position,
+       r.properties
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+JOIN vaults v ON r.tenant_id = v.id
+WHERE r.relationship_type = 'HOLDS_POSITION'
+  AND (e2.name ILIKE '%chief%' OR e2.name ILIKE '%officer%')
+ORDER BY v.name
+LIMIT 30;
+```
+
+3. CHECK ONTOLOGY CANDIDATES
+```sql
+-- Did Ontology Foundry capture any compensation-related types as candidates?
+SELECT normalized_name, confidence_score, document_count, mention_count, status
+FROM ontology_candidates
+WHERE normalized_name ILIKE '%compens%' 
+   OR normalized_name ILIKE '%salary%'
+   OR normalized_name ILIKE '%position%'
+   OR normalized_name ILIKE '%title%';
+
+-- What candidates were created during this E2E run?
+SELECT normalized_name, confidence_score, document_count, created_at
+FROM ontology_candidates
+WHERE created_at > NOW() - INTERVAL '2 hours'
+ORDER BY created_at DESC
+LIMIT 20;
+```
+
+4. COMPARE AGAINST BASELINE
+
+Do you have E2E results from BEFORE Ontology Foundry integration?
+If yes, compare:
+- Did TechVentures compensation queries work before?
+- Did CFO/CMO/COO/CTO queries work before?
+
+================================================================================
+REPORT BACK
+================================================================================
+
+1. SQL query results from above
+2. Any baseline E2E results from before Ontology Foundry
+3. Logs from the extraction for these specific documents
+
+We need to determine: IS THIS A REGRESSION OR PRE-EXISTING?
+================================================================================
