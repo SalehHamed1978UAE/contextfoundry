@@ -1,0 +1,745 @@
+ONTOLOGY FOUNDRY — COMPREHENSIVE TEST SUITE
+
+Run all tests to validate Phase 1 before moving to Phase 2.
+
+================================================================================
+TEST 1: REAL DOCUMENT INGESTION
+================================================================================
+
+Create and ingest a test document through the actual pipeline.
+```python
+# scripts/test_ontology_full_suite.py
+
+"""
+Comprehensive Ontology Foundry test suite.
+Tests all aspects of Phase 1 before Phase 2 approval workflow.
+"""
+
+import time
+from uuid import UUID, uuid4
+from datetime import datetime
+from src.context_foundry.models.schema import get_session
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from src.context_foundry.ontology.normalizer import CandidateNormalizer
+from src.context_foundry.staging.staging_loader import StagingLoader
+from sqlalchemy import text
+
+# Test tenant - get from database
+def get_test_tenant():
+    session = get_session()
+    result = session.execute(text("""
+        SELECT id, name FROM platform.tenants LIMIT 1
+    """)).fetchone()
+    if not result:
+        # Try vaults table if tenants doesn't exist
+        result = session.execute(text("""
+            SELECT id, name FROM vaults LIMIT 1
+        """)).fetchone()
+    if not result:
+        raise Exception("No tenant/vault found for testing")
+    return UUID(str(result.id)), result.name
+
+TENANT_ID, TENANT_NAME = None, None
+
+def setup():
+    global TENANT_ID, TENANT_NAME
+    TENANT_ID, TENANT_NAME = get_test_tenant()
+    print(f"Using tenant: {TENANT_NAME} ({TENANT_ID})")
+    print("=" * 70)
+
+# ============================================================================
+# TEST 1: Real Document Ingestion Simulation
+# ============================================================================
+
+def test_1_real_document_ingestion():
+    """Simulate ingesting a real document with unknown relationship patterns."""
+    print("\n" + "=" * 70)
+    print("TEST 1: REAL DOCUMENT INGESTION")
+    print("=" * 70)
+    
+    session = get_session()
+    loader = StagingLoader(session)
+    store = CandidateStore(session, TENANT_ID)
+    
+    # Simulate a document with multiple relationship patterns
+    document_id = uuid4()
+    chunk_id = uuid4()
+    
+    relationships = [
+        {
+            'source_entity': 'TechVentures',
+            'source_type': 'ORGANIZATION',
+            'target_entity': 'SecureNode',
+            'target_type': 'ORGANIZATION',
+            'relationship_type': 'ACQUIRED',
+            'properties': {'amount': '$50M', 'date': '2025-12'},
+            'chunk_text': 'TechVentures acquired SecureNode for $50M in December 2025.'
+        },
+        {
+            'source_entity': 'Sarah Chen',
+            'source_type': 'PERSON',
+            'target_entity': 'CloudMatrix',
+            'target_type': 'ORGANIZATION',
+            'relationship_type': 'PARTNERED_WITH',
+            'properties': {},
+            'chunk_text': 'Sarah Chen partnered with CloudMatrix to develop joint solutions.'
+        },
+        {
+            'source_entity': 'James OBrien',
+            'source_type': 'PERSON',
+            'target_entity': 'NeuralBox',
+            'target_type': 'ORGANIZATION',
+            'relationship_type': 'ADVISES',
+            'properties': {'role': 'financial strategy'},
+            'chunk_text': 'James O\'Brien advises NeuralBox on financial strategy.'
+        },
+        {
+            'source_entity': 'Dr Patricia Vance',
+            'source_type': 'PERSON',
+            'target_entity': 'Andrew Chang',
+            'target_type': 'PERSON',
+            'relationship_type': 'MENTORS',
+            'properties': {'since': '2024'},
+            'chunk_text': 'Dr. Patricia Vance has been mentoring Andrew Chang since 2024.'
+        },
+        {
+            'source_entity': 'TechVentures',
+            'source_type': 'ORGANIZATION',
+            'target_entity': 'StartupX',
+            'target_type': 'ORGANIZATION',
+            'relationship_type': 'SPONSORS',
+            'properties': {},
+            'chunk_text': 'TechVentures sponsors StartupX through their accelerator program.'
+        },
+    ]
+    
+    results = {'kg': 0, 'candidate': 0, 'errors': []}
+    
+    for rel in relationships:
+        rel['document_id'] = document_id
+        rel['chunk_id'] = chunk_id
+        
+        try:
+            # Adapt this to your actual StagingLoader API
+            result = loader.load_relation(tenant_id=TENANT_ID, relation_data=rel)
+            action = result.get('action', 'unknown')
+            
+            if action == 'written_to_kg':
+                results['kg'] += 1
+                print(f"  ✓ KG: {rel['source_entity']} --[{rel['relationship_type']}]--> {rel['target_entity']}")
+            elif action == 'candidate':
+                results['candidate'] += 1
+                print(f"  → CANDIDATE: {rel['source_entity']} --[{rel['relationship_type']}]--> {rel['target_entity']}")
+            else:
+                print(f"  ? {action}: {rel['relationship_type']}")
+                
+        except Exception as e:
+            results['errors'].append(str(e))
+            print(f"  ✗ ERROR: {rel['relationship_type']} - {e}")
+    
+    print(f"\n  Summary:")
+    print(f"    Written to KG: {results['kg']}")
+    print(f"    Stored as candidates: {results['candidate']}")
+    print(f"    Errors: {len(results['errors'])}")
+    
+    # Verify candidates were created
+    candidates = store.get_pending_candidates()
+    expected_candidates = ['ACQUIRED', 'PARTNERED_WITH', 'ADVISES', 'MENTORS', 'SPONSORS']
+    found = [c['normalized_name'] for c in candidates]
+    
+    print(f"\n  Candidates in database:")
+    for name in expected_candidates:
+        status = "✓" if name in found else "✗"
+        print(f"    {status} {name}")
+    
+    return results['candidate'] >= 3  # At least 3 candidates expected
+
+# ============================================================================
+# TEST 2: Multiple Mentions - Confidence Increase
+# ============================================================================
+
+def test_2_confidence_increase():
+    """Test that confidence increases with more mentions across documents."""
+    print("\n" + "=" * 70)
+    print("TEST 2: CONFIDENCE INCREASE WITH MULTIPLE MENTIONS")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    test_type = f"CONFIDENCE_TEST_{uuid4().hex[:8].upper()}"
+    
+    confidence_history = []
+    
+    # Add mentions from different documents
+    for i in range(5):
+        doc_id = uuid4()
+        store.add_relationship_candidate(
+            proposed_name=test_type,
+            normalized_name=test_type,
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name=f"Company{chr(65+i)}",
+            target_entity_name=f"Company{chr(66+i)}",
+            properties={},
+            original_text=f"Company{chr(65+i)} {test_type.lower()} Company{chr(66+i)}",
+            document_id=doc_id
+        )
+        
+        # Get current confidence
+        candidates = store.get_pending_candidates()
+        candidate = next((c for c in candidates if c['normalized_name'] == test_type), None)
+        
+        if candidate:
+            confidence_history.append({
+                'docs': candidate['document_count'],
+                'mentions': candidate['mention_count'],
+                'confidence': candidate['confidence_score']
+            })
+            print(f"  After {i+1} docs: confidence = {candidate['confidence_score']:.2f} "
+                  f"({candidate['document_count']} docs, {candidate['mention_count']} mentions)")
+    
+    # Verify confidence increased
+    if len(confidence_history) >= 2:
+        first = confidence_history[0]['confidence']
+        last = confidence_history[-1]['confidence']
+        increased = last > first
+        print(f"\n  Confidence increased: {first:.2f} → {last:.2f} {'✓' if increased else '✗'}")
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (
+            SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}'
+        )
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    print("  Cleaned up test data")
+    
+    return len(confidence_history) >= 3 and confidence_history[-1]['confidence'] > confidence_history[0]['confidence']
+
+# ============================================================================
+# TEST 3: Normalizer Coverage
+# ============================================================================
+
+def test_3_normalizer_coverage():
+    """Test that synonyms normalize correctly."""
+    print("\n" + "=" * 70)
+    print("TEST 3: NORMALIZER SYNONYM COVERAGE")
+    print("=" * 70)
+    
+    normalizer = CandidateNormalizer()
+    
+    test_cases = [
+        # Investment patterns
+        ("INVESTS_IN", "INVESTED_IN"),
+        ("MADE_INVESTMENT_IN", "INVESTED_IN"),
+        ("FUNDED", "INVESTED_IN"),
+        ("BACKS", "INVESTED_IN"),
+        ("LED_ROUND_IN", "INVESTED_IN"),
+        
+        # Acquisition patterns
+        ("BOUGHT", "ACQUIRED"),
+        ("PURCHASED", "ACQUIRED"),
+        ("TOOK_OVER", "ACQUIRED"),
+        
+        # Employment patterns
+        ("EMPLOYED_BY", "WORKS_AT"),
+        ("EMPLOYEE_OF", "WORKS_AT"),
+        ("WORKS_FOR", "WORKS_AT"),
+        ("JOINED", "WORKS_AT"),
+        
+        # Ownership patterns
+        ("OWNED_BY", "OWNS"),
+        ("SUBSIDIARY_OF", "OWNS"),
+        ("PARENT_OF", "OWNS"),
+        ("CONTROLS", "OWNS"),
+        
+        # Leadership patterns
+        ("LEADS", "HOLDS_POSITION"),
+        ("MANAGES", "HOLDS_POSITION"),
+        ("HEADS", "HOLDS_POSITION"),
+        ("IS_CEO_OF", "HOLDS_POSITION"),
+        
+        # Board patterns
+        ("ON_BOARD_OF", "BOARD_MEMBER_OF"),
+        ("BOARD_DIRECTOR_OF", "BOARD_MEMBER_OF"),
+        ("SITS_ON_BOARD", "BOARD_MEMBER_OF"),
+        
+        # Partnership patterns
+        ("PARTNERS_WITH", "PARTNERED_WITH"),
+        ("COLLABORATES_WITH", "PARTNERED_WITH"),
+        ("ALLIED_WITH", "PARTNERED_WITH"),
+        
+        # Unknown (should pass through unchanged)
+        ("COMPLETELY_NOVEL_TYPE", "COMPLETELY_NOVEL_TYPE"),
+        ("MENTORS", "MENTORS"),
+        ("ADVISES", "ADVISES"),
+    ]
+    
+    passed = 0
+    failed = 0
+    
+    for input_name, expected in test_cases:
+        result = normalizer.normalize_relationship(input_name)
+        if result == expected:
+            passed += 1
+            print(f"  ✓ {input_name} → {result}")
+        else:
+            failed += 1
+            print(f"  ✗ {input_name} → {result} (expected {expected})")
+    
+    print(f"\n  Passed: {passed}/{len(test_cases)}")
+    
+    # Also test case insensitivity and cleaning
+    print("\n  Testing case insensitivity and cleaning:")
+    edge_cases = [
+        ("invests_in", "INVESTED_IN"),
+        ("Invests-In", "INVESTED_IN"),
+        ("  INVESTS  IN  ", "INVESTS_IN"),  # Should clean but may not map
+    ]
+    
+    for input_name, expected in edge_cases:
+        result = normalizer.normalize_relationship(input_name)
+        status = "✓" if result == expected else "~"
+        print(f"  {status} '{input_name}' → '{result}'")
+    
+    return failed == 0
+
+# ============================================================================
+# TEST 4: Edge Cases
+# ============================================================================
+
+def test_4_edge_cases():
+    """Test edge cases: tenant-less runs, malformed data, duplicates."""
+    print("\n" + "=" * 70)
+    print("TEST 4: EDGE CASES")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    all_passed = True
+    
+    # Test 4a: Duplicate handling
+    print("\n  4a. Duplicate handling (same type, multiple times):")
+    test_type = f"DUPLICATE_TEST_{uuid4().hex[:8].upper()}"
+    
+    # Add same type 3 times
+    for i in range(3):
+        store.add_relationship_candidate(
+            proposed_name=test_type,
+            normalized_name=test_type,
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name=f"Org{i}",
+            target_entity_name=f"Target{i}",
+            original_text=f"Org{i} {test_type} Target{i}",
+            document_id=uuid4()
+        )
+    
+    candidates = store.get_pending_candidates()
+    matching = [c for c in candidates if c['normalized_name'] == test_type]
+    
+    if len(matching) == 1 and matching[0]['mention_count'] == 3:
+        print(f"    ✓ Single candidate with 3 mentions (not 3 separate candidates)")
+    else:
+        print(f"    ✗ Expected 1 candidate with 3 mentions, got {len(matching)} candidates")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    
+    # Test 4b: Empty/null handling
+    print("\n  4b. Empty/null handling:")
+    try:
+        store.add_relationship_candidate(
+            proposed_name="",
+            normalized_name="EMPTY_TEST",
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name="Test",
+            target_entity_name="Test2",
+            original_text=None,
+            document_id=uuid4()
+        )
+        print("    ✓ Handled empty proposed_name")
+    except Exception as e:
+        print(f"    ✗ Failed on empty proposed_name: {e}")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text("DELETE FROM ontology_candidates WHERE normalized_name = 'EMPTY_TEST'"))
+    session.commit()
+    
+    # Test 4c: Very long text
+    print("\n  4c. Very long text handling:")
+    long_text = "A" * 10000
+    try:
+        store.add_relationship_candidate(
+            proposed_name="LONG_TEXT_TEST",
+            normalized_name="LONG_TEXT_TEST",
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name="Test",
+            target_entity_name="Test2",
+            original_text=long_text,
+            document_id=uuid4()
+        )
+        
+        candidates = store.get_pending_candidates()
+        candidate = next((c for c in candidates if c['normalized_name'] == 'LONG_TEXT_TEST'), None)
+        if candidate and len(candidate['example_mentions'][0]['text']) <= 500:
+            print(f"    ✓ Long text truncated to {len(candidate['example_mentions'][0]['text'])} chars")
+        else:
+            print(f"    ✗ Text not truncated properly")
+            all_passed = False
+    except Exception as e:
+        print(f"    ✗ Failed on long text: {e}")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text("DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = 'LONG_TEXT_TEST')"))
+    session.execute(text("DELETE FROM ontology_candidates WHERE normalized_name = 'LONG_TEXT_TEST'"))
+    session.commit()
+    
+    # Test 4d: Special characters in names
+    print("\n  4d. Special characters handling:")
+    special_chars_type = "TEST_WITH_SPECIAL_CHARS_αβγ"
+    try:
+        normalized = CandidateNormalizer().normalize_relationship(special_chars_type)
+        print(f"    ✓ '{special_chars_type}' → '{normalized}'")
+    except Exception as e:
+        print(f"    ✗ Failed: {e}")
+        all_passed = False
+    
+    return all_passed
+
+# ============================================================================
+# TEST 5: Full Pipeline Trace
+# ============================================================================
+
+def test_5_pipeline_trace():
+    """Trace the full flow with detailed logging."""
+    print("\n" + "=" * 70)
+    print("TEST 5: FULL PIPELINE TRACE")
+    print("=" * 70)
+    
+    session = get_session()
+    loader = StagingLoader(session)
+    store = CandidateStore(session, TENANT_ID)
+    
+    test_type = f"PIPELINE_TRACE_{uuid4().hex[:8].upper()}"
+    document_id = uuid4()
+    chunk_id = uuid4()
+    
+    print(f"\n  Test relationship type: {test_type}")
+    print(f"  Document ID: {document_id}")
+    
+    # Step 1: Check known types
+    known_types = loader._get_known_relationship_types()
+    is_known = test_type in known_types
+    print(f"\n  Step 1: Check known types")
+    print(f"    Known types count: {len(known_types)}")
+    print(f"    Is '{test_type}' known? {is_known}")
+    
+    # Step 2: Normalize
+    normalizer = CandidateNormalizer()
+    normalized = normalizer.normalize_relationship(test_type)
+    print(f"\n  Step 2: Normalize")
+    print(f"    '{test_type}' → '{normalized}'")
+    
+    # Step 3: Route decision
+    print(f"\n  Step 3: Route decision")
+    if is_known:
+        print(f"    → Would write to KG")
+    else:
+        print(f"    → Would store as candidate")
+    
+    # Step 4: Execute
+    print(f"\n  Step 4: Execute")
+    relation_data = {
+        'source_entity': 'TraceCompanyA',
+        'source_type': 'ORGANIZATION',
+        'target_entity': 'TraceCompanyB',
+        'target_type': 'ORGANIZATION',
+        'relationship_type': test_type,
+        'properties': {'trace': 'test'},
+        'document_id': document_id,
+        'chunk_id': chunk_id,
+        'chunk_text': f'TraceCompanyA {test_type.lower()} TraceCompanyB for testing.'
+    }
+    
+    try:
+        result = loader.load_relation(tenant_id=TENANT_ID, relation_data=relation_data)
+        print(f"    Result: {result}")
+    except Exception as e:
+        print(f"    Error: {e}")
+        return False
+    
+    # Step 5: Verify storage
+    print(f"\n  Step 5: Verify storage")
+    candidates = store.get_pending_candidates()
+    candidate = next((c for c in candidates if c['normalized_name'] == normalized), None)
+    
+    if candidate:
+        print(f"    ✓ Candidate found:")
+        print(f"      ID: {candidate['id']}")
+        print(f"      Confidence: {candidate['confidence_score']:.2f}")
+        print(f"      Documents: {candidate['document_count']}")
+        
+        # Check pending extractions
+        extractions = store.get_pending_extractions(UUID(candidate['id']))
+        print(f"      Pending extractions: {len(extractions)}")
+        if extractions:
+            print(f"      First extraction: {extractions[0]['source_entity_name']} → {extractions[0]['target_entity_name']}")
+    else:
+        print(f"    ✗ Candidate not found")
+        return False
+    
+    # Cleanup
+    print(f"\n  Step 6: Cleanup")
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{normalized}')
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{normalized}'"))
+    session.commit()
+    print(f"    ✓ Test data cleaned up")
+    
+    return True
+
+# ============================================================================
+# TEST 6: API Endpoint Verification
+# ============================================================================
+
+def test_6_api_endpoints():
+    """Verify API endpoints return correct data structure."""
+    print("\n" + "=" * 70)
+    print("TEST 6: API ENDPOINT DATA STRUCTURES")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    # Create test candidate
+    test_type = f"API_TEST_{uuid4().hex[:8].upper()}"
+    candidate_id = store.add_relationship_candidate(
+        proposed_name=test_type,
+        normalized_name=test_type,
+        source_entity_type="ORGANIZATION",
+        target_entity_type="ORGANIZATION",
+        source_entity_name="APITestOrg",
+        target_entity_name="APITestTarget",
+        properties={"test": True},
+        original_text="APITestOrg api_test APITestTarget",
+        document_id=uuid4()
+    )
+    
+    all_passed = True
+    
+    # Test get_pending_candidates response structure
+    print("\n  6a. get_pending_candidates() structure:")
+    candidates = store.get_pending_candidates()
+    if candidates:
+        c = candidates[0]
+        required_fields = ['id', 'candidate_type', 'proposed_name', 'normalized_name',
+                          'confidence_score', 'document_count', 'mention_count', 
+                          'example_mentions', 'status']
+        missing = [f for f in required_fields if f not in c]
+        if missing:
+            print(f"    ✗ Missing fields: {missing}")
+            all_passed = False
+        else:
+            print(f"    ✓ All required fields present")
+            print(f"    Fields: {list(c.keys())}")
+    
+    # Test get_candidate_by_id response structure
+    print("\n  6b. get_candidate_by_id() structure:")
+    candidate = store.get_candidate_by_id(candidate_id)
+    if candidate:
+        print(f"    ✓ Candidate retrieved: {candidate['normalized_name']}")
+    else:
+        print(f"    ✗ Failed to retrieve candidate by ID")
+        all_passed = False
+    
+    # Test get_pending_extractions response structure
+    print("\n  6c. get_pending_extractions() structure:")
+    extractions = store.get_pending_extractions(candidate_id)
+    if extractions:
+        e = extractions[0]
+        required_fields = ['id', 'candidate_id', 'source_entity_name', 'target_entity_name',
+                          'relationship_type', 'status']
+        missing = [f for f in required_fields if f not in e]
+        if missing:
+            print(f"    ✗ Missing fields: {missing}")
+            all_passed = False
+        else:
+            print(f"    ✓ All required fields present")
+    else:
+        print(f"    ✗ No extractions found")
+        all_passed = False
+    
+    # Test get_stats response structure
+    print("\n  6d. get_stats() structure:")
+    stats = store.get_stats()
+    if 'RELATIONSHIP' in stats and 'ENTITY' in stats:
+        print(f"    ✓ Stats structure correct")
+        print(f"    Stats: {stats}")
+    else:
+        print(f"    ✗ Invalid stats structure")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    print("\n  Cleaned up test data")
+    
+    return all_passed
+
+# ============================================================================
+# MAIN
+# ============================================================================
+
+def main():
+    print("\n" + "=" * 70)
+    print("ONTOLOGY FOUNDRY — COMPREHENSIVE TEST SUITE")
+    print(f"Started: {datetime.now().isoformat()}")
+    print("=" * 70)
+    
+    setup()
+    
+    results = {}
+    
+    try:
+        results['test_1_real_document'] = test_1_real_document_ingestion()
+    except Exception as e:
+        print(f"  ✗ FAILED: {e}")
+        results['test_1_real_document'] = False
+    
+    try:
+        results['test_2_confidence'] = test_2_confidence_increase()
+    except Exception as e:
+        print(f"  ✗ FAILED: {e}")
+        results['test_2_confidence'] = False
+    
+    try:
+        results['test_3_normalizer'] = test_3_normalizer_coverage()
+    except Exception as e:
+        print(f"  ✗ FAILED: {e}")
+        results['test_3_normalizer'] = False
+    
+    try:
+        results['test_4_edge_cases'] = test_4_edge_cases()
+    except Exception as e:
+        print(f"  ✗ FAILED: {e}")
+        results['test_4_edge_cases'] = False
+    
+    try:
+        results['test_5_pipeline'] = test_5_pipeline_trace()
+    except Exception as e:
+        print(f"  ✗ FAILED: {e}")
+        results['test_5_pipeline'] = False
+    
+    try:
+        results['test_6_api'] = test_6_api_endpoints()
+    except Exception as e:
+        print(f"  ✗ FAILED: {e}")
+        results['test_6_api'] = False
+    
+    # Summary
+    print("\n" + "=" * 70)
+    print("SUMMARY")
+    print("=" * 70)
+    
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
+    
+    for test_name, passed_test in results.items():
+        status = "✓ PASSED" if passed_test else "✗ FAILED"
+        print(f"  {status}: {test_name}")
+    
+    print(f"\n  Total: {passed}/{total} tests passed")
+    
+    if passed == total:
+        print("\n  ✅ ALL TESTS PASSED — Ready for Phase 2")
+    else:
+        print("\n  ⚠️  Some tests failed — Review before Phase 2")
+    
+    print("=" * 70)
+
+if __name__ == "__main__":
+    main()
+```
+
+Run:
+```bash
+python scripts/test_ontology_full_suite.py
+```
+
+================================================================================
+EXPECTED OUTPUT
+================================================================================
+
+TEST 1: REAL DOCUMENT INGESTION
+  → CANDIDATE: TechVentures --[ACQUIRED]--> SecureNode
+  → CANDIDATE: Sarah Chen --[PARTNERED_WITH]--> CloudMatrix
+  → CANDIDATE: James OBrien --[ADVISES]--> NeuralBox
+  ...
+
+TEST 2: CONFIDENCE INCREASE WITH MULTIPLE MENTIONS
+  After 1 docs: confidence = 0.49
+  After 2 docs: confidence = 0.57
+  After 3 docs: confidence = 0.75
+  ...
+
+TEST 3: NORMALIZER SYNONYM COVERAGE
+  ✓ INVESTS_IN → INVESTED_IN
+  ✓ BOUGHT → ACQUIRED
+  ...
+
+TEST 4: EDGE CASES
+  ✓ Single candidate with 3 mentions
+  ✓ Handled empty proposed_name
+  ✓ Long text truncated to 500 chars
+  ...
+
+TEST 5: FULL PIPELINE TRACE
+  Step 1: Check known types (212 types)
+  Step 2: Normalize
+  Step 3: Route decision → Would store as candidate
+  Step 4: Execute → Result: {'action': 'candidate', ...}
+  Step 5: Verify storage ✓
+  ...
+
+TEST 6: API ENDPOINT DATA STRUCTURES
+  ✓ All required fields present
+  ...
+
+SUMMARY
+  ✓ PASSED: test_1_real_document
+  ✓ PASSED: test_2_confidence
+  ✓ PASSED: test_3_normalizer
+  ✓ PASSED: test_4_edge_cases
+  ✓ PASSED: test_5_pipeline
+  ✓ PASSED: test_6_api
+
+  Total: 6/6 tests passed
+  ✅ ALL TESTS PASSED — Ready for Phase 2
+
+================================================================================
+REPORT BACK
+================================================================================
+
+Send the full output. If any tests fail, we'll fix before Phase 2.
+================================================================================
