@@ -84,12 +84,12 @@ outputType = "console"
 name = "E2E Lifecycle Test"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python scripts/e2e_lifecycle_test.py --fresh 2>&1 | tee /tmp/e2e_results.log"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python scripts/e2e_lifecycle_test.py 2>&1 | tee /tmp/e2e_run.log"
 
 [[ports]]
 localPort = 3000
