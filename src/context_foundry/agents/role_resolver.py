@@ -113,9 +113,10 @@ class RoleResolver:
         'cfo': ['chief financial officer', 'cfo', 'chief finance'],
         'coo': ['chief operating officer', 'coo', 'chief ops'],
         'cdo': ['chief data officer', 'cdo'],
-        'cmo': ['chief marketing officer', 'cmo'],
+        'cmo': ['chief marketing officer', 'chief medical officer', 'cmo'],
         'cio': ['chief information officer', 'cio'],
         'ciso': ['chief information security officer', 'ciso'],
+        'cno': ['chief nursing officer', 'cno'],
         'vp': ['vice president', 'vp'],
         'svp': ['senior vice president', 'svp'],
         'evp': ['executive vice president', 'evp'],
@@ -124,6 +125,11 @@ class RoleResolver:
         'controller': ['controller'],
         'treasurer': ['treasurer'],
         'director': ['director'],
+    }
+    
+    HEALTHCARE_ROLE_ALIASES = {
+        'cmo': 'chief medical officer',
+        'cno': 'chief nursing officer',
     }
     
     def __init__(self, session: Session, tenant_id: str):
