@@ -3,3 +3,191 @@ E2E LIFECYCLE TEST RESULTS
 ================================================================================
 Run Date: 2026-01-12 15:11:43
 ================================================================================
+
+================================================================================
+VAULT: TechVentures
+================================================================================
+Documents Uploaded: 4
+  - 01_leadership_memo.txt
+  - 02_portfolio_summary.txt
+  - 03_org_chart.txt
+  - 04_compensation_memo.txt
+
+Extraction Results:
+  - Chunks: 12
+  - Entities: 178
+  - Relationships: 111
+
+--------------------------------------------------------------------------------
+QUERY 1/10: Who is the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO of TechVentures is Sarah Chen.
+
+Note: Your documents also mention other CEOs:
+- Dr. Patricia Vance (CEO)
+- Ahmed Malik (CEO of SecureNode)
+- Robert Kim (CEO)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/10: What is the CEO's salary?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO's salary, as stated in the retrieved information, is a base salary of **$850,000**. Additionally, Sarah Chen, the Chief Executive Officer, has a target bonus of **$1,200,000**, bringing her total target compensation (excluding equity) to **$2,050,000**.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/10: Who is the CTO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CTO of TechVentures is Marcus Williams.
+
+Note: Your documents also mention other CTOs:
+- Michael Torres (CTO)
+- Jennifer Walsh (CTO)
+- Priya Sharma (CTO of SecureNode)
+- Elizabeth Warren (Independent Director of Compensation Committee)
+- Robert Chen (Independent Director of Compensation Committee)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/10: Who is the CTO of TechVentures?
+--------------------------------------------------------------------------------
+ANSWER:
+The CTO of TechVentures is Marcus Williams.
+
+Note: Your documents also mention other CTOs:
+- Michael Torres (CTO)
+- Jennifer Walsh (CTO)
+- Priya Sharma (CTO of SecureNode)
+- Elizabeth Warren (Independent Director of Compensation Committee)
+- Robert Chen (Independent Director of Compensation Committee)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/10: What is Sarah Chen's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+Sarah Chen's compensation for 2026 is as follows:
+
+- **Base Salary**: $850,000
+- **Target Bonus**: $1,200,000 (which is 141% of her base salary)
+- **Equity Grant**: 500,000 options vesting over 4 years
+- **Total Target Compensation**: $2,050,000 (excluding equity)
+- **Benefits**: Standard executive package plus a $50,000 annual travel allowance
+- **Change from 2025**: There is an 8% increase in her base salary, while the bonus target remains unchanged.
+
+This information provides a comprehensive overview of her compensation package for the year 2026.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/10: Who reports to the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+Based on the retrieved information, the following individual reports to the CEO, Sarah Chen:
+
+1. Marcus Williams
+
+This is the only specific relationship mentioned in the provided information. There may be other individuals who report to the CEO, but they are not included in the retrieved data.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/10: What portfolio companies does TechVentures have?
+--------------------------------------------------------------------------------
+ANSWER:
+Based on the retrieved information, TechVentures has invested in the following portfolio company:
+
+1. CloudMatrix
+
+This is the only specific portfolio company mentioned in the provided information. If there are additional companies in TechVentures' portfolio, that information is not included in the retrieved data.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/10: Tell me about CloudMatrix
+--------------------------------------------------------------------------------
+ANSWER:
+CloudMatrix is a portfolio company under TechVentures, specializing in enterprise infrastructure automation software designed to assist large organizations. It was founded by Robert Kim and is currently led by CEO Sarah Chen, who has been with the company since its inception in 2018. 
+
+As of the latest quarterly report for Q4 2025, CloudMatrix has achieved a low risk assessment and has metrics that include Annual Recurring Revenue, Revenue Growth, Customer Count, Employee Count, Burn Rate, and Runway. Notably, the company has signed an annual contract, indicating progress in its business development.
+
+The company is preparing for a Series C funding round, targeting Q3 2026, and is expected to secure its first commercial contract in Q2 2026. 
+
+While specific financial metrics such as Annual Recurring Revenue and other performance indicators are not detailed in the retrieved information, the company is positioned for growth and development in the enterprise software market.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/10: Tell me about HealthSync
+--------------------------------------------------------------------------------
+ANSWER:
+HealthSync is a portfolio company that specializes in developing interoperability software designed to connect hospital electronic health record (EHR) systems. The company was founded in 2020 by former engineers from Epic Systems. 
+
+### Key Details:
+- **Investment**: HealthSync received a $30 million investment during its Series A funding round in August 2023, which resulted in a 28% ownership stake for the investors. James O'Brien, the CFO of TechVentures, holds a board seat at HealthSync.
+- **Leadership**: The company is led by Dr. Patricia Vance as CEO, with Michael Torres as CTO and Amanda Richardson as COO.
+- **Current Metrics**:
+  - **Annual Recurring Revenue**: Currently in the pre-revenue stage as it is in the pilot phase.
+  - **Hospital Partnerships**: HealthSync has established 50 active pilot partnerships with hospitals.
+  - **Employee Count**: The company has a total of 34 employees.
+  - **Burn Rate and Runway**: Specific figures for burn rate and runway are not provided in the retrieved information.
+- **Development Achievements**: HealthSync has achieved FDA 510(k) clearance and has expanded its pilot program.
+- **Risk Assessment**: The company has been assessed with a medium level of risk.
+
+### Future Outlook:
+HealthSync is expected to secure its first commercial contract by Q2 2026, which could mark a significant milestone in its growth trajectory.
+
+Overall, while HealthSync is still in its early stages, it has made notable progress in establishing partnerships and achieving regulatory clearance, positioning itself for future growth in the healthcare technology sector.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 10/10: Tell me about SecureNode
+--------------------------------------------------------------------------------
+ANSWER:
+SecureNode is a portfolio company that specializes in zero-trust network security for distributed enterprise environments. It was founded in 2024 by former Google security engineers, Ahmed Malik and Priya Sharma, who serve as the CEO and CTO, respectively. 
+
+### Investment Details:
+- **Investment Amount**: $20 million (Seed)
+- **Investment Date**: February 2025
+- **Ownership Stake**: 35%
+- **Board Seat**: Marcus Williams (CTO of TechVentures)
+
+### Current Metrics:
+- **Annual Recurring Revenue**: $180,000 (early stage)
+- **Enterprise Pilots**: 5 active pilots
+- **Employee Count**: 18
+- **Burn Rate**: $280,000 per month
+
+### Achievements:
+SecureNode has made significant progress, including:
+- Achieving a pilot agreement.
+- Developing an enterprise dashboard version 2.0.
+
+### Risk Assessment:
+The company has been assessed with a **high risk** rating.
+
+### Future Milestones:
+SecureNode is targeting a Series C funding round in Q3 2026.
+
+Overall, SecureNode is positioned in a growing sector of cybersecurity, focusing on innovative solutions for enterprise environments, and is currently in the early stages of revenue generation with a focus on expanding its pilot programs.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
