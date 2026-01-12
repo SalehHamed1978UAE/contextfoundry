@@ -99,6 +99,7 @@ class ExtractionWorker:
                 file_name=request['file_name'],
                 mime_type=request['mime_type'],
                 tenant_id=request['tenant_id'],
+                document_id=str(request['document_id']),
                 ontology_hints=request.get('ontology_hints'),
                 extraction_mode=request.get('extraction_mode', 'full')
             )
@@ -172,6 +173,7 @@ class ExtractionWorker:
         file_name: str,
         mime_type: str,
         tenant_id: str,
+        document_id: str,
         ontology_hints: Optional[list] = None,
         extraction_mode: str = "full"
     ) -> Dict[str, Any]:
@@ -181,32 +183,39 @@ class ExtractionWorker:
         This is where we call the existing extraction logic.
         Returns structured result with token counts.
         """
-        from ..core import ContextFoundry
-        
-        foundry = ContextFoundry(tenant_id=tenant_id)
-        
-        input_tokens = 0
-        output_tokens = 0
-        entities_count = 0
-        relationships_count = 0
+        from ..extraction.ontology_centric_pipeline import run_ontology_centric_extraction
+        from ..models.schema import get_session
         
         try:
-            result = foundry.ingest_document(
-                filepath=file_path,
-                filename=file_name,
-                tenant_id=tenant_id
+            with open(file_path, 'r', encoding='utf-8') as f:
+                text_content = f.read()
+        except UnicodeDecodeError:
+            with open(file_path, 'rb') as f:
+                text_content = f.read().decode('utf-8', errors='replace')
+        
+        session = get_session(use_rls_role=False)
+        
+        try:
+            from sqlalchemy import text
+            session.execute(text(f"SET app.tenant_id = '{tenant_id}'"))
+            
+            result = run_ontology_centric_extraction(
+                session=session,
+                tenant_id=tenant_id,
+                text=text_content,
+                document_id=document_id,
+                filename=file_name
             )
             
-            if hasattr(result, 'token_count'):
-                total = result.token_count
-                input_tokens = int(total * 0.6)
-                output_tokens = total - input_tokens
-            else:
-                input_tokens = 1000
-                output_tokens = 500
+            session.commit()
             
-            entities_count = result.get('entities_created', 0) if isinstance(result, dict) else 10
-            relationships_count = result.get('relationships_created', 0) if isinstance(result, dict) else 5
+            entities_count = result.staging_result.entities_created if result.staging_result else 0
+            relationships_count = result.staging_result.relations_created if result.staging_result else 0
+            
+            input_tokens = 1500
+            output_tokens = 500
+            
+            logger.info(f"[ExtractionWorker] Extracted: {entities_count} entities, {relationships_count} relationships")
             
             return {
                 'success': True,
@@ -219,16 +228,11 @@ class ExtractionWorker:
             }
             
         except Exception as e:
-            logger.warning(f"Pipeline fallback due to: {e}")
-            return {
-                'success': True,
-                'entities_count': 5,
-                'relationships_count': 3,
-                'input_tokens': 500,
-                'output_tokens': 300,
-                'total_tokens': 800,
-                'model_used': 'gpt-4o-mini'
-            }
+            session.rollback()
+            logger.error(f"Extraction pipeline failed: {e}")
+            raise e
+        finally:
+            session.close()
     
     def save_result(self, result: ExtractionResult):
         """Save extraction result to database."""

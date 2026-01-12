@@ -203,8 +203,11 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             ("public", "document_chunks", "tenant_id = :tid"),
             ("platform", "extraction_results", "request_id IN (SELECT request_id FROM platform.extraction_requests WHERE tenant_id = :tid)"),
             ("platform", "extraction_requests", "tenant_id = :tid"),
+            ("platform", "document_versions", "document_id IN (SELECT id FROM platform.documents WHERE tenant_id = :tid)"),
             ("platform", "documents", "tenant_id = :tid"),
+            ("platform", "usage_events", "tenant_id = :tid"),
             ("platform", "user_tenants", "tenant_id = :tid"),
+            ("platform", "tenant_quotas", "tenant_id = :tid"),
         ]
         
         for schema, table, condition in tables_to_clear:
@@ -216,7 +219,8 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
                 if r.rowcount > 0:
                     self.log(f"         Deleted {r.rowcount} rows from {schema}.{table}")
             except Exception as e:
-                self.log(f"         Warning: Could not delete from {schema}.{table}: {e}")
+                session.rollback()
+                self.log(f"         Warning: Could not delete from {schema}.{table}: {str(e)[:80]}")
         
         session.execute(
             text("DELETE FROM platform.tenants WHERE id = :tid"),
@@ -265,7 +269,7 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         return tenant_id
     
     def step2_upload_documents(self, tenant_id: str, doc_dir: str) -> tuple:
-        """Upload all documents from directory. Returns (doc_ids, doc_names, doc_contents)."""
+        """Upload all documents using the actual DocumentService (same as UI)."""
         self.log(f"Step 2: Upload documents from '{doc_dir}'")
         
         if not os.path.exists(doc_dir):
@@ -276,10 +280,10 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         if not files:
             raise Exception(f"No documents found in: {doc_dir}")
         
-        from src.context_foundry.models.schema import get_session
-        from sqlalchemy import text
+        from uuid import UUID
+        from platform_foundation.src.document_service import DocumentService
         
-        session = get_session(use_rls_role=False)
+        doc_svc = DocumentService()
         doc_ids = []
         doc_names = []
         doc_contents = []
@@ -287,70 +291,59 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         for filename in files:
             filepath = os.path.join(doc_dir, filename)
             
-            with open(filepath, "r", encoding="utf-8") as f:
-                content = f.read()
+            with open(filepath, "rb") as f:
+                file_content = f.read()
             
-            size_bytes = len(content.encode('utf-8'))
-            
-            result = session.execute(
-                text("""
-                    INSERT INTO platform.documents (
-                        tenant_id, name, original_filename, mime_type, 
-                        size_bytes, storage_path, status, current_version, 
-                        created_at, updated_at
-                    )
-                    VALUES (
-                        :tid, :name, :orig_name, 'text/plain',
-                        :size, :path, 'uploaded', 1,
-                        NOW(), NOW()
-                    )
-                    RETURNING id
-                """),
-                {
-                    "tid": tenant_id, 
-                    "name": filename, 
-                    "orig_name": filename,
-                    "size": size_bytes,
-                    "path": filepath
-                }
+            document = doc_svc.upload_document(
+                tenant_id=UUID(tenant_id),
+                filename=filename,
+                mime_type='text/plain',
+                file_content=file_content,
+                auto_extract=True,
+                priority='normal'
             )
             
-            doc_id = str(result.fetchone()[0])
+            doc_id = str(document['id'])
             doc_ids.append(doc_id)
             doc_names.append(filename)
-            doc_contents.append(content)
+            doc_contents.append(file_content.decode('utf-8'))
             
-            self.log(f"         Uploaded: {filename}")
+            self.log(f"         Uploaded: {filename} (request: {document.get('extraction_request_id', 'N/A')[:8]}...)")
         
-        session.commit()
-        session.close()
-        self.log(f"         Total: {len(doc_ids)} documents")
+        self.log(f"         Total: {len(doc_ids)} documents queued for extraction")
         return doc_ids, doc_names, doc_contents
     
     def step3_trigger_extraction(self, tenant_id: str, doc_ids: List[str], doc_contents: List[str]):
-        """Trigger extraction for all documents."""
-        self.log(f"Step 3: Trigger extraction for {len(doc_ids)} documents")
+        """Process extraction using the actual ExtractionWorker (same as production)."""
+        self.log(f"Step 3: Process extraction for {len(doc_ids)} documents")
         
         try:
-            from src.context_foundry.extraction.ontology_centric_pipeline import run_ontology_centric_extraction
+            from src.context_foundry.workers.extraction_worker import ExtractionWorker
         except ImportError as e:
             fail_and_exit(
                 "Import error", 
-                f"Cannot import extraction function: {e}",
-                "from src.context_foundry.extraction.ontology_centric_pipeline import run_ontology_centric_extraction"
+                f"Cannot import ExtractionWorker: {e}",
+                "from src.context_foundry.workers.extraction_worker import ExtractionWorker"
             )
         
-        from src.context_foundry.models.schema import get_session
+        worker = ExtractionWorker(worker_id="e2e-test-worker")
         
-        session = get_session(use_rls_role=False)
+        processed = 0
+        max_attempts = len(doc_ids) * 3
+        attempts = 0
         
-        for doc_id, content in zip(doc_ids, doc_contents):
-            self.log(f"         Extracting document: {doc_id[:8]}...")
-            run_ontology_centric_extraction(session, tenant_id, content, doc_id)
+        while processed < len(doc_ids) and attempts < max_attempts:
+            attempts += 1
+            if worker.process_one():
+                processed += 1
+                self.log(f"         Processed document {processed}/{len(doc_ids)}")
+            else:
+                time.sleep(0.5)
         
-        session.commit()
-        session.close()
-        self.log("         Extraction complete")
+        if processed < len(doc_ids):
+            self.log(f"         Warning: Only processed {processed}/{len(doc_ids)} documents")
+        else:
+            self.log(f"         All {processed} documents extracted")
     
     def step4_wait_for_extraction(self, tenant_id: str) -> Dict[str, int]:
         """Wait for extraction to complete. Returns counts."""
