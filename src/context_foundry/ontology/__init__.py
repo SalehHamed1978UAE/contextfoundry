@@ -10,6 +10,8 @@ from .prompt_generator import SchemaPromptGenerator
 from .models import EntityExtraction, RelationshipExtraction, ExtractionResult
 from .constrained_extractor import ConstrainedExtractor
 from .shadow_adapter import ShadowAdapter
+from .normalizer import CandidateNormalizer
+from .candidate_store import CandidateStore
 
 __all__ = [
     'OntologyRepository',
@@ -20,4 +22,6 @@ __all__ = [
     'ExtractionResult',
     'ConstrainedExtractor',
     'ShadowAdapter',
+    'CandidateNormalizer',
+    'CandidateStore',
 ]
