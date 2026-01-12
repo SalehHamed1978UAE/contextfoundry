@@ -16,6 +16,8 @@ from ..models.schema import (
 from .entity_extractor import ExtractedEntity
 
 from ..utils.logger import logger
+from ..ontology.candidate_store import CandidateStore
+from ..ontology.normalizer import CandidateNormalizer
 
 
 from .relation_extractor import ExtractedRelation
@@ -54,6 +56,7 @@ class StagingResult:
     relations_created: int = 0
     relations_updated: int = 0
     relations_skipped: int = 0
+    relations_as_candidates: int = 0
     errors: List[str] = field(default_factory=list)
     duplicate_detection: Optional[Dict] = None
     
@@ -67,6 +70,7 @@ class StagingResult:
             "relations_created": self.relations_created,
             "relations_updated": self.relations_updated,
             "relations_skipped": self.relations_skipped,
+            "relations_as_candidates": self.relations_as_candidates,
             "errors": self.errors,
             "duplicate_detection": self.duplicate_detection,
         }
@@ -106,6 +110,8 @@ class StagingLoader:
         self.enable_deduplication = enable_deduplication
         self.tenant_id = tenant_id
         self.duplicate_detector = DuplicateDetector(session, similarity_threshold, tenant_id=tenant_id)
+        self._candidate_normalizer = CandidateNormalizer()
+        self._known_relationship_types_cache: Optional[set] = None
     
     def _document_exists_in_public(self, doc_id: uuid.UUID) -> bool:
         """Check if a document exists in public.documents (for FK constraint).
@@ -182,6 +188,49 @@ class StagingLoader:
         Any type from the loaded schema config is valid.
         """
         return relation_type.upper()
+    
+    def _get_known_relationship_types(self) -> set:
+        """Get all known relationship types from schema + approved candidates.
+        
+        Ontology Foundry Phase 1: Types not in this set will be stored as candidates.
+        All types are normalized to ensure consistent matching.
+        """
+        if self._known_relationship_types_cache is not None:
+            return self._known_relationship_types_cache
+        
+        base_types = set()
+        try:
+            from ..config.domain_schema import get_schema_loader
+            loader = get_schema_loader()
+            schema_types = loader.schema.get_relationship_type_names()
+            base_types = {self._candidate_normalizer.normalize_relationship(t) for t in schema_types}
+        except Exception as e:
+            logger.debug(f"Could not load schema types: {e}")
+        
+        if self.tenant_id:
+            try:
+                from sqlalchemy import text
+                query = """
+                    SELECT DISTINCT normalized_name 
+                    FROM ontology_candidates 
+                    WHERE tenant_id = :tenant_id 
+                      AND candidate_type = 'RELATIONSHIP' 
+                      AND status = 'APPROVED'
+                """
+                result = self.session.execute(text(query), {'tenant_id': self.tenant_id})
+                approved = {row.normalized_name for row in result}
+                base_types = base_types | approved
+            except Exception as e:
+                logger.debug(f"Could not load approved candidates: {e}")
+        
+        self._known_relationship_types_cache = base_types
+        return base_types
+    
+    def _is_known_relationship_type(self, rel_type: str) -> bool:
+        """Check if a relationship type is known (in schema or approved)."""
+        normalized = self._candidate_normalizer.normalize_relationship(rel_type)
+        known_types = self._get_known_relationship_types()
+        return normalized in known_types
     
     def _find_entity_by_name(
         self, 
@@ -345,14 +394,45 @@ class StagingLoader:
         """
         Load an extracted relation into STAGING.
         
+        Ontology Foundry Phase 1: Unknown relationship types are stored as candidates
+        instead of being written directly to the knowledge graph.
+        
         Args:
             extracted: ExtractedRelation to load
             update_if_higher_confidence: Update existing if new has higher confidence
             
         Returns:
-            Tuple of (relationship, action) where action is 'created', 'updated', 'skipped', or 'error'
+            Tuple of (relationship, action) where action is 'created', 'updated', 'skipped', 'candidate', or 'error'
         """
         relation_type = self._normalize_relation_type(extracted.relation_type)
+        
+        if not self._is_known_relationship_type(extracted.relation_type):
+            normalized_type = self._candidate_normalizer.normalize_relationship(extracted.relation_type)
+            if self.tenant_id:
+                try:
+                    candidate_store = CandidateStore(self.session, uuid.UUID(self.tenant_id))
+                    doc_id = str(extracted.source_document_id) if extracted.source_document_id else None
+                    
+                    candidate_store.add_relationship_candidate(
+                        proposed_name=extracted.relation_type,
+                        normalized_name=normalized_type,
+                        source_entity_type=getattr(extracted, 'source_type', 'UNKNOWN'),
+                        target_entity_type=getattr(extracted, 'target_type', 'UNKNOWN'),
+                        source_entity_name=extracted.source_name,
+                        target_entity_name=extracted.target_name,
+                        properties={},
+                        original_text=extracted.source_span or "",
+                        document_id=doc_id,
+                        chunk_id=getattr(extracted, 'source_chunk_id', None)
+                    )
+                    logger.info(f"[OntologyFoundry] Unknown type '{extracted.relation_type}' → candidate as '{normalized_type}'")
+                    return None, "candidate"
+                except Exception as e:
+                    logger.error(f"[OntologyFoundry] Failed to store candidate '{extracted.relation_type}': {e}")
+                    raise RuntimeError(f"Candidate storage failed for unknown type '{extracted.relation_type}': {e}")
+            else:
+                logger.warning(f"[OntologyFoundry] Skipping unknown type '{extracted.relation_type}': no tenant_id for candidate storage")
+                return None, "skipped"
         
         source_entity = self._find_entity_by_name_any_type(extracted.source_name)
         target_entity = self._find_entity_by_name_any_type(extracted.target_name)
@@ -469,11 +549,15 @@ class StagingLoader:
                     result.relations_updated += 1
                 elif action == "skipped":
                     result.relations_skipped += 1
+                elif action == "candidate":
+                    result.relations_as_candidates += 1
                 else:
                     result.errors.append(
                         f"Failed to load relation: {extracted.source_name} -> {extracted.target_name}"
                     )
                     
+            except RuntimeError:
+                raise
             except Exception as e:
                 result.errors.append(
                     f"Error loading relation {extracted.source_name} -> {extracted.target_name}: {str(e)}"
@@ -533,6 +617,7 @@ class StagingLoader:
         result.relations_created = relation_result.relations_created
         result.relations_updated = relation_result.relations_updated
         result.relations_skipped = relation_result.relations_skipped
+        result.relations_as_candidates = relation_result.relations_as_candidates
         result.errors.extend(relation_result.errors)
         
         if commit:
