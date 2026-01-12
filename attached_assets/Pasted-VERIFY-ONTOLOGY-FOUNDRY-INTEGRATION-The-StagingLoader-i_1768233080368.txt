@@ -1,0 +1,224 @@
+VERIFY ONTOLOGY FOUNDRY INTEGRATION
+
+The StagingLoader integration is complete. Now let's verify candidates are 
+actually being created when documents with unknown relationship types are ingested.
+
+================================================================================
+TEST 1: CHECK CURRENT STATE
+================================================================================
+```python
+# scripts/verify_ontology_integration.py
+
+from src.context_foundry.models.schema import get_session
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from sqlalchemy import text
+
+def verify_integration():
+    session = get_session()
+    
+    # Get tenant
+    result = session.execute(text("SELECT id, name FROM platform.tenants LIMIT 1")).fetchone()
+    if not result:
+        print("❌ No tenants found")
+        return
+    
+    tenant_id = result.id
+    tenant_name = result.name
+    print(f"Using tenant: {tenant_name} ({tenant_id})")
+    
+    # Check candidates
+    store = CandidateStore(session, tenant_id)
+    candidates = store.get_pending_candidates()
+    
+    print(f"\n{'='*60}")
+    print(f"PENDING CANDIDATES: {len(candidates)}")
+    print(f"{'='*60}")
+    
+    if candidates:
+        for c in candidates:
+            print(f"\n  {c['normalized_name']}")
+            print(f"    Confidence: {c['confidence_score']:.0%}")
+            print(f"    Documents: {c['document_count']}")
+            print(f"    Mentions: {c['mention_count']}")
+            if c.get('example_mentions'):
+                example = c['example_mentions'][0].get('text', '')[:80]
+                print(f"    Example: {example}...")
+    else:
+        print("\n  No candidates found yet.")
+        print("\n  This could mean:")
+        print("  1. No documents ingested since integration")
+        print("  2. All relationship types are already known")
+        print("  3. Integration not triggering (check logs)")
+    
+    # Check known types count
+    print(f"\n{'='*60}")
+    print("KNOWN RELATIONSHIP TYPES")
+    print(f"{'='*60}")
+    
+    # From schema
+    schema_types = session.execute(text("""
+        SELECT DISTINCT relationship_type 
+        FROM staging.relations 
+        LIMIT 20
+    """)).fetchall()
+    print(f"\n  Sample from staging.relations: {len(schema_types)} types")
+    for t in schema_types[:5]:
+        print(f"    - {t.relationship_type}")
+    
+    # Approved candidates
+    approved = session.execute(text("""
+        SELECT normalized_name 
+        FROM ontology_candidates 
+        WHERE status = 'APPROVED'
+    """)).fetchall()
+    print(f"\n  Approved candidates: {len(approved)}")
+    
+    print(f"\n{'='*60}")
+    print("VERIFICATION COMPLETE")
+    print(f"{'='*60}")
+
+if __name__ == "__main__":
+    verify_integration()
+```
+
+Run: python scripts/verify_ontology_integration.py
+
+================================================================================
+TEST 2: INGEST A TEST DOCUMENT
+================================================================================
+
+If no candidates exist yet, trigger the pipeline with a test document.
+
+Option A: Through the web UI
+- Upload a document containing: "TechVentures acquired SecureNode for $50M"
+
+Option B: Direct pipeline test
+```python
+# scripts/test_candidate_creation.py
+
+"""
+Test that the ingestion pipeline creates candidates for unknown types.
+"""
+
+from uuid import UUID, uuid4
+from src.context_foundry.models.schema import get_session
+from src.context_foundry.staging.staging_loader import StagingLoader
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from sqlalchemy import text
+
+def test_candidate_creation():
+    session = get_session()
+    
+    # Get tenant
+    result = session.execute(text("SELECT id FROM platform.tenants LIMIT 1")).fetchone()
+    tenant_id = UUID(str(result.id))
+    print(f"Using tenant: {tenant_id}")
+    
+    # Create loader
+    loader = StagingLoader(session)
+    
+    # Create a test relation with an unknown type
+    test_relation = {
+        'source_entity': 'TechVentures',
+        'source_type': 'ORGANIZATION',
+        'target_entity': 'SecureNode',
+        'target_type': 'ORGANIZATION',
+        'relationship_type': 'ACQUIRED',  # This should be unknown
+        'properties': {'amount': '$50M'},
+        'document_id': uuid4(),
+        'chunk_id': uuid4(),
+        'chunk_text': 'TechVentures acquired SecureNode for $50M in December 2025.'
+    }
+    
+    print(f"\nTesting relation: {test_relation['source_entity']} --[{test_relation['relationship_type']}]--> {test_relation['target_entity']}")
+    
+    # Check if ACQUIRED is known
+    known_types = loader._get_known_relationship_types()
+    is_known = 'ACQUIRED' in known_types
+    print(f"Is 'ACQUIRED' a known type? {is_known}")
+    
+    if is_known:
+        print("\n⚠️  ACQUIRED is already a known type.")
+        print("Testing with a definitely unknown type: 'TEST_UNKNOWN_TYPE_12345'")
+        test_relation['relationship_type'] = 'TEST_UNKNOWN_TYPE_12345'
+    
+    # Try to load the relation
+    print(f"\nCalling load_relation()...")
+    try:
+        # Note: You may need to adapt this to match your actual StagingLoader API
+        result = loader.load_relation(
+            tenant_id=tenant_id,
+            relation_data=test_relation
+        )
+        print(f"Result: {result}")
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    # Check if candidate was created
+    print(f"\nChecking for candidates...")
+    store = CandidateStore(session, tenant_id)
+    candidates = store.get_pending_candidates()
+    
+    test_candidate = next(
+        (c for c in candidates if c['normalized_name'] == test_relation['relationship_type']),
+        None
+    )
+    
+    if test_candidate:
+        print(f"\n✅ SUCCESS: Candidate created!")
+        print(f"   Type: {test_candidate['normalized_name']}")
+        print(f"   Confidence: {test_candidate['confidence_score']:.0%}")
+    else:
+        print(f"\n❌ FAILED: No candidate created for {test_relation['relationship_type']}")
+        print(f"   Found {len(candidates)} other candidates")
+    
+    # Cleanup test data
+    print(f"\nCleaning up test data...")
+    session.execute(text("""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (
+            SELECT id FROM ontology_candidates 
+            WHERE normalized_name = 'TEST_UNKNOWN_TYPE_12345'
+        )
+    """))
+    session.execute(text("""
+        DELETE FROM ontology_candidates 
+        WHERE normalized_name = 'TEST_UNKNOWN_TYPE_12345'
+    """))
+    session.commit()
+    print("Done.")
+
+if __name__ == "__main__":
+    test_candidate_creation()
+```
+
+Run: python scripts/test_candidate_creation.py
+
+================================================================================
+EXPECTED RESULTS
+================================================================================
+
+If integration is working:
+- Unknown relationship types → Candidate created
+- Known relationship types → Written to KG as before
+- Candidate has example_mentions with source text
+- Pending extractions stored for backfill
+
+If integration is NOT working:
+- Check logs for "[OntologyFoundry]" entries
+- Verify load_relation() is being called with tenant_id
+- Confirm _get_known_relationship_types() returns expected set
+
+================================================================================
+REPORT BACK
+================================================================================
+
+Let me know:
+1. Output of verify_ontology_integration.py
+2. Output of test_candidate_creation.py (or web upload test)
+3. Any errors in logs
+
+Once candidates are being created, we can proceed with Phase 2 approval workflow.
+================================================================================
