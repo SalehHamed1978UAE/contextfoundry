@@ -429,6 +429,21 @@ class RoleResolver:
             for m in all_matches:
                 logger.info(f"[ROLE_RESOLVER]   - {m['name']} ({m['role']}) orgs: {m.get('organizations', [])}")
             
+            if vault_context and len(all_matches) > 1:
+                def vault_match_score(match):
+                    orgs = match.get("organizations", [])
+                    vault_lower = vault_context.lower()
+                    for org in orgs:
+                        if org and vault_lower in org.lower():
+                            return 2
+                    for org in orgs:
+                        if org and any(word in vault_lower for word in org.lower().split()):
+                            return 1
+                    return 0
+                
+                all_matches.sort(key=vault_match_score, reverse=True)
+                logger.info(f"[ROLE_RESOLVER] Sorted by vault_context='{vault_context}': {[m['name'] for m in all_matches]}")
+            
             if len(all_matches) == 1:
                 match = all_matches[0]
                 return RoleResolution(

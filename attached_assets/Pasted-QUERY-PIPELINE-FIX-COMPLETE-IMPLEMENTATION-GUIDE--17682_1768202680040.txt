@@ -1,0 +1,153 @@
+QUERY PIPELINE FIX — COMPLETE IMPLEMENTATION GUIDE
+
+================================================================================
+PROBLEM
+================================================================================
+
+Current behavior:
+"What is the CEO's salary?" → Returns "The CEO is Sarah Chen" ❌
+
+Expected behavior:
+"What is the CEO's salary?" → Returns "$850,000" ✅
+
+Root cause: The pipeline resolves CEO → Sarah Chen, then stops.
+It should chain: CEO → Sarah Chen → look up her compensation.
+
+================================================================================
+FIX LOCATION
+================================================================================
+
+File: src/context_foundry/agents/retrieval_router.py
+Method: QueryPipeline.process()
+
+================================================================================
+IMPLEMENTATION
+================================================================================
+
+STEP 1: Modify process() method
+
+Find the section where role resolution happens and modify it:
+```python
+def process(self, query: str, vault_context: str = None) -> RetrievalResult:
+    classification = self.classifier.classify(query)
+    
+    # CHANGE: Detect intent BEFORE role resolution path
+    intent = self.intent_detector.detect(query, resolved_entity=None)
+    
+    if classification.has_role_reference and classification.role_referenced:
+        role_resolution = self.role_resolver.resolve_all(
+            classification.role_referenced,
+            organization=vault_context
+        )
+        
+        # NEW: If ATTRIBUTE query + single resolved match → chain the lookup
+        if (intent 
+            and intent.intent_type == "attribute" 
+            and role_resolution.is_resolved 
+            and len(role_resolution.matches) == 1):
+            
+            resolved_person = role_resolution.matches[0]
+            person_name = resolved_person.entity_name  # or .name, check your structure
+            
+            rewritten_query = self._rewrite_query_with_person(
+                query, person_name, intent.attribute_type
+            )
+            
+            logger.info(f"[QueryPipeline] Chaining role query: '{query}' → '{rewritten_query}'")
+            return self.process(rewritten_query, vault_context)  # Recursion is safe
+        
+        # UNCHANGED: Multiple matches → disambiguate first
+        if role_resolution.has_multiple_matches:
+            return RetrievalResult(strategy_used="DISAMBIGUATION", ...)
+    
+    # Continue with existing logic unchanged...
+```
+
+STEP 2: Add helper method to QueryPipeline class
+```python
+def _rewrite_query_with_person(
+    self,
+    original_query: str,
+    person_name: str,
+    attribute_type: str
+) -> str:
+    """
+    Rewrite a role-based query to use the resolved person's name.
+    
+    "What is the CEO's salary?" → "What is Sarah Chen's compensation?"
+    "Who reports to the CFO?" → "Who reports to Sarah Chen?"
+    """
+    attr_upper = (attribute_type or "").upper()
+    query_lower = original_query.lower()
+    
+    if attr_upper == "COMPENSATION" or "salary" in query_lower or "pay" in query_lower or "make" in query_lower:
+        return f"What is {person_name}'s compensation?"
+    
+    elif attr_upper == "REPORTS" or "report" in query_lower:
+        if "reports to" in query_lower or "report to" in query_lower:
+            return f"Who does {person_name} report to?"
+        else:
+            return f"Who reports to {person_name}?"
+    
+    elif attr_upper == "DEPARTMENT":
+        return f"What department is {person_name} in?"
+    
+    else:
+        return f"Tell me about {person_name}"
+```
+
+================================================================================
+SAFETY NOTES
+================================================================================
+
+1. RECURSION IS SAFE
+   "Sarah Chen's compensation" won't trigger role resolution because
+   "Sarah Chen" is a PERSON name, not a role like "CEO"
+
+2. SINGLE MATCH ONLY
+   Only rewrite when len(matches) == 1
+   Multiple matches → still disambiguate first
+
+3. IDENTITY QUERIES UNCHANGED  
+   "Who is the CEO?" has no attribute intent
+   Falls through to existing disambiguation logic
+
+================================================================================
+TEST CASES — RUN ALL
+================================================================================
+
+After implementation, test these queries:
+
+MUST STILL WORK (no regression):
+- "Who is the CEO?" → Should return "Sarah Chen" (identity)
+- "What is Sarah Chen's compensation?" → Should return $850,000
+
+SHOULD NOW WORK (the fix):
+- "What is the CEO's salary?" → Should return $850,000
+- "Who reports to the CEO?" → Should return list of reports
+
+================================================================================
+VERIFICATION STEPS
+================================================================================
+
+1. Make the code changes above
+2. Test the 4 queries manually
+3. Run full E2E test:
+   python scripts/e2e_lifecycle_test.py
+4. Save results to: /mnt/user-data/outputs/e2e_results_PIPELINE_FIX.txt
+5. Report back with:
+   - Test query results
+   - Any errors encountered
+   - E2E test summary
+
+================================================================================
+IF SOMETHING BREAKS
+================================================================================
+
+STOP and report:
+- Which query failed
+- The exact error message
+- The code you changed
+
+DO NOT try to fix it yourself. We will review.
+================================================================================
