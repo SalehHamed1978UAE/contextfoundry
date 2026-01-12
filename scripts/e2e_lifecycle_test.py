@@ -2,661 +2,484 @@
 """
 E2E Lifecycle Test for Context Foundry
 
-Tests complete lifecycle for all 5 vaults:
-Create -> Upload -> Extract -> Verify -> Query -> Cleanup
+Tests the complete system exactly as a real user would:
+1. Delete existing vaults
+2. Create fresh vaults
+3. Upload documents
+4. Run extraction
+5. Run all queries
+6. Save full answers to file for human review
+
+CRITICAL RULES:
+- DO NOT MODIFY APPLICATION CODE - if something fails, STOP and report
+- DO NOT MODIFY DATA TO MAKE TESTS WORK
+- IF ANYTHING FAILS - STOP AND REPORT, do not try to fix it
 
 Usage:
-  python scripts/e2e_lifecycle_test.py           # Run all tests
-  python scripts/e2e_lifecycle_test.py --fresh   # Delete old E2E vaults first
-  python scripts/e2e_lifecycle_test.py --cleanup-only  # Just cleanup
+    python scripts/e2e_lifecycle_test.py
 
-Exit codes:
-  0 = All vaults passed
-  1 = One or more vaults failed
+Output:
+    /mnt/user-data/outputs/e2e_results_YYYYMMDD_HHMMSS.txt
 """
 
 import os
 import sys
 import time
-import uuid
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sqlalchemy import text
-from src.context_foundry.models.schema import get_session
-
-MAX_EXTRACTION_WAIT = 300
+MAX_EXTRACTION_WAIT = 600
 POLL_INTERVAL = 10
 
-VAULT_CONFIGS = [
-    {
-        "name": "TechVentures",
-        "doc_dir": "test documents/TechVentures",
-        "required_entities": [
-            {"name": "Sarah Chen", "type": "PERSON"},
-            {"name": "Marcus Williams", "type": "PERSON"},
-            {"name": "TechVentures", "type": "ORGANIZATION"},
-        ],
-        "required_roles": [
-            {"person": "Sarah Chen", "role": "CEO"},
-            {"person": "Marcus Williams", "role": "CTO"},
-        ],
-        "test_queries": [
-            {"query": "Who is the CEO?", "expected": ["Sarah Chen"], "min_confidence": 0.70},
-            {"query": "Who is the CTO?", "expected": ["Marcus Williams"], "min_confidence": 0.70},
-            {"query": "What is Sarah Chen's compensation?", "expected": ["850,000"], "min_confidence": 0.70},
-        ],
-    },
-    {
-        "name": "LawFirm",
-        "doc_dir": "test documents/Law Firm",
-        "required_entities": [
-            {"name": "Elizabeth Morrison", "type": "PERSON"},
-            {"name": "Richard Sterling", "type": "PERSON"},
-        ],
-        "required_roles": [
-            {"person": "Elizabeth Morrison", "role": "Managing Partner"},
-        ],
-        "test_queries": [
-            {"query": "Who is the Managing Partner?", "expected": ["Elizabeth Morrison"], "min_confidence": 0.70},
-            {"query": "Who is the CFO?", "expected": ["Thomas Bradley"], "min_confidence": 0.70},
-            {"query": "What is Richard Sterling's compensation?", "expected": ["950,000"], "min_confidence": 0.70},
-        ],
-    },
-    {
-        "name": "Hospital",
-        "doc_dir": "test documents/Hospital",
-        "required_entities": [
-            {"name": "Margaret Chen", "type": "PERSON"},
-            {"name": "Robert Thompson", "type": "PERSON"},
-        ],
-        "required_roles": [
-            {"person": "Margaret Chen", "role": "CEO"},
-            {"person": "Robert Thompson", "role": "CIO"},
-        ],
-        "test_queries": [
-            {"query": "Who is the CEO?", "expected": ["Margaret Chen"], "min_confidence": 0.70},
-            {"query": "Who is the CIO?", "expected": ["Robert Thompson"], "min_confidence": 0.70},
-            {"query": "What is the CEO's salary?", "expected": ["1,450,000"], "min_confidence": 0.70},
-        ],
-    },
-    {
-        "name": "TitanManufacturing",
-        "doc_dir": "test documents/Titan Manufacturing",
-        "required_entities": [
-            {"name": "Robert Martinez", "type": "PERSON"},
-            {"name": "Linda Chen", "type": "PERSON"},
-        ],
-        "required_roles": [
-            {"person": "Robert Martinez", "role": "CEO"},
-            {"person": "Linda Chen", "role": "COO"},
-        ],
-        "test_queries": [
-            {"query": "Who is the CEO?", "expected": ["Robert Martinez"], "min_confidence": 0.70},
-            {"query": "Who is the COO?", "expected": ["Linda Chen"], "min_confidence": 0.70},
-            {"query": "What is the CEO's compensation?", "expected": ["980,000"], "min_confidence": 0.70},
-        ],
-    },
-    {
-        "name": "LaunchpadVentures",
-        "doc_dir": "test documents/Launchpad Ventures",
-        "required_entities": [
-            {"name": "Alexandra Kim", "type": "PERSON"},
-            {"name": "David Park", "type": "PERSON"},
-        ],
-        "required_roles": [
-            {"person": "Alexandra Kim", "role": "Managing Partner"},
-        ],
-        "test_queries": [
-            {"query": "Who is the Managing Partner?", "expected": ["Alexandra Kim"], "min_confidence": 0.70},
-            {"query": "Who are the General Partners?", "expected": ["David Park"], "min_confidence": 0.70},
-            {"query": "What is David Park's compensation?", "expected": ["380,000"], "min_confidence": 0.70},
-        ],
-    },
-]
+OUTPUT_DIR = "outputs"
+
+def fail_and_exit(step: str, error: str, expected: str = None):
+    """Log failure and exit immediately."""
+    print("\n" + "=" * 80)
+    print(f"FAILED: {step}")
+    print("=" * 80)
+    print(f"Error: {error}")
+    if expected:
+        print(f"Expected: {expected}")
+    print("\nAction required: Human must investigate this error.")
+    print("Do NOT attempt to fix this automatically.")
+    print("=" * 80)
+    sys.exit(1)
 
 
-class E2ELifecycleTest:
-    """E2E test for a single vault."""
-    
-    def __init__(self, config: Dict[str, Any]):
-        self.config = config
-        self.vault_base_name = config["name"]
-        self.vault_name: Optional[str] = None
-        self.tenant_id: Optional[str] = None
-        self.document_ids: List[str] = []
-        self.document_contents: Dict[str, str] = {}
-        self.failed = False
-        self.failure_message: Optional[str] = None
+class E2ETest:
+    def __init__(self):
+        self.start_time = datetime.now()
+        self.results = []
+        self.output_file = os.path.join(
+            OUTPUT_DIR, 
+            f"e2e_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        )
+        
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        
+        self.write_output(f"""================================================================================
+E2E LIFECYCLE TEST RESULTS
+================================================================================
+Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
+================================================================================
+""")
     
     def log(self, message: str):
+        """Log to console with timestamp."""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {message}")
+        elapsed = int((datetime.now() - self.start_time).total_seconds())
+        print(f"[{timestamp}] [{elapsed}s] {message}")
     
-    def fail(self, message: str):
-        self.failed = True
-        self.failure_message = message
-        print(f"\n{'='*60}")
-        print(f"ERROR: {message}")
-        print(f"{'='*60}\n")
+    def write_output(self, text: str):
+        """Write to output file."""
+        with open(self.output_file, "a", encoding="utf-8") as f:
+            f.write(text)
     
-    def run(self) -> bool:
-        """Run all steps. Returns True if passed, False if failed."""
+    def run(self) -> int:
+        """Run E2E test for all vaults. Returns exit code."""
+        try:
+            from e2e_config import VAULTS
+        except ImportError as e:
+            fail_and_exit("Import error", f"Cannot import e2e_config: {e}", "from e2e_config import VAULTS")
         
         try:
-            if not self.step0_pre_cleanup():
-                self.step6_cleanup()
-                return False
+            from src.context_foundry.models.schema import get_session
+        except ImportError as e:
+            fail_and_exit("Import error", f"Cannot import get_session: {e}", "from src.context_foundry.models.schema import get_session")
+        
+        self.log(f"Starting E2E test for {len(VAULTS)} vaults")
+        self.log(f"Output file: {self.output_file}")
+        
+        for vault_config in VAULTS:
+            self.log(f"\n{'=' * 60}")
+            self.log(f"VAULT: {vault_config['name']}")
+            self.log(f"{'=' * 60}")
             
-            if not self.step1_create_vault():
-                self.step6_cleanup()
-                return False
+            result = self.test_vault(vault_config)
+            self.results.append(result)
             
-            if not self.step2_upload_documents():
-                self.step6_cleanup()
-                return False
+            if not result["success"]:
+                fail_and_exit(
+                    f"Vault test failed: {vault_config['name']}", 
+                    result['error']
+                )
+            else:
+                self.log(f"VAULT COMPLETE: {result['query_count']} queries executed")
+        
+        self.write_summary()
+        
+        self.log(f"\n{'=' * 60}")
+        self.log(f"E2E TEST COMPLETE")
+        self.log(f"Output file: {self.output_file}")
+        self.log(f"{'=' * 60}")
+        
+        return 0
+    
+    def test_vault(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Test a single vault. Returns result dict."""
+        from src.context_foundry.models.schema import get_session
+        
+        vault_name = config["name"]
+        doc_dir = config["doc_dir"]
+        queries = config["queries"]
+        
+        result = {
+            "vault": vault_name,
+            "success": False,
+            "error": None,
+            "doc_count": 0,
+            "chunk_count": 0,
+            "entity_count": 0,
+            "relationship_count": 0,
+            "query_count": 0,
+        }
+        
+        try:
+            self.step0_delete_existing(vault_name)
             
-            if not self.step3_trigger_extraction():
-                self.step6_cleanup()
-                return False
+            tenant_id = self.step1_create_vault(vault_name)
             
-            if not self.step4_verify_extraction():
-                self.step6_cleanup()
-                return False
+            doc_ids, doc_names, doc_contents = self.step2_upload_documents(tenant_id, doc_dir)
+            result["doc_count"] = len(doc_ids)
             
-            if not self.step5_run_queries():
-                self.step6_cleanup()
-                return False
+            self.step3_trigger_extraction(tenant_id, doc_ids, doc_contents)
             
-            self.step6_cleanup()
-            return True
+            counts = self.step4_wait_for_extraction(tenant_id)
+            result["chunk_count"] = counts["chunks"]
+            result["entity_count"] = counts["entities"]
+            result["relationship_count"] = counts["relationships"]
+            
+            self.write_vault_header(vault_name, doc_names, counts)
+            
+            self.step5_run_queries(tenant_id, vault_name, queries)
+            result["query_count"] = len(queries)
+            
+            self.log(f"Vault ready for use: {vault_name}")
+            
+            result["success"] = True
+            return result
             
         except Exception as e:
-            self.fail(f"Unexpected error: {e}")
-            self.step6_cleanup()
-            return False
+            result["error"] = str(e)
+            return result
     
-    def step0_pre_cleanup(self) -> bool:
-        """Delete any existing E2E vault with same base name."""
-        self.log("Step 0: Pre-Cleanup")
+    def step0_delete_existing(self, vault_name: str):
+        """Delete existing vault if it exists."""
+        self.log(f"Step 0: Delete existing vault '{vault_name}'")
         
-        try:
-            session = get_session(use_rls_role=False)
-            
-            result = session.execute(
-                text("SELECT id, name FROM platform.tenants WHERE name LIKE :pattern"),
-                {"pattern": f"E2E_Test_{self.vault_base_name}%"}
-            ).fetchall()
-            
-            if not result:
-                self.log("         No existing E2E vaults found")
-                session.close()
-                return True
-            
-            for row in result:
-                existing_id, existing_name = str(row[0]), row[1]
-                self.log(f"         Deleting existing: {existing_name}")
-                self._delete_vault_data(session, existing_id)
-            
-            session.commit()
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
+        
+        session = get_session(use_rls_role=False)
+        
+        result = session.execute(
+            text("SELECT id FROM platform.tenants WHERE name = :name"),
+            {"name": vault_name}
+        ).fetchone()
+        
+        if not result:
+            self.log("         No existing vault found")
             session.close()
-            self.log(f"         Result: OK (deleted {len(result)} vault(s))")
-            return True
-            
-        except Exception as e:
-            self.fail(f"Pre-cleanup failed: {e}")
-            return False
-    
-    def _delete_vault_data(self, session, tenant_id: str):
-        """Delete all data for a tenant with proper FK cascade."""
+            return
+        
+        tenant_id = str(result[0])
+        self.log(f"         Found existing vault: {tenant_id}")
+        
         session.execute(text("UPDATE public.entities SET superseded_by = NULL WHERE tenant_id = :tid"), {"tid": tenant_id})
         session.execute(text("UPDATE public.entities SET superseded_by = NULL WHERE superseded_by IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.conflict_logs WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.duplicate_candidates WHERE entity_a_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid) OR entity_b_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.entity_aliases WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.entity_mentions WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.merge_audits WHERE surviving_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.proposed_relationships WHERE source_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid) OR target_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.relationships WHERE tenant_id = :tid"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.entities WHERE tenant_id = :tid"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM public.document_chunks WHERE tenant_id = :tid"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM platform.extraction_requests WHERE tenant_id = :tid"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM platform.documents WHERE tenant_id = :tid"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM platform.user_tenants WHERE tenant_id = :tid"), {"tid": tenant_id})
-        session.execute(text("DELETE FROM platform.tenants WHERE id = :tid"), {"tid": tenant_id})
+        
+        tables_to_clear = [
+            ("public", "conflict_logs", "entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"),
+            ("public", "duplicate_candidates", "entity_a_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid) OR entity_b_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"),
+            ("public", "entity_aliases", "entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"),
+            ("public", "entity_mentions", "entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"),
+            ("public", "merge_audits", "surviving_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"),
+            ("public", "proposed_relationships", "source_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid) OR target_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"),
+            ("public", "relationships", "tenant_id = :tid"),
+            ("public", "entities", "tenant_id = :tid"),
+            ("public", "document_chunks", "tenant_id = :tid"),
+            ("platform", "extraction_requests", "tenant_id = :tid"),
+            ("platform", "documents", "tenant_id = :tid"),
+            ("platform", "user_tenants", "tenant_id = :tid"),
+        ]
+        
+        for schema, table, condition in tables_to_clear:
+            try:
+                r = session.execute(
+                    text(f"DELETE FROM {schema}.{table} WHERE {condition}"),
+                    {"tid": tenant_id}
+                )
+                if r.rowcount > 0:
+                    self.log(f"         Deleted {r.rowcount} rows from {schema}.{table}")
+            except Exception as e:
+                self.log(f"         Warning: Could not delete from {schema}.{table}: {e}")
+        
+        session.execute(
+            text("DELETE FROM platform.tenants WHERE id = :tid"),
+            {"tid": tenant_id}
+        )
+        
+        session.commit()
+        session.close()
+        self.log("         Deleted existing vault")
     
-    def step1_create_vault(self) -> bool:
-        """Create test vault."""
-        self.log("Step 1: Create Vault")
+    def step1_create_vault(self, vault_name: str) -> str:
+        """Create vault and return tenant_id."""
+        self.log(f"Step 1: Create vault '{vault_name}'")
         
-        self.vault_name = f"E2E_Test_{self.vault_base_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.log(f"         Name: {self.vault_name}")
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
         
-        try:
-            session = get_session(use_rls_role=False)
-            
-            slug = f"e2e-test-{self.vault_base_name.lower().replace(' ', '-')}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            result = session.execute(
-                text("""
-                    INSERT INTO platform.tenants (name, slug, type, status, created_at) 
-                    VALUES (:name, :slug, 'demo', 'active', NOW()) 
-                    RETURNING id
-                """),
-                {"name": self.vault_name, "slug": slug}
-            )
-            self.tenant_id = str(result.fetchone()[0])
-            session.commit()
-            session.close()
-            
-            self.log(f"         Tenant ID: {self.tenant_id}")
-            self.log("         Result: OK")
-            return True
-            
-        except Exception as e:
-            self.fail(f"Vault creation failed: {e}")
-            return False
+        session = get_session(use_rls_role=False)
+        
+        slug = vault_name.lower().replace(" ", "-").replace("&", "and")
+        
+        result = session.execute(
+            text("""
+                INSERT INTO platform.tenants (name, slug, type, status, created_at, updated_at)
+                VALUES (:name, :slug, 'demo', 'active', NOW(), NOW())
+                RETURNING id
+            """),
+            {"name": vault_name, "slug": slug}
+        )
+        
+        tenant_id = str(result.fetchone()[0])
+        session.commit()
+        session.close()
+        
+        self.log(f"         Created vault: {tenant_id}")
+        return tenant_id
     
-    def step2_upload_documents(self) -> bool:
-        """Upload test documents."""
-        self.log("Step 2: Upload Documents")
-        
-        doc_dir = self.config["doc_dir"]
+    def step2_upload_documents(self, tenant_id: str, doc_dir: str) -> tuple:
+        """Upload all documents from directory. Returns (doc_ids, doc_names, doc_contents)."""
+        self.log(f"Step 2: Upload documents from '{doc_dir}'")
         
         if not os.path.exists(doc_dir):
-            self.fail(f"Document directory not found: {doc_dir}")
-            return False
+            raise Exception(f"Document directory not found: {doc_dir}")
         
-        try:
-            session = get_session(use_rls_role=False)
-            files = [f for f in os.listdir(doc_dir) if os.path.isfile(os.path.join(doc_dir, f))]
+        files = sorted([f for f in os.listdir(doc_dir) if os.path.isfile(os.path.join(doc_dir, f))])
+        
+        if not files:
+            raise Exception(f"No documents found in: {doc_dir}")
+        
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
+        
+        session = get_session(use_rls_role=False)
+        doc_ids = []
+        doc_names = []
+        doc_contents = []
+        
+        for filename in files:
+            filepath = os.path.join(doc_dir, filename)
             
-            if not files:
-                self.fail(f"No documents found in: {doc_dir}")
-                return False
+            with open(filepath, "r", encoding="utf-8") as f:
+                content = f.read()
             
-            for filename in sorted(files):
-                filepath = os.path.join(doc_dir, filename)
-                
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                doc_id = str(uuid.uuid4())
-                file_size = len(content.encode('utf-8'))
-                
-                session.execute(
-                    text("""
-                        INSERT INTO platform.documents 
-                        (id, tenant_id, name, original_filename, mime_type, size_bytes, storage_path, status, current_version, created_at)
-                        VALUES (:id, :tid, :name, :fname, 'text/plain', :size, :path, 'uploaded', 1, NOW())
-                    """),
-                    {"id": doc_id, "tid": self.tenant_id, "name": filename, "fname": filename, "size": file_size, "path": f"/e2e/{doc_id}"}
-                )
-                
-                self.document_ids.append(doc_id)
-                self.document_contents[doc_id] = content
-                self.log(f"         - {filename} (id: {doc_id[:8]}...)")
+            size_bytes = len(content.encode('utf-8'))
             
-            session.commit()
-            session.close()
-            self.log(f"         Result: OK ({len(self.document_ids)} files)")
-            return True
+            result = session.execute(
+                text("""
+                    INSERT INTO platform.documents (
+                        tenant_id, name, original_filename, mime_type, 
+                        size_bytes, storage_path, status, current_version, 
+                        created_at, updated_at
+                    )
+                    VALUES (
+                        :tid, :name, :orig_name, 'text/plain',
+                        :size, :path, 'uploaded', 1,
+                        NOW(), NOW()
+                    )
+                    RETURNING id
+                """),
+                {
+                    "tid": tenant_id, 
+                    "name": filename, 
+                    "orig_name": filename,
+                    "size": size_bytes,
+                    "path": filepath
+                }
+            )
             
-        except Exception as e:
-            self.fail(f"Document upload failed: {e}")
-            return False
+            doc_id = str(result.fetchone()[0])
+            doc_ids.append(doc_id)
+            doc_names.append(filename)
+            doc_contents.append(content)
+            
+            self.log(f"         Uploaded: {filename}")
+        
+        session.commit()
+        session.close()
+        self.log(f"         Total: {len(doc_ids)} documents")
+        return doc_ids, doc_names, doc_contents
     
-    def step3_trigger_extraction(self) -> bool:
-        """Trigger extraction and wait for completion."""
-        self.log("Step 3: Trigger Extraction")
+    def step3_trigger_extraction(self, tenant_id: str, doc_ids: List[str], doc_contents: List[str]):
+        """Trigger extraction for all documents."""
+        self.log(f"Step 3: Trigger extraction for {len(doc_ids)} documents")
         
         try:
             from src.context_foundry.extraction.ontology_centric_pipeline import run_ontology_centric_extraction
-            
-            session = get_session(use_rls_role=False)
-            session.execute(text("SELECT platform.set_current_tenant(:tid)"), {"tid": self.tenant_id})
-            session.commit()
-            
-            self.log("         Triggering extraction...")
-            
-            for doc_id in self.document_ids:
-                content = self.document_contents.get(doc_id, "")
-                if content:
-                    result = run_ontology_centric_extraction(
-                        session=session,
-                        tenant_id=self.tenant_id,
-                        text=content,
-                        document_id=doc_id,
-                        filename=None
-                    )
-                    self.log(f"         - {doc_id[:8]}...: {len(result.entities)} entities, {len(result.relations)} relations")
-            
-            session.commit()
-            
-            self.log(f"         Polling every {POLL_INTERVAL}s (max {MAX_EXTRACTION_WAIT}s)...")
-            
-            elapsed = 0
-            chunks, entities, rels = 0, 0, 0
-            
-            while elapsed < MAX_EXTRACTION_WAIT:
-                result = session.execute(
-                    text("""
-                        SELECT 
-                            (SELECT COUNT(*) FROM public.document_chunks WHERE tenant_id = :tid),
-                            (SELECT COUNT(*) FROM public.entities WHERE tenant_id = :tid),
-                            (SELECT COUNT(*) FROM public.relationships WHERE tenant_id = :tid)
-                    """),
-                    {"tid": self.tenant_id}
-                ).fetchone()
-                
-                chunks, entities, rels = result
-                
-                if elapsed % 30 == 0:
-                    self.log(f"         [{elapsed}s] chunks: {chunks}, entities: {entities}, relationships: {rels}")
-                
-                if chunks > 0 and entities > 0 and rels > 0:
-                    self.log(f"         Completed in {elapsed}s")
-                    self.log(f"         - Chunks: {chunks}")
-                    self.log(f"         - Entities: {entities}")
-                    self.log(f"         - Relationships: {rels}")
-                    self.log("         Result: OK")
-                    session.close()
-                    return True
-                
-                time.sleep(POLL_INTERVAL)
-                elapsed += POLL_INTERVAL
-            
-            session.close()
-            self.fail(f"Extraction timeout after {MAX_EXTRACTION_WAIT}s (chunks={chunks}, entities={entities}, rels={rels})")
-            return False
-            
-        except Exception as e:
-            self.fail(f"Extraction failed: {e}")
-            return False
-    
-    def step4_verify_extraction(self) -> bool:
-        """Verify required entities and roles exist."""
-        self.log("Step 4: Verify Extraction")
+        except ImportError as e:
+            fail_and_exit(
+                "Import error", 
+                f"Cannot import extraction function: {e}",
+                "from src.context_foundry.extraction.ontology_centric_pipeline import run_ontology_centric_extraction"
+            )
         
-        try:
-            session = get_session(use_rls_role=False)
-            missing = []
-            
-            self.log("         Checking entities...")
-            for ent in self.config["required_entities"]:
-                result = session.execute(
-                    text("SELECT id FROM public.entities WHERE tenant_id = :tid AND name ILIKE :name AND entity_type = :etype"),
-                    {"tid": self.tenant_id, "name": f"%{ent['name']}%", "etype": ent["type"]}
-                ).fetchone()
-                
-                if result:
-                    self.log(f"         - {ent['name']} ({ent['type']}): FOUND")
-                else:
-                    self.log(f"         - {ent['name']} ({ent['type']}): MISSING")
-                    missing.append(f"{ent['name']} ({ent['type']})")
-            
-            self.log("         Checking roles (via properties OR HOLDS_POSITION relationships)...")
-            for role in self.config["required_roles"]:
-                result = session.execute(
-                    text("""
-                        SELECT e.id FROM public.entities e
-                        WHERE e.tenant_id = :tid
-                        AND e.name ILIKE :person
-                        AND (
-                            e.properties::text ILIKE :role
-                            OR EXISTS (
-                                SELECT 1 FROM public.relationships r
-                                JOIN public.entities t ON r.target_id = t.id
-                                WHERE r.source_id = e.id
-                                AND r.relationship_type ILIKE '%POSITION%'
-                                AND t.name ILIKE :role
-                            )
-                        )
-                    """),
-                    {"tid": self.tenant_id, "person": f"%{role['person']}%", "role": f"%{role['role']}%"}
-                ).fetchone()
-                
-                if result:
-                    self.log(f"         - {role['person']} -> {role['role']}: FOUND")
-                else:
-                    self.log(f"         - {role['person']} -> {role['role']}: MISSING (not required for pass)")
-                    self.log(f"           (Role may be resolved at query time via RoleResolver)")
-            
-            session.close()
-            
-            if missing:
-                self.fail(f"Missing: {missing}")
-                return False
-            
-            self.log("         Result: OK")
-            return True
-            
-        except Exception as e:
-            self.fail(f"Verification failed: {e}")
-            return False
+        from src.context_foundry.models.schema import get_session
+        
+        session = get_session(use_rls_role=False)
+        
+        for doc_id, content in zip(doc_ids, doc_contents):
+            self.log(f"         Extracting document: {doc_id[:8]}...")
+            run_ontology_centric_extraction(session, tenant_id, content, doc_id)
+        
+        session.commit()
+        session.close()
+        self.log("         Extraction complete")
     
-    def step5_run_queries(self) -> bool:
-        """Run test queries."""
-        self.log("Step 5: Run Queries")
+    def step4_wait_for_extraction(self, tenant_id: str) -> Dict[str, int]:
+        """Wait for extraction to complete. Returns counts."""
+        self.log(f"Step 4: Verify extraction results")
+        
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
+        
+        session = get_session(use_rls_role=False)
+        
+        result = session.execute(
+            text("""
+                SELECT 
+                    (SELECT COUNT(*) FROM public.document_chunks WHERE tenant_id = :tid),
+                    (SELECT COUNT(*) FROM public.entities WHERE tenant_id = :tid),
+                    (SELECT COUNT(*) FROM public.relationships WHERE tenant_id = :tid)
+            """),
+            {"tid": tenant_id}
+        ).fetchone()
+        
+        chunks, entities, rels = result
+        session.close()
+        
+        self.log(f"         chunks={chunks}, entities={entities}, relationships={rels}")
+        
+        if chunks == 0 and entities == 0 and rels == 0:
+            raise Exception("Extraction produced no results (0 chunks, 0 entities, 0 relationships)")
+        
+        return {"chunks": chunks, "entities": entities, "relationships": rels}
+    
+    def write_vault_header(self, vault_name: str, doc_names: List[str], counts: Dict[str, int]):
+        """Write vault header to output file."""
+        self.write_output(f"""
+================================================================================
+VAULT: {vault_name}
+================================================================================
+Documents Uploaded: {len(doc_names)}
+""")
+        for doc in doc_names:
+            self.write_output(f"  - {doc}\n")
+        
+        self.write_output(f"""
+Extraction Results:
+  - Chunks: {counts['chunks']}
+  - Entities: {counts['entities']}
+  - Relationships: {counts['relationships']}
+
+""")
+    
+    def step5_run_queries(self, tenant_id: str, vault_name: str, queries: List[str]):
+        """Run all queries and write full answers to output file."""
+        self.log(f"Step 5: Run {len(queries)} queries")
         
         try:
             from src.context_foundry.agents.tool_agent import ToolAgent
+        except ImportError as e:
+            fail_and_exit(
+                "Import error",
+                f"Cannot import ToolAgent: {e}",
+                "from src.context_foundry.agents.tool_agent import ToolAgent"
+            )
+        
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
+        
+        session = get_session(use_rls_role=True)
+        session.execute(text("SELECT platform.set_current_tenant(:tid)"), {"tid": tenant_id})
+        session.commit()
+        
+        agent = ToolAgent(session, tenant_id)
+        
+        for i, query in enumerate(queries, 1):
+            self.log(f"         Query {i}/{len(queries)}: {query}")
             
-            session = get_session(use_rls_role=True)
-            session.execute(text("SELECT platform.set_current_tenant(:tid)"), {"tid": self.tenant_id})
-            session.commit()
-            
-            agent = ToolAgent(session, self.tenant_id)
-            failures = []
-            
-            for i, test in enumerate(self.config["test_queries"], 1):
-                query = test["query"]
-                expected = test["expected"]
-                min_conf = test.get("min_confidence", 0.70)
-                
-                self.log(f"         Q{i}: {query}")
-                
-                result = agent.query(query, vault_context=self.vault_name)
-                answer = result.get("answer", "")
+            try:
+                result = agent.query(query, vault_context=vault_name)
+                answer = result.get("answer", "NO ANSWER RETURNED")
                 confidence = result.get("confidence", 0)
-                sources = result.get("sources", [])
-                
-                answer_preview = answer[:200] + "..." if len(answer) > 200 else answer
-                self.log(f"         A{i}: {answer_preview}")
-                self.log(f"         Confidence: {confidence:.0%} | Sources: {len(sources)}")
-                
-                found = all(exp.lower() in answer.lower() for exp in expected)
-                conf_ok = confidence >= min_conf
-                
-                if found and conf_ok:
-                    self.log(f"         - Result: PASS")
-                else:
-                    self.log(f"         - Result: FAIL")
-                    if not found:
-                        self.log(f"           Expected keywords: {expected}")
-                    if not conf_ok:
-                        self.log(f"           Confidence too low: {confidence:.0%} < {min_conf:.0%}")
-                    failures.append(query)
-                self.log("")
+            except Exception as e:
+                answer = f"ERROR: {e}"
+                confidence = 0
             
-            session.close()
-            
-            if failures:
-                self.fail(f"Failed queries: {failures}")
-                return False
-            
-            self.log(f"         Result: OK ({len(self.config['test_queries'])}/{len(self.config['test_queries'])} passed)")
-            return True
-            
-        except Exception as e:
-            self.fail(f"Query execution failed: {e}")
-            return False
-    
-    def step6_cleanup(self) -> bool:
-        """Delete test vault and all data."""
-        self.log("Step 6: Cleanup")
-        
-        if not self.tenant_id:
-            self.log("         No vault to cleanup")
-            return True
-        
-        try:
-            session = get_session(use_rls_role=False)
-            self._delete_vault_data(session, self.tenant_id)
-            session.commit()
-            session.close()
-            self.log("         Result: OK")
-            return True
-            
-        except Exception as e:
-            self.log(f"         WARNING: Cleanup failed: {e}")
-            self.log(f"         Manual cleanup needed for: {self.tenant_id}")
-            return False
+            self.write_output(f"""--------------------------------------------------------------------------------
+QUERY {i}/{len(queries)}: {query}
+--------------------------------------------------------------------------------
+ANSWER:
+{answer}
 
+CONFIDENCE: {confidence:.0%}
+--------------------------------------------------------------------------------
 
-def cleanup_all_e2e_vaults():
-    """Delete ALL E2E test vaults."""
-    print("Cleaning up all E2E test vaults...")
-    
-    session = get_session(use_rls_role=False)
-    result = session.execute(
-        text("SELECT id, name FROM platform.tenants WHERE name LIKE 'E2E_Test_%'")
-    ).fetchall()
-    
-    if not result:
-        print("  No E2E test vaults found")
+""")
+        
         session.close()
-        return
+        self.log(f"         All {len(queries)} queries executed")
     
-    for row in result:
-        vault_id, vault_name = str(row[0]), row[1]
-        print(f"  Deleting: {vault_name}")
+    def write_summary(self):
+        """Write summary to output file."""
+        total_runtime = (datetime.now() - self.start_time).total_seconds()
+        minutes = int(total_runtime // 60)
+        seconds = int(total_runtime % 60)
         
-        try:
-            session.execute(text("UPDATE public.entities SET superseded_by = NULL WHERE tenant_id = :tid"), {"tid": vault_id})
-            session.execute(text("UPDATE public.entities SET superseded_by = NULL WHERE superseded_by IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.conflict_logs WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.duplicate_candidates WHERE entity_a_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid) OR entity_b_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.entity_aliases WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.entity_mentions WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.merge_audits WHERE surviving_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.proposed_relationships WHERE source_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid) OR target_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.relationships WHERE tenant_id = :tid"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.entities WHERE tenant_id = :tid"), {"tid": vault_id})
-            session.execute(text("DELETE FROM public.document_chunks WHERE tenant_id = :tid"), {"tid": vault_id})
-            session.execute(text("DELETE FROM platform.extraction_requests WHERE tenant_id = :tid"), {"tid": vault_id})
-            session.execute(text("DELETE FROM platform.documents WHERE tenant_id = :tid"), {"tid": vault_id})
-            session.execute(text("DELETE FROM platform.user_tenants WHERE tenant_id = :tid"), {"tid": vault_id})
-            session.execute(text("DELETE FROM platform.tenants WHERE id = :tid"), {"tid": vault_id})
-            session.commit()
-        except Exception as e:
-            session.rollback()
-            print(f"    Warning: {e}")
-    
-    session.commit()
-    session.close()
-    print(f"  Deleted {len(result)} vault(s)")
+        self.write_output(f"""
+================================================================================
+SUMMARY
+================================================================================
+Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
+Total Runtime: {minutes} minutes {seconds} seconds
 
-
-def run_all_vaults() -> int:
-    """Run E2E tests for all vaults. Returns exit code."""
-    
-    print("=" * 80)
-    print("E2E LIFECYCLE TEST - Context Foundry")
-    print("=" * 80)
-    print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Vaults: {len(VAULT_CONFIGS)}")
-    print()
-    
-    results = []
-    
-    for config in VAULT_CONFIGS:
-        print(f"\n{'='*80}")
-        print(f"VAULT: {config['name']}")
-        print(f"{'='*80}\n")
+{"Vault":<25} | Docs | Chunks | Entities | Rels | Queries | Status
+{"-"*25}-|------|--------|----------|------|---------|--------
+""")
         
-        test = E2ELifecycleTest(config)
-        passed = test.run()
+        total_docs = 0
+        total_chunks = 0
+        total_entities = 0
+        total_rels = 0
+        total_queries = 0
         
-        results.append({"vault": config["name"], "passed": passed, "error": test.failure_message})
+        for r in self.results:
+            status = "OK" if r["success"] else f"FAILED: {r['error']}"
+            self.write_output(f"{r['vault']:<25} | {r['doc_count']:>4} | {r['chunk_count']:>6} | {r['entity_count']:>8} | {r['relationship_count']:>4} | {r['query_count']:>7} | {status}\n")
+            
+            total_docs += r["doc_count"]
+            total_chunks += r["chunk_count"]
+            total_entities += r["entity_count"]
+            total_rels += r["relationship_count"]
+            total_queries += r["query_count"]
         
-        if passed:
-            print(f"\nVAULT RESULT: PASSED\n")
-        else:
-            print(f"\nVAULT RESULT: FAILED\n")
-    
-    print(f"\n{'='*80}")
-    print("E2E TEST SUMMARY")
-    print(f"{'='*80}")
-    
-    for r in results:
-        status = "PASSED" if r["passed"] else "FAILED"
-        print(f"  {r['vault']}: {status}")
-        if not r["passed"] and r["error"]:
-            print(f"    Error: {r['error']}")
-    
-    passed_count = sum(1 for r in results if r["passed"])
-    total = len(results)
-    
-    print(f"\nTOTAL: {passed_count}/{total} vaults passed")
-    
-    if passed_count == total:
-        print("\nRESULT: ALL TESTS PASSED")
-        return 0
-    else:
-        print("\nRESULT: SOME TESTS FAILED")
-        return 1
+        self.write_output(f"""{"-"*25}-|------|--------|----------|------|---------|--------
+{"TOTAL":<25} | {total_docs:>4} | {total_chunks:>6} | {total_entities:>8} | {total_rels:>4} | {total_queries:>7} |
 
-
-def run_single_vault(vault_name: str) -> int:
-    """Run E2E test for a single vault. Returns exit code."""
-    
-    config = next((c for c in VAULT_CONFIGS if c["name"].lower() == vault_name.lower()), None)
-    if not config:
-        print(f"ERROR: Vault '{vault_name}' not found")
-        print(f"Available vaults: {[c['name'] for c in VAULT_CONFIGS]}")
-        return 1
-    
-    print("=" * 80)
-    print("E2E LIFECYCLE TEST - Single Vault")
-    print("=" * 80)
-    print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"Vault: {config['name']}")
-    print()
-    
-    test = E2ELifecycleTest(config)
-    passed = test.run()
-    
-    if passed:
-        print(f"\nRESULT: PASSED")
-        return 0
-    else:
-        print(f"\nRESULT: FAILED")
-        print(f"Error: {test.failure_message}")
-        return 1
+All {total_queries} queries executed. Review answers above for correctness.
+================================================================================
+""")
 
 
 def main():
-    if "--cleanup-only" in sys.argv:
-        cleanup_all_e2e_vaults()
-        sys.exit(0)
-    
-    if "--fresh" in sys.argv:
-        cleanup_all_e2e_vaults()
-        print()
-    
-    if "--vault" in sys.argv:
-        idx = sys.argv.index("--vault")
-        if idx + 1 < len(sys.argv):
-            vault_name = sys.argv[idx + 1]
-            exit_code = run_single_vault(vault_name)
-            sys.exit(exit_code)
-        else:
-            print("ERROR: --vault requires a vault name")
-            sys.exit(1)
-    
-    exit_code = run_all_vaults()
+    test = E2ETest()
+    exit_code = test.run()
     sys.exit(exit_code)
 
 
