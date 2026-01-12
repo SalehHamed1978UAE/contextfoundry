@@ -455,25 +455,30 @@ class E2ELifecycleTest:
                 expected = test["expected"]
                 min_conf = test.get("min_confidence", 0.70)
                 
-                self.log(f"         Query {i}: \"{query}\"")
+                self.log(f"         Q{i}: {query}")
                 
                 result = agent.query(query, vault_context=self.vault_name)
                 answer = result.get("answer", "")
                 confidence = result.get("confidence", 0)
+                sources = result.get("sources", [])
+                
+                answer_preview = answer[:200] + "..." if len(answer) > 200 else answer
+                self.log(f"         A{i}: {answer_preview}")
+                self.log(f"         Confidence: {confidence:.0%} | Sources: {len(sources)}")
                 
                 found = all(exp.lower() in answer.lower() for exp in expected)
                 conf_ok = confidence >= min_conf
                 
                 if found and conf_ok:
-                    self.log(f"         - Result: PASS ({confidence:.0%})")
+                    self.log(f"         - Result: PASS")
                 else:
                     self.log(f"         - Result: FAIL")
                     if not found:
-                        self.log(f"           Expected: {expected}")
-                        self.log(f"           Got: {answer[:100]}...")
+                        self.log(f"           Expected keywords: {expected}")
                     if not conf_ok:
-                        self.log(f"           Confidence: {confidence:.0%} < {min_conf:.0%}")
+                        self.log(f"           Confidence too low: {confidence:.0%} < {min_conf:.0%}")
                     failures.append(query)
+                self.log("")
             
             session.close()
             
