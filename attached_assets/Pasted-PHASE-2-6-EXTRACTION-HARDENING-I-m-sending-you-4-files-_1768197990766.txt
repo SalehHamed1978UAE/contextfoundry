@@ -1,0 +1,149 @@
+PHASE 2.6 — EXTRACTION HARDENING
+
+I'm sending you 4 files. Here's what to do with each:
+
+================================================================================
+THE FILES
+================================================================================
+
+✅ post_processor.py → READY TO USE
+   Place at: src/context_foundry/extraction/post_processor.py
+
+✅ gap_detector.py → READY TO USE
+   Place at: src/context_foundry/extraction/gap_detector.py
+
+✅ backfill_extraction.py → READY TO USE
+   Place at: scripts/backfill_extraction.py
+
+📖 PHASE_2__1_.md → REFERENCE ONLY
+   This explains WHY we built this. 
+   DO NOT copy code from this file — the .py files are already complete.
+
+================================================================================
+IMPORTANT: IGNORE THE MARKDOWN CODE SNIPPETS
+================================================================================
+
+The markdown file contains incomplete code examples and an "ADDENDUM" section.
+
+IGNORE ALL OF THAT.
+
+The 3 .py files already have everything:
+- post_processor.py already has ORGANIZATION_PATTERNS
+- gap_detector.py already has standardize_relationship_type()
+
+Just use the .py files directly. They are complete and ready to run.
+
+================================================================================
+STEPS
+================================================================================
+
+STEP 1: Verify import paths work in your codebase
+
+Test these imports first:
+```python
+from src.context_foundry.utils.logger import logger
+from src.context_foundry.models.schema import Entity, Relationship, LifecycleState, get_session
+```
+
+If the paths are different in your codebase, update the imports in the .py files.
+
+STEP 2: Place the files
+src/context_foundry/extraction/post_processor.py
+src/context_foundry/extraction/gap_detector.py
+scripts/backfill_extraction.py
+
+STEP 3: Update __init__.py
+
+In src/context_foundry/extraction/__init__.py, add:
+```python
+from .post_processor import (
+    ExtractionPostProcessor, 
+    PostProcessorResult, 
+    get_post_processor,
+    get_role_normalizer
+)
+from .gap_detector import (
+    ExtractionGapDetector, 
+    GapDetectionResult, 
+    RELATIONSHIP_TARGET_CONSTRAINTS,
+    standardize_relationship_type,
+    get_gap_detector
+)
+```
+
+STEP 4: Integrate into extraction pipeline
+
+Find where LLM extraction happens (likely in graph_builder.py or similar).
+After LLM extraction returns entities and relationships, add:
+```python
+from src.context_foundry.extraction.post_processor import get_post_processor
+from src.context_foundry.extraction.gap_detector import get_gap_detector
+
+# After LLM extraction completes...
+post_processor = get_post_processor()
+post_result = post_processor.process(
+    document_text=document_text,
+    existing_entities=llm_extracted_entities,
+    existing_relationships=llm_extracted_relationships
+)
+
+# Merge the results
+all_entities = llm_extracted_entities + post_result.new_entities
+all_relationships = llm_extracted_relationships + [
+    {
+        "source_name": r.source_name,
+        "target_name": r.target_name,
+        "relationship_type": r.relationship_type,
+        "confidence": r.confidence
+    }
+    for r in post_result.new_relationships
+]
+
+# Log what was added
+if post_result.new_relationships:
+    print(f"[PostProcessor] Added {len(post_result.new_relationships)} relationships LLM missed")
+```
+
+STEP 5: Run backfill (dry-run first)
+```bash
+python scripts/backfill_extraction.py --all-tenants --dry-run
+```
+
+Review the output. If it looks correct, run for real:
+```bash
+python scripts/backfill_extraction.py --all-tenants
+```
+
+STEP 6: Run E2E test
+```bash
+python scripts/e2e_lifecycle_test.py
+```
+
+Save output to: /mnt/user-data/outputs/e2e_results_POST_HARDENING.txt
+
+================================================================================
+WHAT SUCCESS LOOKS LIKE
+================================================================================
+
+After backfill:
+- Relationships added for compensation (HOLDS_POSITION, HAS_COMPENSATION)
+- Relationships added for org context (WORKS_AT)
+- Invalid relationships flagged (like "75th percentile")
+
+After E2E test:
+- "What is the CEO's salary?" returns $850,000 (not CEO's name)
+- "Who reports to the CEO?" returns list of reports
+- No garbage in results
+
+================================================================================
+IF SOMETHING FAILS
+================================================================================
+
+STOP and report:
+- Which step failed
+- The exact error message
+- The file and line number if applicable
+
+DO NOT try to fix it yourself. We will review.
+
+==========================================================================
