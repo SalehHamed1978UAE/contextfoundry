@@ -1,0 +1,720 @@
+ONTOLOGY FOUNDRY — STRESS TEST SUITE
+
+Phase 1 passed basic tests. Now let's break it.
+
+================================================================================
+TEST SUITE 2: STRESS TESTS & EDGE CASES
+================================================================================
+```python
+# scripts/test_ontology_stress.py
+
+"""
+Stress tests for Ontology Foundry.
+Goal: Find edge cases and failure modes before Phase 2.
+"""
+
+import time
+import random
+import string
+import concurrent.futures
+from uuid import UUID, uuid4
+from datetime import datetime
+from src.context_foundry.models.schema import get_session
+from src.context_foundry.ontology.candidate_store import CandidateStore
+from src.context_foundry.ontology.normalizer import CandidateNormalizer
+from src.context_foundry.staging.staging_loader import StagingLoader
+from sqlalchemy import text
+
+def get_test_tenant():
+    session = get_session()
+    result = session.execute(text("SELECT id FROM platform.tenants LIMIT 1")).fetchone()
+    if not result:
+        result = session.execute(text("SELECT id FROM vaults LIMIT 1")).fetchone()
+    return UUID(str(result.id))
+
+TENANT_ID = None
+
+def setup():
+    global TENANT_ID
+    TENANT_ID = get_test_tenant()
+    print(f"Tenant: {TENANT_ID}")
+    print("=" * 70)
+
+# ============================================================================
+# TEST 7: High Volume - Many Candidates at Once
+# ============================================================================
+
+def test_7_high_volume():
+    """Create 100 different candidate types rapidly."""
+    print("\n" + "=" * 70)
+    print("TEST 7: HIGH VOLUME - 100 CANDIDATE TYPES")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    prefix = f"VOLUME_{uuid4().hex[:6].upper()}"
+    count = 100
+    
+    start = time.time()
+    
+    for i in range(count):
+        store.add_relationship_candidate(
+            proposed_name=f"{prefix}_{i}",
+            normalized_name=f"{prefix}_{i}",
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name=f"Source{i}",
+            target_entity_name=f"Target{i}",
+            original_text=f"Source{i} {prefix}_{i} Target{i}",
+            document_id=uuid4()
+        )
+    
+    elapsed = time.time() - start
+    
+    # Verify all created
+    candidates = store.get_pending_candidates()
+    created = len([c for c in candidates if c['normalized_name'].startswith(prefix)])
+    
+    print(f"  Created {count} candidates in {elapsed:.2f}s ({count/elapsed:.1f}/sec)")
+    print(f"  Verified: {created} candidates found")
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (
+            SELECT id FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%'
+        )
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%'"))
+    session.commit()
+    print(f"  Cleaned up")
+    
+    return created == count
+
+# ============================================================================
+# TEST 8: High Volume - Many Extractions per Candidate
+# ============================================================================
+
+def test_8_many_extractions():
+    """Create 1 candidate with 200 pending extractions."""
+    print("\n" + "=" * 70)
+    print("TEST 8: HIGH VOLUME - 200 EXTRACTIONS PER CANDIDATE")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    test_type = f"EXTRACT_{uuid4().hex[:6].upper()}"
+    count = 200
+    
+    start = time.time()
+    
+    for i in range(count):
+        store.add_relationship_candidate(
+            proposed_name=test_type,
+            normalized_name=test_type,
+            source_entity_type="ORGANIZATION",
+            target_entity_type="ORGANIZATION",
+            source_entity_name=f"Org{i}",
+            target_entity_name=f"Target{i}",
+            properties={"index": i},
+            original_text=f"Org{i} {test_type} Target{i} in transaction {i}",
+            document_id=uuid4()
+        )
+    
+    elapsed = time.time() - start
+    
+    # Verify candidate
+    candidates = store.get_pending_candidates()
+    candidate = next((c for c in candidates if c['normalized_name'] == test_type), None)
+    
+    if candidate:
+        candidate_id = UUID(candidate['id'])
+        extractions = store.get_pending_extractions(candidate_id)
+        
+        print(f"  Added {count} extractions in {elapsed:.2f}s")
+        print(f"  Candidate mentions: {candidate['mention_count']}")
+        print(f"  Pending extractions: {len(extractions)}")
+        print(f"  Confidence: {candidate['confidence_score']:.2f}")
+        print(f"  Example mentions stored: {len(candidate.get('example_mentions', []))}")
+        
+        success = (candidate['mention_count'] == count and len(extractions) == count)
+    else:
+        print(f"  ✗ Candidate not found")
+        success = False
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (
+            SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}'
+        )
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    print(f"  Cleaned up")
+    
+    return success
+
+# ============================================================================
+# TEST 9: Unicode & Special Characters
+# ============================================================================
+
+def test_9_unicode():
+    """Test various unicode and special character inputs."""
+    print("\n" + "=" * 70)
+    print("TEST 9: UNICODE & SPECIAL CHARACTERS")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    normalizer = CandidateNormalizer()
+    
+    test_cases = [
+        # Unicode in relationship type
+        ("СВЯЗАН_С", "Russian"),
+        ("関係_TYPE", "Japanese"),
+        ("RELAÇÃO_COM", "Portuguese"),
+        ("ΣΧΕΣΗ_ΜΕ", "Greek"),
+        ("关系_类型", "Chinese"),
+        
+        # Special characters
+        ("TYPE-WITH-DASHES", "Dashes"),
+        ("TYPE.WITH.DOTS", "Dots"),
+        ("TYPE WITH SPACES", "Spaces"),
+        ("TYPE\tWITH\tTABS", "Tabs"),
+        ("TYPE\nWITH\nNEWLINES", "Newlines"),
+        
+        # Edge cases
+        ("", "Empty string"),
+        ("   ", "Whitespace only"),
+        ("_", "Underscore only"),
+        ("123_NUMERIC_START", "Numeric start"),
+        ("A", "Single char"),
+        ("A" * 200, "Very long (200 chars)"),
+        
+        # SQL injection attempts (should be sanitized)
+        ("TYPE'; DROP TABLE--", "SQL injection 1"),
+        ("TYPE OR 1=1", "SQL injection 2"),
+    ]
+    
+    passed = 0
+    failed = 0
+    
+    for input_val, description in test_cases:
+        try:
+            # Test normalizer
+            normalized = normalizer.normalize_relationship(input_val)
+            
+            # Test storage (only if we got a valid normalized name)
+            if normalized:
+                test_type = f"UNICODE_{uuid4().hex[:4].upper()}_{normalized[:20]}"
+                store.add_relationship_candidate(
+                    proposed_name=input_val[:100] if input_val else "EMPTY",
+                    normalized_name=test_type,
+                    source_entity_type="ORGANIZATION",
+                    target_entity_type="ORGANIZATION",
+                    source_entity_name="TestOrg",
+                    target_entity_name="TestTarget",
+                    original_text=f"Test with {description}",
+                    document_id=uuid4()
+                )
+                
+                # Cleanup
+                session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+                session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+                session.commit()
+            
+            passed += 1
+            print(f"  ✓ {description}: '{input_val[:30]}...' → '{normalized[:30]}...'")
+            
+        except Exception as e:
+            failed += 1
+            print(f"  ✗ {description}: {e}")
+    
+    print(f"\n  Passed: {passed}/{len(test_cases)}")
+    
+    return failed == 0
+
+# ============================================================================
+# TEST 10: Concurrent Access
+# ============================================================================
+
+def test_10_concurrent():
+    """Test concurrent writes to same candidate."""
+    print("\n" + "=" * 70)
+    print("TEST 10: CONCURRENT ACCESS")
+    print("=" * 70)
+    
+    test_type = f"CONCURRENT_{uuid4().hex[:6].upper()}"
+    num_threads = 10
+    writes_per_thread = 20
+    
+    def worker(thread_id):
+        session = get_session()
+        store = CandidateStore(session, TENANT_ID)
+        
+        for i in range(writes_per_thread):
+            try:
+                store.add_relationship_candidate(
+                    proposed_name=test_type,
+                    normalized_name=test_type,
+                    source_entity_type="ORGANIZATION",
+                    target_entity_type="ORGANIZATION",
+                    source_entity_name=f"Thread{thread_id}_Org{i}",
+                    target_entity_name=f"Thread{thread_id}_Target{i}",
+                    original_text=f"Thread {thread_id} write {i}",
+                    document_id=uuid4()
+                )
+            except Exception as e:
+                return (thread_id, False, str(e))
+        
+        return (thread_id, True, None)
+    
+    start = time.time()
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+        futures = [executor.submit(worker, i) for i in range(num_threads)]
+        results = [f.result() for f in concurrent.futures.as_completed(futures)]
+    
+    elapsed = time.time() - start
+    
+    # Check results
+    successful = sum(1 for _, success, _ in results if success)
+    print(f"  {successful}/{num_threads} threads completed successfully")
+    print(f"  Time: {elapsed:.2f}s")
+    
+    # Verify final state
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    candidates = store.get_pending_candidates()
+    candidate = next((c for c in candidates if c['normalized_name'] == test_type), None)
+    
+    expected_mentions = num_threads * writes_per_thread
+    if candidate:
+        print(f"  Final mention count: {candidate['mention_count']}")
+        print(f"  Expected: {expected_mentions}")
+        
+        candidate_id = UUID(candidate['id'])
+        extractions = store.get_pending_extractions(candidate_id)
+        print(f"  Pending extractions: {len(extractions)}")
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (
+            SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}'
+        )
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    print(f"  Cleaned up")
+    
+    # Success if all threads completed and counts match
+    success = (successful == num_threads and 
+               candidate and 
+               candidate['mention_count'] == expected_mentions)
+    
+    return success
+
+# ============================================================================
+# TEST 11: Retrieval Performance
+# ============================================================================
+
+def test_11_retrieval_performance():
+    """Test retrieval speed with many candidates."""
+    print("\n" + "=" * 70)
+    print("TEST 11: RETRIEVAL PERFORMANCE")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    prefix = f"PERF_{uuid4().hex[:6].upper()}"
+    count = 50
+    
+    # Create candidates
+    print(f"  Creating {count} candidates...")
+    for i in range(count):
+        for j in range(5):  # 5 extractions each
+            store.add_relationship_candidate(
+                proposed_name=f"{prefix}_{i}",
+                normalized_name=f"{prefix}_{i}",
+                source_entity_type="ORGANIZATION",
+                target_entity_type="ORGANIZATION",
+                source_entity_name=f"Org{i}_{j}",
+                target_entity_name=f"Target{i}_{j}",
+                original_text=f"Test {i} extraction {j}",
+                document_id=uuid4()
+            )
+    
+    # Test retrieval times
+    print(f"  Testing retrieval performance...")
+    
+    # get_pending_candidates
+    start = time.time()
+    for _ in range(10):
+        candidates = store.get_pending_candidates()
+    elapsed = time.time() - start
+    print(f"  get_pending_candidates (10x): {elapsed:.3f}s ({elapsed/10*1000:.1f}ms avg)")
+    
+    # get_pending_candidates with filter
+    start = time.time()
+    for _ in range(10):
+        candidates = store.get_pending_candidates(min_confidence=0.5)
+    elapsed = time.time() - start
+    print(f"  get_pending_candidates filtered (10x): {elapsed:.3f}s ({elapsed/10*1000:.1f}ms avg)")
+    
+    # get_stats
+    start = time.time()
+    for _ in range(10):
+        stats = store.get_stats()
+    elapsed = time.time() - start
+    print(f"  get_stats (10x): {elapsed:.3f}s ({elapsed/10*1000:.1f}ms avg)")
+    
+    # get_pending_extractions for one candidate
+    if candidates:
+        candidate_id = UUID(candidates[0]['id'])
+        start = time.time()
+        for _ in range(10):
+            extractions = store.get_pending_extractions(candidate_id)
+        elapsed = time.time() - start
+        print(f"  get_pending_extractions (10x): {elapsed:.3f}s ({elapsed/10*1000:.1f}ms avg)")
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (
+            SELECT id FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%'
+        )
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name LIKE '{prefix}%'"))
+    session.commit()
+    print(f"  Cleaned up")
+    
+    return True
+
+# ============================================================================
+# TEST 12: Data Integrity
+# ============================================================================
+
+def test_12_data_integrity():
+    """Verify data integrity across operations."""
+    print("\n" + "=" * 70)
+    print("TEST 12: DATA INTEGRITY")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    test_type = f"INTEGRITY_{uuid4().hex[:6].upper()}"
+    all_passed = True
+    
+    # Test 12a: Document count accuracy
+    print("\n  12a. Document count accuracy:")
+    doc_ids = [uuid4() for _ in range(5)]
+    
+    # Add from same document twice
+    store.add_relationship_candidate(
+        proposed_name=test_type, normalized_name=test_type,
+        source_entity_type="ORG", target_entity_type="ORG",
+        source_entity_name="A", target_entity_name="B",
+        original_text="A to B", document_id=doc_ids[0]
+    )
+    store.add_relationship_candidate(
+        proposed_name=test_type, normalized_name=test_type,
+        source_entity_type="ORG", target_entity_type="ORG",
+        source_entity_name="C", target_entity_name="D",
+        original_text="C to D", document_id=doc_ids[0]  # Same doc
+    )
+    
+    candidate = next((c for c in store.get_pending_candidates() if c['normalized_name'] == test_type), None)
+    if candidate['document_count'] == 1 and candidate['mention_count'] == 2:
+        print(f"    ✓ Same doc twice: 1 doc, 2 mentions")
+    else:
+        print(f"    ✗ Expected 1 doc, 2 mentions; got {candidate['document_count']} docs, {candidate['mention_count']} mentions")
+        all_passed = False
+    
+    # Add from different documents
+    for doc_id in doc_ids[1:]:
+        store.add_relationship_candidate(
+            proposed_name=test_type, normalized_name=test_type,
+            source_entity_type="ORG", target_entity_type="ORG",
+            source_entity_name="X", target_entity_name="Y",
+            original_text="X to Y", document_id=doc_id
+        )
+    
+    candidate = next((c for c in store.get_pending_candidates() if c['normalized_name'] == test_type), None)
+    if candidate['document_count'] == 5 and candidate['mention_count'] == 6:
+        print(f"    ✓ After 4 more docs: 5 docs, 6 mentions")
+    else:
+        print(f"    ✗ Expected 5 docs, 6 mentions; got {candidate['document_count']} docs, {candidate['mention_count']} mentions")
+        all_passed = False
+    
+    # Test 12b: Example mentions cap
+    print("\n  12b. Example mentions capped at 10:")
+    test_type_2 = f"CAP_{uuid4().hex[:6].upper()}"
+    for i in range(15):
+        store.add_relationship_candidate(
+            proposed_name=test_type_2, normalized_name=test_type_2,
+            source_entity_type="ORG", target_entity_type="ORG",
+            source_entity_name=f"A{i}", target_entity_name=f"B{i}",
+            original_text=f"Example {i} text here", document_id=uuid4()
+        )
+    
+    candidate = next((c for c in store.get_pending_candidates() if c['normalized_name'] == test_type_2), None)
+    mentions = candidate.get('example_mentions', [])
+    if len(mentions) <= 10:
+        print(f"    ✓ Example mentions capped: {len(mentions)} (max 10)")
+    else:
+        print(f"    ✗ Too many mentions: {len(mentions)}")
+        all_passed = False
+    
+    # Test 12c: Confidence bounds
+    print("\n  12c. Confidence always between 0 and 1:")
+    candidates = store.get_pending_candidates()
+    out_of_bounds = [c for c in candidates if c['confidence_score'] < 0 or c['confidence_score'] > 1]
+    if not out_of_bounds:
+        print(f"    ✓ All {len(candidates)} candidates have valid confidence")
+    else:
+        print(f"    ✗ {len(out_of_bounds)} candidates have invalid confidence")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text(f"""
+        DELETE FROM pending_extractions 
+        WHERE candidate_id IN (
+            SELECT id FROM ontology_candidates WHERE normalized_name LIKE '{test_type}%' OR normalized_name LIKE 'CAP_%'
+        )
+    """))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name LIKE '{test_type}%' OR normalized_name LIKE 'CAP_%'"))
+    session.commit()
+    print("\n  Cleaned up")
+    
+    return all_passed
+
+# ============================================================================
+# TEST 13: Error Recovery
+# ============================================================================
+
+def test_13_error_recovery():
+    """Test behavior after errors."""
+    print("\n" + "=" * 70)
+    print("TEST 13: ERROR RECOVERY")
+    print("=" * 70)
+    
+    session = get_session()
+    store = CandidateStore(session, TENANT_ID)
+    
+    all_passed = True
+    
+    # Test 13a: Invalid UUID
+    print("\n  13a. Invalid UUID handling:")
+    try:
+        store.get_candidate_by_id(UUID("00000000-0000-0000-0000-000000000000"))
+        print(f"    ✓ Non-existent UUID returns None (no crash)")
+    except Exception as e:
+        print(f"    ✗ Crashed on non-existent UUID: {e}")
+        all_passed = False
+    
+    # Test 13b: Get extractions for non-existent candidate
+    print("\n  13b. Extractions for non-existent candidate:")
+    try:
+        extractions = store.get_pending_extractions(uuid4())
+        print(f"    ✓ Returns empty list: {len(extractions)} extractions")
+    except Exception as e:
+        print(f"    ✗ Crashed: {e}")
+        all_passed = False
+    
+    # Test 13c: Session still works after error
+    print("\n  13c. Session recovery after error:")
+    test_type = f"RECOVERY_{uuid4().hex[:6].upper()}"
+    try:
+        store.add_relationship_candidate(
+            proposed_name=test_type, normalized_name=test_type,
+            source_entity_type="ORG", target_entity_type="ORG",
+            source_entity_name="A", target_entity_name="B",
+            original_text="Test", document_id=uuid4()
+        )
+        candidates = store.get_pending_candidates()
+        found = any(c['normalized_name'] == test_type for c in candidates)
+        if found:
+            print(f"    ✓ Session works after previous operations")
+        else:
+            print(f"    ✗ Candidate not found")
+            all_passed = False
+    except Exception as e:
+        print(f"    ✗ Session broken: {e}")
+        all_passed = False
+    
+    # Cleanup
+    session.execute(text(f"DELETE FROM pending_extractions WHERE candidate_id IN (SELECT id FROM ontology_candidates WHERE normalized_name = '{test_type}')"))
+    session.execute(text(f"DELETE FROM ontology_candidates WHERE normalized_name = '{test_type}'"))
+    session.commit()
+    
+    return all_passed
+
+# ============================================================================
+# TEST 14: Normalizer Edge Cases
+# ============================================================================
+
+def test_14_normalizer_edge_cases():
+    """Test normalizer with edge case inputs."""
+    print("\n" + "=" * 70)
+    print("TEST 14: NORMALIZER EDGE CASES")
+    print("=" * 70)
+    
+    normalizer = CandidateNormalizer()
+    
+    test_cases = [
+        # Case sensitivity
+        ("invests_in", "INVESTED_IN", "lowercase"),
+        ("INVESTS_IN", "INVESTED_IN", "uppercase"),
+        ("Invests_In", "INVESTED_IN", "mixed case"),
+        ("iNvEsTs_In", "INVESTED_IN", "random case"),
+        
+        # Whitespace handling
+        ("  INVESTS_IN  ", "INVESTED_IN", "leading/trailing spaces"),
+        ("INVESTS  IN", "INVESTS_IN", "double spaces"),
+        ("INVESTS\t\tIN", "INVESTS_IN", "tabs"),
+        
+        # Separator handling
+        ("INVESTS-IN", "INVESTS_IN", "dashes to underscores"),
+        ("INVESTS.IN", "INVESTSIN", "dots removed"),
+        ("INVESTS__IN", "INVESTS_IN", "double underscores"),
+        
+        # Numbers
+        ("INVESTS_IN_2024", "INVESTS_IN_2024", "with numbers"),
+        ("123_STARTS_WITH_NUM", "123_STARTS_WITH_NUM", "starts with number"),
+        
+        # Already canonical
+        ("INVESTED_IN", "INVESTED_IN", "already canonical"),
+        ("WORKS_AT", "WORKS_AT", "already canonical 2"),
+    ]
+    
+    passed = 0
+    failed = 0
+    
+    for input_val, expected, description in test_cases:
+        result = normalizer.normalize_relationship(input_val)
+        if result == expected:
+            passed += 1
+            print(f"  ✓ {description}: '{input_val}' → '{result}'")
+        else:
+            failed += 1
+            print(f"  ✗ {description}: '{input_val}' → '{result}' (expected '{expected}')")
+    
+    print(f"\n  Passed: {passed}/{len(test_cases)}")
+    
+    return failed == 0
+
+# ============================================================================
+# MAIN
+# ============================================================================
+
+def main():
+    print("\n" + "=" * 70)
+    print("ONTOLOGY FOUNDRY — STRESS TEST SUITE")
+    print(f"Started: {datetime.now().isoformat()}")
+    print("=" * 70)
+    
+    setup()
+    
+    results = {}
+    
+    tests = [
+        ("test_7_high_volume", test_7_high_volume),
+        ("test_8_many_extractions", test_8_many_extractions),
+        ("test_9_unicode", test_9_unicode),
+        ("test_10_concurrent", test_10_concurrent),
+        ("test_11_retrieval_performance", test_11_retrieval_performance),
+        ("test_12_data_integrity", test_12_data_integrity),
+        ("test_13_error_recovery", test_13_error_recovery),
+        ("test_14_normalizer_edge_cases", test_14_normalizer_edge_cases),
+    ]
+    
+    for name, func in tests:
+        try:
+            results[name] = func()
+        except Exception as e:
+            print(f"  ✗ CRASHED: {e}")
+            import traceback
+            traceback.print_exc()
+            results[name] = False
+    
+    # Summary
+    print("\n" + "=" * 70)
+    print("STRESS TEST SUMMARY")
+    print("=" * 70)
+    
+    passed = sum(1 for v in results.values() if v)
+    total = len(results)
+    
+    for test_name, passed_test in results.items():
+        status = "✓ PASSED" if passed_test else "✗ FAILED"
+        print(f"  {status}: {test_name}")
+    
+    print(f"\n  Total: {passed}/{total} tests passed")
+    
+    if passed == total:
+        print("\n  ✅ ALL STRESS TESTS PASSED")
+    else:
+        print("\n  ⚠️  Some tests failed — Review before Phase 2")
+    
+    print("=" * 70)
+
+if __name__ == "__main__":
+    main()
+```
+
+Run:
+```bash
+python scripts/test_ontology_stress.py
+```
+
+================================================================================
+EXPECTED BEHAVIOR
+================================================================================
+
+TEST 7: HIGH VOLUME
+- Should create 100 candidates in < 10 seconds
+- All 100 should be retrievable
+
+TEST 8: MANY EXTRACTIONS
+- Should handle 200 extractions for single candidate
+- Example mentions capped at 10, but all 200 extractions stored
+
+TEST 9: UNICODE
+- Should handle or gracefully reject unicode inputs
+- SQL injection attempts should be sanitized
+
+TEST 10: CONCURRENT
+- Should handle 10 threads writing simultaneously
+- Final counts should match expected (200 total)
+- No deadlocks or race conditions
+
+TEST 11: RETRIEVAL PERFORMANCE
+- get_pending_candidates < 100ms average
+- get_stats < 50ms average
+
+TEST 12: DATA INTEGRITY
+- Document count accurate (same doc twice = 1 doc)
+- Example mentions capped at 10
+- Confidence always 0-1
+
+TEST 13: ERROR RECOVERY
+- Invalid UUIDs don't crash
+- Session continues working after errors
+
+TEST 14: NORMALIZER EDGE CASES
+- Case insensitive
+- Whitespace handled
+- Separators normalized
+
+================================================================================
+REPORT BACK
+================================================================================
+
+Send the full output. Any failures = things to fix before Phase 2.
+================================================================================
