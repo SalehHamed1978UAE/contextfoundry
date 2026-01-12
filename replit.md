@@ -81,7 +81,10 @@ Key architectural features include:
 - **Ontology Foundry (Phase 1)**: Learning system for evolving schema that captures unknown types as candidates:
   - `CandidateNormalizer`: Maps LLM-proposed relationship names to canonical forms (e.g., INVESTS_IN → INVESTED_IN)
   - `CandidateStore`: Stores unknown relationship/entity types with evidence, confidence scoring, and provenance
-  - Dual-path extraction in `GraphBuilder`: Known types → KG, unknown types → candidates table
+  - Dual-path extraction in `StagingLoader` (production pipeline): Known types → KG, unknown types → candidates table
+  - `StagingLoader.load_relation()`: Checks type against schema + approved candidates; routes unknown to `CandidateStore`
+  - Hard failure on candidate storage errors: RuntimeError propagates to halt ingestion (prevents partial/inconsistent state)
+  - Tenant-less runs: Unknown types logged and skipped (backward compatible)
   - Confidence formula: 40% document diversity + 30% mention frequency + 30% base confidence
   - Tables: `ontology_candidates` (candidates with evidence), `pending_extractions` (extractions waiting for approval)
   - API endpoints: GET `/api/ontology/candidates`, `/candidates/{id}`, `/stats` (read-only Phase 1)
