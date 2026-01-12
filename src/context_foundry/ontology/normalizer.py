@@ -134,6 +134,7 @@ class CandidateNormalizer:
     
     def _clean_name(self, name: str) -> str:
         """Clean and standardize a name."""
+        name = re.sub(r'([a-z])([A-Z])', r'\1_\2', name)
         name = name.upper()
         name = re.sub(r'[\s\-]+', '_', name)
         name = re.sub(r'[^A-Z0-9_]', '', name)
