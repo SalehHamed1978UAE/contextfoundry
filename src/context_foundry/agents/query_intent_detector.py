@@ -57,7 +57,6 @@ RELATIONSHIP_DIRECTION_PATTERNS = {
                 r"who reports to\b",
                 r"reports to (?:the )?(?!whom)",
                 r"direct reports",
-                r"who does .+ manage",
                 r"team members of",
                 r"subordinates of",
                 r"works? under",
@@ -71,7 +70,9 @@ RELATIONSHIP_DIRECTION_PATTERNS = {
                 r"who does .+ report to",
                 r"does .+ report to",
                 r"report to whom",
-                r"manager of",
+                r"who is .+ reporting to",
+                r".+'s manager\b",
+                r"manager of\b",
                 r"who supervises",
                 r"boss of",
                 r"reports up to",
@@ -81,11 +82,11 @@ RELATIONSHIP_DIRECTION_PATTERNS = {
     },
     "MANAGES": {
         "inbound": {
-            "patterns": [r"who does .+ manage", r"manages who", r"team of"],
+            "patterns": [r"who does .+ manage\b", r"manages who", r"team of"],
             "target_role": "subordinates"
         },
         "outbound": {
-            "patterns": [r"who manages", r"managed by", r"supervisor of"],
+            "patterns": [r"who manages\b", r"managed by", r"supervisor of"],
             "target_role": "manager"
         }
     },
