@@ -29,6 +29,7 @@ from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 from ..ontology_foundry.schema_service import get_ontology_schema_service
 from ..utils.logger import logger
 from ..memory.episodic import openai_embedding
+from ..extraction.post_processor import get_post_processor, ExtractionPostProcessor
 
 
 def parse_date_string(date_str: str) -> Optional[datetime]:
@@ -603,6 +604,40 @@ class GraphBuilderAgent:
         all_entities, all_relationships = self.create_implicit_role_relationships(
             all_entities, all_relationships
         )
+        
+        # Phase 2.6: Post-processor catches relationships LLM missed
+        try:
+            post_processor = get_post_processor()
+            existing_entities = [{"name": e.canonical_name, "entity_type": e.entity_type} for e in all_entities]
+            existing_rels = [{"source_name": r.source_name, "target_name": r.target_name, "relationship_type": r.relationship_type} for r in all_relationships]
+            
+            pp_result = post_processor.process(text, existing_entities, existing_rels)
+            
+            # Add new entities from post-processor
+            for new_ent in pp_result.new_entities:
+                all_entities.append(ExtractedEntity(
+                    entity_type=new_ent["entity_type"],
+                    canonical_name=new_ent["name"],
+                    confidence=new_ent.get("confidence", 0.85),
+                    source_sentence=f"Post-processor: {new_ent.get('source', 'pattern')}",
+                ))
+            
+            # Add new relationships from post-processor
+            for new_rel in pp_result.new_relationships:
+                all_relationships.append(ExtractedRelationship(
+                    relationship_type=new_rel.relationship_type,
+                    source_name=new_rel.source_name,
+                    target_name=new_rel.target_name,
+                    confidence=new_rel.confidence,
+                    source_sentence=new_rel.source_text,
+                    provenance_text=f"Post-processor: {new_rel.pattern_name}",
+                ))
+            
+            if pp_result.patterns_matched > 0:
+                logger.info(f"[{doc_id}] Post-processor added {len(pp_result.new_entities)} entities, "
+                           f"{len(pp_result.new_relationships)} relationships")
+        except Exception as e:
+            logger.warning(f"[{doc_id}] Post-processor failed (non-fatal): {e}")
         
         entities_staged, relationships_staged = self.write_to_staging(
             entities=all_entities,

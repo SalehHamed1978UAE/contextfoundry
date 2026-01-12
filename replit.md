@@ -50,6 +50,15 @@ Key architectural features include:
   - `build_qa_evidence()`: Combines retrieval results and tool call data
   - `calculate_confidence()`: Single formula for confidence scoring based on QA verdict and evidence
   - `build_response()`: Consistent response dictionary format for all code paths
+- **Extraction Hardening (Phase 2.6)**: Defense-in-depth pattern-based post-processor:
+  - `ExtractionPostProcessor`: Runs after LLM extraction to catch missed relationships using regex patterns
+  - Role patterns: HOLDS_POSITION extraction from "Name - Title" formats
+  - Compensation patterns: HAS_COMPENSATION extraction from salary mentions
+  - Role-centric compensation patterns: ROLE_HAS_COMPENSATION for "CEO's salary is $X" patterns
+  - Healthcare role aliases: CMO resolves to "Chief Medical Officer" in healthcare contexts
+  - `GapDetector`: Validates relationship targets against constraints
+  - `backfill_extraction.py`: Script to reprocess existing vaults with new patterns
+- **Known Limitation - Role Query Chaining**: When asking "What is the CEO's salary?", the system correctly resolves CEO → Person, but the query pipeline doesn't always chain to look up that person's compensation. Named queries ("Sarah Chen's compensation") work because they bypass role resolution. Future enhancement: query pipeline should inject resolved entity into attribute lookups.
 - **Ambiguity Detection & Disambiguation**: Generalized pattern for handling queries that match multiple entities:
   - `AmbiguityResult` dataclass: Query-agnostic structure for ambiguous results (roles, entities, departments, projects, locations, metrics)
   - `RoleResolver.resolve_all()`: Finds all people holding a role across the vault (accepts vault_context for org prioritization)

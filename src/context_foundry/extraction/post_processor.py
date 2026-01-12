@@ -46,6 +46,13 @@ ROLE_ABBREVIATIONS = {
     "IT": "Information Technology",
 }
 
+HEALTHCARE_ROLE_EXPANSIONS = {
+    "CMO": "Chief Medical Officer",
+    "CNO": "Chief Nursing Officer",
+}
+
+ROLE_C_SUITE_TITLES = list(ROLE_ABBREVIATIONS.keys())
+
 ROLE_FULL_NAMES = {v: k for k, v in ROLE_ABBREVIATIONS.items()}
 
 
@@ -148,6 +155,29 @@ COMPENSATION_PATTERNS = [
      "compensation", 0.90),
 ]
 
+ROLE_COMPENSATION_PATTERNS = [
+    (r'(?:the\s+)?(CEO|CFO|CTO|CIO|COO|CMO|CDO|CHRO|CLO|CSO|CPO|CRO|'
+     r'Chief\s+Executive\s+Officer|Chief\s+Financial\s+Officer|Chief\s+Technology\s+Officer|'
+     r'Chief\s+Information\s+Officer|Chief\s+Operating\s+Officer|Chief\s+Medical\s+Officer|'
+     r'Chief\s+Marketing\s+Officer|Managing\s+Partner|Senior\s+Partner|President)\'?s?\s+'
+     r'(?:base\s+)?(?:salary|compensation|pay|total\s+compensation)\s+'
+     r'(?:is|of|:)?\s*\$?([0-9,]+(?:\.[0-9]{2})?)',
+     "role_compensation", 0.92),
+    (r'(?:base\s+)?(?:salary|compensation|pay)\s+(?:for|of)\s+(?:the\s+)?'
+     r'(CEO|CFO|CTO|CIO|COO|CMO|CDO|CHRO|'
+     r'Chief\s+Executive\s+Officer|Chief\s+Financial\s+Officer|Chief\s+Technology\s+Officer|'
+     r'Chief\s+Medical\s+Officer|Managing\s+Partner|Senior\s+Partner|President)\s+'
+     r'(?:is|:)?\s*\$?([0-9,]+(?:\.[0-9]{2})?)',
+     "role_compensation", 0.90),
+    (r'(?:the\s+)?(CEO|CFO|CTO|CIO|COO|CMO|CDO|Managing\s+Partner|Senior\s+Partner|President)\s+'
+     r'(?:receives?|earns?|makes?|has)\s+(?:a\s+)?(?:base\s+)?(?:salary|compensation)\s+of\s+'
+     r'\$?([0-9,]+(?:\.[0-9]{2})?)',
+     "role_compensation", 0.90),
+    (r'\$([0-9,]+(?:\.[0-9]{2})?)\s+(?:base\s+)?(?:salary|compensation)\s+'
+     r'(?:for|to)\s+(?:the\s+)?(CEO|CFO|CTO|CIO|COO|CMO|Managing\s+Partner|President)',
+     "role_compensation_reverse", 0.88),
+]
+
 ORGANIZATION_PATTERNS = [
     (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2}),\s*(?:CEO|CFO|CTO|CIO|COO|CDO|CMO|CNO|CHRO|'
      r'Chief\s+\w+\s+Officer|Managing\s+Partner|Senior\s+Partner|Partner|'
@@ -223,6 +253,7 @@ class ExtractionPostProcessor:
         self.role_patterns = role_patterns or ROLE_PATTERNS
         self.reporting_patterns = REPORTING_PATTERNS
         self.compensation_patterns = COMPENSATION_PATTERNS
+        self.role_compensation_patterns = ROLE_COMPENSATION_PATTERNS
         self.organization_patterns = ORGANIZATION_PATTERNS
 
     def process(
@@ -262,6 +293,12 @@ class ExtractionPostProcessor:
         )
         new_relationships.extend(comp_rels)
         patterns_matched += len(comp_rels)
+
+        role_comp_rels = self._extract_role_compensation_relationships(
+            document_text, existing_entity_names, existing_rel_keys
+        )
+        new_relationships.extend(role_comp_rels)
+        patterns_matched += len(role_comp_rels)
 
         org_rels, org_entities = self._extract_organization_relationships(
             document_text, existing_entity_names, existing_rel_keys
@@ -452,6 +489,53 @@ class ExtractionPostProcessor:
                 logger.warning(f"[PostProcessor] Compensation pattern failed: {e}")
         return relationships
 
+    def _extract_role_compensation_relationships(
+        self, text: str, existing_entity_names: Set[str], existing_rel_keys: Set[Tuple[str, str, str]]
+    ) -> List[ExtractedRelationshipFromPattern]:
+        """
+        Extract ROLE_HAS_COMPENSATION relationships from text.
+        
+        Handles patterns like "CEO's salary is $850,000" where the role
+        (not person name) is mentioned. Creates a ROLE_HAS_COMPENSATION
+        relationship that links the role title to the compensation amount.
+        
+        These relationships can later be joined with HOLDS_POSITION to answer
+        queries like "What is the CEO's salary?"
+        """
+        relationships = []
+        seen_roles = set()
+        for pattern, rel_type, confidence in self.role_compensation_patterns:
+            try:
+                matches = re.finditer(pattern, text, re.IGNORECASE)
+                for match in matches:
+                    groups = match.groups()
+                    if rel_type == "role_compensation_reverse":
+                        amount = groups[0].strip()
+                        role_title = groups[1].strip()
+                    else:
+                        role_title = groups[0].strip()
+                        amount = groups[1].strip()
+                    role_normalized = self._normalize_role(role_title)
+                    if role_normalized.lower() in seen_roles:
+                        continue
+                    seen_roles.add(role_normalized.lower())
+                    rel_key = (role_normalized.lower(), amount, "ROLE_HAS_COMPENSATION")
+                    if rel_key in existing_rel_keys:
+                        continue
+                    rel = ExtractedRelationshipFromPattern(
+                        relationship_type="ROLE_HAS_COMPENSATION",
+                        source_name=role_normalized,
+                        target_name=amount,
+                        confidence=confidence,
+                        pattern_name="role_compensation_pattern",
+                        source_text=match.group(0)
+                    )
+                    relationships.append(rel)
+                    logger.info(f"[PostProcessor] Found role compensation: {role_normalized} → ${amount}")
+            except Exception as e:
+                logger.warning(f"[PostProcessor] Role compensation pattern failed: {e}")
+        return relationships
+
     def _extract_organization_relationships(
         self, text: str, existing_entity_names: Set[str], existing_rel_keys: Set[Tuple[str, str, str]]
     ) -> Tuple[List[ExtractedRelationshipFromPattern], List[Dict]]:
@@ -511,11 +595,22 @@ class RoleNormalizer:
         {"CIO", "Chief Information Officer", "IT Director", "VP IT", "Head of IT"},
         {"COO", "Chief Operating Officer", "VP Operations", "Head of Operations"},
         {"CMO", "Chief Marketing Officer", "VP Marketing", "Head of Marketing", "Marketing Director"},
+        {"CMO-Healthcare", "Chief Medical Officer", "Medical Director", "Head of Medical"},
+        {"CNO", "Chief Nursing Officer", "Nursing Director", "VP Nursing"},
         {"CHRO", "Chief Human Resources Officer", "VP HR", "Head of HR", "HR Director"},
         {"Managing Partner", "Senior Partner", "Name Partner"},
         {"Partner", "Equity Partner", "Full Partner"},
         {"Chairman", "Chairwoman", "Chairperson", "Chair", "Board Chair"},
     ]
+    
+    CMO_CONTEXT_AWARE = {
+        "healthcare": "Chief Medical Officer",
+        "medical": "Chief Medical Officer",
+        "hospital": "Chief Medical Officer",
+        "clinic": "Chief Medical Officer",
+        "marketing": "Chief Marketing Officer",
+        "default": "Chief Marketing Officer",
+    }
 
     def __init__(self):
         self._canonical_map: Dict[str, str] = {}
