@@ -30,6 +30,8 @@ from ..ontology_foundry.schema_service import get_ontology_schema_service
 from ..utils.logger import logger
 from ..memory.episodic import openai_embedding
 from ..extraction.post_processor import get_post_processor, ExtractionPostProcessor
+from ..ontology.normalizer import CandidateNormalizer
+from ..ontology.candidate_store import CandidateStore
 
 
 def parse_date_string(date_str: str) -> Optional[datetime]:
@@ -409,7 +411,46 @@ class GraphBuilderAgent:
         self._valid_entity_types = self.schema_loader.get_valid_entity_types()
         self._valid_relationship_types = self.schema_loader.get_valid_relationship_types()
         
+        self._candidate_normalizer = CandidateNormalizer()
+        self._known_relationship_types_cache = None
+        
         logger.info("GraphBuilderAgent initialized with configurable schema")
+    
+    def _get_known_relationship_types(self, tenant_id: str = None) -> Set[str]:
+        """
+        Get all known relationship types (base schema + approved candidates).
+        
+        Ontology Foundry Phase 1: Types not in this set will be stored as candidates.
+        """
+        if self._known_relationship_types_cache is not None:
+            return self._known_relationship_types_cache
+        
+        base_types = set(self._valid_relationship_types)
+        
+        if tenant_id:
+            try:
+                from sqlalchemy import text
+                query = """
+                    SELECT DISTINCT normalized_name 
+                    FROM ontology_candidates 
+                    WHERE tenant_id = :tenant_id 
+                      AND candidate_type = 'RELATIONSHIP' 
+                      AND status = 'APPROVED'
+                """
+                result = self.session.execute(text(query), {'tenant_id': tenant_id})
+                approved = {row.normalized_name for row in result}
+                base_types = base_types | approved
+            except Exception as e:
+                logger.debug(f"Could not load approved candidates: {e}")
+        
+        self._known_relationship_types_cache = base_types
+        return base_types
+    
+    def _is_known_relationship_type(self, rel_type: str, tenant_id: str = None) -> bool:
+        """Check if a relationship type is known (in schema or approved)."""
+        normalized = self._candidate_normalizer.normalize_relationship(rel_type)
+        known_types = self._get_known_relationship_types(tenant_id)
+        return normalized in known_types
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
         """Build entity extraction prompt dynamically from schema config."""
@@ -1167,6 +1208,30 @@ class GraphBuilderAgent:
                     continue
                 
                 db_rel_type = self._normalize_relationship_type(rel.relationship_type)
+                
+                normalized_type = self._candidate_normalizer.normalize_relationship(rel.relationship_type)
+                if not self._is_known_relationship_type(rel.relationship_type, tenant_id):
+                    try:
+                        candidate_store = CandidateStore(self.session, uuid.UUID(tenant_id))
+                        source_entity = next((e for e in entities if e.canonical_name == rel.source_name), None)
+                        target_entity = next((e for e in entities if e.canonical_name == rel.target_name), None)
+                        
+                        candidate_store.add_relationship_candidate(
+                            proposed_name=rel.relationship_type,
+                            normalized_name=normalized_type,
+                            source_entity_type=source_entity.entity_type if source_entity else "UNKNOWN",
+                            target_entity_type=target_entity.entity_type if target_entity else "UNKNOWN",
+                            source_entity_name=rel.source_name,
+                            target_entity_name=rel.target_name,
+                            properties=rel.properties,
+                            original_text=rel.source_sentence,
+                            document_id=str(source_document_id) if source_document_id else None,
+                            chunk_id=None
+                        )
+                        logger.info(f"[OntologyFoundry] Unknown type '{rel.relationship_type}' → candidate as '{normalized_type}'")
+                        continue
+                    except Exception as e:
+                        logger.warning(f"[OntologyFoundry] Failed to store candidate: {e}")
                 
                 existing = self.session.query(Relationship).filter(
                     Relationship.source_id == source_id,

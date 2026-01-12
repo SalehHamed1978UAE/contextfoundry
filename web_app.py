@@ -76,6 +76,9 @@ if os.environ.get("GOOGLE_OAUTH_CLIENT_ID"):
 from src.context_foundry.api.external import external_api
 app.register_blueprint(external_api)
 
+from src.context_foundry.ontology_routes import ontology_bp
+app.register_blueprint(ontology_bp)
+
 def validate_api_key():
     """
     Validate API key from Authorization header.
