@@ -1,0 +1,819 @@
+PHASE 2.6 — EXTRACTION HARDENING
+COMPLETE CONTEXT AND IMPLEMENTATION GUIDE
+
+================================================================================
+BACKGROUND — WHAT WE DISCOVERED
+================================================================================
+
+We ran the E2E test twice with identical code and documents. Results:
+
+RUN 1 vs RUN 2 EXTRACTION COUNTS:
+| Vault              | RUN 1 Entities | RUN 2 Entities | Difference |
+|--------------------|----------------|----------------|------------|
+| TechVentures       | 174            | 123            | -51        |
+| Riverside          | 40             | 90             | +50        |
+| Titan              | 78             | 48             | -30        |
+| Launchpad          | 119            | 106            | -13        |
+
+Same documents. Same code. Wildly different extraction results.
+
+CONSISTENT BUGS (appeared in both runs):
+1. "What is the CEO's salary?" (TechVentures) → Returns "The CEO is Sarah Chen" instead of "$850,000"
+2. "Who reports to the CEO?" (TechVentures) → Returns CEO's name instead of list of reports
+3. "Who is the CMO?" (Riverside) → Returns "does not specify" even though data exists
+4. CloudAI not extracted (Launchpad) → Entity in document but not in graph
+5. "75th percentile" extracted as investment target → Garbage relationship
+
+ROOT CAUSE INVESTIGATION FINDINGS:
+
+1. COMPENSATION NOT LINKED:
+   - Sarah Chen entity exists
+   - $850,000 entity exists  
+   - But NO relationship connecting them
+   - Riverside has 18 RECEIVES_COMPENSATION relationships; TechVentures has 0
+
+2. LLM EXTRACTION IS NON-DETERMINISTIC:
+   - Same prompt, different runs = different outputs
+   - This is inherent to LLMs, not a bug we can fix
+   - Temperature=0 doesn't guarantee determinism (GPU numerics, batching vary)
+
+3. NO VALIDATION ON EXTRACTION:
+   - System accepts whatever LLM returns
+   - No check that compensation is linked to people
+   - No check that relationship targets are valid types
+   - "75th percentile" as INVESTED_IN target was never flagged
+
+================================================================================
+THE SOLUTION — DEFENSE IN DEPTH
+================================================================================
+
+We cannot make LLM extraction deterministic. But we can BUILD SYSTEMS THAT
+DON'T REQUIRE PERFECTION.
+
+NEW ARCHITECTURE:
+
+Document → LLM Extraction (70-90% coverage, variable)
+        → Post-Processor (catches obvious patterns LLM missed)
+        → Gap Detector (validates semantic correctness)
+        → Final output (more complete, validated)
+
+This is how production ML systems work. You validate outputs, not trust them.
+
+================================================================================
+IMPLEMENTATION — THREE NEW MODULES
+================================================================================
+
+CREATE FILE 1: src/context_foundry/extraction/post_processor.py
+--------------------------------------------------------------------------------
+
+Purpose: Deterministic pattern matching that catches what LLM missed.
+Runs AFTER LLM extraction, BEFORE data is saved.
+
+Key components:
+
+1. ROLE_PATTERNS - Regex patterns for role extraction:
+   - "Sarah Chen - Chief Executive Officer" 
+   - "CEO John Smith"
+   - "John Smith, CEO"
+   - "John Smith is the CEO"
+
+2. REPORTING_PATTERNS - Regex for reporting relationships:
+   - "John reports to Sarah"
+   - "Sarah manages John"
+
+3. COMPENSATION_PATTERNS - Regex for compensation:
+   - "Sarah Chen's salary is $850,000"
+   - "compensation of $850,000 for Sarah Chen"
+
+4. ExtractionPostProcessor class:
+   - process(document_text, existing_entities, existing_relationships)
+   - Returns new entities and relationships the LLM missed
+   - Only adds if not already present (no duplicates)
+```python
+"""
+Extraction Post-Processor for Context Foundry.
+Catches relationships the LLM missed using deterministic patterns.
+Runs AFTER LLM extraction, BEFORE data is finalized.
+"""
+
+import re
+from dataclasses import dataclass, field
+from typing import Dict, List, Set, Tuple
+from datetime import datetime
+
+# Role abbreviation mappings
+ROLE_ABBREVIATIONS = {
+    "CEO": "Chief Executive Officer",
+    "CFO": "Chief Financial Officer",
+    "CTO": "Chief Technology Officer",
+    "CIO": "Chief Information Officer",
+    "COO": "Chief Operating Officer",
+    "CMO": "Chief Marketing Officer",
+    "CDO": "Chief Data Officer",
+    "CNO": "Chief Nursing Officer",
+    "CHRO": "Chief Human Resources Officer",
+    "CLO": "Chief Legal Officer",
+    "CSO": "Chief Security Officer",
+    "CPO": "Chief Product Officer",
+    "CRO": "Chief Revenue Officer",
+    "VP": "Vice President",
+    "SVP": "Senior Vice President",
+    "EVP": "Executive Vice President",
+    "MD": "Managing Director",
+    "GM": "General Manager",
+}
+
+ROLE_FULL_NAMES = {v: k for k, v in ROLE_ABBREVIATIONS.items()}
+
+@dataclass
+class RolePattern:
+    name: str
+    pattern: str
+    person_group: int
+    role_group: int
+    confidence: float = 0.90
+
+# Patterns for extracting role relationships
+ROLE_PATTERNS = [
+    RolePattern(
+        name="name_dash_title",
+        pattern=r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\s*[-–—:]\s*'
+                r'(Chief\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+Officer|'
+                r'CEO|CFO|CTO|CIO|COO|CDO|CMO|CNO|CHRO|CLO|CSO|CPO|CRO|'
+                r'Managing\s+Partner|Senior\s+Partner|Partner|'
+                r'(?:Senior\s+|Executive\s+)?Vice\s+President(?:\s+of\s+[A-Z][a-z]+)?|'
+                r'Director(?:\s+of\s+[A-Z][a-z]+)?|'
+                r'Chairman|Chairwoman|Chairperson|'
+                r'Head\s+of\s+[A-Z][a-z]+|'
+                r'President)(?=[\s,.\n]|$)',
+        person_group=1,
+        role_group=2,
+        confidence=0.95,
+    ),
+    RolePattern(
+        name="title_before_name",
+        pattern=r'\b(CEO|CFO|CTO|CIO|COO|CDO|CMO|CNO|CHRO)\s+'
+                r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})(?=[\s,.\n]|$)',
+        person_group=2,
+        role_group=1,
+        confidence=0.92,
+    ),
+    RolePattern(
+        name="name_comma_title",
+        pattern=r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2}),\s*'
+                r'(Chief\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+Officer|'
+                r'CEO|CFO|CTO|CIO|COO|CDO|CMO|CNO|'
+                r'Managing\s+Partner|Senior\s+Partner|Partner)(?=[\s,.\n]|$)',
+        person_group=1,
+        role_group=2,
+        confidence=0.90,
+    ),
+    RolePattern(
+        name="name_is_title",
+        pattern=r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})\s+(?:is|serves\s+as|acts\s+as)\s+(?:the\s+)?'
+                r'(Chief\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+Officer|'
+                r'CEO|CFO|CTO|CIO|COO|CDO|CMO|CNO|'
+                r'Managing\s+Partner|Senior\s+Partner|Partner|'
+                r'Director(?:\s+of\s+[A-Z][a-z]+)?)(?=[\s,.\n]|$)',
+        person_group=1,
+        role_group=2,
+        confidence=0.92,
+    ),
+]
+
+# Reporting relationship patterns
+REPORTING_PATTERNS = [
+    (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+reports?\s+to\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)', 0.90, "reports_to"),
+    (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+(?:manages|oversees|supervises)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)', 0.85, "manages"),
+]
+
+# Compensation patterns
+COMPENSATION_PATTERNS = [
+    (r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)(?:\'s)?\s+(?:base\s+)?(?:salary|compensation)\s*(?:is|of|:)?\s*\$?([0-9,]+)', "compensation", 0.90),
+    (r'(?:salary|compensation)\s+of\s+\$?([0-9,]+)\s+(?:for|to)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)', "compensation_reverse", 0.90),
+]
+
+@dataclass
+class ExtractedRelationship:
+    relationship_type: str
+    source_name: str
+    target_name: str
+    confidence: float
+    pattern_name: str
+    source_text: str
+
+@dataclass 
+class PostProcessorResult:
+    new_entities: List[Dict]
+    new_relationships: List[ExtractedRelationship]
+    patterns_matched: int
+    processing_time_ms: float
+
+
+class ExtractionPostProcessor:
+    """Catches relationships the LLM missed using deterministic patterns."""
+    
+    def __init__(self):
+        self.role_patterns = ROLE_PATTERNS
+        self.reporting_patterns = REPORTING_PATTERNS
+        self.compensation_patterns = COMPENSATION_PATTERNS
+    
+    def process(
+        self,
+        document_text: str,
+        existing_entities: List[Dict],
+        existing_relationships: List[Dict]
+    ) -> PostProcessorResult:
+        import time
+        start = time.time()
+        
+        new_entities = []
+        new_relationships = []
+        patterns_matched = 0
+        
+        existing_entity_names = self._build_entity_name_set(existing_entities)
+        existing_rel_keys = self._build_relationship_keys(existing_relationships)
+        
+        # Extract role relationships
+        role_rels, role_entities = self._extract_role_relationships(
+            document_text, existing_entity_names, existing_rel_keys
+        )
+        new_relationships.extend(role_rels)
+        new_entities.extend(role_entities)
+        patterns_matched += len(role_rels)
+        
+        # Extract reporting relationships
+        reporting_rels = self._extract_reporting_relationships(
+            document_text, existing_entity_names, existing_rel_keys
+        )
+        new_relationships.extend(reporting_rels)
+        patterns_matched += len(reporting_rels)
+        
+        # Extract compensation relationships
+        comp_rels = self._extract_compensation_relationships(
+            document_text, existing_entity_names, existing_rel_keys
+        )
+        new_relationships.extend(comp_rels)
+        patterns_matched += len(comp_rels)
+        
+        elapsed_ms = (time.time() - start) * 1000
+        
+        return PostProcessorResult(
+            new_entities=new_entities,
+            new_relationships=new_relationships,
+            patterns_matched=patterns_matched,
+            processing_time_ms=elapsed_ms
+        )
+    
+    def _build_entity_name_set(self, entities: List[Dict]) -> Set[str]:
+        names = set()
+        for e in entities:
+            name = e.get('name') or e.get('canonical_name', '')
+            if name:
+                names.add(name.lower().strip())
+        return names
+    
+    def _build_relationship_keys(self, relationships: List[Dict]) -> Set[Tuple[str, str, str]]:
+        keys = set()
+        for r in relationships:
+            source = (r.get('source_name') or '').lower().strip()
+            target = (r.get('target_name') or '').lower().strip()
+            rel_type = (r.get('relationship_type') or r.get('type', '')).upper().strip()
+            if source and target and rel_type:
+                keys.add((source, target, rel_type))
+        return keys
+    
+    def _normalize_role(self, role: str) -> str:
+        role = role.strip()
+        role_upper = role.upper()
+        if role_upper in ROLE_ABBREVIATIONS:
+            return ROLE_ABBREVIATIONS[role_upper]
+        return role
+    
+    def _is_valid_person_name(self, name: str) -> bool:
+        words = name.split()
+        if len(words) < 2 or len(words) > 4:
+            return False
+        invalid_words = {'the', 'our', 'their', 'and', 'or', 'for', 'to', 'of', 'in', 'on', 'is', 'are'}
+        if any(w.lower() in invalid_words for w in words):
+            return False
+        return all(word[0].isupper() for word in words)
+    
+    def _extract_role_relationships(
+        self, text: str, existing_names: Set[str], existing_rels: Set[Tuple]
+    ) -> Tuple[List[ExtractedRelationship], List[Dict]]:
+        relationships = []
+        new_entities = []
+        seen_pairs = set()
+        
+        for pattern in self.role_patterns:
+            try:
+                for match in re.finditer(pattern.pattern, text, re.IGNORECASE):
+                    person_name = match.group(pattern.person_group).strip()
+                    role_title = match.group(pattern.role_group).strip()
+                    
+                    if not self._is_valid_person_name(person_name):
+                        continue
+                    
+                    role_title = self._normalize_role(role_title)
+                    pair_key = (person_name.lower(), role_title.lower())
+                    
+                    if pair_key in seen_pairs:
+                        continue
+                    seen_pairs.add(pair_key)
+                    
+                    rel_key = (person_name.lower(), role_title.lower(), "HOLDS_POSITION")
+                    if rel_key in existing_rels:
+                        continue
+                    
+                    relationships.append(ExtractedRelationship(
+                        relationship_type="HOLDS_POSITION",
+                        source_name=person_name,
+                        target_name=role_title,
+                        confidence=pattern.confidence,
+                        pattern_name=pattern.name,
+                        source_text=match.group(0)
+                    ))
+                    
+                    if person_name.lower() not in existing_names:
+                        new_entities.append({"name": person_name, "entity_type": "PERSON", "source": "post_processor"})
+                        existing_names.add(person_name.lower())
+                    
+                    if role_title.lower() not in existing_names:
+                        new_entities.append({"name": role_title, "entity_type": "JOB_TITLE", "source": "post_processor"})
+                        existing_names.add(role_title.lower())
+            except Exception as e:
+                print(f"[PostProcessor] Pattern '{pattern.name}' failed: {e}")
+        
+        return relationships, new_entities
+    
+    def _extract_reporting_relationships(
+        self, text: str, existing_names: Set[str], existing_rels: Set[Tuple]
+    ) -> List[ExtractedRelationship]:
+        relationships = []
+        seen_pairs = set()
+        
+        for pattern, confidence, rel_type in self.reporting_patterns:
+            try:
+                for match in re.finditer(pattern, text, re.IGNORECASE):
+                    if rel_type == "reports_to":
+                        subordinate = match.group(1).strip()
+                        manager = match.group(2).strip()
+                    else:
+                        manager = match.group(1).strip()
+                        subordinate = match.group(2).strip()
+                    
+                    pair_key = (subordinate.lower(), manager.lower())
+                    if pair_key in seen_pairs:
+                        continue
+                    seen_pairs.add(pair_key)
+                    
+                    rel_key = (subordinate.lower(), manager.lower(), "REPORTS_TO")
+                    if rel_key in existing_rels:
+                        continue
+                    
+                    relationships.append(ExtractedRelationship(
+                        relationship_type="REPORTS_TO",
+                        source_name=subordinate,
+                        target_name=manager,
+                        confidence=confidence,
+                        pattern_name="reporting_pattern",
+                        source_text=match.group(0)
+                    ))
+            except Exception as e:
+                print(f"[PostProcessor] Reporting pattern failed: {e}")
+        
+        return relationships
+    
+    def _extract_compensation_relationships(
+        self, text: str, existing_names: Set[str], existing_rels: Set[Tuple]
+    ) -> List[ExtractedRelationship]:
+        relationships = []
+        seen_names = set()
+        
+        for pattern, rel_type, confidence in self.compensation_patterns:
+            try:
+                for match in re.finditer(pattern, text, re.IGNORECASE):
+                    groups = match.groups()
+                    
+                    if rel_type == "compensation_reverse":
+                        amount = groups[0].strip()
+                        person_name = groups[1].strip()
+                    else:
+                        person_name = groups[0].strip()
+                        amount = groups[1].strip()
+                    
+                    if not self._is_valid_person_name(person_name):
+                        continue
+                    
+                    if person_name.lower() in seen_names:
+                        continue
+                    seen_names.add(person_name.lower())
+                    
+                    rel_key = (person_name.lower(), amount, "HAS_COMPENSATION")
+                    if rel_key in existing_rels:
+                        continue
+                    
+                    relationships.append(ExtractedRelationship(
+                        relationship_type="HAS_COMPENSATION",
+                        source_name=person_name,
+                        target_name=f"${amount}",
+                        confidence=confidence,
+                        pattern_name="compensation_pattern",
+                        source_text=match.group(0)
+                    ))
+            except Exception as e:
+                print(f"[PostProcessor] Compensation pattern failed: {e}")
+        
+        return relationships
+```
+
+--------------------------------------------------------------------------------
+CREATE FILE 2: src/context_foundry/extraction/gap_detector.py
+--------------------------------------------------------------------------------
+
+Purpose: Validates extraction results. Catches semantic errors.
+
+Key components:
+
+1. RELATIONSHIP_TARGET_CONSTRAINTS - What types are valid targets:
+   - INVESTED_IN → must target ORGANIZATION, COMPANY, PORTFOLIO_COMPANY
+   - HOLDS_POSITION → must target JOB_TITLE, ROLE
+   - REPORTS_TO → must target PERSON
+
+2. GapType enum - Types of problems detected:
+   - PERSON_WITHOUT_ROLE
+   - INVALID_RELATIONSHIP_TARGET
+   - COMPENSATION_WITHOUT_ROLE
+   - etc.
+
+3. ExtractionGapDetector class:
+   - detect_all() - Finds all gaps in extraction
+   - Returns list of gaps with severity (CRITICAL, WARNING, INFO)
+```python
+"""
+Extraction Gap Detector for Context Foundry.
+Detects extraction gaps and validates relationship targets.
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, List, Optional, Set
+from enum import Enum
+from sqlalchemy.orm import Session
+from sqlalchemy import text
+
+class GapSeverity(str, Enum):
+    CRITICAL = "critical"
+    WARNING = "warning"
+    INFO = "info"
+
+class GapType(str, Enum):
+    PERSON_WITHOUT_ROLE = "person_without_role"
+    ORPHAN_ROLE = "orphan_role"
+    MISSING_REPORTS_TO = "missing_reports_to"
+    COMPENSATION_WITHOUT_ROLE = "compensation_without_role"
+    PERSON_WITHOUT_ORGANIZATION = "person_without_organization"
+    INVALID_RELATIONSHIP_TARGET = "invalid_relationship_target"
+
+# Valid target types for each relationship type
+RELATIONSHIP_TARGET_CONSTRAINTS = {
+    "INVESTED_IN": ["ORGANIZATION", "COMPANY", "STARTUP", "PORTFOLIO_COMPANY"],
+    "HAS_INVESTMENT": ["ORGANIZATION", "COMPANY", "STARTUP", "PORTFOLIO_COMPANY"],
+    "HOLDS_POSITION": ["JOB_TITLE", "ROLE", "POSITION"],
+    "HAS_ROLE": ["JOB_TITLE", "ROLE", "POSITION"],
+    "REPORTS_TO": ["PERSON", "EMPLOYEE", "EXECUTIVE"],
+    "MANAGED_BY": ["PERSON", "EMPLOYEE", "EXECUTIVE"],
+    "WORKS_AT": ["ORGANIZATION", "COMPANY", "DEPARTMENT", "TEAM"],
+    "EMPLOYED_BY": ["ORGANIZATION", "COMPANY", "DEPARTMENT", "TEAM"],
+    "RECEIVES_COMPENSATION": ["COMPENSATION", "SALARY", "AMOUNT", "MONETARY_VALUE"],
+    "HAS_COMPENSATION": ["COMPENSATION", "SALARY", "AMOUNT", "MONETARY_VALUE"],
+}
+
+@dataclass
+class ExtractionGap:
+    gap_type: GapType
+    severity: GapSeverity
+    entity_id: str
+    entity_name: str
+    entity_type: str
+    description: str
+    suggested_fix: str = ""
+    detected_at: datetime = field(default_factory=datetime.utcnow)
+    document_id: Optional[str] = None
+
+@dataclass
+class GapDetectionResult:
+    gaps: List[ExtractionGap]
+    detection_time_ms: float = 0
+    
+    @property
+    def critical_count(self) -> int:
+        return sum(1 for g in self.gaps if g.severity == GapSeverity.CRITICAL)
+    
+    @property
+    def warning_count(self) -> int:
+        return sum(1 for g in self.gaps if g.severity == GapSeverity.WARNING)
+    
+    @property
+    def info_count(self) -> int:
+        return sum(1 for g in self.gaps if g.severity == GapSeverity.INFO)
+
+
+class ExtractionGapDetector:
+    """Detects gaps and validates extraction results."""
+    
+    def __init__(self, session: Session, tenant_id: Optional[str] = None):
+        self.session = session
+        self.tenant_id = tenant_id
+    
+    def detect_all(self, document_id: Optional[str] = None) -> GapDetectionResult:
+        import time
+        start = time.time()
+        
+        gaps = []
+        
+        # Load entities and relationships
+        entities = self._get_entities(document_id)
+        relationships = self._get_relationships(document_id)
+        
+        # Build lookup structures
+        entity_by_id = {str(e.id): e for e in entities}
+        person_ids = {str(e.id) for e in entities if e.entity_type and e.entity_type.upper() == "PERSON"}
+        
+        # Check for invalid relationship targets
+        for rel in relationships:
+            rel_type = rel.relationship_type.upper() if rel.relationship_type else ""
+            target_id = str(rel.target_id) if rel.target_id else None
+            
+            if not target_id or rel_type not in RELATIONSHIP_TARGET_CONSTRAINTS:
+                continue
+            
+            target_entity = entity_by_id.get(target_id)
+            if not target_entity:
+                continue
+            
+            valid_types = RELATIONSHIP_TARGET_CONSTRAINTS[rel_type]
+            target_type = target_entity.entity_type.upper() if target_entity.entity_type else "UNKNOWN"
+            
+            if target_type not in [t.upper() for t in valid_types]:
+                source_entity = entity_by_id.get(str(rel.source_id))
+                source_name = source_entity.name if source_entity else "Unknown"
+                
+                gaps.append(ExtractionGap(
+                    gap_type=GapType.INVALID_RELATIONSHIP_TARGET,
+                    severity=GapSeverity.CRITICAL,
+                    entity_id=target_id,
+                    entity_name=target_entity.name,
+                    entity_type=target_type,
+                    description=f"'{source_name}' --[{rel_type}]--> '{target_entity.name}' has invalid target type '{target_type}'. Expected: {', '.join(valid_types)}",
+                    suggested_fix=f"Remove or fix this relationship. {rel_type} should target {'/'.join(valid_types[:3])}"
+                ))
+        
+        result = GapDetectionResult(gaps=gaps)
+        result.detection_time_ms = (time.time() - start) * 1000
+        
+        return result
+    
+    def _get_entities(self, document_id: Optional[str]) -> List:
+        try:
+            query = "SELECT id, name, entity_type, properties FROM entities WHERE tenant_id = :tid"
+            params = {"tid": self.tenant_id}
+            
+            if document_id:
+                query += " AND source_document_id = :doc_id"
+                params["doc_id"] = document_id
+            
+            result = self.session.execute(text(query), params)
+            
+            class EntityRow:
+                def __init__(self, row):
+                    self.id = row[0]
+                    self.name = row[1]
+                    self.entity_type = row[2]
+                    self.properties = row[3]
+            
+            return [EntityRow(row) for row in result.fetchall()]
+        except Exception as e:
+            print(f"[GapDetector] Failed to load entities: {e}")
+            return []
+    
+    def _get_relationships(self, document_id: Optional[str]) -> List:
+        try:
+            query = "SELECT id, source_id, target_id, relationship_type FROM relationships WHERE tenant_id = :tid"
+            params = {"tid": self.tenant_id}
+            
+            if document_id:
+                query += " AND source_document_id = :doc_id"
+                params["doc_id"] = document_id
+            
+            result = self.session.execute(text(query), params)
+            
+            class RelRow:
+                def __init__(self, row):
+                    self.id = row[0]
+                    self.source_id = row[1]
+                    self.target_id = row[2]
+                    self.relationship_type = row[3]
+            
+            return [RelRow(row) for row in result.fetchall()]
+        except Exception as e:
+            print(f"[GapDetector] Failed to load relationships: {e}")
+            return []
+```
+
+--------------------------------------------------------------------------------
+CREATE FILE 3: scripts/backfill_extraction.py
+--------------------------------------------------------------------------------
+
+Purpose: Reprocess existing vaults with post-processor to fill gaps.
+```python
+#!/usr/bin/env python3
+"""
+Backfill extraction for existing vaults.
+Runs post-processor on all documents to add missing relationships.
+"""
+
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from sqlalchemy import text
+from db import get_session
+from src.context_foundry.extraction.post_processor import ExtractionPostProcessor
+
+def backfill_tenant(tenant_id: str, tenant_name: str):
+    """Run post-processor on all documents for a tenant."""
+    print(f"\n{'='*60}")
+    print(f"BACKFILL: {tenant_name}")
+    print(f"{'='*60}")
+    
+    session = get_session(use_rls_role=False)
+    post_processor = ExtractionPostProcessor()
+    
+    # Get all documents
+    docs = session.execute(
+        text("SELECT id, filename, content FROM documents WHERE tenant_id = :tid"),
+        {"tid": tenant_id}
+    ).fetchall()
+    
+    print(f"Found {len(docs)} documents")
+    
+    total_new_entities = 0
+    total_new_relationships = 0
+    
+    for doc_id, filename, content in docs:
+        print(f"\nProcessing: {filename}")
+        
+        # Get existing entities and relationships
+        existing_entities = session.execute(
+            text("SELECT name, entity_type FROM entities WHERE tenant_id = :tid"),
+            {"tid": tenant_id}
+        ).fetchall()
+        
+        existing_rels = session.execute(
+            text("""
+                SELECT e1.name, e2.name, r.relationship_type 
+                FROM relationships r
+                JOIN entities e1 ON r.source_id = e1.id
+                JOIN entities e2 ON r.target_id = e2.id
+                WHERE r.tenant_id = :tid
+            """),
+            {"tid": tenant_id}
+        ).fetchall()
+        
+        entities_list = [{"name": e[0], "entity_type": e[1]} for e in existing_entities]
+        rels_list = [{"source_name": r[0], "target_name": r[1], "relationship_type": r[2]} for r in existing_rels]
+        
+        # Run post-processor
+        result = post_processor.process(content, entities_list, rels_list)
+        
+        print(f"  New entities: {len(result.new_entities)}")
+        print(f"  New relationships: {len(result.new_relationships)}")
+        
+        # TODO: Insert new entities and relationships into database
+        # For now, just report what would be added
+        
+        for rel in result.new_relationships:
+            print(f"    + {rel.source_name} --[{rel.relationship_type}]--> {rel.target_name}")
+        
+        total_new_entities += len(result.new_entities)
+        total_new_relationships += len(result.new_relationships)
+    
+    print(f"\n{tenant_name} SUMMARY:")
+    print(f"  Total new entities: {total_new_entities}")
+    print(f"  Total new relationships: {total_new_relationships}")
+    
+    return total_new_entities, total_new_relationships
+
+
+def main():
+    session = get_session(use_rls_role=False)
+    
+    # Get all tenants
+    tenants = session.execute(
+        text("SELECT id, name FROM platform.tenants WHERE name NOT LIKE 'E2E_Test_%'")
+    ).fetchall()
+    
+    print(f"Found {len(tenants)} tenants")
+    
+    grand_total_entities = 0
+    grand_total_relationships = 0
+    
+    for tenant_id, tenant_name in tenants:
+        entities, rels = backfill_tenant(str(tenant_id), tenant_name)
+        grand_total_entities += entities
+        grand_total_relationships += rels
+    
+    print(f"\n{'='*60}")
+    print("BACKFILL COMPLETE")
+    print(f"{'='*60}")
+    print(f"Total new entities: {grand_total_entities}")
+    print(f"Total new relationships: {grand_total_relationships}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+================================================================================
+STEP-BY-STEP INSTRUCTIONS
+================================================================================
+
+STEP 1: Create the three files above
+- post_processor.py
+- gap_detector.py  
+- backfill_extraction.py
+
+STEP 2: Update __init__.py exports
+In src/context_foundry/extraction/__init__.py, add:
+```python
+from .post_processor import ExtractionPostProcessor, PostProcessorResult
+from .gap_detector import ExtractionGapDetector, GapDetectionResult, RELATIONSHIP_TARGET_CONSTRAINTS
+```
+
+STEP 3: Integrate into extraction pipeline
+Find where LLM extraction happens (likely graph_builder.py or similar).
+After LLM extraction returns, add:
+```python
+from src.context_foundry.extraction.post_processor import ExtractionPostProcessor
+from src.context_foundry.extraction.gap_detector import ExtractionGapDetector
+
+# After LLM extraction...
+post_processor = ExtractionPostProcessor()
+post_result = post_processor.process(document_text, llm_entities, llm_relationships)
+
+# Merge results
+all_entities = llm_entities + post_result.new_entities
+all_relationships = llm_relationships + [
+    {"source_name": r.source_name, "target_name": r.target_name, "relationship_type": r.relationship_type}
+    for r in post_result.new_relationships
+]
+
+# Validate
+gap_detector = ExtractionGapDetector(session, tenant_id)
+gaps = gap_detector.detect_all()
+
+if gaps.critical_count > 0:
+    print(f"WARNING: {gaps.critical_count} critical gaps found")
+    for gap in gaps.gaps:
+        if gap.severity.value == "critical":
+            print(f"  - {gap.description}")
+```
+
+STEP 4: Run backfill on existing vaults
+```bash
+python scripts/backfill_extraction.py
+```
+
+STEP 5: Run E2E test to verify
+```bash
+python scripts/e2e_lifecycle_test.py
+```
+
+Save results to: /mnt/user-data/outputs/e2e_results_POST_HARDENING.txt
+
+================================================================================
+WHAT TO REPORT BACK
+================================================================================
+
+1. Confirmation that files are created
+2. Backfill script output (what relationships were added)
+3. E2E test results (full output file)
+4. Comparison: Do these bugs still exist?
+   - "What is CEO's salary?" (TechVentures)
+   - "Who reports to CEO?" (TechVentures)
+   - "75th percentile" garbage
+   - CloudAI missing (Launchpad)
+
+================================================================================
+IF SOMETHING DOESN'T WORK
+================================================================================
+
+STOP and report:
+- What file/step failed
+- The exact error message
+- Do NOT try to fix it yourself
+
+We will review and provide guidance.
+================================================================================
