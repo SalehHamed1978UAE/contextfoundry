@@ -78,6 +78,15 @@ Key architectural features include:
     - LLM fallback: Reason about which match(es) best answer user's intent
   - Response format: Primary answer + "Note: Your documents also mention..." for alternatives
   - When no clear primary match, asks user to clarify
+- **Ontology Foundry (Phase 1)**: Learning system for evolving schema that captures unknown types as candidates:
+  - `CandidateNormalizer`: Maps LLM-proposed relationship names to canonical forms (e.g., INVESTS_IN → INVESTED_IN)
+  - `CandidateStore`: Stores unknown relationship/entity types with evidence, confidence scoring, and provenance
+  - Dual-path extraction in `GraphBuilder`: Known types → KG, unknown types → candidates table
+  - Confidence formula: 40% document diversity + 30% mention frequency + 30% base confidence
+  - Tables: `ontology_candidates` (candidates with evidence), `pending_extractions` (extractions waiting for approval)
+  - API endpoints: GET `/api/ontology/candidates`, `/candidates/{id}`, `/stats` (read-only Phase 1)
+  - Candidate lifecycle: PENDING → APPROVED/REJECTED, 90-day expiration for stale candidates
+  - Future Phase 2: Admin UI for reviewing candidates, bulk approval, and automatic schema extension
 
 ## External Dependencies
 
