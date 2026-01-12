@@ -1,0 +1,68 @@
+QUERY PIPELINE FIX — CHAINING ROLE → PERSON → ATTRIBUTE
+
+The extraction hardening is complete. Now we need to fix the query pipeline
+so role-based queries chain to attribute lookups.
+
+================================================================================
+THE PROBLEM
+================================================================================
+
+Current behavior:
+User: "What is the CEO's salary?"
+→ Returns: "The CEO is Sarah Chen" ❌
+
+Expected behavior:
+User: "What is the CEO's salary?"
+→ Returns: "$850,000 base salary" ✅
+
+The data EXISTS in the graph:
+- "Sarah Chen's compensation" → Works perfectly, returns $850K
+- "CEO's salary" → Fails, returns identity instead of salary
+
+================================================================================
+ROOT CAUSE
+================================================================================
+
+The query pipeline does this:
+1. Detect "CEO" is a role
+2. Resolve CEO → Sarah Chen
+3. Return "The CEO is Sarah Chen" ← STOPS HERE
+
+It should do this:
+1. Detect "CEO" is a role
+2. Detect "salary" is an attribute being asked about
+3. Resolve CEO → Sarah Chen
+4. Look up Sarah Chen's compensation
+5. Return "$850,000 base salary"
+
+================================================================================
+INVESTIGATION NEEDED
+================================================================================
+
+Before implementing, find and share:
+
+1. WHERE does role resolution happen?
+   - Which file/function resolves "CEO" → "Sarah Chen"?
+
+2. WHERE does query intent classification happen?
+   - Which file/function decides what type of query this is?
+
+3. WHERE does the response get generated?
+   - Which file/function produces "The CEO is Sarah Chen"?
+
+4. WHAT relationship types connect person to compensation?
+   - HAS_COMPENSATION? RECEIVES_COMPENSATION? Both?
+
+Share the relevant code sections so we can design the fix together.
+
+================================================================================
+DO NOT IMPLEMENT YET
+================================================================================
+
+First, investigate and report back:
+- File names and function names for the 4 questions above
+- Relevant code snippets (the actual logic, not just imports)
+- Your assessment of where the chaining logic should go
+
+We'll design the fix together before you implement.
+================================================================================
