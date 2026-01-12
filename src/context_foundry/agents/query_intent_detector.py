@@ -30,6 +30,7 @@ class QueryIntent:
     target_entity: Optional[str] = None
     target_entity_id: Optional[str] = None
     direction: str = "outbound"
+    target_role: Optional[str] = None
     search_terms: List[str] = field(default_factory=list)
     target_types: List[str] = field(default_factory=list)
     confidence: float = 0.0
@@ -42,10 +43,73 @@ class QueryIntent:
             "target_entity": self.target_entity,
             "target_entity_id": self.target_entity_id,
             "direction": self.direction,
+            "target_role": self.target_role,
             "search_terms": self.search_terms,
             "target_types": self.target_types,
             "confidence": self.confidence
         }
+
+
+RELATIONSHIP_DIRECTION_PATTERNS = {
+    "REPORTS_TO": {
+        "inbound": {
+            "patterns": [
+                r"who reports to\b",
+                r"reports to (?:the )?(?!whom)",
+                r"direct reports",
+                r"who does .+ manage",
+                r"team members of",
+                r"subordinates of",
+                r"works? under",
+                r"people under",
+                r"staff of",
+            ],
+            "target_role": "subordinates"
+        },
+        "outbound": {
+            "patterns": [
+                r"who does .+ report to",
+                r"does .+ report to",
+                r"report to whom",
+                r"manager of",
+                r"who supervises",
+                r"boss of",
+                r"reports up to",
+            ],
+            "target_role": "manager"
+        }
+    },
+    "MANAGES": {
+        "inbound": {
+            "patterns": [r"who does .+ manage", r"manages who", r"team of"],
+            "target_role": "subordinates"
+        },
+        "outbound": {
+            "patterns": [r"who manages", r"managed by", r"supervisor of"],
+            "target_role": "manager"
+        }
+    },
+    "OWNS": {
+        "inbound": {
+            "patterns": [r"what does .+ own", r"owns what"],
+            "target_role": "owned_entities"
+        },
+        "outbound": {
+            "patterns": [r"who owns", r"owner of", r"owned by"],
+            "target_role": "owner"
+        }
+    },
+    "INVESTED_IN": {
+        "inbound": {
+            "patterns": [r"who invested in", r"investors of", r"backed by"],
+            "target_role": "investors"
+        },
+        "outbound": {
+            "patterns": [r"what did .+ invest", r"investments of", r"portfolio of"],
+            "target_role": "investments"
+        }
+    }
+}
 
 
 class QueryIntentDetector:
@@ -193,7 +257,21 @@ class QueryIntentDetector:
         )
     
     def _detect_relationship_intent(self, query: str) -> Optional[QueryIntent]:
-        """Detect relationship type from query indicators."""
+        """Detect relationship type from query indicators with direction awareness."""
+        
+        for rel_type, directions in RELATIONSHIP_DIRECTION_PATTERNS.items():
+            for direction, config in directions.items():
+                for pattern in config["patterns"]:
+                    if re.search(pattern, query, re.IGNORECASE):
+                        logger.info(f"[INTENT] Direction-aware match: {rel_type}/{direction} via '{pattern}'")
+                        return QueryIntent(
+                            intent_type="relationship",
+                            relationship_type=rel_type,
+                            direction=direction,
+                            target_role=config["target_role"],
+                            confidence=0.9
+                        )
+        
         rel_config = self.config.get('relationship_queries', {})
         
         for rel_type, config in rel_config.items():
