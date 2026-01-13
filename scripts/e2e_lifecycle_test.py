@@ -144,6 +144,60 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         with open(self.output_file, "a", encoding="utf-8") as f:
             f.write(text)
     
+    def cleanup_all_demo_vaults(self):
+        """Clean up all demo vaults from previous test runs."""
+        self.log("Cleaning up all demo vaults from previous runs...")
+        
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
+        
+        try:
+            with get_session(use_rls_role=False) as session:
+                # Find all demo vaults
+                vaults = session.execute(text("""
+                    SELECT id, name FROM platform.tenants 
+                    WHERE type = 'demo'
+                """)).fetchall()
+                
+                if not vaults:
+                    self.log("         No demo vaults to clean up")
+                    return
+                
+                self.log(f"         Found {len(vaults)} demo vaults to delete")
+                
+                for vault_id, vault_name in vaults:
+                    tid = str(vault_id)
+                    
+                    # Clear entity references
+                    session.execute(text("UPDATE public.entities SET superseded_by = NULL WHERE tenant_id = :tid"), {"tid": tid})
+                    
+                    # Delete from public tables
+                    for table in ['entity_mentions', 'doc_entity_mentions', 'relationships', 
+                                  'entities', 'document_chunks']:
+                        try:
+                            session.execute(text(f"DELETE FROM public.{table} WHERE tenant_id = :tid"), {"tid": tid})
+                        except: pass
+                    
+                    # Delete from platform tables
+                    try:
+                        session.execute(text("DELETE FROM platform.extraction_results WHERE request_id IN (SELECT request_id FROM platform.extraction_requests WHERE tenant_id = :tid)"), {"tid": tid})
+                    except: pass
+                    
+                    for table in ['extraction_requests', 'documents', 'user_tenants', 'usage_events']:
+                        try:
+                            session.execute(text(f"DELETE FROM platform.{table} WHERE tenant_id = :tid"), {"tid": tid})
+                        except: pass
+                    
+                    # Delete tenant
+                    session.execute(text("DELETE FROM platform.tenants WHERE id = :tid"), {"tid": tid})
+                    self.log(f"         Deleted: {vault_name}")
+                
+                session.commit()
+                self.log(f"         Cleanup complete: {len(vaults)} vaults deleted")
+                
+        except Exception as e:
+            self.log(f"         Warning: Cleanup failed: {e}")
+    
     def run(self) -> int:
         """Run E2E test for all vaults. Returns exit code."""
         try:
@@ -155,6 +209,9 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             from src.context_foundry.models.schema import get_session
         except ImportError as e:
             fail_and_exit("Import error", f"Cannot import get_session: {e}", "from src.context_foundry.models.schema import get_session")
+        
+        # Clean up all demo vaults from previous runs at the beginning
+        self.cleanup_all_demo_vaults()
         
         self.log(f"Starting E2E test for {len(VAULTS)} vaults")
         self.log(f"Output file: {self.output_file}")
@@ -230,18 +287,13 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             
             result["success"] = True
             
+            # On success, remove from cleanup list - vault stays for manual inspection
+            if vault_name in _vaults_to_cleanup:
+                _vaults_to_cleanup.remove(vault_name)
+            
         except Exception as e:
             result["error"] = str(e)
-        
-        finally:
-            # Always clean up vault after test (success or failure)
-            self.log(f"Cleaning up vault: {vault_name}")
-            try:
-                self.step0_delete_existing(vault_name)
-                if vault_name in _vaults_to_cleanup:
-                    _vaults_to_cleanup.remove(vault_name)
-            except Exception as cleanup_error:
-                self.log(f"Warning: Cleanup failed for {vault_name}: {cleanup_error}")
+            # On failure, vault stays in cleanup list for atexit handler
         
         return result
     
