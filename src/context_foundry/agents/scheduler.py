@@ -15,6 +15,7 @@ from sqlalchemy import text
 from .gardener import Gardener, GardenerConfig, GardenerCycleResult
 from .identity_resolver import IdentityResolver, IdentityResolutionConfig, IdentityResolutionResult
 from ..models.schema import get_session
+from ..extraction.extraction_monitor import get_extraction_monitor
 
 
 @dataclass
@@ -22,6 +23,7 @@ class SchedulerConfig:
     """Configuration for the Gardener scheduler."""
     cycle_interval_seconds: int = 300
     run_identity_resolution: bool = True
+    run_extraction_monitoring: bool = True
     gardener_config: Optional[GardenerConfig] = None
     identity_config: Optional[IdentityResolutionConfig] = None
     max_history: int = 100
@@ -35,6 +37,7 @@ class ScheduledCycleResult:
     completed_at: Optional[datetime] = None
     gardener_result: Optional[GardenerCycleResult] = None
     identity_result: Optional[IdentityResolutionResult] = None
+    extraction_result: Optional[dict] = None
     success: bool = True
     error: Optional[str] = None
     
@@ -45,6 +48,7 @@ class ScheduledCycleResult:
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "gardener_result": self.gardener_result.to_dict() if self.gardener_result else None,
             "identity_result": self.identity_result.to_dict() if self.identity_result else None,
+            "extraction_result": self.extraction_result,
             "success": self.success,
             "error": self.error,
         }
@@ -214,6 +218,13 @@ class GardenerScheduler:
                     config=self.config.identity_config,
                 )
                 result.identity_result = identity.run(commit=True)
+            
+            if self.config.run_extraction_monitoring:
+                try:
+                    monitor = get_extraction_monitor(session)
+                    result.extraction_result = monitor.run_cycle()
+                except Exception as e:
+                    print(f"[Scheduler] Extraction monitoring error: {e}")
             
             result.success = True
             
