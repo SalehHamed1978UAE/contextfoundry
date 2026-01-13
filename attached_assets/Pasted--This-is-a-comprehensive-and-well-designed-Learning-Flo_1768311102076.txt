@@ -1,0 +1,98 @@
+ This is a comprehensive and well-designed Learning Flow spec. It addresses the last pending task: connecting gap detection to re-extraction.
+
+  Assessment
+  ┌───────────────────────┬────────┬───────────────────────────────────┐
+  │       Component       │ Status │               Notes               │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ Database Schema       │ ✅     │ 4 tables + dashboard view         │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ Gap Detector          │ ✅     │ Detects no-answer, low-confidence │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ Queue Manager         │ ✅     │ Priority scoring, deduplication   │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ Targeted Extractor    │ ✅     │ Pattern + LLM extraction          │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ Orchestrator          │ ✅     │ Coordinates all components        │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ API Endpoints         │ ✅     │ Full CRUD + triggers              │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ Query Integration     │ ✅     │ Hook pattern                      │
+  ├───────────────────────┼────────┼───────────────────────────────────┤
+  │ Scheduler Integration │ ✅     │ Periodic processing               │
+  └───────────────────────┴────────┴───────────────────────────────────┘
+  Architecture Strengths
+
+  1. Adaptive Priority System
+  FREQUENCY_WEIGHT = 2.0   # Repeated gaps get higher priority
+  USER_FEEDBACK_WEIGHT = 3.0  # Explicit corrections = highest priority
+
+  Same gap reported multiple times → priority increases → gets processed sooner.
+
+  2. Pattern + LLM Hybrid Extraction
+  # Fast pattern-based first
+  pattern_entities = self._pattern_extract(...)
+
+  # LLM only if patterns fail
+  if len(pattern_entities) == 0:
+      llm_entities, llm_relationships = self._llm_extract(...)
+
+  Cost-efficient: avoids LLM calls when simple patterns work.
+
+  3. Deduplication in Queue
+  existing = self._find_similar_task(...)
+  if existing:
+      self._increment_task(existing['id'], gap_id)  # Boost priority
+      return existing['id']
+
+  Prevents queue spam when multiple users hit the same gap.
+
+  4. Query Hook Pattern
+  def handle_query(...):
+      # ... existing query logic ...
+
+      # Hook into Learning Flow
+      gap = orchestrator.on_query_response(...)
+
+  Non-invasive integration - existing query logic unchanged.
+
+  Minor Suggestions
+
+  1. Tenant ID Reference
+
+  The migration references vaults(id):
+  tenant_id UUID NOT NULL REFERENCES vaults(id) ON DELETE CASCADE,
+
+  Based on earlier conversation, this should be platform.tenants(id):
+  tenant_id UUID NOT NULL REFERENCES platform.tenants(id) ON DELETE CASCADE,
+
+  2. Learning Results Foreign Key
+
+  CREATE TABLE learning_results (
+      ...
+      tenant_id UUID NOT NULL,  -- Missing REFERENCES
+
+  Should be:
+  tenant_id UUID NOT NULL REFERENCES platform.tenants(id) ON DELETE CASCADE,
+
+  3. Dashboard View Join
+
+  FROM vaults v
+
+  Should be:
+  FROM platform.tenants v
+
+  What This Enables
+
+  The CloudAI scenario from earlier:
+  1. User asks "Tell me about CloudAI" → No answer (extraction missed it)
+  2. Gap detected → Queued as learning task
+  3. Targeted extractor searches chunks for "CloudAI"
+  4. Finds it in portfolio summary → Adds to KG
+  5. Next query → Returns CloudAI info
+
+  This is the "organizational object permanence" - the system learns from its mistakes.
+
+  Verdict
+
+  Ready for implementation with the schema fixes noted above. This completes the Learning Flow feature and closes out the last pending todo item.
+
