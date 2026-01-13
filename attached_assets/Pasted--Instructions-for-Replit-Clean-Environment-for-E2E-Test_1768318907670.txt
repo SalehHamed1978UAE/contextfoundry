@@ -1,0 +1,94 @@
+ Instructions for Replit: Clean Environment for E2E Tests
+
+  The File to Modify
+
+  The E2E lifecycle test script (likely named something like e2e_lifecycle_test.py or similar on Replit). This is the script that outputs the results file with "E2E LIFECYCLE TEST RESULTS".
+
+  What to Add at the Beginning
+
+  Add a cleanup function that runs before creating any vaults. Here's the pattern:
+
+  # Add this at the start of the E2E test, BEFORE vault creation
+
+  TEST_VAULTS = [
+      "TechVentures",
+      "Morrison & Sterling",
+      "Riverside Medical Center",
+      "Titan Manufacturing",
+      "Launchpad Ventures"
+  ]
+
+  def cleanup_test_vaults(api_key: str, base_url: str):
+      """Delete all test vaults before starting fresh E2E run."""
+      import requests
+
+      headers = {"X-CF-API-Key": api_key}
+
+      # 1. Get list of all vaults for this tenant
+      response = requests.get(f"{base_url}/api/vaults", headers=headers)
+      if response.status_code != 200:
+          print(f"Warning: Could not list vaults: {response.text}")
+          return
+
+      vaults = response.json().get('vaults', [])
+
+      # 2. Delete each test vault by name
+      for vault in vaults:
+          vault_name = vault.get('name', '')
+          vault_id = vault.get('id')
+
+          if vault_name in TEST_VAULTS:
+              print(f"Deleting existing vault: {vault_name} ({vault_id})")
+
+              delete_response = requests.delete(
+                  f"{base_url}/api/vaults/{vault_id}",
+                  headers=headers,
+                  json={
+                      "confirm_delete": True,
+                      "confirmation_name": vault_name
+                  }
+              )
+
+              if delete_response.status_code == 200:
+                  print(f"  ✓ Deleted {vault_name}")
+              else:
+                  print(f"  ✗ Failed to delete {vault_name}: {delete_response.text}")
+
+      print("Cleanup complete - starting with fresh environment")
+
+  # Call this FIRST in main():
+  def main():
+      cleanup_test_vaults(API_KEY, BASE_URL)  # <-- ADD THIS LINE
+
+      # Then proceed with vault creation and tests...
+
+  Why This Matters
+
+  Without cleanup:
+  - Old vaults may have stale entities/relationships
+  - The extraction runs on top of existing data
+  - Orphaned entities from previous runs pollute the database
+  - Results become non-deterministic due to accumulated state
+
+  With cleanup:
+  - Each E2E run starts completely fresh
+  - No orphaned entities
+  - Consistent, reproducible results
+  - True isolation between test runs
+
+  The API Endpoint to Use
+
+  DELETE /api/vaults/<vault_id>
+  Body: {
+      "confirm_delete": true,
+      "confirmation_name": "<exact vault name>"
+  }
+  Headers: X-CF-API-Key: <api_key>
+
+  The vault deletion in web_app.py:966-1070 properly cascades through:
+  - ontology.* tables
+  - public.* tables (entities, relationships, documents, etc.)
+  - platform.* tables
+  - File storage cleanup
+
+  ---
