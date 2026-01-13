@@ -8,7 +8,13 @@ Endpoints:
 - GET /api/extraction/jobs/<job_id>/verify - Verify job results
 - POST /api/extraction/jobs/<job_id>/retry - Queue job for retry
 - GET /api/vault/<vault_id>/extraction/status - Get vault extraction status
+- GET /api/vault/<vault_id>/documents - Get documents with extraction status
 - GET /api/extraction/health - Get system extraction health
+- GET /api/extraction/circuit-breaker - Get circuit breaker status
+- POST /api/extraction/circuit-breaker/reset - Reset circuit breaker
+- GET /api/document/<document_id>/extraction/status - Get document extraction status
+- POST /api/document/<document_id>/cancel - Cancel running extraction
+- POST /api/document/<document_id>/replace - Replace document (handles PDF, DOCX, TXT, MD)
 """
 
 import os
@@ -210,5 +216,184 @@ def get_document_extraction_status(document_id: str):
                 status[key] = val.isoformat()
         
         return jsonify(status)
+    finally:
+        session.close()
+
+
+@extraction_api.route('/api/document/<document_id>/cancel', methods=['POST'])
+def cancel_document_extraction(document_id: str):
+    """Cancel a running extraction job for a document."""
+    try:
+        doc_uuid = UUID(document_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid document ID format'}), 400
+    
+    session = get_db_session()
+    try:
+        from sqlalchemy import text
+        result = session.execute(text("""
+            UPDATE extraction_jobs 
+            SET status = 'FAILED', 
+                completed_at = NOW(),
+                error_message = 'Cancelled by user'
+            WHERE document_id = :doc_id 
+              AND status IN ('PENDING', 'RUNNING')
+            RETURNING id
+        """), {"doc_id": str(doc_uuid)})
+        
+        cancelled = result.fetchone()
+        session.commit()
+        
+        if cancelled:
+            logger.info(f"Cancelled extraction job for document {document_id}")
+            return jsonify({"cancelled": True, "job_id": str(cancelled.id)})
+        else:
+            return jsonify({"cancelled": False, "reason": "No active job found"})
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Failed to cancel extraction for {document_id}: {e}")
+        return jsonify({'error': str(e)}), 500
+    finally:
+        session.close()
+
+
+@extraction_api.route('/api/document/<document_id>/replace', methods=['POST'])
+def replace_document(document_id: str):
+    """
+    Replace a document with a new file.
+    Handles binary files (PDF, DOCX) as well as text files.
+    """
+    import tempfile
+    from pathlib import Path
+    from uuid import uuid4
+    from sqlalchemy import text
+    from ..ingestion.document_loader import DocumentLoader
+    
+    try:
+        doc_uuid = UUID(document_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid document ID format'}), 400
+    
+    session = get_db_session()
+    try:
+        old_doc = session.execute(text("""
+            SELECT id, tenant_id, name FROM platform.documents 
+            WHERE id = :doc_id
+        """), {"doc_id": str(doc_uuid)}).fetchone()
+        
+        if not old_doc:
+            return jsonify({"error": "Document not found"}), 404
+        
+        if 'file' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+        
+        file = request.files['file']
+        if not file.filename:
+            return jsonify({"error": "No filename provided"}), 400
+        
+        filename = file.filename
+        file_ext = Path(filename).suffix.lower()
+        
+        loader = DocumentLoader()
+        if file_ext not in loader.SUPPORTED_EXTENSIONS:
+            return jsonify({
+                "error": f"Unsupported file type: {file_ext}",
+                "supported": list(loader.SUPPORTED_EXTENSIONS)
+            }), 400
+        
+        with tempfile.NamedTemporaryFile(suffix=file_ext, delete=False) as tmp:
+            file.save(tmp.name)
+            tmp_path = tmp.name
+        
+        try:
+            loaded_doc = loader.load(tmp_path)
+            new_content = loaded_doc.content
+        finally:
+            os.unlink(tmp_path)
+        
+        new_name = request.form.get('name', old_doc.name)
+        
+        session.execute(text("""
+            UPDATE extraction_jobs 
+            SET status = 'FAILED', 
+                completed_at = NOW(),
+                error_message = 'Document replaced'
+            WHERE document_id = :doc_id 
+              AND status IN ('PENDING', 'RUNNING')
+        """), {"doc_id": str(doc_uuid)})
+        
+        session.execute(text("""
+            DELETE FROM platform.documents WHERE id = :doc_id
+        """), {"doc_id": str(doc_uuid)})
+        
+        new_doc_uuid = uuid4()
+        new_doc_id = str(new_doc_uuid)
+        session.execute(text("""
+            INSERT INTO platform.documents (id, tenant_id, name, content, created_at)
+            VALUES (:id, :tenant_id, :name, :content, NOW())
+        """), {
+            "id": new_doc_id,
+            "tenant_id": old_doc.tenant_id,
+            "name": new_name,
+            "content": new_content
+        })
+        
+        session.commit()
+        
+        tracker = get_job_tracker(session)
+        content_hash = tracker.compute_content_hash(new_content)
+        job_id = tracker.create_job(
+            tenant_id=old_doc.tenant_id,
+            document_id=new_doc_uuid,
+            content_hash=content_hash
+        )
+        
+        logger.info(f"Replaced document {document_id} with new document {new_doc_id}")
+        
+        return jsonify({
+            "replaced": True,
+            "old_document_id": document_id,
+            "new_document_id": new_doc_id,
+            "job_id": str(job_id),
+            "file_type": loaded_doc.file_type,
+            "status": "extraction_queued"
+        })
+        
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Failed to replace document {document_id}: {e}")
+        return jsonify({"error": str(e)}), 500
+    finally:
+        session.close()
+
+
+@extraction_api.route('/api/vault/<vault_id>/documents', methods=['GET'])
+def get_vault_documents_with_status(vault_id: str):
+    """Get all documents with extraction status for a vault."""
+    try:
+        tenant_uuid = UUID(vault_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid vault ID format'}), 400
+    
+    session = get_db_session()
+    try:
+        from sqlalchemy import text
+        results = session.execute(text("""
+            SELECT * FROM document_extraction_status
+            WHERE tenant_id = :vault_id
+            ORDER BY document_name
+        """), {"vault_id": str(tenant_uuid)}).fetchall()
+        
+        docs = []
+        for r in results:
+            doc = dict(r._mapping)
+            for key, val in doc.items():
+                if isinstance(val, UUID):
+                    doc[key] = str(val)
+                elif hasattr(val, 'isoformat'):
+                    doc[key] = val.isoformat()
+            docs.append(doc)
+        
+        return jsonify(docs)
     finally:
         session.close()
