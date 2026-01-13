@@ -754,7 +754,7 @@ TEXT:
             elif entity.confidence > entity_map[key].confidence:
                 entity_map[key] = entity
         
-        return list(entity_map.values())
+        return sorted(entity_map.values(), key=lambda e: (e.entity_type, e.canonical_name))
     
     def _build_dynamic_prompt(self, text: str, entity_types: List[str]) -> str:
         """Build extraction prompt using a dynamic list of entity types."""

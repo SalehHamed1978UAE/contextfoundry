@@ -343,7 +343,7 @@ OUTPUT REQUIREMENTS:
         return self.session.query(DocumentChunk).filter(
             DocumentChunk.id.in_(chunk_ids_subq),
             DocumentChunk.tenant_id == tenant_id
-        ).all()
+        ).order_by(DocumentChunk.id).all()
     
     def find_candidate_entities(
         self, 
@@ -357,7 +357,7 @@ OUTPUT REQUIREMENTS:
             EntityMention.chunk_id == chunk.id,
             Entity.tenant_id == tenant_id,
             Entity.lifecycle_state == LifecycleState.TRUSTED
-        ).all()
+        ).order_by(EntityMention.entity_id).all()
         
         candidates = []
         for idx, (mention, entity) in enumerate(mentions):
@@ -440,7 +440,7 @@ If no relationships can be identified with evidence, return:
                     {"role": "system", "content": self.SYSTEM_PROMPT},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.1,
+                temperature=0.0,
                 response_format={"type": "json_object"}
             )
             

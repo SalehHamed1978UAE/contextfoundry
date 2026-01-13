@@ -186,8 +186,8 @@ class OntologySchemaService:
             self._relationship_types[name] = RelationshipTypeConfig(
                 name=name,
                 description=data['description'],
-                source_types=list(data['source_types']),
-                target_types=list(data['target_types']),
+                source_types=sorted(list(data['source_types'])),
+                target_types=sorted(list(data['target_types'])),
                 cardinality=data['cardinality'],
                 semantics=data['semantics']
             )
