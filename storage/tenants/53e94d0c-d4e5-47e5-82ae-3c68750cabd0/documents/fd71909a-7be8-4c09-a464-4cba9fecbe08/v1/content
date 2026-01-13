@@ -1,0 +1,74 @@
+# IT Infrastructure Service Dependency Map
+## Document Version: Health Check Test v1.0
+## Date: January 5, 2026
+
+---
+
+## Service Architecture Overview
+
+### Core Services
+
+The **Order Processing Service** is a critical SERVICE that handles all customer orders. The Order Processing Service depends on the **Inventory Database** for stock validation. The Order Processing Service also depends on the **Payment Gateway** for transaction processing.
+
+The **Payment Gateway** is a SERVICE managed by the **Platform Engineering Team**. The Payment Gateway depends on the **Fraud Detection Service** for risk assessment. The Payment Gateway also depends on the **Banking API** for settlement processing.
+
+The **Fraud Detection Service** is a SERVICE that analyzes transaction patterns. The Fraud Detection Service depends on the **Machine Learning Platform** for model inference. The Machine Learning Platform is managed by the **Data Science Team**.
+
+### Supporting Infrastructure
+
+The **Inventory Database** is a DATABASE managed by the **Database Administration Team**. The Inventory Database stores product availability and warehouse locations.
+
+The **Banking API** is an external SERVICE integration managed by the **Integrations Team**. The Banking API connects to partner financial institutions.
+
+The **Customer Portal** is a SERVICE that provides the user interface. The Customer Portal depends on the Order Processing Service for order submission. The Customer Portal depends on the **Authentication Service** for user login. The Customer Portal is managed by the **Frontend Team**.
+
+The **Authentication Service** is a SERVICE managed by the **Security Team**. The Authentication Service depends on the **User Database** for credential validation.
+
+---
+
+## Recent Incidents
+
+### Incident INC-2026-0105-A
+
+On January 5, 2026, **Incident INC-2026-0105-A** was triggered by the Payment Gateway due to a certificate expiration. This incident affected the Order Processing Service and caused order failures for approximately 45 minutes. The Platform Engineering Team resolved the incident by renewing the SSL certificate.
+
+### Incident INC-2026-0105-B
+
+On January 5, 2026, **Incident INC-2026-0105-B** was triggered by the Inventory Database due to connection pool exhaustion. This incident affected the Order Processing Service and the Customer Portal. The Database Administration Team resolved the incident by increasing the connection pool size.
+
+---
+
+## Team Responsibilities
+
+- **Platform Engineering Team** manages the Payment Gateway and core platform infrastructure
+- **Security Team** manages the Authentication Service and security policies
+- **Database Administration Team** manages the Inventory Database and User Database
+- **Data Science Team** manages the Machine Learning Platform and ML models
+- **Frontend Team** manages the Customer Portal and user experience
+- **Integrations Team** manages the Banking API and external service connections
+
+---
+
+## Dependency Summary
+
+| Service | Depends On | Managed By |
+|---------|------------|------------|
+| Order Processing Service | Inventory Database, Payment Gateway | Platform Engineering Team |
+| Payment Gateway | Fraud Detection Service, Banking API | Platform Engineering Team |
+| Fraud Detection Service | Machine Learning Platform | Data Science Team |
+| Customer Portal | Order Processing Service, Authentication Service | Frontend Team |
+| Authentication Service | User Database | Security Team |
+
+---
+
+## Document Metadata
+
+This document was created for Context Foundry system health check validation.
+Expected extractions:
+- 10+ SERVICE/DATABASE entities
+- 6+ TEAM entities
+- 2 INCIDENT entities
+- 10+ DEPENDS_ON relationships
+- 6+ MANAGES relationships
+- 2+ TRIGGERED_BY relationships
+- 3+ AFFECTS relationships
