@@ -13,6 +13,20 @@ Context Foundry is a **Cognitive Operating System for the Enterprise** designed 
 - Provide human review workflow for conflicts and duplicates
 - Ensure resilient database error handling with session rollback
 
+## CRITICAL RULES - DO NOT VIOLATE
+
+### Test Documents (NEVER TOUCH)
+- **Location:** `./test documents/` folder
+- **Rule:** NEVER delete, modify, or touch files in the test documents folder
+- **Reason:** These are the source files used to run E2E tests. Deleting them breaks all testing.
+- **What's OK to delete:** Database records (platform.documents, document_chunks, entities, relationships) - these are derived data that can be regenerated from the source files
+
+### Data Cleanup Guidelines
+- **Safe to delete:** Database records for entities, relationships, document_chunks, extraction_jobs, learning tables
+- **Safe to delete:** Orphaned records (tenant_id references non-existent tenant)
+- **NEVER delete:** Physical files in `./test documents/` folder
+- **NEVER delete:** Production user data without explicit approval
+
 ## System Architecture
 
 Context Foundry is built around a **Tri-Memory System** comprising Semantic Memory (knowledge graph of entities, relationships, topology), Episodic Memory (event timelines, incident patterns), and Symbolic Memory (rules, constraints, safety invariants). Each fact within the system follows a **Fact Lifecycle**: STAGING (newly extracted facts), TRUSTED (validated facts used for reasoning), and ARCHIVED (superseded or stale facts). Facts include `_layer`, `_confidence`, `_sources`, and `_lifecycle` metadata.
