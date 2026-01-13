@@ -1,0 +1,151 @@
+FIX CORRUPTED ENTITIES — ENTITY HYGIENE ENFORCEMENT
+
+Root cause: Entities with embedded newlines slipping through:
+- "Elizabeth Morrison\n\nThomas Bradley" 
+- "Amanda Foster\n\nSusan Martinez"
+- "PARTNER COMPENSATION\n\nElizabeth Morrison"
+
+When querying "Who is the CFO?", the corrupted entity returns "Elizabeth Morrison" 
+instead of "Thomas Bradley".
+
+================================================================================
+STEP 1: FIX ENTITY HYGIENE — CHECK NEWLINES BEFORE NORMALIZATION
+================================================================================
+
+In entity_hygiene.py (or wherever validation happens):
+```python
+def is_valid_entity_name(name: str) -> bool:
+    """Validate entity name BEFORE any normalization"""
+    
+    if not name:
+        return False
+    
+    # CRITICAL: Check for newlines BEFORE whitespace normalization
+    if '\n' in name or '\r' in name:
+        logger.warning(f"Rejecting entity with embedded newline: {repr(name)}")
+        return False
+    
+    # Check for multiple names concatenated (common corruption pattern)
+    # Pattern: "Name1\n\nName2" after normalization becomes "Name1  Name2"
+    if '  ' in name:  # Double space indicates concatenation
+        logger.warning(f"Rejecting entity with double space: {repr(name)}")
+        return False
+    
+    # Existing validations
+    if len(name.strip()) < 2:
+        return False
+    
+    if name.upper() in INVALID_ENTITY_NAMES:
+        return False
+    
+    return True
+```
+
+================================================================================
+STEP 2: ENSURE VALIDATION RUNS AT EXTRACTION TIME
+================================================================================
+
+Check where entities are created and ensure validation happens BEFORE storage:
+```bash
+grep -rn "is_valid_entity\|entity_hygiene\|validate.*entity" \
+  src/context_foundry/extraction/ --include="*.py"
+```
+
+The validation must be called in:
+- LLM extraction output processing
+- Post-processor entity creation
+- Staging loader (before INSERT)
+```python
+# In staging_loader.py or extraction pipeline:
+from context_foundry.extraction.entity_hygiene import is_valid_entity_name
+
+def store_entity(entity):
+    if not is_valid_entity_name(entity.name):
+        logger.warning(f"Skipping invalid entity: {repr(entity.name)}")
+        return None
+    
+    # Continue with storage...
+```
+
+================================================================================
+STEP 3: CLEAN UP CORRUPTED ENTITIES
+================================================================================
+```sql
+-- Delete corrupted entities with newlines (already normalized to spaces/weird patterns)
+DELETE FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND (
+    name LIKE '%'||chr(10)||'%'  -- Contains newline
+    OR name LIKE '%  %'          -- Contains double space (concatenation artifact)
+    OR name LIKE 'PARTNER COMPENSATION%'
+    OR name LIKE 'LEADERSHIP COMPENSATION%'
+  );
+
+-- Also clean up any orphaned relationships
+DELETE FROM relationships 
+WHERE source_entity_id NOT IN (SELECT id FROM entities)
+   OR target_entity_id NOT IN (SELECT id FROM entities);
+```
+
+================================================================================
+STEP 4: RE-EXTRACT MORRISON & STERLING
+================================================================================
+```bash
+# Delete the vault completely
+psql -c "DELETE FROM vaults WHERE name = 'Morrison & Sterling';"
+
+# Re-run E2E for just this vault (or re-upload documents)
+python scripts/e2e_lifecycle_test.py --vault "Morrison & Sterling"
+```
+
+================================================================================
+STEP 5: VERIFY FIX
+================================================================================
+```sql
+-- Check no corrupted entities exist
+SELECT name FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND (name LIKE '%  %' OR name LIKE '%'||chr(10)||'%');
+-- Should return 0 rows
+
+-- Check Thomas Bradley has HOLDS_POSITION -> CFO
+SELECT e1.name, r.relationship_type, e2.name
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND e1.name = 'Thomas Bradley'
+  AND r.relationship_type = 'HOLDS_POSITION';
+```
+
+================================================================================
+STEP 6: TEST CFO QUERY
+================================================================================
+```bash
+curl -X POST http://localhost:8000/api/query \
+  -H "Content-Type: application/json" \
+  -d '{"vault": "Morrison & Sterling", "query": "Who is the CFO?"}'
+```
+
+Expected: Thomas Bradley (not Elizabeth Morrison)
+
+================================================================================
+STEP 7: FULL E2E
+================================================================================
+```bash
+python scripts/e2e_lifecycle_test.py
+```
+
+Target: 49/49 (100%)
+
+================================================================================
+REPORT BACK
+================================================================================
+
+1. Entity hygiene fix applied (which file, which line?)
+2. Corrupted entities deleted (count?)
+3. Re-extraction completed
+4. CFO query result
+5. Final E2E count
+
+================================================================================
