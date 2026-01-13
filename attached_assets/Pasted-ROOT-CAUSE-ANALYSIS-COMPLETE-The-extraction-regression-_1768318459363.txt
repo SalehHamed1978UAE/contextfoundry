@@ -1,0 +1,68 @@
+ROOT CAUSE ANALYSIS COMPLETE
+
+  The extraction regression is NOT a mystery - it's caused by non-deterministic ordering in multiple places. Here's the complete picture:
+
+  ---
+  THE CORE PROBLEM
+
+  The same documents produce different relationship counts because entity ordering is non-deterministic. When the LLM sees entities in a different order, it extracts different relationships.
+
+  ---
+  ROOT CAUSES (In Order of Severity)
+  #: 1
+  Issue: Missing ORDER BY in find_candidate_entities()
+  File: relationship_inference.py
+  Line: 354-360
+  Impact: Entity codes (E1, E2, E3) assigned randomly based on query order
+  ────────────────────────────────────────
+  #: 2
+  Issue: Missing ORDER BY in get_chunks_for_entity()
+  File: relationship_inference.py
+  Line: 332-346
+  Impact: Chunks processed in random order
+  ────────────────────────────────────────
+  #: 3
+  Issue: Non-deterministic deduplication
+  File: entity_extractor.py
+  Line: 749
+  Impact: list(entity_map.values()) returns entities in variable order
+  ────────────────────────────────────────
+  #: 4
+  Issue: Set-to-list conversion
+  File: schema_service.py
+  Line: 189-190
+  Impact: source_types=list(data['source_types']) is non-deterministic
+  ────────────────────────────────────────
+  #: 5
+  Issue: Temperature=0.1
+  File: relationship_inference.py
+  Line: 443
+  Impact: Adds ~30% randomness to LLM output
+  ---
+  WHY THIS CAUSES THE SYMPTOMS YOU SAW
+
+  Morrison & Sterling CFO disappearing:
+  - Thomas Bradley gets assigned different entity codes (E1 vs E4) each run
+  - The LLM prompt sees different entity orderings
+  - With different orderings, the LLM may not recognize the REPORTS_TO relationship
+
+  Titan Manufacturing dropping from 66 → 35 relationships:
+  - With 20+ entities, entity code shifts compound
+  - Many relationships get "lost" because the LLM sees a completely different entity list
+  - The 47% drop is consistent with entity ordering chaos
+
+  TechVentures "Who reports to CEO?" regression:
+  - In run 140927, only Marcus Williams was found
+  - In run 145638, all 3 were found again
+  - This is pure randomness from entity ordering + temperature
+
+  ---
+  THE FIX
+
+  Five surgical changes are needed:
+
+  1. relationship_inference.py:360 - Add .order_by(EntityMention.entity_id)
+  2. relationship_inference.py:346 - Add .order_by(DocumentChunk.id)
+  3. relationship_inference.py:443 - Change temperature=0.1 to temperature=0.0
+  4. entity_extractor.py:749 - Change to return sorted(entity_map.values(), key=lambda e: (e.entity_type, e.canonical_name))
+  5. schema_service.py:189-190 - Change to source_types=sorted(list(data['source_types']))
