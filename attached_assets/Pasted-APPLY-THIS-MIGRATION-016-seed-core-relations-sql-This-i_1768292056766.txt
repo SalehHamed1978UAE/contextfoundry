@@ -1,0 +1,58 @@
+APPLY THIS MIGRATION: 016_seed_core_relations.sql
+
+This is a comprehensive migration that seeds ALL core business entity and 
+relationship types. It fixes the bucket, not just the holes.
+
+================================================================================
+WHAT IT DOES
+================================================================================
+
+1. Seeds 11 core entity types (PERSON, ORGANIZATION, LOCATION, JOB_TITLE, etc.)
+2. Seeds 22+ core relationship types across categories:
+   - Employment (WORKS_AT, HOLDS_POSITION, REPORTS_TO, MANAGES)
+   - Compensation (HAS_COMPENSATION, HAS_SALARY, HAS_BONUS)
+   - Governance (BOARD_MEMBER_OF, FOUNDED, OWNS)
+   - Investment (INVESTED_IN, HAS_PORTFOLIO_COMPANY, ACQUIRED)
+   - Location (LOCATED_IN, HEADQUARTERED_IN)
+   - Structure (SUBSIDIARY_OF, DIVISION_OF, PARTNER_OF)
+   - Product (PRODUCES, PROVIDES_SERVICE, SUPPLIES)
+
+3. Uses ON CONFLICT DO NOTHING to avoid duplicates
+4. Includes relationship variants (e.g., LOCATED_IN for both PERSON and ORG)
+
+================================================================================
+RUN THE MIGRATION
+================================================================================
+```bash
+psql -d <database_name> -f 016_seed_core_relations.sql
+```
+
+================================================================================
+VERIFY
+================================================================================
+```sql
+SELECT relation_type, COUNT(*) as variants
+FROM ontology.relations
+WHERE relation_type IN (
+  'WORKS_AT', 'HOLDS_POSITION', 'REPORTS_TO', 'MANAGES', 'MEMBER_OF',
+  'HAS_COMPENSATION', 'HAS_SALARY', 'HAS_BONUS',
+  'BOARD_MEMBER_OF', 'FOUNDED', 'OWNS',
+  'INVESTED_IN', 'HAS_PORTFOLIO_COMPANY', 'ACQUIRED',
+  'LOCATED_IN', 'HEADQUARTERED_IN',
+  'SUBSIDIARY_OF', 'DIVISION_OF', 'PARTNER_OF',
+  'PRODUCES', 'PROVIDES_SERVICE', 'SUPPLIES'
+)
+GROUP BY relation_type
+ORDER BY relation_type;
+```
+
+================================================================================
+THEN
+================================================================================
+
+1. Re-run regression gate: `python scripts/regression_gate_test.py`
+   Expected: 21/21 pass
+
+2. Continue with remaining query accuracy fixes
+
+================================================================================
