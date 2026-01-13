@@ -16,6 +16,7 @@ from .gardener import Gardener, GardenerConfig, GardenerCycleResult
 from .identity_resolver import IdentityResolver, IdentityResolutionConfig, IdentityResolutionResult
 from ..models.schema import get_session
 from ..extraction.extraction_monitor import get_extraction_monitor
+from ..learning.orchestrator import get_orchestrator
 
 
 @dataclass
@@ -24,6 +25,8 @@ class SchedulerConfig:
     cycle_interval_seconds: int = 300
     run_identity_resolution: bool = True
     run_extraction_monitoring: bool = True
+    run_learning_flow: bool = True
+    learning_task_limit: int = 5
     gardener_config: Optional[GardenerConfig] = None
     identity_config: Optional[IdentityResolutionConfig] = None
     max_history: int = 100
@@ -38,6 +41,7 @@ class ScheduledCycleResult:
     gardener_result: Optional[GardenerCycleResult] = None
     identity_result: Optional[IdentityResolutionResult] = None
     extraction_result: Optional[dict] = None
+    learning_result: Optional[dict] = None
     success: bool = True
     error: Optional[str] = None
     
@@ -49,6 +53,7 @@ class ScheduledCycleResult:
             "gardener_result": self.gardener_result.to_dict() if self.gardener_result else None,
             "identity_result": self.identity_result.to_dict() if self.identity_result else None,
             "extraction_result": self.extraction_result,
+            "learning_result": self.learning_result,
             "success": self.success,
             "error": self.error,
         }
@@ -225,6 +230,17 @@ class GardenerScheduler:
                     result.extraction_result = monitor.run_cycle()
                 except Exception as e:
                     print(f"[Scheduler] Extraction monitoring error: {e}")
+            
+            if self.config.run_learning_flow:
+                try:
+                    orchestrator = get_orchestrator(session)
+                    result.learning_result = orchestrator.process_learning_queue(
+                        limit=self.config.learning_task_limit
+                    )
+                    if result.learning_result.get('processed', 0) > 0:
+                        print(f"[Scheduler] Processed {result.learning_result['processed']} learning tasks")
+                except Exception as e:
+                    print(f"[Scheduler] Learning flow error: {e}")
             
             result.success = True
             
