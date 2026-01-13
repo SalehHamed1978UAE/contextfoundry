@@ -22,6 +22,7 @@ from ..ontology.normalizer import CandidateNormalizer
 
 from .relation_extractor import ExtractedRelation
 from .duplicate_detector import DuplicateDetector, DuplicateDetectionResult
+from .entity_hygiene import is_valid_entity_name, clean_entity_name
 
 
 def _safe_uuid(value) -> Optional[uuid.UUID]:
@@ -294,6 +295,14 @@ class StagingLoader:
         Returns:
             Tuple of (entity, action) where action is 'created', 'updated', or 'skipped'
         """
+        cleaned_name = clean_entity_name(extracted.canonical_name)
+        if not cleaned_name:
+            logger.debug(f"[StagingLoader] Skipping invalid entity name: '{extracted.canonical_name}'")
+            return None, "skipped"
+        
+        if cleaned_name != extracted.canonical_name:
+            extracted.canonical_name = cleaned_name
+        
         entity_type = self._normalize_entity_type(extracted.entity_type)
         
         existing = self._find_entity_by_name(extracted.canonical_name, entity_type)
