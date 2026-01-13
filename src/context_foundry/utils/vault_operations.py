@@ -21,27 +21,99 @@ def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
     - web_app.py (UI/API vault deletion)
     - E2E test scripts (cleanup between test runs)
     
+    Uses savepoints to handle FK constraint failures gracefully without
+    aborting the entire transaction.
+    
     Returns dict with counts of deleted items per table.
     """
     db_session = get_session(use_rls_role=False)
     deleted = {}
     
+    sp_counter = [0]
+    
+    def safe_delete(name: str, sql: str, params: dict):
+        """Execute delete with savepoint to recover from FK violations."""
+        sp_counter[0] += 1
+        sp_name = f"sp_delete_{sp_counter[0]}"
+        try:
+            db_session.execute(text(f"SAVEPOINT {sp_name}"))
+            result = db_session.execute(text(sql), params)
+            db_session.execute(text(f"RELEASE SAVEPOINT {sp_name}"))
+            deleted[name] = result.rowcount
+        except Exception as e:
+            try:
+                db_session.execute(text(f"ROLLBACK TO SAVEPOINT {sp_name}"))
+                db_session.execute(text(f"RELEASE SAVEPOINT {sp_name}"))
+            except:
+                pass
+            logger.warning(f"Could not delete from {name}: {e}")
+            deleted[name] = 'skipped'
+    
     try:
         tenant_id_str = str(vault_uuid)
         
+        safe_delete('superseded_by_nullify',
+            "UPDATE public.entities SET superseded_by = NULL WHERE tenant_id = :tid",
+            {'tid': tenant_id_str})
+        
+        fk_subquery_deletes = [
+            ('public.duplicate_candidates', 
+             """DELETE FROM public.duplicate_candidates 
+                WHERE entity_a_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)
+                   OR entity_b_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"""),
+            ('public.merge_audits',
+             """DELETE FROM public.merge_audits 
+                WHERE surviving_entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"""),
+            ('public.conflict_logs',
+             """DELETE FROM public.conflict_logs 
+                WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"""),
+            ('public.inference_run_chunks',
+             """DELETE FROM public.inference_run_chunks 
+                WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"""),
+            ('public.user_feedback',
+             """DELETE FROM public.user_feedback 
+                WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)
+                   OR tenant_id = :tid"""),
+            ('public.learning_results (entity_refs)',
+             """DELETE FROM public.learning_results 
+                WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)"""),
+            ('public.conflict_logs',
+             """DELETE FROM public.conflict_logs 
+                WHERE entity_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)
+                   OR relationship_id IN (SELECT id FROM public.relationships WHERE tenant_id = :tid)"""),
+            ('platform.document_versions',
+             """DELETE FROM platform.document_versions 
+                WHERE document_id IN (SELECT id FROM platform.documents WHERE tenant_id = :tid)"""),
+            ('platform.extraction_results',
+             """DELETE FROM platform.extraction_results WHERE tenant_id = :tid"""),
+            ('platform.extraction_requests',
+             """DELETE FROM platform.extraction_requests 
+                WHERE document_id IN (SELECT id FROM platform.documents WHERE tenant_id = :tid)
+                   OR tenant_id = :tid"""),
+        ]
+        
+        for table_name, sql in fk_subquery_deletes:
+            safe_delete(table_name, sql, {'tid': tenant_id_str})
+        
         public_tables = [
-            'relationships', 'relationship_contexts', 'proposed_relationships',
-            'entity_mentions', 'entity_aliases', 'cf_entity_aliases',
-            'entities', 'entities_v2', 'document_chunks', 'documents',
+            'relationship_contexts',
+            'user_feedback', 'learning_results', 'learning_tickets',
+            'proposed_relationships', 'entity_mentions', 'entity_aliases', 
+            'cf_entity_aliases',
+            'relationships',
+            'entities', 'entities_v2',
+            'document_chunks', 'documents',
             'extraction_events', 'inference_runs', 'gardener_runs',
             'query_logs', 'pipeline_progress', 'cf_interaction_events',
             'cf_memory_versions', 'ontology_relations', 'ontology_relationship_types',
-            'ontology_types', 'api_keys'
+            'ontology_types', 'api_keys',
+            'extraction_jobs', 'learning_queue',
+            'query_gaps', 'learning_patterns',
+            'ontology_candidates', 'pending_extractions'
         ]
         
         platform_tables = [
-            'extraction_results', 'extraction_requests', 'sync_jobs',
-            'source_connectors', 'documents', 'folders',
+            'sync_jobs', 'source_connectors', 'documents', 'folders',
             'usage_events', 'usage_snapshots', 'tenant_quotas', 'api_keys'
         ]
         
@@ -50,52 +122,27 @@ def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
         ]
         
         for table in ontology_tables:
-            try:
-                result = db_session.execute(
-                    text(f"DELETE FROM ontology.{table} WHERE tenant_id = :tid"),
-                    {'tid': tenant_id_str}
-                )
-                deleted[f'ontology.{table}'] = result.rowcount
-            except Exception as e:
-                db_session.rollback()
-                logger.warning(f"Could not delete from ontology.{table}: {e}")
-                deleted[f'ontology.{table}'] = 'skipped'
+            safe_delete(f'ontology.{table}',
+                f"DELETE FROM ontology.{table} WHERE tenant_id = :tid",
+                {'tid': tenant_id_str})
         
         for table in public_tables:
-            try:
-                result = db_session.execute(
-                    text(f"DELETE FROM public.{table} WHERE tenant_id = :tid"),
-                    {'tid': tenant_id_str}
-                )
-                deleted[f'public.{table}'] = result.rowcount
-            except Exception as e:
-                db_session.rollback()
-                logger.warning(f"Could not delete from public.{table}: {e}")
-                deleted[f'public.{table}'] = 'skipped'
+            safe_delete(f'public.{table}',
+                f"DELETE FROM public.{table} WHERE tenant_id = :tid",
+                {'tid': tenant_id_str})
         
         for table in platform_tables:
-            try:
-                result = db_session.execute(
-                    text(f"DELETE FROM platform.{table} WHERE tenant_id = :tid"),
-                    {'tid': tenant_id_str}
-                )
-                deleted[f'platform.{table}'] = result.rowcount
-            except Exception as e:
-                db_session.rollback()
-                logger.warning(f"Could not delete from platform.{table}: {e}")
-                deleted[f'platform.{table}'] = 'skipped'
+            safe_delete(f'platform.{table}',
+                f"DELETE FROM platform.{table} WHERE tenant_id = :tid",
+                {'tid': tenant_id_str})
         
-        result = db_session.execute(
-            text("DELETE FROM platform.user_tenants WHERE tenant_id = :tid"),
-            {'tid': tenant_id_str}
-        )
-        deleted['platform.user_tenants'] = result.rowcount
+        safe_delete('platform.user_tenants',
+            "DELETE FROM platform.user_tenants WHERE tenant_id = :tid",
+            {'tid': tenant_id_str})
         
-        result = db_session.execute(
-            text("DELETE FROM platform.tenants WHERE id = :tid"),
-            {'tid': tenant_id_str}
-        )
-        deleted['platform.tenants'] = result.rowcount
+        safe_delete('platform.tenants',
+            "DELETE FROM platform.tenants WHERE id = :tid",
+            {'tid': tenant_id_str})
         
         db_session.commit()
         
