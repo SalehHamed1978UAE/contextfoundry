@@ -406,7 +406,7 @@ class ExtractionPipeline:
                     entity_map[key] = entity
                 elif entity.confidence > entity_map[key].confidence:
                     entity_map[key] = entity
-            deduplicated_entities = list(entity_map.values())
+            deduplicated_entities = sorted(entity_map.values(), key=lambda e: (e.entity_type, e.canonical_name.lower()))
         
         relation_map = {}
         for relation in all_relations:
@@ -420,7 +420,7 @@ class ExtractionPipeline:
             elif relation.confidence > relation_map[key].confidence:
                 relation_map[key] = relation
         
-        return deduplicated_entities, list(relation_map.values())
+        return deduplicated_entities, sorted(relation_map.values(), key=lambda r: (r.relation_type, r.source_name.lower(), r.target_name.lower()))
     
     def run(
         self,

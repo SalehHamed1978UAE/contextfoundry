@@ -126,6 +126,12 @@ def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
                 f"DELETE FROM ontology.{table} WHERE tenant_id = :tid",
                 {'tid': tenant_id_str})
         
+        safe_delete('public.relationships (cross-tenant refs)',
+            """DELETE FROM public.relationships 
+               WHERE source_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)
+                  OR target_id IN (SELECT id FROM public.entities WHERE tenant_id = :tid)""",
+            {'tid': tenant_id_str})
+        
         for table in public_tables:
             safe_delete(f'public.{table}',
                 f"DELETE FROM public.{table} WHERE tenant_id = :tid",
