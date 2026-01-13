@@ -202,6 +202,51 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         except Exception as e:
             self.log(f"         Warning: Cleanup failed: {e}")
     
+    def verify_clean_environment(self):
+        """Verify no test vaults exist. Exit with error if not clean."""
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
+        from e2e_config import VAULTS
+        
+        test_vault_names = [v['name'] for v in VAULTS]
+        
+        try:
+            with get_session(use_rls_role=False) as session:
+                # Check for remaining test vaults
+                result = session.execute(text("""
+                    SELECT name FROM platform.tenants 
+                    WHERE name = ANY(:names)
+                """), {"names": test_vault_names}).fetchall()
+                
+                if result:
+                    existing = [row.name for row in result]
+                    fail_and_exit(
+                        "Environment not clean",
+                        f"Test vaults still exist after cleanup: {existing}",
+                        "All test vaults should be deleted before starting"
+                    )
+                
+                # Check for orphaned entities
+                orphan_count = session.execute(text("""
+                    SELECT COUNT(*) FROM entities e
+                    LEFT JOIN platform.tenants t ON e.tenant_id = t.id
+                    WHERE t.id IS NULL
+                """)).scalar()
+                
+                if orphan_count > 0:
+                    fail_and_exit(
+                        "Orphaned data exists",
+                        f"{orphan_count} orphaned entities found",
+                        "CASCADE delete is not working properly"
+                    )
+                
+                self.log("         Environment is clean")
+                
+        except Exception as e:
+            if "Environment not clean" in str(e) or "Orphaned data" in str(e):
+                raise
+            self.log(f"         Warning: Verification check failed: {e}")
+    
     def run(self) -> int:
         """Run E2E test for all vaults. Returns exit code."""
         try:
@@ -214,8 +259,11 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         except ImportError as e:
             fail_and_exit("Import error", f"Cannot import get_session: {e}", "from src.context_foundry.models.schema import get_session")
         
-        # Clean up all demo vaults from previous runs at the beginning
+        # Clean up all test vaults from previous runs at the beginning
         self.cleanup_all_demo_vaults()
+        
+        # Verify environment is clean before proceeding
+        self.verify_clean_environment()
         
         self.log(f"Starting E2E test for {len(VAULTS)} vaults")
         self.log(f"Output file: {self.output_file}")
