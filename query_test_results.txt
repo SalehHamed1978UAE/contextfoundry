@@ -1,0 +1,83 @@
+================================================================================
+CONTEXT FOUNDRY - QUERY TEST RESULTS (FIXED)
+================================================================================
+
+[VAULT] Hospital
+[QUERY] Who is the CIO?
+[CONFIDENCE] 90%
+[ANSWER] The Chief Information Officer (CIO) is Robert Thompson. He works at Riverside Medical Center and reports to Sandra Williams. Additionally, he leads the Digital Health Transformation initiative.
+[SOURCES] []
+------------------------------------------------------------
+
+[VAULT] Hospital
+[QUERY] What is the CIO's compensation?
+[CONFIDENCE] 100%
+[ANSWER] Robert Thompson, the Chief Information Officer (CIO) at Riverside Medical Center, has the following compensation details:
+
+- **Base Salary**: $485,000
+- **Performance Incentive**: $194,000
+- **Quality Bonus**: Up to $97,000
+- **Total Target Compensation**: $776,000
+
+This information outlines his financial package as part of the executive compensation schedule for 2026.
+[SOURCES] ['02_executive_compensation.txt', '03_strategic_initiatives.txt']
+------------------------------------------------------------
+
+[VAULT] Hospital
+[QUERY] Who leads the cardiology department?
+[CONFIDENCE] 70%
+[ANSWER] The cardiology department is led by Dr. Michael Foster, who holds the position of Cardiology Chair. There is no additional information provided about other members of the department or their roles.
+[SOURCES] []
+------------------------------------------------------------
+
+[VAULT] Hospital
+[QUERY] Who leads the oncology department?
+[CONFIDENCE] 70%
+[ANSWER] Dr. Sarah Kim leads the oncology department as she holds the position of Oncology Chair and is also involved in the Oncology Expansion. There is no additional information provided about other leaders or members of the oncology department.
+[SOURCES] []
+------------------------------------------------------------
+
+[VAULT] TechVentures
+[QUERY] What is Sarah Chen's compensation?
+[CONFIDENCE] 85%
+[ANSWER] Sarah Chen's compensation for 2026 is as follows:
+
+- **Base Salary**: $850,000
+- **Target Bonus**: $1,200,000 (which is 141% of her base salary)
+- **Equity Grant**: 500,000 options vesting over 4 years
+- **Total Target Compensation**: $2,050,000 (excluding equity)
+- **Benefits**: Standard executive package plus a $50,000 annual travel allowance
+- **Change from 2025**: An 8% increase in base salary, with the bonus target remaining unchanged.
+
+This information provides a comprehensive overview of her compensation package for the year 2026.
+[SOURCES] ['04_compensation_memo.txt', '03_org_chart.txt']
+------------------------------------------------------------
+
+[VAULT] TechVentures
+[QUERY] Who reports to the CEO?
+[CONFIDENCE] 90%
+[ANSWER] The following individuals report to the CEO, Sarah Chen:
+
+1. Marcus Williams
+2. Dr. Amira Hassan
+3. James O'Brien
+
+These are the only individuals mentioned in the retrieved information as reporting to the CEO.
+[SOURCES] []
+------------------------------------------------------------
+
+[VAULT] Law Firm
+[QUERY] Who reports to Amanda Foster?
+[CONFIDENCE] 75%
+[ANSWER] Based on the retrieved information, the following individuals report to Amanda Foster:
+
+1. Thomas Bradley
+2. Susan Martinez
+
+These are the only individuals mentioned in the provided information who report to Amanda Foster.
+[SOURCES] []
+------------------------------------------------------------
+
+================================================================================
+TEST COMPLETE - ALL BUGS FIXED
+================================================================================
