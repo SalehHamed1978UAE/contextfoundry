@@ -432,14 +432,17 @@ class OntologyCentricPipeline:
             # Convert post-processor relationships to ExtractedRelation objects
             new_relations = []
             for rel in result.new_relationships:
+                import hashlib
+                rel_id = hashlib.sha256(f"{rel.source_name}:{rel.relationship_type}:{rel.target_name}:{document_id}".encode()).hexdigest()[:16]
                 relation = ExtractedRelation(
+                    id=rel_id,
                     source_name=rel.source_name,
                     target_name=rel.target_name,
                     relation_type=rel.relationship_type,
                     confidence=rel.confidence,
-                    document_id=document_id,
+                    source_document_id=document_id,
                     source_chunk_id=f"{document_id}:post_processor",
-                    evidence=rel.source_text,
+                    source_span=rel.source_text,
                 )
                 new_relations.append(relation)
 
