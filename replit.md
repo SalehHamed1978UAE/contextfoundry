@@ -78,6 +78,16 @@ Key architectural features include:
     - LLM fallback: Reason about which match(es) best answer user's intent
   - Response format: Primary answer + "Note: Your documents also mention..." for alternatives
   - When no clear primary match, asks user to clarify
+- **Extraction Job Tracking System**: Production-ready extraction monitoring with automatic timeout detection, retry logic with circuit breaker protection, and verification:
+  - `ExtractionJobTracker`: Lifecycle management (create/start/update/complete/fail), cache optimization via content hash, vault health status aggregation
+  - `ExtractionCircuitBreaker`: CLOSED/OPEN/HALF_OPEN states, configurable failure threshold (10 failures in 5 min), 15-minute cooldown period
+  - `ExtractionMonitor`: Timeout detection, retry queueing, health summary reporting
+  - Tables: `extraction_jobs` (17 columns), `document_extraction_status` view
+  - Indexes: Active document uniqueness, tenant+status, document history, timeout detection
+  - Dynamic timeout formula: `max(120, min(1800, chunks_total * 30 + 60))` seconds
+  - API endpoints: GET `/api/extraction/jobs/{id}`, GET `/api/vault/{id}/extraction/status`, POST `/api/extraction/jobs/{id}/retry`
+  - Scheduler integration: Periodic timeout checks via `GardenerScheduler`
+  - Verification system: Catches discrepancies between reported and actual extraction results
 - **Ontology Foundry (Phase 1)**: Learning system for evolving schema that captures unknown types as candidates:
   - `CandidateNormalizer`: Maps LLM-proposed relationship names to canonical forms (e.g., INVESTS_IN → INVESTED_IN)
   - `CandidateStore`: Stores unknown relationship/entity types with evidence, confidence scoring, and provenance
