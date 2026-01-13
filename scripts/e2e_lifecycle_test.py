@@ -145,25 +145,29 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             f.write(text)
     
     def cleanup_all_demo_vaults(self):
-        """Clean up all demo vaults from previous test runs."""
-        self.log("Cleaning up all demo vaults from previous runs...")
+        """Clean up all test vaults from previous test runs."""
+        self.log("Cleaning up all test vaults from previous runs...")
         
         from src.context_foundry.models.schema import get_session
         from sqlalchemy import text
+        from e2e_config import VAULTS
+        
+        # Get vault names from config
+        test_vault_names = [v['name'] for v in VAULTS]
         
         try:
             with get_session(use_rls_role=False) as session:
-                # Find all demo vaults
+                # Find all test vaults (by name OR by demo type for safety)
                 vaults = session.execute(text("""
                     SELECT id, name FROM platform.tenants 
-                    WHERE type = 'demo'
-                """)).fetchall()
+                    WHERE type = 'demo' OR name = ANY(:names)
+                """), {"names": test_vault_names}).fetchall()
                 
                 if not vaults:
-                    self.log("         No demo vaults to clean up")
+                    self.log("         No test vaults to clean up")
                     return
                 
-                self.log(f"         Found {len(vaults)} demo vaults to delete")
+                self.log(f"         Found {len(vaults)} test vaults to delete")
                 
                 for vault_id, vault_name in vaults:
                     tid = str(vault_id)
