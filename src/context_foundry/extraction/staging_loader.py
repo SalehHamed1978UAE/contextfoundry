@@ -348,7 +348,6 @@ class StagingLoader:
         
         self._ensure_entity_type_exists(entity_type)
         
-        from ..utils.logger import logger
         logger.debug(f"[StagingLoader] Creating entity: {extracted.canonical_name} ({entity_type})")
         
         chunk_uuid = None
@@ -632,7 +631,6 @@ class StagingLoader:
         if commit:
             try:
                 self.session.commit()
-                from ..utils.logger import logger
                 logger.info(f"[StagingLoader] Committed {result.entities_created} entities, {result.relations_created} relations")
                 
                 # Wire aggregation framework: Index entity mentions for document
@@ -674,13 +672,11 @@ class StagingLoader:
                         logger.debug(f"[StagingLoader] Aggregation indexing skipped: {agg_err}")
                         
             except Exception as e:
-                from ..utils.logger import logger
                 logger.error(f"[StagingLoader] Failed to commit: {str(e)}")
                 result.errors.append(f"Failed to commit transaction: {str(e)}")
                 self.session.rollback()
         
         if result.errors:
-            from ..utils.logger import logger
             logger.warning(f"[StagingLoader] Errors: {result.errors}")
         
         return result
