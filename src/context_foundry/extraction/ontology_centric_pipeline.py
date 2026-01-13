@@ -418,14 +418,18 @@ class OntologyCentricPipeline:
             # Convert post-processor entities to ExtractedEntity objects
             new_entities = []
             for entity_dict in result.new_entities:
+                import hashlib
+                entity_id = hashlib.sha256(f"{entity_dict.get('name', '')}:{entity_dict.get('entity_type', 'UNKNOWN')}:{document_id}".encode()).hexdigest()[:16]
                 entity = ExtractedEntity(
-                    raw_text=entity_dict.get("name", ""),
+                    id=entity_id,
                     canonical_name=entity_dict.get("name", ""),
                     entity_type=entity_dict.get("entity_type", "UNKNOWN"),
-                    confidence=entity_dict.get("confidence", 0.85),
-                    document_id=document_id,
+                    properties={},
+                    source_span=entity_dict.get("name", ""),
+                    source_document_id=document_id,
                     source_chunk_id=f"{document_id}:post_processor",
-                    sentence_idx=0,
+                    source_sentence_idx=0,
+                    confidence=entity_dict.get("confidence", 0.85),
                 )
                 new_entities.append(entity)
 
