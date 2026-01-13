@@ -165,10 +165,58 @@
         
         .file-status.completed { background: var(--accent-success); }
         .file-status.extracted { background: var(--accent-success); }
+        .file-status.COMPLETE { background: var(--accent-success); }
         .file-status.processing { background: var(--accent-warning); }
         .file-status.queued { background: var(--accent-warning); }
+        .file-status.RUNNING { background: var(--accent-warning); }
+        .file-status.PENDING { background: var(--accent-warning); }
         .file-status.failed { background: var(--accent-error); }
+        .file-status.FAILED { background: var(--accent-error); }
+        .file-status.TIMEOUT { background: var(--accent-error); }
         .file-status.pending { background: var(--text-muted); }
+        
+        .file-item:hover .file-actions {
+            opacity: 1;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+        
+        .file-action-btn {
+            width: 22px;
+            height: 22px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            transition: all 0.15s;
+            padding: 0;
+        }
+        
+        .file-action-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-color: var(--text-muted);
+        }
+        
+        .file-action-btn.btn-delete:hover {
+            color: var(--accent-error);
+            border-color: var(--accent-error);
+        }
+        
+        .file-action-btn.btn-refresh:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
         
         .folder-item {
             display: flex;
@@ -838,8 +886,10 @@
             });
             
             node.documents.forEach(doc => {
+                const isActive = ['RUNNING', 'PENDING', 'processing', 'queued'].includes(doc.status);
+                const isFailed = ['FAILED', 'TIMEOUT', 'failed'].includes(doc.status);
                 html += `
-                    <div class="file-item" data-id="${doc.id}" draggable="true"
+                    <div class="file-item" data-id="${doc.id}" data-status="${doc.status}" draggable="true"
                          ondragstart="handleDragStart(event, '${doc.id}')"
                          ondragend="handleDragEnd(event)">
                         <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -847,6 +897,14 @@
                             <polyline points="14 2 14 8 20 8"/>
                         </svg>
                         <span class="file-name">${escapeHtml(doc.name || 'Unknown')}</span>
+                        <div class="file-actions">
+                            ${isActive ? `
+                                <button class="file-action-btn btn-cancel" onclick="event.stopPropagation(); cancelExtraction('${doc.id}')" title="Cancel extraction">✕</button>
+                            ` : `
+                                <button class="file-action-btn btn-refresh" onclick="event.stopPropagation(); refreshDocument('${doc.id}', ${isFailed})" title="${isFailed ? 'Retry extraction' : 'Re-extract'}">↻</button>
+                                <button class="file-action-btn btn-delete" onclick="event.stopPropagation(); deleteDocument('${doc.id}')" title="Delete document">🗑</button>
+                            `}
+                        </div>
                         <span class="file-status ${doc.status}"></span>
                     </div>
                 `;
@@ -1161,6 +1219,63 @@
             } catch (error) {
                 console.error('Upload failed:', error);
                 loadDocuments();
+            }
+        }
+        
+        async function cancelExtraction(docId) {
+            try {
+                const response = await fetch(`/api/document/${docId}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.cancelled) {
+                    console.log('Extraction cancelled for document:', docId);
+                } else {
+                    console.log('No active extraction to cancel:', data.reason);
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Failed to cancel extraction:', error);
+            }
+        }
+        
+        async function refreshDocument(docId, force = false) {
+            try {
+                const response = await fetch(`/api/documents/${docId}/extract`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ force: force })
+                });
+                const data = await response.json();
+                if (data.success || data.queued) {
+                    console.log('Extraction queued for document:', docId);
+                } else {
+                    console.log('Failed to queue extraction:', data.error || data.reason);
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Failed to refresh document:', error);
+            }
+        }
+        
+        async function deleteDocument(docId) {
+            if (!confirm('Delete this document? This cannot be undone.')) return;
+            
+            try {
+                const response = await fetch(`/api/documents/${docId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success || response.ok) {
+                    console.log('Document deleted:', docId);
+                } else {
+                    console.error('Failed to delete document:', data.error);
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Failed to delete document:', error);
             }
         }
         
