@@ -1,0 +1,135 @@
+FINAL FIX: HOLDS_POSITION RELATIONSHIP FOR CFO
+
+E2E shows 47/49 queries correct (96%). One critical issue remains:
+
+PROBLEM:
+Query: "Who is the CFO?" (Morrison & Sterling)
+Returns: Elizabeth Morrison (Managing Partner) — WRONG
+Expected: Thomas Bradley (Chief Financial Officer)
+
+ROOT CAUSE: Thomas Bradley and "Chief Financial Officer" both exist as entities,
+but no HOLDS_POSITION relationship connects them.
+
+================================================================================
+STEP 1: DIAGNOSE
+================================================================================
+```bash
+# Test the post-processor pattern manually
+python3 -c "
+from context_foundry.extraction.post_processor import get_post_processor
+
+text = 'Thomas Bradley - Chief Financial Officer'
+pp = get_post_processor()
+result = pp.process(text, [], [])
+
+print('New relationships:')
+for rel in result.new_relationships:
+    print(f'  {rel.source_name} -> {rel.relationship_type} -> {rel.target_name}')
+"
+```
+
+Results will show one of:
+- Returns WORKS_AT → Pattern creates wrong relationship type (fix mapping)
+- Returns nothing → Pattern doesn't match (fix regex)
+- Returns HOLDS_POSITION → Pattern works, check why it didn't persist
+
+================================================================================
+STEP 2: FIX BASED ON DIAGNOSIS
+================================================================================
+
+IF WORKS_AT IS CREATED (most likely):
+
+Find in post_processor.py where "Name - Title" pattern assigns relationship type:
+```python
+# WRONG:
+(r'pattern for Name - Title format', 'WORKS_AT')
+
+# CORRECT:
+(r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*'
+ r'(Chief\s+\w+\s+Officer|CEO|CFO|CTO|COO|President|VP|Director|Manager|Partner)',
+ 'HOLDS_POSITION')  # Must be HOLDS_POSITION
+```
+
+The key insight: "Name - Title" means person HOLDS a position.
+"Name at Company" means person WORKS_AT a company.
+
+---
+
+IF PATTERN DOESN'T MATCH:
+
+Check hyphen variants. The source may use en-dash (–) or em-dash (—):
+```python
+# Pattern must handle all dash types
+r'\s*[-–—:]\s*'  # hyphen, en-dash, em-dash, colon
+```
+
+================================================================================
+STEP 3: VERIFY FIX
+================================================================================
+
+After fixing, re-run the manual test:
+```python
+text = 'Thomas Bradley - Chief Financial Officer'
+result = pp.process(text, [], [])
+# Should now show: Thomas Bradley -> HOLDS_POSITION -> Chief Financial Officer
+```
+
+================================================================================
+STEP 4: RE-EXTRACT MORRISON & STERLING
+================================================================================
+```bash
+# Delete and re-extract the vault
+python scripts/reprocess_vault.py --vault "Morrison & Sterling"
+```
+
+Or delete and re-run E2E for just this vault.
+
+================================================================================
+STEP 5: VERIFY IN DATABASE
+================================================================================
+```sql
+-- Check HOLDS_POSITION relationship exists
+SELECT e1.name as person, r.relationship_type, e2.name as role
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND e1.name ILIKE '%bradley%'
+  AND r.relationship_type = 'HOLDS_POSITION';
+```
+
+Expected: Thomas Bradley -> HOLDS_POSITION -> Chief Financial Officer
+
+================================================================================
+STEP 6: TEST QUERY
+================================================================================
+```bash
+curl -X POST http://localhost:8000/api/query \
+  -H "Content-Type: application/json" \
+  -d '{"vault": "Morrison & Sterling", "query": "Who is the CFO?"}'
+```
+
+Expected: Thomas Bradley (not Elizabeth Morrison)
+
+================================================================================
+STEP 7: FULL E2E VERIFICATION
+================================================================================
+
+After fix confirmed:
+```bash
+python scripts/e2e_lifecycle_test.py
+```
+
+Target: 49/49 queries correct (100%)
+
+================================================================================
+REPORT BACK
+================================================================================
+
+1. Diagnosis result (what did manual test show?)
+2. Root cause (WORKS_AT vs pattern not matching?)
+3. Fix applied (code change)
+4. Verification query results
+5. Final E2E count
+
+================================================================================
