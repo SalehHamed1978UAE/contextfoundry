@@ -25,6 +25,7 @@ from .entity_extractor import EntityExtractor, ExtractedEntity
 from .relation_extractor import RelationExtractor, ExtractedRelation
 from .staging_loader import StagingLoader, StagingResult
 from .post_processor import get_post_processor
+from .job_tracker import ExtractionJobTracker, get_job_tracker
 
 from ..utils.logger import logger
 from ..models.schema import DocumentChunk
@@ -82,6 +83,7 @@ class OntologyCentricPipeline:
         model: str = "gpt-4o-mini",
         enable_canonicalization: bool = True,
         auto_stage: bool = True,
+        enable_job_tracking: bool = True,
     ):
         """
         Initialize the pipeline.
@@ -92,15 +94,18 @@ class OntologyCentricPipeline:
             model: LLM model to use
             enable_canonicalization: Whether to run canonicalization step
             auto_stage: Whether to automatically stage results
+            enable_job_tracking: Whether to track extraction jobs for monitoring
         """
         self.session = session
         self.tenant_id = tenant_id
         self.model = model
         self.enable_canonicalization = enable_canonicalization
         self.auto_stage = auto_stage
+        self.enable_job_tracking = enable_job_tracking
         
         self.ontology_manager = OntologyManager(session, tenant_id)
         self.canonicalizer = Canonicalizer(session, tenant_id) if enable_canonicalization else None
+        self.job_tracker = get_job_tracker(session) if enable_job_tracking else None
         
         self.entity_extractor = EntityExtractor(model=model, temperature=0.0)
         self.relation_extractor = RelationExtractor(model=model, temperature=0.0)
@@ -111,6 +116,7 @@ class OntologyCentricPipeline:
         document_id: str,
         filename: Optional[str] = None,
         document_type_override: Optional[str] = None,
+        content_hash: Optional[str] = None,
     ) -> OntologyCentricResult:
         """
         Run full ontology-centric extraction pipeline.
@@ -122,13 +128,43 @@ class OntologyCentricPipeline:
             document_id: Document ID
             filename: Original filename (for type inference)
             document_type_override: Override automatic classification
+            content_hash: Hash of document content for cache optimization
             
         Returns:
             OntologyCentricResult with all extraction data
         """
         chunks_stored = []
+        job_id = None
+        
+        if content_hash is None and self.job_tracker:
+            content_hash = ExtractionJobTracker.compute_content_hash(text)
+        
+        if self.job_tracker and content_hash:
+            if self.job_tracker.should_skip_extraction(document_id, content_hash):
+                logger.info(f"[OntologyCentricPipeline] Skipping extraction for {document_id}: content unchanged")
+                return OntologyCentricResult(
+                    document_id=document_id,
+                    document_type="cached",
+                    entities=[],
+                    relations=[],
+                    canonical_triplets=[],
+                    new_entity_types=[],
+                    new_relationship_types=[],
+                    chunks_stored=0,
+                    success=True,
+                )
+        
         try:
             chunks_stored = self._store_document_chunks(text, document_id)
+            
+            if self.job_tracker:
+                job_id = self.job_tracker.create_job(
+                    tenant_id=uuid.UUID(self.tenant_id),
+                    document_id=uuid.UUID(document_id),
+                    content_hash=content_hash,
+                    chunks_total=len(chunks_stored)
+                )
+                self.job_tracker.start_job(job_id, chunks_total=len(chunks_stored))
             logger.info(f"[OntologyCentricPipeline] Stored {len(chunks_stored)} chunks for RAG retrieval")
             
             if document_type_override:
@@ -157,12 +193,14 @@ class OntologyCentricPipeline:
             
             all_entities = []
             all_relations = []
+            chunks_processed = 0
             
             for chunk in chunks_stored:
                 chunk_id = str(chunk.id)
                 chunk_text = chunk.text
                 
                 if not chunk_text or len(chunk_text.strip()) < 50:
+                    chunks_processed += 1
                     continue
                 
                 chunk_entities = self._extract_entities_with_ontology(
@@ -183,6 +221,16 @@ class OntologyCentricPipeline:
                         rel.source_chunk_id = chunk_id
                     
                     all_relations.extend(chunk_relations)
+                
+                chunks_processed += 1
+                
+                if self.job_tracker and job_id:
+                    self.job_tracker.update_progress(
+                        job_id, 
+                        chunks_processed=chunks_processed,
+                        entities_extracted=len(all_entities),
+                        relationships_extracted=len(all_relations)
+                    )
                 
                 logger.info(f"[OntologyCentricPipeline] Chunk {chunk.chunk_index}: {len(chunk_entities)} entities, {len(chunk_relations) if chunk_entities else 0} relations")
             
@@ -228,6 +276,14 @@ class OntologyCentricPipeline:
             if self.auto_stage:
                 staging_result = self._stage_results(document_id, all_entities, all_relations)
             
+            if self.job_tracker and job_id:
+                self.job_tracker.complete_job(
+                    job_id,
+                    entities_extracted=len(all_entities),
+                    relationships_extracted=len(all_relations),
+                    partial=False
+                )
+            
             return OntologyCentricResult(
                 document_id=document_id,
                 document_type=document_type,
@@ -243,6 +299,10 @@ class OntologyCentricPipeline:
             
         except Exception as e:
             logger.error(f"[OntologyCentricPipeline] Extraction failed: {e}", exc_info=True)
+            
+            if self.job_tracker and job_id:
+                self.job_tracker.fail_job(job_id, str(e))
+            
             return OntologyCentricResult(
                 document_id=document_id,
                 document_type="unknown",
