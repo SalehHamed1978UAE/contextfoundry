@@ -1,0 +1,74 @@
+Send to Replit
+THREE CHANGES NEEDED
+
+================================================================================
+CHANGE 1: E2E SCRIPT — DELETE VAULTS AT START
+================================================================================
+
+At the START of the E2E test script:
+```python
+TEST_VAULT_NAMES = [
+    'TechVentures',
+    'Morrison & Sterling',
+    'Riverside Medical Center',
+    'Titan Manufacturing',
+    'Launchpad Ventures'
+]
+
+def cleanup_test_vaults():
+    """Delete any existing test vaults before running tests"""
+    for vault_name in TEST_VAULT_NAMES:
+        db.execute(text("""
+            DELETE FROM platform.tenants WHERE name = :name
+        """), {"name": vault_name})
+    db.commit()
+    print(f"Cleaned up {len(TEST_VAULT_NAMES)} test vaults")
+```
+
+================================================================================
+CHANGE 2: VERIFY CLEAN ENVIRONMENT OR EXIT
+================================================================================
+
+AFTER cleanup, VERIFY the environment is clean. If not, FAIL and EXIT:
+```python
+def verify_clean_environment():
+    """Verify no test vaults exist. Exit with error if not clean."""
+    
+    result = db.execute(text("""
+        SELECT name FROM platform.tenants 
+        WHERE name IN :names
+    """), {"names": tuple(TEST_VAULT_NAMES)}).fetchall()
+    
+    if result:
+        existing = [row.name for row in result]
+        print("=" * 60)
+        print("ERROR: ENVIRONMENT NOT CLEAN")
+        print("=" * 60)
+        print(f"The following test vaults still exist: {existing}")
+        print("This should not happen after cleanup.")
+        print("Check for foreign key CASCADE issues.")
+        print("=" * 60)
+        sys.exit(1)
+    
+    # Also check for orphaned entities
+    orphan_count = db.execute(text("""
+        SELECT COUNT(*) FROM entities e
+        LEFT JOIN platform.tenants t ON e.tenant_id = t.id
+        WHERE t.id IS NULL
+    """)).scalar()
+    
+    if orphan_count > 0:
+        print("=" * 60)
+        print("ERROR: ORPHANED DATA EXISTS")
+        print("=" * 60)
+        print(f"{orphan_count} orphaned entities found.")
+        print("CASCADE delete is not working properly.")
+        print("=" * 60)
+        sys.exit(1)
+    
+    print("✓ Environment is clean")
+
+# EXECUTION ORDER AT START OF TEST:
+cleanup_test_vaults()
+verify_clean_environment()  # EXIT HERE IF NOT CLEAN
+# ... proceed with tests only if clean
