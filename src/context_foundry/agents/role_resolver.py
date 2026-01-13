@@ -271,12 +271,7 @@ class RoleResolver:
             logger.info(f"[ROLE_RESOLVER] Stage 2 (fuzzy): '{role}' → '{stage2_result.resolved_name}'")
             return stage2_result
         
-        result = self._stage3_document_search(role)
-        if result.is_resolved:
-            logger.info(f"[ROLE_RESOLVER] Stage 3 (docs): '{role}' → '{result.resolved_name}'")
-            return result
-        
-        logger.info(f"[ROLE_RESOLVER] No resolution found for role: '{role}'")
+        logger.info(f"[ROLE_RESOLVER] No {role} found in knowledge graph - returning not found (no semantic fallback)")
         return RoleResolution(role=role)
     
     def resolve_all(self, role: str, vault_context: Optional[str] = None) -> RoleResolution:

@@ -212,6 +212,12 @@ INVESTMENT_PATTERNS = [
      "portfolio_includes", 0.90),
 ]
 
+PORTFOLIO_COMPANY_PATTERNS = [
+    (r'^([A-Z][A-Za-z0-9&.-]*(?:\s+[A-Z][A-Za-z0-9&.-]*)*)\s*\(Cohort\s+\d+\)', 'PORTFOLIO_COMPANY', 0.95),
+    (r'^([A-Z][A-Za-z0-9&.-]+)\s*\n\s*-\s*Sector:', 'PORTFOLIO_COMPANY', 0.92),
+    (r'^\s*([A-Z][A-Za-z0-9&.-]+)\s*\n\s*-\s*Stage:', 'PORTFOLIO_COMPANY', 0.90),
+]
+
 
 @dataclass
 class ExtractedRelationshipFromPattern:
@@ -325,6 +331,15 @@ class ExtractionPostProcessor:
         new_relationships.extend(invest_rels)
         new_entities.extend(invest_entities)
         patterns_matched += len(invest_rels)
+
+        portfolio_entities = self._extract_portfolio_companies(
+            document_text, existing_entity_names
+        )
+        for pe in portfolio_entities:
+            if pe['name'].lower() not in existing_entity_names:
+                new_entities.append(pe)
+                existing_entity_names.add(pe['name'].lower())
+                patterns_matched += 1
 
         elapsed_ms = (time.time() - start) * 1000
 
@@ -691,6 +706,45 @@ class ExtractionPostProcessor:
                 if result and result.upper() not in {'PORTFOLIO', 'COMPANY', 'SUMMARY', 'REPORT'}:
                     return result
         return None
+
+    def _extract_portfolio_companies(
+        self, text: str, existing_entity_names: Set[str]
+    ) -> List[Dict]:
+        """
+        Extract portfolio companies using patterns that catch cohort format.
+        Catches "CLOUDAI (Cohort 8)", "CloudAI (Cohort 8)", or "COMPANYNAME\n- Sector:" patterns.
+        Preserves original casing from the document.
+        """
+        entities = []
+        seen = set()
+        
+        for pattern, entity_type, confidence in PORTFOLIO_COMPANY_PATTERNS:
+            try:
+                matches = re.finditer(pattern, text, re.MULTILINE)
+                for match in matches:
+                    name = match.group(1).strip()
+                    if not name or len(name) < 3:
+                        continue
+                    name_key = name.lower()
+                    if name_key in seen:
+                        continue
+                    if name_key in existing_entity_names:
+                        continue
+                    if name.upper() in {'THE', 'AND', 'FOR', 'PORTFOLIO', 'COMPANY', 'ACTIVE'}:
+                        continue
+                    seen.add(name_key)
+                    entities.append({
+                        'name': name,
+                        'entity_type': entity_type,
+                        'confidence': confidence,
+                        'source': 'post_processor',
+                        'source_text': match.group(0)[:100]
+                    })
+                    logger.info(f"[PostProcessor] Found portfolio company: {name}")
+            except Exception as e:
+                logger.warning(f"[PostProcessor] Portfolio company pattern failed: {e}")
+        
+        return entities
 
 
 class RoleNormalizer:
