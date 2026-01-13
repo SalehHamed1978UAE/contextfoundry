@@ -145,12 +145,22 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             f.write(text)
     
     def cleanup_all_demo_vaults(self):
-        """Clean up all test vaults from previous test runs."""
+        """Clean up all test vaults using the same deletion function as the UI/API.
+        
+        This uses delete_vault_and_artifacts() from web_app.py - the exact same
+        function that handles user-initiated vault deletion through the UI.
+        """
         self.log("Cleaning up all test vaults from previous runs...")
         
         from src.context_foundry.models.schema import get_session
         from sqlalchemy import text
         from e2e_config import VAULTS
+        from uuid import UUID
+        
+        # Import the vault deletion function used by the UI/API
+        import sys
+        sys.path.insert(0, '.')
+        from web_app import delete_vault_and_artifacts
         
         # Get vault names from config
         test_vault_names = [v['name'] for v in VAULTS]
@@ -168,36 +178,16 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
                     return
                 
                 self.log(f"         Found {len(vaults)} test vaults to delete")
-                
-                for vault_id, vault_name in vaults:
-                    tid = str(vault_id)
-                    
-                    # Clear entity references
-                    session.execute(text("UPDATE public.entities SET superseded_by = NULL WHERE tenant_id = :tid"), {"tid": tid})
-                    
-                    # Delete from public tables
-                    for table in ['entity_mentions', 'doc_entity_mentions', 'relationships', 
-                                  'entities', 'document_chunks']:
-                        try:
-                            session.execute(text(f"DELETE FROM public.{table} WHERE tenant_id = :tid"), {"tid": tid})
-                        except: pass
-                    
-                    # Delete from platform tables
-                    try:
-                        session.execute(text("DELETE FROM platform.extraction_results WHERE request_id IN (SELECT request_id FROM platform.extraction_requests WHERE tenant_id = :tid)"), {"tid": tid})
-                    except: pass
-                    
-                    for table in ['extraction_requests', 'documents', 'user_tenants', 'usage_events']:
-                        try:
-                            session.execute(text(f"DELETE FROM platform.{table} WHERE tenant_id = :tid"), {"tid": tid})
-                        except: pass
-                    
-                    # Delete tenant
-                    session.execute(text("DELETE FROM platform.tenants WHERE id = :tid"), {"tid": tid})
-                    self.log(f"         Deleted: {vault_name}")
-                
-                session.commit()
-                self.log(f"         Cleanup complete: {len(vaults)} vaults deleted")
+            
+            # Use the same deletion function the UI uses
+            for vault_id, vault_name in vaults:
+                try:
+                    deleted = delete_vault_and_artifacts(UUID(str(vault_id)))
+                    self.log(f"         Deleted: {vault_name} (artifacts: {sum(deleted.values())} items)")
+                except Exception as e:
+                    self.log(f"         Warning: Failed to delete {vault_name}: {e}")
+            
+            self.log(f"         Cleanup complete: {len(vaults)} vaults processed")
                 
         except Exception as e:
             self.log(f"         Warning: Cleanup failed: {e}")
