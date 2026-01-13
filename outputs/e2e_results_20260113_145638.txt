@@ -1,0 +1,964 @@
+================================================================================
+E2E LIFECYCLE TEST RESULTS
+================================================================================
+Run Date: 2026-01-13 14:56:38
+================================================================================
+
+================================================================================
+VAULT: TechVentures
+================================================================================
+Documents Uploaded: 4
+  - 01_leadership_memo.txt
+  - 02_portfolio_summary.txt
+  - 03_org_chart.txt
+  - 04_compensation_memo.txt
+
+Extraction Results:
+  - Chunks: 12
+  - Entities: 147
+  - Relationships: 47
+
+--------------------------------------------------------------------------------
+QUERY 1/10: Who is the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO of TechVentures is Sarah Chen.
+
+Note: Your documents also mention other CEOs:
+- Dr. Patricia Vance (CEO of HEALTHSYNC)
+- Ahmed Malik (CEO of SecureNode)
+- Robert Kim (CEO)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/10: What is the CEO's salary?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO's salary, as stated in the retrieved information, is a base salary of **$850,000**. Additionally, Sarah Chen, the Chief Executive Officer, has a target bonus of **$1,200,000**, bringing her total target compensation (excluding equity) to **$2,050,000**.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/10: Who is the CTO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CTO of TechVentures is Marcus Williams.
+
+Note: Your documents also mention other CTOs:
+- Michael Torres (CTO of HEALTHSYNC)
+- Priya Sharma (CTO of SecureNode)
+- Jennifer Walsh (CTO)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/10: Who is the CTO of TechVentures?
+--------------------------------------------------------------------------------
+ANSWER:
+The CTO of TechVentures is Marcus Williams.
+
+Note: Your documents also mention other CTOs:
+- Michael Torres (CTO of HEALTHSYNC)
+- Priya Sharma (CTO of SecureNode)
+- Jennifer Walsh (CTO)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/10: What is Sarah Chen's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+Sarah Chen's compensation for 2026 is as follows:
+
+- **Base Salary**: $850,000
+- **Target Bonus**: $1,200,000 (which is 141% of her base salary)
+- **Equity Grant**: 500,000 options vesting over 4 years
+- **Total Target Compensation**: $2,050,000 (excluding equity)
+- **Benefits**: Standard executive package plus a $50,000 annual travel allowance
+- **Change from 2025**: An 8% increase in base salary, with the bonus target remaining unchanged.
+
+This information provides a comprehensive overview of her compensation package for the year 2026.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/10: Who reports to the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+The following individuals report to the CEO, Sarah Chen:
+
+1. Marcus Williams
+2. James O'Brien
+3. Dr. Amira Hassan
+
+These are the only individuals mentioned in the retrieved information who report directly to Sarah Chen.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/10: What portfolio companies does TechVentures have?
+--------------------------------------------------------------------------------
+ANSWER:
+TechVentures has invested in the following portfolio companies:
+
+1. HealthSync
+2. SECURENODE
+3. CloudMatrix
+
+These are the companies that TechVentures is known to have invested in based on the retrieved information.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/10: Tell me about CloudMatrix
+--------------------------------------------------------------------------------
+ANSWER:
+CloudMatrix is a portfolio company under TechVentures, which has invested in it. The company specializes in providing enterprise infrastructure automation software aimed at helping large organizations streamline their operations. 
+
+As of the latest quarterly report for Q4 2025, CloudMatrix is one of three active portfolio companies managed by TechVentures, which has a total of $2.1 billion in assets under management. The total capital deployed across its portfolio is $95 million, with $405 million remaining for future investments from Fund III.
+
+CloudMatrix is led by CEO Sarah Chen, who is also the founder of the company. The first commercial contract for CloudMatrix is expected to be secured in Q2 2026, indicating that the company is in a growth phase and preparing to enter the market more fully.
+
+While specific financial details about CloudMatrix's funding or revenue metrics were not provided in the retrieved information, it is clear that the company is positioned for future growth and is part of a strategic investment by TechVentures.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/10: Tell me about HealthSync
+--------------------------------------------------------------------------------
+ANSWER:
+HealthSync is a portfolio company that specializes in developing interoperability software designed to connect hospital electronic health record (EHR) systems. The company was founded in 2020 by former engineers from Epic Systems, a well-known provider of EHR solutions.
+
+### Key Details about HealthSync:
+
+- **Investment**: TechVentures invested $30 million in HealthSync during its Series A funding round, which took place in August 2023. TechVentures holds a 28% ownership stake in the company, and James O'Brien, the CFO of TechVentures, has a board seat at HealthSync.
+
+- **Leadership**: The company is led by Dr. Patricia Vance, who serves as the CEO and is also one of the founders. Other key executives include Michael Torres as the CTO and Amanda Richardson as the COO.
+
+- **Current Status**: As of the latest report, HealthSync is in the pilot phase and is pre-revenue, with 50 active hospital partnerships currently testing the software. The company has a total of 34 employees.
+
+- **Future Prospects**: HealthSync is expecting its first commercial contract in Q2 2026, indicating a potential shift towards generating revenue in the near future.
+
+Overall, HealthSync is positioned to play a significant role in enhancing the interoperability of health records across hospitals, which is a critical need in the healthcare industry.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 10/10: Tell me about SecureNode
+--------------------------------------------------------------------------------
+ANSWER:
+SecureNode is a portfolio company that specializes in zero-trust network security for distributed enterprise environments. It was founded in 2024 by former Google security engineers. Here are some key details about SecureNode:
+
+### Company Overview
+- **Founded**: 2024
+- **Founders**: Ahmed Malik (CEO) and Priya Sharma (CTO)
+- **Focus**: Provides zero-trust network security solutions.
+
+### Investment Details
+- **Investment Amount**: $20 Million (Seed round)
+- **Investment Date**: February 2025
+- **Ownership Stake**: 35%
+- **Board Seat**: Marcus Williams (CTO of TechVentures)
+
+### Current Metrics
+- **Annual Recurring Revenue**: $180,000 (early stage)
+- **Enterprise Pilots**: 5 active pilots
+- **Employee Count**: 18
+- **Burn Rate**: $280,000 per month
+
+### Leadership
+- **CEO**: Ahmed Malik
+- **CTO**: Priya Sharma
+- **VP Sales**: Christopher Lee
+
+### Additional Context
+Marcus Williams, who works at TechVentures as the CTO, is involved with SecureNode as a board member. TechVentures has invested in SecureNode, indicating a strategic interest in the company's potential within the cybersecurity sector.
+
+### Future Milestones
+While specific future milestones for SecureNode are not detailed in the retrieved information, it is part of TechVentures' active portfolio, which suggests ongoing support and potential growth opportunities.
+
+Overall, SecureNode is positioned in a critical area of cybersecurity, focusing on modern security needs for enterprises, and is backed by significant investment and expertise from its founders and board members.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+
+================================================================================
+VAULT: Morrison & Sterling
+================================================================================
+Documents Uploaded: 3
+  - 01_firm_overview.txt
+  - 02_partner_compensation.txt
+  - 03_client_roster.txt
+
+Extraction Results:
+  - Chunks: 4
+  - Entities: 53
+  - Relationships: 43
+
+--------------------------------------------------------------------------------
+QUERY 1/9: Who is the Managing Partner?
+--------------------------------------------------------------------------------
+ANSWER:
+The Managing Partner is Elizabeth Morrison. She holds this position at Morrison & Sterling LLP.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/9: What is the Managing Partner's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The Managing Partner, Elizabeth Morrison, has a total compensation package of $2,400,000 for the year 2026. This includes:
+
+- Base Draw: $1,200,000
+- Performance Bonus: $800,000
+- Equity Points: 150 (of 1000 total)
+- Additional: Firm vehicle allowance of $24,000 per year
+
+This comprehensive compensation reflects her role and contributions to Morrison & Sterling LLP.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/9: Who is the CFO?
+--------------------------------------------------------------------------------
+ANSWER:
+The retrieved information does not specify who the Chief Financial Officer (CFO) is at Morrison & Sterling LLP. It lists several individuals who work at the organization, but their specific roles, including the CFO, are not mentioned. Therefore, I cannot provide the name of the CFO based on the available information.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/9: Who is the COO?
+--------------------------------------------------------------------------------
+ANSWER:
+The Chief Operating Officer (COO) is Amanda Foster. She works at Morrison & Sterling LLP and has employees, such as Susan Martinez and Thomas Bradley, reporting to her. Additionally, she reports to Elizabeth Morrison.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/9: Who reports to Amanda Foster?
+--------------------------------------------------------------------------------
+ANSWER:
+Based on the retrieved information, the following individuals report to Amanda Foster:
+
+1. Thomas Bradley
+2. Susan Martinez
+
+These are the only individuals mentioned in the provided information who report to Amanda Foster.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/9: What practice groups does the firm have?
+--------------------------------------------------------------------------------
+ANSWER:
+The firm, Morrison & Sterling LLP, has the following five practice groups:
+
+1. **Corporate & M&A**
+   - Led by: Elizabeth Morrison
+   - Partners: 12
+   - Associates: 28
+   - Revenue: $45M annually
+
+2. **Litigation**
+   - Led by: Richard Sterling
+   - Partners: 8
+   - Associates: 22
+   - Revenue: $32M annually
+
+3. **Intellectual Property**
+   - Led by: Priya Patel
+   - Partners: 6
+   - Associates: 15
+   - Revenue: $28M annually
+
+4. **Employment Law**
+   - Led by: David Chen
+   - Partners: 5
+   - Associates: 12
+   - Revenue: $18M annually
+
+5. **Real Estate**
+   - Led by: Michael Torres
+   - Partners: 4
+   - Associates: 10
+   - Revenue: $15M annually
+
+This list includes all the practice groups mentioned in the retrieved information.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/9: Tell me about the litigation practice
+--------------------------------------------------------------------------------
+ANSWER:
+The litigation practice at Morrison & Sterling LLP is led by Richard Sterling, who is a Senior Partner and co-founder of the firm. He has been instrumental in developing the firm's litigation practice group since its inception in 1998. Richard Sterling reports directly to the Managing Partner, Elizabeth Morrison, regarding firm management matters.
+
+The firm has a strong focus on litigation, as evidenced by its significant client relationships. For instance, one of their Tier 1 clients, Pinnacle Financial Group, generates approximately $2.8 million in annual billing for litigation defense services. This highlights the firm's capability and expertise in handling complex litigation cases.
+
+In terms of compensation, Richard Sterling's financial package reflects his leadership role in the litigation practice, with a base draw of $950,000 and a performance bonus of $600,000, totaling an expected income of $1.85 million for the year.
+
+Overall, while the retrieved information provides a solid overview of the litigation practice's leadership and its importance to the firm's revenue, specific details about the types of litigation cases handled or the size of the litigation team are not included in the provided documents.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/9: Who are the Tier 1 clients?
+--------------------------------------------------------------------------------
+ANSWER:
+The Tier 1 clients of Morrison & Sterling LLP, which have an annual billing of over $2 million, are as follows:
+
+1. **Nexus Technologies Inc.**
+   - Industry: Enterprise Software
+   - Annual Billing: $4.2M
+   - Relationship Partner: Elizabeth Morrison
+   - Services: M&A advisory, corporate governance
+   - Relationship Since: 2015
+   - Key Contact: CEO Robert Huang
+
+2. **Atlantic Healthcare Systems**
+   - Industry: Healthcare
+   - Annual Billing: $3.1M
+   - Relationship Partner: David Chen
+   - Services: Employment law, regulatory compliance
+   - Relationship Since: 2018
+   - Key Contact: General Counsel Maria Santos
+
+3. **Pinnacle Financial Group**
+   - Industry: Financial Services
+   - Annual Billing: $2.8M
+   - Relationship Partner: Richard Sterling
+   - Services: Litigation defense, regulatory matters
+   - Relationship Since: 2012
+   - Key Contact: Chief Legal Officer James Wright
+
+4. **GlobalTech Manufacturing**
+   - Industry: Industrial
+   - Annual Billing: $2.4M
+   - Relationship Partner: Priya Patel
+   - Services: Patent litigation, IP portfolio management
+   - Relationship Since: 2020
+   - Key Contact: VP Legal Affairs Christine Park
+
+These clients represent significant revenue for the firm and are key partners in various industries.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/9: What is Richard Sterling's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+Richard Sterling's compensation as a Senior Partner in Litigation at Morrison & Sterling LLP is structured as follows:
+
+- **Base Draw:** $950,000
+- **Performance Bonus:** $600,000
+- **Equity Points:** 120
+- **Total Expected Compensation:** $1,850,000
+
+This total expected compensation does not include any additional allowances or benefits that may be provided by the firm.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+
+================================================================================
+VAULT: Riverside Medical Center
+================================================================================
+Documents Uploaded: 3
+  - 01_leadership_directory.txt
+  - 02_executive_compensation.txt
+  - 03_strategic_initiatives.txt
+
+Extraction Results:
+  - Chunks: 4
+  - Entities: 90
+  - Relationships: 65
+
+--------------------------------------------------------------------------------
+QUERY 1/10: Who is the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO of Riverside Medical Center is Dr. Margaret Chen.
+
+Note: Your documents also mention other CEOs:
+- Margaret Chen (Chief Executive Officer)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/10: What is the CEO's salary?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO of Riverside Medical Center, Dr. Margaret Chen, has a base salary of $1,450,000. Additionally, her total target compensation, which includes performance incentives, quality bonuses, and retention bonuses, amounts to $2,965,000.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/10: Who is the CMO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CMO of Riverside Medical Center is Dr. William Patterson.
+
+Note: Your documents also mention other CMOs:
+- William Patterson (Chief Medical Officer)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/10: Who is the CIO?
+--------------------------------------------------------------------------------
+ANSWER:
+The Chief Information Officer (CIO) is Robert Thompson. He leads the Digital Health Transformation at Riverside Medical Center and reports to Sandra Williams. Additionally, he receives a base salary, a performance incentive, and has a total target compensation, although specific figures for these compensations are not provided in the retrieved information.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/10: What is the CIO's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The Chief Information Officer (CIO) of Riverside Medical Center, Robert Thompson, has the following compensation details:
+
+- **Base Salary:** $485,000
+- **Performance Incentive:** $194,000
+- **Quality Bonus:** Up to $97,000
+- **Total Target Compensation:** $776,000
+
+This information outlines his base salary, performance incentives, potential bonuses, and the total target compensation for the year 2026.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/10: Who reports to the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+Based on the retrieved information, the following individuals report to the CEO, Dr. Margaret Chen:
+
+1. Dr. William Patterson
+2. Sandra Williams
+3. James Rodriguez
+
+Additionally, it is noted that Dr. Aisha Patel and Robert Thompson report to Sandra Williams, but they do not report directly to the CEO. Therefore, the complete list of individuals who report directly to Dr. Margaret Chen is as follows:
+
+1. Dr. William Patterson
+2. Sandra Williams
+3. James Rodriguez
+
+This is the complete information available regarding who reports to the CEO.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/10: What departments does the hospital have?
+--------------------------------------------------------------------------------
+ANSWER:
+The hospital, Riverside Medical Center, has the following departments:
+
+1. **Cardiology**
+   - Department Head: Dr. Michael Foster
+   - Staff: 12 physicians, 45 nurses
+   - Annual Procedures: 2,800
+   - Department Revenue: $42M
+
+2. **Oncology**
+   - Department Head: Dr. Sarah Kim
+   - Staff: 8 physicians, 38 nurses
+   - Annual Patient Visits: 15,000
+   - Department Revenue: $38M
+
+3. **Orthopedics**
+   - Department Head: Dr. James Wilson
+   - Staff: 10 physicians, 32 nurses
+   - Annual Surgeries: 1,800
+   - Department Revenue: $35M
+
+4. **Emergency Medicine**
+   - Department Head: Dr. Patricia Gomez
+   - Staff details are not fully provided in the retrieved information.
+
+5. **Neurology**
+   - Department Head: Dr. David Park
+   - Staff details are not fully provided in the retrieved information.
+
+These are the departments mentioned in the retrieved information, along with some details about their staff and performance metrics. However, specific details for the Emergency Medicine and Neurology departments are incomplete.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/10: Tell me about the cardiac initiative
+--------------------------------------------------------------------------------
+ANSWER:
+The Cardiac Initiative at Riverside Medical Center is formally known as the "Cardiac Center of Excellence." It is a strategic initiative approved by the board in November 2025, with a planned investment of $45 million over three years. The initiative is led by Dr. Michael Foster, the Chair of Cardiology, and has Dr. William Patterson, the Chief Medical Officer, as the executive sponsor.
+
+### Key Components of the Cardiac Initiative:
+- **Investment Breakdown**:
+  - New hybrid operating room suite: $18 million
+  - Advanced imaging equipment: $12 million
+  - Robotic surgery system: $8 million
+  - Facility renovation: $7 million
+
+### Goals of the Initiative:
+1. **Increase Cardiac Surgery Volume**: The initiative aims to boost the volume of cardiac surgeries by 40%.
+2. **Achieve Top-Decile Outcomes**: The goal is to reach top-decile outcomes nationally in terms of patient care and surgical results.
+3. **Recruitment**: The initiative plans to recruit four additional cardiac surgeons to enhance the surgical team.
+4. **Launch of Transcatheter Valve Program**: This program is intended to expand the services offered in cardiac care.
+
+This initiative is part of Riverside Medical Center's broader strategic plan for 2026-2028, focusing on enhancing cardiac care capabilities and improving patient outcomes in the cardiology department.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/10: Who leads the oncology department?
+--------------------------------------------------------------------------------
+ANSWER:
+Dr. Sarah Kim leads the oncology department as she is identified as the head of the Oncology Expansion and holds the position of Oncology Chair. There is no additional information provided about other leaders or members of the oncology department.
+
+CONFIDENCE: 70%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 10/10: Who leads the cardiology department?
+--------------------------------------------------------------------------------
+ANSWER:
+The cardiology department is led by Dr. Michael Foster, who holds the position of Cardiology Chair.
+
+CONFIDENCE: 70%
+--------------------------------------------------------------------------------
+
+
+================================================================================
+VAULT: Titan Manufacturing
+================================================================================
+Documents Uploaded: 3
+  - 01_leadership_org.txt
+  - 02_executive_compensation.txt
+  - 03_operations_overview.txt
+
+Extraction Results:
+  - Chunks: 8
+  - Entities: 58
+  - Relationships: 35
+
+--------------------------------------------------------------------------------
+QUERY 1/10: Who is the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO is Robert Martinez. He holds the position of Chief Executive Officer at Titan Manufacturing Corp. Additionally, several individuals, including Maria Santos, Dr. James Wilson, Linda Chen, and William Thompson, report to him.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/10: What is the CEO's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO of Titan Manufacturing Corp, Robert Martinez, has a total compensation package that includes the following components:
+
+- **Base Salary**: $980,000
+- **Performance Bonus**: $490,000 (which is 50% of his base salary)
+- **Long-Term Incentive**: $735,000 (in the form of stock awards)
+- **Total Target Compensation**: $2,205,000
+- **Benefits**: This includes an executive health plan, a company car, and $30,000 in club memberships.
+
+In summary, Robert Martinez's total target compensation is $2,205,000, which encompasses his salary, bonuses, long-term incentives, and additional benefits.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/10: Who is the COO?
+--------------------------------------------------------------------------------
+ANSWER:
+The Chief Operating Officer (COO) is Linda Chen. She works at Titan Manufacturing Corp and oversees several individuals who report to her, including Angela Foster, Dr. Sarah Kim, Patricia Williams, Carlos Rodriguez, Jennifer Park, Michael O'Brien, and David Lee. Additionally, Linda Chen reports to Robert Martinez.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/10: Who is the CTO?
+--------------------------------------------------------------------------------
+ANSWER:
+The CTO of TITAN MANUFACTURING CORP is Dr. James Wilson.
+
+Note: Your documents also mention other CTOs:
+- James Wilson (Chief Technology Officer)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/10: Who reports to the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+Based on the retrieved information, the following individuals report to the CEO, Robert Martinez:
+
+1. Linda Chen
+2. William Thompson
+3. Dr. James Wilson
+4. Maria Santos
+
+These are the individuals explicitly mentioned as reporting to Robert Martinez. No additional information about other individuals reporting to the CEO is provided.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/10: Who manages the Detroit plant?
+--------------------------------------------------------------------------------
+ANSWER:
+The Detroit plant is managed by **Michael O'Brien**.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/10: What is the Detroit plant manager's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The compensation for the Detroit plant manager, Michael O'Brien, is as follows:
+
+- **Base Salary:** $285,000
+- **Performance Bonus:** Up to $114,000 (which is 40% of the base salary)
+- **Plant Performance Bonus:** Up to $57,000
+- **Total Target Compensation:** $456,000
+
+This information provides a comprehensive overview of the Detroit plant manager's compensation package.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/10: What plants does the company have?
+--------------------------------------------------------------------------------
+ANSWER:
+The company has the following plants, along with their primary products:
+
+1. **Detroit Plant**
+   - Products: Heavy machinery components, engine blocks, transmission housings
+
+2. **Cleveland Plant**
+   - Products: Precision tooling, cutting instruments, specialized fixtures
+
+3. **Austin Plant**
+   - Products: Electronic assemblies, control systems, sensor modules
+
+4. **Phoenix Plant**
+   - Products: Aerospace components, landing gear parts, structural elements
+
+These four plants are part of Titan Manufacturing Corp, which operates in various key markets including automotive, aerospace, and industrial equipment.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/10: Tell me about the automation initiative
+--------------------------------------------------------------------------------
+ANSWER:
+The automation initiative at Titan Manufacturing Corp is titled "Automation Expansion." It is led by Dr. James Wilson, the Chief Technology Officer (CTO), and sponsored by Linda Chen, the Chief Operating Officer (COO). The initiative involves a significant investment of $45 million over a two-year period.
+
+The primary goals of the Automation Expansion initiative are not explicitly detailed in the retrieved information, but it is part of the company's strategic initiatives for 2026, indicating a focus on enhancing operational efficiency and possibly improving production capabilities through automation technologies.
+
+While specific outcomes or metrics for success related to this initiative are not provided, it is clear that Titan Manufacturing is prioritizing automation as a key component of its strategic growth and operational improvement plans. Further details on the specific technologies or processes to be automated, as well as the expected impact on workforce and production, are not included in the retrieved information.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 10/10: Who leads quality assurance?
+--------------------------------------------------------------------------------
+ANSWER:
+Dr. Sarah Kim leads the Quality Assurance team. This is the only specific information available regarding the leadership of quality assurance. If you need more details about the team or its functions, that information is not provided in the retrieved data.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+
+================================================================================
+VAULT: Launchpad Ventures
+================================================================================
+Documents Uploaded: 3
+  - 01_leadership_directory.txt
+  - 02_portfolio_summary.txt
+  - 03_compensation_programs.txt
+
+Extraction Results:
+  - Chunks: 10
+  - Entities: 111
+  - Relationships: 34
+
+--------------------------------------------------------------------------------
+QUERY 1/10: Who is the Managing Partner?
+--------------------------------------------------------------------------------
+ANSWER:
+The Managing Partner of Launchpad Ventures is Alexandra Kim.
+
+Note: Your documents also mention other Managing Partners:
+- Michael Torres (Managing Partner & COO of Launchpad Ventures)
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/10: What is the Managing Partner's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The compensation for the Managing Partners at Launchpad Ventures is as follows:
+
+1. **Alexandra Kim - Managing Partner & CEO**
+   - **Base Salary:** $450,000
+   - **Management Fee Share:** 2.5% of AUM allocation
+   - **Carried Interest:** 25% of fund profits (pro-rata)
+   - **Estimated Annual Compensation:** $2.8 million (including carry distributions)
+   - **Benefits:** Full executive package, unlimited PTO
+
+2. **Michael Torres - Managing Partner & COO**
+   - **Base Salary:** $420,000
+   - **Management Fee Share:** 2.5% of AUM allocation
+   - **Carried Interest:** 25% of fund profits (pro-rata)
+   - **Estimated Annual Compensation:** $2.5 million (including carry distributions)
+   - **Benefits:** Full executive package, unlimited PTO
+
+In summary, the Managing Partners have significant compensation packages that include base salaries, management fee shares, carried interest, and estimated annual compensation that reflects their total earnings including profit distributions.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/10: Who are the General Partners?
+--------------------------------------------------------------------------------
+ANSWER:
+I found multiple people with the General Partner role:
+
+- David Park (General Partner of Launchpad Ventures)
+- Sarah Chen (General Partner of Launchpad Ventures)
+- Dr. Rachel Green (General Partner of Launchpad Ventures)
+
+Which one would you like to know more about? Please specify by name.
+
+CONFIDENCE: 100%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/10: Who reports to Alexandra Kim?
+--------------------------------------------------------------------------------
+ANSWER:
+Alexandra Kim has the following individuals reporting to her:
+
+1. David Park
+2. Sarah Chen
+3. Dr. Rachel Green
+4. Jennifer Walsh
+5. Mark Davis
+
+These are all the individuals mentioned in the retrieved information who report to Alexandra Kim.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/10: What portfolio companies are in Cohort 12?
+--------------------------------------------------------------------------------
+ANSWER:
+The portfolio companies in Cohort 12 are as follows:
+
+1. **NeuralBox**
+   - Sector: Enterprise AI
+   - Stage: Seed
+   - Investment: $2.5M (Lead investor)
+   - Ownership: 18%
+   - Board Seat: David Park
+   - CEO: Andrew Chang
+   - Founded: 2024
+   - Employees: 12
+   - Description: AI-powered document processing for legal firms
+   - Traction: $180K ARR, 15 enterprise pilots
+   - Next Milestone: Series A targeting Q2 2026
+
+2. **GreenFlow**
+   - Sector: Climate Tech
+   - Stage: Seed
+   - Investment: $3M (Lead investor)
+   - Ownership: 22%
+   - Board Seat: Chris Martinez (observer)
+   - CEO: Dr. Maria Santos
+   - Founded: 2024
+   - Employees: 18
+   - Description: Carbon capture optimization using machine learning
+   - Traction: 3 industrial partnerships, pilot with Chevron
+   - Next Milestone: First commercial deployment Q1 2026
+
+3. **HealthBridge**
+   - Sector: Healthcare
+   - Stage: Seed
+   - Investment: $2M (Co-lead)
+   - Ownership: 15%
+   - Board Seat: Dr. Rachel Green
+   - CEO: Dr. James Liu
+   - Founded: 2024
+   - Employees: 22
+   - Description: Remote patient monitoring platform for chronic conditions
+   - Traction: $320K ARR, 8 clinic partnerships, FDA clearance pending
+   - Next Milestone: FDA 510(k) approval Q1 2026
+
+4. **PayStream**
+   - Sector: Fintech
+   - Stage: Seed
+   - Investment: $2.5M (Lead investor)
+   - Ownership: 20%
+   - Board Seat: Sarah Chen
+   - CEO: Michelle Wong
+   - Founded: 2024
+   - Employees: 15
+   - Description: Real-time B2B payments infrastructure
+   - Traction: $95K MRR, processing $2M monthly volume
+   - Next Milestone: Series A targeting Q3 2026
+
+These companies represent the active portfolio for Cohort 12 as of Q4 2025.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/10: Tell me about CloudAI
+--------------------------------------------------------------------------------
+ANSWER:
+CloudAI is a portfolio company focused on healthcare, specifically developing a remote patient monitoring platform for chronic conditions. Here are the key details about CloudAI:
+
+- **Stage**: Seed
+- **Investment**: $2 million (Co-lead investor)
+- **Ownership**: 15%
+- **Board Seat**: Dr. Rachel Green
+- **CEO**: Dr. James Liu
+- **Founded**: 2024
+- **Employees**: 22
+- **Description**: The platform aims to facilitate remote monitoring of patients with chronic conditions, enhancing their care and management.
+- **Traction**: CloudAI has achieved an annual recurring revenue (ARR) of $320,000 and has established partnerships with 8 clinics. The company is currently awaiting FDA clearance.
+- **Next Milestone**: The next significant goal for CloudAI is to obtain FDA 510(k) approval, which is targeted for the first quarter of 2026.
+
+This information provides a snapshot of CloudAI's current status and future objectives within the healthcare sector. If you have any more specific questions or need further details, feel free to ask!
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/10: Tell me about NeuralBox
+--------------------------------------------------------------------------------
+ANSWER:
+NeuralBox is a portfolio company of Launchpad Ventures, operating in the Enterprise AI sector. Here are the key details about NeuralBox:
+
+- **Founded**: 2024
+- **CEO**: Andrew Chang
+- **Employees**: 12
+- **Stage**: Seed
+- **Investment**: $2.5 million (Lead investor)
+- **Ownership**: 18%
+- **Board Seat**: David Park
+- **Description**: NeuralBox specializes in AI-powered document processing specifically designed for legal firms.
+- **Traction**: The company has achieved an annual recurring revenue (ARR) of $180,000 and is currently running 15 enterprise pilot programs.
+- **Next Milestone**: NeuralBox is targeting a Series A funding round in Q2 2026.
+
+This information highlights NeuralBox's focus on leveraging AI technology to enhance document processing in the legal sector, its current financial standing, and future growth plans.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 8/10: What is David Park's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+David Park's compensation includes the following components:
+
+- **Base Salary**: $380,000
+- **Management Fee Share**: 1.5% of AUM allocation
+- **Carried Interest**: 15% of fund profits (pro-rata)
+- **Estimated Annual Compensation**: $1.6 million
+
+This estimated annual compensation reflects his total earnings, including his base salary and potential earnings from management fees and carried interest.
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 9/10: Who leads the Healthcare investments?
+--------------------------------------------------------------------------------
+ANSWER:
+It seems that I couldn't find specific information about who leads the Healthcare investments in the knowledge graph or the documents available. If you have any other specific queries or need information on a related topic, feel free to ask!
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 10/10: What is the accelerator program structure?
+--------------------------------------------------------------------------------
+ANSWER:
+I couldn't find specific information on the structure of accelerator programs in the available documents. However, I can provide a general overview based on common practices.
+
+Accelerator programs typically have the following structure:
+
+1. **Application Process**: Startups apply to join the program, often submitting a business plan or pitch.
+
+2. **Selection**: A panel of judges or mentors reviews applications and selects startups based on criteria like innovation, market potential, and team capability.
+
+3. **Program Duration**: Most accelerators run for a fixed period, usually ranging from 3 to 6 months.
+
+4. **Mentorship**: Participants receive guidance from experienced entrepreneurs, industry experts, and mentors who provide advice on business development, marketing, and fundraising.
+
+5. **Workshops and Training**: Regular workshops cover various topics, including product development, customer acquisition, and financial management.
+
+6. **Networking Opportunities**: Startups connect with investors, industry leaders, and other entrepreneurs through events and networking sessions.
+
+7. **Funding**: Many accelerators offer seed funding in exchange for equity in the startup.
+
+8. **Demo Day**: At the end of the program, startups present their business to a group of investors and stakeholders, often referred to as "Demo Day."
+
+9. **Post-Program Support**: Some accelerators provide ongoing support and resources even after the program ends.
+
+If you need more specific details or have a particular accelerator in mind, please let me know!
+
+CONFIDENCE: 25%
+--------------------------------------------------------------------------------
+
+
+================================================================================
+SUMMARY
+================================================================================
+Run Date: 2026-01-13 14:56:38
+Total Runtime: 20 minutes 44 seconds
+
+Vault                     | Docs | Chunks | Entities | Rels | Queries | Status
+--------------------------|------|--------|----------|------|---------|--------
+TechVentures              |    4 |     12 |      147 |   47 |      10 | OK
+Morrison & Sterling       |    3 |      4 |       53 |   43 |       9 | OK
+Riverside Medical Center  |    3 |      4 |       90 |   65 |      10 | OK
+Titan Manufacturing       |    3 |      8 |       58 |   35 |      10 | OK
+Launchpad Ventures        |    3 |     10 |      111 |   34 |      10 | OK
+--------------------------|------|--------|----------|------|---------|--------
+TOTAL                     |   16 |     38 |      459 |  224 |      49 |
+
+All 49 queries executed. Review answers above for correctness.
+================================================================================
