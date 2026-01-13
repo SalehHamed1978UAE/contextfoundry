@@ -1,0 +1,125 @@
+IMPLEMENT LEARNING FLOW
+
+Spec file: learning_flow_spec.md (already provided)
+
+================================================================================
+CRITICAL SCHEMA FIXES — APPLY BEFORE MIGRATION
+================================================================================
+
+All tenant_id references must use platform.tenants, not vaults:
+
+1. Change all: REFERENCES vaults(id)
+   To: REFERENCES platform.tenants(id)
+
+2. learning_results.tenant_id — add the missing REFERENCES:
+   tenant_id UUID NOT NULL REFERENCES platform.tenants(id) ON DELETE CASCADE
+
+3. Dashboard view — change:
+   FROM vaults v → FROM platform.tenants v
+
+================================================================================
+IMPLEMENTATION ORDER
+================================================================================
+
+Phase 1: Migration (018_learning_flow.sql)
+  - 5 tables: query_gaps, user_feedback, learning_queue, learning_results, learning_patterns
+  - 1 view: learning_dashboard
+
+Phase 2: Gap Detector (gap_detector.py)
+  - Detects no-answer, low-confidence responses
+  - Records gaps for learning
+
+Phase 3: Queue Manager (queue_manager.py)
+  - Priority scoring
+  - Deduplication (same gap = boost priority, not new task)
+  - Task lifecycle (PENDING → PROCESSING → COMPLETED)
+
+Phase 4: Targeted Extractor (targeted_extractor.py)
+  - Pattern-based extraction (fast, no LLM cost)
+  - LLM extraction (fallback if patterns fail)
+  - Adds results to knowledge graph
+
+Phase 5: Orchestrator (orchestrator.py)
+  - Coordinates all components
+  - Hooks: on_query_response, on_user_feedback
+  - process_learning_queue for batch processing
+
+Phase 6: API Endpoints
+  - GET /api/learning/status/{vault_id}
+  - GET /api/learning/gaps/{vault_id}
+  - POST /api/learning/feedback
+  - POST /api/learning/trigger/{vault_id}
+  - POST /api/learning/process
+  - GET /api/learning/dashboard
+
+Phase 7: Query Engine Integration
+  - Hook orchestrator.on_query_response() after every query
+
+Phase 8: Scheduler Integration
+  - Add periodic learning cycle (every 5 minutes)
+
+================================================================================
+VERIFICATION AFTER EACH PHASE
+================================================================================
+
+Phase 1:
+```sql
+SELECT * FROM query_gaps LIMIT 1;
+SELECT * FROM learning_queue LIMIT 1;
+SELECT * FROM learning_dashboard;
+```
+
+Phase 2-5:
+```python
+# Test gap detection
+detector = get_gap_detector(db)
+gap = detector.analyze_response(
+    tenant_id=vault_id,
+    query_text="Who is the CTO of CloudAI?",
+    response_text="I don't have that information",
+    confidence=0.3
+)
+print(gap)  # Should detect gap
+
+# Test queue
+manager = get_queue_manager(db)
+task_id = manager.queue_from_gap(gap['gap_id'])
+print(task_id)  # Should return UUID
+
+# Test orchestrator
+orchestrator = get_orchestrator(db)
+result = orchestrator.process_learning_queue(limit=1)
+print(result)  # Should show processed task
+```
+
+Phase 6:
+```bash
+curl http://localhost:8000/api/learning/dashboard
+curl http://localhost:8000/api/learning/status/{vault_id}
+```
+
+================================================================================
+END-TO-END TEST
+================================================================================
+
+1. Query something missing: "Who is the CEO of CloudAI?"
+2. Check gap detected: GET /api/learning/gaps/{vault_id}
+3. Trigger learning: POST /api/learning/trigger/{vault_id}
+4. Check results: GET /api/learning/status/{vault_id}
+5. Query again: Should have better answer (if found in documents)
+
+================================================================================
+REPORT BACK AFTER EACH PHASE
+================================================================================
+
+1. Migration applied?
+2. Gap detector working?
+3. Queue manager working?
+4. Targeted extractor working?
+5. Orchestrator working?
+6. API endpoints responding?
+7. Query engine integrated?
+8. Scheduler integrated?
+9. End-to-end test passed?
+
+================================================================================
