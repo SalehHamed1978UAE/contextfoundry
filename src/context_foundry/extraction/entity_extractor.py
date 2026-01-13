@@ -1,7 +1,17 @@
 """
-Entity Extractor for Context Foundry - Domain-Agnostic Version.
-Uses LLM-powered NER to extract entities based on active schema configuration.
+Entity Extractor for Context Foundry - Multi-Domain Knowledge Extraction System.
 
+Context Foundry is domain-agnostic and supports ANY industry or sector:
+- Venture Capital & Private Equity (funds, portfolio companies, deals, board members)
+- Healthcare (providers, patients, treatments, clinical trials)
+- Legal (contracts, parties, cases, compliance)
+- Human Resources (employees, compensation, org structure)
+- Finance & Banking (transactions, accounts, regulations)
+- Technology & IT Operations (services, infrastructure, incidents)
+- Real Estate (properties, leases, tenants)
+- And any other domain with documents containing entities and relationships
+
+Uses LLM-powered NER to extract entities based on active schema configuration.
 Uses Replit AI Integrations for OpenAI access (no API key required, billed to credits).
 """
 import json
@@ -183,17 +193,123 @@ class EntityExtractor:
         return self.schema_loader.get_valid_entity_types()
     
     def _build_entity_extraction_prompt(self, text: str) -> str:
-        """Build minimal open capture entity extraction prompt."""
-        
-        prompt = f"""Extract all entities from this text.
+        """Build simplified entity extraction prompt optimized for completeness.
 
-Use whatever entity type best describes each thing you find.
-Be exhaustive - extract every named person, organization, place, concept, etc.
+        Context Foundry is a MULTI-DOMAIN system supporting any industry:
+        VC/Investment, Healthcare, Legal, HR, Finance, IT, Real Estate, etc.
+        """
+        core_types = "COMPONENT, CONCEPT, SERVICE, PROCESS, PERSON, ORGANIZATION, TEAM, DATABASE, METRIC, INCIDENT, EVENT, DOCUMENT, TOOL, TIME_PERIOD, LOCATION"
 
-Return JSON array only (no markdown):
-[{{"entity_type": "type", "canonical_name": "exact name", "confidence": 0.9}}]
+        prompt = f"""Extract ALL entities from this text. Be EXHAUSTIVE - a short list is a FAILED extraction.
 
-TEXT:
+This is a MULTI-DOMAIN knowledge extraction system. The text may come from ANY industry:
+- Venture Capital & Investment (portfolio companies, funds, deals, board members)
+- Healthcare (patients, providers, treatments, facilities)
+- Legal (contracts, parties, clauses, cases)
+- Human Resources (employees, positions, compensation, departments)
+- Finance & Banking (accounts, transactions, regulations)
+- Technology & IT Operations (services, databases, incidents)
+- Real Estate (properties, leases, tenants)
+- And more...
+
+Valid types: {core_types}
+
+## ENTITY TYPE DEFINITIONS (with multi-domain examples)
+
+COMPONENT: System parts, subsystems, modules, divisions
+  - Tech: "Auth Module", "Semantic Memory", "API Gateway"
+  - Business: "Investment Committee", "Due Diligence Team", "Claims Processing Unit"
+
+CONCEPT: Abstract ideas, approaches, patterns, techniques, terms-of-art
+  - Tech: "RAG", "Fine-Tuning", "Microservices Architecture"
+  - VC: "Series A", "Cap Table", "Liquidation Preference", "Pro-rata Rights"
+  - Legal: "Force Majeure", "Indemnification", "Non-Compete"
+  - Healthcare: "HIPAA Compliance", "Clinical Trial Phase", "Standard of Care"
+
+SERVICE: Running software services, APIs, business services
+  - Tech: "OrderService", "PaymentAPI", "Auth Service"
+  - Business: "Payroll Processing", "Claims Adjudication", "Portfolio Monitoring"
+
+PROCESS: Workflows, procedures, phases, stages, lifecycles
+  - Tech: "CI/CD Pipeline", "Deployment Process", "Code Review"
+  - VC: "Due Diligence", "Term Sheet Negotiation", "Board Meeting Cadence"
+  - HR: "Onboarding Process", "Performance Review Cycle", "Compensation Planning"
+
+PERSON: Named individuals AND job roles/titles
+  - "James Rodriguez", "Sarah Chen", "Dr. Michael Lee"
+  - "CEO", "Managing Partner", "Chief Medical Officer", "General Counsel"
+  - "Board Member", "Limited Partner", "Portfolio Manager"
+
+ORGANIZATION: Companies, funds, agencies, institutions - ANY entity that acts
+  - Corporations: "Apple", "Goldman Sachs", "Mayo Clinic"
+  - VC/PE: "Sequoia Capital", "TechVentures Fund II", "Andreessen Horowitz"
+  - Portfolio Companies: "CloudMatrix", "HealthSync", "DataPipe"
+  - Government: "SEC", "FDA", "Department of Labor"
+
+TEAM: Named teams, committees, groups within organizations
+  - "Investment Committee", "Board of Directors", "Engineering Team"
+  - "Compensation Committee", "Audit Committee", "Deal Team"
+
+DATABASE: Data stores, repositories, registries, record systems
+  - Tech: "PostgreSQL", "Redis Cache", "Data Warehouse"
+  - Business: "Cap Table", "Portfolio Database", "Patient Registry", "Contract Repository"
+
+METRIC: Measurements, scores, KPIs, valuations, financial figures
+  - Tech: "uptime 99.9%", "latency < 100ms"
+  - VC: "ARR $5M", "MRR", "Burn Rate", "Runway 18 months", "$10M valuation"
+  - HR: "Compensation $250K", "Bonus 20%", "Equity 0.5%"
+
+INCIDENT: Disruptions, issues, cases, claims - domain-specific events requiring response
+  - Tech: "INC-2025-1215", "Production Outage", "Security Breach"
+  - Legal: "Case #2024-CV-1234", "Arbitration Filing"
+  - Healthcare: "Adverse Event", "Malpractice Claim"
+  - HR: "Grievance #456", "EEOC Complaint"
+
+EVENT: Meetings, milestones, transactions, occurrences
+  - "Board Meeting Q1 2025", "Series B Close", "IPO", "Acquisition"
+  - "Annual Review", "Contract Signing", "FDA Approval"
+
+DOCUMENT: Referenced reports, agreements, filings, records
+  - "Term Sheet", "Investment Agreement", "Employment Contract"
+  - "10-K Filing", "Board Resolution", "NDA", "SAFE Agreement"
+  - "Runbook", "Architecture Doc", "Policy Manual"
+
+TOOL: Software, platforms, instruments
+  - "Salesforce", "Carta", "DocuSign", "Bloomberg Terminal"
+
+TIME_PERIOD: Dates, time ranges, deadlines, fiscal periods
+  - "Q4 2025", "FY2024", "December 2025", "18-month runway"
+
+LOCATION: PHYSICAL places (cities, countries, buildings, facilities)
+  - "San Francisco", "New York Office", "Boston", "Building A"
+
+## CRITICAL RULES
+
+1. NEVER use "RELATIONSHIP" as an entity type - relationships are edges, not nodes
+2. Use COMPONENT for system parts like "Semantic Memory", "Episodic Memory", "Procedural Memory"
+3. Use CONCEPT for abstract ideas like "RAG", "Fine-Tuning", "World Model"
+4. Use SERVICE only for actual running services (OrderService, PaymentAPI)
+5. Use PROCESS for workflow stages like "Ingestion", "Perception", "Learning"
+6. Extract ALL capitalized multi-word terms and named concepts
+7. Be EXHAUSTIVE - do not stop until every entity is captured
+8. When uncertain, INCLUDE with confidence 0.7-0.8
+
+## DO NOT EXTRACT
+
+- Raw numbers like "0.95", "2024", "100" - these are VALUES, not entities
+- JSON field values from code examples (e.g., if you see "confidence": 0.95, do NOT extract "0.95")
+- Timestamps like "2026-01-06T10:30:00Z"
+- Percentages like "95%" or "95% confidence"
+- Code block contents - only extract entities mentioned in prose text
+- Short strings under 3 characters
+
+## OUTPUT FORMAT
+
+Return valid JSON array only (no markdown):
+[{{"entity_type": "TYPE", "canonical_name": "exact text", "confidence": 0.9}}]
+
+## TEXT TO EXTRACT
+
 {text}"""
         return prompt
     

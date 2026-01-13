@@ -1,7 +1,17 @@
 """
-Relation Extractor for Context Foundry - Domain-Agnostic Version.
-Uses LLM-powered relation extraction with confidence scoring based on active schema.
+Relation Extractor for Context Foundry - Multi-Domain Knowledge Extraction System.
 
+Context Foundry is domain-agnostic and supports ANY industry or sector:
+- Venture Capital & Private Equity (INVESTED_IN, BOARD_MEMBER_OF, HAS_PORTFOLIO_COMPANY)
+- Healthcare (TREATS, PRESCRIBED_BY, ADMITTED_TO)
+- Legal (PARTY_TO, GOVERNED_BY, SUPERSEDES)
+- Human Resources (WORKS_AT, REPORTS_TO, HAS_COMPENSATION)
+- Finance & Banking (HOLDS_ACCOUNT, TRANSACTED_WITH, REGULATED_BY)
+- Technology & IT Operations (DEPENDS_ON, DEPLOYED_TO, MONITORS)
+- Real Estate (LEASED_BY, LOCATED_IN, MANAGED_BY)
+- And any other domain with entities and relationships
+
+Uses LLM-powered relation extraction with confidence scoring based on active schema.
 Uses Replit AI Integrations for OpenAI access (no API key required, billed to credits).
 """
 import json
