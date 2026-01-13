@@ -1,0 +1,131 @@
+REGRESSION GATE PASSES ✅ — NOW FIX QUERY ACCURACY ISSUES
+
+We have 7 remaining issues blocking 100% query accuracy.
+
+================================================================================
+PHASE 1: QUICK WINS (30-60 min)
+================================================================================
+
+FIX 1: ENTITY VALIDATION — FILTER "CA" GARBAGE
+
+Add filtering for state abbreviations and short strings:
+```python
+INVALID_ENTITY_NAMES = {
+    # State abbreviations
+    'CA', 'NY', 'TX', 'FL', 'WA', 'MA', 'IL', 'PA', 'OH', 'GA', 'NC', 'NJ',
+    'VA', 'AZ', 'CO', 'TN', 'MI', 'MD', 'MN', 'WI', 'MO', 'OR', 'SC', 'IN',
+    # Other garbage
+    'N/A', 'TBD', 'NA', 'TBA',
+}
+
+def is_valid_entity_name(name: str) -> bool:
+    if not name or len(name) < 3:
+        return False
+    if name.upper() in INVALID_ENTITY_NAMES:
+        return False
+    if name.isdigit():
+        return False
+    return True
+```
+
+Apply this filter wherever entities are created.
+
+Also delete existing "CA" entity:
+```sql
+DELETE FROM entities WHERE name = 'CA';
+```
+
+---
+
+FIX 2: DEDUPLICATION — HANDLE TITLE PREFIXES
+
+Add normalization before fuzzy matching:
+```python
+TITLE_PREFIXES = ['Dr.', 'Dr', 'Mr.', 'Mr', 'Mrs.', 'Mrs', 'Ms.', 'Ms', 'Prof.', 'Prof']
+
+def normalize_name_for_matching(name: str) -> str:
+    normalized = name.strip()
+    for prefix in TITLE_PREFIXES:
+        if normalized.startswith(prefix + ' '):
+            normalized = normalized[len(prefix):].strip()
+            break
+    return normalized
+```
+
+Then merge duplicates:
+```sql
+-- Find duplicates
+SELECT name FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Titan Manufacturing')
+  AND name ILIKE '%james wilson%';
+
+-- Merge if both exist (keep one, update relationships, delete other)
+```
+
+================================================================================
+PHASE 2: INVESTIGATE EXTRACTION GAPS (30-60 min)
+================================================================================
+
+Run these checks to determine root cause:
+
+FIX 3: NON-CTOS LISTED AS CTOS
+```sql
+SELECT name, entity_type FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+  AND name IN ('Robert Chen', 'Elizabeth Warren', 'Rachel Green');
+```
+
+FIX 4: CLOUDAI NOT FOUND
+```sql
+-- Entity exists?
+SELECT name, entity_type FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+  AND name ILIKE '%cloudai%';
+
+-- In source docs?
+SELECT LEFT(c.content, 500) FROM chunks c
+JOIN documents d ON c.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+  AND c.content ILIKE '%cloudai%';
+```
+
+FIX 5: CFO NOT FOUND (Morrison)
+```sql
+SELECT name, entity_type FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND (name ILIKE '%CFO%' OR entity_type ILIKE '%CFO%');
+```
+
+FIX 6: DETROIT PLANT MANAGER NOT FOUND
+```sql
+SELECT name, entity_type FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Titan Manufacturing')
+  AND (name ILIKE '%detroit%' OR name ILIKE '%plant manager%' OR name ILIKE '%michael o%');
+```
+
+FIX 7: PAYSTREAM MISSING
+```sql
+SELECT name FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+  AND name ILIKE '%paystream%';
+```
+
+================================================================================
+PHASE 3: RE-RUN E2E
+================================================================================
+
+After fixes:
+1. Delete all test vaults
+2. Re-run full E2E
+3. Target: 100% query accuracy
+
+================================================================================
+REPORT BACK
+================================================================================
+
+For each fix:
+1. What was the root cause?
+2. What did you change?
+3. SQL query results
+
+================================================================================
