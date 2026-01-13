@@ -1,0 +1,199 @@
+3 SYSTEMIC FIXES FOR 100% QUERY ACCURACY
+
+Execute in order. Report back after each fix.
+
+================================================================================
+FIX 1: PORTFOLIO COMPANY PATTERN (30 min)
+================================================================================
+
+PROBLEM: LLM missed CLOUDAI despite content being in chunk.
+
+ADD TO post_processor.py:
+```python
+PORTFOLIO_COMPANY_PATTERNS = [
+    # "CLOUDAI (Cohort 8)" or "CloudAI (Cohort 8)"
+    (r'^([A-Z][A-Za-z0-9]+)\s*\(Cohort\s+\d+\)', 'PORTFOLIO_COMPANY'),
+    
+    # "COMPANYNAME\n- Sector:" format  
+    (r'^([A-Z][A-Za-z0-9]+)\s*\n\s*-\s*Sector:', 'PORTFOLIO_COMPANY'),
+]
+
+def _extract_portfolio_companies(self, text: str) -> List[dict]:
+    """Extract portfolio companies using patterns"""
+    entities = []
+    seen = set()
+    
+    for pattern, entity_type in PORTFOLIO_COMPANY_PATTERNS:
+        for match in re.finditer(pattern, text, re.MULTILINE):
+            name = match.group(1).strip()
+            if name not in seen and len(name) >= 3:
+                seen.add(name)
+                entities.append({
+                    'name': name,
+                    'entity_type': entity_type,
+                    'confidence': 0.9,
+                    'source_text': match.group(0)[:100]
+                })
+    
+    return entities
+```
+
+WIRE INTO process() WITH DEDUPLICATION:
+```python
+def process(self, document_text, existing_entities, existing_relationships):
+    # ... existing code ...
+    
+    # Case-insensitive deduplication check
+    existing_entity_names = {e.get('name', '').upper() for e in existing_entities}
+    
+    # Add portfolio company extraction
+    portfolio_companies = self._extract_portfolio_companies(document_text)
+    for pc in portfolio_companies:
+        if pc['name'].upper() not in existing_entity_names:
+            result.new_entities.append(pc)
+            existing_entity_names.add(pc['name'].upper())  # Prevent duplicates within batch
+    
+    # ... rest of method ...
+```
+
+TEST & VERIFY:
+```python
+def test_portfolio_company_cohort_pattern():
+    text = "CLOUDAI (Cohort 8)\n- Sector: Enterprise AI"
+    pp = get_post_processor()
+    result = pp.process(text, [], [])
+    
+    names = [e['name'] for e in result.new_entities]
+    assert 'CLOUDAI' in names
+```
+```sql
+-- After re-extraction, verify CloudAI exists
+SELECT name, entity_type FROM entities 
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+  AND name = 'CLOUDAI';
+```
+
+================================================================================
+FIX 2: HOLDS_POSITION RELATIONSHIP TYPE (30 min)
+================================================================================
+
+PROBLEM: Creates WORKS_AT instead of HOLDS_POSITION for "Name - Title" pattern.
+
+DIAGNOSIS:
+```python
+from context_foundry.extraction.post_processor import get_post_processor
+
+text = "Thomas Bradley - Chief Financial Officer"
+pp = get_post_processor()
+result = pp.process(text, [], [])
+
+print(f"Relationships: {result.new_relationships}")
+for rel in result.new_relationships:
+    print(f"  {rel.source_name} -> {rel.relationship_type} -> {rel.target_name}")
+```
+
+FIX: Change relationship type mapping for "Name - Title" patterns:
+```python
+# Pattern must create HOLDS_POSITION, not WORKS_AT
+(r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s*[-–—:]\s*'
+ r'(Chief\s+\w+\s+Officer|CEO|CFO|CTO|COO|President|Director|Partner)',
+ 'HOLDS_POSITION')
+```
+
+VERIFY:
+```sql
+SELECT e1.name, r.relationship_type, e2.name
+FROM relationships r
+JOIN entities e1 ON r.source_entity_id = e1.id
+JOIN entities e2 ON r.target_entity_id = e2.id
+WHERE r.tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling')
+  AND e1.name ILIKE '%bradley%'
+  AND r.relationship_type = 'HOLDS_POSITION';
+```
+
+================================================================================
+FIX 3: QUERY LOGIC — STOP SEMANTIC FALLBACK (1 hour)
+================================================================================
+
+PROBLEM: "Who is the CTO?" returns wrong people via semantic similarity.
+
+FIX WITH LOGGING:
+```python
+import logging
+logger = logging.getLogger(__name__)
+
+def query_role(role_name, vault_id):
+    """Query for a person by role"""
+    
+    expanded = expand_role_acronym(role_name)
+    
+    # Step 1: Try exact relationship match
+    results = db.query("""
+        SELECT person.name, role.name as role_name
+        FROM entities person
+        JOIN relationships r ON person.id = r.source_entity_id
+        JOIN entities role ON r.target_entity_id = role.id
+        WHERE r.relationship_type IN ('HOLDS_POSITION', 'HAS_ROLE')
+          AND r.tenant_id = %s
+          AND (role.name ILIKE %s OR role.name ILIKE %s)
+    """, [vault_id, f'%{role_name}%', f'%{expanded}%'])
+    
+    if results:
+        logger.info(f"Role query '{role_name}' found {len(results)} matches via relationship")
+        return {
+            "answer": format_role_results(results),
+            "confidence": 0.9
+        }
+    
+    # Step 2: NO SEMANTIC FALLBACK
+    logger.info(f"Role query '{role_name}' no relationship match - returning not found")
+    return {
+        "answer": f"No {role_name} found in the knowledge graph.",
+        "confidence": 0.0
+    }
+
+def expand_role_acronym(role: str) -> str:
+    expansions = {
+        'CTO': 'Chief Technology Officer',
+        'CFO': 'Chief Financial Officer',
+        'CEO': 'Chief Executive Officer',
+        'COO': 'Chief Operating Officer',
+        'CMO': 'Chief Marketing Officer',
+        'CIO': 'Chief Information Officer',
+    }
+    return expansions.get(role.upper(), role)
+```
+
+VERIFY:
+```bash
+curl -X POST http://localhost:8000/api/query \
+  -H "Content-Type: application/json" \
+  -d '{"vault": "TechVentures", "query": "Who is the CTO?"}'
+```
+Should return "No CTO found" — NOT "Robert Chen".
+
+================================================================================
+FINAL VERIFICATION
+================================================================================
+
+After all 3 fixes:
+
+1. Delete test vaults and re-run full E2E
+2. Run regression gate
+3. Manual checks:
+   - "Tell me about CloudAI" → Returns details ✓
+   - "Who is the CFO?" (Morrison) → Thomas Bradley ✓
+   - "Who is the CTO?" (TechVentures) → "not found" ✓
+
+Target: 100% query accuracy.
+
+================================================================================
+REPORT AFTER EACH FIX
+================================================================================
+
+1. Code changes (file, lines)
+2. Test results
+3. Verification query results
+4. Issues encountered
+
+================================================================================
