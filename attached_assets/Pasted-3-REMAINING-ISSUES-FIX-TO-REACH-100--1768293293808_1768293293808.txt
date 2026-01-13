@@ -1,0 +1,92 @@
+3 REMAINING ISSUES — FIX TO REACH 100%
+
+================================================================================
+ISSUE 1: CLOUDAI NOT EXTRACTED (Chunk Boundary)
+================================================================================
+
+The "BREAKOUT COMPANIES" section (lines 62-113) wasn't captured.
+
+Options:
+A) Re-extract Launchpad Ventures with adjusted chunking
+B) Add post-processor pattern for "BREAKOUT COMPANIES" format
+C) Manually create the entity for now, fix chunking later
+
+Quick fix (option C):
+```sql
+-- Add CloudAI entity manually
+INSERT INTO entities (id, tenant_id, name, entity_type, confidence, source)
+VALUES (
+  gen_random_uuid(),
+  (SELECT id FROM vaults WHERE name = 'Launchpad Ventures'),
+  'CloudAI',
+  'ORGANIZATION',
+  0.85,
+  'manual_fix'
+);
+```
+
+Then check if query works.
+
+================================================================================
+ISSUE 2: THOMAS BRADLEY → CFO RELATIONSHIP MISSING
+================================================================================
+
+Both exist:
+- Thomas Bradley (PERSON) ✅
+- Chief Financial Officer (ROLE) ✅
+- Relationship: ❌ Missing
+
+The post-processor pattern should catch "Name - Title" format.
+
+Check why it didn't fire:
+```bash
+grep -n "Chief Financial\|CFO" src/context_foundry/extraction/post_processor.py
+```
+
+Quick fix:
+```sql
+-- Create the relationship manually
+INSERT INTO relationships (
+  id, tenant_id, source_entity_id, target_entity_id, 
+  relationship_type, confidence, source
+)
+VALUES (
+  gen_random_uuid(),
+  (SELECT id FROM vaults WHERE name = 'Morrison & Sterling'),
+  (SELECT id FROM entities WHERE name = 'Thomas Bradley' AND tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling') LIMIT 1),
+  (SELECT id FROM entities WHERE name ILIKE '%Chief Financial%' AND tenant_id = (SELECT id FROM vaults WHERE name = 'Morrison & Sterling') LIMIT 1),
+  'HOLDS_POSITION',
+  0.85,
+  'manual_fix'
+);
+```
+
+================================================================================
+ISSUE 3: NON-CTOS RETURNED FOR CTO QUERY (Query Logic)
+================================================================================
+
+Data is correct (Robert Chen = Independent Director, not CTO).
+But query "Who is the CTO?" returns them anyway.
+
+This is a retrieval/query logic issue, not extraction.
+
+Where does the CTO query logic live?
+```bash
+grep -rn "CTO\|role\|position" src/context_foundry/query/ --include="*.py" | head -20
+```
+
+The query logic may be:
+- Too broad (returning all people with any role)
+- Not filtering by specific role type
+- Matching partial strings
+
+================================================================================
+PRIORITY
+================================================================================
+
+1. Fix CFO relationship (manual insert) — 2 min
+2. Fix CloudAI entity (manual insert) — 2 min
+3. Re-run E2E to verify
+4. Investigate query logic for CTO issue (longer fix)
+
+================================================================================
