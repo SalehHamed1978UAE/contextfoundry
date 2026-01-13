@@ -1,0 +1,101 @@
+DIAGNOSE ROOT CAUSE — DON'T ASSUME
+
+Before fixing anything, determine WHERE the failure occurs.
+
+================================================================================
+CHECK 1: ARE MISSING RELATIONSHIPS IN CANDIDATES?
+================================================================================
+```sql
+-- Check if INVESTED_IN, HAS_COMPENSATION, REPORTS_TO are stuck as candidates
+SELECT normalized_name, document_count, mention_count, status, created_at
+FROM ontology_candidates
+WHERE normalized_name IN ('INVESTED_IN', 'HAS_COMPENSATION', 'REPORTS_TO', 
+                          'PORTFOLIO_COMPANY', 'HAS_PORTFOLIO_COMPANY')
+ORDER BY normalized_name;
+
+-- Check ALL recent candidates (might be variant names)
+SELECT normalized_name, document_count, mention_count, status
+FROM ontology_candidates
+WHERE created_at > NOW() - INTERVAL '2 hours'
+ORDER BY document_count DESC
+LIMIT 20;
+```
+
+If found → Ontology Foundry routing issue
+If empty → True extraction issue
+
+================================================================================
+CHECK 2: IS SOURCE CONTENT PRESENT IN CHUNKS?
+================================================================================
+```sql
+-- Bug 1: Is CloudMatrix investment info in the chunks?
+SELECT d.name, LEFT(c.content, 500) as content_preview
+FROM chunks c
+JOIN documents d ON c.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+  AND (c.content ILIKE '%CloudMatrix%' OR c.content ILIKE '%HealthSync%')
+LIMIT 5;
+
+-- Bug 2: Is compensation info in Launchpad chunks?
+SELECT d.name, LEFT(c.content, 500) as content_preview
+FROM chunks c
+JOIN documents d ON c.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+  AND (c.content ILIKE '%salary%' OR c.content ILIKE '%compensation%' OR c.content ILIKE '%bonus%')
+LIMIT 5;
+
+-- Bug 3: Is reporting structure in TechVentures chunks?
+SELECT d.name, LEFT(c.content, 500) as content_preview
+FROM chunks c
+JOIN documents d ON c.document_id = d.id
+WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+  AND (c.content ILIKE '%reports to%' OR c.content ILIKE '%reporting to%')
+LIMIT 5;
+```
+
+If content exists → LLM/extraction missed it
+If no content → Document doesn't have this info (not a bug)
+
+================================================================================
+CHECK 3: WHAT RELATIONSHIPS WERE ACTUALLY EXTRACTED?
+================================================================================
+```sql
+-- TechVentures: All relationship types and counts
+SELECT relationship_type, COUNT(*) as count
+FROM relationships
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+GROUP BY relationship_type
+ORDER BY count DESC;
+
+-- Launchpad: All relationship types and counts
+SELECT relationship_type, COUNT(*) as count
+FROM relationships
+WHERE tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad Ventures')
+GROUP BY relationship_type
+ORDER BY count DESC;
+```
+
+================================================================================
+CHECK 4: RUN THE GAP FINDER (if it exists)
+================================================================================
+```bash
+# Find the gap finder
+find . -name "*gap*" -type f | grep -v __pycache__ | grep -v node_modules
+
+# Or search for coverage analysis
+grep -r "coverage\|gap\|audit" src/context_foundry/ --include="*.py" -l | head -10
+```
+
+If gap finder exists, run it on TechVentures.
+
+================================================================================
+REPORT FORMAT
+================================================================================
+
+For each check, report:
+- Query result (or "no rows")
+- What it tells us
+
+Then we'll know:
+- Routing issue vs extraction issue vs content issue
+================================================================================
