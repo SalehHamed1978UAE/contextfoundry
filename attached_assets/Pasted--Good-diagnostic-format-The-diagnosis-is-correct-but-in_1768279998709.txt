@@ -1,0 +1,56 @@
+ Good diagnostic format. The diagnosis is correct but incomplete.
+
+  What's confirmed:
+  - Entities exist → Documents were uploaded and processed
+  - Some relationships exist → Extraction pipeline is working
+  - Specific relationships missing → Inconsistent extraction
+
+  What's missing from the diagnosis:
+
+  Check 1: Are these in candidates?
+
+  Before concluding "LLM didn't extract," verify they're not stuck in Ontology Foundry:
+
+  -- Check if missing relationships went to candidates instead of KG
+  SELECT normalized_name, document_count, mention_count
+  FROM ontology_candidates
+  WHERE normalized_name IN ('INVESTED_IN', 'HAS_COMPENSATION', 'REPORTS_TO')
+    AND status = 'PENDING';
+
+  If they're there → Ontology Foundry routing issue (not extraction)
+  If empty → True extraction issue
+
+  Check 2: Is the source content present?
+
+  -- For Bug 1: Is CloudMatrix investment mentioned in chunks?
+  SELECT LEFT(content, 300) FROM chunks c
+  JOIN documents d ON c.document_id = d.id
+  WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'TechVentures')
+    AND content ILIKE '%CloudMatrix%' AND content ILIKE '%invest%';
+
+  -- For Bug 2: Is compensation mentioned in Launchpad docs?
+  SELECT LEFT(content, 300) FROM chunks c
+  JOIN documents d ON c.document_id = d.id
+  WHERE d.tenant_id = (SELECT id FROM vaults WHERE name = 'Launchpad')
+    AND (content ILIKE '%salary%' OR content ILIKE '%compensation%');
+
+  If content exists → LLM missed it (prompt/model issue)
+  If no content → Document doesn't contain this info
+
+  Check 3: Post-processor coverage
+
+  The post-processor (Phase 2.6) was supposed to catch relationships the LLM misses. Is it running?
+
+  # Check if post-processor patterns cover these cases
+  from src.context_foundry.extraction.post_processor import ORGANIZATION_PATTERNS, COMPENSATION_PATTERNS
+
+  Likely Root Causes by Bug
+  Bug: Portfolio Companies
+  Most Likely Cause: LLM inconsistency - investment language varies
+  ────────────────────────────────────────
+  Bug: Launchpad Compensation
+  Most Likely Cause: Document missing or compensation format not recognized
+  ────────────────────────────────────────
+  Bug: Reports_To
+  Most Likely Cause: Org chart incomplete or implicit reporting not stated
+  Recommendation: Run the two SQL checks above before attempting fixes. The fix differs significantly based on whether it's routing vs extraction vs content.

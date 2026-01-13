@@ -1,0 +1,64 @@
+E2E TEST IS UNRELIABLE — FIX IT FIRST
+
+UI queries work for compensation. E2E claims they fail.
+We cannot trust E2E results until this is resolved.
+
+================================================================================
+THE DISCREPANCY
+================================================================================
+
+| Query                      | UI Result      | E2E Result        |
+|----------------------------|----------------|-------------------|
+| CEO's compensation         | ✅ $850,000    | ❌ "does not specify" |
+| Sarah Chen's compensation  | ✅ $850,000    | ❌ "does not provide" |
+
+Same vault. Same query. Different results.
+
+================================================================================
+DEBUG THE E2E TEST
+================================================================================
+
+1. VERIFY E2E QUERIES THE RIGHT VAULT
+
+```python
+# In e2e_lifecycle_test.py, after vault creation:
+print(f"Created vault: {vault.name} with ID: {vault.id}")
+
+# Before each query:
+print(f"Querying vault ID: {vault_id}")
+print(f"Query: {query}")
+COMPARE E2E QUERY TO UI QUERY
+# What exact API call does E2E make?
+# Show the full request: endpoint, headers, body
+
+# What exact API call does UI make?
+# Check browser network tab or UI code
+CHECK IF E2E IS USING STALE VAULT
+-- How many TechVentures vaults exist?
+SELECT id, name, created_at FROM vaults WHERE name = 'TechVentures' ORDER BY created_at;
+Maybe E2E created a new vault but queries an old one?
+ADD LOGGING TO E2E QUERY FUNCTION
+def query_vault(vault_id, query):
+    print(f"=== QUERY DEBUG ===")
+    print(f"Vault ID: {vault_id}")
+    print(f"Query: {query}")
+    
+    response = requests.post(...)
+    
+    print(f"Response status: {response.status_code}")
+    print(f"Response body: {response.json()}")
+    print(f"===================")
+    
+    return response
+RUN E2E WITH LOGGING ON JUST TECHVENTURES
+python scripts/e2e_lifecycle_test.py --vault TechVentures --verbose
+================================================================================
+EXPECTED FINDING
+One of:
+A) E2E queries wrong vault ID
+B) E2E uses different API endpoint than UI
+C) E2E queries before extraction completes (race condition)
+D) E2E results file is from old run
+Find which one. Fix it. Re-run.
+================================================================================
+---

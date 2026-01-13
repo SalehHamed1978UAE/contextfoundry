@@ -201,6 +201,17 @@ ORGANIZATION_PATTERNS = [
      "works_at_reverse", 0.90),
 ]
 
+INVESTMENT_PATTERNS = [
+    (r'PORTFOLIO\s+COMPANY[:\s]+([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)',
+     "portfolio_header", 0.95),
+    (r'([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)\s+(?:has\s+)?invested\s+(?:\$[\d,.]+\s+)?in\s+([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)',
+     "invested_in", 0.92),
+    (r'([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)\s+is\s+(?:a\s+)?portfolio\s+company',
+     "is_portfolio", 0.88),
+    (r'([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)\s+portfolio\s+includes?\s+([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)',
+     "portfolio_includes", 0.90),
+]
+
 
 @dataclass
 class ExtractedRelationshipFromPattern:
@@ -255,6 +266,7 @@ class ExtractionPostProcessor:
         self.compensation_patterns = COMPENSATION_PATTERNS
         self.role_compensation_patterns = ROLE_COMPENSATION_PATTERNS
         self.organization_patterns = ORGANIZATION_PATTERNS
+        self.investment_patterns = INVESTMENT_PATTERNS
 
     def process(
         self,
@@ -306,6 +318,13 @@ class ExtractionPostProcessor:
         new_relationships.extend(org_rels)
         new_entities.extend(org_entities)
         patterns_matched += len(org_rels)
+
+        invest_rels, invest_entities = self._extract_investment_relationships(
+            document_text, existing_entity_names, existing_rel_keys
+        )
+        new_relationships.extend(invest_rels)
+        new_entities.extend(invest_entities)
+        patterns_matched += len(invest_rels)
 
         elapsed_ms = (time.time() - start) * 1000
 
@@ -584,6 +603,92 @@ class ExtractionPostProcessor:
             except Exception as e:
                 logger.warning(f"[PostProcessor] Organization pattern failed: {e}")
         return relationships, new_entities
+
+    def _extract_investment_relationships(
+        self, text: str, existing_entity_names: Set[str], existing_rel_keys: Set[Tuple[str, str, str]]
+    ) -> Tuple[List[ExtractedRelationshipFromPattern], List[Dict]]:
+        """Extract INVESTED_IN relationships from text for portfolio companies."""
+        relationships = []
+        new_entities = []
+        seen_companies = set()
+        
+        investor_name = self._detect_investor_from_text(text)
+        
+        for pattern, pattern_type, confidence in self.investment_patterns:
+            try:
+                matches = re.finditer(pattern, text, re.IGNORECASE if pattern_type != "portfolio_header" else 0)
+                for match in matches:
+                    company_name = None
+                    
+                    if pattern_type == "portfolio_header":
+                        company_name = match.group(1).strip()
+                    elif pattern_type == "portfolio_label":
+                        company_name = match.group(1).strip()
+                    elif pattern_type == "invested_in":
+                        investor_name = match.group(1).strip()
+                        company_name = match.group(2).strip()
+                    elif pattern_type == "is_portfolio":
+                        company_name = match.group(1).strip()
+                    elif pattern_type == "investment_in":
+                        company_name = match.group(1).strip()
+                    elif pattern_type == "portfolio_includes":
+                        investor_name = match.group(1).strip()
+                        company_name = match.group(2).strip()
+                    
+                    if not company_name or len(company_name) < 3:
+                        continue
+                    
+                    company_lower = company_name.lower()
+                    if company_lower in seen_companies:
+                        continue
+                    if company_lower in {'the', 'a', 'an', 'and', 'or', 'at', 'for', 'of', 'portfolio', 'company'}:
+                        continue
+                    
+                    seen_companies.add(company_lower)
+                    
+                    if not investor_name:
+                        continue
+                    
+                    rel_key = (investor_name.lower(), company_lower, "INVESTED_IN")
+                    if rel_key in existing_rel_keys:
+                        continue
+                    
+                    rel = ExtractedRelationshipFromPattern(
+                        relationship_type="INVESTED_IN",
+                        source_name=investor_name,
+                        target_name=company_name,
+                        confidence=confidence,
+                        pattern_name=f"investment_{pattern_type}",
+                        source_text=match.group(0)
+                    )
+                    relationships.append(rel)
+                    logger.info(f"[PostProcessor] Found investment: {investor_name} → {company_name}")
+                    
+                    if company_lower not in existing_entity_names:
+                        new_entities.append({
+                            "name": company_name, "entity_type": "ORGANIZATION",
+                            "confidence": confidence, "source": "post_processor"
+                        })
+                        existing_entity_names.add(company_lower)
+                        
+            except Exception as e:
+                logger.warning(f"[PostProcessor] Investment pattern '{pattern_type}' failed: {e}")
+        
+        return relationships, new_entities
+
+    def _detect_investor_from_text(self, text: str) -> Optional[str]:
+        """Detect the investor organization name from document text."""
+        patterns = [
+            r'^([A-Z][A-Z]+(?:\s+[A-Z]+)*)\s+PORTFOLIO',
+            r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+Portfolio',
+            r'Prepared\s+by[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',
+            r'^([A-Z][a-z]+(?:Ventures|Capital|Partners|Fund|Investments))',
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, text, re.MULTILINE)
+            if match:
+                return match.group(1).strip()
+        return None
 
 
 class RoleNormalizer:
