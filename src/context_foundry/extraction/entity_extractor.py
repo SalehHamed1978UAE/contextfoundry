@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 from ..ontology_foundry.schema_service import OntologySchemaService, get_ontology_schema_service
+from .entity_hygiene import is_valid_entity_name as hygiene_is_valid_entity_name
 
 
 def load_few_shot_examples(domain: str = "core") -> list:
@@ -396,7 +397,14 @@ Return valid JSON array only (no markdown):
         """
         Validate that an entity name is meaningful and not garbage.
         
+        Uses centralized entity_hygiene.is_valid_entity_name() for core validation
+        (newlines, double spaces, state abbrevs, etc.) plus additional extraction-time
+        checks for LLM artifacts.
+        
         Rejects:
+        - Entities with embedded newlines (centralized hygiene)
+        - Entities with double spaces (concatenation artifacts)
+        - State abbreviations and garbage tokens (centralized hygiene)
         - Pure numbers (e.g., "0.95", "2024", "100")
         - Pure punctuation
         - Very short names (< 2 chars)
@@ -407,8 +415,13 @@ Return valid JSON array only (no markdown):
         if not name or len(name.strip()) < 2:
             return False
         
+        # Use centralized entity hygiene for newline/concatenation checks
+        if not hygiene_is_valid_entity_name(name):
+            return False
+        
         name_clean = name.strip()
         
+        # Additional LLM extraction-specific checks
         if re.match(r'^[\d.,\-+]+$', name_clean):
             return False
         

@@ -7,7 +7,10 @@ are stored in the knowledge graph.
 Phase 2.7: Entity Hygiene - Filters garbage names and normalizes titles.
 """
 import re
+import logging
 from typing import Optional, Set
+
+logger = logging.getLogger(__name__)
 
 INVALID_ENTITY_NAMES: Set[str] = {
     'CA', 'NY', 'TX', 'FL', 'WA', 'MA', 'IL', 'PA', 'OH', 'GA', 'NC', 'NJ',
@@ -53,6 +56,12 @@ def is_valid_entity_name(name: str) -> bool:
         return False
     
     if '\n' in name or '\r' in name:
+        logger.warning(f"Rejecting entity with embedded newline: {repr(name[:50])}")
+        return False
+    
+    # Check for double spaces (concatenation artifact from "Name1\n\nName2" normalization)
+    if '  ' in name:
+        logger.warning(f"Rejecting entity with double space (concatenation artifact): {repr(name[:50])}")
         return False
     
     if name.upper() in INVALID_ENTITY_NAMES:
