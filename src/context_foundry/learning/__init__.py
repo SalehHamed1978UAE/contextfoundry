@@ -5,10 +5,10 @@ Adaptive learning system that learns from user interactions to improve extractio
 Detects query gaps, queues learning tasks, and performs targeted re-extraction.
 """
 
-from context_foundry.learning.gap_detector import GapDetector, get_gap_detector, GapType, QueryType
-from context_foundry.learning.queue_manager import LearningQueueManager, get_queue_manager
-from context_foundry.learning.targeted_extractor import TargetedExtractor, get_targeted_extractor
-from context_foundry.learning.orchestrator import LearningFlowOrchestrator, get_orchestrator
+from .gap_detector import GapDetector, get_gap_detector, GapType, QueryType
+from .queue_manager import LearningQueueManager, get_queue_manager
+from .targeted_extractor import TargetedExtractor, get_targeted_extractor
+from .orchestrator import LearningFlowOrchestrator, get_orchestrator
 
 __all__ = [
     'GapDetector',

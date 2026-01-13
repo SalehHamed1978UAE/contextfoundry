@@ -14,9 +14,9 @@ from uuid import UUID
 
 from sqlalchemy import text
 
-from context_foundry.learning.gap_detector import get_gap_detector, GapDetector
-from context_foundry.learning.queue_manager import get_queue_manager, LearningQueueManager
-from context_foundry.learning.targeted_extractor import get_targeted_extractor, TargetedExtractor
+from .gap_detector import get_gap_detector, GapDetector
+from .queue_manager import get_queue_manager, LearningQueueManager
+from .targeted_extractor import get_targeted_extractor, TargetedExtractor
 
 logger = logging.getLogger(__name__)
 
