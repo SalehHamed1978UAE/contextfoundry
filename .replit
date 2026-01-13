@@ -21,10 +21,6 @@ args = "Start All"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Stress Test Monitor"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Re-extraction"
 
 [[workflows.workflow.tasks]]
@@ -46,17 +42,6 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
-
-[[workflows.workflow]]
-name = "Stress Test Monitor"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python3 -u stress_test/monitor.py"
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[workflows.workflow]]
 name = "Re-extraction"
