@@ -10,8 +10,8 @@ from typing import List, Dict, Any
 from uuid import UUID
 
 from sqlalchemy import text
-from context_foundry.extraction.job_tracker import get_job_tracker, JobStatus
-from context_foundry.extraction.circuit_breaker import get_circuit_breaker
+from .job_tracker import get_job_tracker, JobStatus
+from .circuit_breaker import get_circuit_breaker
 
 logger = logging.getLogger(__name__)
 

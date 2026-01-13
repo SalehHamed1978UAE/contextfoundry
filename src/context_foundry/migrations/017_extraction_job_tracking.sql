@@ -90,5 +90,21 @@ LEFT JOIN LATERAL (
 ) j ON true;
 
 -- =============================================================================
+-- Circuit Breaker State (persistent across requests)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS extraction_circuit_breaker (
+    id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+    state VARCHAR(20) DEFAULT 'CLOSED' CHECK (state IN ('CLOSED', 'OPEN', 'HALF_OPEN')),
+    opened_at TIMESTAMP,
+    failure_count INTEGER DEFAULT 0,
+    last_failure_at TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO extraction_circuit_breaker (id, state) 
+VALUES (1, 'CLOSED') 
+ON CONFLICT (id) DO NOTHING;
+
+-- =============================================================================
 -- End Migration 017
 -- =============================================================================
