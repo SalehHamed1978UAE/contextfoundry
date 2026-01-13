@@ -157,10 +157,8 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
         from e2e_config import VAULTS
         from uuid import UUID
         
-        # Import the vault deletion function used by the UI/API
-        import sys
-        sys.path.insert(0, '.')
-        from web_app import delete_vault_and_artifacts
+        # Import the vault deletion function (shared module - no Flask dependencies)
+        from src.context_foundry.utils.vault_operations import delete_vault_and_artifacts
         
         # Get vault names from config
         test_vault_names = [v['name'] for v in VAULTS]
@@ -183,7 +181,8 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             for vault_id, vault_name in vaults:
                 try:
                     deleted = delete_vault_and_artifacts(UUID(str(vault_id)))
-                    self.log(f"         Deleted: {vault_name} (artifacts: {sum(deleted.values())} items)")
+                    count = sum(v for v in deleted.values() if isinstance(v, int))
+                    self.log(f"         Deleted: {vault_name} ({count} rows deleted)")
                 except Exception as e:
                     self.log(f"         Warning: Failed to delete {vault_name}: {e}")
             
