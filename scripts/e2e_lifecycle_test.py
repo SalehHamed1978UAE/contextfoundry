@@ -25,10 +25,76 @@ Output:
 import os
 import sys
 import time
+import atexit
+import signal
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Global list to track vaults that need cleanup
+_vaults_to_cleanup: List[str] = []
+
+def _cleanup_vaults():
+    """Emergency cleanup handler - runs on exit/crash to delete test vaults."""
+    if not _vaults_to_cleanup:
+        return
+    
+    print(f"\n[Cleanup] Cleaning up {len(_vaults_to_cleanup)} test vaults...")
+    
+    try:
+        from src.context_foundry.models.schema import get_session
+        from sqlalchemy import text
+        
+        for vault_name in _vaults_to_cleanup[:]:
+            try:
+                with get_session(use_rls_role=False) as session:
+                    result = session.execute(
+                        text("SELECT id FROM platform.tenants WHERE name = :name"),
+                        {"name": vault_name}
+                    ).fetchone()
+                    
+                    if not result:
+                        _vaults_to_cleanup.remove(vault_name)
+                        continue
+                    
+                    tenant_id = str(result[0])
+                    
+                    # Clear entity references
+                    session.execute(text("UPDATE public.entities SET superseded_by = NULL WHERE tenant_id = :tid"), {"tid": tenant_id})
+                    
+                    # Delete from tables
+                    for table in ['relationships', 'entities', 'document_chunks']:
+                        try:
+                            session.execute(text(f"DELETE FROM public.{table} WHERE tenant_id = :tid"), {"tid": tenant_id})
+                        except: pass
+                    
+                    for table in ['extraction_requests', 'documents', 'user_tenants']:
+                        try:
+                            session.execute(text(f"DELETE FROM platform.{table} WHERE tenant_id = :tid"), {"tid": tenant_id})
+                        except: pass
+                    
+                    session.execute(text("DELETE FROM platform.tenants WHERE id = :tid"), {"tid": tenant_id})
+                    session.commit()
+                    
+                    print(f"[Cleanup] Deleted vault: {vault_name}")
+                    _vaults_to_cleanup.remove(vault_name)
+            except Exception as e:
+                print(f"[Cleanup] Failed to delete {vault_name}: {e}")
+    except Exception as e:
+        print(f"[Cleanup] Cleanup failed: {e}")
+
+# Register cleanup handler
+atexit.register(_cleanup_vaults)
+
+def _signal_handler(signum, frame):
+    """Handle termination signals."""
+    print(f"\n[Signal] Received signal {signum}, running cleanup...")
+    _cleanup_vaults()
+    sys.exit(1)
+
+signal.signal(signal.SIGTERM, _signal_handler)
+signal.signal(signal.SIGINT, _signal_handler)
 
 MAX_EXTRACTION_WAIT = 600
 POLL_INTERVAL = 10
@@ -137,6 +203,9 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             "query_count": 0,
         }
         
+        # Track vault for cleanup in case of crash
+        _vaults_to_cleanup.append(vault_name)
+        
         try:
             self.step0_delete_existing(vault_name)
             
@@ -160,11 +229,21 @@ Run Date: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}
             self.log(f"Vault ready for use: {vault_name}")
             
             result["success"] = True
-            return result
             
         except Exception as e:
             result["error"] = str(e)
-            return result
+        
+        finally:
+            # Always clean up vault after test (success or failure)
+            self.log(f"Cleaning up vault: {vault_name}")
+            try:
+                self.step0_delete_existing(vault_name)
+                if vault_name in _vaults_to_cleanup:
+                    _vaults_to_cleanup.remove(vault_name)
+            except Exception as cleanup_error:
+                self.log(f"Warning: Cleanup failed for {vault_name}: {cleanup_error}")
+        
+        return result
     
     def step0_delete_existing(self, vault_name: str):
         """Delete existing vault if it exists."""
