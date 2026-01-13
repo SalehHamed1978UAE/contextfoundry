@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 from .query_interpreter import QueryInterpreter, QueryIntent
 from .directed_retriever import DirectedGraphRetriever, RetrievalResult
 from .qa_verifier import AnswerVerifierAgent
+from ..learning.orchestrator import get_orchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +223,34 @@ class QueryPipeline:
         
         result.total_duration_ms = (datetime.now() - start_time).total_seconds() * 1000
         
+        self._trigger_learning_flow(result)
+        
         return result
+    
+    def _trigger_learning_flow(self, result: PipelineResult) -> None:
+        """
+        Trigger the learning flow to detect gaps and queue learning tasks.
+        
+        This is called asynchronously after each query to learn from failures.
+        """
+        try:
+            from uuid import UUID
+            orchestrator = get_orchestrator(self.session)
+            orchestrator.on_query_response(
+                tenant_id=UUID(self.tenant_id),
+                query_text=result.query_text,
+                response_text=result.step3_answer or "",
+                confidence=result.step3_confidence,
+                qa_verdict=result.qa_verdict.get("status") if result.qa_verdict else None,
+                evidence={
+                    "relationships": len(result.step2_result.relationships) if result.step2_result else 0,
+                    "entities": len(result.step2_result.affected_entities) if result.step2_result else 0,
+                    "qa_reason": result.qa_verdict.get("reason") if result.qa_verdict else None,
+                    "error": result.error
+                }
+            )
+        except Exception as e:
+            logger.warning(f"[LearningFlow] Failed to trigger learning flow: {e}")
     
     def execute_step1_only(self, query_text: str) -> QueryIntent:
         """Execute only Step 1 for debugging/testing."""
