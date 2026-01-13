@@ -100,6 +100,15 @@ Key architectural features include:
   - API endpoints: GET `/api/ontology/candidates`, `/candidates/{id}`, `/stats` (read-only Phase 1)
   - Candidate lifecycle: PENDING → APPROVED/REJECTED, 90-day expiration for stale candidates
   - Future Phase 2: Admin UI for reviewing candidates, bulk approval, and automatic schema extension
+- **Learning Flow**: Adaptive learning system that learns from query failures to improve extraction quality:
+  - `GapDetector`: Detects no-answer and low-confidence responses (threshold: 0.6), classifies gap types (NO_ANSWER, LOW_CONFIDENCE, MISSING_ENTITY, MISSING_RELATIONSHIP, WRONG_ANSWER)
+  - `LearningQueueManager`: Priority scoring (base 50, +10 no_answer, +20 wrong_answer, +10 low_confidence, +10 per occurrence), deduplication via query_hash, task lifecycle (PENDING→PROCESSING→COMPLETED/FAILED)
+  - `TargetedExtractor`: Pattern-based + optional LLM extraction, runs HOLDS_POSITION, HAS_COMPENSATION, and custom patterns against document chunks
+  - `LearningFlowOrchestrator`: Coordinates gap detection, queue management, and targeted extraction; hooks for query responses and user feedback
+  - Tables: `query_gaps` (gap tracking), `learning_queue` (prioritized tasks), `learning_results` (extraction outcomes), `learning_tickets` (user feedback), `learning_patterns` (extraction patterns)
+  - Dashboard view: `learning_dashboard` aggregates stats per vault
+  - API endpoints (Brain service port 3000): `/api/learning/status/<vault_id>`, `/api/learning/gaps/<vault_id>`, `/api/learning/feedback`, `/api/learning/trigger/<vault_id>`, `/api/learning/process`, `/api/learning/queue/<vault_id>`, `/api/learning/dashboard`
+  - Scheduler integration: Processes 5 learning tasks every 5-minute cycle via `GardenerScheduler`
 
 ## External Dependencies
 
