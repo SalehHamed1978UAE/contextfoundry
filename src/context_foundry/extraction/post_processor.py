@@ -202,13 +202,13 @@ ORGANIZATION_PATTERNS = [
 ]
 
 INVESTMENT_PATTERNS = [
-    (r'PORTFOLIO\s+COMPANY[:\s]+([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)',
+    (r'PORTFOLIO\s+COMPANY[:\s]+([A-Z][A-Za-z0-9&.-]*(?:[ \t]+[A-Z][A-Za-z0-9&.-]*)*)(?=\s*\n|\s*$)',
      "portfolio_header", 0.95),
-    (r'([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)\s+(?:has\s+)?invested\s+(?:\$[\d,.]+\s+)?in\s+([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)',
+    (r'([A-Z][A-Za-z0-9&.-]*(?:[ \t]+[A-Z][A-Za-z0-9&.-]*)*)\s+(?:has\s+)?invested\s+(?:\$[\d,.]+\s+)?in\s+([A-Z][A-Za-z0-9&.-]*(?:[ \t]+[A-Z][A-Za-z0-9&.-]*)*)',
      "invested_in", 0.92),
-    (r'([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)\s+is\s+(?:a\s+)?portfolio\s+company',
+    (r'([A-Z][A-Za-z0-9&.-]*(?:[ \t]+[A-Z][A-Za-z0-9&.-]*)*)\s+is\s+(?:a\s+)?portfolio\s+company',
      "is_portfolio", 0.88),
-    (r'([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)\s+portfolio\s+includes?\s+([A-Z][\w&.-]*(?:\s+[A-Z][\w&.-]*)*)',
+    (r'([A-Z][A-Za-z0-9&.-]*(?:[ \t]+[A-Z][A-Za-z0-9&.-]*)*)\s+portfolio\s+includes?\s+([A-Z][A-Za-z0-9&.-]*(?:[ \t]+[A-Z][A-Za-z0-9&.-]*)*)',
      "portfolio_includes", 0.90),
 ]
 
@@ -679,15 +679,17 @@ class ExtractionPostProcessor:
     def _detect_investor_from_text(self, text: str) -> Optional[str]:
         """Detect the investor organization name from document text."""
         patterns = [
-            r'^([A-Z][A-Z]+(?:\s+[A-Z]+)*)\s+PORTFOLIO',
-            r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+Portfolio',
+            r'^([A-Z][A-Za-z]+(?:Ventures|Capital|Partners|Fund|Investments))\b',
+            r'^([A-Z][A-Z]+)(?:\s+PORTFOLIO)',
+            r'^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)(?:\s+Portfolio)',
             r'Prepared\s+by[:\s]+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',
-            r'^([A-Z][a-z]+(?:Ventures|Capital|Partners|Fund|Investments))',
         ]
         for pattern in patterns:
             match = re.search(pattern, text, re.MULTILINE)
             if match:
-                return match.group(1).strip()
+                result = match.group(1).strip()
+                if result and result.upper() not in {'PORTFOLIO', 'COMPANY', 'SUMMARY', 'REPORT'}:
+                    return result
         return None
 
 

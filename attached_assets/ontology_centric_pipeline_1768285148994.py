@@ -451,9 +451,9 @@ class OntologyCentricPipeline:
         except Exception as e:
             logger.warning(f"[PostProcessor] Failed to run post-processor: {e}")
             return [], []
-    
+
     def _find_new_entity_types(
-        self, 
+        self,
         entities: List[ExtractedEntity],
         ontology: Any
     ) -> List[str]:
