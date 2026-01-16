@@ -1,0 +1,29 @@
+# Incident Report
+## Incident ID: INC-2024-003
+
+**Date:** March 15, 2024
+**Severity:** P1 (Critical)
+**Duration:** 2 hours 15 minutes
+**Impact:** Platform unavailable for all customers
+
+### Timeline
+- 14:30 UTC: Database connection pool exhausted
+- 14:35 UTC: Incident declared, war room established
+- 15:00 UTC: Root cause identified (memory leak in query service)
+- 16:15 UTC: Hotfix deployed, service restored
+- 16:45 UTC: Full functionality confirmed
+
+### Root Cause
+A memory leak in the query service v2.8.3 caused gradual resource exhaustion under high load.
+
+### Resolution
+Deployed emergency hotfix v2.8.4 with memory leak fix and increased connection pool size.
+
+### Action Items
+1. Implement better memory profiling in CI/CD
+2. Add automated alerts for connection pool utilization
+3. Conduct post-mortem with all engineering teams
+
+---
+*Incident Commander: VP of Engineering*
+*Status: Closed*

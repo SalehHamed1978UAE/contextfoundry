@@ -1,0 +1,37 @@
+# Change Management Policy
+
+## Purpose
+This policy establishes the framework for managing changes to production systems to minimize risk and ensure stability.
+
+## Change Categories
+
+**Standard Changes**
+- Pre-approved, low-risk changes
+- Examples: Security patches, configuration updates
+- Approval: Automated
+
+**Normal Changes**
+- Routine changes requiring review
+- Examples: Feature deployments, infrastructure changes
+- Approval: Change Advisory Board (CAB)
+
+**Emergency Changes**
+- Urgent changes to resolve critical issues
+- Examples: Security vulnerabilities, production outages
+- Approval: Emergency CAB (ECAB)
+
+## Change Process
+1. Submit change request in JIRA
+2. Risk assessment and impact analysis
+3. CAB review and approval
+4. Implementation during approved window
+5. Post-implementation review
+
+## Deployment Windows
+- Standard: Tuesday/Thursday 10:00-14:00 UTC
+- Emergency: As needed with ECAB approval
+- Blackout periods: Month-end, major holidays
+
+---
+*Document Owner: VP of Engineering*
+*Effective Date: January 2023*
