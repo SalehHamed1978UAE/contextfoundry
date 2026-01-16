@@ -394,6 +394,7 @@ def dev_auth():
     
     data = request.get_json() or {}
     email = data.get('email', 'stress-test@context-foundry.local')
+    override_tenant_id = data.get('tenant_id')  # Allow override for testing specific vaults
     
     auth = get_auth_service()
     result = auth.create_magic_link(
@@ -417,7 +418,11 @@ def dev_auth():
     user_id = verify_result.user.id
     tenant_id = verify_result.user.tenant_id
     
-    if not tenant_id:
+    # Allow tenant_id override from request (for testing specific vaults)
+    if override_tenant_id:
+        tenant_id = override_tenant_id
+    elif not tenant_id:
+        # Only create tenant if no override and user has no tenant
         from src.context_foundry.models.schema import get_session
         db_session = get_session()
         try:

@@ -314,7 +314,10 @@ def main():
     print("\n1. Authenticating via dev endpoint...")
     auth_resp = session.post(
         f"{BASE_URL}/api/dev/auth",
-        json={"email": "qa-test@contextfoundry.local"}
+        json={
+            "email": "e2e-test@contextfoundry.local",
+            "tenant_id": NEXATECH_VAULT_ID  # Override to access NexaTech vault
+        }
     )
     
     if auth_resp.status_code != 200:
