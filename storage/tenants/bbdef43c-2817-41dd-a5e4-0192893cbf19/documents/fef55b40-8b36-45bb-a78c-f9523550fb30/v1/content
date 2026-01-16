@@ -1,0 +1,52 @@
+# Incident Response Playbook
+
+## Severity Definitions
+
+**P0 - Critical**
+- Platform completely unavailable
+- Data breach or security incident
+- Response time: Immediate
+
+**P1 - High**
+- Major functionality unavailable
+- Significant performance degradation
+- Response time: 30 minutes
+
+**P2 - Medium**
+- Minor functionality impaired
+- Response time: 2 hours
+
+**P3 - Low**
+- Cosmetic issues, questions
+- Response time: Next business day
+
+## Response Procedures
+
+### 1. Detection and Alerting
+- Automated monitoring alerts
+- Customer reports
+- Internal discovery
+
+### 2. Incident Declaration
+- Create incident ticket
+- Notify on-call engineer
+- Establish war room (for P0/P1)
+
+### 3. Investigation
+- Identify root cause
+- Assess impact
+- Determine fix
+
+### 4. Resolution
+- Deploy fix
+- Verify resolution
+- Monitor for recurrence
+
+### 5. Communication
+- Update status page
+- Notify affected customers
+- Post-mortem (for P0/P1)
+
+---
+*Document Owner: VP of Engineering*
+*Last Updated: January 2025*
