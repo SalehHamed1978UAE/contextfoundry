@@ -124,27 +124,7 @@ STAGING → TRUSTED → ARCHIVED
 
 **URL:** `/`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Context Foundry                          [Sign in with Google] │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│              Your AI-Powered Knowledge Graph                    │
-│                                                                 │
-│    Transform documents into connected, queryable knowledge      │
-│                                                                 │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
-│  │  Upload  │ │ Extract  │ │  Query   │ │ Connect  │          │
-│  │    📄    │ │    🔍    │ │    💬    │ │    🔗    │          │
-│  │ Drop your│ │ AI finds │ │ Ask in   │ │Knowledge │          │
-│  │documents │ │entities &│ │ natural  │ │ grows    │          │
-│  │          │ │relations │ │ language │ │ smarter  │          │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘          │
-│                                                                 │
-│                    [Sign in with Google]                        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+![Landing Page](screenshots/01_landing_page.png)
 
 **Purpose:** Entry point for new users. Sign in with Google to access your vaults.
 
@@ -159,24 +139,7 @@ STAGING → TRUSTED → ARCHIVED
 
 **URL:** `/app`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Context Foundry                       Saleh Hamed    [Logout]  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  My Vaults                              [+ Create New Vault]    │
-│  Organize your knowledge into isolated spaces                   │
-│                                                                 │
-│  ┌─────────────────────────┐  ┌─────────────────────────┐      │
-│  │ ▣ NexaTech             │  │ ▣ context foundry       │      │
-│  │   nexatech-d84f2631    │  │   context-foundry-9504  │      │
-│  │                        │  │                         │      │
-│  │   77          1/16/2026│  │   2           1/16/2026 │      │
-│  │   DOCUMENTS   UPDATED  │  │   DOCUMENTS   UPDATED   │      │
-│  └─────────────────────────┘  └─────────────────────────┘      │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+![My Vaults](screenshots/02_vault_list.png)
 
 **Purpose:** Central hub showing all your knowledge vaults.
 
@@ -197,32 +160,7 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 
 **URL:** `/app/new`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Context Foundry                       Saleh Hamed    [Logout]  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│         ← Back to Vaults                                        │
-│                                                                 │
-│         ┌────────────────────────────────────────┐              │
-│         │                                        │              │
-│         │       Create a New Vault               │              │
-│         │                                        │              │
-│         │  A vault is an isolated space for      │              │
-│         │  your documents and knowledge graph    │              │
-│         │                                        │              │
-│         │  Vault Name                            │              │
-│         │  ┌──────────────────────────────────┐  │              │
-│         │  │ e.g., My Project, Company Docs  │  │              │
-│         │  └──────────────────────────────────┘  │              │
-│         │  Choose a descriptive name             │              │
-│         │                                        │              │
-│         │  [Cancel]        [Create Vault]        │              │
-│         │                                        │              │
-│         └────────────────────────────────────────┘              │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+![Create New Vault](screenshots/03_create_vault.png)
 
 **Purpose:** Create a new isolated knowledge space.
 
@@ -233,33 +171,11 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 
 ---
 
-## Screen 4: Vault Chat View (Main Workspace)
+## Screen 4: Vault Chat View (Small Vault)
 
 **URL:** `/app/{vault_id}`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  ▣ NexaTech                            Saleh Hamed [Admin][Settings]│
-├──────────────────┬──────────────────────────────────────────────┤
-│                  │                                              │
-│  [Chat]          │         Chat with your knowledge             │
-│                  │                                              │
-│                  │                  ⓘ                           │
-│  DOCUMENTS    [+]│                                              │
-│  ────────────────│     Ask anything about your documents        │
-│  ● MASTER_INDEX  │                                              │
-│  ● acceptable_use│   Upload documents and ask questions to      │
-│  ● all_hands_q1  │   explore your knowledge graph               │
-│  ● all_hands_q2  │                                              │
-│  ● annual_financ │                                              │
-│  ● api_documenta │                                              │
-│                  │                                              │
-│                  │                                              │
-│                  ├──────────────────────────────────────────────│
-│  ← All Vaults    │  Ask a question...                    [Send] │
-│                  │                                              │
-└──────────────────┴──────────────────────────────────────────────┘
-```
+![Vault Chat - Small](screenshots/04_vault_chat_small.png)
 
 **Purpose:** Main workspace where you upload documents and ask questions.
 
@@ -276,59 +192,24 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
   - Responses appear with confidence scores and sources
 
 **Document Status Indicators:**
-- 🟢 Green dot = Extraction complete, ready for queries
-- 🟡 Yellow dot = Extraction in progress
-- 🔴 Red dot = Extraction failed
+- Green dot = Extraction complete, ready for queries
+- Yellow dot = Extraction in progress
+- Red dot = Extraction failed
 
 ---
 
-## Screen 5: Chat Interaction Example
+## Screen 5: Vault Chat View (Large Vault)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  You: Who is the CEO of NexaTech?                              │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │                                                             ││
-│  │  Context Foundry                         Confidence: 92%   ││
-│  │  ─────────────────────────────────────────────────────────  ││
-│  │                                                             ││
-│  │  Sarah Chen is the CEO of NexaTech. She has been in this   ││
-│  │  role since 2019 and previously served as CTO.             ││
-│  │                                                             ││
-│  │  Sources:                                                   ││
-│  │  • executive_team.pdf (page 1)                             ││
-│  │  • annual_report_2024.pdf (page 3)                         ││
-│  │                                                             ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-│  You: What is her compensation?                                │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │                                                             ││
-│  │  Context Foundry                         Confidence: 87%   ││
-│  │  ─────────────────────────────────────────────────────────  ││
-│  │                                                             ││
-│  │  Sarah Chen's total compensation package is $2.4M,         ││
-│  │  consisting of:                                            ││
-│  │  • Base salary: $450,000                                   ││
-│  │  • Annual bonus: $350,000                                  ││
-│  │  • Stock options: $1.6M (vesting over 4 years)            ││
-│  │                                                             ││
-│  │  Sources:                                                   ││
-│  │  • compensation_disclosure.pdf (page 12)                   ││
-│  │                                                             ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+**URL:** `/app/{vault_id}`
 
-**Key Features of Responses:**
-1. **Confidence Score**: Percentage indicating answer reliability
-2. **Natural Language Answer**: Direct response to your question
-3. **Source Citations**: Documents that support the answer
-4. **Markdown Formatting**: Tables, lists, code blocks render properly
+![Vault Chat - Large](screenshots/05_vault_chat_large.png)
+
+**Purpose:** Shows a vault with many documents, demonstrating scalability.
+
+**Features Visible:**
+- Scrollable document list
+- Multiple document types
+- All documents show extraction complete (green dots)
 
 ---
 
@@ -336,31 +217,7 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 
 **URL:** `/app/{vault_id}/dashboard`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  CONTEXT FOUNDRY               [↻]              [New Query]     │
-├──────────────────┬──────────────────────────────────────────────┤
-│                  │                                              │
-│  ▼ SOURCES       │  Dashboard                                   │
-│                  │                                              │
-│  ▼ KNOWLEDGE     │  ┌────────────┬────────────┬────────────┐   │
-│    □ Dashboard   │  │MULTI-HOP   │KNOWLEDGE   │CONFIDENCE  │   │
-│    ◎ Memory Graph│  │ACCURACY    │FIDELITY    │CALIBRATION │   │
-│    □ Command Ctr │  │   --%      │   --%      │   --%      │   │
-│    □ A/B Eval    │  │+5% vs base │  Stable    │Within tgt  │   │
-│                  │  └────────────┴────────────┴────────────┘   │
-│                  │                                              │
-│  ────────────────│  ┌────────────────────────────────────────┐  │
-│  ● SYSTEM ONLINE │  │ Ask Context Foundry about...    [Query]│  │
-│    API    v1.0   │  └────────────────────────────────────────┘  │
-│    Memory   0    │                                              │
-│    Latency 25ms  │  RECENT QUERIES                              │
-│                  │  ─────────────                               │
-│  ────────────────│                                              │
-│  Saleh   [Logout]│       System Ready. Waiting for input.       │
-│                  │                                              │
-└──────────────────┴──────────────────────────────────────────────┘
-```
+![Admin Dashboard](screenshots/06_dashboard.png)
 
 **Purpose:** High-level overview of knowledge graph health and activity.
 
@@ -383,35 +240,7 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 
 **URL:** `/app/{vault_id}/memory-graph`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  CONTEXT FOUNDRY               [↻]              [New Query]     │
-├──────────────────┬──────────────────────────────────────────────┤
-│                  │                                              │
-│  ▼ SOURCES       │  Memory Graph                                │
-│                  │                                              │
-│  ▼ KNOWLEDGE     │  ┌────────────────────────────────────────┐  │
-│    □ Dashboard   │  │ KNOWLEDGE GRAPH EXPLORER    [All States]│  │
-│    ◉ Memory Graph│  │                                        │  │
-│    □ Command Ctr │  │  🔍 Search entities...                 │  │
-│    □ A/B Eval    │  │                                        │  │
-│                  │  │  TRUSTED: 134  STAGING: 0  ARCHIVED: 0 │  │
-│                  │  │                                        │  │
-│  ────────────────│  │  ⏱ TIMELINE                     Today  │  │
-│  ● SYSTEM ONLINE │  │  Jan 2026 ━━━━━━━━━━━━━━━━━━━━━● Today │  │
-│    API    v1.0   │  │  [01/16/2026] [Reset to Now]           │  │
-│    Memory   0    │  │                                        │  │
-│    Latency 25ms  │  │         🔍 Search to explore           │  │
-│                  │  │      Type an entity name above         │  │
-│  ────────────────│  │                                        │  │
-│  Saleh   [Logout]│  │  Types: ●SERVICE ●COMPONENT ●TEAM      │  │
-│                  │  │         ●PERSON  ●DATABASE  ●INCIDENT  │  │
-│                  │  │  State: ●TRUSTED ◐STAGING ○ARCHIVED    │  │
-│                  │  │                                        │  │
-│                  │  │  [Spread] [Compact] [Reset] □Inferred  │  │
-│                  │  └────────────────────────────────────────┘  │
-└──────────────────┴──────────────────────────────────────────────┘
-```
+![Memory Graph](screenshots/07_memory_graph.png)
 
 **Purpose:** Visually explore the knowledge graph.
 
@@ -420,7 +249,7 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 1. **Search Bar:** Find any entity by name
 
 2. **Entity Counts:**
-   - TRUSTED: Validated facts (green)
+   - TRUSTED: Validated facts (green) - shows 134 in this example
    - STAGING: New extractions awaiting validation (yellow)
    - ARCHIVED: Old/superseded facts (gray)
 
@@ -453,40 +282,7 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 
 **URL:** `/app/{vault_id}/command-center`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  CONTEXT FOUNDRY               [↻]              [New Query]     │
-├──────────────────┬──────────────────────────────────────────────┤
-│  ▼ SOURCES       │  Command Center                              │
-│                  │                                              │
-│  ▼ KNOWLEDGE     │  ┌─────────────────────┬───────────────────┐ │
-│    □ Dashboard   │  │ 👁 INGEST & PERCEIVE│ 🧠 MEMORY         │ │
-│    ◎ Memory Graph│  │                     │                   │ │
-│    ◉ Command Ctr │  │  --      134    22  │  --   134   --    │ │
-│    □ A/B Eval    │  │  Docs  Entities Rels│ STAG TRUST  ARCH  │ │
-│                  │  │  +0    +134    +22  │                   │ │
-│                  │  │  last 24h           │ MEMORY LAYERS     │ │
-│  ────────────────│  │                     │ Semantic: 134, 22 │ │
-│  ● SYSTEM ONLINE │  │ ACTIVE EXTRACTORS   │ Episodic: -- docs │ │
-│    API    v1.0   │  │ AGENT    STATUS     │ Symbolic: 13 rules│ │
-│    Memory   0    │  │ GraphBld  IDLE      │                   │ │
-│    Latency 25ms  │  │ EntityEx  IDLE      └───────────────────┤ │
-│                  │  │ RelationE IDLE      │ 📚 LEARN          │ │
-│  ────────────────│  │ Gardener  ACTIVE    │                   │ │
-│  Saleh   [Logout]│  └─────────────────────│  10    --    1    │ │
-│                  │  ┌─────────────────────│ Orph  Surf Promo  │ │
-│                  │  │ 🤖 REASON & EXPRESS │                   │ │
-│                  │  │                     │    496            │ │
-│                  │  │  AGENT      STATUS  │  ACTIVE TYPES     │ │
-│                  │  │  GraphBuilder IDLE  │                   │ │
-│                  │  │  EntityExtr   IDLE  │   2    2    --    │ │
-│                  │  │  RelationExtr IDLE  │ PROP APPR DEPR    │ │
-│                  │  │  GardenerAgent ACT  │                   │ │
-│                  │  └─────────────────────┴───────────────────┘ │
-│                  │                                              │
-│                  │  Message Bus Activity              0 events  │
-└──────────────────┴──────────────────────────────────────────────┘
-```
+![Command Center](screenshots/08_command_center.png)
 
 **Purpose:** Monitor system health and all extraction/reasoning activity.
 
@@ -494,16 +290,16 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 
 | Panel | What It Shows |
 |-------|---------------|
-| **Ingest & Perceive** | Documents processed, entities extracted, relationships found |
-| **Memory** | Facts by lifecycle stage (Staging, Trusted, Archived) |
-| **Memory Layers** | Counts per memory type (Semantic nodes/edges, Episodic docs, Symbolic rules) |
-| **Active Extractors** | Status of each AI agent (IDLE, ACTIVE, ERROR) |
-| **Learn** | Orphan detection, surfacing, and promotion stats |
+| **Ingest & Perceive** | Documents processed, entities extracted (134), relationships found (22) |
+| **Memory** | Facts by lifecycle stage (134 Trusted) |
+| **Memory Layers** | Counts per memory type (Semantic: 134 nodes, 22 edges; Symbolic: 13 rules) |
+| **Reason & Express** | Agent status (GraphBuilder, EntityExtractor, RelationExtractor, GardenerAgent) |
+| **Learn** | Orphan detection (10), surfaced, promoted (1); Active types (496) |
 | **Message Bus** | Event activity in the system |
 
 **Agent Status Values:**
 - **IDLE:** Agent is ready but not currently processing
-- **ACTIVE:** Agent is currently working
+- **ACTIVE:** Agent is currently working (GardenerAgent shown as ACTIVE)
 - **ERROR:** Agent encountered a problem
 
 ---
@@ -512,53 +308,14 @@ A vault is an isolated knowledge space. Documents and their extracted knowledge 
 
 **URL:** `/app/{vault_id}/settings`
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Context Foundry                       Saleh Hamed    [Logout]  │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│         ← Back to Vault                                         │
-│                                                                 │
-│         Vault Settings                                          │
-│         Manage your vault configuration and API access          │
-│                                                                 │
-│         ┌────────────────────────────────────────────────────┐  │
-│         │ GENERAL                                            │  │
-│         │                                                    │  │
-│         │ Vault Name                                         │  │
-│         │ ┌────────────────────────────────────────────────┐ │  │
-│         │ │ context foundry                                │ │  │
-│         │ └────────────────────────────────────────────────┘ │  │
-│         │                                                    │  │
-│         │ [Save Changes]                                     │  │
-│         └────────────────────────────────────────────────────┘  │
-│                                                                 │
-│         ┌────────────────────────────────────────────────────┐  │
-│         │ API ACCESS                                         │  │
-│         │                                                    │  │
-│         │ Vault ID                                           │  │
-│         │ ┌────────────────────────────────────────┐ [Copy]  │  │
-│         │ │ fe7302a3-958f-462a-8fb1-af4405d29cb7   │         │  │
-│         │ └────────────────────────────────────────┘         │  │
-│         │ Use this ID to access your vault via the API      │  │
-│         └────────────────────────────────────────────────────┘  │
-│                                                                 │
-│         ┌────────────────────────────────────────────────────┐  │
-│         │ DANGER ZONE                                        │  │
-│         │                                                    │  │
-│         │ Delete this vault and all its data permanently    │  │
-│         │                                 [Delete Vault]     │  │
-│         └────────────────────────────────────────────────────┘  │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+![Vault Settings](screenshots/09_settings.png)
 
 **Purpose:** Configure vault settings and access API credentials.
 
 **Sections:**
 
 1. **General:** Rename your vault
-2. **API Access:** Get your Vault ID for programmatic access
+2. **API Access:** Get your Vault ID for programmatic access (with Copy button)
 3. **Danger Zone:** Permanently delete the vault (requires confirmation)
 
 ---
