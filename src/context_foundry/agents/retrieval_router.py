@@ -556,8 +556,16 @@ class QueryPipeline:
         
         intent = self.intent_detector.detect(query, resolved_entity=None)
         
+        skip_role_resolution = classified_query.primary_intent in (
+            NewQueryIntent.POLICY,
+            NewQueryIntent.METRIC,
+            NewQueryIntent.TEMPORAL,
+        )
+        if skip_role_resolution:
+            logger.info(f"[PIPELINE] Skipping role resolution for {classified_query.primary_intent.value} intent")
+        
         role_resolution = None
-        if classification.has_role_reference and classification.role_referenced:
+        if classification.has_role_reference and classification.role_referenced and not skip_role_resolution:
             role_resolution = self.role_resolver.resolve_all(classification.role_referenced, vault_context=vault_context)
             
             should_chain = (

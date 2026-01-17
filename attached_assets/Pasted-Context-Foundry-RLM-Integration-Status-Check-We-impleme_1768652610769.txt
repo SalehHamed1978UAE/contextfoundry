@@ -1,0 +1,65 @@
+Context Foundry: RLM Integration Status Check
+We implemented RLM integration in early January (all 5 phases, 90 tests passing). Then we pivoted to fix critical issues (multi-tenancy, extraction garbage, persistence failures).
+Before we implement the Architectural Fixes spec, we need to understand what already exists.
+
+Questions for Replit / Claude Code
+1. RLM Infrastructure Status
+What's the current state of these components?
+ComponentFile LocationStatus?SemanticMemoryAPIsrc/context_foundry/rlm/semantic_api.pyWorking / Broken / Missing?EpisodicMemoryAPIsrc/context_foundry/rlm/episodic_api.pyWorking / Broken / Missing?SymbolicMemoryAPIsrc/context_foundry/rlm/symbolic_api.pyWorking / Broken / Missing?REPL Sandboxsrc/context_foundry/rlm/sandbox.pyWorking / Broken / Missing?RLM Executorsrc/context_foundry/rlm/executor.pyWorking / Broken / Missing?Query Routersrc/context_foundry/rlm/router.pyWorking / Broken / Missing?Pydantic Schemassrc/context_foundry/rlm/schemas.pyWorking / Broken / Missing?
+2. Integration Status
+
+Is RLM wired into the Brain service query flow?
+Is the complexity router active (threshold 0.19)?
+Do the 90 tests still pass?
+
+3. What Broke (If Anything)
+During the multi-tenancy fixes and extraction pipeline changes:
+
+Did any RLM components get removed or broken?
+Are the Memory APIs using tenant-filtered queries?
+Does the sandbox still work with current dependencies?
+
+4. Current Query Path
+What's the actual query execution path right now?
+Query arrives → ??? → Response
+Is it:
+
+A) RLM Executor (REPL-style search)
+B) Chunk retrieval → context stuffing
+C) Something else
+
+5. Gap Analysis
+If RLM infrastructure exists, what's missing to make it work like this:
+Query: "What was net income in FY2024?"
+    ↓
+LLM calls: search_entities(type="NET_INCOME", year="FY2024")
+    ↓
+Result: Not found
+    ↓
+LLM reasons: "Let me check what financial metrics exist"
+    ↓
+LLM calls: list_entities(type="FINANCIAL_METRIC", year="FY2024")
+    ↓
+Result: [EBITDA: -$12.8M, REVENUE: $64.8M]
+    ↓
+LLM responds: "Net income not found. EBITDA was -$12.8M."
+What tools/APIs would need to be added to the REPL environment?
+
+Decision Point
+Once we have answers:
+If RLM is intact: Add REPL tools designed from the Architectural Fixes spec (Intent-aware search, Entity Type filtering, Distinction validation)
+If RLM is broken: Decide whether to repair it or implement Architectural Fixes as standalone components first
+
+What We're Trying to Achieve
+Current (broken):
+Query → Retrieve chunks → Stuff into LLM → LLM guesses from noise
+Target (RLM-style):
+Query → LLM programmatically searches KG → Reasons about results → Searches again if needed → Synthesizes precise answer
+The Architectural Fixes spec (Intent Classifier, Entity Router, Distinction Rules) becomes the design for the REPL tools, not a separate system.
+
+Please investigate and report back:
+
+What exists
+What's working
+What's broken
+What's missing
