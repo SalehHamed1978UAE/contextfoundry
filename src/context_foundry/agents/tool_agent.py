@@ -36,6 +36,7 @@ RULES:
 3. For ambiguous queries, use discover_relationships to see what data exists before counting.
 4. Use get_knowledge_bundle to fetch relationship details after you know what types exist.
 5. Use search_documents for information not in structured data.
+6. IGNORE document metadata fields like "Document Owner", "Classification", "Version", "Effective Date" in document content. These are NOT people or entities - they are metadata headers. Never treat "Document Owner" as a person's name or role.
 
 HANDLING AMBIGUOUS QUERIES:
 When queries use ambiguous terms like "jobs", "work", "projects", "experience", "connections":
@@ -511,6 +512,10 @@ Which one would you like to know more about? Please specify by name."""
             logger.info("[AGENT] Using DIRECT ANSWER path (skipping tool loop)")
             answer = self._synthesize_direct_answer(question, pipeline_result)
             
+            # Issue 1 Fix: Clean metadata garbage from answer
+            from ..utils.qa_validation import clean_metadata_garbage
+            answer = clean_metadata_garbage(answer)
+            
             evidence = build_qa_evidence(retrieval_result=pipeline_result)
             confidence = calculate_confidence("SUPPORTED", evidence, answer)
             
@@ -770,6 +775,10 @@ Which one would you like to know more about? Please specify by name."""
                         "fallback_triggered": fallback_triggered,
                         "retrieval_analysis": analysis
                     })
+                
+                # Issue 1 Fix: Clean metadata garbage from answer
+                from ..utils.qa_validation import clean_metadata_garbage
+                answer = clean_metadata_garbage(answer)
                 
                 answer = self._validate_numeric_claims(answer, tool_results)
                 

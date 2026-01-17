@@ -23,6 +23,32 @@ from src.context_foundry.agents.query_intent_detector import (
 )
 from src.context_foundry.utils.logger import logger
 
+# Query-time blacklist for metadata entities that should never appear in results
+# These are document metadata fields that were incorrectly extracted as entities
+RETRIEVAL_BLACKLIST = {
+    'document owner',
+    'document author',
+    'author',
+    'owner',
+    'classification',
+    'confidential',
+    'internal use only',
+    'board only',
+}
+
+
+def _is_blacklisted_entity(name: str) -> bool:
+    """Check if an entity name should be filtered from retrieval results."""
+    if not name:
+        return True
+    name_lower = name.lower().strip()
+    if name_lower in RETRIEVAL_BLACKLIST:
+        return True
+    for blacklisted in RETRIEVAL_BLACKLIST:
+        if name_lower.startswith(f"{blacklisted}:") or name_lower.startswith(f"{blacklisted} "):
+            return True
+    return False
+
 
 @dataclass
 class AmbiguityResult:
@@ -168,6 +194,7 @@ class RetrievalRouter:
                     "confidence": r.confidence
                 }
                 for r in entity_results
+                if not _is_blacklisted_entity(r.name)
             ]
             
             if entities:
@@ -206,6 +233,7 @@ class RetrievalRouter:
                         "provenance": r.provenance_text
                     }
                     for r in rel_results
+                    if not _is_blacklisted_entity(r.source_name) and not _is_blacklisted_entity(r.target_name)
                 ]
             
             logger.info(f"[ROUTER] Graph search found {len(entities)} entities, {len(relationships)} relationships")

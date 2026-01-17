@@ -79,6 +79,7 @@ CRITICAL RULES:
 5. If information is missing or uncertain, explicitly say so
 6. Rate your confidence (0.0-1.0) based on evidence quality and completeness
 7. Always check if any rules apply to your response
+8. IGNORE document metadata fields like "Document Owner", "Classification", "Version", "Effective Date" in document content. These are NOT people or entities - they are metadata headers. Never treat "Document Owner" as a person's name or role.
 
 SPECIAL: IMPACT/BLAST RADIUS QUERIES
 For queries about "blast radius", "impact", "what happens if X goes down", "what is affected", or dependency analysis:
@@ -589,9 +590,14 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
         # QA Accuracy Fixes: Post-validation checks for metric/temporal mismatches
         # Uses shared validation module for consistency across all response paths
         # =======================================================================
-        from ..utils.qa_validation import validate_qa_response
+        from ..utils.qa_validation import validate_qa_response, clean_metadata_garbage
         
+        # Issue 1 Fix: Clean metadata garbage from answer
         answer_text = result.get("answer", "")
+        cleaned_answer = clean_metadata_garbage(answer_text)
+        if cleaned_answer != answer_text:
+            result["answer"] = cleaned_answer
+            answer_text = cleaned_answer
         query_text = bundle.query_text
         
         qa_validation = validate_qa_response(
