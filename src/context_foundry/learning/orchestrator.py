@@ -44,12 +44,17 @@ class LearningFlowOrchestrator:
         Detects gaps and queues learning tasks automatically.
         """
         
+        valid_kwargs = {
+            k: v for k, v in kwargs.items()
+            if k in ('entities_used', 'relationships_used', 'user_id', 'session_id')
+        }
+        
         gap = self.gap_detector.analyze_response(
             tenant_id=tenant_id,
             query_text=query_text,
             response_text=response_text,
             confidence=confidence,
-            **kwargs
+            **valid_kwargs
         )
         
         if gap:

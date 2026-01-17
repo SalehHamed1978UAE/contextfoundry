@@ -35,7 +35,7 @@ class QueryType(str, Enum):
 class GapDetector:
     """Detects and records query gaps for learning"""
     
-    LOW_CONFIDENCE_THRESHOLD = 0.6
+    LOW_CONFIDENCE_THRESHOLD = 0.70
     NO_ANSWER_PATTERNS = [
         "i don't have",
         "no information",
@@ -48,7 +48,19 @@ class GapDetector:
         "not in the knowledge graph",
         "i couldn't find",
         "no results",
-        "not available"
+        "not available",
+        "does not specify",
+        "not provided",
+        "could not find",
+        "information is not included",
+        "not included in the retrieved",
+        "unable to determine",
+        "i do not have",
+        "don't have enough",
+        "insufficient information",
+        "no specific",
+        "not explicitly",
+        "cannot determine"
     ]
     
     def __init__(self, db_session):
