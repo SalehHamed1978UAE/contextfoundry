@@ -221,6 +221,14 @@ def check_answer_match(expected: str, actual: str) -> tuple:
             pct_val = expected_num.group(1)
             if pct_val in actual_lower and '%' in actual_lower:
                 return ('correct', 'Percentage value match')
+            try:
+                expected_float = float(pct_val)
+                actual_nums = re.findall(r'(\d+\.?\d*)\s*%', actual_lower)
+                for actual_num in actual_nums:
+                    if abs(float(actual_num) - expected_float) <= 0.5:
+                        return ('correct', f'Fuzzy percentage match ({actual_num}% ≈ {pct_val}%)')
+            except ValueError:
+                pass
             calc_patterns = [
                 rf'{pct_val}\s*%',
                 rf'approximately\s*{pct_val}',
