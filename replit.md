@@ -77,6 +77,20 @@ Context Foundry has two distinct test suites for validating query accuracy:
   - Q72: ISO 27001 certified (Yes) - retrieval issue
   - Q76: GDPR access requests 2024 - missing data
 
+### MedSync Test Suites (CRITICAL MAPPING - DO NOT MIX UP)
+
+**WARNING:** Two separate MedSync corpuses exist with identical company names. Always verify vault-to-test-folder mapping before running tests.
+
+| Vault Name | Test Documents Folder | Company in Docs | Questions |
+|------------|----------------------|-----------------|-----------|
+| **Manus HealthTech** | `test_documents/medsync_health/` | MedSync Health, Inc. | 100 Q&A + 200 extended |
+| **Manus MedSync** | `test_documents/manus_medsync/` | MedSync Health, Inc. | 100 Q&A + 200 extended |
+
+**Before running any MedSync tests:**
+1. Confirm which vault you're testing
+2. Use the CORRECT test documents folder
+3. Never run `medsync_health/` questions against `Manus MedSync` vault or vice versa
+
 ## Bible Validations Status (10 Things to Prove)
 
 From the Context Foundry Bible, these validations need proof:
