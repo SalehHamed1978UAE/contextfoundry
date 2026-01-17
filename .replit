@@ -5,7 +5,7 @@ integrations = ["python_openai_ai_integrations:1.0.0", "python_database:1.0.0", 
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "chromium", "gitFull", "libiconv", "libxcrypt", "libyaml", "openssl", "pkg-config", "playwright-driver", "poppler", "poppler_utils", "postgresql", "rapidfuzz-cpp", "rustc", "taskflow", "tesseract", "unzip", "dbus", "atk", "glib", "pango", "cairo", "gdk-pixbuf", "at-spi2-atk", "gtk3", "nss", "nspr", "cups", "libdrm", "mesa", "alsa-lib", "expat", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb"]
+packages = ["alsa-lib", "at-spi2-atk", "atk", "cairo", "cargo", "chromium", "cups", "dbus", "expat", "gdk-pixbuf", "gitFull", "glib", "glibcLocales", "gtk3", "libdrm", "libiconv", "libxcrypt", "libyaml", "mesa", "nspr", "nss", "openssl", "pango", "pkg-config", "playwright-driver", "poppler", "poppler_utils", "postgresql", "rapidfuzz-cpp", "rustc", "taskflow", "tesseract", "unzip", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb"]
 
 [workflows]
 runButton = "Project"
