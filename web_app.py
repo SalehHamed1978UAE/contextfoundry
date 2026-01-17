@@ -1901,6 +1901,114 @@ def delete_document(doc_id):
         logger.error(f"Delete failed: {e}")
         return jsonify({'success': False, 'error': 'Failed to delete document'}), 500
 
+SPREADSHEET_EXTENSIONS = {'.xlsx', '.xls', '.csv'}
+
+def _is_spreadsheet_file(filename: str) -> bool:
+    """Check if file is a spreadsheet based on extension."""
+    ext = os.path.splitext(filename)[1].lower()
+    return ext in SPREADSHEET_EXTENSIONS
+
+def _process_spreadsheet_and_extract_entities(storage_path: str, filename: str, doc_id, tenant_id, cur) -> dict:
+    """
+    Process a spreadsheet file and extract financial metrics as entities.
+    Called from within an existing database transaction.
+    
+    Returns:
+        dict with entities_created count and metrics list
+    """
+    from src.context_foundry.extraction.spreadsheet_loader import SpreadsheetLoader
+    from src.context_foundry.extraction.financial_calculator import FinancialCalculator
+    from uuid import uuid4
+    
+    loader = SpreadsheetLoader()
+    calculator = FinancialCalculator()
+    
+    document = loader.load(storage_path)
+    if not document.tables:
+        return {'entities_created': 0, 'metrics': [], 'tables_found': 0}
+    
+    extracted_metrics = []
+    all_financial_data = {}
+    
+    for table in document.tables:
+        if table.financial_metrics:
+            for metric_type, period_values in table.financial_metrics.items():
+                if metric_type not in all_financial_data:
+                    all_financial_data[metric_type] = {}
+                all_financial_data[metric_type].update(period_values)
+                
+                for period, value in period_values.items():
+                    extracted_metrics.append({
+                        'name': f"{metric_type}_{period}",
+                        'value': value,
+                        'unit': '$M' if metric_type in ['revenue', 'net_income', 'ebitda', 'gross_profit'] else '',
+                        'time_period': period,
+                        'metric_type': metric_type,
+                        'entity_type': 'FINANCIAL_METRIC',
+                        'category': 'financial',
+                        'confidence': 0.95
+                    })
+    
+    calculated_metrics = calculator.calculate_all_metrics(all_financial_data)
+    for calc in calculated_metrics:
+        metric_type_from_name = calc.name.split('_')[0] if '_' in calc.name else calc.name
+        extracted_metrics.append({
+            'name': calc.name,
+            'value': calc.value,
+            'unit': calc.unit,
+            'time_period': calc.time_period or '',
+            'formula': calc.formula,
+            'metric_type': metric_type_from_name,
+            'entity_type': 'CALCULATED_METRIC',
+            'category': 'calculated',
+            'confidence': calc.confidence
+        })
+    
+    entities_created = 0
+    for metric in extracted_metrics:
+        entity_id = uuid4()
+        metric_name = metric.get('name', 'Unknown Metric')
+        entity_type = metric.get('entity_type', 'FINANCIAL_METRIC')
+        properties = {
+            'value': metric.get('value'),
+            'unit': metric.get('unit', ''),
+            'time_period': metric.get('time_period', ''),
+            'formula': metric.get('formula', ''),
+            'metric_type': metric.get('metric_type', ''),
+            'source_document': filename,
+            'metric_category': metric.get('category', 'financial')
+        }
+        
+        cur.execute("""
+            SELECT id FROM entities 
+            WHERE tenant_id = %s AND UPPER(name) = UPPER(%s) AND entity_type = %s
+            LIMIT 1
+        """, (str(tenant_id), metric_name, entity_type))
+        existing = cur.fetchone()
+        
+        if existing:
+            cur.execute("""
+                UPDATE entities SET properties = %s, updated_at = NOW()
+                WHERE id = %s
+            """, (json.dumps(properties), existing[0]))
+        else:
+            cur.execute("""
+                INSERT INTO entities (
+                    id, tenant_id, name, entity_type, properties, confidence,
+                    source_document_id, extraction_method, created_at, updated_at
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'spreadsheet_extraction', NOW(), NOW())
+            """, (str(entity_id), str(tenant_id), metric_name, entity_type,
+                  json.dumps(properties), metric.get('confidence', 0.95), str(doc_id)))
+        entities_created += 1
+    
+    logger.info(f"[SPREADSHEET] Processed {filename}: {entities_created} entities, {len(document.tables)} tables")
+    
+    return {
+        'entities_created': entities_created,
+        'metrics': extracted_metrics,
+        'tables_found': len(document.tables)
+    }
+
 @app.route('/test-upload', methods=['POST'])
 def test_upload():
     try:
@@ -1917,7 +2025,7 @@ def test_upload():
 
 @app.route('/dashboard/upload', methods=['POST'])
 def dashboard_upload():
-    """Upload a document for authenticated user."""
+    """Upload a document for authenticated user. Detects file type and routes appropriately."""
     print("=== SINGLE UPLOAD STARTED ===")
     print(f"Session: user_id={session.get('user_id')}, tenant_id={session.get('tenant_id')}")
     if not session.get('user_id') or not session.get('tenant_id'):
@@ -1949,42 +2057,63 @@ def dashboard_upload():
         file.save(storage_path)
         file_size = os.path.getsize(storage_path)
         
+        is_spreadsheet = _is_spreadsheet_file(file.filename)
+        spreadsheet_result = None
+        
         database_url = os.environ.get("DATABASE_URL")
         with psycopg2.connect(database_url) as conn:
             with conn.cursor() as cur:
+                if is_spreadsheet:
+                    status = 'processed'
+                    print(f"[SPREADSHEET] Detected spreadsheet file: {file.filename}")
+                else:
+                    status = 'queued'
+                
                 cur.execute("""
                     INSERT INTO platform.documents (
                         id, tenant_id, name, original_filename, mime_type, 
                         storage_path, size_bytes, current_version, status, created_by, created_at, updated_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, NOW(), NOW())
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
                 """, (str(doc_id), str(tenant_id), file.filename, file.filename, 
                       file.content_type or 'application/octet-stream',
-                      storage_path, file_size, version, str(user_id)))
+                      storage_path, file_size, version, status, str(user_id)))
                 
                 cur.execute("""
                     INSERT INTO platform.usage_events (
                         tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
                     ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                 """, (str(tenant_id), str(user_id), str(doc_id), file_size,
-                      json.dumps({'filename': file.filename})))
+                      json.dumps({'filename': file.filename, 'is_spreadsheet': is_spreadsheet})))
                 
-                cur.execute("""
-                    INSERT INTO platform.extraction_requests (
-                        id, request_id, document_id, tenant_id, file_path, file_name, 
-                        mime_type, file_size_bytes, extraction_mode, priority, status,
-                        submitted_at, retry_count, max_retries, created_at
-                    ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s, 
-                              'full', 'normal', 'pending', NOW(), 0, 3, NOW())
-                """, (str(doc_id), str(tenant_id), storage_path, file.filename,
-                      file.content_type or 'application/octet-stream', file_size))
+                if is_spreadsheet:
+                    spreadsheet_result = _process_spreadsheet_and_extract_entities(
+                        storage_path, file.filename, doc_id, tenant_id, cur
+                    )
+                else:
+                    cur.execute("""
+                        INSERT INTO platform.extraction_requests (
+                            id, request_id, document_id, tenant_id, file_path, file_name, 
+                            mime_type, file_size_bytes, extraction_mode, priority, status,
+                            submitted_at, retry_count, max_retries, created_at
+                        ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s, 
+                                  'full', 'normal', 'pending', NOW(), 0, 3, NOW())
+                    """, (str(doc_id), str(tenant_id), storage_path, file.filename,
+                          file.content_type or 'application/octet-stream', file_size))
                 
                 conn.commit()
         
-        return jsonify({
+        response = {
             'success': True,
             'document_id': str(doc_id),
-            'filename': file.filename
-        })
+            'filename': file.filename,
+            'file_type': 'spreadsheet' if is_spreadsheet else 'document'
+        }
+        
+        if spreadsheet_result:
+            response['entities_created'] = spreadsheet_result.get('entities_created', 0)
+            response['tables_found'] = spreadsheet_result.get('tables_found', 0)
+        
+        return jsonify(response)
         
     except Exception as e:
         print(f"=== SINGLE UPLOAD FAILED: {e} ===")
@@ -2086,15 +2215,18 @@ def dashboard_upload_multi():
                         continue
                     print("Step 8: No duplicate")
                     
-                    print("Step 9: Inserting into platform.documents")
+                    is_spreadsheet = _is_spreadsheet_file(filename)
+                    status = 'processed' if is_spreadsheet else 'queued'
+                    
+                    print(f"Step 9: Inserting into platform.documents (is_spreadsheet={is_spreadsheet})")
                     cur.execute("""
                         INSERT INTO platform.documents (
                             id, tenant_id, name, original_filename, mime_type, 
                             storage_path, size_bytes, current_version, status, content_hash, created_by, created_at, updated_at
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'queued', %s, %s, NOW(), NOW())
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
                     """, (str(doc_id), str(tenant_id), filename, filename, 
                           file.content_type or 'application/octet-stream',
-                          storage_path, file_size, version, content_hash, str(user_id)))
+                          storage_path, file_size, version, status, content_hash, str(user_id)))
                     print("Step 9: Document inserted")
                     
                     print("Step 10: Inserting usage event")
@@ -2103,39 +2235,57 @@ def dashboard_upload_multi():
                             tenant_id, user_id, event_type, document_id, tokens_consumed, metadata, created_at
                         ) VALUES (%s, %s, 'upload', %s, %s, %s, NOW())
                     """, (str(tenant_id), str(user_id), str(doc_id), file_size,
-                          json.dumps({'filename': filename, 'source': 'multi_upload'})))
+                          json.dumps({'filename': filename, 'source': 'multi_upload', 'is_spreadsheet': is_spreadsheet})))
                     print("Step 10: Usage event inserted")
                     
-                    print("Step 10b: Inserting extraction request")
-                    cur.execute("""
-                        INSERT INTO platform.extraction_requests (
-                            id, request_id, document_id, tenant_id, file_path, file_name,
-                            mime_type, file_size_bytes, extraction_mode, priority, status,
-                            submitted_at, retry_count, max_retries, created_at
-                        ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s,
-                                  'full', 'normal', 'pending', NOW(), 0, 3, NOW())
-                    """, (str(doc_id), str(tenant_id), storage_path, filename,
-                          file.content_type or 'application/octet-stream', file_size))
-                    print("Step 10b: Extraction request inserted")
-                    
-                    results.append({'filename': filename, 'status': 'queued', 'document_id': str(doc_id)})
+                    if is_spreadsheet:
+                        print(f"Step 10b: Processing spreadsheet: {filename}")
+                        try:
+                            spreadsheet_result = _process_spreadsheet_and_extract_entities(
+                                storage_path, filename, doc_id, tenant_id, cur
+                            )
+                            results.append({
+                                'filename': filename, 
+                                'status': 'processed',
+                                'document_id': str(doc_id),
+                                'file_type': 'spreadsheet',
+                                'entities_created': spreadsheet_result.get('entities_created', 0)
+                            })
+                            print(f"Step 10b: Spreadsheet processed, entities={spreadsheet_result.get('entities_created', 0)}")
+                        except Exception as e:
+                            print(f"Step 10b: Spreadsheet processing failed: {e}")
+                            results.append({'filename': filename, 'status': 'error', 'reason': str(e)})
+                    else:
+                        print("Step 10b: Inserting extraction request")
+                        cur.execute("""
+                            INSERT INTO platform.extraction_requests (
+                                id, request_id, document_id, tenant_id, file_path, file_name,
+                                mime_type, file_size_bytes, extraction_mode, priority, status,
+                                submitted_at, retry_count, max_retries, created_at
+                            ) VALUES (gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s,
+                                      'full', 'normal', 'pending', NOW(), 0, 3, NOW())
+                        """, (str(doc_id), str(tenant_id), storage_path, filename,
+                              file.content_type or 'application/octet-stream', file_size))
+                        print("Step 10b: Extraction request inserted")
+                        results.append({'filename': filename, 'status': 'queued', 'document_id': str(doc_id), 'file_type': 'document'})
                 
                 print("Step 11: Committing transaction")
                 conn.commit()
                 print("Step 11: Committed")
         
         queued = sum(1 for r in results if r['status'] == 'queued')
+        processed = sum(1 for r in results if r['status'] == 'processed')
         skipped = sum(1 for r in results if r['status'] == 'skipped')
         duplicates = sum(1 for r in results if r['status'] == 'duplicate')
         
-        print(f"=== MULTI UPLOAD SUCCESS: queued={queued}, skipped={skipped}, duplicates={duplicates} ===")
+        print(f"=== MULTI UPLOAD SUCCESS: queued={queued}, processed={processed}, skipped={skipped}, duplicates={duplicates} ===")
         
         if not is_ajax:
-            return redirect(f'/dashboard?uploaded={queued}&skipped={skipped}&duplicates={duplicates}')
+            return redirect(f'/dashboard?uploaded={queued + processed}&skipped={skipped}&duplicates={duplicates}')
         
         return jsonify({
             'success': True,
-            'summary': {'queued': queued, 'skipped': skipped, 'duplicates': duplicates},
+            'summary': {'queued': queued, 'processed': processed, 'skipped': skipped, 'duplicates': duplicates},
             'results': results
         })
         
@@ -5796,168 +5946,6 @@ def ingest_document():
             agent.close()
             
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/api/spreadsheet/upload', methods=['POST'])
-def upload_spreadsheet():
-    """
-    Upload a spreadsheet (Excel/CSV) and automatically extract financial metrics.
-    Creates pre-calculated FINANCIAL_METRIC entities for direct query answering.
-    
-    Accepts multipart form data with:
-    - file: The spreadsheet file (.xlsx, .xls, .csv)
-    
-    Returns:
-    - entities_created: Number of financial metric entities
-    - metrics_extracted: List of extracted metrics with values
-    """
-    from uuid import uuid4
-    import psycopg2
-    
-    if not session.get('user_id') or not session.get('tenant_id'):
-        return jsonify({'success': False, 'error': 'Authentication required'}), 401
-    
-    if 'file' not in request.files:
-        return jsonify({'success': False, 'error': 'No file provided'}), 400
-    
-    file = request.files['file']
-    if not file.filename:
-        return jsonify({'success': False, 'error': 'No file selected'}), 400
-    
-    allowed_extensions = {'.xlsx', '.xls', '.csv'}
-    file_ext = os.path.splitext(file.filename)[1].lower()
-    if file_ext not in allowed_extensions:
-        return jsonify({'success': False, 'error': f'Invalid file type. Allowed: {", ".join(allowed_extensions)}'}), 400
-    
-    try:
-        from uuid import UUID
-        from src.context_foundry.extraction.spreadsheet_loader import SpreadsheetLoader
-        from src.context_foundry.extraction.financial_calculator import FinancialCalculator
-        
-        tenant_id = UUID(session['tenant_id'])
-        user_id = UUID(session['user_id'])
-        
-        doc_id = uuid4()
-        storage_dir = f"./storage/tenants/{tenant_id}/spreadsheets/{doc_id}"
-        os.makedirs(storage_dir, exist_ok=True)
-        storage_path = f"{storage_dir}/{file.filename}"
-        file.save(storage_path)
-        
-        loader = SpreadsheetLoader()
-        calculator = FinancialCalculator()
-        
-        document = loader.load(storage_path)
-        if not document.tables:
-            return jsonify({'success': False, 'error': 'No data tables found in spreadsheet'}), 400
-        
-        extracted_metrics = []
-        all_financial_data = {}
-        
-        for table in document.tables:
-            if table.financial_metrics:
-                for metric_type, period_values in table.financial_metrics.items():
-                    if metric_type not in all_financial_data:
-                        all_financial_data[metric_type] = {}
-                    all_financial_data[metric_type].update(period_values)
-                    
-                    for period, value in period_values.items():
-                        extracted_metrics.append({
-                            'name': f"{metric_type}_{period}",
-                            'value': value,
-                            'unit': '$M' if metric_type in ['revenue', 'net_income', 'ebitda', 'gross_profit'] else '',
-                            'time_period': period,
-                            'metric_type': metric_type,
-                            'entity_type': 'FINANCIAL_METRIC',
-                            'category': 'financial',
-                            'confidence': 0.95
-                        })
-        
-        calculated_metrics = calculator.calculate_all_metrics(all_financial_data)
-        for calc in calculated_metrics:
-            metric_type_from_name = calc.name.split('_')[0] if '_' in calc.name else calc.name
-            extracted_metrics.append({
-                'name': calc.name,
-                'value': calc.value,
-                'unit': calc.unit,
-                'time_period': calc.time_period or '',
-                'formula': calc.formula,
-                'metric_type': metric_type_from_name,
-                'entity_type': 'CALCULATED_METRIC',
-                'category': 'calculated',
-                'confidence': calc.confidence
-            })
-        
-        database_url = os.environ.get("DATABASE_URL")
-        entities_created = 0
-        
-        with psycopg2.connect(database_url) as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    INSERT INTO platform.documents (
-                        id, tenant_id, name, original_filename, mime_type,
-                        storage_path, size_bytes, current_version, status, created_by, created_at, updated_at
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, 1, 'processed', %s, NOW(), NOW())
-                """, (str(doc_id), str(tenant_id), file.filename, file.filename,
-                      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                      storage_path, os.path.getsize(storage_path), str(user_id)))
-                
-                for metric in extracted_metrics:
-                    entity_id = uuid4()
-                    metric_name = metric.get('name', 'Unknown Metric')
-                    entity_type = metric.get('entity_type', 'FINANCIAL_METRIC')
-                    properties = {
-                        'value': metric.get('value'),
-                        'unit': metric.get('unit', ''),
-                        'time_period': metric.get('time_period', ''),
-                        'formula': metric.get('formula', ''),
-                        'metric_type': metric.get('metric_type', ''),
-                        'source_document': file.filename,
-                        'metric_category': metric.get('category', 'financial')
-                    }
-                    
-                    cur.execute("""
-                        SELECT id FROM entities 
-                        WHERE tenant_id = %s AND UPPER(name) = UPPER(%s) AND entity_type = %s
-                        LIMIT 1
-                    """, (str(tenant_id), metric_name, entity_type))
-                    existing = cur.fetchone()
-                    
-                    if existing:
-                        cur.execute("""
-                            UPDATE entities SET properties = %s, updated_at = NOW()
-                            WHERE id = %s
-                        """, (json.dumps(properties), existing[0]))
-                    else:
-                        cur.execute("""
-                            INSERT INTO entities (
-                                id, tenant_id, name, entity_type, properties, confidence,
-                                source_document_id, extraction_method, created_at, updated_at
-                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'spreadsheet_extraction', NOW(), NOW())
-                        """, (str(entity_id), str(tenant_id), metric_name, entity_type,
-                              json.dumps(properties), metric.get('confidence', 0.95), str(doc_id)))
-                    entities_created += 1
-                
-                conn.commit()
-        
-        logger.info(f"Spreadsheet processed: {file.filename}, entities={entities_created}")
-        
-        return jsonify({
-            'success': True,
-            'document_id': str(doc_id),
-            'filename': file.filename,
-            'tables_found': len(document.tables),
-            'entities_created': entities_created,
-            'metrics_extracted': [
-                {'name': m.get('name'), 'value': m.get('value'), 'time_period': m.get('time_period')}
-                for m in extracted_metrics[:20]
-            ]
-        })
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        logger.error(f"Spreadsheet upload failed: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
