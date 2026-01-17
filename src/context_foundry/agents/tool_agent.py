@@ -251,14 +251,9 @@ class ToolAgent:
         if expects_list:
             list_instruction = "\n\nIMPORTANT: This question expects a LIST of items. Make sure to enumerate ALL items mentioned in the retrieved information. Do not stop at just one example - list every relevant item you can find in the data."
         
-        interpretation_rules = ""
-        question_lower = question.lower()
-        if 'okr' in question_lower or ('target' in question_lower and 'customer' in question_lower):
-            interpretation_rules = """
-
-OKR INTERPRETATION: When reading OKRs (Objectives and Key Results), the format is typically:
-- "KR: [Action] [NUMBER] [thing] (Target: X)" - The NUMBER is the stretch goal/KR target, the parenthetical (Target: X) is the baseline.
-- For "target number" questions, use the KEY RESULT value (the larger number), not the baseline in parentheses."""
+        # DISABLED FOR RLM TEST - was: OKR interpretation guidance
+        # To restore: see git history for interpretation_rules logic
+        interpretation_rules = ""  # Disabled - RLM should handle without hardcoded prompts
         
         synthesis_prompt = f"""Based on the following retrieved information, answer the user's question.
 
