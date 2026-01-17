@@ -62,53 +62,78 @@ def _is_blacklisted_entity(name: str) -> bool:
 
 
 METRIC_RERANK_RULES = {
-    'net income': {'prefer': ['net income', 'net loss', 'net profit', 'profit after tax'], 
-                   'demote': ['ebitda', 'operating income', 'operating loss']},
-    'net loss': {'prefer': ['net income', 'net loss', 'net profit'], 
-                 'demote': ['ebitda', 'operating income', 'operating loss']},
-    'ebitda': {'prefer': ['ebitda'], 'demote': ['net income', 'net loss']},
-    'customer retention': {'prefer': ['customer retention', 'retention rate'], 
-                           'demote': ['nrr', 'net revenue retention']},
+    'net income': {'prefer': ['net income', 'net loss', 'net margin'], 
+                   'demote': ['ebitda', 'operating income', 'operating loss', 'operating margin'],
+                   'must_contain': ['net income', 'net loss', 'net margin']},
+    'net loss': {'prefer': ['net income', 'net loss', 'net margin'], 
+                 'demote': ['ebitda', 'operating income', 'operating loss', 'operating margin'],
+                 'must_contain': ['net income', 'net loss', 'net margin']},
+    'net margin': {'prefer': ['net margin', 'net income'], 
+                   'demote': ['operating margin', 'gross margin', 'ebitda'],
+                   'must_contain': ['net margin', 'net income']},
+    'ebitda': {'prefer': ['ebitda', 'operating income'], 'demote': ['net income', 'net loss']},
+    'customer retention': {'prefer': ['customer retention', 'retention rate', '94%'], 
+                           'demote': ['nrr', 'net revenue retention', 'revenue retention'],
+                           'must_contain': ['retention rate', 'customer retention']},
+    'retention rate': {'prefer': ['customer retention', 'retention rate'], 
+                       'demote': ['nrr', 'net revenue retention'],
+                       'must_contain': ['retention rate', 'customer retention']},
+    'growth rate': {'prefer': ['growth rate', '% growth', 'growth'], 
+                    'demote': []},
+    'year-over-year': {'prefer': ['growth rate', 'yoy', 'year-over-year'], 
+                       'demote': []},
 }
 
 
 def rerank_chunks_by_metric(chunks: List[Dict], query: str) -> List[Dict]:
-    """Rerank chunks to prefer those containing the correct metric type."""
+    """Rerank chunks to prefer those containing the correct metric type.
+    
+    Uses aggressive scoring to ensure correct metric type appears first.
+    """
     if not chunks:
         return chunks
     
     query_lower = query.lower()
-    rule = None
+    rules_to_apply = []
     for metric, r in METRIC_RERANK_RULES.items():
         if metric in query_lower:
-            rule = r
-            logger.info(f"[CHUNK_RERANK] Applying rule for metric: {metric}")
-            break
+            rules_to_apply.append((metric, r))
     
-    if not rule:
+    if not rules_to_apply:
         return chunks
+    
+    for metric, _ in rules_to_apply:
+        logger.info(f"[CHUNK_RERANK] Applying rule for metric: {metric}")
     
     def score_chunk(chunk: Dict) -> float:
         text = (chunk.get('text', '') or '').lower()
-        score = chunk.get('similarity', 0.5)
+        base_score = chunk.get('similarity', 0.5)
+        adjustment = 0.0
         
-        for term in rule['prefer']:
-            if term in text:
-                score += 0.2
-                logger.debug(f"[CHUNK_RERANK] Boosted chunk for '{term}'")
+        for metric, rule in rules_to_apply:
+            must_contain = rule.get('must_contain', [])
+            has_required = any(term in text for term in must_contain) if must_contain else True
+            
+            if has_required:
+                for term in rule['prefer']:
+                    if term in text:
+                        adjustment += 0.5
+            
+            has_preferred = any(term in text for term in rule['prefer'])
+            for term in rule['demote']:
+                if term in text and not has_preferred:
+                    adjustment -= 1.0
         
-        for term in rule['demote']:
-            if term in text and not any(p in text for p in rule['prefer']):
-                score -= 0.3
-                logger.debug(f"[CHUNK_RERANK] Demoted chunk for '{term}' without preferred term")
-        
-        return score
+        return base_score + adjustment
     
     scored = [(chunk, score_chunk(chunk)) for chunk in chunks]
     scored.sort(key=lambda x: x[1], reverse=True)
     
+    for i, (chunk, score) in enumerate(scored[:3]):
+        text_preview = (chunk.get('text', '') or '')[:80]
+        logger.info(f"[CHUNK_RERANK] #{i+1} score={score:.2f}: {text_preview}...")
+    
     reranked = [chunk for chunk, _ in scored]
-    logger.info(f"[CHUNK_RERANK] Reranked {len(chunks)} chunks")
     return reranked
 
 
@@ -401,6 +426,10 @@ class RetrievalRouter:
                     break
             if len(all_chunks) >= limit * 2:
                 break
+        
+        # Apply metric-based reranking
+        original_query = f"{entity_name} {' '.join(search_terms)}"
+        all_chunks = rerank_chunks_by_metric(all_chunks, original_query)
         
         logger.info(f"[ROUTER] Attribute search found {len(all_chunks)} chunks for {entity_name}/{original_role}")
         return all_chunks[:limit]

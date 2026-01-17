@@ -345,7 +345,7 @@ class QueryTimeSemanticAgent:
             doc_texts = []
             for i, chunk in enumerate(doc_result["chunks"][:3], 1):
                 title = chunk.get("doc_title", "Unknown document")
-                text = chunk.get("text", "")[:1500]
+                text = chunk.get("text", "")[:2500]  # Increased to preserve full financial data
                 doc_texts.append(f"[Document {i}: {title}]\n{text}")
             doc_section = "\n\n".join(doc_texts)
         
