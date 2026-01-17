@@ -121,6 +121,8 @@ From the Context Foundry Bible, these validations need proof:
   - Integrated into tool_agent.py direct answer path
   - Logs confidence scores and flagged issues without affecting responses
   - Q58 correctly flagged (LOW 0.65) for "retention" vs "NRR" terminology mismatch
+  - Q59 correctly flagged (MEDIUM 0.67) for OKR ambiguity: "Close 150 (Target: 140)"
+  - Bug fixes: source_chunks key ('content' not 'text'), year-filtering in LogicalContradictionCheck
   - Honest baseline established: 99/105 (94.3%) without hardcoded metric rules
 
 ### Planned
