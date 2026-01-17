@@ -21,6 +21,17 @@ from src.context_foundry.agents.query_intent_detector import (
     DirectedRelationshipRetriever,
     DirectedAttributeRetriever
 )
+from src.context_foundry.query.intent_classifier import (
+    QueryIntentClassifier,
+    ClassifiedQuery,
+    QueryIntent as NewQueryIntent,
+    classify_query,
+)
+from src.context_foundry.query.entity_router import (
+    EntityTypeRouter,
+    EntityTypeFilter,
+    get_entity_router,
+)
 from src.context_foundry.utils.logger import logger
 
 # Query-time blacklist for metadata entities that should never appear in results
@@ -101,6 +112,7 @@ class RetrievalResult:
     query: Optional[str] = None
     intent: Optional[Any] = None
     ambiguity: Optional[AmbiguityResult] = None
+    classified_query: Optional[ClassifiedQuery] = None
     
     def to_dict(self) -> dict:
         return {
@@ -157,9 +169,10 @@ class RetrievalRouter:
         query: str,
         classification: QueryClassification,
         role_resolution: Optional[RoleResolution] = None,
-        limit: int = 5
+        limit: int = 5,
+        classified_query: Optional[ClassifiedQuery] = None
     ) -> tuple:
-        """Search knowledge graph for entities and relationships."""
+        """Search knowledge graph for entities and relationships with intent-based filtering."""
         entities = []
         relationships = []
         
@@ -169,14 +182,26 @@ class RetrievalRouter:
         if classification.target_entity:
             search_terms.append(classification.target_entity.lower())
         
+        entity_router = get_entity_router()
+        type_filter: Optional[EntityTypeFilter] = None
+        if classified_query:
+            type_filter = entity_router.get_filter(classified_query)
+            logger.info(f"[ROUTER] Intent-based filtering: {classified_query.primary_intent.value}")
+        
         try:
             like_clauses = " OR ".join([f"LOWER(e.name) LIKE :term{i}" for i in range(len(search_terms))])
+            
+            type_filter_clause = ""
+            if type_filter and type_filter.exclude:
+                exclude_list = ", ".join([f"'{t}'" for t in type_filter.exclude])
+                type_filter_clause = f" AND e.entity_type NOT IN ({exclude_list})"
             
             entity_query = text(f"""
                 SELECT e.id, e.name, e.entity_type, e.confidence
                 FROM entities e
                 WHERE e.tenant_id = :tenant_id
                 AND ({like_clauses})
+                {type_filter_clause}
                 ORDER BY e.confidence DESC
                 LIMIT :limit
             """)
@@ -332,16 +357,18 @@ class RetrievalRouter:
         query: str,
         classification: QueryClassification,
         role_resolution: Optional[RoleResolution] = None,
-        intent: Optional[QueryIntent] = None
+        intent: Optional[QueryIntent] = None,
+        classified_query: Optional[ClassifiedQuery] = None
     ) -> RetrievalResult:
         """
-        Route query to optimal retrieval strategy.
+        Route query to optimal retrieval strategy with intent-based entity filtering.
         
         Args:
             query: The user's query
             classification: Query classification result
             role_resolution: Optional resolved role info
             intent: Optional QueryIntent for directed retrieval
+            classified_query: Optional ClassifiedQuery for intent-based filtering
             
         Returns:
             RetrievalResult with combined data
@@ -353,13 +380,17 @@ class RetrievalRouter:
         if role_resolution and role_resolution.is_resolved:
             expanded_query = f"{query} (Note: {role_resolution.role} = {role_resolution.resolved_name})"
         
-        logger.info(f"[ROUTER] Routing with strategy={strategy}, limit={limit}, expects_list={classification.expects_list}")
+        if classified_query:
+            logger.info(f"[ROUTER] Routing with strategy={strategy}, intent={classified_query.primary_intent.value}, limit={limit}")
+        else:
+            logger.info(f"[ROUTER] Routing with strategy={strategy}, limit={limit}, expects_list={classification.expects_list}")
         
         result = RetrievalResult(
             strategy_used=strategy,
             role_resolution=role_resolution,
             classification=classification,
-            expanded_query=expanded_query
+            expanded_query=expanded_query,
+            classified_query=classified_query
         )
         
         if intent and intent.intent_type == "relationship" and intent.relationship_type:
@@ -370,7 +401,7 @@ class RetrievalRouter:
                 result.relationships = relationships
                 logger.info(f"[ROUTER] Directed relationship retrieval found {len(relationships)} matches")
                 
-                entities, _ = self._search_graph(query, classification, role_resolution, limit)
+                entities, _ = self._search_graph(query, classification, role_resolution, limit, classified_query)
                 result.entities = entities
                 
                 result.strategy_used = "DIRECTED_RELATIONSHIP"
@@ -386,7 +417,7 @@ class RetrievalRouter:
             if chunks:
                 result.chunks = chunks
                 
-                entities, relationships = self._search_graph(query, classification, role_resolution, limit)
+                entities, relationships = self._search_graph(query, classification, role_resolution, limit, classified_query)
                 result.entities = entities
                 result.relationships = relationships
                 
@@ -397,7 +428,7 @@ class RetrievalRouter:
                 logger.info("[ROUTER] Directed attribute retrieval empty, falling back to standard")
         
         if strategy == "GRAPH_ONLY":
-            entities, relationships = self._search_graph(query, classification, role_resolution, limit)
+            entities, relationships = self._search_graph(query, classification, role_resolution, limit, classified_query)
             result.entities = entities
             result.relationships = relationships
             
@@ -413,7 +444,7 @@ class RetrievalRouter:
             result.chunks = chunks
             
         else:  # HYBRID
-            entities, relationships = self._search_graph(query, classification, role_resolution, limit)
+            entities, relationships = self._search_graph(query, classification, role_resolution, limit, classified_query)
             chunks = self._search_documents(query, classification, role_resolution, limit)
             
             result.entities = entities
@@ -446,6 +477,7 @@ class QueryPipeline:
         self.role_resolver = RoleResolver(session, tenant_id)
         self.intent_detector = QueryIntentDetector(session, tenant_id)
         self.router = RetrievalRouter(session, tenant_id)
+        self.new_intent_classifier = QueryIntentClassifier()
     
     def _rewrite_query_with_person(
         self,
@@ -516,6 +548,9 @@ class QueryPipeline:
             RetrievalResult with all retrieved data
         """
         logger.info(f"[PIPELINE] Processing query: '{query}' (vault_context={vault_context})")
+        
+        classified_query = self.new_intent_classifier.classify(query)
+        logger.info(f"[PIPELINE] Intent classification: {classified_query.primary_intent.value} (confidence={classified_query.confidence:.2f})")
         
         classification = self.classifier.classify(query)
         
@@ -597,7 +632,7 @@ class QueryPipeline:
         if intent.intent_type != "general":
             logger.info(f"[PIPELINE] Detected intent: {intent.intent_type}={intent.relationship_type or intent.attribute_type}")
         
-        result = self.router.route(query, classification, role_resolution, intent)
+        result = self.router.route(query, classification, role_resolution, intent, classified_query)
         
         logger.info(f"[PIPELINE] Complete: strategy={result.strategy_used}, has_data={result.has_data}")
         
