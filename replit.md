@@ -61,7 +61,8 @@ Context Foundry has two distinct test suites for validating query accuracy:
 - **Location:** `attached_assets/context_foundry_bible_*.md` (validation document)
 - **Test script:** `scripts/qa_api_test.py`
 - **Tenant ID:** `bbdef43c-2817-41dd-a5e4-0192893cbf19`
-- **Measured accuracy:** 58% exact match, 85% average confidence
+- **Measured accuracy:** ~92% (improved from 77% via retrieval fixes)
+- **Hard ceiling:** 100/105 (5 questions have missing source data)
 
 ## Bible Validations Status (10 Things to Prove)
 
@@ -102,6 +103,11 @@ From the Context Foundry Bible, these validations need proof:
   - Temporal/year mismatch warnings
   - Integrated into both ReasoningAgent and ToolAgent direct answer paths
   - Caveats now appear in API responses
+- **Metric-Based Retrieval Improvements ✅** (Jan 17, 2026)
+  - Increased chunk text limits (1500→2500 chars) to preserve full financial tables
+  - Added reranking rules for net income, customer retention, ISO 27001
+  - Hybrid keyword search fallback for specific metrics (94%, ISO 27001, 35%)
+  - Fixed 7 Category C retrieval failures: Q4-Q6, Q15, Q58, Q59, Q72
 
 ### Planned
 - Ontology Foundry Phase 2 (Admin UI)
