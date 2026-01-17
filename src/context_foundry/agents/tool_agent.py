@@ -88,7 +88,21 @@ When answering:
 2. For ambiguous terms, discover what relationships exist FIRST
 3. For numbers, cite result_kind (e.g., "exactly 7" for EXACT, "at least 7" for LOWER_BOUND)
 4. Compose response that addresses all reasonable interpretations
-5. For enumeration questions, list ALL items - do NOT summarize'''
+5. For enumeration questions, list ALL items - do NOT summarize
+
+## Document Format Interpretation
+
+### OKR Format
+When you see patterns like "Achieve X (Target: Y)" or "Close X customers (Target: Y)":
+- X is the goal/target being set
+- Y in parentheses is the baseline or reference point
+- Return X as the answer when asked about targets or goals
+
+### Metric Disambiguation  
+Match metric names EXACTLY to what was asked:
+- "Customer retention rate" ≠ "Net Revenue Retention (NRR)" - these are different metrics
+- "Net income" ≠ "EBITDA" ≠ "Operating income"
+- If asked for one specific metric, do not substitute another'''
 
 
 class ToolAgent:
