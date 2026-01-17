@@ -210,18 +210,22 @@ class LogicalContradictionCheck(BaseCheck):
                 goal_value = int(match.group(1))
                 target_in_parens = int(match.group(2))
                 
+                # Extract all numbers from answer, filtering out years (4-digit numbers starting with 19/20)
                 answer_numbers = re.findall(r'\b(\d+)\b', answer)
+                relevant_numbers = [
+                    int(n) for n in answer_numbers 
+                    if not (len(n) == 4 and n.startswith(('19', '20')))  # Filter out years
+                ]
                 
-                if answer_numbers:
-                    answer_num = int(answer_numbers[0])
-                    
-                    if answer_num == target_in_parens and goal_value > target_in_parens:
+                # Check if answer contains the target value (lower one) when goal is higher
+                if goal_value > target_in_parens:
+                    if target_in_parens in relevant_numbers and goal_value not in relevant_numbers:
                         return CheckResult(
                             check_name="LogicalContradictionCheck",
                             passed=False,
                             confidence=0.4,
-                            reason=f"Target ({target_in_parens}) is lower than stated goal ({goal_value}). Ambiguous OKR format.",
-                            suggestion=f"The goal appears to be {goal_value}, not {target_in_parens}",
+                            reason=f"Answer uses {target_in_parens} but source shows 'Close {goal_value} (Target: {target_in_parens})'. The stated goal ({goal_value}) may be the expected answer.",
+                            suggestion=f"The goal appears to be {goal_value}, not the target {target_in_parens}",
                             competing_values=[str(goal_value), str(target_in_parens)]
                         )
         
