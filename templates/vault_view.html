@@ -825,7 +825,7 @@
             
             <div class="file-tree-section">
                 <div class="section-header">
-                    <span class="section-title">Documents</span>
+                    <span class="section-title">Documents <span id="docCounter" style="font-weight: 400; color: var(--text-muted);"></span></span>
                     <div style="display: flex; gap: 4px;">
                         <button class="expand-btn" onclick="toggleExpand()" title="Expand/Collapse">⤢</button>
                         <button class="new-folder-btn" onclick="showNewFolderDialog()" title="New Folder">+</button>
@@ -944,6 +944,14 @@
                 allDocuments = data.documents || [];
                 const tree = buildFolderTree(data.folders || [], allDocuments);
                 fileTree.innerHTML = renderFolderTree(tree, '/');
+                
+                const total = allDocuments.length;
+                const failed = allDocuments.filter(d => ['FAILED', 'TIMEOUT', 'failed'].includes(d.status)).length;
+                const pending = allDocuments.filter(d => ['RUNNING', 'PENDING', 'processing', 'queued'].includes(d.status)).length;
+                let counterText = `(${total})`;
+                if (failed > 0) counterText = `(${total}, ${failed} failed)`;
+                else if (pending > 0) counterText = `(${total}, ${pending} processing)`;
+                document.getElementById('docCounter').textContent = counterText;
                 
                 setupDragDrop();
                 
