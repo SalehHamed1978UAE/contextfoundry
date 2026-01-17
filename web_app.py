@@ -3448,6 +3448,14 @@ def vault_chat():
                 'chunk_sources': [{'document': doc} for doc in source_documents]
             }
             
+            # Include QA validation notes (caveats) if present
+            if agent_result.get('qa_validation_notes'):
+                response_data['qa_validation_notes'] = agent_result['qa_validation_notes']
+            if agent_result.get('caveats'):
+                response_data['caveats'] = agent_result['caveats']
+            if agent_result.get('precalculated_value_found'):
+                response_data['precalculated_value_found'] = agent_result['precalculated_value_found']
+            
             # Include debug info if requested
             if debug_mode and 'debug' in agent_result:
                 response_data['debug'] = agent_result['debug']

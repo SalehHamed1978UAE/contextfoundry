@@ -514,6 +514,31 @@ Which one would you like to know more about? Please specify by name."""
             evidence = build_qa_evidence(retrieval_result=pipeline_result)
             confidence = calculate_confidence("SUPPORTED", evidence, answer)
             
+            # QA Accuracy Fixes: Apply shared validation to direct answers
+            from ..utils.qa_validation import validate_qa_response
+            
+            # Convert chunks to documents format for validation
+            docs_for_validation = []
+            if hasattr(pipeline_result, 'chunks') and pipeline_result.chunks:
+                docs_for_validation = [
+                    {'content': c.get('text', ''), 'document': c.get('document', '')}
+                    for c in pipeline_result.chunks if isinstance(c, dict)
+                ]
+            
+            qa_validation = validate_qa_response(
+                query=question,
+                answer=answer,
+                documents=docs_for_validation
+            )
+            
+            # Build extra dict with validation results
+            extra_data = {"direct_answer": True}
+            if qa_validation.has_warnings:
+                extra_data["qa_validation_notes"] = qa_validation.validation_notes
+                extra_data["caveats"] = qa_validation.validation_notes
+            if qa_validation.precalculated_value:
+                extra_data["precalculated_value_found"] = qa_validation.precalculated_value
+            
             return build_response(
                 answer=answer,
                 confidence=confidence,
@@ -523,7 +548,7 @@ Which one would you like to know more about? Please specify by name."""
                 time_ms=int((time.time() - start_time) * 1000),
                 success=True,
                 pipeline_result=pipeline_result,
-                extra={"direct_answer": True}
+                extra=extra_data
             )
         
         debug_info = {

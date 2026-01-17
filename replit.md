@@ -41,6 +41,11 @@ Architectural features include:
 - **Extraction Job Tracking System**: Monitors extraction jobs with automatic timeout detection, retry logic (circuit breaker), and verification. It uses `ExtractionJobTracker`, `ExtractionCircuitBreaker`, and `ExtractionMonitor` to manage job lifecycle, retries, and health.
 - **Ontology Foundry (Phase 1)**: A learning system that identifies unknown relationship/entity types as candidates, stores them in a `CandidateStore` with evidence and confidence, and routes them for potential future approval, preventing ingestion of unapproved types into the main KG.
 - **Learning Flow**: An adaptive learning system that detects query gaps (`GapDetector`), prioritizes learning tasks (`LearningQueueManager`), and performs targeted extraction (`TargetedExtractor`) to improve knowledge graph quality, learning from query failures and user feedback.
+- **QA Validation Module**: Shared validation in `utils/qa_validation.py` provides consistent checks across all response paths:
+  - Issue 2: Financial metric type distinction (net income vs EBITDA) - detects when EBITDA is returned for net income queries
+  - Issue 3: Pre-calculated value detection - finds explicitly stated growth rates in documents
+  - Issue 4: Temporal/year mismatch detection - warns when response references wrong fiscal year
+  - Issue 6: Metric type validation (customer retention vs NRR) - ensures correct metric type is returned
 
 ## Test Suites
 
@@ -91,6 +96,12 @@ From the Context Foundry Bible, these validations need proof:
   - Gap detection threshold: 70%
   - 24 NO_ANSWER patterns for response analysis
   - Validated: 5/5 queries → gaps detected → queue items created
+- **QA Validation Module ✅** (Jan 17, 2026)
+  - Centralized validation in `utils/qa_validation.py`
+  - Financial metric mismatch detection (net income vs EBITDA)
+  - Temporal/year mismatch warnings
+  - Integrated into both ReasoningAgent and ToolAgent direct answer paths
+  - Caveats now appear in API responses
 
 ### Planned
 - Ontology Foundry Phase 2 (Admin UI)

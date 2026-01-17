@@ -585,6 +585,30 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             if bundle.uncertainty.uncertainty_reasons:
                 result["uncertainty"]["context_issues"] = bundle.uncertainty.uncertainty_reasons
         
+        # =======================================================================
+        # QA Accuracy Fixes: Post-validation checks for metric/temporal mismatches
+        # Uses shared validation module for consistency across all response paths
+        # =======================================================================
+        from ..utils.qa_validation import validate_qa_response
+        
+        answer_text = result.get("answer", "")
+        query_text = bundle.query_text
+        
+        qa_validation = validate_qa_response(
+            query=query_text,
+            answer=answer_text,
+            documents=bundle.episodic_documents
+        )
+        
+        if qa_validation.precalculated_value:
+            result["precalculated_value_found"] = qa_validation.precalculated_value
+        
+        if qa_validation.has_warnings:
+            if "caveats" not in result:
+                result["caveats"] = []
+            result["caveats"].extend(qa_validation.validation_notes)
+            result["qa_validation_notes"] = qa_validation.validation_notes
+        
         result["bundle_id"] = bundle.query_id
         result["query_text"] = bundle.query_text
         result["context_bundle"] = bundle.to_dict()
@@ -866,6 +890,158 @@ Cite specific entities, relationships, documents, and rules in your evidence cha
             return None
         finally:
             session.close()
+    
+    # ===========================================================================
+    # Issue 2 Fix: Financial Metric Type Distinction
+    # ===========================================================================
+    FINANCIAL_METRIC_TYPES = {
+        'net_income': ['net income', 'net profit', 'net loss', 'bottom line', 'net earnings', 'profit after tax'],
+        'ebitda': ['ebitda', 'operating income', 'operating loss', 'operating profit', 'earnings before interest'],
+        'gross_profit': ['gross profit', 'gross margin', 'gross income'],
+        'revenue': ['revenue', 'sales', 'total revenue', 'net revenue', 'top line'],
+    }
+    
+    # ===========================================================================
+    # Issue 6 Fix: Metric Type Distinction (Customer Retention vs NRR, etc.)
+    # ===========================================================================
+    METRIC_DISTINCTIONS = {
+        'customer_retention': {
+            'aliases': ['customer retention', 'retention rate', 'customer churn', 'churn rate', 'customer loyalty'],
+            'not_same_as': ['nrr', 'net revenue retention', 'revenue retention', 'dollar retention', 'arr']
+        },
+        'nrr': {
+            'aliases': ['net revenue retention', 'nrr', 'revenue retention', 'dollar retention', 'drr'],
+            'not_same_as': ['customer retention', 'churn rate', 'customer churn', 'gross retention']
+        },
+        'net_income': {
+            'aliases': ['net income', 'net profit', 'net loss', 'profit after tax', 'bottom line'],
+            'not_same_as': ['ebitda', 'operating income', 'operating profit', 'gross profit']
+        },
+        'ebitda': {
+            'aliases': ['ebitda', 'operating income', 'operating profit'],
+            'not_same_as': ['net income', 'net profit', 'net loss', 'gross profit']
+        }
+    }
+    
+    def _classify_financial_metric_in_query(self, query: str) -> Optional[str]:
+        """Issue 2: Classify what financial metric type the query is asking for."""
+        query_lower = query.lower()
+        
+        for metric_type, keywords in self.FINANCIAL_METRIC_TYPES.items():
+            for keyword in keywords:
+                if keyword in query_lower:
+                    return metric_type
+        return None
+    
+    def _check_financial_metric_mismatch(self, query: str, answer: str) -> Optional[str]:
+        """Issue 2: Check if answer provides wrong financial metric type."""
+        requested_metric = self._classify_financial_metric_in_query(query)
+        if not requested_metric:
+            return None
+        
+        answer_lower = answer.lower()
+        
+        # Check if we're returning EBITDA when asked for net income
+        if requested_metric == 'net_income' and 'ebitda' in answer_lower:
+            return "Note: The available data shows EBITDA figures, not net income. EBITDA and net income are different financial metrics - net income is after all expenses and taxes."
+        
+        # Check if we're returning net income when asked for EBITDA
+        if requested_metric == 'ebitda' and ('net income' in answer_lower or 'net profit' in answer_lower):
+            return "Note: The available data shows net income figures, not EBITDA. These are different metrics."
+        
+        return None
+    
+    def _extract_query_year(self, query: str) -> Optional[str]:
+        """Issue 4: Extract the target year from a query."""
+        patterns = [
+            r'FY\s*(20\d{2})',
+            r'(?:in|for|during|end of|at the end of)\s*(?:FY\s*)?(20\d{2})',
+            r'(?:fiscal year|fiscal)\s*(20\d{2})',
+            r'\b(20\d{2})\b',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, query, re.IGNORECASE)
+            if match:
+                return match.group(1)
+        
+        return None
+    
+    def _check_temporal_mismatch(self, query: str, answer: str) -> Optional[str]:
+        """Issue 4: Check if answer provides data for wrong year."""
+        query_year = self._extract_query_year(query)
+        if not query_year:
+            return None
+        
+        # Look for year mentions in the answer
+        answer_years = re.findall(r'(?:FY\s*)?(20\d{2})', answer, re.IGNORECASE)
+        
+        # If answer mentions a different year prominently, flag it
+        for answer_year in answer_years:
+            if answer_year != query_year:
+                # Check if this is a data mismatch
+                if f"FY {answer_year}" in answer or f"FY{answer_year}" in answer:
+                    return f"Note: Query asks for {query_year} data but the response references {answer_year}. Please verify this is the correct time period."
+        
+        return None
+    
+    def _validate_metric_match(self, query: str, answer: str) -> Optional[str]:
+        """Issue 6: Ensure answer contains the right type of metric."""
+        query_lower = query.lower()
+        answer_lower = answer.lower()
+        
+        for metric_type, config in self.METRIC_DISTINCTIONS.items():
+            # Check if query asks for this metric type
+            query_asks_for = any(alias in query_lower for alias in config['aliases'])
+            
+            if query_asks_for:
+                # Check if answer provides a different metric type
+                answer_has_wrong = any(wrong in answer_lower for wrong in config['not_same_as'])
+                query_has_wrong = any(wrong in query_lower for wrong in config['not_same_as'])
+                
+                # Only flag if query clearly asks for one metric and answer provides another
+                if answer_has_wrong and not query_has_wrong:
+                    logger.warning(f"Metric mismatch: Query asks for {metric_type} but answer may contain different metric")
+                    return f"Note: The query asks for {metric_type.replace('_', ' ')} but the available data may show a different metric type. Please verify the metric type matches your question."
+        
+        return None
+    
+    def _find_precalculated_values(self, documents: List[Dict], query: str) -> Optional[str]:
+        """Issue 3: Look for pre-calculated percentages/values in documents.
+        
+        For growth rate queries, prefer explicitly stated values over calculations.
+        """
+        query_lower = query.lower()
+        calculation_keywords = ['growth rate', 'percentage', 'increase', 'decrease', 'change', 'growth']
+        
+        is_calculation_query = any(kw in query_lower for kw in calculation_keywords)
+        if not is_calculation_query:
+            return None
+        
+        # Extract target years from query
+        query_year = self._extract_query_year(query)
+        
+        for doc in documents:
+            text = doc.get('content', '') or doc.get('text', '')
+            
+            # Look for patterns like "35% growth" or "growth of 35%" or "increased 35%"
+            percentage_patterns = [
+                r'(\d+(?:\.\d+)?)\s*%\s*(?:growth|increase|decrease|change)',
+                r'(?:growth|increase|decrease|change)\s*(?:of|by)\s*(\d+(?:\.\d+)?)\s*%',
+                r'(?:grew|increased|decreased)\s*(?:by\s*)?(\d+(?:\.\d+)?)\s*%',
+                r'year[- ]over[- ]year\s*(?:growth\s*)?(?:of\s*)?(\d+(?:\.\d+)?)\s*%',
+                r'yoy\s*(?:growth\s*)?(?:of\s*)?(\d+(?:\.\d+)?)\s*%',
+            ]
+            
+            for pattern in percentage_patterns:
+                matches = re.findall(pattern, text, re.IGNORECASE)
+                if matches:
+                    # Check if the context mentions the relevant year
+                    if query_year and query_year in text:
+                        logger.info(f"Found pre-calculated value in document: {matches[0]}%")
+                        return matches[0]
+        
+        return None
     
     def _create_entity_not_found_response(self, bundle: ContextBundle) -> Dict:
         """
