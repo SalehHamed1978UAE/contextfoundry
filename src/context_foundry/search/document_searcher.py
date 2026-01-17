@@ -117,7 +117,7 @@ class DocumentSearcher:
             return [
                 {
                     "id": str(r.get("id", "")),
-                    "text": r.get("content", r.get("text", ""))[:1500],
+                    "text": r.get("content", r.get("text", ""))[:2500],  # Increased to preserve full financial data
                     "document_name": r.get("source_document", "Unknown document"),
                     "similarity": r.get("similarity", 0.7)
                 }
@@ -182,7 +182,7 @@ class DocumentSearcher:
             return [
                 {
                     "id": str(r.id),
-                    "text": r.text[:1500] if r.text else "",
+                    "text": r.text[:2500] if r.text else "",  # Increased to preserve full financial data
                     "document_name": r.doc_name or "Unknown document",
                     "similarity": 0.6
                 }

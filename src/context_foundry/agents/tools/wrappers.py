@@ -219,27 +219,42 @@ class ToolExecutor:
             return {"query": query, "entity_ids": entity_ids, "results": [], "error": str(e)}
     
     def _search_documents(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Search documents using unified DocumentSearcher."""
+        """Search documents using unified DocumentSearcher with metric-aware reranking."""
         from ...search.document_searcher import DocumentSearcher
+        from ..retrieval_router import rerank_chunks_by_metric
         
         query = args.get("query", "")
         limit = args.get("limit", 5)
         
         try:
             searcher = DocumentSearcher(self.session, self.tenant_id)
-            results = searcher.search(query, limit=limit, use_vector=True)
+            # Fetch more results for reranking
+            results = searcher.search(query, limit=limit * 2, use_vector=True)
             
-            logger.info(f"[TOOL] DocumentSearcher returned {len(results)} chunks")
+            # Convert to chunks format for reranking
+            chunks = [
+                {
+                    "text": r.get("text", ""),
+                    "document": r.get("document_name", "Unknown document"),
+                    "similarity": r.get("similarity", 0.6)
+                }
+                for r in results
+            ]
+            
+            # Apply metric-based reranking (boosts net income, demotes EBITDA, etc.)
+            chunks = rerank_chunks_by_metric(chunks, query)
+            
+            logger.info(f"[TOOL] DocumentSearcher returned {len(results)} chunks, reranked for query")
             
             return {
                 "query": query,
                 "chunks": [
                     {
-                        "text": r.get("text", "")[:1500],
-                        "document": r.get("document_name", "Unknown document"),
-                        "similarity": r.get("similarity", 0.6)
+                        "text": c.get("text", "")[:2500],  # Increased from 1500 to preserve full chunks
+                        "document": c.get("document", "Unknown document"),
+                        "similarity": c.get("similarity", 0.6)
                     }
-                    for r in results
+                    for c in chunks[:limit]
                 ]
             }
         except Exception as e:
