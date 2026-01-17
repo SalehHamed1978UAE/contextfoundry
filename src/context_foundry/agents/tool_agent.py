@@ -601,16 +601,16 @@ Which one would you like to know more about? Please specify by name."""
                 documents=docs_for_validation
             )
             
-            # Coherence Checking (Shadow Mode) - log only, don't modify response
+            # Coherence Checking - modify response when confidence is LOW or MEDIUM
+            coherence_result = None
             try:
-                from ..validation.coherence_checker import CoherenceChecker
+                from ..validation.coherence_checker import CoherenceChecker, ConfidenceLevel
                 coherence_checker = CoherenceChecker()
-                # Note: docs_for_validation uses 'content' key, not 'text'
                 source_chunks = [c.get('content', '') for c in docs_for_validation if isinstance(c, dict)]
                 coherence_result = coherence_checker.validate(question, answer, source_chunks)
                 coherence_checker.log_result(question, coherence_result)
             except Exception as e:
-                logger.warning(f"[COHERENCE] Shadow check failed (non-blocking): {e}")
+                logger.warning(f"[COHERENCE] Check failed (non-blocking): {e}")
             
             # Build extra dict with validation results
             extra_data = {"direct_answer": True}
@@ -620,8 +620,33 @@ Which one would you like to know more about? Please specify by name."""
             if qa_validation.precalculated_value:
                 extra_data["precalculated_value_found"] = qa_validation.precalculated_value
             
+            # Apply coherence-based response modification for LOW/MEDIUM confidence
+            final_answer = answer
+            if coherence_result and coherence_result.confidence_level in (ConfidenceLevel.LOW, ConfidenceLevel.MEDIUM):
+                # Build caveat from failed checks (issues contains CheckResult objects with passed=False)
+                issues = [r.reason for r in coherence_result.issues if r.reason]
+                caveat_parts = []
+                
+                if coherence_result.confidence_level == ConfidenceLevel.LOW:
+                    caveat_parts.append(f"**Confidence: Low ({coherence_result.confidence_score:.0%})**")
+                else:
+                    caveat_parts.append(f"**Confidence: Medium ({coherence_result.confidence_score:.0%})**")
+                
+                if issues:
+                    caveat_parts.append("**Why:** " + "; ".join(issues[:2]))  # Limit to 2 issues
+                
+                caveat_parts.append("**Please verify this information against source documents.**")
+                
+                caveat_text = "\n\n---\n" + "\n\n".join(caveat_parts)
+                final_answer = answer + caveat_text
+                
+                extra_data["coherence_confidence"] = coherence_result.confidence_level.value
+                extra_data["coherence_score"] = coherence_result.confidence_score
+                extra_data["coherence_issues"] = issues
+                logger.info(f"[COHERENCE] Response modified: {coherence_result.confidence_level.value.upper()} confidence, {len(issues)} issues")
+            
             return build_response(
-                answer=answer,
+                answer=final_answer,
                 confidence=confidence,
                 qa_verdict={"status": "SUPPORTED", "reason": "Direct answer from pipeline data"},
                 evidence=evidence,
