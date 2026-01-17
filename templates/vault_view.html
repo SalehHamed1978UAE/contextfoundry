@@ -72,6 +72,23 @@
             word-break: break-word;
         }
         
+        .btn-replace {
+            color: var(--accent-primary);
+        }
+        
+        .drop-zone-replace {
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .drop-zone-replace.drag-over {
+            border-color: var(--accent-primary);
+            background: rgba(6, 182, 212, 0.05);
+        }
+        
         .sidebar-header {
             padding: 16px;
             border-bottom: 1px solid var(--border-color);
@@ -1041,6 +1058,7 @@
                             ${isActive ? `
                                 <button class="file-action-btn btn-cancel" onclick="event.stopPropagation(); cancelExtraction('${doc.id}')" title="Cancel extraction">✕</button>
                             ` : `
+                                <button class="file-action-btn btn-replace" onclick="event.stopPropagation(); showReplaceDialog('${doc.id}', '${escapeHtml(doc.name || 'Unknown')}')" title="Replace file">⇄</button>
                                 <button class="file-action-btn btn-refresh" onclick="event.stopPropagation(); refreshDocument('${doc.id}', ${isFailed})" title="${isFailed ? 'Retry extraction' : 'Re-extract'}">↻</button>
                                 <button class="file-action-btn btn-delete" onclick="event.stopPropagation(); deleteDocument('${doc.id}')" title="Delete document">🗑</button>
                             `}
@@ -1417,7 +1435,7 @@
         
         async function refreshDocument(docId, force = false) {
             try {
-                const response = await fetch(`/api/documents/${docId}/extract`, {
+                const response = await fetch(`/api/documents/${docId}/re-extract`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ force: force })
@@ -1432,6 +1450,80 @@
             } catch (error) {
                 console.error('Failed to refresh document:', error);
             }
+        }
+        
+        let replaceDocId = null;
+        
+        function showReplaceDialog(docId, docName) {
+            replaceDocId = docId;
+            const overlay = document.createElement('div');
+            overlay.className = 'folder-dialog-overlay';
+            overlay.id = 'replaceOverlay';
+            overlay.onclick = () => overlay.remove();
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'folder-dialog';
+            dialog.style.maxWidth = '400px';
+            dialog.innerHTML = `
+                <h3>Replace Document</h3>
+                <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 12px;">
+                    Current file: <strong>${docName}</strong>
+                </p>
+                <div class="drop-zone-replace" id="replaceDropZone" 
+                     ondragover="event.preventDefault(); this.classList.add('drag-over');"
+                     ondragleave="this.classList.remove('drag-over');"
+                     ondrop="handleReplaceDrop(event)">
+                    <p style="color: var(--text-muted); font-size: 12px;">Drag & drop replacement file here</p>
+                    <p style="color: var(--text-muted); font-size: 11px; margin-top: 8px;">or</p>
+                    <button class="upload-btn" style="margin-top: 8px;" onclick="document.getElementById('replaceFileInput').click()">
+                        Choose File
+                    </button>
+                    <input type="file" id="replaceFileInput" style="display: none;" onchange="handleReplaceFile(this.files[0])">
+                </div>
+                <div class="folder-dialog-btns" style="margin-top: 16px;">
+                    <button class="cancel-btn" onclick="document.getElementById('replaceOverlay').remove()">Cancel</button>
+                </div>
+            `;
+            dialog.onclick = e => e.stopPropagation();
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+        }
+        
+        function handleReplaceDrop(event) {
+            event.preventDefault();
+            event.target.classList.remove('drag-over');
+            const file = event.dataTransfer.files[0];
+            if (file) handleReplaceFile(file);
+        }
+        
+        async function handleReplaceFile(file) {
+            if (!file || !replaceDocId) return;
+            
+            const overlay = document.getElementById('replaceOverlay');
+            if (overlay) overlay.remove();
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch(`/api/documents/${replaceDocId}/replace`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    console.log('Document replaced successfully');
+                } else {
+                    console.error('Replace failed:', data.error);
+                    alert('Failed to replace document: ' + (data.error || 'Unknown error'));
+                }
+                loadDocuments();
+            } catch (error) {
+                console.error('Replace failed:', error);
+                alert('Failed to replace document');
+            }
+            replaceDocId = null;
         }
         
         async function deleteDocument(docId) {
