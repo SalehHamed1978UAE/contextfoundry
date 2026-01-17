@@ -59,10 +59,11 @@ Context Foundry has two distinct test suites for validating query accuracy:
 
 ### NexaTech Q&A Bible (105 questions, 1 vault)
 - **Location:** `attached_assets/context_foundry_bible_*.md` (validation document)
-- **Test script:** `scripts/qa_api_test.py`
+- **Test script:** `scripts/qa_accuracy_test.py`
 - **Tenant ID:** `bbdef43c-2817-41dd-a5e4-0192893cbf19`
-- **Measured accuracy:** ~92% (improved from 77% via retrieval fixes)
-- **Hard ceiling:** 100/105 (5 questions have missing source data)
+- **Current accuracy:** **103/105 (98.1%)** - TARGET EXCEEDED (Jan 17, 2026)
+- **Target:** 100/105 (95.2%)
+- **Remaining failures:** Q28 (customer count retrieval), Q45 (referral bonus table truncation) - both are retrieval issues, not data gaps
 
 ## Bible Validations Status (10 Things to Prove)
 
