@@ -512,20 +512,38 @@ Which one would you like to know more about? Please specify by name."""
         tier, complexity_signals = self.complexity_router.route(question)
         logger.info(f"[AGENT] Query complexity: tier={tier.value}, score={complexity_signals.complexity_score:.2f}")
         
-        if tier == QueryTier.TIER2_RLM:
+        rlm_enabled = os.environ.get("RLM_ENABLED", "false").lower() == "true"
+        rlm_timeout = int(os.environ.get("RLM_TIMEOUT_SECONDS", "30"))
+        
+        if tier == QueryTier.TIER2_RLM and rlm_enabled:
             logger.info("[AGENT] Routing to RLM for complex query")
             try:
-                rlm_result = execute_rlm_query(
-                    tenant_id=self.tenant_id,
-                    query=question,
-                    db_session=self.session
+                import concurrent.futures
+                from ..rlm.schemas import RLMConfig
+                
+                config = RLMConfig(
+                    max_iterations=5,
+                    iteration_timeout_seconds=10,
+                    total_timeout_seconds=rlm_timeout,
+                    root_provider="openai",
+                    root_model="gpt-4o-mini"
                 )
+                
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(
+                        execute_rlm_query,
+                        tenant_id=self.tenant_id,
+                        query=question,
+                        db_session=self.session,
+                        config=config
+                    )
+                    rlm_result = future.result(timeout=rlm_timeout)
                 
                 if rlm_result and rlm_result.answer_text and rlm_result.confidence >= 0.5:
                     logger.info(f"[AGENT] RLM returned answer with confidence={rlm_result.confidence:.2f}")
                     
                     evidence = QAEvidence(
-                        entity_names=rlm_result.entities_found if hasattr(rlm_result, 'entities_found') else [],
+                        entity_names=[e.name for e in rlm_result.entities_found] if rlm_result.entities_found else [],
                         chunk_sources=[]
                     )
                     
@@ -534,7 +552,7 @@ Which one would you like to know more about? Please specify by name."""
                         confidence=rlm_result.confidence,
                         qa_verdict={"status": "SUPPORTED", "reason": "Answered via RLM iterative reasoning"},
                         evidence=evidence,
-                        iterations=rlm_result.iterations_used if hasattr(rlm_result, 'iterations_used') else 0,
+                        iterations=rlm_result.execution_trace.total_iterations if rlm_result.execution_trace else 0,
                         time_ms=int((time.time() - start_time) * 1000),
                         success=True,
                         pipeline_result=None,
@@ -542,8 +560,12 @@ Which one would you like to know more about? Please specify by name."""
                     )
                 else:
                     logger.info(f"[AGENT] RLM returned low confidence ({rlm_result.confidence if rlm_result else 'None'}), falling back to standard pipeline")
+            except concurrent.futures.TimeoutError:
+                logger.warning(f"[AGENT] RLM execution timed out after {rlm_timeout}s, falling back to standard pipeline")
             except Exception as e:
                 logger.warning(f"[AGENT] RLM execution failed, falling back to standard pipeline: {e}")
+        elif tier == QueryTier.TIER2_RLM:
+            logger.info("[AGENT] Tier 2 query detected but RLM disabled (set RLM_ENABLED=true to enable)")
         
         pipeline_result = None
         try:
