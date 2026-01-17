@@ -601,6 +601,16 @@ Which one would you like to know more about? Please specify by name."""
                 documents=docs_for_validation
             )
             
+            # Coherence Checking (Shadow Mode) - log only, don't modify response
+            try:
+                from ..validation.coherence_checker import CoherenceChecker
+                coherence_checker = CoherenceChecker()
+                source_chunks = [c.get('text', '') for c in docs_for_validation if isinstance(c, dict)]
+                coherence_result = coherence_checker.validate(question, answer, source_chunks)
+                coherence_checker.log_result(question, coherence_result)
+            except Exception as e:
+                logger.warning(f"[COHERENCE] Shadow check failed (non-blocking): {e}")
+            
             # Build extra dict with validation results
             extra_data = {"direct_answer": True}
             if qa_validation.has_warnings:
@@ -856,6 +866,21 @@ Which one would you like to know more about? Please specify by name."""
                 
                 qa_status = "SUPPORTED" if evidence.has_data else "INSUFFICIENT"
                 confidence = calculate_confidence(qa_status, evidence, answer)
+                
+                # Coherence Checking (Shadow Mode) - log only, don't modify response
+                try:
+                    from ..validation.coherence_checker import CoherenceChecker
+                    coherence_checker = CoherenceChecker()
+                    source_chunks = []
+                    for tr in tool_results:
+                        if isinstance(tr, dict) and 'chunks' in tr:
+                            for chunk in tr['chunks']:
+                                if isinstance(chunk, dict):
+                                    source_chunks.append(chunk.get('text', ''))
+                    coherence_result = coherence_checker.validate(question, answer, source_chunks)
+                    coherence_checker.log_result(question, coherence_result)
+                except Exception as e:
+                    logger.warning(f"[COHERENCE] Shadow check failed (non-blocking): {e}")
                 
                 result = build_response(
                     answer=answer,
