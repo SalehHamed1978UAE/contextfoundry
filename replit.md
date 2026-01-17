@@ -126,13 +126,14 @@ From the Context Foundry Bible, these validations need proof:
   - Bug fixes: source_chunks key ('content' not 'text'), year-filtering in LogicalContradictionCheck
   - Honest baseline: 99/105 (94.3%) without hardcoded metric rules
 - **Spreadsheet/Financial Integration ✅** (Jan 17, 2026)
-  - Native Excel/CSV upload support via `/api/spreadsheet/upload` endpoint
+  - Integrated into existing upload flow (same endpoint, same UI)
+  - Auto-detects file type (.xlsx, .xls, .csv) and routes to SpreadsheetLoader
   - SpreadsheetLoader: Parses multi-sheet Excel files, extracts financial metrics
   - FinancialCalculator: Pre-computes growth rates, margins, CAGR, ratios
   - FinancialQueryHandler: Answers financial queries from pre-calculated metrics (bypasses LLM)
   - Query priority: FinancialQueryHandler → RLM → Pipeline → LLM
   - Entities created: FINANCIAL_METRIC (raw values) + CALCULATED_METRIC (derived values)
-  - Properties stored: value, unit, time_period, formula, source_document
+  - Properties stored: value, unit, time_period, formula, metric_type, source_document
   - Eliminates LLM calculation errors for questions like "What was revenue growth FY23 to FY24?"
 
 ### Planned
