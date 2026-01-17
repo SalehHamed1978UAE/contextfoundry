@@ -8,9 +8,12 @@ tracking progress and enforcing timeouts/budgets.
 import os
 import time
 import uuid
+import logging
 from datetime import datetime
 from typing import Optional, List, Any, Dict
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from .schemas import (
     RLMConfig,
@@ -319,12 +322,17 @@ Write Python code to continue your exploration. If you have enough information, 
         last_result = None
         
         try:
+            logger.info(f"[RLM] Starting execution for query: {query[:80]}...")
             while self.progress.iteration < self.config.max_iterations:
+                logger.info(f"[RLM] Iteration {self.progress.iteration + 1}/{self.config.max_iterations}")
                 code = self._get_next_action(query, last_result)
+                logger.debug(f"[RLM] Generated code:\n{code[:200]}...")
                 
                 result = self.sandbox.execute(code)
+                logger.info(f"[RLM] Execution result: success={result.success}, has_output={bool(result.output)}")
                 
                 made_progress = self.progress.record_iteration(result)
+                logger.info(f"[RLM] Progress: entities={len(self.progress.entities_discovered)}, rels={len(self.progress.relationships_discovered)}, finalized={self.finalized}")
                 
                 entry = ExecutionTraceEntry(
                     iteration=self.progress.iteration,
@@ -339,13 +347,16 @@ Write Python code to continue your exploration. If you have enough information, 
                 self.trace.entries.append(entry)
                 
                 if self.finalized:
+                    logger.info(f"[RLM] Completed after {self.progress.iteration} iterations")
                     return self._build_result("completed", start_time)
                 
                 if self.progress.should_trip_breaker(self.config.circuit_breaker_threshold):
+                    logger.warning(f"[RLM] Circuit breaker tripped after {self.progress.iteration} iterations")
                     return self._build_result("circuit_breaker", start_time)
                 
                 last_result = result
             
+            logger.warning(f"[RLM] Max iterations ({self.config.max_iterations}) reached without finalization")
             return self._build_result("max_iterations", start_time)
             
         except BudgetExhaustedError as e:
