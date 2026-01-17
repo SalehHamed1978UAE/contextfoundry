@@ -1,0 +1,1843 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "total_questions": 200,
+    "categories": {
+      "financial": 30,
+      "hr_people": 25,
+      "product": 25,
+      "sales_customer": 20,
+      "security_compliance": 25,
+      "legal": 15,
+      "strategy": 30,
+      "operations": 30
+    },
+    "question_types": {
+      "exact_extraction": 120,
+      "multi_document": 40,
+      "calculation": 15,
+      "ambiguous": 20,
+      "unanswerable": 5
+    },
+    "created": "January 2025",
+    "company": "MedSync Health, Inc."
+  },
+  "qa_pairs": [
+    {
+      "id": "Q001",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is MedSync's Annual Recurring Revenue (ARR)?",
+      "answer": "$168.2M",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "STRAT-003_Annual_Operating_Plan_2025.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q002",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What was MedSync's total revenue in FY 2024?",
+      "answer": "$156.8M",
+      "source_documents": ["FIN-001_Annual_Report_2024.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q003",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is MedSync's gross margin percentage?",
+      "answer": "78%",
+      "source_documents": ["FIN-001_Annual_Report_2024.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q004",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What was the Series D funding amount and valuation?",
+      "answer": "$200M at $2.4B valuation",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "FIN-003_Investor_Update_Q4_2024.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q005",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "Who is MedSync's Chief Financial Officer?",
+      "answer": "Michael Torres",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "HR-001_Organizational_Chart.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q006",
+      "category": "financial",
+      "type": "calculation",
+      "question": "What is MedSync's revenue growth rate from FY 2023 to FY 2024?",
+      "answer": "42% year-over-year growth (from $110.5M to $156.8M)",
+      "source_documents": ["FIN-001_Annual_Report_2024.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q007",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the target ARR for FY 2025?",
+      "answer": "$225M",
+      "source_documents": ["FIN-002_Budget_FY2025.md", "STRAT-003_Annual_Operating_Plan_2025.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q008",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is MedSync's current cash position?",
+      "answer": "$285M",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "FIN-003_Investor_Update_Q4_2024.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q009",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What percentage of revenue comes from MedSync Core?",
+      "answer": "50%",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "PROD-001_Product_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q010",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is MedSync's Net Revenue Retention (NRR) rate?",
+      "answer": "122%",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q011",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "How much is allocated to R&D in the FY 2025 budget?",
+      "answer": "$48.5M (25% of revenue)",
+      "source_documents": ["FIN-002_Budget_FY2025.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q012",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the LTV:CAC ratio?",
+      "answer": "4.2:1",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q013",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "When was MedSync founded?",
+      "answer": "March 2019",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "STRAT-001_Vision_Mission.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q014",
+      "category": "financial",
+      "type": "multi_document",
+      "question": "What is the projected runway based on current cash position and burn rate?",
+      "answer": "30+ months runway with $285M cash and improving EBITDA margin from -8% toward breakeven",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "FIN-003_Investor_Update_Q4_2024.md"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "Q015",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the average contract value (ACV) for Enterprise customers?",
+      "answer": "$850K",
+      "source_documents": ["SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q016",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the total vendor spend for FY 2024?",
+      "answer": "$52.3M",
+      "source_documents": ["OPS-011_Vendor_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q017",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is MedSync's monthly AWS spend?",
+      "answer": "Approximately $683K/month ($8.2M annual)",
+      "source_documents": ["OPS-011_Vendor_Management.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q018",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the monthly infrastructure cost?",
+      "answer": "$440K per month",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q019",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the FY 2025 headcount budget?",
+      "answer": "Growth from 1,200 to 1,400 employees",
+      "source_documents": ["FIN-002_Budget_FY2025.md", "HR-002_Headcount_Plan_2025.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q020",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the office budget for FY 2025?",
+      "answer": "$6.8M",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q021",
+      "category": "financial",
+      "type": "multi_document",
+      "question": "How does MedSync's revenue per employee compare to industry benchmarks?",
+      "answer": "$130.7K revenue per employee ($156.8M / 1,200 employees)",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "HR-001_Organizational_Chart.md"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "Q022",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the Sales & Marketing budget percentage in FY 2025?",
+      "answer": "35% of revenue ($67.9M)",
+      "source_documents": ["FIN-002_Budget_FY2025.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q023",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the Customer Acquisition Cost (CAC)?",
+      "answer": "$85K",
+      "source_documents": ["SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q024",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the average Customer Lifetime Value (LTV)?",
+      "answer": "$357K",
+      "source_documents": ["SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q025",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the total raised funding to date?",
+      "answer": "$385M",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "FIN-003_Investor_Update_Q4_2024.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q026",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the payback period for customer acquisition?",
+      "answer": "18 months",
+      "source_documents": ["SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q027",
+      "category": "financial",
+      "type": "ambiguous",
+      "question": "What is MedSync's growth rate?",
+      "answer": "AMBIGUOUS: Could refer to revenue growth (42% YoY), ARR growth (48% YoY), customer growth (35% YoY), or employee growth (50% YoY). Context needed to determine which metric.",
+      "source_documents": ["FIN-001_Annual_Report_2024.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple growth metrics exist without specification"
+    },
+    {
+      "id": "Q028",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the gross revenue churn rate?",
+      "answer": "3% annually",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "SALES-003_Account_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q029",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What is the logo retention rate?",
+      "answer": "97%",
+      "source_documents": ["SALES-003_Account_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q030",
+      "category": "financial",
+      "type": "exact_extraction",
+      "question": "What percentage of revenue comes from subscription vs services?",
+      "answer": "92% subscription, 8% services",
+      "source_documents": ["FIN-001_Annual_Report_2024.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q031",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "How many employees does MedSync have?",
+      "answer": "1,200 employees",
+      "source_documents": ["HR-001_Organizational_Chart.md", "FIN-001_Annual_Report_2024.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q032",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "Who is the VP of People?",
+      "answer": "Rachel Green",
+      "source_documents": ["HR-001_Organizational_Chart.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q033",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the employee headcount target for end of FY 2025?",
+      "answer": "1,400 employees",
+      "source_documents": ["HR-002_Headcount_Plan_2025.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q034",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the employee turnover rate?",
+      "answer": "12% voluntary turnover",
+      "source_documents": ["HR-003_Employee_Engagement.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q035",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the employee engagement score?",
+      "answer": "78%",
+      "source_documents": ["HR-003_Employee_Engagement.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q036",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "How many engineering employees does MedSync have?",
+      "answer": "480 employees in Engineering & Product (40% of total)",
+      "source_documents": ["HR-001_Organizational_Chart.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q037",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the 401(k) match percentage?",
+      "answer": "4% match",
+      "source_documents": ["HR-004_Benefits_Guide.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q038",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "How many PTO days do employees receive?",
+      "answer": "Unlimited PTO policy (minimum 15 days recommended)",
+      "source_documents": ["HR-004_Benefits_Guide.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q039",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the parental leave policy?",
+      "answer": "16 weeks paid for primary caregiver, 8 weeks for secondary",
+      "source_documents": ["HR-004_Benefits_Guide.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q040",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the annual learning and development budget per employee?",
+      "answer": "$2,500 per employee",
+      "source_documents": ["HR-005_Learning_Development.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q041",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What percentage of employees work in a hybrid model?",
+      "answer": "60%",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q042",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is MedSync's employee NPS (eNPS)?",
+      "answer": "+42",
+      "source_documents": ["HR-003_Employee_Engagement.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q043",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "How many people are in the Customer Success team?",
+      "answer": "120 employees",
+      "source_documents": ["HR-001_Organizational_Chart.md", "SALES-002_Customer_Success.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q044",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the gender diversity ratio at MedSync?",
+      "answer": "42% women, 58% men",
+      "source_documents": ["HR-006_Diversity_Inclusion.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q045",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the average tenure of employees?",
+      "answer": "2.8 years",
+      "source_documents": ["HR-003_Employee_Engagement.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q046",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "How many new hires are planned for Engineering in 2025?",
+      "answer": "80 new engineering hires",
+      "source_documents": ["HR-002_Headcount_Plan_2025.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q047",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the referral bonus amount?",
+      "answer": "$5,000 for technical roles, $3,000 for other roles",
+      "source_documents": ["HR-007_Recruiting_Process.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q048",
+      "category": "hr_people",
+      "type": "ambiguous",
+      "question": "What is the retention rate at MedSync?",
+      "answer": "AMBIGUOUS: Could refer to employee retention (88% with 12% turnover), customer logo retention (97%), or net revenue retention (122%). Context needed.",
+      "source_documents": ["HR-003_Employee_Engagement.md", "SALES-003_Account_Management.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple retention metrics without specification"
+    },
+    {
+      "id": "Q049",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the equity refresh program?",
+      "answer": "Annual equity refresh grants based on performance, typically 25-50% of initial grant",
+      "source_documents": ["HR-008_Compensation_Philosophy.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q050",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the target time-to-hire for engineering roles?",
+      "answer": "45 days",
+      "source_documents": ["HR-007_Recruiting_Process.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q051",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "How many ERGs does MedSync have?",
+      "answer": "8 Employee Resource Groups",
+      "source_documents": ["HR-006_Diversity_Inclusion.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q052",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What percentage of employees are remote-first?",
+      "answer": "30%",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q053",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the mental health benefit provided?",
+      "answer": "Spring Health with 8 free therapy sessions per year",
+      "source_documents": ["HR-004_Benefits_Guide.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q054",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the support team headcount?",
+      "answer": "38 employees in Support Operations",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q055",
+      "category": "hr_people",
+      "type": "exact_extraction",
+      "question": "What is the annual performance review cycle?",
+      "answer": "Bi-annual reviews (February and August)",
+      "source_documents": ["HR-009_Performance_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q056",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "How many patient records does MedSync manage?",
+      "answer": "85 million patient records",
+      "source_documents": ["PROD-001_Product_Overview.md", "OPS-001_Infrastructure_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q057",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What are MedSync's four main products?",
+      "answer": "MedSync Core (50% revenue), MedSync Connect (28%), MedSync Analytics (14%), MedSync Payor (8%)",
+      "source_documents": ["PROD-001_Product_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q058",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the uptime SLA for MedSync?",
+      "answer": "99.95%",
+      "source_documents": ["PROD-001_Product_Overview.md", "OPS-001_Infrastructure_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q059",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "How many EHR integrations does MedSync support?",
+      "answer": "150+ EHR integrations",
+      "source_documents": ["PROD-002_Integration_Catalog.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q060",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is MedSync AI?",
+      "answer": "AI-powered clinical decision support and documentation assistant, launching Q1 2025",
+      "source_documents": ["PROD-003_Product_Roadmap.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q061",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What FHIR version does MedSync support?",
+      "answer": "FHIR R4",
+      "source_documents": ["PROD-002_Integration_Catalog.md", "PROD-004_API_Documentation.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q062",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the average deployment frequency?",
+      "answer": "15 deployments per day",
+      "source_documents": ["OPS-003_DevOps_Practices.md", "OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q063",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What cloud provider does MedSync use?",
+      "answer": "AWS (Amazon Web Services)",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q064",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the primary region for MedSync infrastructure?",
+      "answer": "us-east-1 (N. Virginia)",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md", "OPS-007_Disaster_Recovery.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q065",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the database technology used?",
+      "answer": "Amazon Aurora PostgreSQL",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q066",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "How many API requests does MedSync process daily?",
+      "answer": "50 million daily transactions",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md", "PROD-001_Product_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q067",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the average API response time?",
+      "answer": "< 200ms average, < 500ms p99",
+      "source_documents": ["PROD-004_API_Documentation.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q068",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "When is MedSync AI Beta launching?",
+      "answer": "Q1 2025 (March)",
+      "source_documents": ["PROD-003_Product_Roadmap.md", "OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q069",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What mobile platforms does MedSync support?",
+      "answer": "iOS and Android",
+      "source_documents": ["PROD-001_Product_Overview.md", "OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q070",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What container orchestration platform is used?",
+      "answer": "Kubernetes (Amazon EKS)",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md", "OPS-003_DevOps_Practices.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q071",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "How many feature flags are currently active?",
+      "answer": "120 feature flags",
+      "source_documents": ["OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q072",
+      "category": "product",
+      "type": "multi_document",
+      "question": "What is the total database storage currently used?",
+      "answer": "8TB out of 16TB provisioned (50% utilization)",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md", "OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q073",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What deployment strategy is used by default?",
+      "answer": "Rolling deployment (25% at a time)",
+      "source_documents": ["OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q074",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the code coverage target?",
+      "answer": ">80% code coverage",
+      "source_documents": ["OPS-003_DevOps_Practices.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q075",
+      "category": "product",
+      "type": "ambiguous",
+      "question": "What is the response time SLA?",
+      "answer": "AMBIGUOUS: Could refer to API response time (<500ms p99), support response time (15 min for P1), or incident response time (5 min acknowledge). Context needed.",
+      "source_documents": ["PROD-004_API_Documentation.md", "OPS-004_Support_Operations.md", "OPS-005_Incident_Management.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple response time SLAs exist"
+    },
+    {
+      "id": "Q076",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What monitoring platform is used?",
+      "answer": "Datadog (APM, metrics, logs, synthetics)",
+      "source_documents": ["OPS-008_Monitoring_Observability.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q077",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the deployment success rate?",
+      "answer": "99.2%",
+      "source_documents": ["OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q078",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the rollback rate for deployments?",
+      "answer": "0.8%",
+      "source_documents": ["OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q079",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What CDN does MedSync use?",
+      "answer": "CloudFront",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q080",
+      "category": "product",
+      "type": "exact_extraction",
+      "question": "What is the API rate limit?",
+      "answer": "100K requests per second capacity (25K current usage)",
+      "source_documents": ["OPS-006_Capacity_Planning.md", "PROD-004_API_Documentation.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q081",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "How many customers does MedSync have?",
+      "answer": "589 customers",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q082",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "Who is the Chief Revenue Officer?",
+      "answer": "Robert Kim",
+      "source_documents": ["SALES-001_Sales_Overview.md", "HR-001_Organizational_Chart.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q083",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the customer NPS score?",
+      "answer": "+48",
+      "source_documents": ["SALES-002_Customer_Success.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q084",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the average sales cycle length?",
+      "answer": "90 days for Enterprise, 45 days for Mid-Market",
+      "source_documents": ["SALES-001_Sales_Overview.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q085",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "How many support tickets does MedSync handle monthly?",
+      "answer": "3,500 tickets per month",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q086",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the customer satisfaction (CSAT) score for support?",
+      "answer": "4.5/5",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q087",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the first contact resolution rate?",
+      "answer": "68%",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q088",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "How many enterprise customers does MedSync have?",
+      "answer": "85 enterprise customers",
+      "source_documents": ["SALES-001_Sales_Overview.md", "OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q089",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the support phone number?",
+      "answer": "(888) 555-MEDS (6337) for business hours, (888) 555-9111 for emergencies",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q090",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "Who is the VP of Customer Success?",
+      "answer": "Amanda Chen",
+      "source_documents": ["SALES-002_Customer_Success.md", "HR-001_Organizational_Chart.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q091",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the P1 support response SLA?",
+      "answer": "15 minutes response, 4 hours resolution",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q092",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "How many strategic accounts does MedSync have?",
+      "answer": "25 strategic accounts",
+      "source_documents": ["OPS-004_Support_Operations.md", "SALES-003_Account_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q093",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the customer win rate?",
+      "answer": "35% overall win rate",
+      "source_documents": ["SALES-001_Sales_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q094",
+      "category": "sales_customer",
+      "type": "multi_document",
+      "question": "What is the average revenue per customer?",
+      "answer": "Approximately $266K ARR per customer ($156.8M / 589 customers)",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "SALES-001_Sales_Overview.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q095",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the expansion revenue percentage?",
+      "answer": "25% of new ARR comes from expansion",
+      "source_documents": ["SALES-003_Account_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q096",
+      "category": "sales_customer",
+      "type": "ambiguous",
+      "question": "What is the churn rate?",
+      "answer": "AMBIGUOUS: Could refer to gross revenue churn (3%), logo churn (3%), or employee churn/turnover (12%). Context needed.",
+      "source_documents": ["SALES-003_Account_Management.md", "HR-003_Employee_Engagement.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple churn metrics exist"
+    },
+    {
+      "id": "Q097",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "How many articles are in the knowledge base?",
+      "answer": "555 articles with 160,000 monthly views",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q098",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the self-service ratio?",
+      "answer": "42%",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q099",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What ticketing system does Support use?",
+      "answer": "Zendesk",
+      "source_documents": ["OPS-004_Support_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q100",
+      "category": "sales_customer",
+      "type": "exact_extraction",
+      "question": "What is the new customer target for 2025?",
+      "answer": "161 new customers (750 total from 589)",
+      "source_documents": ["SALES-001_Sales_Overview.md", "OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q101",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What security certifications does MedSync have?",
+      "answer": "SOC 2 Type II, HITRUST CSF, HIPAA compliant",
+      "source_documents": ["SEC-001_Security_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q102",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "Who is the CISO?",
+      "answer": "James Morrison",
+      "source_documents": ["SEC-001_Security_Overview.md", "HR-001_Organizational_Chart.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q103",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the RTO (Recovery Time Objective)?",
+      "answer": "4 hours",
+      "source_documents": ["OPS-007_Disaster_Recovery.md", "SEC-012_Business_Continuity_Plan.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q104",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the RPO (Recovery Point Objective)?",
+      "answer": "1 hour",
+      "source_documents": ["OPS-007_Disaster_Recovery.md", "SEC-012_Business_Continuity_Plan.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q105",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What encryption standard is used for data at rest?",
+      "answer": "AES-256",
+      "source_documents": ["SEC-001_Security_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q106",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "How often are penetration tests conducted?",
+      "answer": "Annual external penetration testing",
+      "source_documents": ["SEC-007_Penetration_Test_Report.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q107",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What were the findings in the last penetration test?",
+      "answer": "0 critical, 0 high, 3 medium, 8 low severity findings",
+      "source_documents": ["SEC-007_Penetration_Test_Report.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q108",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the phishing simulation click rate?",
+      "answer": "4.2%",
+      "source_documents": ["SEC-008_Security_Training_Program.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q109",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What identity provider does MedSync use?",
+      "answer": "Okta",
+      "source_documents": ["SEC-006_Access_Control_Policy.md", "OPS-011_Vendor_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q110",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "Is MFA required?",
+      "answer": "Yes, MFA is required for all users",
+      "source_documents": ["SEC-006_Access_Control_Policy.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q111",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "How many third-party vendors does MedSync manage?",
+      "answer": "147 active vendors",
+      "source_documents": ["OPS-011_Vendor_Management.md", "SEC-010_Vendor_Security_Assessment.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q112",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the DR site location?",
+      "answer": "us-west-2 (Oregon)",
+      "source_documents": ["OPS-007_Disaster_Recovery.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q113",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "How often are DR tests conducted?",
+      "answer": "Semi-annual regional failover tests, annual full DR test",
+      "source_documents": ["OPS-007_Disaster_Recovery.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q114",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the security training completion rate?",
+      "answer": "98%",
+      "source_documents": ["SEC-008_Security_Training_Program.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q115",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "How long are security logs retained?",
+      "answer": "7 years for security and audit logs",
+      "source_documents": ["OPS-008_Monitoring_Observability.md", "SEC-001_Security_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q116",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the incident response time target for SEV1?",
+      "answer": "5 minutes to acknowledge, 4 hours to resolve",
+      "source_documents": ["OPS-005_Incident_Management.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q117",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What SIEM does MedSync use?",
+      "answer": "Splunk for security logging",
+      "source_documents": ["OPS-008_Monitoring_Observability.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q118",
+      "category": "security_compliance",
+      "type": "ambiguous",
+      "question": "What is the compliance percentage?",
+      "answer": "AMBIGUOUS: Could refer to SLA compliance (96.8%), security training compliance (98%), or policy compliance. Context needed.",
+      "source_documents": ["OPS-004_Support_Operations.md", "SEC-008_Security_Training_Program.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple compliance metrics"
+    },
+    {
+      "id": "Q119",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "When was the SOC 2 audit period?",
+      "answer": "October 2023 to September 2024",
+      "source_documents": ["SEC-002_SOC2_Report_Summary.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q120",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the backup frequency for databases?",
+      "answer": "Daily full backup, continuous incremental (15-minute point-in-time)",
+      "source_documents": ["OPS-007_Disaster_Recovery.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q121",
+      "category": "security_compliance",
+      "type": "multi_document",
+      "question": "How many security incidents occurred in Q4 2024?",
+      "answer": "1 SEV1 security incident, 12 total security-related alerts",
+      "source_documents": ["OPS-005_Incident_Management.md", "SEC-005_Incident_Response_Plan.md"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "Q122",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the Mean Time to Acknowledge (MTTA) for incidents?",
+      "answer": "3 minutes",
+      "source_documents": ["OPS-005_Incident_Management.md", "OPS-008_Monitoring_Observability.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q123",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What is the MTTR for SEV1-2 incidents?",
+      "answer": "45 minutes",
+      "source_documents": ["OPS-005_Incident_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q124",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "What on-call tool does MedSync use?",
+      "answer": "PagerDuty",
+      "source_documents": ["OPS-005_Incident_Management.md", "OPS-008_Monitoring_Observability.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q125",
+      "category": "security_compliance",
+      "type": "exact_extraction",
+      "question": "How many total alerts are configured?",
+      "answer": "233 total alerts (62 critical, 106 warning, 65 info)",
+      "source_documents": ["OPS-008_Monitoring_Observability.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q126",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "How many patents does MedSync have?",
+      "answer": "8 patents granted, 12 pending",
+      "source_documents": ["LEG-005_Intellectual_Property_Policy.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q127",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What is the standard contract term in the MSA?",
+      "answer": "1-3 year terms",
+      "source_documents": ["LEG-001_Master_Services_Agreement.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q128",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "Is MedSync GDPR compliant?",
+      "answer": "Yes, MedSync is GDPR compliant with Data Processing Agreements",
+      "source_documents": ["LEG-004_Data_Processing_Agreement.md", "SEC-011_Data_Privacy_Policy.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q129",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What is the liability cap in vendor agreements?",
+      "answer": "Contract value, negotiable up to 2x+",
+      "source_documents": ["OPS-011_Vendor_Management.md", "LEG-007_Vendor_Agreement_Template.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q130",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "How many board members does MedSync have?",
+      "answer": "7 board members",
+      "source_documents": ["LEG-008_Corporate_Governance.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q131",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What is the data retention period for customer data after termination?",
+      "answer": "30 days standard, up to 90 days negotiable",
+      "source_documents": ["LEG-001_Master_Services_Agreement.md", "OPS-011_Vendor_Management.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q132",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What is required for all visitors to sign?",
+      "answer": "NDA (Non-Disclosure Agreement)",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q133",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "Who is the General Counsel?",
+      "answer": "Referenced in governance but not named in documents",
+      "source_documents": ["LEG-008_Corporate_Governance.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q134",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What is the standard payment term?",
+      "answer": "Net 30, negotiable to Net 45-60",
+      "source_documents": ["OPS-011_Vendor_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q135",
+      "category": "legal",
+      "type": "ambiguous",
+      "question": "What is the termination notice period?",
+      "answer": "AMBIGUOUS: Could refer to vendor contracts (90 days standard), employment (varies by role), or customer contracts (varies by plan). Context needed.",
+      "source_documents": ["OPS-011_Vendor_Management.md", "LEG-001_Master_Services_Agreement.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Different termination periods for different agreement types"
+    },
+    {
+      "id": "Q136",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What governing law applies to customer agreements?",
+      "answer": "Delaware law (implied from incorporation)",
+      "source_documents": ["LEG-008_Corporate_Governance.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q137",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "How long is contract documentation retained?",
+      "answer": "Contract term + 7 years",
+      "source_documents": ["OPS-011_Vendor_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q138",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What contract management system is used?",
+      "answer": "DocuSign CLM",
+      "source_documents": ["OPS-011_Vendor_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q139",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "What is required for PHI access vendors?",
+      "answer": "Business Associate Agreement (BAA)",
+      "source_documents": ["LEG-002_Business_Associate_Agreement.md", "OPS-011_Vendor_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q140",
+      "category": "legal",
+      "type": "exact_extraction",
+      "question": "How many trademarks does MedSync own?",
+      "answer": "12 registered trademarks",
+      "source_documents": ["LEG-005_Intellectual_Property_Policy.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q141",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is MedSync's mission statement?",
+      "answer": "To transform healthcare data into actionable insights that improve patient outcomes",
+      "source_documents": ["STRAT-001_Vision_Mission.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q142",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the 5-year ARR target?",
+      "answer": "$900M ARR by 2029",
+      "source_documents": ["STRAT-002_Five_Year_Plan.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q143",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the total addressable market (TAM)?",
+      "answer": "$12.5 billion",
+      "source_documents": ["STRAT-004_Market_Analysis.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q144",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is MedSync's current market share?",
+      "answer": "15% of the healthcare data integration market",
+      "source_documents": ["STRAT-004_Market_Analysis.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q145",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "Who are MedSync's main competitors?",
+      "answer": "Epic, Innovaccer, Health Catalyst, Redox",
+      "source_documents": ["STRAT-005_Competitive_Intelligence.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q146",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "When is international expansion planned?",
+      "answer": "UK Q2 2026, Canada Q3 2026",
+      "source_documents": ["STRAT-007_International_Expansion.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q147",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "How many partners are in the partner ecosystem?",
+      "answer": "178 partners",
+      "source_documents": ["STRAT-008_Partnership_Strategy.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q148",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the company OKR for revenue growth in 2025?",
+      "answer": "Achieve $225M ARR with 34% growth",
+      "source_documents": ["STRAT-011_OKRs_FY2025.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q149",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is MedSync's biggest strategic threat?",
+      "answer": "Epic's expanding integration capabilities and market dominance",
+      "source_documents": ["STRAT-005_Competitive_Intelligence.md", "STRAT-012_SWOT_Analysis.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q150",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What M&A criteria does MedSync use?",
+      "answer": "Strategic fit, $5-50M revenue range, healthcare focus, technology synergies",
+      "source_documents": ["STRAT-009_MA_Strategy.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q151",
+      "category": "strategy",
+      "type": "multi_document",
+      "question": "What percentage of revenue should come from new products by 2029?",
+      "answer": "40% from MedSync AI and new products",
+      "source_documents": ["STRAT-002_Five_Year_Plan.md", "PROD-003_Product_Roadmap.md"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "Q152",
+      "category": "strategy",
+      "type": "ambiguous",
+      "question": "What is the target margin?",
+      "answer": "AMBIGUOUS: Could refer to gross margin (78% current, 80% target), EBITDA margin (-8% current, 15% target by 2029), or contribution margin. Context needed.",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "STRAT-002_Five_Year_Plan.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple margin metrics"
+    },
+    {
+      "id": "Q153",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the value proposition for MedSync?",
+      "answer": "Unified healthcare data platform that reduces integration complexity by 70%",
+      "source_documents": ["STRAT-001_Vision_Mission.md", "STRAT-006_GTM_Strategy.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q154",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the primary ICP (Ideal Customer Profile)?",
+      "answer": "Multi-site healthcare organizations with 500+ beds, $500M+ revenue, 5+ EHR systems",
+      "source_documents": ["STRAT-006_GTM_Strategy.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q155",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the competitive win rate against Epic?",
+      "answer": "25% when Epic is present, 55% when Epic is not present",
+      "source_documents": ["STRAT-005_Competitive_Intelligence.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q156",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the partnership revenue contribution?",
+      "answer": "22% of new ARR from partner-sourced deals",
+      "source_documents": ["STRAT-008_Partnership_Strategy.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q157",
+      "category": "strategy",
+      "type": "ambiguous",
+      "question": "What is the 2025 target?",
+      "answer": "AMBIGUOUS: Could refer to ARR ($225M), revenue ($194M), customers (750), or employees (1,400). Multiple 2025 targets exist.",
+      "source_documents": ["STRAT-003_Annual_Operating_Plan_2025.md", "FIN-002_Budget_FY2025.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple 2025 targets"
+    },
+    {
+      "id": "Q158",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is MedSync's key differentiator?",
+      "answer": "Healthcare-native platform with 150+ pre-built EHR integrations and AI-powered insights",
+      "source_documents": ["STRAT-001_Vision_Mission.md", "STRAT-005_Competitive_Intelligence.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q159",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "Who is the CEO?",
+      "answer": "Sarah Chen",
+      "source_documents": ["HR-001_Organizational_Chart.md", "STRAT-001_Vision_Mission.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q160",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "Who is the CTO?",
+      "answer": "David Park",
+      "source_documents": ["HR-001_Organizational_Chart.md", "PROD-001_Product_Overview.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q161",
+      "category": "strategy",
+      "type": "multi_document",
+      "question": "What is the path to profitability?",
+      "answer": "Target breakeven EBITDA by 2027, 15% EBITDA margin by 2029 with $900M ARR",
+      "source_documents": ["STRAT-002_Five_Year_Plan.md", "FIN-003_Investor_Update_Q4_2024.md"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "Q162",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What customer segment is the primary focus?",
+      "answer": "Enterprise healthcare organizations (hospitals, health systems)",
+      "source_documents": ["STRAT-006_GTM_Strategy.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q163",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the board meeting frequency?",
+      "answer": "Quarterly",
+      "source_documents": ["LEG-008_Corporate_Governance.md", "STRAT-010_Board_Strategy_Presentation.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q164",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the market growth rate for healthcare data platforms?",
+      "answer": "18% CAGR",
+      "source_documents": ["STRAT-004_Market_Analysis.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q165",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What strategic initiatives are planned for Q2 2025?",
+      "answer": "AI infrastructure investment, scale for MedSync AI launch",
+      "source_documents": ["STRAT-003_Annual_Operating_Plan_2025.md", "OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q166",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What are MedSync's core values?",
+      "answer": "Patient First, Innovation, Integrity, Collaboration, Excellence",
+      "source_documents": ["STRAT-001_Vision_Mission.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q167",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the target number of enterprise customers by 2029?",
+      "answer": "400 enterprise customers",
+      "source_documents": ["STRAT-002_Five_Year_Plan.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q168",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the international revenue target for 2029?",
+      "answer": "15% of revenue from international markets",
+      "source_documents": ["STRAT-007_International_Expansion.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q169",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What acquisition budget is allocated for 2025?",
+      "answer": "$50M for M&A opportunities",
+      "source_documents": ["STRAT-009_MA_Strategy.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q170",
+      "category": "strategy",
+      "type": "exact_extraction",
+      "question": "What is the employee growth rate planned for 2025?",
+      "answer": "17% growth (1,200 to 1,400 employees)",
+      "source_documents": ["HR-002_Headcount_Plan_2025.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q171",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "How many incidents occurred in Q4 2024?",
+      "answer": "28 total incidents (1 SEV1, 3 SEV2, 12 SEV3, 12 SEV4)",
+      "source_documents": ["OPS-005_Incident_Management.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q172",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the current compute utilization?",
+      "answer": "40% average utilization",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q173",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "How many vCPUs are provisioned?",
+      "answer": "1,200 vCPUs",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q174",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "Where is the headquarters located?",
+      "answer": "500 Howard Street, Suite 800, San Francisco, CA 94105",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q175",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "How many regional offices does MedSync have?",
+      "answer": "4 regional offices (Boston, Denver, Austin, New York)",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q176",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the office capacity at headquarters?",
+      "answer": "400 seats in 45,000 sq ft",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q177",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the current object storage usage?",
+      "answer": "45TB out of 100TB provisioned (45% utilization)",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q178",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "When is the primary maintenance window?",
+      "answer": "Sunday 2-6am PT",
+      "source_documents": ["OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q179",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the holiday code freeze period?",
+      "answer": "December 20 - January 2",
+      "source_documents": ["OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q180",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the alert false positive rate?",
+      "answer": "8%",
+      "source_documents": ["OPS-008_Monitoring_Observability.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q181",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "How much data replication lag to DR site?",
+      "answer": "< 1 second for database, < 15 min for object storage",
+      "source_documents": ["OPS-007_Disaster_Recovery.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q182",
+      "category": "operations",
+      "type": "ambiguous",
+      "question": "What is the SLA?",
+      "answer": "AMBIGUOUS: Could refer to uptime SLA (99.95%), support response SLA (varies by tier), or API SLA (99.9%). Context needed to specify which service level agreement.",
+      "source_documents": ["OPS-001_Infrastructure_Overview.md", "OPS-004_Support_Operations.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple SLAs exist for different services"
+    },
+    {
+      "id": "Q183",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What GitOps tool is used for deployments?",
+      "answer": "ArgoCD",
+      "source_documents": ["OPS-003_DevOps_Practices.md", "OPS-009_Release_Management.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q184",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the CI/CD pipeline duration?",
+      "answer": "Approximately 26 minutes total",
+      "source_documents": ["OPS-009_Release_Management.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q185",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "How many meeting rooms are at headquarters?",
+      "answer": "25 meeting rooms (plus 30 phone booths)",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q186",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What desk booking system is used?",
+      "answer": "Robin app",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "Q187",
+      "category": "operations",
+      "type": "ambiguous",
+      "question": "What is the lead time?",
+      "answer": "AMBIGUOUS: Could refer to deployment lead time (4 hours), hiring lead time (45 days for engineering), or vendor onboarding lead time (varies). Context needed.",
+      "source_documents": ["OPS-009_Release_Management.md", "HR-007_Recruiting_Process.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple lead time metrics"
+    },
+    {
+      "id": "Q188",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the storage growth rate per month?",
+      "answer": "200GB/month database, 2TB/month object storage",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q189",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the external bandwidth capacity?",
+      "answer": "10 Gbps capacity, 2 Gbps peak usage (20% utilization)",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q190",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What vendor spend optimization target is set for 2025?",
+      "answer": "$2.3M in cost savings",
+      "source_documents": ["OPS-011_Vendor_Management.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q191",
+      "category": "operations",
+      "type": "multi_document",
+      "question": "What is the total monthly operational cost?",
+      "answer": "Approximately $5M/month including infrastructure ($440K), vendors (~$4.4M), and office ($567K)",
+      "source_documents": ["OPS-006_Capacity_Planning.md", "OPS-010_Office_Operations.md", "OPS-011_Vendor_Management.md"],
+      "difficulty": "hard"
+    },
+    {
+      "id": "Q192",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the infrastructure growth budget for 2025?",
+      "answer": "$400K for capacity growth, ($200K) from optimization = $200K net",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q193",
+      "category": "operations",
+      "type": "ambiguous",
+      "question": "How many users does MedSync have?",
+      "answer": "AMBIGUOUS: Could refer to platform users (85,000), employees (1,200), or customer organizations (589). Context needed.",
+      "source_documents": ["OPS-006_Capacity_Planning.md", "HR-001_Organizational_Chart.md", "SALES-001_Sales_Overview.md"],
+      "difficulty": "hard",
+      "ambiguity_note": "Multiple user definitions"
+    },
+    {
+      "id": "Q194",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is peak traffic time?",
+      "answer": "9am-12pm PT (100% traffic), 1pm-5pm PT (95%)",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q195",
+      "category": "operations",
+      "type": "exact_extraction",
+      "question": "What is the Q4 traffic increase pattern?",
+      "answer": "+25% due to open enrollment",
+      "source_documents": ["OPS-006_Capacity_Planning.md"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "Q196",
+      "category": "operations",
+      "type": "unanswerable",
+      "question": "What is the average response time for the London office help desk?",
+      "answer": "UNANSWERABLE: The documents mention London presence (WeWork Flex with 15 employees) but do not specify local help desk metrics.",
+      "source_documents": ["OPS-010_Office_Operations.md"],
+      "difficulty": "hard",
+      "unanswerable_reason": "Information not present in documents"
+    },
+    {
+      "id": "Q197",
+      "category": "financial",
+      "type": "unanswerable",
+      "question": "What is the specific breakdown of Series A, B, and C funding amounts?",
+      "answer": "UNANSWERABLE: Documents mention $385M total raised and $200M Series D, but do not specify individual amounts for Series A, B, and C rounds.",
+      "source_documents": ["FIN-001_Annual_Report_2024.md", "FIN-003_Investor_Update_Q4_2024.md"],
+      "difficulty": "hard",
+      "unanswerable_reason": "Partial information - earlier rounds not detailed"
+    },
+    {
+      "id": "Q198",
+      "category": "hr_people",
+      "type": "unanswerable",
+      "question": "What is the average salary for a Senior Software Engineer at MedSync?",
+      "answer": "UNANSWERABLE: Documents discuss compensation philosophy and equity but do not provide specific salary figures for individual roles.",
+      "source_documents": ["HR-008_Compensation_Philosophy.md"],
+      "difficulty": "hard",
+      "unanswerable_reason": "Specific salary data not included"
+    },
+    {
+      "id": "Q199",
+      "category": "security_compliance",
+      "type": "unanswerable",
+      "question": "What specific vulnerabilities were found in the penetration test?",
+      "answer": "UNANSWERABLE: Documents state 3 medium and 8 low findings but do not describe the specific vulnerabilities discovered.",
+      "source_documents": ["SEC-007_Penetration_Test_Report.md"],
+      "difficulty": "hard",
+      "unanswerable_reason": "Security details intentionally omitted"
+    },
+    {
+      "id": "Q200",
+      "category": "product",
+      "type": "unanswerable",
+      "question": "What is the exact architecture of the MedSync AI model?",
+      "answer": "UNANSWERABLE: Documents mention MedSync AI as an upcoming product but do not detail the specific AI/ML architecture or model types used.",
+      "source_documents": ["PROD-003_Product_Roadmap.md"],
+      "difficulty": "hard",
+      "unanswerable_reason": "Technical implementation details not documented"
+    }
+  ]
+}
