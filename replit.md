@@ -1,11 +1,9 @@
 # Context Foundry - Cognitive Operating System for the Enterprise
 
 ## Overview
-
-Context Foundry is a **Cognitive Operating System for the Enterprise** designed to provide AI systems with a coherent, evolving understanding of organizational reality. It aims to build a dynamic "World Model" that compounds knowledge over time, is grounded in verifiable sources, and remains trustworthy by admitting uncertainty. The project's vision is to create a domain-agnostic, single substrate that serves all enterprise AI applications, moving beyond static knowledge representations to a system that learns and adapts. Key capabilities include a Tri-Memory System (Semantic, Episodic, Symbolic), a robust Fact Lifecycle (Staging, Trusted, Archived), and Context-Attached Knowledge, ensuring relationships carry rich metadata like temporal validity and provenance. The ultimate goal is to enable AI to reason over structured truth, eliminating hallucination and providing reliable, context-aware answers.
+Context Foundry is a Cognitive Operating System for the Enterprise designed to provide AI systems with a coherent, evolving understanding of organizational reality. Its core purpose is to build a dynamic "World Model" that compounds knowledge over time, is grounded in verifiable sources, and remains trustworthy by admitting uncertainty. The project aims to create a domain-agnostic, single substrate for all enterprise AI applications, moving beyond static knowledge representations to a system that learns and adapts, ultimately enabling AI to reason over structured truth, eliminate hallucination, and provide reliable, context-aware answers.
 
 ## User Preferences
-
 - Iterative development with detailed explanations
 - Ask before making major changes
 - Comprehensive logging at every step
@@ -13,120 +11,39 @@ Context Foundry is a **Cognitive Operating System for the Enterprise** designed 
 - Provide human review workflow for conflicts and duplicates
 - Ensure resilient database error handling with session rollback
 
-## CRITICAL RULES - DO NOT VIOLATE
-
-### Test Documents (NEVER TOUCH)
-- **Location:** `./test documents/` folder
-- **Rule:** NEVER delete, modify, or touch files in the test documents folder
-- **Reason:** These are the source files used to run E2E tests. Deleting them breaks all testing.
-- **What's OK to delete:** Database records (platform.documents, document_chunks, entities, relationships) - these are derived data that can be regenerated from the source files
-
-### Data Cleanup Guidelines
-- **Safe to delete:** Database records for entities, relationships, document_chunks, extraction_jobs, learning tables
-- **Safe to delete:** Orphaned records (tenant_id references non-existent tenant)
-- **NEVER delete:** Physical files in `./test documents/` folder
-- **NEVER delete:** Production user data without explicit approval
-
 ## System Architecture
+Context Foundry is built around a **Tri-Memory System** consisting of Semantic Memory (knowledge graph), Episodic Memory (event timelines), and Symbolic Memory (rules, constraints). Facts within the system follow a **Fact Lifecycle** (STAGING, TRUSTED, ARCHIVED) and include `_layer`, `_confidence`, `_sources`, and `_lifecycle` metadata.
 
-Context Foundry is built around a **Tri-Memory System** comprising Semantic Memory (knowledge graph of entities, relationships, topology), Episodic Memory (event timelines, incident patterns), and Symbolic Memory (rules, constraints, safety invariants). Each fact within the system follows a **Fact Lifecycle**: STAGING (newly extracted facts), TRUSTED (validated facts used for reasoning), and ARCHIVED (superseded or stale facts). Facts include `_layer`, `_confidence`, `_sources`, and `_lifecycle` metadata.
+A core principle is **Context-Attached Knowledge**, where relationships are enriched with metadata like temporal validity and provenance. The system assembles a **Context Bundle** for AI applications, packaging focal entities, relationships, rules, and a confidence summary.
 
-A core architectural principle is **Context-Attached Knowledge**, where relationships are enriched with metadata such as `valid_from`, `valid_to`, `provenance_text`, `event_context`, and `qualifiers`. The system assembles a **Context Bundle** for AI applications, which is a structured package containing focal entities, relationships with their context, dependency paths, applicable rules, and a confidence summary.
+Key agents include:
+- **GraphBuilderAgent**: Extracts entities and relationships.
+- **RetrievalAgent**: Assembles the Context Bundle.
+- **ReasoningAgent**: Utilizes LLMs over the Context Bundle.
+- **ValidationAgent**: Applies symbolic rules.
+- **GardenerAgent**: Maintains knowledge graph quality.
+- **QueryTimeSemanticAgent**: Orchestrates retrieval and reasoning.
 
-The system employs several key agents:
-- **GraphBuilderAgent**: Extracts entities and context-attached relationships from documents.
-- **RetrievalAgent**: Assembles the Context Bundle from the tri-memory system.
-- **ReasoningAgent**: Utilizes LLMs to reason over the Context Bundle.
-- **ValidationAgent**: Applies symbolic rules and adjusts confidence.
-- **GardenerAgent**: Maintains the quality of the knowledge graph (deduplication, promotion, pruning).
-- **QueryTimeSemanticAgent**: Parses user queries, resolves entities, and orchestrates retrieval and reasoning.
+The **Query Flow** involves parsing, entity resolution, context bundle retrieval, LLM reasoning, symbolic validation, and response generation with confidence and provenance.
 
-The **Query Flow** involves parsing, entity resolution, context bundle retrieval, a sufficiency check, reasoning by an LLM, validation against symbolic rules, response generation (with confidence and provenance), and an asynchronous learning step to identify and address knowledge gaps.
-
-Key architectural features include:
-- **Tenant Context and RLS**: Enhanced `TenantSession` with failure tracking and `ensure_tenant_context()` helper for Row-Level Security.
-- **Query Pipeline**: Features `QueryClassifier` for LLM-based query classification, `RoleResolver` for resolving roles (e.g., CEO) to individuals, and `RetrievalRouter` for intelligent routing to `GRAPH_ONLY`, `DOCS_ONLY`, or `HYBRID` strategies, with automatic fallback for list queries.
-- **Role Resolution (3-Stage)**: Enhanced `RoleResolver` with fallback stages:
-  - Stage 1: Exact relationship lookup (HOLDS_POSITION, HAS_POSITION, HOLD_POSITION relationships in KG)
-  - Stage 2: Fuzzy property matching (word-boundary regex on position/role/title/job_title fields)
-  - Stage 3: Document chunk search (pattern matching for "Name, Role" in text)
-  - `resolve_all()`: Dual-source lookup combining entity properties AND relationship-based matches
-- **Implicit Role Extraction**: `GraphBuilder` automatically creates HOLDS_POSITION relationships from entity properties (position/title/role fields) during ingestion.
-- **Relationship Type Standard**: Supports multiple position relationship types: `HOLDS_POSITION`, `HAS_POSITION`, `HOLD_POSITION`, `HELD_POSITION`, `HAS_ROLE`, `HAS_TITLE`.
-- **QA Verifier**: A two-layer verification system (Structural rules + LLM semantic check) to ensure answer quality, rejecting unsupported or off-topic responses and providing detailed verdicts.
-- **Dynamic Confidence Scoring**: Replaces hardcoded confidence with computed scores based on answer quality and evidence.
-- **Source Attribution**: Extracts and displays sources from various tool types, with a user-friendly frontend display.
-- **Deterministic Document Fallback**: Automatically triggers document search when the knowledge graph lacks specific data, ensuring comprehensive factual queries.
-- **Context Injection**: Passes `vault_context` to the `ToolAgent` and `QueryPipeline` for target entity resolution when no explicit entity is in the query.
-- **QA Evidence Alignment**: `AnswerVerifierAgent` combines pre-fetched pipeline data with tool call results for robust verification.
-- **Shared Response Helpers**: Centralized functions in `src/context_foundry/utils/response_helpers.py` ensure consistent evidence gathering, confidence calculation, and response formatting across CLI and Web interfaces. Key components:
-  - `QAEvidence` dataclass: Unified evidence structure from pipeline + tool calls
-  - `build_qa_evidence()`: Combines retrieval results and tool call data
-  - `calculate_confidence()`: Single formula for confidence scoring based on QA verdict and evidence
-  - `build_response()`: Consistent response dictionary format for all code paths
-- **Extraction Hardening (Phase 2.6)**: Defense-in-depth pattern-based post-processor:
-  - `ExtractionPostProcessor`: Runs after LLM extraction to catch missed relationships using regex patterns
-  - Role patterns: HOLDS_POSITION extraction from "Name - Title" formats
-  - Compensation patterns: HAS_COMPENSATION extraction from salary mentions
-  - Role-centric compensation patterns: ROLE_HAS_COMPENSATION for "CEO's salary is $X" patterns
-  - Healthcare role aliases: CMO resolves to "Chief Medical Officer" in healthcare contexts
-  - `GapDetector`: Validates relationship targets against constraints
-  - `backfill_extraction.py`: Script to reprocess existing vaults with new patterns
-- **Role→Attribute/Relationship Query Chaining (Phase 2.7+)**: Query pipeline now chains role-based queries:
-  - Attribute chaining: "What is the CEO's salary?" → "What is Sarah Chen's compensation?"
-  - Relationship chaining: "Who reports to the CEO?" → "Who reports to Sarah Chen?"
-  - Single-match: chains directly (safe)
-  - Multi-match with vault context match: chains to vault-matched person (safe)  
-  - Multi-match without clear context: preserves disambiguation flow (asks user to clarify)
-  - `RoleResolver.resolve_all()` now sorts matches by vault_context priority (exact match → partial → none)
-  - `QueryPipeline._rewrite_query_with_person()` maps attribute AND relationship types to appropriate query formats
-  - Direction-aware rewriting: "Who reports to X?" vs "Who does X report to?" handled correctly
-  - Recursion-safe: rewritten queries drop role tokens, preventing infinite loops
-- **Ambiguity Detection & Disambiguation**: Generalized pattern for handling queries that match multiple entities:
-  - `AmbiguityResult` dataclass: Query-agnostic structure for ambiguous results (roles, entities, departments, projects, locations, metrics)
-  - `RoleResolver.resolve_all()`: Finds all people holding a role across the vault (accepts vault_context for org prioritization)
-  - `RetrievalResult.needs_disambiguation`: Property to detect when disambiguation is needed
-  - `DisambiguationReasoner`: LLM-based reasoning to determine best match:
-    - Fast path: Single match → use directly
-    - Fast path: Exact vault context match → use matching entity
-    - LLM fallback: Reason about which match(es) best answer user's intent
-  - Response format: Primary answer + "Note: Your documents also mention..." for alternatives
-  - When no clear primary match, asks user to clarify
-- **Extraction Job Tracking System**: Production-ready extraction monitoring with automatic timeout detection, retry logic with circuit breaker protection, and verification:
-  - `ExtractionJobTracker`: Lifecycle management (create/start/update/complete/fail), cache optimization via content hash, vault health status aggregation
-  - `ExtractionCircuitBreaker`: CLOSED/OPEN/HALF_OPEN states, configurable failure threshold (10 failures in 5 min), 15-minute cooldown period
-  - `ExtractionMonitor`: Timeout detection, retry queueing, health summary reporting
-  - Tables: `extraction_jobs` (17 columns), `document_extraction_status` view
-  - Indexes: Active document uniqueness, tenant+status, document history, timeout detection
-  - Dynamic timeout formula: `max(120, min(1800, chunks_total * 30 + 60))` seconds
-  - API endpoints: GET `/api/extraction/jobs/{id}`, GET `/api/vault/{id}/extraction/status`, POST `/api/extraction/jobs/{id}/retry`
-  - Scheduler integration: Periodic timeout checks via `GardenerScheduler`
-  - Verification system: Catches discrepancies between reported and actual extraction results
-- **Ontology Foundry (Phase 1)**: Learning system for evolving schema that captures unknown types as candidates:
-  - `CandidateNormalizer`: Maps LLM-proposed relationship names to canonical forms (e.g., INVESTS_IN → INVESTED_IN)
-  - `CandidateStore`: Stores unknown relationship/entity types with evidence, confidence scoring, and provenance
-  - Dual-path extraction in `StagingLoader` (production pipeline): Known types → KG, unknown types → candidates table
-  - `StagingLoader.load_relation()`: Checks type against schema + approved candidates; routes unknown to `CandidateStore`
-  - Hard failure on candidate storage errors: RuntimeError propagates to halt ingestion (prevents partial/inconsistent state)
-  - Tenant-less runs: Unknown types logged and skipped (backward compatible)
-  - Confidence formula: 40% document diversity + 30% mention frequency + 30% base confidence
-  - Tables: `ontology_candidates` (candidates with evidence), `pending_extractions` (extractions waiting for approval)
-  - API endpoints: GET `/api/ontology/candidates`, `/candidates/{id}`, `/stats` (read-only Phase 1)
-  - Candidate lifecycle: PENDING → APPROVED/REJECTED, 90-day expiration for stale candidates
-  - Future Phase 2: Admin UI for reviewing candidates, bulk approval, and automatic schema extension
-- **Learning Flow**: Adaptive learning system that learns from query failures to improve extraction quality:
-  - `GapDetector`: Detects no-answer and low-confidence responses (threshold: 0.6), classifies gap types (NO_ANSWER, LOW_CONFIDENCE, MISSING_ENTITY, MISSING_RELATIONSHIP, WRONG_ANSWER)
-  - `LearningQueueManager`: Priority scoring (base 50, +10 no_answer, +20 wrong_answer, +10 low_confidence, +10 per occurrence), deduplication via query_hash, task lifecycle (PENDING→PROCESSING→COMPLETED/FAILED)
-  - `TargetedExtractor`: Pattern-based + optional LLM extraction, runs HOLDS_POSITION, HAS_COMPENSATION, and custom patterns against document chunks
-  - `LearningFlowOrchestrator`: Coordinates gap detection, queue management, and targeted extraction; hooks for query responses and user feedback
-  - Tables: `query_gaps` (gap tracking), `learning_queue` (prioritized tasks), `learning_results` (extraction outcomes), `learning_tickets` (user feedback), `learning_patterns` (extraction patterns)
-  - Dashboard view: `learning_dashboard` aggregates stats per vault
-  - API endpoints (Brain service port 3000): `/api/learning/status/<vault_id>`, `/api/learning/gaps/<vault_id>`, `/api/learning/feedback`, `/api/learning/trigger/<vault_id>`, `/api/learning/process`, `/api/learning/queue/<vault_id>`, `/api/learning/dashboard`
-  - Scheduler integration: Processes 5 learning tasks every 5-minute cycle via `GardenerScheduler`
+Architectural features include:
+- **Tenant Context and RLS**: Enhanced `TenantSession` for Row-Level Security.
+- **Query Pipeline**: Features `QueryClassifier`, `RoleResolver` (3-stage with fuzzy matching and document search), and `RetrievalRouter` (GRAPH_ONLY, DOCS_ONLY, HYBRID strategies with fallback).
+- **Implicit Role Extraction**: `GraphBuilder` automatically creates `HOLDS_POSITION` relationships.
+- **QA Verifier**: Two-layer verification (structural rules + LLM semantic check) for answer quality.
+- **Dynamic Confidence Scoring**: Computed scores based on answer quality and evidence.
+- **Source Attribution**: Extracts and displays sources from various tools.
+- **Deterministic Document Fallback**: Automatic document search when KG lacks data.
+- **Context Injection**: Passes `vault_context` for target entity resolution.
+- **Extraction Hardening**: Post-processor (`ExtractionPostProcessor`) uses regex patterns to catch missed relationships (e.g., HOLDS_POSITION, HAS_COMPENSATION) after LLM extraction.
+- **Role→Attribute/Relationship Query Chaining**: Query pipeline rewrites role-based queries (e.g., "CEO's salary") into person-specific queries, handling single and multi-matches with context prioritization.
+- **Ambiguity Detection & Disambiguation**: Generalized pattern for handling multiple entity matches using `AmbiguityResult` and a `DisambiguationReasoner` (LLM-based) to determine the best match or request user clarification.
+- **Extraction Job Tracking System**: Monitors extraction jobs with automatic timeout detection, retry logic (circuit breaker), and verification. It uses `ExtractionJobTracker`, `ExtractionCircuitBreaker`, and `ExtractionMonitor` to manage job lifecycle, retries, and health.
+- **Ontology Foundry (Phase 1)**: A learning system that identifies unknown relationship/entity types as candidates, stores them in a `CandidateStore` with evidence and confidence, and routes them for potential future approval, preventing ingestion of unapproved types into the main KG.
+- **Learning Flow**: An adaptive learning system that detects query gaps (`GapDetector`), prioritizes learning tasks (`LearningQueueManager`), and performs targeted extraction (`TargetedExtractor`) to improve knowledge graph quality, learning from query failures and user feedback.
 
 ## External Dependencies
-
-- **Database:** PostgreSQL (with pgvector for embeddings)
+- **Database:** PostgreSQL (with pgvector)
 - **LLM:** OpenAI `gpt-4o-mini`
 - **Vision LLM:** Anthropic Claude Sonnet 4
 - **Vector Embeddings:** `text-embedding-3-small`
