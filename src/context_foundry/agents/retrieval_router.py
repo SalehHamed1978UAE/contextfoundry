@@ -61,32 +61,9 @@ def _is_blacklisted_entity(name: str) -> bool:
     return False
 
 
-METRIC_RERANK_RULES = {
-    'net income': {'prefer': ['net income', 'net loss', 'net margin'], 
-                   'demote': ['ebitda', 'operating income', 'operating loss', 'operating margin'],
-                   'must_contain': ['net income', 'net loss', 'net margin']},
-    'net loss': {'prefer': ['net income', 'net loss', 'net margin'], 
-                 'demote': ['ebitda', 'operating income', 'operating loss', 'operating margin'],
-                 'must_contain': ['net income', 'net loss', 'net margin']},
-    'net margin': {'prefer': ['net margin', 'net income', '-10.9%', '-31.2%'], 
-                   'demote': ['operating margin', 'gross margin', 'ebitda'],
-                   'must_contain': ['net margin'],
-                   'boost_patterns': ['-10.9%', '-31.2%', '-19.1%']},
-    'ebitda': {'prefer': ['ebitda', 'operating income'], 'demote': ['net income', 'net loss']},
-    'customer retention': {'prefer': ['customer retention', 'annual retention', '94%', 'retention rate'], 
-                           'demote': ['nrr', 'net revenue retention', 'revenue retention', '118%', '125%'],
-                           'must_contain': ['customer retention', '94%', 'annual retention']},
-    'retention rate': {'prefer': ['customer retention', 'annual retention', '94%', 'retention rate'], 
-                       'demote': ['nrr', 'net revenue retention', '118%', '125%'],
-                       'must_contain': ['customer retention', '94%', 'annual retention']},
-    'growth rate': {'prefer': ['growth rate', '% growth', 'growth'], 
-                    'demote': []},
-    'year-over-year': {'prefer': ['growth rate', 'yoy', 'year-over-year'], 
-                       'demote': []},
-    'iso 27001': {'prefer': ['iso 27001', 'certified'], 
-                  'demote': [],
-                  'must_contain': ['iso 27001']},
-}
+# DISABLED FOR RLM TEST - was: metric-specific reranking rules
+# To restore: see git history for METRIC_RERANK_RULES
+METRIC_RERANK_RULES = {}
 
 
 def rerank_chunks_by_metric(chunks: List[Dict], query: str) -> List[Dict]:
@@ -383,21 +360,11 @@ class RetrievalRouter:
             for r in results
         ]
         
-        # Hybrid keyword search for specific metric queries
-        query_lower = query.lower()
-        keyword_patterns = []
-        if 'customer retention' in query_lower or 'retention rate' in query_lower:
-            keyword_patterns = ['94%', 'customer retention']
-        elif 'iso 27001' in query_lower or 'iso27001' in query_lower:
-            keyword_patterns = ['ISO 27001', 'iso 27001']
-        elif 'growth rate' in query_lower and ('2024' in query_lower or '2025' in query_lower):
-            keyword_patterns = ['35%', 'Growth Rate']
-        elif 'net margin' in query_lower and ('improvement' in query_lower or '2023' in query_lower or '2025' in query_lower):
-            keyword_patterns = ['-10.9%', '-31.2%', 'Net Margin %']
-        elif 'okr' in query_lower or 'target' in query_lower and 'customer' in query_lower:
-            keyword_patterns = ['Close 150', 'OKRs', 'new customers']
+        # DISABLED FOR RLM TEST - was: hybrid keyword search for specific metric queries
+        # To restore: see git history for keyword_patterns logic
+        keyword_patterns = []  # Disabled - RLM should handle without hardcoded patterns
         
-        if keyword_patterns:
+        if False and keyword_patterns:  # Disabled
             try:
                 seen_ids = {c.get("id") for c in chunks}
                 for pattern in keyword_patterns:
