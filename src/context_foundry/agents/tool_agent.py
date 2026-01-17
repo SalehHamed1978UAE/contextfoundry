@@ -25,6 +25,8 @@ from .retrieval_router import QueryPipeline, RetrievalResult, AmbiguityResult
 from .disambiguation_reasoner import DisambiguationReasoner, DisambiguationResult
 from ..models.schema import set_tenant_context
 from ..utils.response_helpers import build_qa_evidence, calculate_confidence, build_response, QAEvidence
+from ..rlm.router import QueryComplexityRouter, QueryTier
+from ..rlm.executor import execute_rlm_query
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +117,7 @@ class ToolAgent:
         self.tool_executor = ToolExecutor(session, tenant_id)
         self.query_pipeline = QueryPipeline(session, tenant_id)
         self.disambiguator = DisambiguationReasoner(model=model)
+        self.complexity_router = QueryComplexityRouter(complexity_threshold=0.10)
         
         self.client = OpenAI(
             api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
@@ -505,6 +508,42 @@ Which one would you like to know more about? Please specify by name."""
             Dict with answer, tool_calls, evidence, pipeline_result, etc.
         """
         start_time = time.time()
+        
+        tier, complexity_signals = self.complexity_router.route(question)
+        logger.info(f"[AGENT] Query complexity: tier={tier.value}, score={complexity_signals.complexity_score:.2f}")
+        
+        if tier == QueryTier.TIER2_RLM:
+            logger.info("[AGENT] Routing to RLM for complex query")
+            try:
+                rlm_result = execute_rlm_query(
+                    tenant_id=self.tenant_id,
+                    query=question,
+                    db_session=self.session
+                )
+                
+                if rlm_result and rlm_result.answer_text and rlm_result.confidence >= 0.5:
+                    logger.info(f"[AGENT] RLM returned answer with confidence={rlm_result.confidence:.2f}")
+                    
+                    evidence = QAEvidence(
+                        entity_names=rlm_result.entities_found if hasattr(rlm_result, 'entities_found') else [],
+                        chunk_sources=[]
+                    )
+                    
+                    return build_response(
+                        answer=rlm_result.answer_text,
+                        confidence=rlm_result.confidence,
+                        qa_verdict={"status": "SUPPORTED", "reason": "Answered via RLM iterative reasoning"},
+                        evidence=evidence,
+                        iterations=rlm_result.iterations_used if hasattr(rlm_result, 'iterations_used') else 0,
+                        time_ms=int((time.time() - start_time) * 1000),
+                        success=True,
+                        pipeline_result=None,
+                        extra={"mode": "RLM", "complexity_score": complexity_signals.complexity_score}
+                    )
+                else:
+                    logger.info(f"[AGENT] RLM returned low confidence ({rlm_result.confidence if rlm_result else 'None'}), falling back to standard pipeline")
+            except Exception as e:
+                logger.warning(f"[AGENT] RLM execution failed, falling back to standard pipeline: {e}")
         
         pipeline_result = None
         try:
