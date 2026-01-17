@@ -117,9 +117,6 @@ class QueryComplexityRouter:
         r'services.*connected.*to',
         r'related.*to.*incident',
         r'impact.*of.*on',
-        # EXPERIMENT 1: Force RLM for Q58/Q59 interpretation tests
-        r'customer retention rate',
-        r'target.*new customers',
     ]
     
     def __init__(self, complexity_threshold: float = 0.10):
