@@ -418,12 +418,14 @@ class RoleResolver:
                     if not orgs_list and props.get('organization'):
                         orgs_list = [props.get('organization')]
                     
+                    # Default to vault_context if no org found
+                    org_name = orgs_list[0] if orgs_list else vault_context
                     all_matches.append({
                         "name": row.person_name,
                         "entity_id": str(row.person_id),
                         "role": role_value,
-                        "organizations": orgs_list,
-                        "organization": orgs_list[0] if orgs_list else None
+                        "organizations": orgs_list if orgs_list else ([vault_context] if vault_context else []),
+                        "organization": org_name
                     })
             
             rel_results = self.session.execute(relationship_query, rel_params).fetchall()
@@ -446,12 +448,14 @@ class RoleResolver:
                     if not orgs_list and props.get('organization'):
                         orgs_list = [props.get('organization')]
                     
+                    # Default to vault_context if no org found
+                    org_name = orgs_list[0] if orgs_list else vault_context
                     all_matches.append({
                         "name": row.person_name,
                         "entity_id": str(row.person_id),
                         "role": role_value,
-                        "organizations": orgs_list,
-                        "organization": orgs_list[0] if orgs_list else None,
+                        "organizations": orgs_list if orgs_list else ([vault_context] if vault_context else []),
+                        "organization": org_name,
                         "source": "relationship"
                     })
             
