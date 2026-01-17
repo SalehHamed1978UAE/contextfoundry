@@ -1,0 +1,238 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "total_ambiguous_cases": 20,
+    "purpose": "Document cases where questions have context-dependent answers requiring clarification",
+    "company": "MedSync Health, Inc.",
+    "created": "January 2025"
+  },
+  "ambiguous_cases": [
+    {
+      "id": "AMB-001",
+      "question": "What is MedSync's growth rate?",
+      "possible_interpretations": [
+        {"metric": "Revenue Growth", "value": "42% YoY", "source": "FIN-001_Annual_Report_2024.md"},
+        {"metric": "ARR Growth", "value": "48% YoY", "source": "FIN-001_Annual_Report_2024.md"},
+        {"metric": "Customer Growth", "value": "35% YoY", "source": "SALES-001_Sales_Overview.md"},
+        {"metric": "Employee Growth", "value": "50% YoY", "source": "HR-001_Organizational_Chart.md"}
+      ],
+      "clarifying_question": "Which growth metric are you asking about: revenue, ARR, customers, or employees?",
+      "severity": "high"
+    },
+    {
+      "id": "AMB-002",
+      "question": "What is the retention rate?",
+      "possible_interpretations": [
+        {"metric": "Employee Retention", "value": "88%", "source": "HR-003_Employee_Engagement.md"},
+        {"metric": "Logo Retention", "value": "97%", "source": "SALES-003_Account_Management.md"},
+        {"metric": "Net Revenue Retention", "value": "122%", "source": "FIN-001_Annual_Report_2024.md"}
+      ],
+      "clarifying_question": "Are you asking about employee, customer (logo), or revenue retention?",
+      "severity": "high"
+    },
+    {
+      "id": "AMB-003",
+      "question": "What is the churn rate?",
+      "possible_interpretations": [
+        {"metric": "Gross Revenue Churn", "value": "3%", "source": "SALES-003_Account_Management.md"},
+        {"metric": "Logo Churn", "value": "3%", "source": "SALES-003_Account_Management.md"},
+        {"metric": "Employee Turnover", "value": "12%", "source": "HR-003_Employee_Engagement.md"}
+      ],
+      "clarifying_question": "Which churn rate: customer revenue churn, logo churn, or employee turnover?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-004",
+      "question": "What is the response time SLA?",
+      "possible_interpretations": [
+        {"metric": "API Response Time", "value": "<500ms p99", "source": "PROD-004_API_Documentation.md"},
+        {"metric": "Support P1 Response", "value": "15 minutes", "source": "OPS-004_Support_Operations.md"},
+        {"metric": "Incident Acknowledge", "value": "5 minutes", "source": "OPS-005_Incident_Management.md"}
+      ],
+      "clarifying_question": "Which response time: API performance, support ticket response, or incident acknowledgment?",
+      "severity": "high"
+    },
+    {
+      "id": "AMB-005",
+      "question": "What is the target margin?",
+      "possible_interpretations": [
+        {"metric": "Gross Margin", "value": "80% target", "source": "FIN-002_Budget_FY2025.md"},
+        {"metric": "EBITDA Margin", "value": "15% by 2029", "source": "STRAT-002_Five_Year_Plan.md"},
+        {"metric": "Contribution Margin", "value": "Not specified", "source": "N/A"}
+      ],
+      "clarifying_question": "Which margin target: gross margin, EBITDA margin, or contribution margin?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-006",
+      "question": "What is the 2025 target?",
+      "possible_interpretations": [
+        {"metric": "ARR Target", "value": "$225M", "source": "STRAT-003_Annual_Operating_Plan_2025.md"},
+        {"metric": "Revenue Target", "value": "$194M", "source": "FIN-002_Budget_FY2025.md"},
+        {"metric": "Customer Target", "value": "750 customers", "source": "SALES-001_Sales_Overview.md"},
+        {"metric": "Employee Target", "value": "1,400 employees", "source": "HR-002_Headcount_Plan_2025.md"}
+      ],
+      "clarifying_question": "Which 2025 target: ARR, revenue, customers, or headcount?",
+      "severity": "high"
+    },
+    {
+      "id": "AMB-007",
+      "question": "What is the SLA?",
+      "possible_interpretations": [
+        {"metric": "Uptime SLA", "value": "99.95%", "source": "OPS-001_Infrastructure_Overview.md"},
+        {"metric": "Support SLA", "value": "Varies by priority/tier", "source": "OPS-004_Support_Operations.md"},
+        {"metric": "API SLA", "value": "99.9%", "source": "PROD-004_API_Documentation.md"}
+      ],
+      "clarifying_question": "Which service level agreement: platform uptime, support response, or API availability?",
+      "severity": "high"
+    },
+    {
+      "id": "AMB-008",
+      "question": "What is the termination notice period?",
+      "possible_interpretations": [
+        {"metric": "Vendor Contracts", "value": "90 days standard", "source": "OPS-011_Vendor_Management.md"},
+        {"metric": "Employment", "value": "Varies by role/level", "source": "LEG-006_Employment_Agreement_Summary.md"},
+        {"metric": "Customer Contracts", "value": "Varies by plan", "source": "LEG-001_Master_Services_Agreement.md"}
+      ],
+      "clarifying_question": "Termination notice for which agreement type: vendor, employment, or customer?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-009",
+      "question": "What is the compliance percentage?",
+      "possible_interpretations": [
+        {"metric": "SLA Compliance", "value": "96.8%", "source": "OPS-004_Support_Operations.md"},
+        {"metric": "Security Training Compliance", "value": "98%", "source": "SEC-008_Security_Training_Program.md"},
+        {"metric": "Policy Compliance", "value": "Not specified", "source": "N/A"}
+      ],
+      "clarifying_question": "Compliance with what: SLAs, security training, or policies?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-010",
+      "question": "What is the lead time?",
+      "possible_interpretations": [
+        {"metric": "Deployment Lead Time", "value": "4 hours", "source": "OPS-009_Release_Management.md"},
+        {"metric": "Hiring Lead Time", "value": "45 days", "source": "HR-007_Recruiting_Process.md"},
+        {"metric": "Customer Onboarding", "value": "30-90 days", "source": "SALES-002_Customer_Success.md"}
+      ],
+      "clarifying_question": "Lead time for what process: deployment, hiring, or customer onboarding?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-011",
+      "question": "How many users does MedSync have?",
+      "possible_interpretations": [
+        {"metric": "Platform Users", "value": "85,000", "source": "OPS-006_Capacity_Planning.md"},
+        {"metric": "Employees", "value": "1,200", "source": "HR-001_Organizational_Chart.md"},
+        {"metric": "Customer Organizations", "value": "589", "source": "SALES-001_Sales_Overview.md"}
+      ],
+      "clarifying_question": "Which user count: end users on the platform, employees, or customer organizations?",
+      "severity": "high"
+    },
+    {
+      "id": "AMB-012",
+      "question": "What is the budget?",
+      "possible_interpretations": [
+        {"metric": "Total Budget", "value": "$194M FY2025", "source": "FIN-002_Budget_FY2025.md"},
+        {"metric": "R&D Budget", "value": "$48.5M", "source": "FIN-002_Budget_FY2025.md"},
+        {"metric": "Sales & Marketing Budget", "value": "$67.9M", "source": "FIN-002_Budget_FY2025.md"},
+        {"metric": "L&D Budget per Employee", "value": "$2,500", "source": "HR-005_Learning_Development.md"}
+      ],
+      "clarifying_question": "Budget for what: total company, specific department, or per-employee allocation?",
+      "severity": "high"
+    },
+    {
+      "id": "AMB-013",
+      "question": "What is the team size?",
+      "possible_interpretations": [
+        {"metric": "Total Company", "value": "1,200", "source": "HR-001_Organizational_Chart.md"},
+        {"metric": "Engineering", "value": "480", "source": "HR-001_Organizational_Chart.md"},
+        {"metric": "Sales", "value": "180", "source": "HR-001_Organizational_Chart.md"},
+        {"metric": "Support", "value": "38", "source": "OPS-004_Support_Operations.md"}
+      ],
+      "clarifying_question": "Which team's size: total company, engineering, sales, or support?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-014",
+      "question": "What is the score?",
+      "possible_interpretations": [
+        {"metric": "NPS", "value": "+48", "source": "SALES-002_Customer_Success.md"},
+        {"metric": "eNPS", "value": "+42", "source": "HR-003_Employee_Engagement.md"},
+        {"metric": "CSAT", "value": "4.5/5", "source": "OPS-004_Support_Operations.md"},
+        {"metric": "Engagement Score", "value": "78%", "source": "HR-003_Employee_Engagement.md"}
+      ],
+      "clarifying_question": "Which score: customer NPS, employee NPS, CSAT, or engagement?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-015",
+      "question": "What is the capacity?",
+      "possible_interpretations": [
+        {"metric": "Compute Capacity", "value": "1,200 vCPUs", "source": "OPS-006_Capacity_Planning.md"},
+        {"metric": "Office Capacity", "value": "400 seats", "source": "OPS-010_Office_Operations.md"},
+        {"metric": "API Capacity", "value": "100K req/s", "source": "OPS-006_Capacity_Planning.md"},
+        {"metric": "Database Capacity", "value": "16TB", "source": "OPS-006_Capacity_Planning.md"}
+      ],
+      "clarifying_question": "Capacity of what: compute, office space, API throughput, or database?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-016",
+      "question": "What is the utilization rate?",
+      "possible_interpretations": [
+        {"metric": "Compute Utilization", "value": "40%", "source": "OPS-006_Capacity_Planning.md"},
+        {"metric": "Database Utilization", "value": "50%", "source": "OPS-006_Capacity_Planning.md"},
+        {"metric": "Office Utilization", "value": "38-50% daily", "source": "OPS-010_Office_Operations.md"}
+      ],
+      "clarifying_question": "Utilization of what resource: compute, database, or office space?",
+      "severity": "low"
+    },
+    {
+      "id": "AMB-017",
+      "question": "What is the average contract value?",
+      "possible_interpretations": [
+        {"metric": "Enterprise ACV", "value": "$850K", "source": "SALES-001_Sales_Overview.md"},
+        {"metric": "Mid-Market ACV", "value": "$120K", "source": "SALES-001_Sales_Overview.md"},
+        {"metric": "Overall ACV", "value": "$266K (calculated)", "source": "Multiple documents"}
+      ],
+      "clarifying_question": "ACV for which segment: enterprise, mid-market, or overall average?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-018",
+      "question": "What is the resolution time?",
+      "possible_interpretations": [
+        {"metric": "P1 Support Resolution", "value": "4 hours", "source": "OPS-004_Support_Operations.md"},
+        {"metric": "SEV1 Incident Resolution", "value": "4 hours", "source": "OPS-005_Incident_Management.md"},
+        {"metric": "Average Support Resolution", "value": "14 hours", "source": "OPS-004_Support_Operations.md"},
+        {"metric": "MTTR", "value": "45 minutes", "source": "OPS-005_Incident_Management.md"}
+      ],
+      "clarifying_question": "Resolution time for what: support tickets (by priority), incidents, or MTTR?",
+      "severity": "medium"
+    },
+    {
+      "id": "AMB-019",
+      "question": "What is the refresh rate?",
+      "possible_interpretations": [
+        {"metric": "Dashboard Refresh", "value": "1-5 minutes", "source": "OPS-008_Monitoring_Observability.md"},
+        {"metric": "Equity Refresh", "value": "25-50% annually", "source": "HR-008_Compensation_Philosophy.md"},
+        {"metric": "Data Refresh", "value": "Real-time to 15 min", "source": "OPS-007_Disaster_Recovery.md"}
+      ],
+      "clarifying_question": "Refresh rate for what: dashboards, equity grants, or data replication?",
+      "severity": "low"
+    },
+    {
+      "id": "AMB-020",
+      "question": "What is the backup policy?",
+      "possible_interpretations": [
+        {"metric": "Database Backup", "value": "Daily full, continuous incremental", "source": "OPS-007_Disaster_Recovery.md"},
+        {"metric": "Object Storage Backup", "value": "S3 cross-region replication", "source": "OPS-007_Disaster_Recovery.md"},
+        {"metric": "On-Call Backup", "value": "Secondary on-call engineer", "source": "OPS-005_Incident_Management.md"}
+      ],
+      "clarifying_question": "Backup for what: database, storage, or on-call coverage?",
+      "severity": "low"
+    }
+  ]
+}
