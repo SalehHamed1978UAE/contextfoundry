@@ -42,6 +42,61 @@ Architectural features include:
 - **Ontology Foundry (Phase 1)**: A learning system that identifies unknown relationship/entity types as candidates, stores them in a `CandidateStore` with evidence and confidence, and routes them for potential future approval, preventing ingestion of unapproved types into the main KG.
 - **Learning Flow**: An adaptive learning system that detects query gaps (`GapDetector`), prioritizes learning tasks (`LearningQueueManager`), and performs targeted extraction (`TargetedExtractor`) to improve knowledge graph quality, learning from query failures and user feedback.
 
+## Test Suites
+
+Context Foundry has two distinct test suites for validating query accuracy:
+
+### E2E Lifecycle Test (49 queries, 5 vaults)
+- **Location:** `scripts/e2e_lifecycle_test.py` + `scripts/e2e_config.py`
+- **Vaults:** TechVentures, Morrison & Sterling, Riverside Medical Center, Titan Manufacturing, Launchpad Ventures
+- **Queries per vault:** 9-10 each (49 total)
+- **Roadmap status:** 100% accuracy claimed
+
+### NexaTech Q&A Bible (105 questions, 1 vault)
+- **Location:** `attached_assets/context_foundry_bible_*.md` (validation document)
+- **Test script:** `scripts/qa_api_test.py`
+- **Tenant ID:** `bbdef43c-2817-41dd-a5e4-0192893cbf19`
+- **Measured accuracy:** 58% exact match, 85% average confidence
+
+## Bible Validations Status (10 Things to Prove)
+
+From the Context Foundry Bible, these validations need proof:
+
+| # | Validation | Status |
+|---|-----------|--------|
+| 1 | Tri-memory outperforms single-memory | NOT PROVEN |
+| 2 | Symbolic precedence matters | NOT PROVEN |
+| 3 | Entity/relationship beats flat retrieval | PARTIAL |
+| 4 | Shared context across apps | NOT PROVEN |
+| 5 | Domain-independent abstraction | PARTIAL |
+| 6 | Context portability | NOT PROVEN |
+| 7 | Reduces development time | NOT PROVEN |
+| 8 | Abstraction is complete | NOT PROVEN |
+| 9 | Developers understand it | NOT PROVEN |
+| 10 | Better enough to switch | NOT PROVEN |
+
+## Roadmap Status (Jan 2026)
+
+### Completed
+- Core Extraction Pipeline ✅
+- Entity Hygiene ✅
+- Relationship Extraction ✅
+- E2E Test Suite (5 vaults) ✅
+- Extraction Job Tracking ✅
+- Circuit Breaker ✅
+- Background Monitor ✅
+- Verification Layer ✅
+- UI Status Indicators ✅
+- **Learning Flow Integration ✅** (Jan 17, 2026)
+  - Gap detection threshold: 70%
+  - 24 NO_ANSWER patterns for response analysis
+  - Validated: 5/5 queries → gaps detected → queue items created
+
+### Planned
+- Ontology Foundry Phase 2 (Admin UI)
+- Multi-Vault Queries
+- Semantic Search Improvements
+
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)
 - **LLM:** OpenAI `gpt-4o-mini`
