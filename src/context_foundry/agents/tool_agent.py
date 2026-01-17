@@ -507,6 +507,32 @@ Which one would you like to know more about? Please specify by name."""
         tier, complexity_signals = self.complexity_router.route(question)
         logger.info(f"[AGENT] Query complexity: tier={tier.value}, score={complexity_signals.complexity_score:.2f}")
         
+        # Financial Query Handler: Check for pre-calculated metrics FIRST
+        try:
+            from .financial_query_handler import FinancialQueryHandler
+            financial_handler = FinancialQueryHandler(self.session, self.tenant_id)
+            financial_result = financial_handler.handle_query(question)
+            
+            if financial_result:
+                logger.info(f"[AGENT] Financial query answered from pre-calculated metric: {financial_result.get('metric_name')}")
+                evidence = QAEvidence(
+                    entity_names=[financial_result.get('metric_name', '')],
+                    chunk_sources=[]
+                )
+                return build_response(
+                    answer=financial_result['answer'],
+                    confidence=financial_result.get('confidence', 0.95),
+                    qa_verdict={"status": "SUPPORTED", "reason": "Answered from pre-calculated financial metric"},
+                    evidence=evidence,
+                    iterations=0,
+                    time_ms=int((time.time() - start_time) * 1000),
+                    success=True,
+                    pipeline_result=None,
+                    extra={"source": "pre_calculated_financial", "entity_type": financial_result.get('entity_type')}
+                )
+        except Exception as e:
+            logger.debug(f"[AGENT] Financial handler check (non-blocking): {e}")
+        
         rlm_enabled = os.environ.get("RLM_ENABLED", "false").lower() == "true"
         rlm_timeout = int(os.environ.get("RLM_TIMEOUT_SECONDS", "30"))
         

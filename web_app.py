@@ -5799,6 +5799,168 @@ def ingest_document():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/spreadsheet/upload', methods=['POST'])
+def upload_spreadsheet():
+    """
+    Upload a spreadsheet (Excel/CSV) and automatically extract financial metrics.
+    Creates pre-calculated FINANCIAL_METRIC entities for direct query answering.
+    
+    Accepts multipart form data with:
+    - file: The spreadsheet file (.xlsx, .xls, .csv)
+    
+    Returns:
+    - entities_created: Number of financial metric entities
+    - metrics_extracted: List of extracted metrics with values
+    """
+    from uuid import uuid4
+    import psycopg2
+    
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
+    
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'success': False, 'error': 'No file selected'}), 400
+    
+    allowed_extensions = {'.xlsx', '.xls', '.csv'}
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    if file_ext not in allowed_extensions:
+        return jsonify({'success': False, 'error': f'Invalid file type. Allowed: {", ".join(allowed_extensions)}'}), 400
+    
+    try:
+        from uuid import UUID
+        from src.context_foundry.extraction.spreadsheet_loader import SpreadsheetLoader
+        from src.context_foundry.extraction.financial_calculator import FinancialCalculator
+        
+        tenant_id = UUID(session['tenant_id'])
+        user_id = UUID(session['user_id'])
+        
+        doc_id = uuid4()
+        storage_dir = f"./storage/tenants/{tenant_id}/spreadsheets/{doc_id}"
+        os.makedirs(storage_dir, exist_ok=True)
+        storage_path = f"{storage_dir}/{file.filename}"
+        file.save(storage_path)
+        
+        loader = SpreadsheetLoader()
+        calculator = FinancialCalculator()
+        
+        document = loader.load(storage_path)
+        if not document.tables:
+            return jsonify({'success': False, 'error': 'No data tables found in spreadsheet'}), 400
+        
+        extracted_metrics = []
+        all_financial_data = {}
+        
+        for table in document.tables:
+            if table.financial_metrics:
+                for metric_type, period_values in table.financial_metrics.items():
+                    if metric_type not in all_financial_data:
+                        all_financial_data[metric_type] = {}
+                    all_financial_data[metric_type].update(period_values)
+                    
+                    for period, value in period_values.items():
+                        extracted_metrics.append({
+                            'name': f"{metric_type}_{period}",
+                            'value': value,
+                            'unit': '$M' if metric_type in ['revenue', 'net_income', 'ebitda', 'gross_profit'] else '',
+                            'time_period': period,
+                            'metric_type': metric_type,
+                            'entity_type': 'FINANCIAL_METRIC',
+                            'category': 'financial',
+                            'confidence': 0.95
+                        })
+        
+        calculated_metrics = calculator.calculate_all_metrics(all_financial_data)
+        for calc in calculated_metrics:
+            metric_type_from_name = calc.name.split('_')[0] if '_' in calc.name else calc.name
+            extracted_metrics.append({
+                'name': calc.name,
+                'value': calc.value,
+                'unit': calc.unit,
+                'time_period': calc.time_period or '',
+                'formula': calc.formula,
+                'metric_type': metric_type_from_name,
+                'entity_type': 'CALCULATED_METRIC',
+                'category': 'calculated',
+                'confidence': calc.confidence
+            })
+        
+        database_url = os.environ.get("DATABASE_URL")
+        entities_created = 0
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO platform.documents (
+                        id, tenant_id, name, original_filename, mime_type,
+                        storage_path, size_bytes, current_version, status, created_by, created_at, updated_at
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, 1, 'processed', %s, NOW(), NOW())
+                """, (str(doc_id), str(tenant_id), file.filename, file.filename,
+                      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                      storage_path, os.path.getsize(storage_path), str(user_id)))
+                
+                for metric in extracted_metrics:
+                    entity_id = uuid4()
+                    metric_name = metric.get('name', 'Unknown Metric')
+                    entity_type = metric.get('entity_type', 'FINANCIAL_METRIC')
+                    properties = {
+                        'value': metric.get('value'),
+                        'unit': metric.get('unit', ''),
+                        'time_period': metric.get('time_period', ''),
+                        'formula': metric.get('formula', ''),
+                        'metric_type': metric.get('metric_type', ''),
+                        'source_document': file.filename,
+                        'metric_category': metric.get('category', 'financial')
+                    }
+                    
+                    cur.execute("""
+                        SELECT id FROM entities 
+                        WHERE tenant_id = %s AND UPPER(name) = UPPER(%s) AND entity_type = %s
+                        LIMIT 1
+                    """, (str(tenant_id), metric_name, entity_type))
+                    existing = cur.fetchone()
+                    
+                    if existing:
+                        cur.execute("""
+                            UPDATE entities SET properties = %s, updated_at = NOW()
+                            WHERE id = %s
+                        """, (json.dumps(properties), existing[0]))
+                    else:
+                        cur.execute("""
+                            INSERT INTO entities (
+                                id, tenant_id, name, entity_type, properties, confidence,
+                                source_document_id, extraction_method, created_at, updated_at
+                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, 'spreadsheet_extraction', NOW(), NOW())
+                        """, (str(entity_id), str(tenant_id), metric_name, entity_type,
+                              json.dumps(properties), metric.get('confidence', 0.95), str(doc_id)))
+                    entities_created += 1
+                
+                conn.commit()
+        
+        logger.info(f"Spreadsheet processed: {file.filename}, entities={entities_created}")
+        
+        return jsonify({
+            'success': True,
+            'document_id': str(doc_id),
+            'filename': file.filename,
+            'tables_found': len(document.tables),
+            'entities_created': entities_created,
+            'metrics_extracted': [
+                {'name': m.get('name'), 'value': m.get('value'), 'time_period': m.get('time_period')}
+                for m in extracted_metrics[:20]
+            ]
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        logger.error(f"Spreadsheet upload failed: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/feedback', methods=['POST'])
 def submit_feedback():
     """Submit feedback for a query response (Learning Loop)."""
