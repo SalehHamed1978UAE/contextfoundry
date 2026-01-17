@@ -1727,6 +1727,96 @@ def re_extract_document(doc_id):
         return jsonify({'success': False, 'error': 'Failed to re-extract document'}), 500
 
 
+@app.route('/api/documents/<doc_id>/replace', methods=['POST'])
+def replace_document(doc_id):
+    """Replace document file content and re-extract."""
+    if not session.get('user_id') or not session.get('tenant_id'):
+        return jsonify({'success': False, 'error': 'Not authenticated'}), 401
+    
+    tenant_id = session['tenant_id']
+    
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'success': False, 'error': 'No file selected'}), 400
+    
+    try:
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
+        database_url = os.environ.get("DATABASE_URL")
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, original_filename, storage_path
+                    FROM platform.documents 
+                    WHERE id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                doc = cur.fetchone()
+                
+                if not doc:
+                    return jsonify({'success': False, 'error': 'Document not found'}), 404
+                
+                storage_path = doc['storage_path']
+                storage_dir = os.path.dirname(storage_path)
+                os.makedirs(storage_dir, exist_ok=True)
+                
+                file.save(storage_path)
+                
+                new_filename = secure_filename(file.filename)
+                mime_type = file.content_type or 'application/octet-stream'
+                file_size = os.path.getsize(storage_path)
+                
+                cur.execute("""
+                    DELETE FROM public.relationships 
+                    WHERE tenant_id = %s AND (
+                        source_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                        OR target_id IN (SELECT id FROM public.entities WHERE source_document_id = %s)
+                    )
+                """, [tenant_id, doc_id, doc_id])
+                
+                cur.execute("""
+                    DELETE FROM public.entities 
+                    WHERE source_document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                cur.execute("""
+                    DELETE FROM public.document_chunks 
+                    WHERE document_id = %s AND tenant_id = %s
+                """, [doc_id, tenant_id])
+                
+                cur.execute("""
+                    UPDATE platform.documents 
+                    SET original_filename = %s, mime_type = %s, size_bytes = %s,
+                        status = 'queued', published = FALSE, 
+                        extraction_method = NULL, extraction_metrics = NULL,
+                        updated_at = NOW()
+                    WHERE id = %s AND tenant_id = %s
+                """, [new_filename, mime_type, file_size, doc_id, tenant_id])
+                
+                cur.execute("""
+                    INSERT INTO platform.extraction_requests 
+                    (id, request_id, document_id, tenant_id, file_path, file_name, 
+                     mime_type, file_size_bytes, extraction_mode, priority, status, 
+                     retry_count, max_retries, created_at, submitted_at)
+                    VALUES (
+                        gen_random_uuid(), gen_random_uuid(), %s, %s, %s, %s, %s, %s, 
+                        'full', 'high', 'pending', 0, 3, NOW(), NOW()
+                    )
+                """, [doc_id, tenant_id, storage_path, new_filename, mime_type, file_size])
+                
+                conn.commit()
+        
+        logger.info(f"Document {doc_id} replaced with {new_filename} and queued for extraction")
+        return jsonify({'success': True, 'status': 'queued', 'new_filename': new_filename})
+        
+    except Exception as e:
+        logger.error(f"Replace failed: {e}")
+        return jsonify({'success': False, 'error': 'Failed to replace document'}), 500
+
+
 @app.route('/api/documents/backfill-chunks', methods=['POST'])
 def backfill_document_chunks():
     """Backfill document chunks for existing documents that don't have chunks.
