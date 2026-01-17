@@ -46,6 +46,12 @@ Architectural features include:
   - Issue 3: Pre-calculated value detection - finds explicitly stated growth rates in documents
   - Issue 4: Temporal/year mismatch detection - warns when response references wrong fiscal year
   - Issue 6: Metric type validation (customer retention vs NRR) - ensures correct metric type is returned
+- **Coherence Checker (Shadow Mode)**: Post-response validation system in `validation/coherence_checker.py` with 4 generalizable checks:
+  - MultipleValuesCheck: Detects when sources contain multiple numeric values that could confuse the answer
+  - TerminologyMismatchCheck: Flags when query terms don't match response terms (e.g., "retention" vs "NRR")
+  - LogicalContradictionCheck: Identifies ambiguous patterns like "Close 150 (Target: 140)"
+  - SourceCoverageCheck: Verifies answer numbers appear in source documents
+  - Currently logs results without modifying responses (shadow mode for threshold tuning)
 
 ## Test Suites
 
@@ -61,9 +67,15 @@ Context Foundry has two distinct test suites for validating query accuracy:
 - **Location:** `attached_assets/context_foundry_bible_*.md` (validation document)
 - **Test script:** `scripts/qa_accuracy_test.py`
 - **Tenant ID:** `bbdef43c-2817-41dd-a5e4-0192893cbf19`
-- **Current accuracy:** **103/105 (98.1%)** - TARGET EXCEEDED (Jan 17, 2026)
+- **Current accuracy:** **99/105 (94.3%)** - Honest baseline without hardcoded rules (Jan 17, 2026)
 - **Target:** 100/105 (95.2%)
-- **Remaining failures:** Q28 (customer count retrieval), Q45 (referral bonus table truncation) - both are retrieval issues, not data gaps
+- **Remaining failures:** 
+  - Q15: Net margin improvement (20.3 percentage points) - calculation required
+  - Q28: Customer count FY2024 (2,147) - retrieval issue
+  - Q58: Customer retention rate (94%) - NRR vs retention confusion (coherence flagged)
+  - Q59: Target new customers Q1 2024 (150 vs 140) - ambiguous OKR format
+  - Q72: ISO 27001 certified (Yes) - retrieval issue
+  - Q76: GDPR access requests 2024 - missing data
 
 ## Bible Validations Status (10 Things to Prove)
 
@@ -104,11 +116,12 @@ From the Context Foundry Bible, these validations need proof:
   - Temporal/year mismatch warnings
   - Integrated into both ReasoningAgent and ToolAgent direct answer paths
   - Caveats now appear in API responses
-- **Metric-Based Retrieval Improvements ✅** (Jan 17, 2026)
-  - Increased chunk text limits (1500→2500 chars) to preserve full financial tables
-  - Added reranking rules for net income, customer retention, ISO 27001
-  - Hybrid keyword search fallback for specific metrics (94%, ISO 27001, 35%)
-  - Fixed 7 Category C retrieval failures: Q4-Q6, Q15, Q58, Q59, Q72
+- **Coherence Checker (Shadow Mode) ✅** (Jan 17, 2026)
+  - 4 generalizable checks: MultipleValues, TerminologyMismatch, LogicalContradiction, SourceCoverage
+  - Integrated into tool_agent.py direct answer path
+  - Logs confidence scores and flagged issues without affecting responses
+  - Q58 correctly flagged (LOW 0.65) for "retention" vs "NRR" terminology mismatch
+  - Honest baseline established: 99/105 (94.3%) without hardcoded metric rules
 
 ### Planned
 - Ontology Foundry Phase 2 (Admin UI)
