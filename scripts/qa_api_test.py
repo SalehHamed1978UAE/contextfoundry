@@ -152,6 +152,8 @@ def run_sample_test(session: requests.Session, num_questions: int = 5):
             answer = data.get("answer", "No answer")
             confidence = data.get("confidence", 0)
             sources = data.get("sources", [])
+            caveats = data.get("caveats", [])
+            qa_validation_notes = data.get("qa_validation_notes", [])
             
             if len(answer) > 150:
                 display_answer = answer[:150] + "..."
@@ -161,6 +163,9 @@ def run_sample_test(session: requests.Session, num_questions: int = 5):
             print(f"  Answer: {display_answer}")
             print(f"  Confidence: {int(confidence*100)}%")
             print(f"  Sources: {len(sources)} documents")
+            if caveats or qa_validation_notes:
+                notes = caveats or qa_validation_notes
+                print(f"  *** CAVEATS: {notes[0][:80]}..." if len(notes[0]) > 80 else f"  *** CAVEATS: {notes[0]}")
             
             results.append({
                 "num": i+1,

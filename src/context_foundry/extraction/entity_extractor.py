@@ -33,6 +33,40 @@ from ..ontology_foundry.schema_service import OntologySchemaService, get_ontolog
 from .entity_hygiene import is_valid_entity_name as hygiene_is_valid_entity_name
 
 
+# Issue 1 Fix: Metadata entities that should never be extracted as real entities
+# These are document metadata fields, placeholders, or generic role references
+METADATA_BLACKLIST = {
+    # Document metadata fields that should never be entities
+    'document owner',
+    'document author',
+    'author',
+    'owner',
+    'created by',
+    'modified by',
+    'last modified by',
+    'file owner',
+    'prepared by',
+    'reviewed by',
+    'approved by',
+    # Generic role placeholders
+    'direct reports',
+    'incident commander',
+    'tbd',
+    'to be determined',
+    'n/a',
+    'not applicable',
+    'unknown',
+    'undefined',
+    'placeholder',
+    'your name',
+    'your name here',
+    'insert name',
+    '[name]',
+    '[title]',
+    '[role]',
+}
+
+
 def load_few_shot_examples(domain: str = "core") -> list:
     """Load few-shot examples for the specified domain."""
     examples_dir = Path(__file__).parent.parent.parent.parent / "brain" / "examples"
@@ -739,14 +773,47 @@ TEXT:
         
         return self._deduplicate_entities(all_entities)
     
+    def _is_metadata_entity(self, entity_name: str) -> bool:
+        """Check if entity name is actually document metadata or placeholder.
+        
+        Issue 1 Fix: Filter out "Document Owner" and similar metadata entities
+        that pollute the knowledge graph and cause irrelevant query responses.
+        """
+        if not entity_name:
+            return True
+        
+        name_lower = entity_name.lower().strip()
+        
+        # Exact match against blacklist
+        if name_lower in METADATA_BLACKLIST:
+            return True
+        
+        # Pattern match (e.g., "Document Owner (VP of Engineering)" or "Author: John")
+        for blacklisted in METADATA_BLACKLIST:
+            if name_lower.startswith(blacklisted):
+                return True
+            # Also check for patterns like "Owner: Name" or "Author - Name"
+            if name_lower.startswith(f"{blacklisted}:") or name_lower.startswith(f"{blacklisted} -"):
+                return True
+        
+        return False
+    
     def _deduplicate_entities(
         self,
         entities: List[ExtractedEntity]
     ) -> List[ExtractedEntity]:
-        """Deduplicate entities by canonical name, keeping highest confidence."""
+        """Deduplicate entities by canonical name, keeping highest confidence.
+        
+        Also filters out metadata entities that should never be in the graph.
+        """
         entity_map = {}
         
         for entity in entities:
+            # Issue 1 Fix: Skip metadata entities
+            if self._is_metadata_entity(entity.canonical_name):
+                logger.debug(f"Filtered metadata entity: {entity.canonical_name}")
+                continue
+            
             key = (entity.entity_type, entity.canonical_name.lower())
             
             if key not in entity_map:
