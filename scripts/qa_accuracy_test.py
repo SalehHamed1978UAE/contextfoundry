@@ -128,6 +128,14 @@ def normalize_answer(answer: str) -> str:
     if not answer:
         return ""
     answer = answer.lower().strip()
+    answer = re.sub(r'\bdr\.\s*', '', answer)
+    answer = re.sub(r'\bprof\.\s*', '', answer)
+    answer = re.sub(r'\bmr\.\s*', '', answer)
+    answer = re.sub(r'\bms\.\s*', '', answer)
+    answer = re.sub(r'\bmrs\.\s*', '', answer)
+    answer = re.sub(r'\bfiscal\s+year\s+(\d{4})', r'fy \1', answer)
+    answer = re.sub(r'\bfy\s+(\d{4})', r'fy \1', answer)
+    answer = re.sub(r'(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2},?\s+(\d{4})', r'\1 \2', answer)
     answer = re.sub(r'[,\s]+', ' ', answer)
     answer = re.sub(r'\$\s*', '$', answer)
     answer = re.sub(r'(\d+)\s*%', r'\1%', answer)
@@ -140,7 +148,7 @@ def extract_key_values(text: str) -> set:
     numbers = re.findall(r'\$?[\d,]+\.?\d*\s*(?:million|billion|%|x)?', text.lower())
     values.update(numbers)
     names = re.findall(r'(?:Dr\.\s+)?[A-Z][a-z]+\s+[A-Z][a-z]+', text)
-    values.update([n.lower() for n in names])
+    values.update([n.lower().replace('dr. ', '') for n in names])
     return values
 
 
@@ -187,6 +195,13 @@ def check_answer_match(expected: str, actual: str) -> tuple:
     if expected_lower in ['yes', 'no']:
         if expected_lower in actual_lower.split()[:20]:
             return ('correct', 'Yes/No match')
+    
+    list_separators = r'[,\s]+(?:and|or)?\s*|,\s*'
+    expected_items = [item.strip() for item in re.split(list_separators, expected_lower) if len(item.strip()) > 1]
+    if len(expected_items) >= 2:
+        matches = sum(1 for item in expected_items if item in actual_lower)
+        if matches == len(expected_items):
+            return ('correct', f'All list items found ({matches}/{len(expected_items)})')
     
     return ('wrong', f'Expected "{expected}" but got different value')
 
