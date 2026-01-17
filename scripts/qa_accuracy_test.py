@@ -25,7 +25,7 @@ QUESTIONS = [
     ("How much did NexaTech spend on Sales & Marketing in FY 2025?", "$35.0 million"),
     ("What was the total cash at the end of FY 2025?", "$98.8 million"),
     ("What was the subscription revenue in FY 2024?", "$55.3 million"),
-    ("What was the year-over-year revenue growth rate from FY 2023 to FY 2024?", "35%"),
+    ("What was the year-over-year revenue growth rate from FY 2024 to FY 2025?", "35%"),
     ("What was the operating margin in FY 2024?", "-19.8%"),
     ("What was the CAGR for revenue from FY 2023 to FY 2025?", "43.8%"),
     ("What percentage of FY 2025 revenue came from subscriptions?", "85.9%"),
