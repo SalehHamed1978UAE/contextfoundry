@@ -5,6 +5,7 @@ Provides consistent validation across all response paths (ReasoningAgent, ToolAg
 Detects metric mismatches, temporal mismatches, and pre-calculated values.
 
 QA Accuracy Fixes Implementation:
+- Issue 1: Document metadata garbage detection (Document Owner, etc.)
 - Issue 2: Financial metric type distinction (net income vs EBITDA)
 - Issue 3: Pre-calculated value detection for growth rates
 - Issue 4: Temporal/year mismatch detection  
@@ -16,6 +17,74 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
+
+
+# Issue 1 Fix: Document Metadata Garbage Detection
+METADATA_GARBAGE_PATTERNS = [
+    r'\bdocument\s+owner\b',
+    r'\bconfidential\s*[-:]\s*(?:internal|board|executive)',
+    r'\bclassification\s*:\s*(?:internal|confidential)',
+    r'\bversion\s*:\s*\d+\.\d+',
+    r'\beffective\s+date\s*:',
+    r'\blast\s+(?:updated|modified)\s*:',
+]
+
+
+def detect_metadata_garbage(answer: str) -> Optional[str]:
+    """Issue 1: Detect document metadata garbage in LLM answers."""
+    answer_lower = answer.lower()
+    
+    for pattern in METADATA_GARBAGE_PATTERNS:
+        if re.search(pattern, answer_lower, re.IGNORECASE):
+            logger.warning(f"[QA Validation] Detected metadata garbage pattern: {pattern}")
+            return "Note: The answer may contain document metadata rather than actual content. Please verify the information."
+    
+    return None
+
+
+def clean_metadata_garbage(answer: str) -> str:
+    """Issue 1: Clean document metadata garbage from LLM answers.
+    
+    Removes or replaces phrases like "Document Owner" that were incorrectly
+    extracted from document metadata headers.
+    """
+    if not answer:
+        return answer
+    
+    # Patterns that indicate the LLM confused metadata with content
+    # Order matters - most specific patterns first
+    cleanup_patterns = [
+        # "I found multiple people with the Document Owner role: ..." -> remove entire sentence
+        (r'I found multiple people with the Document Owner role[^.]*\.?', ''),
+        # "The CTO is Document Owner." -> remove the sentence
+        (r'[^.!?]*\bis\s+Document\s+Owner\b[^.!?]*[.!?]?', ''),
+        # "The CTO of NexaTech is Document Owner" (no period) -> remove
+        (r'The\s+\w+\s+(?:of\s+\w+\s+)?is\s+Document\s+Owner\b', ''),
+        # "CEO (Document Owner)" -> "CEO"
+        (r'\s*\(\s*Document\s+Owner\s*\)\s*', ' '),
+        # "- CEO (Document Owner)" list items -> "- CEO"
+        (r'-\s*\w+\s*\(\s*Document\s+Owner\s*\)', ''),
+        # Standalone "Document Owner" as a name -> remove
+        (r'\bDocument\s+Owner\b', ''),
+        # Clean up empty parentheses ()
+        (r'\(\s*\)', ''),
+        # Clean up bullet points with empty content "- -"
+        (r'-\s+-', '-'),
+        # Clean up remaining double/triple spaces
+        (r'\s{2,}', ' '),
+        # Clean up leading/trailing spaces in list items
+        (r'-\s+\n', '-\n'),
+    ]
+    
+    cleaned = answer
+    for pattern, replacement in cleanup_patterns:
+        cleaned = re.sub(pattern, replacement, cleaned, flags=re.IGNORECASE)
+    
+    # Remove empty list items and clean up
+    cleaned = re.sub(r'\n\s*-\s*\n', '\n', cleaned)
+    cleaned = re.sub(r':\s*\n\s*\n', ':\n', cleaned)
+    
+    return cleaned.strip()
 
 
 # Issue 2 Fix: Financial Metric Type Distinction
@@ -208,6 +277,12 @@ def validate_qa_response(
         QAValidationResult with validation notes and any detected issues
     """
     result = QAValidationResult()
+    
+    # Issue 1: Check for document metadata garbage in answer
+    metadata_warning = detect_metadata_garbage(answer)
+    if metadata_warning:
+        result.validation_notes.append(metadata_warning)
+        logger.info(f"[QA Validation] Metadata garbage detected in answer")
     
     # Issue 2: Check for financial metric type mismatch (net income vs EBITDA)
     financial_warning = check_financial_metric_mismatch(query, answer)

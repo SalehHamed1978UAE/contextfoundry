@@ -18,6 +18,31 @@ from sqlalchemy import text
 from src.context_foundry.utils.logger import logger
 
 
+# Entity names that should be filtered from role resolution results
+# These are document metadata fields that were incorrectly extracted as entities
+ROLE_RESOLVER_BLACKLIST = {
+    'document owner',
+    'document author',
+    'author',
+    'owner',
+    'classification',
+    'confidential',
+}
+
+
+def _is_blacklisted_name(name: str) -> bool:
+    """Check if an entity name should be filtered from role resolution."""
+    if not name:
+        return True
+    name_lower = name.lower().strip()
+    if name_lower in ROLE_RESOLVER_BLACKLIST:
+        return True
+    for blacklisted in ROLE_RESOLVER_BLACKLIST:
+        if name_lower.startswith(f"{blacklisted}:") or name_lower.startswith(f"{blacklisted} "):
+            return True
+    return False
+
+
 class RoleResolution:
     """Result of role resolution."""
     
@@ -375,6 +400,11 @@ class RoleResolver:
         try:
             prop_results = self.session.execute(property_query, params).fetchall()
             for row in prop_results:
+                # Skip blacklisted entity names (document metadata)
+                if _is_blacklisted_name(row.person_name):
+                    logger.info(f"[ROLE_RESOLVER] Skipping blacklisted entity: {row.person_name}")
+                    continue
+                    
                 if str(row.person_id) not in seen_ids:
                     seen_ids.add(str(row.person_id))
                     props = row.props or {}
@@ -398,6 +428,11 @@ class RoleResolver:
             
             rel_results = self.session.execute(relationship_query, rel_params).fetchall()
             for row in rel_results:
+                # Skip blacklisted entity names (document metadata)
+                if _is_blacklisted_name(row.person_name):
+                    logger.info(f"[ROLE_RESOLVER] Skipping blacklisted entity: {row.person_name}")
+                    continue
+                    
                 if str(row.person_id) not in seen_ids:
                     seen_ids.add(str(row.person_id))
                     props = row.props or {}

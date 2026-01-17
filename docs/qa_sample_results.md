@@ -1,6 +1,6 @@
 # NexaTech Q&A Test Results
 
-**Test Date:** 2026-01-17 09:22:19
+**Test Date:** 2026-01-17 10:26:21
 **Total Questions:** 5
 
 ## Summary
@@ -44,7 +44,7 @@ NexaTech's total revenue in FY 2023 was $42.3 million. This figure includes both
 **Expected:** $64.8 million
 
 **Actual Answer:**
-NexaTech's total revenue in FY 2024 was $64.8 million. This figure reflects the company's growth from $42.3 million in FY 2023 and is part of a projected increase to $87.5 million in FY 2025.
+NexaTech's total revenue in FY 2024 was $64.8 million. This figure reflects the company's growth from $42.3 million in FY 2023 and is part of a broader trend of increasing revenue, which is projected to reach $87.5 million in FY 2025.
 
 **Confidence:** 85%
 
@@ -57,7 +57,7 @@ NexaTech's total revenue in FY 2024 was $64.8 million. This figure reflects the 
 **Expected:** $87.5 million
 
 **Actual Answer:**
-NexaTech's total revenue in FY 2025 was $87.5 million. This figure reflects significant growth from previous years, with total revenue increasing from $42.3 million in FY 2023 to $87.5 million in FY 2025, driven primarily by the expansion of subscription revenue.
+NexaTech's total revenue in FY 2025 was $87.5 million. This figure reflects significant growth from previous years, with total revenue increasing from $42.3 million in FY 2023 to $87.5 million in FY 2025, driven primarily by the expansion of their subscription revenue base.
 
 **Confidence:** 85%
 
@@ -83,11 +83,7 @@ In FY 2023, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$1
 **Expected:** -$12.4 million (loss)
 
 **Actual Answer:**
-In FY 2024, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$12.8 million**. This indicates that the company operated at a net loss for that fiscal year. 
-
-The total revenue for FY 2024 was **$64.8 million**, while total operating expenses amounted to **$62.3 million**, leading to the operating loss mentioned. 
-
-If you need further details or specific breakdowns of revenue or expenses, feel free to ask!
+In FY 2024, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$12.8 million**. This indicates that the company operated at a net loss for that fiscal year. The total revenue for FY 2024 was **$64.8 million**, while total operating expenses amounted to **$62.3 million**, leading to the operating loss mentioned. It's important to note that the information provided does not specify a net income or loss figure that accounts for other potential income or expenses (such as taxes or interest), but based on the operating income (EBITDA), the company experienced a loss.
 
 **Confidence:** 85%
 

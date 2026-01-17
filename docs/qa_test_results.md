@@ -1,6 +1,6 @@
 # NexaTech Q&A Test Results
 
-**Test Date:** 2026-01-16 18:29:11
+**Test Date:** 2026-01-17 10:55:46
 **Total Questions:** 105
 
 ## Summary
@@ -31,25 +31,25 @@
 | 14 | What percentage of FY 2025 revenue came from subsc... | 85.9% | In FY 2025, the total revenue was $87.5 million, and the subscription revenue wa... | 85% | 0 |
 | 15 | What was the improvement in net margin from FY 202... | 20.3 percentage points | The improvement in net margin from FY 2023 to FY 2025 can be assessed through th... | 85% | 0 |
 | 16 | What was the total funding raised through Series C... | $85 million | NexaTech Solutions raised a total of **$85 million** through Series C funding. | 85% | 0 |
-| 17 | What was the total OpEx budget for FY 2024? | $62.3 million | The total Operating Expenses (OpEx) budget for FY 2024 was **$62.3 million**. | 85% | 0 |
+| 17 | What was the total OpEx budget for FY 2024? | $62.3 million | The total Operating Expenses (OpEx) budget for FY 2024 is $62.3 million. This fi... | 85% | 0 |
 | 18 | What was the ending cash position targeted in the ... | $98.8 million | The targeted ending cash position in the FY25 forecast was $98.8 million. This f... | 85% | 0 |
 | 19 | What was the committed annual spend with AWS? | $2.5 million annually | The committed annual spend with Amazon Web Services (AWS) is $2.5 million. This ... | 85% | 0 |
 | 20 | What is the target LTV:CAC ratio for Q3 2025? | 3.5x | The target LTV:CAC (Lifetime Value to Customer Acquisition Cost) ratio for Q3 20... | 85% | 0 |
 | 21 | Who is the CEO of NexaTech Solutions? | Sarah Chen | The CEO of NexaTech Solutions is Sarah Chen.  Note: Your documents also mention ... | 90% | 0 |
-| 22 | Who is the CTO of NexaTech Solutions? | Dr. Marcus Rodriguez | The CTO of NexaTech is Document Owner.  Note: Your documents also mention other ... | 90% | 0 |
+| 22 | Who is the CTO of NexaTech Solutions? | Dr. Marcus Rodriguez | The CTO of Unknown is Marcus Rodriguez. | 90% | 0 |
 | 23 | Who is the CFO of NexaTech Solutions? | Jennifer Walsh | The Chief Financial Officer (CFO) of NexaTech Solutions is Jennifer Walsh. | 90% | 0 |
 | 24 | Who is the CRO (Chief Revenue Officer)? | David Kim | The Chief Revenue Officer (CRO) is David Kim. He is responsible for overseeing t... | 90% | 0 |
 | 25 | When was NexaTech Solutions founded? | January 2021 | NexaTech Solutions was founded on January 15, 2021. | 85% | 0 |
 | 26 | Where is NexaTech's headquarters located? | Austin, Texas | NexaTech Solutions Inc. is headquartered at 1250 Innovation Drive, Austin, TX 78... | 85% | 0 |
-| 27 | How many employees did NexaTech have at the end of... | 537 | At the end of FY 2024, NexaTech Solutions had the following employee counts:  1.... | 85% | 0 |
+| 27 | How many employees did NexaTech have at the end of... | 537 | At the end of FY 2024, NexaTech Solutions had the following employee counts: 1. ... | 85% | 0 |
 | 28 | How many customers did NexaTech have at the end of... | 2,147 | The retrieved information does not provide a specific number of customers that N... | 85% | 0 |
 | 29 | What industry does NexaTech operate in? | Enterprise Software / Business... | NexaTech operates in the **enterprise software** industry, specifically focusing... | 85% | 0 |
 | 30 | What is NexaTech's flagship product? | NexaInsight Platform | NexaTech's flagship product is the **NexaInsight Platform**. This cloud-based bu... | 85% | 0 |
 | 31 | What is the name of the AI-powered autonomous anal... | Project Athena | The name of the AI-powered autonomous analytics agent project is **Project Athen... | 85% | 0 |
-| 32 | When is the beta launch planned for Project Athena... | September 30, 2026 | The beta launch for Project Athena is planned for **September 30, 2026**. Follow... | 85% | 0 |
+| 32 | When is the beta launch planned for Project Athena... | September 30, 2026 | The beta launch for Project Athena is planned for **September 30, 2026**. The ge... | 85% | 0 |
 | 33 | When is the GA (General Availability) launch plann... | March 31, 2027 | The General Availability (GA) launch for Project Athena is planned for **March 3... | 85% | 0 |
 | 34 | What is the budget allocated for Project Athena? | $4.5 million | The budget allocated for Project Athena is **$4.5 million**. This budget breakdo... | 90% | 0 |
-| 35 | What is the revenue target for FY 2026 in the stra... | $125 million | The revenue target for FY 2026 in the strategic plan is $125 million. This figur... | 85% | 0 |
+| 35 | What is the revenue target for FY 2026 in the stra... | $125 million | The revenue target for FY 2026 in the strategic plan is $125 million. | 85% | 0 |
 | 36 | Which region is NexaTech planning to expand into a... | Latin America | According to the strategic plan for 2026-2028, NexaTech is planning to expand in... | 85% | 0 |
 | 37 | In which city will NexaTech establish its Latin Am... | São Paulo, Brazil | NexaTech will establish its Latin America headquarters in São Paulo, Brazil, as ... | 85% | 0 |
 | 38 | What is the target revenue from Latin America by e... | $15 million | The target revenue from Latin America by the end of 2027 is $15 million. This go... | 85% | 0 |
@@ -59,11 +59,11 @@
 | 42 | What is the annual professional development stipen... | $2,000 | The annual professional development stipend is $2,000 for each employee. This st... | 85% | 0 |
 | 43 | How many paid company holidays does NexaTech obser... | 11 | The retrieved information does not specify the exact number of paid company holi... | 85% | 0 |
 | 44 | What is the referral bonus for hiring an Individua... | $2,000 | The referral bonus for hiring an Individual Contributor at NexaTech is $2,000. T... | 90% | 0 |
-| 45 | What is the referral bonus for hiring a Director o... | $5,000 | I found multiple people with the Document Owner role:  - CEO (Document Owner) - ... | 100% | 0 |
+| 45 | What is the referral bonus for hiring a Director o... | $5,000 | I found multiple people with the DIRECTOR role:  - Karen Hughes (Compliance Dire... | 100% | 0 |
 | 46 | What are the three performance rating levels? | Exceeds Expectations, Meets Ex... | The three performance rating levels mentioned in the retrieved information are: ... | 85% | 0 |
 | 47 | When does the mid-year performance check-in occur? | Q3 | The mid-year performance check-in occurs in the third quarter (Q3) of the year. ... | 85% | 0 |
-| 48 | What percentage of women were in leadership roles ... | 38% | In 2025, 38% of women were in leadership roles at NexaTech. This figure reflects... | 85% | 0 |
-| 49 | What is the home office setup stipend for remote e... | $500 | The home office setup stipend for remote employees at NexaTech is **$500**.   Ad... | 85% | 0 |
+| 48 | What percentage of women were in leadership roles ... | 38% | In 2025, the percentage of women in leadership roles at NexaTech was **38%**. | 85% | 0 |
+| 49 | What is the home office setup stipend for remote e... | $500 | The home office setup stipend for remote employees at NexaTech is **$500**. In s... | 90% | 0 |
 | 50 | Can remote employees work from public Wi-Fi withou... | No | The VP of NexaTech Solutions is Brian Foster.  Note: Your documents also mention... | 90% | 0 |
 | 51 | What is the annual quota for an Account Executive ... | $1.2 million in new ARR | The annual quota for an Account Executive in Fiscal Year 2025 is $1.2 million in... | 85% | 0 |
 | 52 | What is the base salary for an Account Executive? | $90,000 | The base salary for an Account Executive is $90,000 according to the Sales Compe... | 90% | 0 |
@@ -73,27 +73,27 @@
 | 56 | What is the commission per qualified meeting for a... | $250 | The commission per qualified meeting for a Sales Development Representative (SDR... | 85% | 0 |
 | 57 | What is the NPS (Net Promoter Score) mentioned in ... | 68 | In the Q1 2024 all-hands meeting, the Net Promoter Score (NPS) announced was 68,... | 85% | 0 |
 | 58 | What is the customer retention rate mentioned in t... | 94% | The customer retention rate mentioned in the marketing brochure is reflected in ... | 85% | 0 |
-| 59 | What is the target number of new customers for Q1 ... | 150 | The target number of new customers for Q1 2024 is 140, as indicated in the Key R... | 85% | 0 |
-| 60 | What is the target Net Revenue Retention (NRR) for... | Above 120% | The target Net Revenue Retention (NRR) for Q1 2024 is set to be above 120%. This... | 85% | 0 |
+| 59 | What is the target number of new customers for Q1 ... | 150 | The target number of new customers for Q1 2024 is 140, as indicated in the compa... | 85% | 0 |
+| 60 | What is the target Net Revenue Retention (NRR) for... | Above 120% | The target Net Revenue Retention (NRR) for Q1 2024 is above 120%, with a specifi... | 85% | 0 |
 | 61 | What is the default API rate limit for the NexaIns... | 1,000 requests per minute | The default API rate limit for the NexaInsight Platform is 1,000 requests per mi... | 85% | 0 |
 | 62 | What cloud provider does NexaTech use? | Amazon Web Services (AWS) | The retrieved information does not specify which cloud provider NexaTech uses. I... | 75% | 0 |
-| 63 | What programming languages are used for backend se... | Python, Go, and Node.js | The programming languages used for backend services at NexaTech Solutions are:  ... | 85% | 0 |
+| 63 | What programming languages are used for backend se... | Python, Go, and Node.js | The programming languages used for backend services at NexaTech Solutions are: 1... | 85% | 0 |
 | 64 | What database is used for metadata and configurati... | PostgreSQL | The database used for metadata and configuration is **PostgreSQL**. This is part... | 85% | 0 |
 | 65 | What is the Recovery Time Objective (RTO) in the d... | 4 hours | The Recovery Time Objective (RTO) in NexaTech's disaster recovery plan is 4 hour... | 85% | 0 |
 | 66 | What is the Recovery Point Objective (RPO)? | 1 hour | The Recovery Point Objective (RPO) for NexaTech is set at 1 hour. This means tha... | 85% | 0 |
 | 67 | How often are database backups performed? | Every 6 hours | Database backups at NexaTech are performed every 6 hours. This strategy is part ... | 85% | 0 |
 | 68 | What version of the platform was released in Janua... | Version 3.0 | The version of the platform that was released in January 2025 is NexaInsight Pla... | 85% | 0 |
 | 69 | What was the query performance improvement in vers... | 40% faster | In version 3.0 of the NexaInsight Platform, released in January 2025, there was ... | 85% | 0 |
-| 70 | What are the three products in NexaTech's product ... | NexaInsight Platform, NexaFlow... | NexaTech's product portfolio includes the following three core products:  1. **N... | 90% | 0 |
-| 71 | Is NexaTech SOC 2 Type II certified? | Yes | Yes, NexaTech Solutions is SOC 2 Type II certified. According to the SOC 2 Type ... | 85% | 0 |
+| 70 | What are the three products in NexaTech's product ... | NexaInsight Platform, NexaFlow... | NexaTech's product portfolio includes the following three core products: 1. **Ne... | 90% | 0 |
+| 71 | Is NexaTech SOC 2 Type II certified? | Yes | Yes, NexaTech Solutions is SOC 2 Type II certified. The audit report for the fis... | 85% | 0 |
 | 72 | Is NexaTech ISO 27001 certified? | Yes | The retrieved information does not explicitly state whether NexaTech Solutions I... | 85% | 0 |
 | 73 | What encryption standard is used for data at rest? | AES-256 | The encryption standard used for data at rest is AES-256 encryption. This is exp... | 85% | 0 |
 | 74 | What TLS version is required for data in transit? | TLS 1.2 or higher | The required TLS version for data in transit is TLS 1.2. This is specified in th... | 85% | 0 |
-| 75 | Is multi-factor authentication (MFA) required? | Yes | The CTO of NexaTech is Document Owner.  Note: Your documents also mention other ... | 90% | 0 |
+| 75 | Is multi-factor authentication (MFA) required? | Yes | I found multiple people with the CTO role:  - Dr. Marcus Rodriguez (CTO of Summi... | 100% | 0 |
 | 76 | How many GDPR access requests were processed in 20... | 45 | The retrieved information does not provide specific data on the number of GDPR a... | 85% | 0 |
 | 77 | How many GDPR erasure requests were processed in 2... | 12 | The retrieved information does not provide any data regarding the number of GDPR... | 85% | 0 |
 | 78 | What is the timeframe for completing GDPR data sub... | 30 days | The timeframe for completing GDPR data subject requests is within 30 days. This ... | 85% | 0 |
-| 79 | What percentage of employees completed GDPR traini... | 100% | Based on the retrieved information, 100% of employees at NexaTech Solutions comp... | 85% | 0 |
+| 79 | What percentage of employees completed GDPR traini... | 100% | Based on the retrieved information, the percentage of employees who completed GD... | 85% | 0 |
 | 80 | What state's laws govern the Terms of Service? | Texas | The laws that govern the Terms of Service for NexaTech Solutions are those of th... | 85% | 0 |
 | 81 | Which customer achieved 25% faster decision-making... | GlobalBank Financial Services | The customer that achieved 25% faster decision-making with NexaInsight is **Glob... | 85% | 0 |
 | 82 | How much did GlobalBank save annually by using Nex... | $5 million | GlobalBank saved **$5 million annually** by using NexaInsight, as the automation... | 85% | 0 |
@@ -104,21 +104,21 @@
 | 87 | Which retail customer reduced stockouts by 28%? | RetailMax Corporation | The retail customer that reduced stockouts by 28% is **RetailMax Corporation**. ... | 85% | 0 |
 | 88 | What was Tableau's market share according to the c... | 18% | According to the competitive analysis, Tableau (Salesforce) holds a market share... | 85% | 0 |
 | 89 | What was Power BI's market share? | 22% | Power BI, developed by Microsoft, holds a market share of 22% in the global busi... | 85% | 0 |
-| 90 | What is NexaTech's market share in the mid-market ... | 3.2% | The retrieved information does not provide a specific percentage or numerical va... | 85% | 0 |
+| 90 | What is NexaTech's market share in the mid-market ... | 3.2% | The retrieved information does not specify the exact market share of NexaTech in... | 85% | 0 |
 | 91 | When was the Q1 2023 board meeting held? | March 15, 2023 | The Q1 2023 board meeting was held on March 15, 2023. | 85% | 0 |
 | 92 | What was the revenue for Q1 2023 mentioned in the ... | $10.2 million | The revenue for Q1 2023, as mentioned in the board meeting, was $10.2 million. T... | 85% | 0 |
 | 93 | What was the year-over-year growth rate mentioned ... | 180% | In the Q1 2023 board meeting, the year-over-year growth rate reported was 180%. ... | 85% | 0 |
 | 94 | When was the Series C round closed according to bo... | September 2025 | The Series C round was closed in September 2025, as indicated in the board meeti... | 85% | 0 |
 | 95 | What is the maximum reimbursement for domestic hot... | In travel policy | The retrieved information does not specify a maximum reimbursement amount for do... | 85% | 0 |
 | 96 | How many core values does NexaTech have? | 6 | NexaTech has **six core values** as outlined in the retrieved information. They ... | 85% | 0 |
-| 97 | What is the AWS contract term? | 3 years (2023-2025) | The AWS contract term is 3 years, effective from January 1, 2023, and expiring o... | 85% | 0 |
+| 97 | What is the AWS contract term? | 3 years (2023-2025) | The AWS contract term is 3 years, with an effective date of January 1, 2023, and... | 85% | 0 |
 | 98 | What is the AWS volume discount percentage? | 15% | The AWS volume discount percentage is 15% on all services. | 85% | 0 |
 | 99 | What is the AWS uptime SLA? | 99.99% | The AWS uptime Service Level Agreement (SLA) guarantees a 99.99% uptime. This me... | 85% | 0 |
 | 100 | When does the AWS contract expire? | December 31, 2025 | The AWS contract, identified as Contract ID AWS-2023-001, is set to expire on De... | 85% | 0 |
 | 101 | How many employees were hired between the start of... | 237 employees | Between the start of FY 2024 and the end of FY 2025, the following number of emp... | 85% | 0 |
-| 102 | What was the total funding raised across all round... | $151.5 million | The total funding raised across all rounds is as follows:  1. **FY 2023**: $18.0... | 85% | 0 |
+| 102 | What was the total funding raised across all round... | $151.5 million | The total funding raised across all rounds is **$151.5 million**. This includes:... | 85% | 0 |
 | 103 | What percentage of revenue does NexaTech spend on ... | 32% | In FY 2025, NexaTech spent $28.0 million on Research and Development (R&D). To d... | 85% | 0 |
-| 104 | Who are the three board members mentioned in board... | John Smith, Maria Garcia, Robe... | The three board members mentioned in the board meeting minutes are:  1. John Smi... | 85% | 0 |
+| 104 | Who are the three board members mentioned in board... | John Smith, Maria Garcia, Robe... | The three board members mentioned in the board meeting minutes are: 1. John Smit... | 85% | 0 |
 | 105 | What is the time-to-value for NexaTech compared to... | 6 weeks vs. 16 weeks | The time-to-value for NexaTech Solutions is significantly shorter than the indus... | 85% | 0 |
 
 
@@ -144,7 +144,7 @@ NexaTech's total revenue in FY 2023 was $42.3 million. This figure includes both
 **Expected:** $64.8 million
 
 **Actual Answer:**
-NexaTech's total revenue in FY 2024 was $64.8 million. This figure reflects the company's growth trajectory during that fiscal year, as detailed in the income statement provided.
+NexaTech's total revenue in FY 2024 was $64.8 million. This figure reflects the company's growth from $42.3 million in FY 2023 and is part of a broader trend of increasing revenue, which is projected to reach $87.5 million in FY 2025.
 
 **Confidence:** 85%
 
@@ -183,9 +183,7 @@ In FY 2023, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$1
 **Expected:** -$12.4 million (loss)
 
 **Actual Answer:**
-In FY 2024, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$12.8 million**. This indicates that the company operated at a net loss for that fiscal year. The total revenue for FY 2024 was **$64.8 million**, while total operating expenses amounted to **$62.3 million**. 
-
-While the specific net income/loss figure is not explicitly stated in the retrieved information, the operating loss provides a clear indication of the company's financial performance during that year.
+In FY 2024, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$12.8 million**. This indicates that the company operated at a net loss during that fiscal year. The total revenue for FY 2024 was **$64.8 million**, while total operating expenses amounted to **$62.3 million**. While the specific net income/loss figure is not explicitly stated in the retrieved information, the operating loss provides a clear indication of the company's financial performance for that year.
 
 **Confidence:** 85%
 
@@ -198,9 +196,7 @@ While the specific net income/loss figure is not explicitly stated in the retrie
 **Expected:** -$9.5 million (loss)
 
 **Actual Answer:**
-In FY 2025, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$10.6 million**. This indicates that the company continued to operate at a net loss during this period, although it showed improvement compared to previous years, with the operating margin improving from -30.7% in FY 2023 to -12.1% in FY 2025. 
-
-The specific net income or loss figure for FY 2025 is not explicitly stated in the retrieved information, but the operating loss provides a clear indication of the company's financial performance during that fiscal year.
+In FY 2025, NexaTech Solutions Inc. reported an operating loss (EBITDA) of **-$10.6 million**. This indicates that the company continued to operate at a net loss during this period, although it showed improvement compared to previous years, with the operating margin improving from -30.7% in FY 2023 to -12.1% in FY 2025. The specific net income or loss figure for FY 2025 is not explicitly stated in the retrieved information, but the operating loss provides a clear indication of the company's financial performance during that fiscal year.
 
 **Confidence:** 85%
 
@@ -265,24 +261,12 @@ The subscription revenue for FY 2024 was $55.3 million. This figure is part of t
 **Expected:** 35%
 
 **Actual Answer:**
-The year-over-year revenue growth rate from FY 2023 to FY 2024 can be calculated using the total revenue figures provided in the income statement.
-
-- Total Revenue for FY 2023: $42.3 million
-- Total Revenue for FY 2024: $64.8 million
-
-To calculate the growth rate, we use the formula:
-
-\[
+The year-over-year revenue growth rate from FY 2023 to FY 2024 can be calculated using the total revenue figures provided in the income statement. - Total Revenue for FY 2023: $42.3 million
+- Total Revenue for FY 2024: $64.8 million To calculate the growth rate, we use the formula: \[
 \text{Growth Rate} = \left( \frac{\text{Revenue in FY 2024} - \text{Revenue in FY 2023}}{\text{Revenue in FY 2023}} \right) \times 100
-\]
-
-Substituting the values:
-
-\[
+\] Substituting the values: \[
 \text{Growth Rate} = \left( \frac{64.8 - 42.3}{42.3} \right) \times 100 = \left( \frac{22.5}{42.3} \right) \times 100 \approx 53.2\%
-\]
-
-Therefore, the year-over-year revenue growth rate from FY 2023 to FY 2024 is approximately **53.2%**.
+\] Therefore, the year-over-year revenue growth rate from FY 2023 to FY 2024 is approximately **53.2%**.
 
 **Confidence:** 85%
 
@@ -295,7 +279,7 @@ Therefore, the year-over-year revenue growth rate from FY 2023 to FY 2024 is app
 **Expected:** -19.8%
 
 **Actual Answer:**
-The operating margin for FY 2024 was -19.8%. This figure is derived from the operating income (EBITDA) of -12.8 million dollars against total revenue of 64.8 million dollars, indicating a negative operating margin due to higher operating expenses compared to revenue.
+The operating margin for FY 2024 was -19.8%. This figure is derived from the operating income (EBITDA) of -12.8 million against total revenue of 64.8 million, indicating a negative operating margin due to higher operating expenses compared to revenue.
 
 **Confidence:** 85%
 
@@ -321,19 +305,11 @@ The compound annual growth rate (CAGR) for revenue from FY 2023 to FY 2025 for N
 **Expected:** 85.9%
 
 **Actual Answer:**
-In FY 2025, the total revenue was $87.5 million, and the subscription revenue was $75.2 million. To calculate the percentage of revenue that came from subscriptions, we can use the following formula:
-
-\[
+In FY 2025, the total revenue was $87.5 million, and the subscription revenue was $75.2 million. To calculate the percentage of revenue that came from subscriptions, you can use the following formula: \[
 \text{Percentage of Subscription Revenue} = \left( \frac{\text{Subscription Revenue}}{\text{Total Revenue}} \right) \times 100
-\]
-
-Substituting the values:
-
-\[
+\] Substituting the values: \[
 \text{Percentage of Subscription Revenue} = \left( \frac{75.2M}{87.5M} \right) \times 100 \approx 85.7\%
-\]
-
-Therefore, approximately **85.7%** of FY 2025 revenue came from subscriptions.
+\] Therefore, approximately **85.7%** of FY 2025 revenue came from subscriptions.
 
 **Confidence:** 85%
 
@@ -346,19 +322,8 @@ Therefore, approximately **85.7%** of FY 2025 revenue came from subscriptions.
 **Expected:** 20.3 percentage points
 
 **Actual Answer:**
-The improvement in net margin from FY 2023 to FY 2025 can be assessed through the operating margin percentages provided in the income statement. 
-
-- In FY 2023, the operating margin was **-30.7%**.
-- In FY 2025, the operating margin improved to **-12.1%**.
-
-To calculate the improvement in net margin, we subtract the FY 2023 operating margin from the FY 2025 operating margin:
-
-Improvement in operating margin = Operating Margin FY 2025 - Operating Margin FY 2023  
-= (-12.1%) - (-30.7%)  
-= -12.1% + 30.7%  
-= **18.6%**
-
-Thus, the improvement in net margin from FY 2023 to FY 2025 was **18.6 percentage points**.
+The improvement in net margin from FY 2023 to FY 2025 can be assessed through the operating margin percentages provided in the income statement. - In FY 2023, the operating margin was **-30.7%**.
+- In FY 2025, the operating margin improved to **-12.1%**. To calculate the improvement in net margin, we subtract the FY 2023 operating margin from the FY 2025 operating margin: Improvement in operating margin = FY 2025 Operating Margin - FY 2023 Operating Margin = (-12.1%) - (-30.7%) = -12.1% + 30.7% = **18.6%** Thus, the improvement in net margin from FY 2023 to FY 2025 is **18.6 percentage points**.
 
 **Confidence:** 85%
 
@@ -384,7 +349,7 @@ NexaTech Solutions raised a total of **$85 million** through Series C funding.
 **Expected:** $62.3 million
 
 **Actual Answer:**
-The total Operating Expenses (OpEx) budget for FY 2024 was **$62.3 million**.
+The total Operating Expenses (OpEx) budget for FY 2024 is $62.3 million. This figure includes allocations for Research & Development ($21.4 million), Sales & Marketing ($29.2 million), and General & Administrative expenses ($11.7 million).
 
 **Confidence:** 85%
 
@@ -423,7 +388,7 @@ The committed annual spend with Amazon Web Services (AWS) is $2.5 million. This 
 **Expected:** 3.5x
 
 **Actual Answer:**
-The target LTV:CAC (Lifetime Value to Customer Acquisition Cost) ratio for Q3 2025 is 3.5x. This target is part of the company's objective to improve unit economics as outlined in their OKRs for that quarter.
+The target LTV:CAC (Lifetime Value to Customer Acquisition Cost) ratio for Q3 2025 is 3.5x. This goal is part of the company's objective to improve unit economics as outlined in their OKRs for that quarter.
 
 **Confidence:** 85%
 
@@ -452,18 +417,7 @@ Note: Your documents also mention other CEOs:
 **Expected:** Dr. Marcus Rodriguez
 
 **Actual Answer:**
-The CTO of NexaTech is Document Owner.
-
-Note: Your documents also mention other CTOs:
-- Dr. Marcus Rodriguez (CTO of Summit Peak)
-- Direct Reports (Director of Security)
-- Karen Hughes (Compliance Director)
-- Nicole Chen (Creative Director)
-- Director of Infrastructure (Director of Infrastructure)
-- Marcus Rodriguez (Chief Technology Officer)
-- Incident Commander (Director)
-- Alex Chen (Director of Security Operations)
-- Jonathan Lee (Director of Compliance & Risk)
+The CTO of Unknown is Marcus Rodriguez.
 
 **Confidence:** 90%
 
@@ -489,7 +443,7 @@ The Chief Financial Officer (CFO) of NexaTech Solutions is Jennifer Walsh.
 **Expected:** David Kim
 
 **Actual Answer:**
-The Chief Revenue Officer (CRO) is David Kim. He is responsible for overseeing the company's revenue generation strategies and reports to Sarah Chen, the CEO. David Kim has been actively involved in the company's go-to-market expansion efforts, including plans for Latin America and has demonstrated strong sales performance.
+The Chief Revenue Officer (CRO) is David Kim. He is responsible for overseeing the company's revenue-generating activities and reports to Sarah Chen, the CEO. David Kim works at Summit Peak, where he has been involved in various initiatives, including go-to-market expansion and sales performance.
 
 **Confidence:** 90%
 
@@ -528,19 +482,11 @@ NexaTech Solutions Inc. is headquartered at 1250 Innovation Drive, Austin, TX 78
 **Expected:** 537
 
 **Actual Answer:**
-At the end of FY 2024, NexaTech Solutions had the following employee counts:
-
-1. **300 employees** at the end of FY 2023.
-2. **537 employees** at the end of FY 2025.
-
-While the specific employee count for the end of FY 2024 is not explicitly stated, it can be inferred that the number of employees would be between 300 and 537. The company is expected to expand to approximately **750 employees by the end of FY 2026**. 
-
-Thus, the known employee counts are:
+At the end of FY 2024, NexaTech Solutions had the following employee counts: 1. **300 employees** at the end of FY 2023.
+2. **537 employees** at the end of FY 2025. While the specific employee count for the end of FY 2024 is not explicitly stated, it can be inferred that the number of employees would have been between 300 and 537. The company is expected to expand to approximately **750 employees by the end of FY 2026**. Thus, the known employee counts are:
 - **300 employees** (end of FY 2023)
 - **537 employees** (end of FY 2025)
-- **Expected to reach 750 employees** (by end of FY 2026)
-
-The exact number for the end of FY 2024 is not provided in the retrieved information.
+- **Expected to reach 750 employees** (by end of FY 2026) The exact number of employees at the end of FY 2024 is not provided in the retrieved information.
 
 **Confidence:** 85%
 
@@ -553,17 +499,7 @@ The exact number for the end of FY 2024 is not provided in the retrieved informa
 **Expected:** 2,147
 
 **Actual Answer:**
-The retrieved information does not provide a specific number of customers that NexaTech had at the end of FY 2024. However, it does mention the following relevant points regarding customer growth and financial performance:
-
-1. **Accounts Receivable Growth**: Accounts receivable increased from $8.2 million at the end of FY 2023 to $12.5 million at the end of FY 2024, indicating growth in the customer base and revenue.
-
-2. **Revenue Growth**: Total revenue increased from $42.3 million in FY 2023 to $64.8 million in FY 2024, which suggests an expanding customer base, although the exact number of customers is not specified.
-
-3. **Customer Retention Rate**: NexaTech has a strong customer retention rate of 94%, which implies that they are successfully maintaining their existing customers while likely adding new ones.
-
-4. **Future Outlook**: The company aims to grow its customer base to over 5,000 organizations by the end of FY 2028, indicating a focus on significant customer expansion in the coming years.
-
-In summary, while the exact number of customers at the end of FY 2024 is not provided, the information indicates growth in accounts receivable and revenue, along with a strong retention rate, suggesting an increasing customer base.
+The retrieved information does not provide a specific number of customers that NexaTech had at the end of FY 2024. However, it does mention the following relevant details: 1. **Customer Base Growth**: The accounts receivable increased from $8.2 million at the end of FY 2023 to $12.5 million at the end of FY 2024, indicating growth in the customer base and revenue during that period. 2. **Revenue Growth**: Total revenue increased from $42.3 million in FY 2023 to $64.8 million in FY 2024, which suggests an expanding customer base, but does not specify the exact number of customers. 3. **Future Projections**: The company aims to grow its customer base to over **5,000 organizations** by the end of FY 2028, but this does not provide specific data for FY 2024. In summary, while there is evidence of growth in revenue and accounts receivable, the exact number of customers at the end of FY 2024 is not disclosed in the provided information.
 
 **Confidence:** 85%
 
@@ -615,7 +551,7 @@ The name of the AI-powered autonomous analytics agent project is **Project Athen
 **Expected:** September 30, 2026
 
 **Actual Answer:**
-The beta launch for Project Athena is planned for **September 30, 2026**. Following the beta phase, the general availability (GA) launch is scheduled for **March 31, 2027**.
+The beta launch for Project Athena is planned for **September 30, 2026**. The general availability (GA) launch is scheduled for **March 31, 2027**.
 
 **Confidence:** 85%
 
@@ -628,7 +564,7 @@ The beta launch for Project Athena is planned for **September 30, 2026**. Follow
 **Expected:** March 31, 2027
 
 **Actual Answer:**
-The General Availability (GA) launch for Project Athena is planned for **March 31, 2027**. The project will have a beta launch by **September 30, 2026**, prior to the GA release.
+The General Availability (GA) launch for Project Athena is planned for **March 31, 2027**.
 
 **Confidence:** 85%
 
@@ -641,13 +577,9 @@ The General Availability (GA) launch for Project Athena is planned for **March 3
 **Expected:** $4.5 million
 
 **Actual Answer:**
-The budget allocated for Project Athena is **$4.5 million**. This budget breakdown includes:
-
-- **Personnel Costs:** $3.5 million for a dedicated team of 20 engineers, product managers, and designers over a 12-month period.
-- **Infrastructure Costs:** $0.5 million for additional cloud computing resources needed for model training and hosting.
-- **Marketing and Launch Costs:** $0.5 million for launch events, public relations, and marketing campaigns. 
-
-This comprehensive budget is designed to support the development and successful launch of the project.
+The budget allocated for Project Athena is **$4.5 million**. This budget breakdown includes: - **Personnel Costs:** $3.5 million, which covers a dedicated team of 20 engineers, product managers, and designers for a duration of 12 months.
+- **Infrastructure Costs:** $0.5 million, allocated for additional cloud computing resources necessary for model training and hosting.
+- **Marketing and Launch Costs:** $0.5 million, designated for launch events, public relations, and marketing campaigns. This comprehensive budget is designed to support the successful development and launch of the project.
 
 **Confidence:** 90%
 
@@ -660,7 +592,7 @@ This comprehensive budget is designed to support the development and successful 
 **Expected:** $125 million
 
 **Actual Answer:**
-The revenue target for FY 2026 in the strategic plan is $125 million. This figure is part of the financial projections outlined in the strategic plan for the years FY 2026 to FY 2028.
+The revenue target for FY 2026 in the strategic plan is $125 million.
 
 **Confidence:** 85%
 
@@ -673,7 +605,7 @@ The revenue target for FY 2026 in the strategic plan is $125 million. This figur
 **Expected:** Latin America
 
 **Actual Answer:**
-According to the strategic plan for 2026-2028, NexaTech is planning to expand into the **Latin American market**. This expansion is part of their broader strategy to accelerate growth and establish themselves as a leader in the AI-powered business intelligence market. Additionally, they are also looking to scale their channel partnerships and further penetrate the enterprise segment.
+According to the strategic plan for 2026-2028, NexaTech is planning to expand into the **Latin American market**. This expansion is part of their go-to-market strategy, which also includes scaling channel partnerships and further penetrating the enterprise segment. Additionally, the company is also looking to enhance its presence in **Europe and Asia**, as indicated in a press release regarding their funding and growth plans.
 
 **Confidence:** 85%
 
@@ -699,7 +631,7 @@ NexaTech will establish its Latin America headquarters in São Paulo, Brazil, as
 **Expected:** $15 million
 
 **Actual Answer:**
-The target revenue from Latin America by the end of 2027 is $15 million. This goal is part of the company's market expansion plan, which outlines strategies for entering the Latin American market starting in 2026.
+The target revenue from Latin America by the end of 2027 is $15 million. This goal is part of the company's market expansion plan, which outlines strategies to enter the Latin American market starting in 2026.
 
 **Confidence:** 85%
 
@@ -764,9 +696,7 @@ The annual professional development stipend is $2,000 for each employee. This st
 **Expected:** 11
 
 **Actual Answer:**
-The retrieved information does not specify the exact number of paid company holidays that NexaTech observes. Therefore, I cannot provide a definitive answer regarding the number of paid holidays. 
-
-If you need detailed information about paid holidays, it may be best to refer to the official employee handbook or contact the Human Resources department directly for the most accurate and up-to-date information.
+The retrieved information does not specify the exact number of paid company holidays that NexaTech observes. Therefore, I cannot provide a definitive answer regarding the number of paid holidays. If you need detailed information about paid holidays, it may be best to refer to the official employee handbook or contact the Human Resources department directly for the most accurate and up-to-date information.
 
 **Confidence:** 85%
 
@@ -779,7 +709,7 @@ If you need detailed information about paid holidays, it may be best to refer to
 **Expected:** $2,000
 
 **Actual Answer:**
-The referral bonus for hiring an Individual Contributor at NexaTech is $2,000. This bonus is structured as follows: $1,000 is paid at the time of hire, and the remaining $1,000 is paid after the referred employee has been employed for 6 months.
+The referral bonus for hiring an Individual Contributor at NexaTech is $2,000. This bonus is structured as follows: $1,000 is paid at the time of hire, and the remaining $1,000 is paid after the referred candidate has been employed for 6 months. If you have any further questions or need additional information, feel free to ask!
 
 **Confidence:** 90%
 
@@ -792,11 +722,16 @@ The referral bonus for hiring an Individual Contributor at NexaTech is $2,000. T
 **Expected:** $5,000
 
 **Actual Answer:**
-I found multiple people with the Document Owner role:
+I found multiple people with the DIRECTOR role:
 
-- CEO (Document Owner)
-- VP of Engineering (Document Owner)
-- VP of Product (Document Owner)
+- Karen Hughes (Compliance Director)
+- Alex Chen (Director of Security Operations)
+- Jonathan Lee (Director of Compliance & Risk)
+- Sophia Patel (Director of People Operations)
+- Direct Reports (Director of Security)
+- Nicole Chen (Creative Director)
+- Director of Infrastructure (Director of Infrastructure)
+- Incident Commander (Director)
 
 Which one would you like to know more about? Please specify by name.
 
@@ -811,9 +746,7 @@ Which one would you like to know more about? Please specify by name.
 **Expected:** Exceeds Expectations, Meets Expectations, Needs Improvement
 
 **Actual Answer:**
-The three performance rating levels mentioned in the retrieved information are:
-
-1. **Exceeds Expectations:** Significantly above the expectations for the role.
+The three performance rating levels mentioned in the retrieved information are: 1. **Exceeds Expectations:** Significantly above the expectations for the role.
 2. **Meets Expectations:** Consistently performs at the expected level for the role.
 3. **Needs Improvement:** Performance is inconsistent and does not always meet the expectations for the role.
 
@@ -841,7 +774,7 @@ The mid-year performance check-in occurs in the third quarter (Q3) of the year. 
 **Expected:** 38%
 
 **Actual Answer:**
-In 2025, 38% of women were in leadership roles at NexaTech. This figure reflects the company's commitment to increasing diversity and inclusion within its leadership structure. The company has set a goal to increase the percentage of women in leadership to 45% by 2026.
+In 2025, the percentage of women in leadership roles at NexaTech was **38%**.
 
 **Confidence:** 85%
 
@@ -854,15 +787,10 @@ In 2025, 38% of women were in leadership roles at NexaTech. This figure reflects
 **Expected:** $500
 
 **Actual Answer:**
-The home office setup stipend for remote employees at NexaTech is **$500**. 
+The home office setup stipend for remote employees at NexaTech is **$500**. In summary, the relevant items regarding the home office setup stipend are: 1. **Home Office Setup Stipend Amount**: $500
+2. **Equipment Provided by the Company**: - Laptop - Monitor These items are part of the company's remote work policy, which supports a remote-first culture.
 
-Additionally, the company provides the following equipment for remote employees:
-1. Laptop
-2. Monitor
-
-These items are part of the support provided to facilitate a productive home office environment.
-
-**Confidence:** 85%
+**Confidence:** 90%
 
 ---
 
@@ -914,11 +842,7 @@ The annual quota for an Account Executive in Fiscal Year 2025 is $1.2 million in
 **Expected:** $90,000
 
 **Actual Answer:**
-The base salary for an Account Executive is $90,000 according to the Sales Compensation Plan for Fiscal Year 2025. Additionally, the On-Target Earnings (OTE) for this role is $180,000, which is split evenly between base salary and variable compensation. 
-
-In the job description for the Account Executive role, it is noted that the base salary can range from $80,000 to $100,000, with OTE ranging from $160,000 to $200,000. This indicates some variability in compensation based on factors such as experience or performance.
-
-In summary, the base salary for an Account Executive is typically around $90,000, but it can range from $80,000 to $100,000 depending on specific circumstances.
+The base salary for an Account Executive is $90,000 according to the Sales Compensation Plan for Fiscal Year 2025. Additionally, the On-Target Earnings (OTE) for this role is $180,000, which is split evenly between base salary and variable compensation. In the job description for the Account Executive role, it is noted that the base salary can range from $80,000 to $100,000, with OTE ranging from $160,000 to $200,000. This indicates some variability in compensation based on factors such as experience or performance. In summary, the base salary for an Account Executive is typically around $90,000, but it can range from $80,000 to $100,000 depending on specific circumstances.
 
 **Confidence:** 90%
 
@@ -931,7 +855,7 @@ In summary, the base salary for an Account Executive is typically around $90,000
 **Expected:** $180,000
 
 **Actual Answer:**
-The on-target earnings (OTE) for an Account Executive is $180,000. This figure is derived from a base salary of $90,000 and a variable component that brings the total to the OTE amount. The compensation structure is split evenly, with 50% of the earnings coming from the base salary and 50% from variable compensation based on performance.
+The on-target earnings (OTE) for an Account Executive is $180,000. This figure is derived from a base salary of $90,000 and a variable component that is designed to be earned through performance, making the total OTE split evenly between base and variable compensation.
 
 **Confidence:** 90%
 
@@ -944,12 +868,10 @@ The on-target earnings (OTE) for an Account Executive is $180,000. This figure i
 **Expected:** 12%
 
 **Actual Answer:**
-The commission rate for achieving 100-120% of quota is 12%. This is part of the commission structure outlined in the Sales Compensation Plan for Fiscal Year 2025, which specifies different commission rates based on the percentage of quota attained. Here are the relevant commission rates:
-
-- 0-80% of quota: 8% commission rate
+The commission rate for achieving 100-120% of quota is 12%. This is part of the commission structure outlined in the Sales Compensation Plan for Fiscal Year 2025. Here’s a summary of the commission rates based on quota attainment: - 0-80% of quota: 8% commission rate
 - 80-100% of quota: 10% commission rate
 - 100-120% of quota: 12% commission rate
-- 120%+ of quota: 15% commission rate
+- 120%+ of quota: 15% commission rate If you have any further questions or need additional information, feel free to ask!
 
 **Confidence:** 85%
 
@@ -1001,7 +923,7 @@ In the Q1 2024 all-hands meeting, the Net Promoter Score (NPS) announced was 68,
 **Expected:** 94%
 
 **Actual Answer:**
-The customer retention rate mentioned in the marketing brochure is reflected in the Net Revenue Retention (NRR) rate, which has remained consistently strong at over 118%. Specifically, the NRR is projected to be 125% in FY 2025. This indicates that existing customers are not only retained but are also expanding their usage of the platform over time, which is a critical metric for assessing customer retention in SaaS companies.
+The customer retention rate mentioned in the marketing brochure is reflected in the net revenue retention (NRR) rate, which has remained consistently strong at over 118%. Specifically, the NRR is projected to be 125% in FY 2025. This indicates that existing customers are not only retained but are also expanding their usage of the platform over time, demonstrating the value they derive from the products.
 
 **Confidence:** 85%
 
@@ -1014,7 +936,7 @@ The customer retention rate mentioned in the marketing brochure is reflected in 
 **Expected:** 150
 
 **Actual Answer:**
-The target number of new customers for Q1 2024 is 140, as indicated in the Key Result (KR2) under Objective 1: Accelerate Revenue Growth in the Q1 2024 OKRs document.
+The target number of new customers for Q1 2024 is 140, as indicated in the company OKRs document for that quarter.
 
 **Confidence:** 85%
 
@@ -1027,7 +949,7 @@ The target number of new customers for Q1 2024 is 140, as indicated in the Key R
 **Expected:** Above 120%
 
 **Actual Answer:**
-The target Net Revenue Retention (NRR) for Q1 2024 is set to be above 120%. This is part of the company's objectives for that quarter, indicating a focus on maintaining strong customer retention and expansion.
+The target Net Revenue Retention (NRR) for Q1 2024 is above 120%, with a specific target set at 120%. This is part of the company's objectives for that quarter, indicating a focus on maintaining strong customer retention and expansion.
 
 **Confidence:** 85%
 
@@ -1053,7 +975,7 @@ The default API rate limit for the NexaInsight Platform is 1,000 requests per mi
 **Expected:** Amazon Web Services (AWS)
 
 **Actual Answer:**
-The retrieved information does not specify which cloud provider NexaTech uses. It primarily focuses on the organization itself, its operations, and its personnel. Therefore, I cannot provide a definitive answer regarding the cloud provider utilized by NexaTech. If you need more specific information about their cloud services, it may be best to contact them directly or check their official resources.
+The retrieved information does not specify which cloud provider NexaTech uses. It primarily focuses on the organization itself, its operations, and its personnel. Therefore, I cannot provide a definitive answer regarding the cloud provider utilized by NexaTech. If you need more specific information about their cloud services, it may be helpful to contact them directly or check their official website.
 
 **Confidence:** 75%
 
@@ -1066,18 +988,7 @@ The retrieved information does not specify which cloud provider NexaTech uses. I
 **Expected:** Python, Go, and Node.js
 
 **Actual Answer:**
-The programming languages used for backend services at NexaTech Solutions are:
-
-1. **Python**
-   - Used in the Query Engine Service (Python/FastAPI) and AI/ML Service (Python/TensorFlow).
-
-2. **Go**
-   - Used in the Data Processing Service.
-
-3. **Node.js**
-   - Used in the Visualization Service.
-
-These languages are part of a microservices architecture that supports the backend of the NexaTech Platform.
+The programming languages used for backend services at NexaTech Solutions are: 1. **Python** - Used in the Query Engine Service (Python/FastAPI) and AI/ML Service (Python/TensorFlow). 2. **Go** - Used in the Data Processing Service. 3. **Node.js** - Used in the Visualization Service. These languages are part of a microservices architecture that supports the backend of the NexaInsight Platform.
 
 **Confidence:** 85%
 
@@ -1116,7 +1027,7 @@ The Recovery Time Objective (RTO) in NexaTech's disaster recovery plan is 4 hour
 **Expected:** 1 hour
 
 **Actual Answer:**
-The Recovery Point Objective (RPO) for NexaTech is set at 1 hour. This means that in the event of a disaster, the maximum acceptable amount of data loss is up to 1 hour's worth of data. This objective is part of the company's disaster recovery plan, which also includes a Recovery Time Objective (RTO) of 4 hours and a Maximum Tolerable Downtime (MTD) of 24 hours.
+The Recovery Point Objective (RPO) for NexaTech is set at 1 hour. This means that in the event of a disaster, the maximum acceptable amount of data loss is one hour's worth of data. This objective is part of the company's disaster recovery plan, which also includes a Recovery Time Objective (RTO) of 4 hours and a Maximum Tolerable Downtime (MTD) of 24 hours.
 
 **Confidence:** 85%
 
@@ -1155,7 +1066,7 @@ The version of the platform that was released in January 2025 is NexaInsight Pla
 **Expected:** 40% faster
 
 **Actual Answer:**
-In version 3.0 of the NexaInsight Platform, released in January 2025, there was a notable improvement in query performance, which was reported to be **40% faster** compared to previous versions. This enhancement is part of a broader set of improvements aimed at increasing the platform's efficiency and user experience.
+In version 3.0 of the NexaInsight Platform, released in January 2025, there was a **40% improvement in query performance**. This enhancement is part of a series of improvements aimed at increasing the overall efficiency and responsiveness of the platform.
 
 **Confidence:** 85%
 
@@ -1168,13 +1079,7 @@ In version 3.0 of the NexaInsight Platform, released in January 2025, there was 
 **Expected:** NexaInsight Platform, NexaFlow, NexaSecure
 
 **Actual Answer:**
-NexaTech's product portfolio includes the following three core products:
-
-1. **NexaInsight Platform** - A cloud-based business intelligence platform featuring real-time data visualization, AI-powered predictive analytics, and a natural language query interface.
-
-2. **NexaFlow** - An automated workflow and process optimization tool that allows users to design workflows and integrate with over 200 business applications.
-
-3. **NexaSecure** - An enterprise data governance and security suite that provides role-based access control, data encryption, and compliance management features.
+NexaTech's product portfolio includes the following three core products: 1. **NexaInsight Platform** - A cloud-based business intelligence platform featuring real-time data visualization, AI-powered predictive analytics, and a natural language query interface. 2. **NexaFlow** - An automated workflow and process optimization tool that allows users to design workflows and integrate with over 200 business applications. 3. **NexaSecure** - An enterprise data governance and security suite that provides role-based access control, data encryption, and compliance management features.
 
 **Confidence:** 90%
 
@@ -1187,7 +1092,7 @@ NexaTech's product portfolio includes the following three core products:
 **Expected:** Yes
 
 **Actual Answer:**
-Yes, NexaTech Solutions is SOC 2 Type II certified. According to the SOC 2 Type II Audit Report Summary for the fiscal year 2024, the audit evaluated NexaTech's controls related to Security, Availability, and Confidentiality for the NexaInsight Platform. The report, conducted by Deloitte & Touche LLP, concluded that NexaTech's controls were suitably designed and operated effectively throughout the audit period, meeting the criteria set forth in the AICPA's Trust Services Criteria. There were no material exceptions noted, and all control objectives were met, indicating a strong security posture and effective incident response procedures.
+Yes, NexaTech Solutions is SOC 2 Type II certified. The audit report for the fiscal year 2024, conducted by Deloitte & Touche LLP, indicates that NexaTech's controls related to Security, Availability, and Confidentiality were suitably designed and operated effectively throughout the audit period. The report, dated February 15, 2025, found no material exceptions and confirmed that all control objectives were met, demonstrating a strong security posture and effective incident response procedures.
 
 **Confidence:** 85%
 
@@ -1200,7 +1105,7 @@ Yes, NexaTech Solutions is SOC 2 Type II certified. According to the SOC 2 Type 
 **Expected:** Yes
 
 **Actual Answer:**
-The retrieved information does not explicitly state whether NexaTech Solutions Inc. is ISO 27001 certified. The documents provided include details about a SOC 2 Type II audit report, which indicates that NexaTech has strong security controls in place, but there is no mention of ISO 27001 certification. Therefore, based on the available information, we cannot confirm if NexaTech is ISO 27001 certified.
+The retrieved information does not explicitly state whether NexaTech Solutions Inc. is ISO 27001 certified. The documents provided include details about a SOC 2 Type II audit report, which evaluates controls related to security, availability, and confidentiality, but there is no mention of ISO 27001 certification or any related information. Therefore, based on the available information, it is unclear if NexaTech is ISO 27001 certified. If you need confirmation on this certification, it may be best to contact NexaTech directly or check their official communications for the most accurate and up-to-date information.
 
 **Confidence:** 85%
 
@@ -1226,9 +1131,7 @@ The encryption standard used for data at rest is AES-256 encryption. This is exp
 **Expected:** TLS 1.2 or higher
 
 **Actual Answer:**
-The required TLS version for data in transit is TLS 1.2. This is specified in the security documentation, which states that all data transmitted between customers and the platform is encrypted using TLS 1.2 or higher. 
-
-If you have any further questions or need additional information, feel free to ask!
+The required TLS version for data in transit is TLS 1.2. This is specified in the security documentation, which states that all data transmitted between customers and the platform is encrypted using TLS 1.2 or higher.
 
 **Confidence:** 85%
 
@@ -1241,9 +1144,8 @@ If you have any further questions or need additional information, feel free to a
 **Expected:** Yes
 
 **Actual Answer:**
-The CTO of NexaTech is Document Owner.
+I found multiple people with the CTO role:
 
-Note: Your documents also mention other CTOs:
 - Dr. Marcus Rodriguez (CTO of Summit Peak)
 - Direct Reports (Director of Security)
 - Karen Hughes (Compliance Director)
@@ -1254,7 +1156,9 @@ Note: Your documents also mention other CTOs:
 - Alex Chen (Director of Security Operations)
 - Jonathan Lee (Director of Compliance & Risk)
 
-**Confidence:** 90%
+Which one would you like to know more about? Please specify by name.
+
+**Confidence:** 100%
 
 ---
 
@@ -1265,13 +1169,9 @@ Note: Your documents also mention other CTOs:
 **Expected:** 45
 
 **Actual Answer:**
-The retrieved information does not provide specific data on the number of GDPR access requests processed in 2024. However, it does mention the following relevant items regarding GDPR access requests:
-
-1. **Access requests processed in 2025**: 45 requests.
-2. **Erasure requests processed in 2025**: 12 requests.
-3. **Portability requests processed in 2025**: 8 requests.
-
-Unfortunately, there is no information available regarding the number of access requests processed specifically in 2024.
+The retrieved information does not provide specific data on the number of GDPR access requests processed in 2024. However, it does mention the following relevant items regarding GDPR access requests: 1. **Access requests processed in 2025**: 45 requests
+2. **Erasure requests processed in 2025**: 12 requests
+3. **Portability requests processed in 2025**: 8 requests Unfortunately, there is no information available regarding the number of access requests processed specifically in 2024.
 
 **Confidence:** 85%
 
@@ -1284,13 +1184,9 @@ Unfortunately, there is no information available regarding the number of access 
 **Expected:** 12
 
 **Actual Answer:**
-The retrieved information does not provide any data regarding the number of GDPR erasure requests processed in 2024. However, it does mention the following relevant details from the GDPR Compliance Report for 2025:
-
-1. **Erasure requests processed in 2025**: 12 requests
-2. **Access requests processed**: 45 requests
-3. **Portability requests processed**: 8 requests
-
-Unfortunately, there is no specific information available about the number of erasure requests processed in 2024.
+The retrieved information does not provide any data regarding the number of GDPR erasure requests processed in 2024. However, it does mention the following relevant data regarding GDPR requests processed: 1. **Access requests processed**: 45
+2. **Erasure requests processed**: 12
+3. **Portability requests processed**: 8 All of these requests were completed within a 30-day timeframe, but there is no specific mention of the number of erasure requests processed in 2024. Therefore, the information is incomplete regarding the specific year in question.
 
 **Confidence:** 85%
 
@@ -1316,15 +1212,9 @@ The timeframe for completing GDPR data subject requests is within 30 days. This 
 **Expected:** 100%
 
 **Actual Answer:**
-Based on the retrieved information, 100% of employees at NexaTech Solutions completed GDPR training. Additionally, the company conducts quarterly refresher training and has established a privacy champions program to further enhance awareness and compliance among employees. 
-
-Here’s a summary of the relevant items regarding GDPR training:
-
-1. **Completion Rate**: 100% of employees completed GDPR training.
-2. **Quarterly Refresher Training**: Conducted to ensure ongoing compliance and awareness.
-3. **Privacy Champions Program**: Established to promote privacy practices within the organization. 
-
-This indicates a strong commitment to GDPR compliance and employee training at NexaTech Solutions.
+Based on the retrieved information, the percentage of employees who completed GDPR training is as follows: 1. **100% of employees completed GDPR training.**
+2. **Quarterly refresher training is conducted.**
+3. **A privacy champions program has been established.** This indicates that all employees at NexaTech Solutions have successfully completed the required GDPR training.
 
 **Confidence:** 85%
 
@@ -1337,7 +1227,7 @@ This indicates a strong commitment to GDPR compliance and employee training at N
 **Expected:** Texas
 
 **Actual Answer:**
-The laws that govern the Terms of Service for NexaTech Solutions are those of the State of Texas. This is explicitly stated in the governing law clause of the agreement, which indicates that the agreement shall be governed by the laws of Texas, without regard to its conflict of laws principles.
+The laws that govern the Terms of Service for NexaTech Solutions are those of the State of Texas. This is explicitly stated in the General Provisions section of the Terms of Service, which mentions that the Agreement shall be governed by the laws of Texas, without regard to its conflict of laws principles.
 
 **Confidence:** 85%
 
@@ -1376,7 +1266,7 @@ GlobalBank saved **$5 million annually** by using NexaInsight, as the automation
 **Expected:** 50%
 
 **Actual Answer:**
-GlobalBank achieved a **50% reduction in reporting time** after implementing NexaTech Solutions' data analytics platform. This significant improvement allowed them to generate key reports much faster than before, enhancing their operational efficiency.
+GlobalBank achieved a **50% reduction in reporting time** after implementing NexaTech Solutions' data analytics platform. This significant improvement allowed them to generate key reports much faster than before, addressing their previous challenges with slow and inefficient reporting processes.
 
 **Confidence:** 85%
 
@@ -1389,9 +1279,7 @@ GlobalBank achieved a **50% reduction in reporting time** after implementing Nex
 **Expected:** 10% improvement
 
 **Actual Answer:**
-GlobalBank achieved significant improvements in fraud detection by implementing AI-powered fraud detection models through NexaTech's platform. This enhancement allowed GlobalBank to identify and prevent fraudulent transactions more effectively. Additionally, the automation of manual processes related to fraud detection contributed to an overall annual cost savings of $5 million, enabling analysts to focus on higher-value activities. 
-
-Overall, the integration of advanced analytics and real-time data capabilities has transformed GlobalBank's approach to fraud detection, making it more efficient and effective.
+GlobalBank achieved significant improvements in fraud detection by implementing AI-powered fraud detection models through NexaTech's platform. This enhancement allowed GlobalBank to identify and prevent fraudulent transactions more effectively. Additionally, the automation of manual processes related to fraud detection contributed to an overall annual cost savings of $5 million, enabling analysts to focus on higher-value activities. Overall, the integration of advanced analytics and real-time data capabilities has transformed GlobalBank's approach to fraud detection, making it more efficient and proactive.
 
 **Confidence:** 85%
 
@@ -1443,7 +1331,7 @@ The retail customer that reduced stockouts by 28% is **RetailMax Corporation**. 
 **Expected:** 18%
 
 **Actual Answer:**
-According to the competitive analysis, Tableau (Salesforce) holds a market share of **18%** in the global business intelligence market for 2025.
+According to the competitive analysis, Tableau (Salesforce) holds a market share of **18%** in the global business intelligence market as of 2025.
 
 **Confidence:** 85%
 
@@ -1456,7 +1344,7 @@ According to the competitive analysis, Tableau (Salesforce) holds a market share
 **Expected:** 22%
 
 **Actual Answer:**
-Power BI, developed by Microsoft, holds a market share of 22% in the global business intelligence market as of 2025. This positions it as one of the leading players in the industry, alongside competitors like Tableau, which has an 18% market share, and Looker, which has an 8% market share. The overall business intelligence market is estimated to be worth $27 billion in 2025, growing at an annual rate of 11%.
+Power BI, developed by Microsoft, holds a market share of 22% in the global business intelligence market as of 2025. This positions it as a significant player in the industry, particularly noted for its integration with the Microsoft ecosystem and competitive pricing. However, it does face some weaknesses, such as limited advanced analytics capabilities and performance issues at scale.
 
 **Confidence:** 85%
 
@@ -1469,9 +1357,7 @@ Power BI, developed by Microsoft, holds a market share of 22% in the global busi
 **Expected:** 3.2%
 
 **Actual Answer:**
-The retrieved information does not provide a specific percentage or numerical value for NexaTech's market share in the mid-market segment. However, it does indicate that NexaTech Solutions operates within the mid-market segment, which includes companies with 500 to 5,000 employees, and that it is recognized as a **Gartner Cool Vendor** in Analytics and BI. 
-
-While we know that NexaTech is positioned as a leader in the business intelligence and analytics software market, the exact market share figure is not mentioned in the provided documents. Therefore, we can conclude that while NexaTech has a significant presence and competitive advantages in the mid-market segment, the specific market share percentage is not available in the retrieved information.
+The retrieved information does not specify the exact market share of NexaTech in the mid-market segment. However, it does indicate that NexaTech Solutions operates within this segment, which includes companies with 500 to 5,000 employees, and that the company is recognized as a **Gartner Cool Vendor** in Analytics and BI. While we know that NexaTech has a strong presence and competitive advantages in the business intelligence and analytics software market, the specific percentage of market share is not provided in the documents. Therefore, we can conclude that NexaTech is a notable player in the mid-market segment, but the exact market share figure remains unspecified.
 
 **Confidence:** 85%
 
@@ -1536,9 +1422,7 @@ The Series C round was closed in September 2025, as indicated in the board meeti
 **Expected:** In travel policy
 
 **Actual Answer:**
-The retrieved information does not specify a maximum reimbursement amount for domestic hotel stays. It mentions that employees should book standard rooms at mid-range hotels and that the company has negotiated rates with several hotel chains, which should be used whenever possible. However, no specific reimbursement limit for hotel expenses is provided in the documents. 
-
-If you need further clarification or specific details regarding hotel reimbursement, it may be advisable to consult the company's travel and expense policy directly or reach out to the finance department for more information.
+The retrieved information does not specify a maximum reimbursement amount for domestic hotel stays. It mentions that employees should book standard rooms at mid-range hotels and that the company has negotiated rates with several hotel chains, which should be used whenever possible. However, no specific reimbursement limit for hotel expenses is provided in the documents. If you need to know the exact reimbursement limits for hotel stays, it may be necessary to consult additional company policies or contact the finance department for clarification.
 
 **Confidence:** 85%
 
@@ -1551,9 +1435,7 @@ If you need further clarification or specific details regarding hotel reimbursem
 **Expected:** 6
 
 **Actual Answer:**
-NexaTech has **six core values** as outlined in the retrieved information. They are:
-
-1. **Innovation First** - We continuously push boundaries and embrace emerging technologies.
+NexaTech has **six core values** as outlined in the retrieved information. They are: 1. **Innovation First** - We continuously push boundaries and embrace emerging technologies.
 2. **Customer Obsession** - Our clients' success is our success.
 3. **Integrity & Transparency** - We operate with honesty and ethical principles.
 4. **Collaboration** - We believe in the power of teamwork and diverse perspectives.
@@ -1571,7 +1453,7 @@ NexaTech has **six core values** as outlined in the retrieved information. They 
 **Expected:** 3 years (2023-2025)
 
 **Actual Answer:**
-The AWS contract term is 3 years, effective from January 1, 2023, and expiring on December 31, 2025.
+The AWS contract term is 3 years, with an effective date of January 1, 2023, and an expiration date of December 31, 2025.
 
 **Confidence:** 85%
 
@@ -1623,25 +1505,8 @@ The AWS contract, identified as Contract ID AWS-2023-001, is set to expire on De
 **Expected:** 237 employees
 
 **Actual Answer:**
-Between the start of FY 2024 and the end of FY 2025, the following number of employees were hired:
-
-1. **FY 2024**:
-   - Start of Year: 300 employees
-   - End of Year: 430 employees
-   - **Net New Hires**: 130 employees
-
-2. **FY 2025**:
-   - Start of Year: 430 employees
-   - End of Year: 537 employees
-   - **Net New Hires**: 107 employees
-
-### Total Employees Hired:
-- **Total New Hires from FY 2024 to FY 2025**: 
-  - FY 2024: 130 employees
-  - FY 2025: 107 employees
-  - **Total**: 130 + 107 = **237 employees**
-
-Thus, a total of **237 employees** were hired between the start of FY 2024 and the end of FY 2025.
+Between the start of FY 2024 and the end of FY 2025, the following number of employees were hired: 1. **FY 2024**: - Start of Year: 300 employees - End of Year: 430 employees - **Net New Hires**: 130 employees 2. **FY 2025**: - Start of Year: 430 employees - End of Year: 537 employees - **Net New Hires**: 107 employees ### Total Employees Hired:
+- **Total New Hires from FY 2024 to FY 2025**: - FY 2024: 130 employees - FY 2025: 107 employees - **Total**: 130 + 107 = **237 employees** Thus, a total of **237 employees** were hired between the start of FY 2024 and the end of FY 2025.
 
 **Confidence:** 85%
 
@@ -1654,16 +1519,10 @@ Thus, a total of **237 employees** were hired between the start of FY 2024 and t
 **Expected:** $151.5 million
 
 **Actual Answer:**
-The total funding raised across all rounds is as follows:
-
-1. **FY 2023**: $18.0 million in Series A extension.
-2. **FY 2024**: $45.0 million in Series B round.
-3. **FY 2025**: $85.0 million in Series C round.
-
-### Total Funding Raised:
-- **Total**: $18.0 million + $45.0 million + $85.0 million = **$148.0 million**.
-
-Thus, the total funding raised across all rounds is **$148.0 million**.
+The total funding raised across all rounds is **$151.5 million**. This includes: - **Seed Round**: $3.5 million
+- **Series A**: $18 million
+- **Series B**: $45 million
+- **Series C**: $85 million These capital raises have provided the necessary resources for growth and investment.
 
 **Confidence:** 85%
 
@@ -1676,21 +1535,11 @@ Thus, the total funding raised across all rounds is **$148.0 million**.
 **Expected:** 32%
 
 **Actual Answer:**
-In FY 2025, NexaTech spent $28.0 million on Research and Development (R&D). To determine the percentage of revenue that this represents, we need to know the total revenue for FY 2025, which is reported as $87.5 million.
-
-The percentage of revenue spent on R&D can be calculated using the formula:
-
-\[
+In FY 2025, NexaTech spent $28.0 million on Research and Development (R&D). To determine the percentage of revenue that this represents, we can use the total revenue for FY 2025, which is $87.5 million. The calculation for the percentage of revenue spent on R&D is as follows: \[
 \text{Percentage of R&D} = \left( \frac{\text{R&D Expenses}}{\text{Total Revenue}} \right) \times 100
-\]
-
-Substituting the values:
-
-\[
+\] Substituting the values: \[
 \text{Percentage of R&D} = \left( \frac{28.0 \text{ million}}{87.5 \text{ million}} \right) \times 100 \approx 32.0\%
-\]
-
-Therefore, NexaTech spent approximately **32.0%** of its revenue on R&D in FY 2025.
+\] Therefore, NexaTech spent approximately **32.0%** of its revenue on R&D in FY 2025.
 
 **Confidence:** 85%
 
@@ -1703,13 +1552,9 @@ Therefore, NexaTech spent approximately **32.0%** of its revenue on R&D in FY 20
 **Expected:** John Smith, Maria Garcia, Robert Lee
 
 **Actual Answer:**
-The three board members mentioned in the board meeting minutes are:
-
-1. John Smith
+The three board members mentioned in the board meeting minutes are: 1. John Smith
 2. Maria Garcia
 3. Robert Lee
-
-These members were noted in the board meeting minutes from various meetings.
 
 **Confidence:** 85%
 
