@@ -248,6 +248,15 @@ class ToolAgent:
         if expects_list:
             list_instruction = "\n\nIMPORTANT: This question expects a LIST of items. Make sure to enumerate ALL items mentioned in the retrieved information. Do not stop at just one example - list every relevant item you can find in the data."
         
+        interpretation_rules = ""
+        question_lower = question.lower()
+        if 'okr' in question_lower or ('target' in question_lower and 'customer' in question_lower):
+            interpretation_rules = """
+
+OKR INTERPRETATION: When reading OKRs (Objectives and Key Results), the format is typically:
+- "KR: [Action] [NUMBER] [thing] (Target: X)" - The NUMBER is the stretch goal/KR target, the parenthetical (Target: X) is the baseline.
+- For "target number" questions, use the KEY RESULT value (the larger number), not the baseline in parentheses."""
+        
         synthesis_prompt = f"""Based on the following retrieved information, answer the user's question.
 
 QUESTION: {question}
@@ -255,7 +264,7 @@ QUESTION: {question}
 RETRIEVED INFORMATION:
 {context}
 
-Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}"""
+Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{interpretation_rules}"""
 
         try:
             max_tokens = 900 if expects_list else 600
