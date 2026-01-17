@@ -20,6 +20,56 @@
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
+            transition: width 0.3s ease;
+        }
+        
+        .vault-layout.expanded .vault-sidebar {
+            width: 480px;
+        }
+        
+        .vault-layout.expanded .main-content {
+            flex: 1;
+        }
+        
+        .expand-btn {
+            padding: 4px 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .expand-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .doc-search {
+            width: 100%;
+            padding: 8px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .doc-search:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .doc-search::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .vault-layout.expanded .file-name {
+            white-space: normal;
+            word-break: break-word;
         }
         
         .sidebar-header {
@@ -777,12 +827,14 @@
                 <div class="section-header">
                     <span class="section-title">Documents</span>
                     <div style="display: flex; gap: 4px;">
+                        <button class="expand-btn" onclick="toggleExpand()" title="Expand/Collapse">⤢</button>
                         <button class="new-folder-btn" onclick="showNewFolderDialog()" title="New Folder">+</button>
                         <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
                             Upload
                         </button>
                     </div>
                 </div>
+                <input type="text" class="doc-search" id="docSearch" placeholder="Search documents..." oninput="filterDocuments()">
                 <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.md,.xlsx,.xls,.csv">
                 <div id="fileTree" class="file-list">
                     <div class="empty-files">
@@ -889,7 +941,8 @@
                     return;
                 }
                 
-                const tree = buildFolderTree(data.folders || [], data.documents || []);
+                allDocuments = data.documents || [];
+                const tree = buildFolderTree(data.folders || [], allDocuments);
                 fileTree.innerHTML = renderFolderTree(tree, '/');
                 
                 setupDragDrop();
@@ -975,7 +1028,7 @@
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                             <polyline points="14 2 14 8 20 8"/>
                         </svg>
-                        <span class="file-name">${escapeHtml(doc.name || 'Unknown')}</span>
+                        <span class="file-name" title="${escapeHtml(doc.name || 'Unknown')}">${escapeHtml(doc.name || 'Unknown')}</span>
                         <div class="file-actions">
                             ${isActive ? `
                                 <button class="file-action-btn btn-cancel" onclick="event.stopPropagation(); cancelExtraction('${doc.id}')" title="Cancel extraction">✕</button>
@@ -999,6 +1052,39 @@
                 expandedFolders.add(path);
             }
             loadDocuments();
+        }
+        
+        function toggleExpand() {
+            const layout = document.querySelector('.vault-layout');
+            layout.classList.toggle('expanded');
+            const btn = document.querySelector('.expand-btn');
+            btn.textContent = layout.classList.contains('expanded') ? '⤡' : '⤢';
+        }
+        
+        let allDocuments = [];
+        let searchTimeout = null;
+        
+        function filterDocuments() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const query = document.getElementById('docSearch').value.toLowerCase().trim();
+                if (!query) {
+                    renderFilteredDocuments(allDocuments);
+                } else {
+                    const filtered = allDocuments.filter(doc => 
+                        (doc.name || '').toLowerCase().includes(query) ||
+                        (doc.folder_path || '').toLowerCase().includes(query)
+                    );
+                    renderFilteredDocuments(filtered);
+                }
+            }, 150);
+        }
+        
+        function renderFilteredDocuments(documents) {
+            const tree = buildFolderTree([], documents);
+            const fileTree = document.getElementById('fileTree');
+            const rendered = renderFolderTree(tree, '/');
+            fileTree.innerHTML = rendered || '<div class="empty-files">No matching documents</div>';
         }
         
         function showNewFolderDialog() {
