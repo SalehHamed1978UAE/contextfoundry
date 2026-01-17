@@ -605,7 +605,8 @@ Which one would you like to know more about? Please specify by name."""
             try:
                 from ..validation.coherence_checker import CoherenceChecker
                 coherence_checker = CoherenceChecker()
-                source_chunks = [c.get('text', '') for c in docs_for_validation if isinstance(c, dict)]
+                # Note: docs_for_validation uses 'content' key, not 'text'
+                source_chunks = [c.get('content', '') for c in docs_for_validation if isinstance(c, dict)]
                 coherence_result = coherence_checker.validate(question, answer, source_chunks)
                 coherence_checker.log_result(question, coherence_result)
             except Exception as e:
