@@ -198,6 +198,25 @@ class EntityTypeRouter:
         return filtered
 
 
+METRIC_DISAMBIGUATION = {
+    "net income": {"prefer": ["NET_INCOME", "NET_LOSS"], "avoid": ["EBITDA", "OPERATING_INCOME"]},
+    "net loss": {"prefer": ["NET_INCOME", "NET_LOSS"], "avoid": ["EBITDA", "OPERATING_INCOME"]},
+    "ebitda": {"prefer": ["EBITDA"], "avoid": ["NET_INCOME"]},
+    "operating income": {"prefer": ["OPERATING_INCOME"], "avoid": ["NET_INCOME"]},
+    "customer retention": {"prefer": ["CUSTOMER_RETENTION", "RETENTION_RATE"], "avoid": ["NRR", "NET_REVENUE_RETENTION"]},
+    "net revenue retention": {"prefer": ["NRR", "NET_REVENUE_RETENTION"], "avoid": ["CUSTOMER_RETENTION"]},
+}
+
+
+def disambiguate_metric(query: str) -> Optional[Dict[str, List[str]]]:
+    """Get metric disambiguation preferences based on query text."""
+    query_lower = query.lower()
+    for metric_term, prefs in METRIC_DISAMBIGUATION.items():
+        if metric_term in query_lower:
+            return prefs
+    return None
+
+
 _router_instance: Optional[EntityTypeRouter] = None
 
 

@@ -61,6 +61,57 @@ def _is_blacklisted_entity(name: str) -> bool:
     return False
 
 
+METRIC_RERANK_RULES = {
+    'net income': {'prefer': ['net income', 'net loss', 'net profit', 'profit after tax'], 
+                   'demote': ['ebitda', 'operating income', 'operating loss']},
+    'net loss': {'prefer': ['net income', 'net loss', 'net profit'], 
+                 'demote': ['ebitda', 'operating income', 'operating loss']},
+    'ebitda': {'prefer': ['ebitda'], 'demote': ['net income', 'net loss']},
+    'customer retention': {'prefer': ['customer retention', 'retention rate'], 
+                           'demote': ['nrr', 'net revenue retention']},
+}
+
+
+def rerank_chunks_by_metric(chunks: List[Dict], query: str) -> List[Dict]:
+    """Rerank chunks to prefer those containing the correct metric type."""
+    if not chunks:
+        return chunks
+    
+    query_lower = query.lower()
+    rule = None
+    for metric, r in METRIC_RERANK_RULES.items():
+        if metric in query_lower:
+            rule = r
+            logger.info(f"[CHUNK_RERANK] Applying rule for metric: {metric}")
+            break
+    
+    if not rule:
+        return chunks
+    
+    def score_chunk(chunk: Dict) -> float:
+        text = (chunk.get('text', '') or '').lower()
+        score = chunk.get('similarity', 0.5)
+        
+        for term in rule['prefer']:
+            if term in text:
+                score += 0.2
+                logger.debug(f"[CHUNK_RERANK] Boosted chunk for '{term}'")
+        
+        for term in rule['demote']:
+            if term in text and not any(p in text for p in rule['prefer']):
+                score -= 0.3
+                logger.debug(f"[CHUNK_RERANK] Demoted chunk for '{term}' without preferred term")
+        
+        return score
+    
+    scored = [(chunk, score_chunk(chunk)) for chunk in chunks]
+    scored.sort(key=lambda x: x[1], reverse=True)
+    
+    reranked = [chunk for chunk, _ in scored]
+    logger.info(f"[CHUNK_RERANK] Reranked {len(chunks)} chunks")
+    return reranked
+
+
 @dataclass
 class AmbiguityResult:
     """
@@ -294,6 +345,8 @@ class RetrievalRouter:
             }
             for r in results
         ]
+        
+        chunks = rerank_chunks_by_metric(chunks, query)
         
         logger.info(f"[ROUTER] Document search found {len(chunks)} chunks")
         return chunks
