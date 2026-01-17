@@ -1,0 +1,61 @@
+Run Two Experiments
+
+  We need data, not opinions. Run both tests.
+
+  ---
+  Experiment 1: Force Q58 and Q59 through RLM
+
+  Don't lower threshold globally. Just bypass tier classification for these two:
+
+  # In tool_agent.py, before routing logic:
+  FORCE_RLM_QUERIES = [
+      "customer retention rate",
+      "target for new customers",
+  ]
+
+  # If query matches any pattern, force Tier 2
+  for pattern in FORCE_RLM_QUERIES:
+      if pattern in query.lower():
+          tier = QueryTier.TIER2_RLM
+          break
+
+  Run Q58 and Q59 through RLM. Log iterations. Report:
+  - Did RLM iterate multiple times?
+  - Did it find the right data?
+  - Did it interpret correctly?
+
+  Answers: Does RLM help interpretation when it actually runs?
+
+  ---
+  Experiment 2: Add interpretation prompt guidance
+
+  Add to system prompt (general rules, not query-specific):
+
+  ## Document Format Interpretation
+
+  ### OKR Format
+  When you see "Achieve X (Target: Y)" or "Close X (Target: Y)":
+  - X is the goal being set
+  - Y in parentheses is the baseline/reference
+  - Return X, not Y
+
+  ### Metric Disambiguation
+  Match metric names EXACTLY to what was asked:
+  - "Customer retention rate" ≠ "Net Revenue Retention (NRR)"
+  - "Net income" ≠ "EBITDA"
+  - If asked for one, do not substitute another
+
+  Run full 105-question test. Report accuracy.
+
+  Answers: Does prompt guidance recover ~98%?
+
+  ---
+  Expected Results:
+  ┌─────────────────────┬───────────────────────────────────────────────────┐
+  │     Experiment      │                  Likely Outcome                   │
+  ├─────────────────────┼───────────────────────────────────────────────────┤
+  │ 1 (RLM on Q58/Q59)  │ RLM may not help - interpretation isn't multi-hop │
+  ├─────────────────────┼───────────────────────────────────────────────────┤
+  │ 2 (Prompt guidance) │ Should recover 98%+                               │
+  └─────────────────────┴───────────────────────────────────────────────────┘
+  Report both. Then we'll know the right architecture
