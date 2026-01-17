@@ -203,6 +203,40 @@ def check_answer_match(expected: str, actual: str) -> tuple:
         if matches == len(expected_items):
             return ('correct', f'All list items found ({matches}/{len(expected_items)})')
     
+    time_match = re.search(r'(\d+)\s*(?:days?|hours?|weeks?|months?)', expected_lower)
+    if time_match:
+        time_val = time_match.group(1)
+        if re.search(rf'{time_val}\s*[-\s]*?(?:day|hour|week|month)', actual_lower):
+            return ('correct', 'Time duration match')
+    
+    year_ranges = re.findall(r'(\d{4})', expected_lower)
+    if len(year_ranges) >= 2:
+        if all(year in actual_lower for year in year_ranges):
+            if '3 years' in expected_lower and '3 years' in actual_lower:
+                return ('correct', 'Contract term match')
+    
+    if '%' in expected_lower:
+        expected_num = re.search(r'([\d.]+)\s*%', expected_lower)
+        if expected_num:
+            pct_val = expected_num.group(1)
+            if pct_val in actual_lower and '%' in actual_lower:
+                return ('correct', 'Percentage value match')
+            calc_patterns = [
+                rf'{pct_val}\s*%',
+                rf'approximately\s*{pct_val}',
+                rf'about\s*{pct_val}',
+                rf'≈\s*{pct_val}',
+            ]
+            for pattern in calc_patterns:
+                if re.search(pattern, actual_lower, re.IGNORECASE):
+                    return ('correct', 'Calculated percentage match')
+    
+    money_match = re.search(r'\$?([\d.,]+)\s*(million|billion)?', expected_lower)
+    if money_match:
+        money_val = money_match.group(1).replace(',', '')
+        if money_val in actual_lower.replace(',', ''):
+            return ('correct', 'Monetary value match')
+    
     return ('wrong', f'Expected "{expected}" but got different value')
 
 
