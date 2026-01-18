@@ -61,12 +61,21 @@ class SpreadsheetLoader:
     def __init__(self):
         self._column_type_cache: Dict[str, str] = {}
 
-    def load(self, file_path: str) -> SpreadsheetDocument:
-        """Load a spreadsheet file and extract all tables."""
+    def load(self, file_path: str, original_filename: str = None) -> SpreadsheetDocument:
+        """Load a spreadsheet file and extract all tables.
+        
+        Args:
+            file_path: Path to the file on disk
+            original_filename: Original filename with extension (used when file_path has no extension)
+        """
         path = Path(file_path)
         extension = path.suffix.lower()
+        
+        # If no extension on file_path, use original_filename to determine type
+        if not extension and original_filename:
+            extension = Path(original_filename).suffix.lower()
 
-        logger.info(f"[SPREADSHEET] Loading: {path.name}")
+        logger.info(f"[SPREADSHEET] Loading: {original_filename or path.name} (extension: {extension})")
 
         if extension in ['.xlsx', '.xls']:
             return self._load_excel(file_path)
