@@ -14,6 +14,98 @@ from src.context_foundry.models.schema import get_session
 logger = logging.getLogger(__name__)
 
 
+def cleanup_orphaned_entities() -> dict:
+    """Clean up entities whose tenant no longer exists.
+    
+    This handles the case where tenant deletion succeeded but entity deletion
+    failed (e.g., due to FK constraints). Runs automatically on startup and
+    can be called manually.
+    
+    Returns dict with counts of cleaned up items.
+    """
+    db_session = get_session(use_rls_role=False)
+    cleaned = {}
+    sp_counter = [0]
+    
+    def safe_delete(name: str, sql: str, params: dict) -> int:
+        """Execute delete with savepoint to recover from errors."""
+        sp_counter[0] += 1
+        sp_name = f"sp_orphan_{sp_counter[0]}"
+        try:
+            db_session.execute(text(f"SAVEPOINT {sp_name}"))
+            result = db_session.execute(text(sql), params)
+            db_session.execute(text(f"RELEASE SAVEPOINT {sp_name}"))
+            return result.rowcount
+        except Exception as e:
+            try:
+                db_session.execute(text(f"ROLLBACK TO SAVEPOINT {sp_name}"))
+                db_session.execute(text(f"RELEASE SAVEPOINT {sp_name}"))
+            except:
+                pass
+            logger.debug(f"[OrphanCleanup] Skipped {name}: {type(e).__name__}")
+            return 0
+    
+    try:
+        orphaned_tenants = db_session.execute(text("""
+            SELECT DISTINCT e.tenant_id, COUNT(*) as count
+            FROM entities e
+            LEFT JOIN platform.tenants t ON e.tenant_id = t.id
+            WHERE t.id IS NULL
+            GROUP BY e.tenant_id
+        """)).fetchall()
+        
+        if not orphaned_tenants:
+            logger.info("[OrphanCleanup] No orphaned entities found")
+            return {'orphaned_tenants': 0, 'total_cleaned': 0}
+        
+        total_orphaned = sum(row.count for row in orphaned_tenants)
+        logger.warning(f"[OrphanCleanup] Found {total_orphaned} orphaned entities across {len(orphaned_tenants)} deleted tenants")
+        
+        for row in orphaned_tenants:
+            tenant_id = str(row.tenant_id)
+            
+            tables_to_clean = [
+                ('superseded_by_nullify_self', "UPDATE entities SET superseded_by = NULL WHERE tenant_id = :tid"),
+                ('superseded_by_nullify_refs', "UPDATE entities SET superseded_by = NULL WHERE superseded_by IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('relationships', "DELETE FROM relationships WHERE source_id IN (SELECT id FROM entities WHERE tenant_id = :tid) OR target_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('entity_mentions', "DELETE FROM entity_mentions WHERE entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('entity_aliases', "DELETE FROM entity_aliases WHERE entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('cf_entity_aliases', "DELETE FROM cf_entity_aliases WHERE entity_id::uuid IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('duplicate_candidates', "DELETE FROM duplicate_candidates WHERE entity_a_id IN (SELECT id FROM entities WHERE tenant_id = :tid) OR entity_b_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('conflict_logs', "DELETE FROM conflict_logs WHERE entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('user_feedback', "DELETE FROM user_feedback WHERE entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('merge_audits', "DELETE FROM merge_audits WHERE surviving_entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('inference_run_chunks', "DELETE FROM inference_run_chunks WHERE entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('learning_results', "DELETE FROM learning_results WHERE entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('proposed_relationships', "DELETE FROM proposed_relationships WHERE source_entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid) OR target_entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
+                ('entities', "DELETE FROM entities WHERE tenant_id = :tid"),
+            ]
+            
+            for table_name, sql in tables_to_clean:
+                count = safe_delete(f"{table_name}:{tenant_id[:8]}", sql, {'tid': tenant_id})
+                if count > 0:
+                    cleaned[f"{table_name}:{tenant_id[:8]}"] = count
+        
+        db_session.commit()
+        
+        total_cleaned = sum(v for v in cleaned.values() if isinstance(v, int))
+        if total_cleaned > 0:
+            logger.info(f"[OrphanCleanup] Cleaned up {total_cleaned} orphaned records")
+        
+        return {
+            'orphaned_tenants': len(orphaned_tenants),
+            'total_cleaned': total_cleaned,
+            'details': cleaned
+        }
+        
+    except Exception as e:
+        db_session.rollback()
+        logger.error(f"[OrphanCleanup] Failed: {e}", exc_info=True)
+        return {'error': str(e)}
+    finally:
+        db_session.close()
+
+
 def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
     """Delete all artifacts associated with a vault/tenant.
     

@@ -970,6 +970,15 @@ if __name__ == '__main__':
     else:
         logger.info(f"[Brain] Port check skipped (started via start.sh)")
     
+    # Clean up orphaned entities from deleted tenants on startup
+    try:
+        from src.context_foundry.utils.vault_operations import cleanup_orphaned_entities
+        cleanup_result = cleanup_orphaned_entities()
+        if cleanup_result.get('total_cleaned', 0) > 0:
+            logger.info(f"[Brain] Orphan cleanup: {cleanup_result}")
+    except Exception as e:
+        logger.warning(f"[Brain] Orphan cleanup failed (non-fatal): {e}")
+    
     init_scheduler()
     start_extraction_worker()
     seed_aggregation_definitions(tenant_id='7627d577-e07c-484f-893a-ed2f464d28b9')  # Seed aggregation framework definitions
