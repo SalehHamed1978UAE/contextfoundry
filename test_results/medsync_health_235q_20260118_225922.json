@@ -1,5 +1,5 @@
 {
-  "timestamp": "20260118_232720",
+  "timestamp": "20260118_225922",
   "summary": {
     "total": 235,
     "passed": 184,
@@ -8,11 +8,11 @@
   },
   "breakdown": {
     "Q1-100": {
-      "passed": 94,
+      "passed": 95,
       "total": 100
     },
     "Q101-200": {
-      "passed": 80,
+      "passed": 79,
       "total": 100
     },
     "Q201-235": {
@@ -26,7 +26,7 @@
       "passed": false,
       "query": "What CRM system does MedSync Health use?",
       "expected": "Salesforce",
-      "answer": "The retrieved information does not specify the exact CRM (Cu"
+      "answer": "MedSync Health uses the **MedSync Platform** as its primary "
     },
     {
       "q": 56,
@@ -34,13 +34,6 @@
       "query": "What team communication tool does MedSync Health u",
       "expected": "Slack",
       "answer": "The retrieved information does not specify the exact team co"
-    },
-    {
-      "q": 66,
-      "passed": false,
-      "query": "What was the gross margin in FY 2025?",
-      "expected": "70.0%",
-      "answer": "The gross margin for MedSync Health, Inc. in Fiscal Year 202"
     },
     {
       "q": 74,
@@ -71,6 +64,13 @@
       "answer": "The target bonus percentage for Vice Presidents (VPs) at Med"
     },
     {
+      "q": 113,
+      "passed": false,
+      "query": "What is the average deal size in the Q1 2026 pipel",
+      "expected": "$517,000",
+      "answer": "I currently do not have sufficient data to calculate the ave"
+    },
+    {
       "q": 123,
       "passed": false,
       "query": "What was the EBITDA growth from FY 2024 to FY 2025",
@@ -96,7 +96,7 @@
       "passed": false,
       "query": "How much did net income increase from FY 2023 to F",
       "expected": "$20 million (from $12M to $32M)",
-      "answer": "Net income for MedSync Health, Inc. increased from $12.0 mil"
+      "answer": "The net income for MedSync Health, Inc. increased from $12.0"
     },
     {
       "q": 127,
@@ -159,7 +159,7 @@
       "passed": false,
       "query": "Which office has more conference rooms?",
       "expected": "Boston office (10 vs. London's 3)",
-      "answer": "The Boston Office has **10 conference rooms** as part of its"
+      "answer": "The office with more conference rooms is the **Boston Office"
     },
     {
       "q": 183,
@@ -201,7 +201,14 @@
       "passed": false,
       "query": "What is the average customer lifetime value (LTV)?",
       "expected": "[NOT IN DOCUMENTS]",
-      "answer": "The retrieved information does not provide a specific value "
+      "answer": "The retrieved information does not provide a specific figure"
+    },
+    {
+      "q": 202,
+      "passed": false,
+      "query": "What is Jennifer Lee's department?",
+      "expected": "Finance",
+      "answer": "I could not find specific information regarding Jennifer Lee"
     },
     {
       "q": 205,
@@ -232,25 +239,11 @@
       "answer": "Based on the retrieved information, there are **8 deals** in"
     },
     {
-      "q": 210,
-      "passed": false,
-      "query": "Which sales rep owns the most deals in the pipelin",
-      "expected": "Sarah Johnson (4 deals)",
-      "answer": "I was unable to find specific information regarding which sa"
-    },
-    {
       "q": 212,
       "passed": false,
       "query": "Which customer has the highest health score?",
       "expected": "Acme Hospital (95)",
       "answer": "The retrieved information does not specify individual custom"
-    },
-    {
-      "q": 215,
-      "passed": false,
-      "query": "Which customer has the lowest health score?",
-      "expected": "Delta Hospital (45)",
-      "answer": "Based on the retrieved information, the customer with the lo"
     },
     {
       "q": 216,
@@ -264,7 +257,7 @@
       "passed": false,
       "query": "Which month in 2025 had the highest total revenue?",
       "expected": "December",
-      "answer": "The documents retrieved do not provide a month-by-month brea"
+      "answer": "The specific monthly revenue breakdown for 2025 is not detai"
     },
     {
       "q": 218,
@@ -278,7 +271,7 @@
       "passed": false,
       "query": "What was the total churn in September 2025?",
       "expected": "-$100,000",
-      "answer": "The total churn for September 2025 is not explicitly provide"
+      "answer": "The total churn for September 2025 is not explicitly stated "
     },
     {
       "q": 220,
@@ -286,6 +279,13 @@
       "query": "What was the expansion revenue in October 2025?",
       "expected": "$650,000",
       "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 221,
+      "passed": false,
+      "query": "How much did Maria Rodriguez spend on travel to Lo",
+      "expected": "$2,900 ($1,850 flight + $1,050 hotel)",
+      "answer": "Maria Rodriguez spent a total of $1,850 on her flight to Lon"
     },
     {
       "q": 222,
@@ -341,7 +341,7 @@
       "passed": false,
       "query": "Which customer has the highest monthly active user",
       "expected": "Acme Hospital (450)",
-      "answer": "The retrieved documents do not provide specific information "
+      "answer": "The search did not yield specific information regarding whic"
     },
     {
       "q": 230,
@@ -355,7 +355,7 @@
       "passed": false,
       "query": "Which customer has the lowest average session dura",
       "expected": "Delta Hospital (15 minutes)",
-      "answer": "The retrieved documents do not contain specific information "
+      "answer": "The search did not yield specific information regarding whic"
     },
     {
       "q": 232,

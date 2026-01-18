@@ -134,11 +134,33 @@ class ToolExecutor:
         else:
             return {"error": f"Unknown tool: {tool_name}"}
     
+    def _fetch_entity_properties(self, entity_id: str) -> Optional[Dict[str, Any]]:
+        """Fetch entity properties from database for graph-only entities (e.g., from spreadsheets)."""
+        if not entity_id:
+            return None
+        try:
+            from sqlalchemy import text as sql_text
+            sql = sql_text("""
+                SELECT properties FROM entities
+                WHERE id = :eid AND tenant_id = :tid
+            """)
+            row = self.session.execute(sql, {"eid": entity_id, "tid": self.tenant_id}).fetchone()
+            if row and row.properties:
+                props = row.properties
+                if isinstance(props, str):
+                    import json
+                    props = json.loads(props)
+                return props
+        except Exception as e:
+            logger.debug(f"[TOOL] Failed to fetch entity properties: {e}")
+        return None
+    
     def _resolve_entities(self, args: Dict[str, Any]) -> Dict[str, Any]:
         """Wrap EntityResolver.resolve() with person name extraction fallback.
         
         If the input looks like a full query (contains question words or is long),
         attempts to extract person names before resolution.
+        Also fetches entity properties for graph-only entities (e.g., from spreadsheet extraction).
         """
         names = args.get("names", [])
         results = []
@@ -150,9 +172,16 @@ class ToolExecutor:
                 
                 # Check if resolution succeeded
                 if result.entity and result.confidence >= 0.5:
+                    entity_dict = result.entity.to_dict() if result.entity else None
+                    # Fetch and include entity properties (for spreadsheet-extracted entities)
+                    if entity_dict and entity_dict.get("entity_id"):
+                        props = self._fetch_entity_properties(entity_dict["entity_id"])
+                        if props:
+                            entity_dict["properties"] = props
+                            logger.info(f"[TOOL] Entity properties found: {list(props.keys())}")
                     results.append({
                         "query": name,
-                        "resolved": result.entity.to_dict() if result.entity else None,
+                        "resolved": entity_dict,
                         "confidence": result.confidence,
                         "needs_disambiguation": result.needs_disambiguation,
                         "candidates": [c.to_dict() for c in result.candidates[:3]]
@@ -187,10 +216,17 @@ class ToolExecutor:
                             logger.debug(f"[TOOL] Failed to resolve extracted name '{extracted_name}': {extract_err}")
                     
                     if best_result and best_result.entity:
+                        entity_dict = best_result.entity.to_dict()
+                        # Fetch and include entity properties
+                        if entity_dict and entity_dict.get("entity_id"):
+                            props = self._fetch_entity_properties(entity_dict["entity_id"])
+                            if props:
+                                entity_dict["properties"] = props
+                                logger.info(f"[TOOL] Entity properties found (extracted): {list(props.keys())}")
                         results.append({
                             "query": name,
                             "extracted_name": extracted_names[0] if extracted_names else None,
-                            "resolved": best_result.entity.to_dict(),
+                            "resolved": entity_dict,
                             "confidence": best_result.confidence,
                             "needs_disambiguation": best_result.needs_disambiguation,
                             "candidates": [c.to_dict() for c in best_result.candidates[:3]]
@@ -198,9 +234,15 @@ class ToolExecutor:
                         continue
                 
                 # Neither direct nor extracted resolution worked
+                entity_dict = result.entity.to_dict() if result.entity else None
+                # Fetch properties for fallback case as well
+                if entity_dict and entity_dict.get("entity_id"):
+                    props = self._fetch_entity_properties(entity_dict["entity_id"])
+                    if props:
+                        entity_dict["properties"] = props
                 results.append({
                     "query": name,
-                    "resolved": result.entity.to_dict() if result.entity else None,
+                    "resolved": entity_dict,
                     "confidence": result.confidence,
                     "needs_disambiguation": result.needs_disambiguation,
                     "candidates": [c.to_dict() for c in result.candidates[:3]]
