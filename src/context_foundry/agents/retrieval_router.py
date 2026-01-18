@@ -21,6 +21,7 @@ from src.context_foundry.agents.query_intent_detector import (
     DirectedRelationshipRetriever,
     DirectedAttributeRetriever
 )
+from src.context_foundry.agents.tools.wrappers import extract_person_names
 from src.context_foundry.query.intent_classifier import (
     QueryIntentClassifier,
     ClassifiedQuery,
@@ -226,6 +227,86 @@ class RetrievalRouter:
         if classification.expects_list:
             return self.LIST_QUERY_LIMIT
         return self.DEFAULT_LIMIT
+    
+    def _resolve_person_entities(
+        self,
+        person_names: List[str],
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Directly query the entities table for PERSON entities matching given names.
+        
+        This is a fallback for "graph-only" entities that exist in the database
+        (e.g., extracted from spreadsheets) but have no document chunks mentioning them.
+        
+        Args:
+            person_names: List of person names to search for
+            limit: Maximum entities to return per name
+            
+        Returns:
+            List of entity dicts with id, name, type, confidence, and properties
+        """
+        if not person_names:
+            return []
+        
+        # Set RLS context for tenant isolation
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+        
+        entities = []
+        seen_ids = set()
+        
+        for person_name in person_names:
+            try:
+                sql = text("""
+                    SELECT id, name, entity_type, confidence, lifecycle_state, properties
+                    FROM entities
+                    WHERE tenant_id = :tenant_id
+                      AND name ILIKE :name_pattern
+                      AND lifecycle_state = 'TRUSTED'
+                    ORDER BY confidence DESC
+                    LIMIT :limit
+                """)
+                results = self.session.execute(sql, {
+                    "tenant_id": self.tenant_id,
+                    "name_pattern": f"%{person_name}%",
+                    "limit": limit
+                }).fetchall()
+                
+                for r in results:
+                    entity_id = str(r.id)
+                    if entity_id in seen_ids:
+                        continue
+                    if _is_blacklisted_entity(r.name):
+                        continue
+                    
+                    seen_ids.add(entity_id)
+                    entity_dict = {
+                        "id": entity_id,
+                        "name": r.name,
+                        "type": r.entity_type,
+                        "confidence": r.confidence,
+                        "source": "direct_entity_lookup"
+                    }
+                    
+                    # Include properties (critical for spreadsheet-extracted entities)
+                    if r.properties:
+                        props = r.properties
+                        if isinstance(props, str):
+                            import json
+                            try:
+                                props = json.loads(props)
+                            except:
+                                props = {}
+                        entity_dict["properties"] = props
+                    
+                    entities.append(entity_dict)
+                    logger.info(f"[ROUTER] Direct entity lookup found: {r.name} (type={r.entity_type}, props={bool(r.properties)})")
+                    
+            except Exception as e:
+                logger.warning(f"[ROUTER] Direct entity lookup failed for '{person_name}': {e}")
+        
+        return entities
     
     def _search_graph(
         self,
@@ -492,6 +573,12 @@ class RetrievalRouter:
         if role_resolution and role_resolution.is_resolved:
             expanded_query = f"{query} (Note: {role_resolution.role} = {role_resolution.resolved_name})"
         
+        # Early extraction: detect person names for graph-only entity fallback
+        # This handles entities from spreadsheets that have no document chunks
+        detected_person_names = extract_person_names(query)
+        if detected_person_names:
+            logger.info(f"[ROUTER] Detected person names in query: {detected_person_names}")
+        
         if classified_query:
             logger.info(f"[ROUTER] Routing with strategy={strategy}, intent={classified_query.primary_intent.value}, limit={limit}")
         else:
@@ -569,6 +656,44 @@ class RetrievalRouter:
             result.entities = entities
             result.relationships = relationships
             result.chunks = chunks
+        
+        # Graph-first entity resolution fallback for "graph-only" entities
+        # This handles entities extracted from spreadsheets that have properties but no document chunks
+        # Triggers when: person names detected AND (no entities found OR chunks don't mention the person)
+        
+        def chunks_mention_person(chunks: List[Dict], person_names: List[str]) -> bool:
+            """Check if any chunk actually mentions any of the detected person names."""
+            for chunk in chunks:
+                chunk_text = (chunk.get("text") or chunk.get("content") or "").lower()
+                for name in person_names:
+                    if name.lower() in chunk_text:
+                        return True
+            return False
+        
+        entities_are_sparse = len(result.entities) == 0
+        has_person_query = bool(detected_person_names)
+        chunks_mention_target = chunks_mention_person(result.chunks, detected_person_names) if detected_person_names else True
+        
+        # Fallback triggers when:
+        # 1. Person names detected in query, AND
+        # 2. Entities are empty OR chunks don't mention the person
+        should_fallback = has_person_query and (entities_are_sparse or not chunks_mention_target)
+        
+        if should_fallback:
+            logger.info(f"[ROUTER] Triggering graph-first entity fallback: chunks={len(result.chunks)}, chunks_mention_target={chunks_mention_target}, entities={len(result.entities)}, names={detected_person_names}")
+            
+            # Direct entity table lookup for the detected person names
+            direct_entities = self._resolve_person_entities(detected_person_names, limit=limit)
+            
+            if direct_entities:
+                # Merge with existing entities (avoid duplicates)
+                existing_ids = {e.get("id") for e in result.entities}
+                new_entities = [e for e in direct_entities if e.get("id") not in existing_ids]
+                
+                if new_entities:
+                    result.entities = list(result.entities) + new_entities
+                    logger.info(f"[ROUTER] Graph-first fallback added {len(new_entities)} entities with properties")
+                    result.strategy_used = f"{result.strategy_used}+ENTITY_FALLBACK"
         
         logger.info(f"[ROUTER] Retrieved: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
         
