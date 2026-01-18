@@ -67,6 +67,44 @@
             color: var(--text-muted);
         }
         
+        .sort-controls {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .sort-select {
+            flex: 1;
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .sort-order-btn {
+            padding: 6px 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .sort-order-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
         .vault-layout.expanded .file-name {
             white-space: normal;
             word-break: break-word;
@@ -852,6 +890,15 @@
                     </div>
                 </div>
                 <input type="text" class="doc-search" id="docSearch" placeholder="Search documents..." oninput="filterDocuments()">
+                <div class="sort-controls">
+                    <select id="sortBy" class="sort-select" onchange="sortDocuments()">
+                        <option value="name">Name</option>
+                        <option value="type">Type</option>
+                        <option value="status">Status</option>
+                        <option value="date" selected>Date</option>
+                    </select>
+                    <button class="sort-order-btn" id="sortOrderBtn" onclick="toggleSortOrder()" title="Toggle sort order">↓</button>
+                </div>
                 <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.md,.xlsx,.xls,.csv">
                 <div id="fileTree" class="file-list">
                     <div class="empty-files">
@@ -959,7 +1006,8 @@
                 }
                 
                 allDocuments = data.documents || [];
-                const tree = buildFolderTree(data.folders || [], allDocuments);
+                const sortedDocs = sortDocumentsList(allDocuments);
+                const tree = buildFolderTree(data.folders || [], sortedDocs);
                 fileTree.innerHTML = renderFolderTree(tree, '/');
                 
                 const total = allDocuments.length;
@@ -1089,20 +1137,83 @@
         
         let allDocuments = [];
         let searchTimeout = null;
+        let sortAscending = false;  // Default descending for date
+        
+        function getFileExtension(filename) {
+            if (!filename) return '';
+            const parts = filename.split('.');
+            return parts.length > 1 ? parts.pop().toLowerCase() : '';
+        }
+        
+        function sortDocumentsList(documents) {
+            const sortBy = document.getElementById('sortBy').value;
+            const sorted = [...documents];
+            
+            sorted.sort((a, b) => {
+                let comparison = 0;
+                
+                switch (sortBy) {
+                    case 'name':
+                        comparison = (a.name || '').localeCompare(b.name || '');
+                        break;
+                    case 'type':
+                        const extA = getFileExtension(a.name);
+                        const extB = getFileExtension(b.name);
+                        comparison = extA.localeCompare(extB);
+                        if (comparison === 0) {
+                            comparison = (a.name || '').localeCompare(b.name || '');
+                        }
+                        break;
+                    case 'status':
+                        const statusOrder = ['extracted', 'completed', 'COMPLETE', 'processing', 'queued', 'RUNNING', 'PENDING', 'failed', 'FAILED', 'TIMEOUT'];
+                        const orderA = statusOrder.indexOf(a.status) === -1 ? 99 : statusOrder.indexOf(a.status);
+                        const orderB = statusOrder.indexOf(b.status) === -1 ? 99 : statusOrder.indexOf(b.status);
+                        comparison = orderA - orderB;
+                        break;
+                    case 'date':
+                        const dateA = new Date(a.created_at || 0);
+                        const dateB = new Date(b.created_at || 0);
+                        comparison = dateB - dateA;  // Newest first by default
+                        break;
+                }
+                
+                return sortAscending ? comparison : -comparison;
+            });
+            
+            return sorted;
+        }
+        
+        function sortDocuments() {
+            const query = document.getElementById('docSearch').value.toLowerCase().trim();
+            let docsToShow = query ? 
+                allDocuments.filter(doc => 
+                    (doc.name || '').toLowerCase().includes(query) ||
+                    (doc.folder_path || '').toLowerCase().includes(query)
+                ) : allDocuments;
+            
+            const sorted = sortDocumentsList(docsToShow);
+            renderFilteredDocuments(sorted);
+        }
+        
+        function toggleSortOrder() {
+            sortAscending = !sortAscending;
+            document.getElementById('sortOrderBtn').textContent = sortAscending ? '↑' : '↓';
+            sortDocuments();
+        }
         
         function filterDocuments() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const query = document.getElementById('docSearch').value.toLowerCase().trim();
-                if (!query) {
-                    renderFilteredDocuments(allDocuments);
-                } else {
-                    const filtered = allDocuments.filter(doc => 
+                let filtered = allDocuments;
+                if (query) {
+                    filtered = allDocuments.filter(doc => 
                         (doc.name || '').toLowerCase().includes(query) ||
                         (doc.folder_path || '').toLowerCase().includes(query)
                     );
-                    renderFilteredDocuments(filtered);
                 }
+                const sorted = sortDocumentsList(filtered);
+                renderFilteredDocuments(sorted);
             }, 150);
         }
         
