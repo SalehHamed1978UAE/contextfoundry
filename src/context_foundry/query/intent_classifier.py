@@ -54,6 +54,9 @@ INTENT_PATTERNS: Dict[QueryIntent, List[str]] = {
         r'(?:encryption|tls|ssl|vpn)',
         r'(?:backup|disaster\s+recovery|rto|rpo)',
         r'(?:remote\s+work|work\s+from|wi-fi|wifi)',
+        r'(?:referral\s+bonus|performance\s+bonus|sign.?on\s+bonus|retention\s+bonus)',
+        r'(?:bonus|pto|vacation|sick\s+leave|parental\s+leave)\s+(?:for\s+a|by\s+level)',
+        r'for\s+a\s+(?:director|manager|senior|associate|analyst|vp|lead)',
     ],
     QueryIntent.TEMPORAL: [
         r'^when\s+',

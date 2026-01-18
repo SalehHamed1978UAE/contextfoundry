@@ -94,7 +94,8 @@ class DocumentSearcher:
         abbreviation_alternatives = []
         
         for word in words:
-            word = word.rstrip("'s")
+            if word.endswith("'s"):
+                word = word[:-2]
             if len(word) < 3:
                 continue
             if word in self.STOPWORDS:
@@ -108,24 +109,147 @@ class DocumentSearcher:
         return regular_keywords, abbreviation_alternatives
     
     def _vector_search(self, query: str, limit: int) -> List[Dict[str, Any]]:
-        """Vector similarity search using embeddings."""
+        """
+        Hybrid search: Vector similarity + phrase-first re-ranking.
+        
+        This combines semantic similarity with:
+        1. Strong phrase boosting for exact multi-word matches (+0.15)
+        2. Discriminative keyword boosting (rare terms get higher boost)
+        3. Soft phrase requirement when query contains compound terms
+        """
         try:
             from ..memory.episodic import EpisodicMemory
             episodic = EpisodicMemory(session=self.session, tenant_id=self.tenant_id)
-            results = episodic.search_similar(query, limit=limit)
+            results = episodic.search_similar(query, limit=limit * 3)
             
-            return [
-                {
+            if not results:
+                return []
+            
+            regular_keywords, abbrev_alternatives = self._extract_keywords(query)
+            all_keywords = regular_keywords + [a[0] for a in abbrev_alternatives] + [a[1] for a in abbrev_alternatives]
+            
+            query_ngrams = self._extract_ngrams(query)
+            logger.info(f"[SEARCHER] Query ngrams extracted: {query_ngrams}")
+            
+            keyword_doc_freq = {}
+            for r in results:
+                text_content = (r.get("content", r.get("text", "")) or "").lower()
+                for kw in all_keywords:
+                    if kw.lower() in text_content:
+                        keyword_doc_freq[kw] = keyword_doc_freq.get(kw, 0) + 1
+            
+            scored_results = []
+            for r in results:
+                text_content = (r.get("content", r.get("text", "")) or "").lower()
+                base_similarity = r.get("similarity", 0.7)
+                
+                keyword_boost = 0.0
+                matched_keywords = []
+                for kw in all_keywords:
+                    kw_lower = kw.lower()
+                    if kw_lower in text_content:
+                        doc_freq = keyword_doc_freq.get(kw, 1)
+                        idf_weight = 1.0 / (1.0 + 0.3 * doc_freq)
+                        keyword_boost += 0.04 * idf_weight
+                        matched_keywords.append(kw)
+                
+                phrase_boost = 0.0
+                matched_phrases = []
+                for ngram in query_ngrams:
+                    ngram_pattern = self._phrase_to_pattern(ngram)
+                    if re.search(ngram_pattern, text_content, re.IGNORECASE):
+                        word_count = len(ngram.split())
+                        phrase_boost += 0.25 * word_count
+                        matched_phrases.append(ngram)
+                
+                final_score = min(base_similarity + keyword_boost + phrase_boost, 1.0)
+                
+                scored_results.append({
                     "id": str(r.get("id", "")),
-                    "text": r.get("content", r.get("text", ""))[:2500],  # Increased to preserve full financial data
+                    "text": r.get("content", r.get("text", ""))[:2500],
                     "document_name": r.get("source_document", "Unknown document"),
-                    "similarity": r.get("similarity", 0.7)
-                }
-                for r in results
-            ] if results else []
+                    "similarity": final_score,
+                    "_base_similarity": base_similarity,
+                    "_keyword_boost": keyword_boost,
+                    "_phrase_boost": phrase_boost,
+                    "_matched_keywords": matched_keywords,
+                    "_matched_phrases": matched_phrases
+                })
+            
+            scored_results.sort(key=lambda x: x["similarity"], reverse=True)
+            
+            all_phrase_boosted = [r for r in scored_results if r.get("_phrase_boost", 0) > 0]
+            if all_phrase_boosted:
+                for r in all_phrase_boosted[:3]:
+                    logger.info(f"[SEARCHER] Phrase boost: {r['document_name'][:30]} base={r['_base_similarity']:.3f} +kw={r['_keyword_boost']:.3f} +phrase={r['_phrase_boost']:.3f} = {r['similarity']:.3f} phrases={r['_matched_phrases']}")
+            
+            top_results = scored_results[:limit]
+            if top_results:
+                phrase_boosted = [r for r in top_results if r.get("_phrase_boost", 0) > 0]
+                if phrase_boosted:
+                    logger.info(f"[SEARCHER] Hybrid search: {len(phrase_boosted)}/{len(top_results)} boosted by phrases in final results")
+            
+            return top_results
         except Exception as e:
             logger.warning(f"[SEARCHER] Vector search failed: {e}")
             return []
+    
+    def _extract_ngrams(self, query: str) -> List[str]:
+        """
+        Extract 2-3 word n-grams from the query.
+        
+        These are consecutive word sequences that help match compound terms
+        like "referral bonus", "stock options", "performance review", etc.
+        """
+        words = query.lower().split()
+        content_words = [w for w in words if w not in self.STOPWORDS and len(w) >= 3]
+        
+        ngrams = []
+        
+        clean_query = ' '.join(words)
+        
+        for i in range(len(content_words) - 1):
+            w1, w2 = content_words[i], content_words[i+1]
+            bigram_pattern = rf'\b{re.escape(w1)}\b.*?\b{re.escape(w2)}\b'
+            match = re.search(bigram_pattern, clean_query)
+            if match:
+                matched_text = match.group(0)
+                word_count = len(matched_text.split())
+                if word_count <= 3:
+                    ngrams.append(matched_text)
+        
+        for i in range(len(content_words) - 2):
+            w1, w2, w3 = content_words[i], content_words[i+1], content_words[i+2]
+            trigram_pattern = rf'\b{re.escape(w1)}\b.*?\b{re.escape(w2)}\b.*?\b{re.escape(w3)}\b'
+            match = re.search(trigram_pattern, clean_query)
+            if match:
+                matched_text = match.group(0)
+                word_count = len(matched_text.split())
+                if word_count <= 5:
+                    ngrams.append(matched_text)
+        
+        return ngrams
+    
+    def _phrase_to_pattern(self, phrase: str) -> str:
+        """
+        Convert a phrase to a flexible regex pattern.
+        
+        Handles:
+        - Singular/plural variations (bonus -> bonus(es)?)
+        - Word boundaries
+        - Minor variations in spacing
+        """
+        words = phrase.split()
+        patterns = []
+        for word in words:
+            word_escaped = re.escape(word.lower())
+            if word.endswith('s'):
+                pattern = rf'\b{word_escaped}(es)?\b'
+            else:
+                pattern = rf'\b{word_escaped}(s|es)?\b'
+            patterns.append(pattern)
+        
+        return r'\s+'.join(patterns)
     
     def _text_search(
         self,
