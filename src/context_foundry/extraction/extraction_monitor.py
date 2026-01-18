@@ -139,15 +139,69 @@ class ExtractionMonitor:
             "circuit_breaker": self.circuit_breaker.get_status()
         }
     
+    def recover_stale_requests(self, stale_minutes: int = 10) -> int:
+        """
+        Recover extraction_requests stuck in 'processing' status.
+        
+        This fixes the gap where requests get stuck if the worker dies mid-processing.
+        Requests in 'processing' for longer than stale_minutes are reset to 'pending'.
+        """
+        result = self.db.execute(text("""
+            UPDATE platform.extraction_requests 
+            SET status = 'pending',
+                retry_count = LEAST(retry_count + 1, max_retries),
+                submitted_at = NOW()
+            WHERE status = 'processing'
+              AND submitted_at < NOW() - MAKE_INTERVAL(mins => :stale_minutes)
+              AND retry_count < max_retries
+            RETURNING id, document_id, retry_count
+        """), {"stale_minutes": stale_minutes})
+        
+        recovered = result.fetchall()
+        self.db.commit()
+        
+        for req in recovered:
+            logger.info(f"[ExtractionMonitor] Recovered stale request: id={req.id}, document={req.document_id}, retry={req.retry_count}")
+        
+        if recovered:
+            logger.warning(f"[ExtractionMonitor] Recovered {len(recovered)} stale extraction requests (stuck > {stale_minutes} min)")
+        
+        return len(recovered)
+    
+    def check_orphaned_requests(self) -> Dict[str, int]:
+        """
+        Check for requests that have no corresponding active job.
+        Returns count of orphaned requests by status.
+        """
+        result = self.db.execute(text("""
+            SELECT er.status, COUNT(*) as count
+            FROM platform.extraction_requests er
+            LEFT JOIN extraction_jobs ej ON ej.document_id = er.document_id 
+                AND ej.status = 'RUNNING'
+            WHERE er.status = 'processing'
+              AND ej.id IS NULL
+            GROUP BY er.status
+        """))
+        
+        orphans = {row.status: row.count for row in result.fetchall()}
+        
+        if orphans:
+            total = sum(orphans.values())
+            logger.warning(f"[ExtractionMonitor] Found {total} orphaned requests (processing but no running job)")
+        
+        return orphans
+    
     def run_cycle(self) -> Dict[str, Any]:
         """Run a complete monitoring cycle"""
         
+        stale_recovered = self.recover_stale_requests()
         timeouts = self.check_timeouts()
         retries = self.process_retries()
         health = self.get_health_summary()
         
         return {
             "timestamp": datetime.utcnow().isoformat(),
+            "stale_requests_recovered": stale_recovered,
             "timeouts_detected": timeouts,
             "retries": retries,
             "health": health

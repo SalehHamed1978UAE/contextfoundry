@@ -150,6 +150,12 @@ From the Context Foundry Bible, these validations need proof:
   - Entities created: FINANCIAL_METRIC (raw values) + CALCULATED_METRIC (derived values)
   - Properties stored: value, unit, time_period, formula, metric_type, source_document
   - Eliminates LLM calculation errors for questions like "What was revenue growth FY23 to FY24?"
+- **Stale Request Auto-Recovery ✅** (Jan 18, 2026)
+  - Fixed gap where `extraction_requests` stuck in "processing" weren't recovered after server restart
+  - New `recover_stale_requests()` method in ExtractionMonitor
+  - Auto-resets requests stuck >10 minutes back to "pending" for retry
+  - Runs on every scheduler cycle (30 seconds)
+  - Prevents 10+ hour stalls when server idles or restarts
 
 ### Planned
 - Ontology Foundry Phase 2 (Admin UI)
