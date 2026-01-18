@@ -2013,7 +2013,7 @@ def _process_spreadsheet_and_extract_entities(storage_path: str, filename: str, 
     loader = SpreadsheetLoader()
     calculator = FinancialCalculator()
     
-    document = loader.load(storage_path)
+    document = loader.load(storage_path, original_filename=filename)
     if not document.tables:
         return {'entities_created': 0, 'metrics': [], 'tables_found': 0}
     
