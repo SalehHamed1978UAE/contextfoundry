@@ -1,18 +1,18 @@
 {
-  "timestamp": "20260118_223016",
+  "timestamp": "20260118_220003",
   "summary": {
     "total": 235,
-    "passed": 183,
-    "failed": 52,
-    "accuracy_pct": 77.9
+    "passed": 180,
+    "failed": 55,
+    "accuracy_pct": 76.6
   },
   "breakdown": {
     "Q1-100": {
-      "passed": 95,
+      "passed": 94,
       "total": 100
     },
     "Q101-200": {
-      "passed": 80,
+      "passed": 78,
       "total": 100
     },
     "Q201-235": {
@@ -33,7 +33,14 @@
       "passed": false,
       "query": "What team communication tool does MedSync Health u",
       "expected": "Slack",
-      "answer": "The retrieved information does not specify the exact team co"
+      "answer": "The retrieved information does not specify a particular team"
+    },
+    {
+      "q": 66,
+      "passed": false,
+      "query": "What was the gross margin in FY 2025?",
+      "expected": "70.0%",
+      "answer": "The gross margin for MedSync Health, Inc. in Fiscal Year 202"
     },
     {
       "q": 74,
@@ -57,18 +64,25 @@
       "answer": "The Net Promoter Score (NPS) is a metric used to gauge custo"
     },
     {
+      "q": 102,
+      "passed": false,
+      "query": "What percentage of FY 2025 revenue came from Europ",
+      "expected": "10%",
+      "answer": "In Fiscal Year 2025, revenue from Europe (specifically the U"
+    },
+    {
       "q": 109,
       "passed": false,
       "query": "What is the target bonus percentage for VPs?",
       "expected": "30%+",
-      "answer": "The target bonus percentage for Vice Presidents (VPs) and ab"
+      "answer": "The target bonus percentage for Vice Presidents (VPs) at Med"
     },
     {
       "q": 113,
       "passed": false,
       "query": "What is the average deal size in the Q1 2026 pipel",
       "expected": "$517,000",
-      "answer": "I currently do not have sufficient data to calculate the ave"
+      "answer": "I encountered issues retrieving the total value of deals and"
     },
     {
       "q": 123,
@@ -96,7 +110,7 @@
       "passed": false,
       "query": "How much did net income increase from FY 2023 to F",
       "expected": "$20 million (from $12M to $32M)",
-      "answer": "The net income for MedSync Health, Inc. increased from $12.0"
+      "answer": "Net income for MedSync Health, Inc. increased from $12.0 mil"
     },
     {
       "q": 127,
@@ -127,6 +141,13 @@
       "answer": "The revenue growth from Oct_2025 to Sep_2025 was -7.88%. (Ca"
     },
     {
+      "q": 135,
+      "passed": false,
+      "query": "What was the COGS growth from FY 2024 to FY 2025?",
+      "expected": "50%",
+      "answer": "The Cost of Goods Sold (COGS) for MedSync Health, Inc. grew "
+    },
+    {
       "q": 138,
       "passed": false,
       "query": "How many new hospital clients were added in Q4 202",
@@ -152,7 +173,7 @@
       "passed": false,
       "query": "Which office has more conference rooms?",
       "expected": "Boston office (10 vs. London's 3)",
-      "answer": "The Boston Office has more conference rooms compared to the "
+      "answer": "The **Boston Office** has more conference rooms compared to "
     },
     {
       "q": 183,
@@ -201,7 +222,7 @@
       "passed": false,
       "query": "What is Jennifer Lee's department?",
       "expected": "Finance",
-      "answer": "The search did not return specific information regarding Jen"
+      "answer": "I could not find specific information regarding Jennifer Lee"
     },
     {
       "q": 205,
@@ -264,7 +285,7 @@
       "passed": false,
       "query": "Which month in 2025 had the highest total revenue?",
       "expected": "December",
-      "answer": "The specific monthly revenue figures for 2025 are not detail"
+      "answer": "The specific monthly revenue breakdown for 2025 is not avail"
     },
     {
       "q": 218,
@@ -285,7 +306,7 @@
       "passed": false,
       "query": "What was the expansion revenue in October 2025?",
       "expected": "$650,000",
-      "answer": "The retrieved information does not provide specific details "
+      "answer": "The expansion revenue for MedSync Health in October 2025 is "
     },
     {
       "q": 221,
@@ -320,7 +341,7 @@
       "passed": false,
       "query": "What is the planned total headcount for Q4 2026?",
       "expected": "686",
-      "answer": "The planned total headcount for Q4 2026 is 625 employees. Th"
+      "answer": "The planned total headcount for Q4 2026 is 625. This figure "
     },
     {
       "q": 226,
@@ -348,7 +369,7 @@
       "passed": false,
       "query": "Which customer has the highest monthly active user",
       "expected": "Acme Hospital (450)",
-      "answer": "The retrieved documents do not provide specific information "
+      "answer": "The search did not yield specific information regarding whic"
     },
     {
       "q": 230,
@@ -362,7 +383,7 @@
       "passed": false,
       "query": "Which customer has the lowest average session dura",
       "expected": "Delta Hospital (15 minutes)",
-      "answer": "The retrieved documents do not contain specific information "
+      "answer": "The search did not yield specific information regarding whic"
     },
     {
       "q": 232,
@@ -383,7 +404,7 @@
       "passed": false,
       "query": "Which ticket had the longest resolution time?",
       "expected": "Ticket 9880 (Data Export) at 40 hours",
-      "answer": "The search did not yield specific information regarding the "
+      "answer": "The longest resolution time among the tickets is associated "
     }
   ]
 }

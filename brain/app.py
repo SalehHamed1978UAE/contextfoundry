@@ -461,17 +461,20 @@ def _insert_row_entities(session, tenant_id: str, document_id: str, entities: li
             
             embedding = openai_embedding(embed_text[:2000])
             
-            # Create entity
+            # Build properties with display_name included
+            props = entity_data.get('attributes', {}).copy()
+            props['_display_name'] = entity_data['display_name']
+            
+            # Create entity - using correct column names
             entity = Entity(
                 tenant_id=UUID(tenant_id),
-                canonical_name=entity_data['canonical_name'],
-                display_name=entity_data['display_name'],
+                name=entity_data['display_name'],  # Use display_name as the entity name
                 entity_type=entity_data['entity_type'],
-                _confidence=entity_data.get('confidence', 0.95),
-                properties=json.dumps(entity_data.get('attributes', {})),
+                confidence=entity_data.get('confidence', 0.95),
+                properties=props,
                 source_document_id=document_id,
                 lifecycle_state=LifecycleState.STAGING,
-                embedding=embedding
+                name_embedding=embedding
             )
             
             session.add(entity)
@@ -494,14 +497,13 @@ def _insert_row_entities(session, tenant_id: str, document_id: str, entities: li
             if not target_id and rel_data.get('target_display_name'):
                 implicit_entity = Entity(
                     tenant_id=UUID(tenant_id),
-                    canonical_name=rel_data['target_name'],
-                    display_name=rel_data['target_display_name'],
+                    name=rel_data['target_display_name'],  # Use display_name as name
                     entity_type=rel_data['target_type'],
-                    _confidence=0.7,
-                    properties=json.dumps({'_implicit': True}),
+                    confidence=0.7,
+                    properties={'_implicit': True, '_canonical_name': rel_data['target_name']},
                     source_document_id=document_id,
                     lifecycle_state=LifecycleState.STAGING,
-                    embedding=openai_embedding(rel_data['target_display_name'])
+                    name_embedding=openai_embedding(rel_data['target_display_name'])
                 )
                 session.add(implicit_entity)
                 session.flush()
@@ -512,11 +514,11 @@ def _insert_row_entities(session, tenant_id: str, document_id: str, entities: li
             if source_id and target_id:
                 relationship = Relationship(
                     tenant_id=UUID(tenant_id),
-                    source_entity_id=source_id,
-                    target_entity_id=target_id,
-                    relation_type=rel_data['relation_type'],
-                    _confidence=rel_data.get('confidence', 0.8),
-                    properties=json.dumps(rel_data.get('attributes', {})),
+                    source_id=source_id,
+                    target_id=target_id,
+                    relationship_type=rel_data['relation_type'],
+                    confidence=rel_data.get('confidence', 0.8),
+                    properties=rel_data.get('attributes', {}),
                     source_document_id=document_id,
                     lifecycle_state=LifecycleState.STAGING
                 )
@@ -636,6 +638,7 @@ def process_extraction_queue():
                     extraction_method = "vision_failed"
                     extraction_success = False
             else:
+                logger.info(f"[DEBUG] Entering else branch for {file_name}, extraction_method={extraction_method}")
                 if not text_content:
                     logger.warning(f"[ExtractionWorker] No text extracted from {file_name}")
                     text_content = f"Document: {file_name}\n\nContent could not be extracted."
@@ -646,17 +649,23 @@ def process_extraction_queue():
                 row_entities_count = 0
                 row_relationships_count = 0
                 
+                logger.info(f"[ExtractionWorker] Checking spreadsheet: file_ext='{file_ext}', is_spreadsheet={file_ext in spreadsheet_extensions}")
+                
                 if file_ext in spreadsheet_extensions:
+                    logger.info(f"[ExtractionWorker] Starting row entity extraction for {file_name}")
                     try:
                         from src.context_foundry.extraction.spreadsheet_loader import SpreadsheetLoader
                         loader = SpreadsheetLoader()
+                        logger.info(f"[ExtractionWorker] Loading spreadsheet from {file_path}")
                         spreadsheet_doc = loader.load(file_path, original_filename=file_name)
+                        logger.info(f"[ExtractionWorker] Loaded {len(spreadsheet_doc.tables)} tables from spreadsheet")
                         
                         # Extract row-level entities
                         row_entities, row_relationships = loader.extract_all_row_entities(
                             spreadsheet_doc.tables,
                             file_name
                         )
+                        logger.info(f"[ExtractionWorker] extract_all_row_entities returned: {len(row_entities)} entities, {len(row_relationships)} rels")
                         
                         if row_entities:
                             logger.info(f"[ExtractionWorker] Extracted {len(row_entities)} row-level entities from spreadsheet")
@@ -977,6 +986,60 @@ def process_single_extraction_task(request: dict) -> bool:
             conn.close()
             return True
         
+        # === ROW ENTITY EXTRACTION FOR SPREADSHEETS ===
+        spreadsheet_extensions = ['.xlsx', '.xls', '.csv']
+        file_ext = '.' + file_name.split('.')[-1].lower() if '.' in file_name else ''
+        row_entities_count = 0
+        row_relationships_count = 0
+        
+        logger.info(f"[ExtractionWorker] Checking spreadsheet: file_ext='{file_ext}', is_spreadsheet={file_ext in spreadsheet_extensions}")
+        
+        if file_ext in spreadsheet_extensions:
+            logger.info(f"[ExtractionWorker] Starting row entity extraction for {file_name}")
+            try:
+                from src.context_foundry.extraction.spreadsheet_loader import SpreadsheetLoader
+                from src.context_foundry.models.schema import get_tenant_session
+                
+                loader = SpreadsheetLoader()
+                logger.info(f"[ExtractionWorker] Loading spreadsheet from {file_path}")
+                spreadsheet_doc = loader.load(file_path, original_filename=file_name)
+                logger.info(f"[ExtractionWorker] Loaded {len(spreadsheet_doc.tables)} tables from spreadsheet")
+                
+                # Extract row-level entities
+                row_entities, row_relationships = loader.extract_all_row_entities(
+                    spreadsheet_doc.tables,
+                    file_name
+                )
+                logger.info(f"[ExtractionWorker] extract_all_row_entities returned: {len(row_entities)} entities, {len(row_relationships)} rels")
+                
+                if row_entities:
+                    logger.info(f"[ExtractionWorker] Extracted {len(row_entities)} row-level entities from spreadsheet")
+                    
+                    # Insert row-level entities into Knowledge Graph
+                    session = get_tenant_session(tenant_id)
+                    try:
+                        row_entities_count, row_rels_count = _insert_row_entities(
+                            session=session,
+                            tenant_id=tenant_id,
+                            document_id=document_id,
+                            entities=row_entities,
+                            relationships=row_relationships
+                        )
+                        row_relationships_count = row_rels_count
+                        session.commit()  # Commit the transaction to persist entities
+                        logger.info(f"[ExtractionWorker] Inserted {row_entities_count} row entities, {row_relationships_count} relationships")
+                    except Exception as e:
+                        session.rollback()
+                        logger.error(f"[ExtractionWorker] Row entity insert error: {e}")
+                        raise
+                    finally:
+                        session.close()
+            except Exception as e:
+                logger.error(f"[ExtractionWorker] Spreadsheet row extraction failed: {e}")
+                import traceback
+                logger.error(f"[ExtractionWorker] Traceback: {traceback.format_exc()}")
+        
+        # === ONTOLOGY CENTRIC PIPELINE ===
         pipeline_type = os.environ.get("EXTRACTION_PIPELINE", "ontology")
         logger.info(f"[ExtractionWorker] Using OntologyCentricPipeline for {file_name}")
         
@@ -1007,7 +1070,9 @@ def process_single_extraction_task(request: dict) -> bool:
         cur.close()
         conn.close()
         
-        entities_count = len(result.entities) if hasattr(result, 'entities') else 0
+        # Count entities from both row extraction and pipeline
+        pipeline_entities = len(result.entities) if hasattr(result, 'entities') else 0
+        entities_count = row_entities_count + pipeline_entities
         extraction_worker_stats["requests_processed"] = extraction_worker_stats.get("requests_processed", 0) + 1
         logger.info(f"[ExtractionWorker] Completed: {file_name} ({entities_count} entities)")
         return True

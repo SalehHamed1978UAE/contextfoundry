@@ -1,5 +1,6 @@
 """Tool wrappers that call existing Context Foundry services."""
 import logging
+import re
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 from sqlalchemy.orm import Session
@@ -11,6 +12,96 @@ from ...memory.semantic import SemanticMemory
 from ...models.schema import set_tenant_context
 
 logger = logging.getLogger(__name__)
+
+
+def extract_person_names(text: str) -> List[str]:
+    """
+    Extract person names from a query string using regex patterns.
+    
+    Handles:
+    - Possessive form: "Jennifer Lee's department" → "Jennifer Lee"
+    - Capitalized names: "What department does Jennifer Lee work in?" → "Jennifer Lee"
+    - Multiple word names: "Sarah Jane Smith" → "Sarah Jane Smith"
+    
+    Returns:
+        List of extracted person names (without possessive suffixes)
+    """
+    names = []
+    
+    # Words that should never start a person name
+    excluded_first_words = {
+        'what', 'how', 'who', 'when', 'where', 'why', 'which',
+        'tell', 'show', 'give', 'find', 'get', 'does', 'do', 'is', 'are',
+        'the', 'this', 'that', 'these', 'those', 'a', 'an',
+        'compare', 'list', 'describe', 'explain', 'about',
+        'january', 'february', 'march', 'april', 'may', 'june',
+        'july', 'august', 'september', 'october', 'november', 'december',
+        'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+    }
+    
+    # Pattern 1: Possessive form - "Name's" or "Names'"
+    # Matches: "Jennifer Lee's", "John Smith's", "Sarah O'Brien's"
+    possessive_pattern = r"\b([A-Z][a-z]+(?:\s+(?:[A-Z][a-z]+|O'[A-Z][a-z]+))+)(?:'s?|')\b"
+    possessive_matches = re.findall(possessive_pattern, text)
+    for match in possessive_matches:
+        clean_name = match.strip()
+        words = clean_name.split()
+        # Filter out if first word is excluded
+        if len(words) >= 2 and words[0].lower() not in excluded_first_words:
+            names.append(clean_name)
+    
+    # Pattern 2: "does {Name} {verb}" pattern  
+    # Matches: "does Jennifer Lee work", "does John Smith have"
+    does_pattern = r"\bdoes\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+\w+"
+    does_matches = re.findall(does_pattern, text, re.IGNORECASE)
+    for match in does_matches:
+        clean_name = match.strip()
+        words = clean_name.split()
+        # Filter out if first word is excluded (like "Does" itself)
+        if len(words) >= 2:
+            # Skip excluded words at start
+            start_idx = 0
+            while start_idx < len(words) and words[start_idx].lower() in excluded_first_words:
+                start_idx += 1
+            if start_idx < len(words) - 1:  # Need at least 2 words remaining
+                clean_name = ' '.join(words[start_idx:])
+                if all(w[0].isupper() for w in clean_name.split() if w):
+                    if clean_name not in names:
+                        names.append(clean_name)
+    
+    # Pattern 3: General capitalized multi-word names (First Last or First Middle Last)
+    # Matches: "Jennifer Lee", "Sarah Jane Smith", "John Paul Jones"
+    general_pattern = r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3})\b"
+    general_matches = re.findall(general_pattern, text)
+    
+    for match in general_matches:
+        clean_name = match.strip()
+        words = clean_name.split()
+        # Must be at least 2 words
+        if len(words) < 2:
+            continue
+        # Skip excluded words at start
+        start_idx = 0
+        while start_idx < len(words) and words[start_idx].lower() in excluded_first_words:
+            start_idx += 1
+        if start_idx < len(words) - 1:  # Need at least 2 words remaining
+            clean_name = ' '.join(words[start_idx:])
+            # Check if it looks like a person name (all words capitalized, reasonable length)
+            name_words = clean_name.split()
+            if len(name_words) >= 2 and all(w[0].isupper() and len(w) >= 2 for w in name_words):
+                if clean_name not in names:
+                    names.append(clean_name)
+    
+    # Clean up: remove any possessive suffixes that might have slipped through
+    cleaned_names = []
+    for name in names:
+        # Remove trailing 's or ' 
+        clean = re.sub(r"['']s?$", "", name).strip()
+        if clean and clean not in cleaned_names:
+            cleaned_names.append(clean)
+    
+    logger.debug(f"[NAME_EXTRACT] From '{text}' extracted names: {cleaned_names}")
+    return cleaned_names
 
 
 class ToolExecutor:
@@ -44,12 +135,69 @@ class ToolExecutor:
             return {"error": f"Unknown tool: {tool_name}"}
     
     def _resolve_entities(self, args: Dict[str, Any]) -> Dict[str, Any]:
-        """Wrap EntityResolver.resolve()"""
+        """Wrap EntityResolver.resolve() with person name extraction fallback.
+        
+        If the input looks like a full query (contains question words or is long),
+        attempts to extract person names before resolution.
+        """
         names = args.get("names", [])
         results = []
+        
         for name in names:
             try:
+                # First, try direct resolution
                 result = self.entity_resolver.resolve(name)
+                
+                # Check if resolution succeeded
+                if result.entity and result.confidence >= 0.5:
+                    results.append({
+                        "query": name,
+                        "resolved": result.entity.to_dict() if result.entity else None,
+                        "confidence": result.confidence,
+                        "needs_disambiguation": result.needs_disambiguation,
+                        "candidates": [c.to_dict() for c in result.candidates[:3]]
+                    })
+                    continue
+                
+                # Resolution failed - check if input looks like a full query
+                # Indicators: contains question words, long text, or has possessive form
+                is_query_like = (
+                    len(name.split()) > 4 or
+                    any(qw in name.lower() for qw in ['what', 'who', 'where', 'which', 'how', 'does', 'is']) or
+                    "'s" in name or "'" in name
+                )
+                
+                if is_query_like:
+                    # Try to extract person names from the query
+                    extracted_names = extract_person_names(name)
+                    logger.info(f"[TOOL] Query-like input detected, extracted names: {extracted_names}")
+                    
+                    # Try resolving each extracted name
+                    best_result = None
+                    best_confidence = 0.0
+                    
+                    for extracted_name in extracted_names:
+                        try:
+                            extracted_result = self.entity_resolver.resolve(extracted_name)
+                            if extracted_result.entity and extracted_result.confidence > best_confidence:
+                                best_result = extracted_result
+                                best_confidence = extracted_result.confidence
+                                logger.info(f"[TOOL] Extracted name '{extracted_name}' resolved to '{extracted_result.entity.name}' (conf={best_confidence:.2f})")
+                        except Exception as extract_err:
+                            logger.debug(f"[TOOL] Failed to resolve extracted name '{extracted_name}': {extract_err}")
+                    
+                    if best_result and best_result.entity:
+                        results.append({
+                            "query": name,
+                            "extracted_name": extracted_names[0] if extracted_names else None,
+                            "resolved": best_result.entity.to_dict(),
+                            "confidence": best_result.confidence,
+                            "needs_disambiguation": best_result.needs_disambiguation,
+                            "candidates": [c.to_dict() for c in best_result.candidates[:3]]
+                        })
+                        continue
+                
+                # Neither direct nor extracted resolution worked
                 results.append({
                     "query": name,
                     "resolved": result.entity.to_dict() if result.entity else None,
@@ -57,6 +205,7 @@ class ToolExecutor:
                     "needs_disambiguation": result.needs_disambiguation,
                     "candidates": [c.to_dict() for c in result.candidates[:3]]
                 })
+                
             except Exception as e:
                 logger.error(f"[TOOL] Entity resolution failed for '{name}': {e}")
                 results.append({
@@ -123,9 +272,9 @@ class ToolExecutor:
             # If entity_ids provided, fetch ALL relationships (no limit)
             for entity_id in entity_ids:
                 try:
-                    # Get entity info
+                    # Get entity info including properties
                     entity_sql = sql_text("""
-                        SELECT id, name, entity_type, description
+                        SELECT id, name, entity_type, description, properties
                         FROM entities WHERE id = :eid AND tenant_id = :tid
                     """)
                     entity_row = self.session.execute(entity_sql, {
@@ -135,10 +284,20 @@ class ToolExecutor:
                     if not entity_row:
                         continue
                     
+                    # Parse properties JSON
+                    props = entity_row.properties or {}
+                    if isinstance(props, str):
+                        import json
+                        try:
+                            props = json.loads(props)
+                        except:
+                            props = {}
+                    
                     entity_info = {
                         "id": str(entity_row.id),
                         "name": entity_row.name,
-                        "type": entity_row.entity_type
+                        "type": entity_row.entity_type,
+                        "properties": props
                     }
                     
                     # Get ALL outgoing relationships (no limit)
@@ -180,9 +339,9 @@ class ToolExecutor:
             # Also search by query if no entity_ids or as supplement
             if query and not results:
                 try:
-                    # Search for entities matching query
+                    # Search for entities matching query (include properties)
                     search_sql = sql_text("""
-                        SELECT id, name, entity_type FROM entities
+                        SELECT id, name, entity_type, properties FROM entities
                         WHERE tenant_id = :tid AND LOWER(name) LIKE :pattern
                         LIMIT 5
                     """)
@@ -202,8 +361,17 @@ class ToolExecutor:
                             "eid": str(row.id), "tid": self.tenant_id
                         }).fetchall()
                         
+                        # Parse properties
+                        row_props = row.properties or {}
+                        if isinstance(row_props, str):
+                            import json
+                            try:
+                                row_props = json.loads(row_props)
+                            except:
+                                row_props = {}
+                        
                         results.append({
-                            "entity": {"id": str(row.id), "name": row.name, "type": row.entity_type},
+                            "entity": {"id": str(row.id), "name": row.name, "type": row.entity_type, "properties": row_props},
                             "relationships": [{"type": r.relationship_type, "target": r.target_name} for r in rel_rows]
                         })
                 except Exception as search_err:
