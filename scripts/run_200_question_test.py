@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Run 200 question test suite for MedSync Health vault."""
+"""Run 235 question test suite for MedSync Health vault."""
 import requests
 import re
 import time
 import json
 import sys
+import os
+from datetime import datetime
 
 BASE_URL = "http://localhost:5000"
 VAULT_ID = "73beac38-9fdb-4d24-a68e-134b7a03aecd"
+RESULTS_DIR = "test_results"
 
 def parse_questions(filepath):
     with open(filepath, 'r') as f:
@@ -68,10 +71,36 @@ def main():
         for r in failures[:20]:
             print(f"  Q{r['q']}: {r.get('answer', r.get('error', ''))[:50]}")
     
-    with open('/tmp/medsync_200_results.json', 'w') as f:
-        json.dump({'passed': passed, 'total': len(results), 
-                  'pct': round(100*passed/len(results), 1), 
-                  'failures': failures}, f, indent=2)
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    output = {
+        'timestamp': timestamp,
+        'summary': {
+            'total': len(results),
+            'passed': passed,
+            'failed': len(failures),
+            'accuracy_pct': round(100*passed/len(results), 1)
+        },
+        'breakdown': {
+            'Q1-100': {'passed': sum(1 for r in results if r['q'] <= 100 and r['passed']), 'total': sum(1 for r in results if r['q'] <= 100)},
+            'Q101-200': {'passed': sum(1 for r in results if 100 < r['q'] <= 200 and r['passed']), 'total': sum(1 for r in results if 100 < r['q'] <= 200)},
+            'Q201-235': {'passed': sum(1 for r in results if r['q'] > 200 and r['passed']), 'total': sum(1 for r in results if r['q'] > 200)}
+        },
+        'failures': failures
+    }
+    
+    latest_file = f"{RESULTS_DIR}/medsync_health_235q_results.json"
+    timestamped_file = f"{RESULTS_DIR}/medsync_health_235q_{timestamp}.json"
+    
+    with open(latest_file, 'w') as f:
+        json.dump(output, f, indent=2)
+    with open(timestamped_file, 'w') as f:
+        json.dump(output, f, indent=2)
+    
+    print(f"\nResults saved to:")
+    print(f"  - {latest_file} (latest)")
+    print(f"  - {timestamped_file} (archived)")
     
     return passed, len(results)
 
