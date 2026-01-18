@@ -168,6 +168,21 @@ From the Context Foundry Bible, these validations need proof:
   - Handles entities from deleted tenants by nullifying FK references
   - Uses savepoints to prevent transaction aborts on partial failures
   - Cleans 13 FK-dependent tables including self-referencing superseded_by
+- **Spreadsheet Entity Extraction ✅** (Jan 18, 2026)
+  - Row-level entity extraction from spreadsheets (employee_directory.xlsx, etc.)
+  - Detects spreadsheet type via column headers and sheet names
+  - Extracts PERSON entities with properties (department, title, hire_date, etc.)
+  - Extracts CLIENT entities with properties (contract_value, contract_start, etc.)
+  - Relationships: HOLDS_POSITION, HAS_CONTRACT, WORKS_IN
+  - Column-to-property mappings for Employee Directory, Client List, Sales Pipeline
+  - Properties stored directly on entities, not as separate relationships
+- **Graph-Only Entity Fallback ✅** (Jan 18, 2026)
+  - Fixed fallback for spreadsheet-extracted entities (no document chunks)
+  - Person name extraction from queries using NLP patterns
+  - Smart fallback trigger: chunks don't mention detected person names
+  - Direct entity+properties lookup when fallback triggers
+  - Q202 (Jennifer Lee's department) now passes
+  - Test score: 184/235 (78.3%) on MedSync Health 235Q test
 
 ### Planned
 - Ontology Foundry Phase 2 (Admin UI)
