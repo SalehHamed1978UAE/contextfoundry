@@ -229,8 +229,20 @@ class ToolAgent:
             context_parts.append(f"Role resolution: {pipeline_result.role_resolution.role} = {pipeline_result.role_resolution.resolved_name}")
         
         if pipeline_result.entities:
-            entity_info = [f"{e['name']} ({e['type']})" for e in pipeline_result.entities[:entity_limit]]
-            context_parts.append(f"Entities found: {', '.join(entity_info)}")
+            entity_details = []
+            for e in pipeline_result.entities[:entity_limit]:
+                entity_str = f"{e['name']} ({e['type']})"
+                # Include entity properties if available
+                if e.get('properties'):
+                    props = e['properties']
+                    prop_strs = []
+                    for k, v in props.items():
+                        if v and k not in ('_sources', '_layer', '_confidence', 'source_document'):
+                            prop_strs.append(f"{k}: {v}")
+                    if prop_strs:
+                        entity_str += f" - Properties: {', '.join(prop_strs)}"
+                entity_details.append(entity_str)
+            context_parts.append(f"Entities found:\n" + "\n".join(entity_details))
         
         if pipeline_result.relationships:
             rel_info = []

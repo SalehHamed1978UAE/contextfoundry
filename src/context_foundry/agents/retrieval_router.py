@@ -260,7 +260,7 @@ class RetrievalRouter:
                 type_filter_clause = f" AND e.entity_type NOT IN ({exclude_list})"
             
             entity_query = text(f"""
-                SELECT e.id, e.name, e.entity_type, e.confidence
+                SELECT e.id, e.name, e.entity_type, e.confidence, e.properties
                 FROM entities e
                 WHERE e.tenant_id = :tenant_id
                 AND ({like_clauses})
@@ -274,16 +274,27 @@ class RetrievalRouter:
                 params[f"term{i}"] = f"%{term}%"
             
             entity_results = self.session.execute(entity_query, params).fetchall()
-            entities = [
-                {
+            entities = []
+            for r in entity_results:
+                if _is_blacklisted_entity(r.name):
+                    continue
+                entity_dict = {
                     "id": str(r.id),
                     "name": r.name,
                     "type": r.entity_type,
                     "confidence": r.confidence
                 }
-                for r in entity_results
-                if not _is_blacklisted_entity(r.name)
-            ]
+                # Include properties if available
+                if r.properties:
+                    props = r.properties
+                    if isinstance(props, str):
+                        import json
+                        try:
+                            props = json.loads(props)
+                        except:
+                            props = {}
+                    entity_dict["properties"] = props
+                entities.append(entity_dict)
             
             if entities:
                 entity_ids = [e["id"] for e in entities]
@@ -543,6 +554,13 @@ class RetrievalRouter:
         elif strategy == "DOCS_ONLY":
             chunks = self._search_documents(query, classification, role_resolution, limit)
             result.chunks = chunks
+            
+            # Also search graph to include entity properties (e.g., spreadsheet-extracted data)
+            entities, relationships = self._search_graph(query, classification, role_resolution, limit, classified_query)
+            if entities:
+                result.entities = entities
+                result.relationships = relationships
+                logger.info(f"[ROUTER] DOCS_ONLY also found {len(entities)} entities from graph")
             
         else:  # HYBRID
             entities, relationships = self._search_graph(query, classification, role_resolution, limit, classified_query)

@@ -116,7 +116,11 @@ class SpreadsheetLoader:
             'employee name': 'name',
             'full name': 'name',
             'first name': 'first_name',
+            'first_name': 'first_name',
+            'firstname': 'first_name',
             'last name': 'last_name',
+            'last_name': 'last_name',
+            'lastname': 'last_name',
             'department': 'department',
             'dept': 'department',
             'title': 'title',
@@ -753,13 +757,19 @@ class SpreadsheetLoader:
         entity_type = sheet_type['entity_type']
         column_mapping = self.map_columns_to_properties(df, entity_type)
 
-        # Find the name/identifier column
+        # Find the name/identifier columns
         name_props = ['name', 'employee_name', 'company', 'customer', 'deal_name', 'project']
         name_column = None
+        first_name_column = None
+        last_name_column = None
+        
         for col, prop in column_mapping.items():
             if prop in name_props:
                 name_column = col
-                break
+            elif prop == 'first_name':
+                first_name_column = col
+            elif prop == 'last_name':
+                last_name_column = col
 
         for idx, row in df.iterrows():
             # Skip empty rows
@@ -783,10 +793,39 @@ class SpreadsheetLoader:
                         if str_val and str_val.lower() != 'nan':
                             attributes[prop] = str_val
 
-            # Get entity name
-            if name_column and pd.notna(row[name_column]):
-                entity_name = str(row[name_column]).strip()
-            else:
+            # Get entity name - try multiple strategies
+            entity_name = None
+            
+            # Strategy 1: Combine first_name + last_name if both exist
+            if first_name_column and last_name_column:
+                first_name = row[first_name_column] if pd.notna(row[first_name_column]) else None
+                last_name = row[last_name_column] if pd.notna(row[last_name_column]) else None
+                if first_name and last_name:
+                    entity_name = f"{str(first_name).strip()} {str(last_name).strip()}"
+                elif first_name:
+                    entity_name = str(first_name).strip()
+                elif last_name:
+                    entity_name = str(last_name).strip()
+            
+            # Strategy 2: Use first_name + name column (last name) 
+            if not entity_name and first_name_column and name_column:
+                first_name = row[first_name_column] if pd.notna(row[first_name_column]) else None
+                name_val = row[name_column] if pd.notna(row[name_column]) else None
+                if first_name and name_val:
+                    entity_name = f"{str(first_name).strip()} {str(name_val).strip()}"
+            
+            # Strategy 3: Use name column if it looks like a full name
+            if not entity_name and name_column and pd.notna(row[name_column]):
+                name_val = str(row[name_column]).strip()
+                # Check if attributes have a 'name' property with last name
+                if 'name' in attributes and attributes['name'] != name_val:
+                    # name column has first name, 'name' attribute has last name
+                    entity_name = f"{name_val} {attributes['name']}"
+                else:
+                    entity_name = name_val
+            
+            # Strategy 4: Fallback to generic name
+            if not entity_name:
                 entity_name = f"{entity_type}_{idx}"
 
             # Skip if name is invalid

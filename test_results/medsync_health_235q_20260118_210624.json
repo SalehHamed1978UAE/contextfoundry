@@ -1,14 +1,14 @@
 {
-  "timestamp": "20260118_223016",
+  "timestamp": "20260118_210624",
   "summary": {
     "total": 235,
-    "passed": 183,
-    "failed": 52,
-    "accuracy_pct": 77.9
+    "passed": 184,
+    "failed": 51,
+    "accuracy_pct": 78.3
   },
   "breakdown": {
     "Q1-100": {
-      "passed": 95,
+      "passed": 98,
       "total": 100
     },
     "Q101-200": {
@@ -16,7 +16,7 @@
       "total": 100
     },
     "Q201-235": {
-      "passed": 8,
+      "passed": 6,
       "total": 35
     }
   },
@@ -26,77 +26,49 @@
       "passed": false,
       "query": "What CRM system does MedSync Health use?",
       "expected": "Salesforce",
-      "answer": "MedSync Health uses the **MedSync Platform** as its primary "
+      "answer": "MedSync Health uses the MedSync Platform as its primary care"
     },
     {
       "q": 56,
       "passed": false,
       "query": "What team communication tool does MedSync Health u",
       "expected": "Slack",
-      "answer": "The retrieved information does not specify the exact team co"
+      "answer": "MedSync Health uses a cloud-based care coordination system k"
     },
     {
-      "q": 74,
+      "q": 102,
       "passed": false,
-      "query": "What was the net income margin in FY 2025?",
-      "expected": "40.0%",
-      "answer": "The net income margin for MedSync Health, Inc. in Fiscal Yea"
-    },
-    {
-      "q": 93,
-      "passed": false,
-      "query": "What is the Net Revenue Retention (NRR)?",
-      "expected": "115%",
-      "answer": "Net Revenue Retention (NRR) is a financial metric that measu"
-    },
-    {
-      "q": 95,
-      "passed": [],
-      "query": "What is the Net Promoter Score (NPS)?",
-      "expected": "60",
-      "answer": "The Net Promoter Score (NPS) is a metric used to gauge custo"
+      "query": "What percentage of FY 2025 revenue came from Europ",
+      "expected": "10%",
+      "answer": "In Fiscal Year 2025, revenue from Europe (specifically the U"
     },
     {
       "q": 109,
       "passed": false,
       "query": "What is the target bonus percentage for VPs?",
       "expected": "30%+",
-      "answer": "The target bonus percentage for Vice Presidents (VPs) and ab"
+      "answer": "The target bonus percentage for Vice Presidents (VPs) at Med"
     },
     {
       "q": 113,
       "passed": false,
       "query": "What is the average deal size in the Q1 2026 pipel",
       "expected": "$517,000",
-      "answer": "I currently do not have sufficient data to calculate the ave"
-    },
-    {
-      "q": 123,
-      "passed": false,
-      "query": "What was the EBITDA growth from FY 2024 to FY 2025",
-      "expected": "72.7%",
-      "answer": "The EBITDA growth from FY 2024 to FY 2025 for MedSync Health"
+      "answer": "It seems that there is insufficient data available to calcul"
     },
     {
       "q": 124,
       "passed": false,
       "query": "What was the net income growth from FY 2024 to FY ",
       "expected": "82.9%",
-      "answer": "The net income for MedSync Health, Inc. in Fiscal Year 2024 "
-    },
-    {
-      "q": 125,
-      "passed": false,
-      "query": "How much did revenue increase from FY 2023 to FY 2",
-      "expected": "$40 million (from $40M to $80M)",
-      "answer": "To determine the revenue increase from FY 2023 to FY 2025, w"
+      "answer": "The net income growth from Fiscal Year (FY) 2024 to FY 2025 "
     },
     {
       "q": 126,
       "passed": false,
       "query": "How much did net income increase from FY 2023 to F",
       "expected": "$20 million (from $12M to $32M)",
-      "answer": "The net income for MedSync Health, Inc. increased from $12.0"
+      "answer": "Net income for MedSync Health, Inc. increased from $12.0 mil"
     },
     {
       "q": 127,
@@ -127,6 +99,13 @@
       "answer": "The revenue growth from Oct_2025 to Sep_2025 was -7.88%. (Ca"
     },
     {
+      "q": 135,
+      "passed": false,
+      "query": "What was the COGS growth from FY 2024 to FY 2025?",
+      "expected": "50%",
+      "answer": "The Cost of Goods Sold (COGS) for MedSync Health, Inc. grew "
+    },
+    {
       "q": 138,
       "passed": false,
       "query": "How many new hospital clients were added in Q4 202",
@@ -138,7 +117,7 @@
       "passed": false,
       "query": "Which certification was audited most recently?",
       "expected": "HIPAA (October 2025)",
-      "answer": "The most recently audited certification for MedSync Health, "
+      "answer": "The certification that was audited most recently is the **SO"
     },
     {
       "q": 168,
@@ -173,14 +152,14 @@
       "passed": false,
       "query": "What is the company's valuation after Series C?",
       "expected": "[NOT IN DOCUMENTS]",
-      "answer": "The company's valuation after the Series C funding round is "
+      "answer": "MedSync Health, Inc. raised $85 million in its Series C fund"
     },
     {
       "q": 198,
       "passed": false,
       "query": "How many customers are in the pipeline for Q2 2026",
       "expected": "[NOT IN DOCUMENTS]",
-      "answer": "The retrieved information does not provide a specific number"
+      "answer": "The retrieved information does not provide specific details "
     },
     {
       "q": 199,
@@ -194,14 +173,28 @@
       "passed": false,
       "query": "What is the average customer lifetime value (LTV)?",
       "expected": "[NOT IN DOCUMENTS]",
-      "answer": "The retrieved information does not provide a specific figure"
+      "answer": "The retrieved information does not provide a specific value "
     },
     {
       "q": 202,
       "passed": false,
       "query": "What is Jennifer Lee's department?",
       "expected": "Finance",
-      "answer": "The search did not return specific information regarding Jen"
+      "answer": "I was unable to find specific information regarding Jennifer"
+    },
+    {
+      "q": 203,
+      "passed": false,
+      "query": "What is Amanda Garcia's job title?",
+      "expected": "Software Engineer",
+      "answer": "The retrieved information does not explicitly mention Amanda"
+    },
+    {
+      "q": 204,
+      "passed": false,
+      "query": "When did Christopher Wilson start at MedSync Healt",
+      "expected": "November 1, 2023",
+      "answer": "The retrieved information does not specify when Christopher "
     },
     {
       "q": 205,
@@ -250,7 +243,7 @@
       "passed": false,
       "query": "Which customer has the lowest health score?",
       "expected": "Delta Hospital (45)",
-      "answer": "Based on the retrieved information, the customer with the lo"
+      "answer": "Based on the retrieved information, the customers with the l"
     },
     {
       "q": 216,
@@ -264,7 +257,7 @@
       "passed": false,
       "query": "Which month in 2025 had the highest total revenue?",
       "expected": "December",
-      "answer": "The specific monthly revenue figures for 2025 are not detail"
+      "answer": "The retrieved documents do not provide a detailed breakdown "
     },
     {
       "q": 218,
@@ -278,7 +271,7 @@
       "passed": false,
       "query": "What was the total churn in September 2025?",
       "expected": "-$100,000",
-      "answer": "The total churn for September 2025 is not explicitly stated "
+      "answer": "The total churn for MedSync Health in September 2025 is not "
     },
     {
       "q": 220,
@@ -292,7 +285,7 @@
       "passed": false,
       "query": "How much did Maria Rodriguez spend on travel to Lo",
       "expected": "$2,900 ($1,850 flight + $1,050 hotel)",
-      "answer": "Maria Rodriguez spent a total of $1,850 on her flight to Lon"
+      "answer": "Maria Rodriguez spent a total of $3,080 on travel to London "
     },
     {
       "q": 222,
@@ -306,21 +299,21 @@
       "passed": false,
       "query": "How many expenses did Sarah Johnson submit in Q4 2",
       "expected": "2 (Flight and client dinner)",
-      "answer": "The retrieved information does not provide specific details "
+      "answer": "The retrieved information does not provide any specific deta"
     },
     {
       "q": 224,
       "passed": false,
       "query": "What was Ben Carter's conference registration expe",
       "expected": "$1,899 for AWS re:Invent",
-      "answer": "The retrieved information does not provide any specific deta"
+      "answer": "The retrieved information does not provide any details regar"
     },
     {
       "q": 225,
       "passed": false,
       "query": "What is the planned total headcount for Q4 2026?",
       "expected": "686",
-      "answer": "The planned total headcount for Q4 2026 is 625 employees. Th"
+      "answer": "The planned total headcount for Q4 2026 is 625. This figure "
     },
     {
       "q": 226,
@@ -334,7 +327,7 @@
       "passed": false,
       "query": "How many people will be in Engineering by Q2 2026?",
       "expected": "210",
-      "answer": "Based on the retrieved information, the following details ar"
+      "answer": "Based on the retrieved information, the following details re"
     },
     {
       "q": 228,
@@ -348,7 +341,7 @@
       "passed": false,
       "query": "Which customer has the highest monthly active user",
       "expected": "Acme Hospital (450)",
-      "answer": "The retrieved documents do not provide specific information "
+      "answer": "The search did not yield specific information regarding whic"
     },
     {
       "q": 230,
@@ -362,7 +355,7 @@
       "passed": false,
       "query": "Which customer has the lowest average session dura",
       "expected": "Delta Hospital (15 minutes)",
-      "answer": "The retrieved documents do not contain specific information "
+      "answer": "The search did not yield specific information regarding whic"
     },
     {
       "q": 232,
@@ -383,7 +376,7 @@
       "passed": false,
       "query": "Which ticket had the longest resolution time?",
       "expected": "Ticket 9880 (Data Export) at 40 hours",
-      "answer": "The search did not yield specific information regarding the "
+      "answer": "The search results did not provide specific details about th"
     }
   ]
 }
