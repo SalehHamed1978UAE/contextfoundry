@@ -2154,7 +2154,7 @@ def dashboard_upload():
         with psycopg2.connect(database_url) as conn:
             with conn.cursor() as cur:
                 if is_spreadsheet:
-                    status = 'processed'
+                    status = 'extracted'
                     print(f"[SPREADSHEET] Detected spreadsheet file: {file.filename}")
                 else:
                     status = 'queued'
@@ -2306,7 +2306,7 @@ def dashboard_upload_multi():
                     print("Step 8: No duplicate")
                     
                     is_spreadsheet = _is_spreadsheet_file(filename)
-                    status = 'processed' if is_spreadsheet else 'queued'
+                    status = 'extracted' if is_spreadsheet else 'queued'
                     
                     print(f"Step 9: Inserting into platform.documents (is_spreadsheet={is_spreadsheet})")
                     cur.execute("""
