@@ -77,14 +77,17 @@ class SpreadsheetLoader:
 
         logger.info(f"[SPREADSHEET] Loading: {original_filename or path.name} (extension: {extension})")
 
+        # Use original filename for context (year extraction, etc.)
+        context_name = original_filename or path.name
+        
         if extension in ['.xlsx', '.xls']:
-            return self._load_excel(file_path)
+            return self._load_excel(file_path, context_name)
         elif extension == '.csv':
-            return self._load_csv(file_path)
+            return self._load_csv(file_path, context_name)
         else:
             raise ValueError(f"Unsupported file type: {extension}")
 
-    def _load_excel(self, file_path: str) -> SpreadsheetDocument:
+    def _load_excel(self, file_path: str, context_name: str = None) -> SpreadsheetDocument:
         """Load an Excel file with multiple sheets."""
         tables = []
         all_text = []
@@ -101,7 +104,9 @@ class SpreadsheetLoader:
 
                 df = self._clean_dataframe(df)
                 markdown = self._dataframe_to_markdown(df, sheet_name)
-                financial_metrics = self._extract_financial_metrics(df, sheet_name)
+                # Use context_name (original filename) for year context, fallback to sheet_name
+                extraction_context = context_name or sheet_name
+                financial_metrics = self._extract_financial_metrics(df, extraction_context)
                 time_context = self._detect_time_periods(df)
 
                 table = ExtractedTable(
@@ -139,14 +144,15 @@ class SpreadsheetLoader:
             }
         )
 
-    def _load_csv(self, file_path: str) -> SpreadsheetDocument:
+    def _load_csv(self, file_path: str, context_name: str = None) -> SpreadsheetDocument:
         """Load a CSV file."""
         df = pd.read_csv(file_path)
         df = self._clean_dataframe(df)
 
         filename = Path(file_path).stem
+        extraction_context = context_name or filename
         markdown = self._dataframe_to_markdown(df, filename)
-        financial_metrics = self._extract_financial_metrics(df, filename)
+        financial_metrics = self._extract_financial_metrics(df, extraction_context)
         time_context = self._detect_time_periods(df)
 
         table = ExtractedTable(
@@ -253,6 +259,9 @@ class SpreadsheetLoader:
     ) -> Dict[str, Any]:
         """Extract financial metrics from the dataframe."""
         metrics = {}
+        
+        # Extract year context from sheet name for month-based data
+        year_context = self._extract_year_from_context(sheet_name)
 
         first_col = df.columns[0] if len(df.columns) > 0 else None
         first_col_is_labels = False
@@ -294,6 +303,17 @@ class SpreadsheetLoader:
                     time_labels = self._get_time_labels(df)
                     col_data = df[col]
                     
+                    # If no time labels found, try to use first column as months with year context
+                    if not time_labels and len(df.columns) > 0:
+                        first_col_vals = df.iloc[:, 0].astype(str).tolist()
+                        month_labels = []
+                        for val in first_col_vals:
+                            month_period = self._normalize_month_to_period(val, year_context)
+                            if month_period != val:  # It was recognized as a month
+                                month_labels.append(month_period)
+                        if len(month_labels) == len(first_col_vals):
+                            time_labels = month_labels
+                    
                     if time_labels and len(time_labels) == len(col_data):
                         for period, value in zip(time_labels, col_data):
                             if pd.notna(value):
@@ -311,9 +331,19 @@ class SpreadsheetLoader:
                                     pass
 
         return metrics
+    
+    def _extract_year_from_context(self, context_str: str) -> Optional[str]:
+        """Extract year from a context string (filename, sheet name)."""
+        year_match = re.search(r'(20\d{2})', str(context_str))
+        if year_match:
+            return year_match.group(1)
+        return None
 
     def _normalize_period(self, period_str: str) -> str:
         """Normalize a period string to a consistent format."""
+        period_str = str(period_str).strip()
+        
+        # Handle FY patterns: "FY 2023", "FY2023", "FY23"
         fy_match = re.search(r'FY\s*(\d{4}|\d{2})', period_str, re.IGNORECASE)
         if fy_match:
             year = fy_match.group(1)
@@ -321,32 +351,80 @@ class SpreadsheetLoader:
                 year = '20' + year
             return f"FY{year}"
         
+        # Handle quarter patterns: "Q4_2025", "Q4 2025", "Q4-2025", "Q42025"
+        q_match = re.search(r'Q([1-4])[\s_\-]*(20\d{2})', period_str, re.IGNORECASE)
+        if q_match:
+            quarter = q_match.group(1)
+            year = q_match.group(2)
+            return f"Q{quarter}_{year}"
+        
+        # Handle standalone year: "2023", "2024"
+        year_match = re.search(r'^(20\d{2})$', period_str)
+        if year_match:
+            return f"FY{year_match.group(1)}"
+        
+        # Handle year in longer string
         year_match = re.search(r'\b(20\d{2})\b', period_str)
         if year_match:
             return f"FY{year_match.group(1)}"
         
         return period_str
+    
+    def _normalize_month_to_period(self, month_str: str, year_context: str = None) -> str:
+        """Convert month name to a standardized period format."""
+        month_map = {
+            'january': 'Jan', 'february': 'Feb', 'march': 'Mar', 'april': 'Apr',
+            'may': 'May', 'june': 'Jun', 'july': 'Jul', 'august': 'Aug',
+            'september': 'Sep', 'october': 'Oct', 'november': 'Nov', 'december': 'Dec',
+            'jan': 'Jan', 'feb': 'Feb', 'mar': 'Mar', 'apr': 'Apr',
+            'jun': 'Jun', 'jul': 'Jul', 'aug': 'Aug', 'sep': 'Sep',
+            'oct': 'Oct', 'nov': 'Nov', 'dec': 'Dec'
+        }
+        month_lower = str(month_str).lower().strip()
+        if month_lower in month_map:
+            month = month_map[month_lower]
+            if year_context:
+                return f"{month}_{year_context}"
+            return month
+        return str(month_str)
 
-    def _get_time_labels(self, df: pd.DataFrame) -> List[str]:
+    def _get_time_labels(self, df: pd.DataFrame, year_context: str = None) -> List[str]:
         """Extract time period labels from the dataframe."""
+        # Pattern to match time periods: FY2023, Q4_2025, 2023
+        # Note: months are handled separately in _extract_financial_metrics
+        time_pattern = re.compile(
+            r'(FY\s*\d{2,4})|'  # FY2023, FY 23
+            r'(Q[1-4][\s_\-]?\d{4})|'  # Q4_2025, Q4 2025
+            r'(\b20\d{2}\b)',  # 2023
+            re.IGNORECASE
+        )
+        
+        # Check first column for time labels
         if len(df.columns) > 0:
             first_col = df.iloc[:, 0].astype(str)
             time_labels = []
-
             for val in first_col:
-                if re.search(r'(FY\s*)?\d{4}|Q[1-4]', str(val), re.IGNORECASE):
-                    time_labels.append(val)
-
+                if time_pattern.search(str(val)):
+                    time_labels.append(self._normalize_period(val))
             if len(time_labels) == len(first_col):
                 return time_labels
-
+        
+        # Check column headers (skip first which might be a label column)
         time_cols = []
         for col in df.columns[1:]:
             col_str = str(col)
-            if re.search(r'(FY\s*)?\d{4}|Q[1-4]', col_str, re.IGNORECASE):
-                time_cols.append(col_str)
-
+            if time_pattern.search(col_str):
+                time_cols.append(self._normalize_period(col_str))
         if time_cols:
             return time_cols
-
+        
+        # Also check all columns (for row-based data)
+        all_time_cols = []
+        for col in df.columns:
+            col_str = str(col)
+            if time_pattern.search(col_str):
+                all_time_cols.append(self._normalize_period(col_str))
+        if all_time_cols:
+            return all_time_cols
+        
         return []
