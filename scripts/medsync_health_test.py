@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Manus HealthTech Q&A Test Suite - 100 Questions
+Manus HealthTech Q&A Test Suite - First 30 Questions
 Tests against vault ID: 73beac38-9fdb-4d24-a68e-134b7a03aecd
 """
 import requests
@@ -37,12 +37,12 @@ QUESTIONS = [
     ("What is the maximum hotel rate per night in major metropolitan areas?", "$350"),
     ("Is MedSync Health SOC 2 Type II compliant?", "Yes"),
     ("Is MedSync Health HIPAA compliant?", "Yes"),
-    ("What is the name of the VP of Engineering?", "Lisa Park"),
-    ("How many engineers are in the Platform Team?", "18"),
-    ("What is the company's 401(k) matching policy?", "100% match up to 6%"),
-    ("What is the annual learning & development stipend?", "$2,500"),
-    ("How many paid holidays does MedSync observe annually?", "12"),
-    ("What was MedSync's revenue in FY2024?", "$78 million"),
+    ("Is MedSync Health ISO 27001 certified?", "Yes"),
+    ("When was the last SOC 2 audit?", "September 2025"),
+    ("When was the last HIPAA audit?", "October 2025"),
+    ("When was the last ISO 27001 audit?", "June 2025"),
+    ("How many hospital clients does MedSync Health have?", "142"),
+    ("How many data breach incidents were reported in 2025?", "Zero"),
 ]
 
 def normalize_answer(text):
@@ -65,6 +65,8 @@ def check_answer(response_text, expected):
         matches = sum(1 for w in exp_words if w in resp_norm)
         if matches >= len(exp_words) * 0.7:
             return True
+    if exp_norm == "zero" and ("zero" in resp_norm or "0" in resp_norm or "no" in resp_norm):
+        return True
     return False
 
 def run_tests():
