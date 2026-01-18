@@ -189,3 +189,91 @@ Extraction Results:
   - Entities: 51
   - Relationships: 37
 
+--------------------------------------------------------------------------------
+QUERY 1/9: Who is the Managing Partner?
+--------------------------------------------------------------------------------
+ANSWER:
+The Managing Partner is Elizabeth Morrison. She holds the position at Morrison & Sterling LLP, where she oversees individuals such as Amanda Foster and Richard Sterling, who report to her.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/9: What is the Managing Partner's compensation?
+--------------------------------------------------------------------------------
+ANSWER:
+The Managing Partner, Elizabeth Morrison, has a total compensation package of $2,400,000 for the year 2026. This includes: - Base Draw: $1,200,000
+- Performance Bonus: $800,000
+- Equity Points: 150 (of 1000 total)
+- Additional: Firm vehicle allowance of $24,000 per year This comprehensive compensation reflects her role and contributions to Morrison & Sterling LLP.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$24,000', '$380,000', '$185,000', '$45M', '$35,000', '$420,000', '$600,000', '$340,000', '$1,850,000', '$34M', '$1,200,000', '$620,000', '$1,200,000\n\nM', '$2.4M', '$750,000', '$28M', '$18M', '$100,000', '$2,400,000', '$1.8M', '$950,000', '$950', '$800,000', '$320,000', '$3.1M', '$1,400,000', '$15M', '$52M', '$42M', '$1,050,000', '$450,000', '$1.5M', '$95,000', '$138M', '$32M', '$4.2M', '$680,000', '$2M', '$395,000', '$90,000', '$85,000', '$1.2M', '$2.8M', '$500']
+
+**Please verify this information against source documents.**
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/9: Who is the CFO?
+--------------------------------------------------------------------------------
+ANSWER:
+The Chief Financial Officer (CFO) is Thomas Bradley. He works at Morrison & Sterling LLP and reports to Amanda Foster. The specific salary information is not provided in the retrieved data.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 4/9: Who is the COO?
+--------------------------------------------------------------------------------
+ANSWER:
+The Chief Operating Officer (COO) is Amanda Foster. She holds the position at Morrison & Sterling LLP and reports to Elizabeth Morrison. Additionally, Thomas Bradley and Susan Martinez report to her.
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 5/9: Who reports to Amanda Foster?
+--------------------------------------------------------------------------------
+ANSWER:
+Based on the retrieved information, the following individuals report to Amanda Foster: 1. Susan Martinez
+2. Thomas Bradley These are the only individuals mentioned in the provided data as reporting to Amanda Foster.
+
+CONFIDENCE: 75%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 6/9: What practice groups does the firm have?
+--------------------------------------------------------------------------------
+ANSWER:
+The firm, Morrison & Sterling LLP, has the following five practice groups: 1. **Corporate & M&A** - Led by Elizabeth Morrison - 12 partners, 28 associates - Revenue: $45M annually 2. **Litigation** - Led by Richard Sterling - 8 partners, 22 associates - Revenue: $32M annually 3. **Intellectual Property** - Led by Priya Patel - 6 partners, 15 associates - Revenue: $28M annually 4. **Employment Law** - Led by David Chen - 5 partners, 12 associates - Revenue: $18M annually 5. **Real Estate** - Led by Michael Torres - 4 partners, 10 associates - Revenue: $15M annually
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$24,000', '$380,000', '$45M', '$185,000', '$85,000', '$35,000', '$420,000', '$600,000', '$340,000', '$1,850,000', '$34M', '$1,200,000', '$620,000', '$1,200,000\n\nM', '$2.4M', '$750,000', '$28M', '$18M', '$100,000', '$2,400,000', '$1.8M', '$950', '$950,000', '$800,000', '$320,000', '$3.1M', '$15M', '$52M', '$1,400,000', '$42M', '$1,050,000', '$1.5M', '$450,000', '$95,000', '$138M', '$32M', '$4.2M', '$680,000', '$2M', '$395,000', '$90,000', '$1.2M', '$2.8M', '$500']
+
+**Please verify this information against source documents.**
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 7/9: Tell me about the litigation practice
+--------------------------------------------------------------------------------
+ANSWER:
+The litigation practice at Morrison & Sterling LLP is led by Richard Sterling, who is a senior partner and co-founder of the firm. The litigation group consists of 8 partners and 22 associates, generating an annual revenue of $32 million. This practice is one of the five main practice groups within the firm, which also includes Corporate & M&A, Intellectual Property, Employment Law, and Real Estate. Richard Sterling has been instrumental in shaping the litigation practice since the firm's inception in 1998. Under his leadership, the litigation group handles various legal matters, including litigation defense and regulatory issues, as evidenced by their work with major clients such as Pinnacle Financial Group, which has an annual billing of $2.8 million for litigation defense services. In terms of compensation, Richard Sterling's total expected earnings for 2026 are approximately $1.85 million, which includes a base draw of $950,000 and a performance bonus of $600,000. Overall, the litigation practice is a significant part of Morrison & Sterling LLP, contributing to the firm's overall revenue and client service capabilities.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple currency values found in source: ['$24,000', '$380,000', '$45M', '$185,000', '$35,000', '$420,000', '$600,000', '$340,000', '$1,850,000', '$34M', '$1,200,000', '$620,000', '$1,200,000\n\nM', '$2.4M', '$750,000', '$28M', '$18M', '$100,000', '$2,400,000', '$1.8M', '$950,000', '$950', '$800,000', '$320,000', '$3.1M', '$15M', '$52M', '$1,400,000', '$42M', '$1,050,000', '$450,000', '$1.5M', '$95,000', '$138M', '$32M', '$4.2M', '$680,000', '$2M', '$395,000', '$90,000', '$85,000', '$1.2M', '$2.8M', '$500']
+
+**Please verify this information against source documents.**
+
+CONFIDENCE: 85%
+--------------------------------------------------------------------------------
+
