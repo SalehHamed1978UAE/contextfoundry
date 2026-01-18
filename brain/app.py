@@ -433,6 +433,103 @@ def get_progress_tracker():
         return None
 
 
+def _insert_row_entities(session, tenant_id: str, document_id: str, entities: list, relationships: list) -> tuple:
+    """
+    Insert row-level entities and relationships into the Knowledge Graph.
+    
+    Returns:
+        Tuple of (entities_inserted, relationships_inserted)
+    """
+    from src.context_foundry.models.schema import Entity, Relationship, LifecycleState
+    from src.context_foundry.memory.episodic import openai_embedding
+    from uuid import UUID
+    import json
+    
+    entities_inserted = 0
+    relationships_inserted = 0
+    
+    # Track canonical names to UUIDs for relationship linking
+    entity_name_to_id = {}
+    
+    for entity_data in entities:
+        try:
+            # Generate embedding for entity
+            embed_text = f"{entity_data['display_name']} {entity_data['entity_type']}"
+            for key, val in entity_data.get('attributes', {}).items():
+                if not key.startswith('_') and isinstance(val, str):
+                    embed_text += f" {val}"
+            
+            embedding = openai_embedding(embed_text[:2000])
+            
+            # Create entity
+            entity = Entity(
+                tenant_id=UUID(tenant_id),
+                canonical_name=entity_data['canonical_name'],
+                display_name=entity_data['display_name'],
+                entity_type=entity_data['entity_type'],
+                _confidence=entity_data.get('confidence', 0.95),
+                properties=json.dumps(entity_data.get('attributes', {})),
+                source_document_id=document_id,
+                lifecycle_state=LifecycleState.STAGING,
+                embedding=embedding
+            )
+            
+            session.add(entity)
+            session.flush()
+            
+            entity_name_to_id[entity_data['canonical_name']] = entity.id
+            entities_inserted += 1
+            
+        except Exception as e:
+            logger.warning(f"[RowEntities] Failed to insert entity {entity_data.get('canonical_name')}: {e}")
+            continue
+    
+    # Insert relationships
+    for rel_data in relationships:
+        try:
+            source_id = entity_name_to_id.get(rel_data['source_name'])
+            target_id = entity_name_to_id.get(rel_data['target_name'])
+            
+            # If target doesn't exist, create an implicit entity
+            if not target_id and rel_data.get('target_display_name'):
+                implicit_entity = Entity(
+                    tenant_id=UUID(tenant_id),
+                    canonical_name=rel_data['target_name'],
+                    display_name=rel_data['target_display_name'],
+                    entity_type=rel_data['target_type'],
+                    _confidence=0.7,
+                    properties=json.dumps({'_implicit': True}),
+                    source_document_id=document_id,
+                    lifecycle_state=LifecycleState.STAGING,
+                    embedding=openai_embedding(rel_data['target_display_name'])
+                )
+                session.add(implicit_entity)
+                session.flush()
+                target_id = implicit_entity.id
+                entity_name_to_id[rel_data['target_name']] = target_id
+                entities_inserted += 1
+            
+            if source_id and target_id:
+                relationship = Relationship(
+                    tenant_id=UUID(tenant_id),
+                    source_entity_id=source_id,
+                    target_entity_id=target_id,
+                    relation_type=rel_data['relation_type'],
+                    _confidence=rel_data.get('confidence', 0.8),
+                    properties=json.dumps(rel_data.get('attributes', {})),
+                    source_document_id=document_id,
+                    lifecycle_state=LifecycleState.STAGING
+                )
+                session.add(relationship)
+                relationships_inserted += 1
+                
+        except Exception as e:
+            logger.warning(f"[RowEntities] Failed to insert relationship {rel_data.get('relation_type')}: {e}")
+            continue
+    
+    return entities_inserted, relationships_inserted
+
+
 def process_extraction_queue():
     """
     Process pending extraction requests from the queue.
@@ -542,6 +639,40 @@ def process_extraction_queue():
                 if not text_content:
                     logger.warning(f"[ExtractionWorker] No text extracted from {file_name}")
                     text_content = f"Document: {file_name}\n\nContent could not be extracted."
+                
+                # Extract row-level entities from spreadsheets (PERSON, CUSTOMER, DEAL, EXPENSE, etc.)
+                spreadsheet_extensions = ['.xlsx', '.xls', '.csv']
+                file_ext = '.' + file_name.split('.')[-1].lower() if '.' in file_name else ''
+                row_entities_count = 0
+                row_relationships_count = 0
+                
+                if file_ext in spreadsheet_extensions:
+                    try:
+                        from src.context_foundry.extraction.spreadsheet_loader import SpreadsheetLoader
+                        loader = SpreadsheetLoader()
+                        spreadsheet_doc = loader.load(file_path, original_filename=file_name)
+                        
+                        # Extract row-level entities
+                        row_entities, row_relationships = loader.extract_all_row_entities(
+                            spreadsheet_doc.tables,
+                            file_name
+                        )
+                        
+                        if row_entities:
+                            logger.info(f"[ExtractionWorker] Extracted {len(row_entities)} row-level entities from spreadsheet")
+                            
+                            # Insert row-level entities into Knowledge Graph
+                            with tenant_session(tenant_id) as session:
+                                row_entities_count, row_relationships_count = _insert_row_entities(
+                                    session=session,
+                                    tenant_id=tenant_id,
+                                    document_id=document_id,
+                                    entities=row_entities,
+                                    relationships=row_relationships
+                                )
+                                logger.info(f"[ExtractionWorker] Inserted {row_entities_count} row entities, {row_relationships_count} relationships")
+                    except Exception as e:
+                        logger.error(f"[ExtractionWorker] Spreadsheet row extraction failed: {e}")
                 
                 if tracker:
                     tracker.update(document_id, IngestionStep.CHUNKING)

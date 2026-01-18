@@ -1,10 +1,10 @@
 {
-  "timestamp": "20260118_192234",
+  "timestamp": "20260118_184042",
   "summary": {
     "total": 235,
-    "passed": 188,
-    "failed": 47,
-    "accuracy_pct": 80.0
+    "passed": 180,
+    "failed": 55,
+    "accuracy_pct": 76.6
   },
   "breakdown": {
     "Q1-100": {
@@ -12,11 +12,11 @@
       "total": 100
     },
     "Q101-200": {
-      "passed": 82,
+      "passed": 81,
       "total": 100
     },
     "Q201-235": {
-      "passed": 8,
+      "passed": 1,
       "total": 35
     }
   },
@@ -26,7 +26,7 @@
       "passed": false,
       "query": "What CRM system does MedSync Health use?",
       "expected": "Salesforce",
-      "answer": "The retrieved information does not specify the exact CRM (Cu"
+      "answer": "MedSync Health uses the MedSync Platform as its primary care"
     },
     {
       "q": 56,
@@ -34,13 +34,6 @@
       "query": "What team communication tool does MedSync Health u",
       "expected": "Slack",
       "answer": "MedSync Health uses a cloud-based care coordination system k"
-    },
-    {
-      "q": 102,
-      "passed": false,
-      "query": "What percentage of FY 2025 revenue came from Europ",
-      "expected": "10%",
-      "answer": "In Fiscal Year 2025, revenue from Europe (specifically the U"
     },
     {
       "q": 109,
@@ -54,7 +47,14 @@
       "passed": false,
       "query": "What is the average deal size in the Q1 2026 pipel",
       "expected": "$517,000",
-      "answer": "It seems there was an issue retrieving the total value of de"
+      "answer": "I currently do not have sufficient data to calculate the ave"
+    },
+    {
+      "q": 124,
+      "passed": false,
+      "query": "What was the net income growth from FY 2024 to FY ",
+      "expected": "82.9%",
+      "answer": "The net income growth from Fiscal Year (FY) 2024 to FY 2025 "
     },
     {
       "q": 126,
@@ -106,6 +106,11 @@
       "answer": "The certification that was audited most recently is the **SO"
     },
     {
+      "q": 166,
+      "passed": false,
+      "error": "('Connection aborted.', RemoteDisconnected('Remote"
+    },
+    {
       "q": 168,
       "passed": false,
       "query": "Which region contributed more revenue in FY 2025?",
@@ -117,7 +122,7 @@
       "passed": false,
       "query": "Which office has more conference rooms?",
       "expected": "Boston office (10 vs. London's 3)",
-      "answer": "The Boston Office has more conference rooms compared to the "
+      "answer": "The office with more conference rooms is the **Boston Office"
     },
     {
       "q": 183,
@@ -159,14 +164,12 @@
       "passed": false,
       "query": "What is the average customer lifetime value (LTV)?",
       "expected": "[NOT IN DOCUMENTS]",
-      "answer": "The retrieved information does not provide a specific value "
+      "answer": "The retrieved information does not provide a specific figure"
     },
     {
       "q": 202,
       "passed": false,
-      "query": "What is Jennifer Lee's department?",
-      "expected": "Finance",
-      "answer": "The retrieved information does not contain any details about"
+      "error": "('Connection aborted.', RemoteDisconnected('Remote"
     },
     {
       "q": 203,
@@ -192,163 +195,152 @@
     {
       "q": 206,
       "passed": false,
-      "query": "What is the total ACV value of all deals in the Q1",
-      "expected": "$5,550,000",
-      "answer": "The total ACV (Annual Contract Value) of all deals in the Q1"
+      "error": "('Connection aborted.', RemoteDisconnected('Remote"
     },
     {
       "q": 207,
       "passed": false,
-      "query": "Which deal has the highest ACV in the Q1 2026 pipe",
-      "expected": "D-2026-005 (University Medical) at $1,20",
-      "answer": "The deal with the highest ACV (Annual Contract Value) in the"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 208,
       "passed": false,
-      "query": "How many deals are in the \"Negotiation\" stage?",
-      "expected": "2 (Regional Medical Center and Mountain ",
-      "answer": "Based on the retrieved information, there are **8 deals** in"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
+    },
+    {
+      "q": 209,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
+    },
+    {
+      "q": 210,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
+    },
+    {
+      "q": 211,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 212,
       "passed": false,
-      "query": "Which customer has the highest health score?",
-      "expected": "Acme Hospital (95)",
-      "answer": "The retrieved information does not specify individual custom"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
+    },
+    {
+      "q": 213,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
+    },
+    {
+      "q": 214,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 215,
       "passed": false,
-      "query": "Which customer has the lowest health score?",
-      "expected": "Delta Hospital (45)",
-      "answer": "Based on the retrieved information, the customers with the l"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 216,
       "passed": false,
-      "query": "What was the total revenue in December 2025?",
-      "expected": "$8,900,000",
-      "answer": "The total revenue for MedSync Health in December 2025 is not"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 217,
       "passed": false,
-      "query": "Which month in 2025 had the highest total revenue?",
-      "expected": "December",
-      "answer": "The specific monthly revenue breakdown for 2025 is not avail"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 218,
       "passed": false,
-      "query": "What was the new business revenue in March 2025?",
-      "expected": "$2,000,000",
-      "answer": "The new business revenue for MedSync Health, Inc. in March 2"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 219,
       "passed": false,
-      "query": "What was the total churn in September 2025?",
-      "expected": "-$100,000",
-      "answer": "The total churn for September 2025 is not explicitly stated "
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 220,
       "passed": false,
-      "query": "What was the expansion revenue in October 2025?",
-      "expected": "$650,000",
-      "answer": "The retrieved information does not provide specific details "
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
+    },
+    {
+      "q": 221,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 222,
       "passed": false,
-      "query": "What was the most expensive single expense in Q4 2",
-      "expected": "$2,500 for trade show booth materials by",
-      "answer": "The retrieved information does not specify the most expensiv"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 223,
       "passed": false,
-      "query": "How many expenses did Sarah Johnson submit in Q4 2",
-      "expected": "2 (Flight and client dinner)",
-      "answer": "The retrieved information does not provide specific details "
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 224,
       "passed": false,
-      "query": "What was Ben Carter's conference registration expe",
-      "expected": "$1,899 for AWS re:Invent",
-      "answer": "The retrieved information does not provide any details regar"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 225,
       "passed": false,
-      "query": "What is the planned total headcount for Q4 2026?",
-      "expected": "686",
-      "answer": "The planned total headcount for Q4 2026 is 625. This figure "
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 226,
       "passed": false,
-      "query": "Which department has the highest planned YoY growt",
-      "expected": "Customer Success (53%)",
-      "answer": "The metric growth from Oct_2025 to Sep_2025 was -7.88%. (Cal"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 227,
       "passed": false,
-      "query": "How many people will be in Engineering by Q2 2026?",
-      "expected": "210",
-      "answer": "Based on the retrieved information, the following details re"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 228,
       "passed": false,
-      "query": "Which department has zero planned growth?",
-      "expected": "Executive",
-      "answer": "Based on the retrieved information, there is no specific men"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 229,
       "passed": false,
-      "query": "Which customer has the highest monthly active user",
-      "expected": "Acme Hospital (450)",
-      "answer": "The documents retrieved do not provide specific information "
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 230,
       "passed": false,
-      "query": "What is Delta Hospital's feature adoption rate?",
-      "expected": "52%",
-      "answer": "The retrieved information does not provide a specific featur"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 231,
       "passed": false,
-      "query": "Which customer has the lowest average session dura",
-      "expected": "Delta Hospital (15 minutes)",
-      "answer": "The retrieved documents do not provide specific information "
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 232,
       "passed": false,
-      "query": "How many daily active users does Epsilon Health ha",
-      "expected": "155",
-      "answer": "The retrieved information does not provide specific data reg"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
+    },
+    {
+      "q": 233,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 234,
       "passed": false,
-      "query": "How long did it take to resolve the critical syste",
-      "expected": "2 hours",
-      "answer": "The critical system outage for the MedSync Platform occurred"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 235,
       "passed": false,
-      "query": "Which ticket had the longest resolution time?",
-      "expected": "Ticket 9880 (Data Export) at 40 hours",
-      "answer": "The longest resolution time recorded in the available docume"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     }
   ]
 }
