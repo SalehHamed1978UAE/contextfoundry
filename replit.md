@@ -156,6 +156,18 @@ From the Context Foundry Bible, these validations need proof:
   - Auto-resets requests stuck >10 minutes back to "pending" for retry
   - Runs on every scheduler cycle (30 seconds)
   - Prevents 10+ hour stalls when server idles or restarts
+- **Parallel Extraction Workers ✅** (Jan 18, 2026)
+  - Replaced single-threaded extraction worker with ThreadPoolExecutor (3 workers default)
+  - Configurable via EXTRACTION_WORKERS environment variable
+  - Batch claiming: Claims multiple requests per cycle instead of one at a time
+  - Reduced idle sleep from 5 seconds to 0.5 seconds when work is pending
+  - Uses `get_tenant_session()` for proper RLS context in each worker thread
+  - Significantly faster document processing throughput for large queues
+- **Orphaned Entity Auto-Cleanup ✅** (Jan 18, 2026)
+  - `cleanup_orphaned_entities()` function runs on brain startup
+  - Handles entities from deleted tenants by nullifying FK references
+  - Uses savepoints to prevent transaction aborts on partial failures
+  - Cleans 13 FK-dependent tables including self-referencing superseded_by
 
 ### Planned
 - Ontology Foundry Phase 2 (Admin UI)
