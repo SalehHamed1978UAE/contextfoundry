@@ -806,24 +806,152 @@ def process_extraction_queue():
     return processed
 
 
-def extraction_worker_loop():
-    """
-    Background thread that polls the extraction queue every 30 seconds.
-    """
-    global extraction_worker_running
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+EXTRACTION_WORKERS = int(os.environ.get("EXTRACTION_WORKERS", "3"))
+extraction_executor = None
+
+def process_single_extraction_task(request: dict) -> bool:
+    """Process a single extraction request in a worker thread."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    from sqlalchemy import text
     
-    logger.info("[ExtractionWorker] Starting extraction worker (5-second interval)")
+    database_url = os.environ.get("DATABASE_URL")
+    request_id = request.get('request_id')
+    document_id = request.get('document_id')
+    
+    try:
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE platform.extraction_requests SET status = 'processing' WHERE id = %s",
+            (request['id'],)
+        )
+        conn.commit()
+        cur.close()
+        
+        file_path = request.get('file_path')
+        file_name = request.get('file_name')
+        tenant_id = str(request.get('tenant_id'))
+        
+        text_content, extraction_method, page_count = extract_text_from_file(file_path, file_name)
+        
+        if not text_content.strip():
+            logger.warning(f"[ExtractionWorker] No text extracted from {file_name}")
+            cur = conn.cursor()
+            cur.execute("UPDATE platform.extraction_requests SET status = 'completed' WHERE id = %s", (request['id'],))
+            conn.commit()
+            cur.close()
+            conn.close()
+            return True
+        
+        pipeline_type = os.environ.get("EXTRACTION_PIPELINE", "ontology")
+        logger.info(f"[ExtractionWorker] Using OntologyCentricPipeline for {file_name}")
+        
+        from src.context_foundry.extraction.ontology_centric_pipeline import OntologyCentricPipeline
+        from src.context_foundry.models.schema import get_tenant_session
+        
+        session = get_tenant_session(tenant_id)
+        
+        pipeline = OntologyCentricPipeline(
+            session=session,
+            tenant_id=tenant_id,
+        )
+        
+        result = pipeline.extract(
+            text=text_content,
+            document_id=document_id,
+            filename=file_name,
+        )
+        
+        session.close()
+        
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE platform.extraction_requests SET status = 'completed' WHERE id = %s",
+            (request['id'],)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        entities_count = len(result.entities) if hasattr(result, 'entities') else 0
+        extraction_worker_stats["requests_processed"] = extraction_worker_stats.get("requests_processed", 0) + 1
+        logger.info(f"[ExtractionWorker] Completed: {file_name} ({entities_count} entities)")
+        return True
+        
+    except Exception as e:
+        logger.error(f"[ExtractionWorker] Task error for {document_id}: {e}")
+        extraction_worker_stats["last_error"] = str(e)
+        try:
+            fail_conn = psycopg2.connect(database_url)
+            fail_cur = fail_conn.cursor()
+            fail_cur.execute("UPDATE platform.extraction_requests SET status = 'failed' WHERE id = %s", (request['id'],))
+            fail_conn.commit()
+            fail_cur.close()
+            fail_conn.close()
+        except:
+            pass
+        return False
+
+
+def claim_batch_requests(batch_size: int = 3) -> list:
+    """Claim multiple pending extraction requests at once."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    database_url = os.environ.get("DATABASE_URL")
+    worker_id = f"brain-worker-{os.getpid()}"
+    requests = []
+    
+    try:
+        conn = psycopg2.connect(database_url)
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            for _ in range(batch_size):
+                cur.execute("SELECT * FROM platform.claim_extraction_request(%s)", (worker_id,))
+                request = cur.fetchone()
+                conn.commit()
+                if request and request.get('id'):
+                    requests.append(dict(request))
+                else:
+                    break
+        conn.close()
+    except Exception as e:
+        logger.error(f"[ExtractionWorker] Batch claim error: {e}")
+    
+    return requests
+
+
+def extraction_worker_loop():
+    """Background thread that processes extraction queue with parallel workers."""
+    global extraction_worker_running, extraction_executor
+    
+    logger.info(f"[ExtractionWorker] Starting with {EXTRACTION_WORKERS} parallel workers")
     extraction_worker_stats["is_running"] = True
+    extraction_executor = ThreadPoolExecutor(max_workers=EXTRACTION_WORKERS, thread_name_prefix="extractor")
     
     while extraction_worker_running:
         try:
             extraction_worker_stats["last_run"] = datetime.utcnow().isoformat()
-            processed = process_extraction_queue()
             
-            if processed > 0:
-                time.sleep(1)
+            requests = claim_batch_requests(batch_size=EXTRACTION_WORKERS)
+            
+            if requests:
+                for req in requests:
+                    logger.info(f"[ExtractionWorker] Claimed: {req.get('file_name')} ({req.get('document_id')[:8]}...)")
+                
+                futures = [extraction_executor.submit(process_single_extraction_task, req) for req in requests]
+                
+                for future in as_completed(futures, timeout=600):
+                    try:
+                        future.result()
+                    except Exception as e:
+                        logger.error(f"[ExtractionWorker] Future error: {e}")
+                
+                time.sleep(0.5)
             else:
-                for _ in range(5):
+                for _ in range(3):
                     if not extraction_worker_running:
                         break
                     time.sleep(1)
@@ -831,8 +959,10 @@ def extraction_worker_loop():
         except Exception as e:
             logger.error(f"[ExtractionWorker] Loop error: {e}")
             extraction_worker_stats["last_error"] = str(e)
-            time.sleep(10)
+            time.sleep(5)
     
+    if extraction_executor:
+        extraction_executor.shutdown(wait=False)
     extraction_worker_stats["is_running"] = False
     logger.info("[ExtractionWorker] Extraction worker stopped")
 
