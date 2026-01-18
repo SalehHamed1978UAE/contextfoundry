@@ -1,0 +1,569 @@
+ Row-Level Spreadsheet Extraction Design
+
+  1. Spreadsheet Type Detection
+
+  Add this to SpreadsheetLoader:
+
+  # Spreadsheet type detection patterns
+  SPREADSHEET_TYPE_PATTERNS = {
+      'EMPLOYEE_DIRECTORY': {
+          'required': ['name'],  # Must have at least one
+          'indicators': [
+              'employee', 'staff', 'team member', 'personnel',
+              'department', 'title', 'role', 'position',
+              'hire date', 'start date', 'manager', 'reports to',
+              'email', 'phone', 'extension', 'location', 'office'
+          ],
+          'entity_type': 'PERSON',
+          'min_matches': 2  # Need at least 2 indicator columns
+      },
+      'SALES_PIPELINE': {
+          'required': ['company', 'account', 'deal', 'opportunity'],
+          'indicators': [
+              'deal', 'opportunity', 'account', 'company', 'client',
+              'value', 'amount', 'revenue', 'arr', 'tcv',
+              'stage', 'status', 'probability', 'close date',
+              'owner', 'rep', 'sales rep', 'account executive'
+          ],
+          'entity_type': 'DEAL',
+          'min_matches': 3
+      },
+      'CUSTOMER_LIST': {
+          'required': ['customer', 'client', 'account'],
+          'indicators': [
+              'customer', 'client', 'account name',
+              'contract', 'arr', 'mrr', 'revenue', 'value',
+              'start date', 'renewal', 'expiration',
+              'tier', 'plan', 'subscription', 'status'
+          ],
+          'entity_type': 'CUSTOMER',
+          'min_matches': 2
+      },
+      'EXPENSE_REPORT': {
+          'required': ['amount', 'expense', 'cost'],
+          'indicators': [
+              'expense', 'cost', 'amount', 'total',
+              'category', 'type', 'description',
+              'date', 'submitted', 'approved',
+              'employee', 'submitted by', 'vendor', 'merchant'
+          ],
+          'entity_type': 'EXPENSE',
+          'min_matches': 3
+      },
+      'VENDOR_LIST': {
+          'required': ['vendor', 'supplier', 'provider'],
+          'indicators': [
+              'vendor', 'supplier', 'provider', 'partner',
+              'contract', 'annual cost', 'spend',
+              'category', 'service', 'product',
+              'contact', 'renewal', 'start date'
+          ],
+          'entity_type': 'VENDOR',
+          'min_matches': 2
+      },
+      'PROJECT_LIST': {
+          'required': ['project', 'initiative'],
+          'indicators': [
+              'project', 'initiative', 'program',
+              'status', 'phase', 'milestone',
+              'owner', 'lead', 'manager',
+              'start date', 'end date', 'deadline', 'due date',
+              'budget', 'cost', 'resources'
+          ],
+          'entity_type': 'PROJECT',
+          'min_matches': 2
+      }
+  }
+
+  def detect_spreadsheet_type(self, df: pd.DataFrame) -> Optional[Dict[str, Any]]:
+      """
+      Detect what type of data this spreadsheet contains based on column headers.
+      
+      Returns:
+          Dict with 'type', 'entity_type', 'column_mapping' or None if unknown
+      """
+      columns_lower = [str(c).lower().strip() for c in df.columns]
+
+      best_match = None
+      best_score = 0
+
+      for sheet_type, config in self.SPREADSHEET_TYPE_PATTERNS.items():
+          # Check for required columns
+          has_required = any(
+              any(req in col for col in columns_lower)
+              for req in config['required']
+          )
+
+          if not has_required:
+              continue
+
+          # Count indicator matches
+          matches = 0
+          matched_columns = {}
+
+          for col in columns_lower:
+              for indicator in config['indicators']:
+                  if indicator in col:
+                      matches += 1
+                      matched_columns[col] = indicator
+                      break
+
+          if matches >= config['min_matches'] and matches > best_score:
+              best_score = matches
+              best_match = {
+                  'type': sheet_type,
+                  'entity_type': config['entity_type'],
+                  'matched_columns': matched_columns,
+                  'confidence': min(1.0, matches / len(config['indicators']))
+              }
+
+      return best_match
+
+  2. Column-to-Property Mapping
+
+  # Standard property mappings for each entity type
+  PROPERTY_MAPPINGS = {
+      'PERSON': {
+          # Column pattern -> property name
+          'name': 'name',
+          'employee name': 'name',
+          'full name': 'name',
+          'first name': 'first_name',
+          'last name': 'last_name',
+          'department': 'department',
+          'dept': 'department',
+          'title': 'title',
+          'job title': 'title',
+          'role': 'title',
+          'position': 'title',
+          'manager': 'manager',
+          'reports to': 'manager',
+          'supervisor': 'manager',
+          'hire date': 'hire_date',
+          'start date': 'start_date',
+          'email': 'email',
+          'phone': 'phone',
+          'extension': 'phone_ext',
+          'location': 'location',
+          'office': 'office',
+          'salary': 'salary',
+          'employee id': 'employee_id',
+          'id': 'employee_id',
+      },
+      'DEAL': {
+          'company': 'company',
+          'account': 'company',
+          'account name': 'company',
+          'client': 'company',
+          'deal name': 'deal_name',
+          'opportunity': 'deal_name',
+          'value': 'value',
+          'deal value': 'value',
+          'amount': 'value',
+          'arr': 'arr',
+          'tcv': 'tcv',
+          'stage': 'stage',
+          'status': 'status',
+          'probability': 'probability',
+          'close date': 'close_date',
+          'expected close': 'close_date',
+          'owner': 'owner',
+          'sales rep': 'owner',
+          'account executive': 'owner',
+          'rep': 'owner',
+          'notes': 'notes',
+          'next steps': 'next_steps',
+      },
+      'CUSTOMER': {
+          'customer': 'name',
+          'customer name': 'name',
+          'client': 'name',
+          'account': 'name',
+          'company': 'name',
+          'arr': 'arr',
+          'mrr': 'mrr',
+          'contract value': 'contract_value',
+          'revenue': 'revenue',
+          'start date': 'start_date',
+          'contract start': 'start_date',
+          'renewal date': 'renewal_date',
+          'expiration': 'renewal_date',
+          'tier': 'tier',
+          'plan': 'plan',
+          'subscription': 'subscription_type',
+          'status': 'status',
+          'industry': 'industry',
+          'contact': 'primary_contact',
+      },
+      'EXPENSE': {
+          'description': 'description',
+          'expense': 'description',
+          'item': 'description',
+          'amount': 'amount',
+          'total': 'amount',
+          'cost': 'amount',
+          'category': 'category',
+          'type': 'category',
+          'date': 'date',
+          'expense date': 'date',
+          'submitted': 'submitted_date',
+          'employee': 'employee',
+          'submitted by': 'employee',
+          'vendor': 'vendor',
+          'merchant': 'vendor',
+          'approved': 'approved',
+          'status': 'status',
+          'receipt': 'has_receipt',
+      },
+      'VENDOR': {
+          'vendor': 'name',
+          'vendor name': 'name',
+          'supplier': 'name',
+          'provider': 'name',
+          'company': 'name',
+          'category': 'category',
+          'service': 'service_type',
+          'product': 'product',
+          'annual cost': 'annual_cost',
+          'spend': 'annual_spend',
+          'contract value': 'contract_value',
+          'contact': 'contact',
+          'renewal date': 'renewal_date',
+          'start date': 'start_date',
+          'status': 'status',
+      },
+      'PROJECT': {
+          'project': 'name',
+          'project name': 'name',
+          'initiative': 'name',
+          'description': 'description',
+          'status': 'status',
+          'phase': 'phase',
+          'owner': 'owner',
+          'lead': 'owner',
+          'project manager': 'owner',
+          'start date': 'start_date',
+          'end date': 'end_date',
+          'deadline': 'deadline',
+          'due date': 'deadline',
+          'budget': 'budget',
+          'department': 'department',
+          'team': 'team',
+      }
+  }
+
+  def map_columns_to_properties(
+      self, 
+      df: pd.DataFrame, 
+      entity_type: str
+  ) -> Dict[str, str]:
+      """
+      Map spreadsheet columns to entity properties.
+      
+      Returns:
+          Dict mapping column_name -> property_name
+      """
+      mapping = {}
+      property_patterns = self.PROPERTY_MAPPINGS.get(entity_type, {})
+
+      for col in df.columns:
+          col_lower = str(col).lower().strip()
+
+          # Try exact match first
+          if col_lower in property_patterns:
+              mapping[col] = property_patterns[col_lower]
+              continue
+
+          # Try partial match
+          for pattern, prop_name in property_patterns.items():
+              if pattern in col_lower or col_lower in pattern:
+                  mapping[col] = prop_name
+                  break
+
+          # If no match, use cleaned column name as property
+          if col not in mapping:
+              # Convert "Employee Name" -> "employee_name"
+              clean_name = re.sub(r'[^\w\s]', '', col_lower)
+              clean_name = re.sub(r'\s+', '_', clean_name)
+              mapping[col] = clean_name
+
+      return mapping
+
+  3. Row-Level Entity Extraction
+
+  def extract_row_entities(
+      self,
+      df: pd.DataFrame,
+      sheet_type: Dict[str, Any],
+      source_document: str
+  ) -> List[Dict[str, Any]]:
+      """
+      Extract individual entities from each row of the spreadsheet.
+      
+      Returns:
+          List of entity dicts ready for Knowledge Graph insertion
+      """
+      entities = []
+      entity_type = sheet_type['entity_type']
+      column_mapping = self.map_columns_to_properties(df, entity_type)
+
+      # Find the name/identifier column
+      name_props = ['name', 'employee_name', 'company', 'customer', 'deal_name', 'project']
+      name_column = None
+      for col, prop in column_mapping.items():
+          if prop in name_props:
+              name_column = col
+              break
+
+      for idx, row in df.iterrows():
+          # Skip empty rows
+          if row.isna().all():
+              continue
+
+          # Build entity attributes from row
+          attributes = {}
+          for col, prop in column_mapping.items():
+              value = row[col]
+              if pd.notna(value):
+                  # Clean and convert value
+                  if isinstance(value, (int, float)):
+                      attributes[prop] = value
+                  else:
+                      attributes[prop] = str(value).strip()
+
+          # Get entity name
+          if name_column and pd.notna(row[name_column]):
+              entity_name = str(row[name_column]).strip()
+          else:
+              entity_name = f"{entity_type}_{idx}"
+
+          # Create canonical name (lowercase, underscores)
+          canonical_name = re.sub(r'[^\w\s]', '', entity_name.lower())
+          canonical_name = re.sub(r'\s+', '_', canonical_name)
+
+          entity = {
+              'entity_type': entity_type,
+              'canonical_name': canonical_name,
+              'display_name': entity_name,
+              'attributes': {
+                  **attributes,
+                  'source_document': source_document,
+                  'source_row': idx + 1,  # 1-indexed for user display
+              },
+              'confidence': 0.95,  # High confidence for structured data
+          }
+
+          entities.append(entity)
+
+      return entities
+
+  4. Relationship Extraction
+
+  # Relationship patterns based on entity type
+  RELATIONSHIP_PATTERNS = {
+      'PERSON': [
+          # (source_prop, relation_type, target_entity_type, target_prop)
+          ('department', 'WORKS_IN', 'DEPARTMENT', 'name'),
+          ('manager', 'REPORTS_TO', 'PERSON', 'name'),
+          ('location', 'LOCATED_IN', 'LOCATION', 'name'),
+          ('office', 'WORKS_AT', 'OFFICE', 'name'),
+      ],
+      'DEAL': [
+          ('owner', 'OWNED_BY', 'PERSON', 'name'),
+          ('company', 'WITH_COMPANY', 'CUSTOMER', 'name'),
+      ],
+      'EXPENSE': [
+          ('employee', 'SUBMITTED_BY', 'PERSON', 'name'),
+          ('vendor', 'PAID_TO', 'VENDOR', 'name'),
+          ('category', 'CATEGORIZED_AS', 'EXPENSE_CATEGORY', 'name'),
+      ],
+      'PROJECT': [
+          ('owner', 'OWNED_BY', 'PERSON', 'name'),
+          ('department', 'BELONGS_TO', 'DEPARTMENT', 'name'),
+      ],
+  }
+
+  def extract_relationships(
+      self,
+      entities: List[Dict[str, Any]]
+  ) -> List[Dict[str, Any]]:
+      """
+      Extract relationships between entities based on their properties.
+      
+      Returns:
+          List of relationship dicts ready for Knowledge Graph insertion
+      """
+      relationships = []
+
+      # Build lookup of entities by type and name
+      entity_lookup = {}
+      for entity in entities:
+          etype = entity['entity_type']
+          name = entity['display_name'].lower()
+          if etype not in entity_lookup:
+              entity_lookup[etype] = {}
+          entity_lookup[etype][name] = entity['canonical_name']
+
+      for entity in entities:
+          entity_type = entity['entity_type']
+          patterns = self.RELATIONSHIP_PATTERNS.get(entity_type, [])
+
+          for source_prop, rel_type, target_type, target_prop in patterns:
+              # Get the property value that references another entity
+              prop_value = entity.get('attributes', {}).get(source_prop)
+
+              if not prop_value:
+                  continue
+
+              prop_value_lower = str(prop_value).lower().strip()
+
+              # Try to find the target entity
+              target_canonical = None
+
+              # Check if target exists in our extracted entities
+              if target_type in entity_lookup:
+                  target_canonical = entity_lookup[target_type].get(prop_value_lower)
+
+              # If not found but it's a valid reference, create implicit entity
+              if not target_canonical and prop_value_lower:
+                  target_canonical = re.sub(r'[^\w\s]', '', prop_value_lower)
+                  target_canonical = re.sub(r'\s+', '_', target_canonical)
+
+              if target_canonical:
+                  relationship = {
+                      'relation_type': rel_type,
+                      'source_name': entity['canonical_name'],
+                      'target_name': target_canonical,
+                      'attributes': {
+                          'source_property': source_prop,
+                          'inferred': target_type not in entity_lookup,
+                      },
+                      'confidence': 0.9 if target_type in entity_lookup else 0.7,
+                  }
+                  relationships.append(relationship)
+
+      return relationships
+
+  5. Integration into SpreadsheetLoader.load()
+
+  def load(self, file_path: str) -> SpreadsheetDocument:
+      """
+      Load a spreadsheet file and extract all tables AND row-level entities.
+      """
+      path = Path(file_path)
+      extension = path.suffix.lower()
+
+      logger.info(f"Loading spreadsheet: {path.name}")
+
+      if extension in ['.xlsx', '.xls']:
+          doc = self._load_excel(file_path)
+      elif extension == '.csv':
+          doc = self._load_csv(file_path)
+      else:
+          raise ValueError(f"Unsupported file type: {extension}")
+
+      # NEW: Extract row-level entities from each table
+      all_entities = []
+      all_relationships = []
+
+      for table in doc.tables:
+          # Detect spreadsheet type
+          sheet_type = self.detect_spreadsheet_type(table.dataframe)
+
+          if sheet_type:
+              logger.info(f"  Detected {sheet_type['type']} with {sheet_type['entity_type']} entities")
+
+              # Extract entities from rows
+              entities = self.extract_row_entities(
+                  table.dataframe,
+                  sheet_type,
+                  doc.filename
+              )
+              all_entities.extend(entities)
+
+              # Extract relationships
+              relationships = self.extract_relationships(entities)
+              all_relationships.extend(relationships)
+
+              # Store in table metadata
+              table.metadata['sheet_type'] = sheet_type['type']
+              table.metadata['entity_type'] = sheet_type['entity_type']
+              table.metadata['entity_count'] = len(entities)
+              table.metadata['relationship_count'] = len(relationships)
+
+      # Add to document metadata
+      doc.metadata['row_entities'] = all_entities
+      doc.metadata['row_relationships'] = all_relationships
+      doc.metadata['total_row_entities'] = len(all_entities)
+      doc.metadata['total_row_relationships'] = len(all_relationships)
+
+      logger.info(f"  Extracted {len(all_entities)} row-level entities, {len(all_relationships)} relationships")
+
+      return doc
+
+  6. Wire into Document Upload Pipeline
+
+  In core.py or wherever documents are processed, add:
+
+  def process_spreadsheet(self, file_path: str, tenant_id: UUID):
+      """Process spreadsheet and insert row-level entities into Knowledge Graph."""
+      loader = SpreadsheetLoader()
+      doc = loader.load(file_path)
+
+      # Insert row-level entities
+      row_entities = doc.metadata.get('row_entities', [])
+      row_relationships = doc.metadata.get('row_relationships', [])
+
+      if row_entities:
+          logger.info(f"Inserting {len(row_entities)} row-level entities")
+          for entity in row_entities:
+              self.insert_entity(
+                  tenant_id=tenant_id,
+                  entity_type=entity['entity_type'],
+                  canonical_name=entity['canonical_name'],
+                  display_name=entity['display_name'],
+                  attributes=entity['attributes'],
+                  confidence=entity['confidence']
+              )
+
+      if row_relationships:
+          logger.info(f"Inserting {len(row_relationships)} relationships")
+          for rel in row_relationships:
+              self.insert_relationship(
+                  tenant_id=tenant_id,
+                  relation_type=rel['relation_type'],
+                  source_name=rel['source_name'],
+                  target_name=rel['target_name'],
+                  attributes=rel.get('attributes', {}),
+                  confidence=rel.get('confidence', 0.8)
+              )
+
+      return {
+          'entities_created': len(row_entities),
+          'relationships_created': len(row_relationships)
+      }
+
+  ---
+  Expected Results After Implementation
+
+  Query: "What department is Jennifer Lee in?"
+
+  1. EntityRetriever finds PERSON entity jennifer_lee
+  2. Entity has attribute department: "Marketing"
+  3. Answer: "Jennifer Lee is in the Marketing department"
+
+  Query: "Who owns the Acme Corp deal?"
+
+  1. EntityRetriever finds DEAL entity acme_corp
+  2. Entity has attribute owner: "John Smith"
+  3. Relationship: acme_corp OWNED_BY john_smith
+  4. Answer: "The Acme Corp deal is owned by John Smith"
+
+  Query: "How many employees are in Engineering?"
+
+  1. Query all PERSON entities where department = "Engineering"
+  2. Count: 15 entities
+  3. Answer: "There are 15 employees in the Engineering department"
+
+  ---
+  This design gives Replit everything needed to implement row-level extraction. Let me know if any part needs clarification.

@@ -1,10 +1,10 @@
 {
-  "timestamp": "20260118_192234",
+  "timestamp": "20260118_190227",
   "summary": {
     "total": 235,
-    "passed": 188,
-    "failed": 47,
-    "accuracy_pct": 80.0
+    "passed": 187,
+    "failed": 48,
+    "accuracy_pct": 79.6
   },
   "breakdown": {
     "Q1-100": {
@@ -12,11 +12,11 @@
       "total": 100
     },
     "Q101-200": {
-      "passed": 82,
+      "passed": 83,
       "total": 100
     },
     "Q201-235": {
-      "passed": 8,
+      "passed": 6,
       "total": 35
     }
   },
@@ -48,13 +48,6 @@
       "query": "What is the target bonus percentage for VPs?",
       "expected": "30%+",
       "answer": "The target bonus percentage for Vice Presidents (VPs) and ab"
-    },
-    {
-      "q": 113,
-      "passed": false,
-      "query": "What is the average deal size in the Q1 2026 pipel",
-      "expected": "$517,000",
-      "answer": "It seems there was an issue retrieving the total value of de"
     },
     {
       "q": 126,
@@ -152,14 +145,14 @@
       "passed": false,
       "query": "What is the employee turnover rate?",
       "expected": "[NOT IN DOCUMENTS]",
-      "answer": "The retrieved information does not provide specific details "
+      "answer": "The retrieved information does not provide any specific data"
     },
     {
       "q": 200,
       "passed": false,
       "query": "What is the average customer lifetime value (LTV)?",
       "expected": "[NOT IN DOCUMENTS]",
-      "answer": "The retrieved information does not provide a specific value "
+      "answer": "The retrieved information does not provide a specific figure"
     },
     {
       "q": 202,
@@ -211,6 +204,13 @@
       "answer": "Based on the retrieved information, there are **8 deals** in"
     },
     {
+      "q": 210,
+      "passed": false,
+      "query": "Which sales rep owns the most deals in the pipelin",
+      "expected": "Sarah Johnson (4 deals)",
+      "answer": "I was unable to find specific information regarding which sa"
+    },
+    {
       "q": 212,
       "passed": false,
       "query": "Which customer has the highest health score?",
@@ -236,7 +236,7 @@
       "passed": false,
       "query": "Which month in 2025 had the highest total revenue?",
       "expected": "December",
-      "answer": "The specific monthly revenue breakdown for 2025 is not avail"
+      "answer": "The retrieved documents do not provide a detailed monthly br"
     },
     {
       "q": 218,
@@ -269,9 +269,7 @@
     {
       "q": 223,
       "passed": false,
-      "query": "How many expenses did Sarah Johnson submit in Q4 2",
-      "expected": "2 (Flight and client dinner)",
-      "answer": "The retrieved information does not provide specific details "
+      "error": "('Connection aborted.', RemoteDisconnected('Remote"
     },
     {
       "q": 224,
@@ -313,7 +311,7 @@
       "passed": false,
       "query": "Which customer has the highest monthly active user",
       "expected": "Acme Hospital (450)",
-      "answer": "The documents retrieved do not provide specific information "
+      "answer": "The search did not yield specific information regarding whic"
     },
     {
       "q": 230,
@@ -325,30 +323,27 @@
     {
       "q": 231,
       "passed": false,
-      "query": "Which customer has the lowest average session dura",
-      "expected": "Delta Hospital (15 minutes)",
-      "answer": "The retrieved documents do not provide specific information "
+      "error": "('Connection aborted.', RemoteDisconnected('Remote"
     },
     {
       "q": 232,
       "passed": false,
-      "query": "How many daily active users does Epsilon Health ha",
-      "expected": "155",
-      "answer": "The retrieved information does not provide specific data reg"
+      "error": "('Connection aborted.', RemoteDisconnected('Remote"
+    },
+    {
+      "q": 233,
+      "passed": false,
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 234,
       "passed": false,
-      "query": "How long did it take to resolve the critical syste",
-      "expected": "2 hours",
-      "answer": "The critical system outage for the MedSync Platform occurred"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     },
     {
       "q": 235,
       "passed": false,
-      "query": "Which ticket had the longest resolution time?",
-      "expected": "Ticket 9880 (Data Export) at 40 hours",
-      "answer": "The longest resolution time recorded in the available docume"
+      "error": "HTTPConnectionPool(host='localhost', port=5000): M"
     }
   ]
 }
