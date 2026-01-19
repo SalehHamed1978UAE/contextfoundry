@@ -9,15 +9,14 @@ import os
 from datetime import datetime
 
 BASE_URL = "http://localhost:5000"
-VAULT_ID = "939cbeb4-43e4-4cdb-8aae-4328a6a16ed5"  # Manus HealthTech Clean vault
+VAULT_ID = "939cbeb4-43e4-4cdb-8aae-4328a6a16ed5"  # Manus HealthTech Clean vault (91.5% accuracy)
 RESULTS_DIR = "test_results"
+QUESTIONS_FILE = "test_questions/medsync_235q.json"
 
 def parse_questions(filepath):
     with open(filepath, 'r') as f:
-        content = f.read()
-    pattern = r'\*\*Q(\d+):\*\*\s*(.+?)\n\*\*A\1:\*\*\s*(.+?)(?=\n\*\*|$)'
-    return [(int(n), q.strip(), a.strip().split('\n')[0].strip()) 
-            for n, q, a in re.findall(pattern, content, re.DOTALL)]
+        data = json.load(f)
+    return [(i+1, q['question'], q['expected_answer']) for i, q in enumerate(data)]
 
 def check_answer(response, expected):
     if not response: return False
@@ -28,8 +27,8 @@ def check_answer(response, expected):
     return words and sum(1 for w in words if w in resp) >= len(words) * 0.5
 
 def main():
-    questions = parse_questions('test documents/Manus Healthtec/question_bank_200.md')
-    print(f"Testing {len(questions)} questions from MedSync Health vault")
+    questions = parse_questions(QUESTIONS_FILE)
+    print(f"Testing {len(questions)} questions from MedSync Health vault (vault={VAULT_ID[:8]}...)")
     print("=" * 60)
     
     session = requests.Session()

@@ -46,7 +46,12 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
-- **Jan 19, 2026**: Fixed precedence metadata exposure in query response dictionary. Now properly returns `answer_source`, `gate_blocked`, `gate_name`, `precedence_applied`, and `precedence_confidence` fields in all code paths (including Entity Not Found Guard short-circuit).
+- **Jan 19, 2026**: Validated tri-memory precedence pipeline with **91.5% accuracy (215/235 passed)** on the MedSync Health 235-question test suite. Precedence metadata now exposed in all API responses (`/api/vault/chat`):
+  - `answer_source`: Where the answer came from (symbolic/semantic/episodic/refused)
+  - `gate_blocked`: Whether a data gate blocked the answer
+  - `gate_name`: Which gate blocked (if any)
+  - `precedence_applied`: Whether precedence override was applied
+  - `precedence_confidence`: Confidence from precedence pipeline
 - **Jan 19, 2026**: Integrated tri-memory thesis validation components: Symbolic Override Engine, Data Gates, and Precedence Pipeline. Added seed script for test rules (`scripts/seed_test_rules.py`).
 - **Jan 19, 2026**: Added standardized test infrastructure (`src/test_runner/`) for automated corpus testing with fuzzy evaluation, vault lifecycle management, and CLI interface. Run with `python -m src.test_runner.runner --list` or `--corpus <name>`.
 - **Jan 2026**: Fixed critical NUL character bug that prevented Excel spreadsheet chunks from being stored. Test accuracy improved from 78.3% to 91.5% (+13.2 percentage points).

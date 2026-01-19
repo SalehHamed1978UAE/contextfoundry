@@ -245,7 +245,12 @@ def build_response(
     time_ms: int = 0,
     success: bool = True,
     pipeline_result: Optional[Any] = None,
-    extra: Optional[Dict[str, Any]] = None
+    extra: Optional[Dict[str, Any]] = None,
+    answer_source: str = "semantic",
+    gate_blocked: bool = False,
+    gate_name: Optional[str] = None,
+    precedence_applied: bool = False,
+    precedence_confidence: Optional[float] = None
 ) -> Dict[str, Any]:
     """
     Build consistent response dictionary for both CLI and Web.
@@ -279,7 +284,12 @@ def build_response(
         "tool_calls": tool_calls or [],
         "iterations": iterations,
         "time_ms": time_ms,
-        "success": success
+        "success": success,
+        "answer_source": answer_source,
+        "gate_blocked": gate_blocked,
+        "gate_name": gate_name,
+        "precedence_applied": precedence_applied,
+        "precedence_confidence": precedence_confidence
     }
     
     if qa_verdict:
