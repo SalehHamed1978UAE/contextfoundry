@@ -41,8 +41,12 @@ Architectural features include:
 - **Graph-Only Entity Fallback**: Provides direct entity+properties lookup for spreadsheet-extracted entities when document chunks are unavailable.
 - **Dynamic Entity Type Handling**: Replaced corpus-specific entity types with generic `ORGANIZATIONAL_UNIT` with a `subtype` property for flexibility.
 - **Text Sanitization (NUL Character Fix)**: Centralized `sanitize_text()` utility removes NUL (0x00) and problematic ASCII control characters at storage boundaries before PostgreSQL insertion, preventing silent chunk storage failures from Excel/spreadsheet extraction.
+- **Tri-Memory Precedence Pipeline**: Implements "Symbolic > Semantic > Episodic" precedence hierarchy (`PrecedencePipeline` in `src/context_foundry/pipeline/precedence_pipeline.py`).
+- **Symbolic Override Engine**: Rule-based system that can override, augment, constrain, or prohibit semantic answers (`SymbolicOverrideEngine` in `src/context_foundry/memory/symbolic_override.py`).
+- **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 19, 2026**: Integrated tri-memory thesis validation components: Symbolic Override Engine, Data Gates, and Precedence Pipeline. Added seed script for test rules (`scripts/seed_test_rules.py`).
 - **Jan 19, 2026**: Added standardized test infrastructure (`src/test_runner/`) for automated corpus testing with fuzzy evaluation, vault lifecycle management, and CLI interface. Run with `python -m src.test_runner.runner --list` or `--corpus <name>`.
 - **Jan 2026**: Fixed critical NUL character bug that prevented Excel spreadsheet chunks from being stored. Test accuracy improved from 78.3% to 91.5% (+13.2 percentage points).
 
