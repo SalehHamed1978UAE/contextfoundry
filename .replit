@@ -21,15 +21,19 @@ args = "Start All"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Test: Manus Healthtec"
+args = "Re-extraction"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Test: ClaudeCode Medsync"
+args = "RE Agent Batch"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Test: Manus Medsync"
+args = "E2E Lifecycle Test"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "235Q Test"
 
 [[workflows.workflow]]
 name = "Start All"
@@ -44,37 +48,49 @@ waitForPort = 5000
 outputType = "webview"
 
 [[workflows.workflow]]
-name = "Test: Manus Healthtec"
+name = "Re-extraction"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python scripts/standard_vault_test.py \"Manus Healthtec\" 2>&1"
+args = "python scripts/full_reextraction.py"
 
 [workflows.workflow.metadata]
 outputType = "console"
 
 [[workflows.workflow]]
-name = "Test: ClaudeCode Medsync"
+name = "RE Agent Batch"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python scripts/standard_vault_test.py \"ClaudeCode Medsync\" 2>&1"
+args = "python scripts/re_agent_batch.py"
 
 [workflows.workflow.metadata]
 outputType = "console"
 
 [[workflows.workflow]]
-name = "Test: Manus Medsync"
+name = "E2E Lifecycle Test"
 author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python scripts/standard_vault_test.py \"Manus Medsync\" 2>&1"
+mode = "parallel"
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python scripts/e2e_lifecycle_test.py 2>&1 | tee /tmp/e2e_run.log"
+
+[[workflows.workflow]]
+name = "235Q Test"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -u scripts/run_200_question_test.py 2>&1"
 
 [[ports]]
 localPort = 3000
