@@ -1,0 +1,68 @@
+================================================================================
+E2E LIFECYCLE TEST RESULTS
+================================================================================
+Run Date: 2026-01-19 01:52:58
+================================================================================
+
+================================================================================
+VAULT: TechVentures
+================================================================================
+Documents Uploaded: 4
+  - 01_leadership_memo.txt
+  - 02_portfolio_summary.txt
+  - 03_org_chart.txt
+  - 04_compensation_memo.txt
+
+Extraction Results:
+  - Chunks: 12
+  - Entities: 91
+  - Relationships: 41
+
+--------------------------------------------------------------------------------
+QUERY 1/10: Who is the CEO?
+--------------------------------------------------------------------------------
+ANSWER:
+I found multiple people with the CEO role:
+
+- Sarah Chen (Chief Executive Officer of TechVentures)
+- Robert Kim (CEO of TechVentures)
+- Dr. Patricia Vance (CEO of HEALTHSYNC)
+- Ahmed Malik (CEO of SecureNode)
+
+Which one would you like to know more about? Please specify by name.
+
+CONFIDENCE: 100%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 2/10: What is the CEO's salary?
+--------------------------------------------------------------------------------
+ANSWER:
+The CEO, Sarah Chen, has a base salary of $850,000 for the year 2026. Additionally, she has a target bonus of $1,200,000, which is 141% of her base salary. Therefore, her total target compensation, excluding equity, amounts to $2,050,000.
+
+---
+**Confidence: Medium (80%)**
+
+**Why:** Multiple percentage values found in source: ['5%', '8%', '77%', '73%', '35%', '40%', '4%', '60%', '30%', '10%', '67%', '141%']
+
+**Please verify this information against source documents.**
+
+CONFIDENCE: 90%
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+QUERY 3/10: Who is the CTO?
+--------------------------------------------------------------------------------
+ANSWER:
+I found multiple people with the CTO role:
+
+- Marcus Williams (Chief Technology Officer of TechVentures)
+- Jennifer Walsh (CTO of TechVentures)
+- Michael Torres (CTO of HEALTHSYNC)
+- Priya Sharma (CTO of SecureNode)
+
+Which one would you like to know more about? Please specify by name.
+
+CONFIDENCE: 100%
+--------------------------------------------------------------------------------
+
