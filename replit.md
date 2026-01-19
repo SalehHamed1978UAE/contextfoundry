@@ -46,6 +46,7 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 19, 2026**: Latest 235Q test run achieved **92.3% accuracy (217/235 passed)** on the MedSync Health test suite. Test infrastructure validated with 30-minute extraction timeout for 114-document corpus. Results saved to `test_results/medsync_health_235q_results.json`.
 - **Jan 19, 2026**: Validated tri-memory precedence pipeline with **91.5% accuracy (215/235 passed)** on the MedSync Health 235-question test suite. Precedence metadata now exposed in all API responses (`/api/vault/chat`):
   - `answer_source`: Where the answer came from (symbolic/semantic/episodic/refused)
   - `gate_blocked`: Whether a data gate blocked the answer
