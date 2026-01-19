@@ -1,0 +1,329 @@
+# MedSync Health, Inc.
+## Infrastructure Overview
+**Document ID**: OPS-001
+**Classification**: Internal
+**Last Updated**: January 2025
+
+---
+
+## Infrastructure Summary
+
+MedSync operates a multi-region cloud infrastructure on AWS, designed for high availability, security, and scalability. Our infrastructure supports 589 customers, 85 million patient records, and processes over 50 million transactions daily.
+
+---
+
+## Architecture Overview
+
+### High-Level Architecture
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| Edge | CloudFront, WAF | CDN, DDoS protection |
+| Load Balancing | ALB, NLB | Traffic distribution |
+| Compute | EKS (Kubernetes) | Application workloads |
+| Database | Aurora PostgreSQL | Primary data store |
+| Cache | ElastiCache Redis | Performance, sessions |
+| Search | OpenSearch | Full-text search |
+| Data Warehouse | Snowflake | Analytics |
+| Queue | SQS, Kafka | Async processing |
+| Storage | S3 | Object storage |
+
+### Regional Deployment
+
+| Region | Purpose | Services |
+|--------|---------|----------|
+| us-east-1 (Virginia) | Primary | Full stack |
+| us-west-2 (Oregon) | Secondary | Full stack (DR) |
+| eu-west-1 (Ireland) | DR/Future EU | Warm standby |
+
+---
+
+## Compute Infrastructure
+
+### Kubernetes (EKS)
+
+| Cluster | Region | Nodes | Purpose |
+|---------|--------|-------|---------|
+| prod-east | us-east-1 | 85 | Production primary |
+| prod-west | us-west-2 | 45 | Production secondary |
+| staging | us-east-1 | 15 | Pre-production |
+| dev | us-east-1 | 10 | Development |
+
+### Node Configuration
+
+| Node Type | Instance | vCPU | Memory | Count |
+|-----------|----------|------|--------|-------|
+| General | m6i.2xlarge | 8 | 32GB | 80 |
+| Memory | r6i.2xlarge | 8 | 64GB | 30 |
+| Compute | c6i.4xlarge | 16 | 32GB | 20 |
+| GPU (AI) | g5.2xlarge | 8 | 32GB | 15 |
+
+### Kubernetes Resources
+
+| Resource | Count |
+|----------|-------|
+| Namespaces | 45 |
+| Deployments | 120 |
+| Services | 150 |
+| Pods (avg) | 850 |
+| ConfigMaps | 200 |
+| Secrets | 180 |
+
+---
+
+## Database Infrastructure
+
+### Aurora PostgreSQL
+
+| Cluster | Region | Instances | Storage |
+|---------|--------|-----------|---------|
+| prod-primary | us-east-1 | 3 (1 writer, 2 readers) | 8TB |
+| prod-replica | us-west-2 | 2 (readers) | 8TB |
+| staging | us-east-1 | 2 | 500GB |
+| dev | us-east-1 | 1 | 100GB |
+
+### Database Specifications
+
+| Attribute | Value |
+|-----------|-------|
+| Engine | Aurora PostgreSQL 15.4 |
+| Instance Class | db.r6g.4xlarge |
+| Storage Type | Aurora SSD |
+| Max Storage | 128TB |
+| Backup Retention | 35 days |
+| Point-in-Time Recovery | Enabled |
+| Encryption | AES-256 |
+
+### Database Performance
+
+| Metric | Current | Capacity |
+|--------|---------|----------|
+| IOPS | 45,000 | 100,000 |
+| Connections | 2,500 | 5,000 |
+| Storage | 8TB | 128TB |
+| Read Latency | <5ms | — |
+| Write Latency | <10ms | — |
+
+---
+
+## Caching Infrastructure
+
+### ElastiCache Redis
+
+| Cluster | Region | Nodes | Memory |
+|---------|--------|-------|--------|
+| prod-session | us-east-1 | 6 | 156GB |
+| prod-cache | us-east-1 | 6 | 156GB |
+| prod-west | us-west-2 | 4 | 104GB |
+
+### Cache Configuration
+
+| Attribute | Value |
+|-----------|-------|
+| Engine | Redis 7.0 |
+| Node Type | cache.r6g.xlarge |
+| Cluster Mode | Enabled |
+| Encryption | At-rest + in-transit |
+| Backup | Daily |
+| Failover | Automatic |
+
+---
+
+## Storage Infrastructure
+
+### S3 Buckets
+
+| Bucket | Purpose | Size | Region |
+|--------|---------|------|--------|
+| medsync-data | Customer data | 45TB | us-east-1 |
+| medsync-backups | Database backups | 25TB | us-east-1 + us-west-2 |
+| medsync-logs | Application logs | 15TB | us-east-1 |
+| medsync-assets | Static assets | 2TB | us-east-1 |
+| medsync-ml | ML models | 5TB | us-east-1 |
+
+### Storage Configuration
+
+| Attribute | Value |
+|-----------|-------|
+| Versioning | Enabled (data buckets) |
+| Encryption | SSE-KMS |
+| Replication | Cross-region |
+| Lifecycle | Tiered (IA after 90 days) |
+| Access Logging | Enabled |
+
+---
+
+## Networking
+
+### VPC Architecture
+
+| VPC | Region | CIDR | Purpose |
+|-----|--------|------|---------|
+| prod-east | us-east-1 | 10.0.0.0/16 | Production |
+| prod-west | us-west-2 | 10.1.0.0/16 | DR |
+| staging | us-east-1 | 10.2.0.0/16 | Staging |
+| dev | us-east-1 | 10.3.0.0/16 | Development |
+
+### Subnet Layout
+
+| Subnet Type | AZs | Purpose |
+|-------------|-----|---------|
+| Public | 3 | Load balancers, NAT |
+| Private (App) | 3 | Application tier |
+| Private (Data) | 3 | Databases, cache |
+| Private (Mgmt) | 3 | Bastion, tools |
+
+### Connectivity
+
+| Connection | Type | Purpose |
+|------------|------|---------|
+| VPC Peering | prod-east ↔ prod-west | DR replication |
+| Transit Gateway | All VPCs | Central routing |
+| PrivateLink | AWS services | Secure access |
+| VPN | Corporate | Admin access |
+
+---
+
+## Security Infrastructure
+
+### Security Services
+
+| Service | Purpose | Status |
+|---------|---------|--------|
+| AWS WAF | Web application firewall | Active |
+| AWS Shield | DDoS protection | Advanced |
+| GuardDuty | Threat detection | Active |
+| Security Hub | Security posture | Active |
+| Macie | Data discovery | Active |
+| Inspector | Vulnerability scanning | Active |
+
+### Encryption
+
+| Layer | Method | Key Management |
+|-------|--------|----------------|
+| Data at Rest | AES-256 | AWS KMS |
+| Data in Transit | TLS 1.3 | ACM |
+| Secrets | Vault | HashiCorp Vault |
+| Backups | AES-256 | AWS KMS |
+
+---
+
+## Monitoring & Observability
+
+### Monitoring Stack
+
+| Tool | Purpose | Coverage |
+|------|---------|----------|
+| Datadog | APM, metrics, logs | All services |
+| PagerDuty | Alerting, on-call | 24/7 |
+| Splunk | Security logging | Security events |
+| Grafana | Dashboards | Custom metrics |
+| Honeycomb | Distributed tracing | API services |
+
+### Key Dashboards
+
+| Dashboard | Metrics |
+|-----------|---------|
+| Platform Health | Uptime, latency, errors |
+| Database Performance | Queries, connections, replication |
+| Security | Threats, access, compliance |
+| Business | Transactions, users, API calls |
+
+---
+
+## Capacity & Scaling
+
+### Current Capacity
+
+| Resource | Current | Max | Utilization |
+|----------|---------|-----|-------------|
+| Compute (vCPU) | 1,200 | 3,000 | 40% |
+| Memory | 3.8TB | 10TB | 38% |
+| Database | 8TB | 128TB | 6% |
+| Network | 5Gbps | 25Gbps | 20% |
+
+### Auto-Scaling Configuration
+
+| Component | Min | Max | Target |
+|-----------|-----|-----|--------|
+| API Pods | 20 | 100 | 70% CPU |
+| Worker Pods | 10 | 50 | 80% CPU |
+| Cache Nodes | 4 | 12 | 75% memory |
+| Database Readers | 2 | 5 | 70% CPU |
+
+---
+
+## Disaster Recovery
+
+### DR Strategy
+
+| Metric | Target | Current |
+|--------|--------|---------|
+| RTO | 4 hours | 3 hours (tested) |
+| RPO | 1 hour | 15 minutes |
+| DR Region | us-west-2 | Active |
+| Failover | Automatic | DNS-based |
+
+### DR Components
+
+| Component | Strategy | Replication |
+|-----------|----------|-------------|
+| Database | Aurora Global | < 1 second |
+| Cache | Warm standby | < 5 minutes |
+| Storage | Cross-region | < 15 minutes |
+| Compute | Cold standby | < 30 minutes |
+
+---
+
+## Cost Management
+
+### Monthly Costs (FY 2024 Average)
+
+| Category | Monthly | % of Total |
+|----------|---------|------------|
+| Compute (EC2/EKS) | $185K | 42% |
+| Database (RDS) | $95K | 22% |
+| Storage (S3) | $45K | 10% |
+| Network (Transfer) | $55K | 13% |
+| Other Services | $60K | 14% |
+| **Total** | **$440K** | **100%** |
+
+### Cost Optimization
+
+| Initiative | Annual Savings |
+|------------|---------------|
+| Reserved Instances | $450K |
+| Spot Instances | $180K |
+| Storage Tiering | $95K |
+| Right-Sizing | $120K |
+| **Total Savings** | **$845K** |
+
+---
+
+## Compliance
+
+### Certifications Supported
+
+| Certification | Infrastructure Controls |
+|---------------|------------------------|
+| SOC 2 Type II | Logging, access, encryption |
+| HITRUST | All security controls |
+| HIPAA | PHI protection |
+| ISO 27001 | Information security |
+
+---
+
+## Contact
+
+| Team | Contact |
+|------|---------|
+| Infrastructure | infrastructure@medsync.health |
+| SRE | sre@medsync.health |
+| Security | security@medsync.health |
+| On-Call | PagerDuty |
+
+---
+
+**Prepared by**: Infrastructure Team
+**Reviewed by**: David Park, CTO
+**Last Updated**: January 2025

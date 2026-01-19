@@ -1,0 +1,365 @@
+# MedSync Health, Inc.
+## Access Control Policy
+**Document ID**: SEC-006
+**Classification**: Internal
+**Version**: 3.2
+**Last Updated**: January 2025
+
+---
+
+## Purpose
+
+This policy establishes requirements for controlling access to MedSync Health information systems and data to protect confidentiality, integrity, and availability.
+
+---
+
+## Scope
+
+This policy applies to:
+- All MedSync employees, contractors, and vendors
+- All information systems and applications
+- All data, including PHI, PII, and corporate data
+- Physical access to facilities
+
+---
+
+## Access Control Principles
+
+### Core Principles
+
+| Principle | Description |
+|-----------|-------------|
+| Least Privilege | Users receive minimum access needed for role |
+| Need-to-Know | Access limited to job requirements |
+| Separation of Duties | Critical functions divided among personnel |
+| Defense in Depth | Multiple layers of access control |
+| Default Deny | Access denied unless explicitly granted |
+
+---
+
+## Identity Management
+
+### Account Types
+
+| Account Type | Description | Approval |
+|--------------|-------------|----------|
+| Employee | Standard user account | Manager + IT |
+| Contractor | Time-limited account | Manager + IT + Security |
+| Service Account | Application/system use | Security + Engineering |
+| Privileged | Admin access | Security + Director |
+| Break-Glass | Emergency access | CISO pre-approved |
+
+### Account Lifecycle
+
+| Phase | Process | SLA |
+|-------|---------|-----|
+| Provisioning | Hire/onboard ticket | 24 hours |
+| Modification | Access change request | 24-48 hours |
+| Termination | Immediate disable | Same-day |
+| Deprovisioning | Full removal | 7 days |
+| Review | Quarterly certification | Per schedule |
+
+### Account Standards
+
+| Requirement | Standard |
+|-------------|----------|
+| Username Format | firstname.lastname@medsync.health |
+| Account Creation | Automated via Okta |
+| Default Access | Basic employee (email, Slack) |
+| Additional Access | Request via ServiceNow |
+| Password Initial | Temporary, force change |
+
+---
+
+## Authentication Requirements
+
+### Multi-Factor Authentication
+
+| System Category | MFA Required | Exceptions |
+|-----------------|--------------|------------|
+| All Production Systems | Yes | None |
+| Corporate Applications | Yes | None |
+| VPN | Yes | None |
+| Email | Yes | None |
+| Development Systems | Yes | Local dev only |
+
+### MFA Methods
+
+| Method | Approved | Primary Use |
+|--------|----------|-------------|
+| Okta Verify (Push) | Yes | Primary |
+| Hardware Key (YubiKey) | Yes | High security |
+| TOTP | Yes | Backup |
+| SMS | No | Phased out |
+| Email OTP | No | Not permitted |
+
+### Password Requirements
+
+| Requirement | Standard |
+|-------------|----------|
+| Minimum Length | 14 characters |
+| Complexity | 3 of 4 character types |
+| History | 12 passwords |
+| Maximum Age | 90 days |
+| Lockout | 5 failed attempts |
+| Lockout Duration | 30 minutes |
+
+### Passwordless Authentication
+
+| Method | Status | Use Case |
+|--------|--------|----------|
+| FIDO2/WebAuthn | Approved | SSO, high-security |
+| Certificate-based | Approved | Service accounts |
+| Biometric | Approved | Device unlock |
+
+---
+
+## Authorization
+
+### Role-Based Access Control (RBAC)
+
+| Role Category | Example Roles | Approval Level |
+|---------------|---------------|----------------|
+| Basic | Employee, Contractor | Manager |
+| Functional | Engineer, Sales, CS | Manager + IT |
+| Elevated | Team Lead, Manager | Director |
+| Admin | System Admin, DBA | Security + VP |
+| Privileged | Security Admin, Root | CISO |
+
+### Standard Roles
+
+| Role | Description | Access Level |
+|------|-------------|--------------|
+| employee-basic | All employees | Email, Slack, Workday |
+| engineer | Engineering team | Code repos, AWS dev |
+| engineer-senior | Senior engineers | Production read |
+| engineer-prod | Production access | Production write |
+| cs-basic | Customer Success | Customer portal, CRM |
+| cs-admin | CS Administrators | Admin functions |
+| sales | Sales team | CRM, pipeline |
+| finance | Finance team | Financial systems |
+| hr | HR team | HR systems |
+| security | Security team | Security tools |
+| admin | IT Administrators | IT systems |
+
+### Access Request Process
+
+| Step | Action | Owner |
+|------|--------|-------|
+| 1 | Submit request (ServiceNow) | Requester |
+| 2 | Manager approval | Manager |
+| 3 | Security review (elevated) | Security |
+| 4 | Provisioning | IT/IAM |
+| 5 | Confirmation | Requester |
+
+---
+
+## Privileged Access Management
+
+### Privileged Account Categories
+
+| Category | Examples | Controls |
+|----------|----------|----------|
+| Root/Admin | AWS root, domain admin | Break-glass only |
+| Service Admin | DB admin, app admin | PAM, just-in-time |
+| Security Admin | SIEM admin, EDR admin | Segregated, monitored |
+| Developer Elevated | Production deploy | Time-limited, logged |
+
+### PAM Controls
+
+| Control | Implementation |
+|---------|----------------|
+| Vault | CyberArk Privilege Cloud |
+| Just-in-Time Access | 4-hour maximum sessions |
+| Session Recording | All privileged sessions |
+| Password Rotation | Automatic, daily for shared |
+| Approval Workflow | Dual approval for critical |
+
+### Break-Glass Procedures
+
+| Step | Action |
+|------|--------|
+| 1 | Emergency declared |
+| 2 | Break-glass account requested |
+| 3 | CISO/delegate approval |
+| 4 | Time-limited access granted |
+| 5 | Session recorded and audited |
+| 6 | Post-use review |
+
+---
+
+## Access Reviews
+
+### Review Schedule
+
+| Review Type | Scope | Frequency | Owner |
+|-------------|-------|-----------|-------|
+| User Access | All employees | Quarterly | Managers |
+| Privileged Access | Admin accounts | Monthly | Security |
+| Service Accounts | All service accounts | Quarterly | Engineering |
+| Vendor Access | Third parties | Quarterly | Procurement + Security |
+| Terminated Users | Access removal | Weekly | IT |
+
+### Review Process
+
+| Step | Action | Timeline |
+|------|--------|----------|
+| 1 | Generate access report | Day 1 |
+| 2 | Distribute to reviewers | Day 2 |
+| 3 | Complete review | 14 days |
+| 4 | Implement changes | 7 days |
+| 5 | Audit completion | Day 30 |
+
+### Compliance Metrics
+
+| Metric | Target | Q4 2024 |
+|--------|--------|---------|
+| Review Completion Rate | 100% | 100% |
+| Reviews Completed On-Time | 95% | 97% |
+| Access Exceptions Resolved | 95% within 7 days | 96% |
+| Orphaned Accounts | 0 | 0 |
+
+---
+
+## Remote Access
+
+### VPN Requirements
+
+| Requirement | Standard |
+|-------------|----------|
+| VPN Solution | Tailscale |
+| Authentication | Okta SSO + MFA |
+| Device Requirements | Corporate or BYOD with MDM |
+| Split Tunnel | Disabled |
+| Session Timeout | 12 hours |
+
+### Remote Access Categories
+
+| Category | Access Level | Requirements |
+|----------|--------------|--------------|
+| Corporate | Email, Slack, SaaS | MFA, managed device |
+| Development | Code repos, dev environments | VPN + MFA |
+| Production | Production systems | VPN + PAM + approval |
+| Customer Data | PHI access | VPN + PAM + audit |
+
+---
+
+## Third-Party Access
+
+### Vendor Access Requirements
+
+| Requirement | Standard |
+|-------------|----------|
+| Security Assessment | Required for data access |
+| BAA/NDA | Required before access |
+| Account Type | Contractor, time-limited |
+| MFA | Required |
+| Access Scope | Minimum necessary |
+| Monitoring | Enhanced logging |
+
+### Vendor Access Lifecycle
+
+| Phase | Process | Owner |
+|-------|---------|-------|
+| Request | Procurement initiates | Procurement |
+| Assessment | Security review | Security |
+| Approval | Business + Security | Director + Security |
+| Provisioning | Time-limited access | IT |
+| Monitoring | Ongoing | Security |
+| Termination | End of engagement | IT + Procurement |
+
+---
+
+## Physical Access
+
+### Facility Access
+
+| Location | Access Method | Authorization |
+|----------|---------------|---------------|
+| San Francisco HQ | Badge + PIN | HR + Facilities |
+| Austin Office | Badge | HR + Facilities |
+| NYC Office | Badge | HR + Facilities |
+| Data Centers | AWS managed | N/A |
+
+### Access Levels
+
+| Level | Areas | Roles |
+|-------|-------|-------|
+| General | Common areas, workspaces | All employees |
+| Restricted | Server rooms, network | IT, Facilities |
+| Secure | Executive offices | Executives, EA |
+
+---
+
+## Logging & Monitoring
+
+### Access Logging
+
+| System | Log Type | Retention |
+|--------|----------|-----------|
+| Okta | Authentication, provisioning | 2 years |
+| CyberArk | Privileged access, sessions | 2 years |
+| AWS | CloudTrail, IAM events | 7 years |
+| Applications | Access logs | 7 years |
+
+### Monitoring Alerts
+
+| Event | Alert Level | Response |
+|-------|-------------|----------|
+| Failed MFA (5+) | High | Investigate |
+| Impossible Travel | High | Verify user |
+| Privilege Escalation | Critical | Immediate review |
+| Off-hours Admin Access | Medium | Log review |
+| New Admin Account | High | Verify approval |
+
+---
+
+## Exceptions
+
+### Exception Process
+
+| Step | Action | Owner |
+|------|--------|-------|
+| 1 | Document business justification | Requester |
+| 2 | Risk assessment | Security |
+| 3 | Approval (Director + CISO) | Leadership |
+| 4 | Time-limited exception | Security |
+| 5 | Compensating controls | Security |
+| 6 | Quarterly review | Security |
+
+### Current Exceptions
+
+| Exception | Reason | Expires | Compensating Control |
+|-----------|--------|---------|---------------------|
+| Legacy App SSO | Integration pending | Q2 2025 | Enhanced monitoring |
+
+---
+
+## Compliance
+
+### Regulatory Requirements
+
+| Regulation | Requirement | MedSync Control |
+|------------|-------------|-----------------|
+| HIPAA | Unique user identification | Okta SSO |
+| HIPAA | Emergency access | Break-glass |
+| HIPAA | Automatic logoff | Session timeout |
+| HITRUST | Role-based access | RBAC |
+| SOC 2 | Access reviews | Quarterly |
+
+---
+
+## Contact
+
+| Question | Contact |
+|----------|---------|
+| Access Requests | ServiceNow or access@medsync.health |
+| Security Questions | security@medsync.health |
+| Policy Questions | iam-team@medsync.health |
+
+---
+
+**Prepared by**: Thomas Chen, Security Architect
+**Reviewed by**: James Morrison, CISO
+**Approved by**: David Park, CTO
+**Review Date**: January 2026
