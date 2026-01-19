@@ -255,7 +255,12 @@ class ContextFoundry:
                     ],
                     "bundle_id": bundle.query_id,
                     "query_text": bundle.query_text,
-                    "context_bundle": bundle.to_dict()
+                    "context_bundle": bundle.to_dict(),
+                    "answer_source": "gate_blocked",
+                    "gate_blocked": True,
+                    "gate_name": "entity_not_found",
+                    "precedence_applied": True,
+                    "precedence_confidence": 1.0
                 }
                 
                 summary = query_logger.log_complete(success=True, final_confidence=0.0)
@@ -277,6 +282,12 @@ class ContextFoundry:
                 bundle=bundle,
                 context={"target_entity": bundle.target_entity_name}
             )
+            
+            # Always set precedence metadata
+            response["answer_source"] = answer_source
+            response["precedence_applied"] = True
+            response["precedence_confidence"] = prec_confidence
+            response["gate_blocked"] = False
             
             # Update response if precedence changed it
             if final_answer != current_answer:
