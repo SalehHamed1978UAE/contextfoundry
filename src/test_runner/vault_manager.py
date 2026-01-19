@@ -120,15 +120,13 @@ class VaultManager:
     def get_extraction_status(self, vault_id: str) -> Dict:
         """Get extraction status using vault stats endpoint."""
         data = self._get_vault_stats_with_retry(vault_id)
-        # Map vault stats to extraction status format
-        # API returns: document_count, completed_documents
-        total = data.get('document_count', 0)
-        completed = data.get('completed_documents', 0)
+        # Use extraction request counts from API
         return {
-            "total": total,
-            "pending": total - completed,
-            "completed": completed,
-            "failed": 0
+            "total": data.get('extraction_total', 0),
+            "pending": data.get('extraction_pending', 0),
+            "processing": data.get('extraction_processing', 0),
+            "completed": data.get('extraction_completed', 0),
+            "failed": data.get('extraction_failed', 0)
         }
     
     def get_vault_stats(self, vault_id: str) -> Dict:
@@ -148,7 +146,7 @@ class VaultManager:
         self, 
         vault_id: str, 
         expected_docs: int,
-        timeout_minutes: int = 20,
+        timeout_minutes: int = 30,
         poll_interval: int = 10
     ) -> bool:
         """PROPERLY wait for extraction with 3 phases."""
@@ -171,11 +169,26 @@ class VaultManager:
             raise TimeoutError("Timeout waiting for documents to register")
         
         # PHASE 2: Wait for extraction requests to be created
+        # Note: Spreadsheets don't create extraction requests (processed synchronously)
         print("  Phase 2: Waiting for extraction requests...")
         phase2_wait = 0
+        last_total = 0
+        stable_count = 0
         while time.time() - start < timeout:
             status = self.get_extraction_status(vault_id)
             total = status.get('total', 0)
+            
+            # Check if count has stabilized (same for 3 consecutive polls)
+            if total == last_total and total > 0:
+                stable_count += 1
+                if stable_count >= 3:
+                    # Count stabilized - some docs may be spreadsheets
+                    print(f"  Phase 2 complete: {total} extraction requests (some docs may be spreadsheets)")
+                    break
+            else:
+                stable_count = 0
+                last_total = total
+            
             if total >= expected_docs:
                 print(f"  Phase 2 complete: {total} extraction requests created")
                 break
@@ -183,10 +196,12 @@ class VaultManager:
                 print(f"    {total}/{expected_docs} extraction requests created...")
             time.sleep(poll_interval)
             phase2_wait += poll_interval
-            if phase2_wait > 120 and phase2_wait % 60 == 0:
-                print(f"  Phase 2 continuing... (waited {phase2_wait}s)")
         else:
-            raise TimeoutError("Timeout waiting for extraction requests")
+            # If we have some requests, continue to phase 3
+            if last_total > 0:
+                print(f"  Phase 2: Proceeding with {last_total} extraction requests")
+            else:
+                raise TimeoutError("Timeout waiting for extraction requests")
         
         # PHASE 3: Wait for all extractions to complete
         print("  Phase 3: Waiting for extraction to complete...")
@@ -197,13 +212,15 @@ class VaultManager:
             completed = status.get('completed', 0)
             pending = status.get('pending', 0)
             failed = status.get('failed', 0)
+            processing = status.get('processing', 0)
             
-            progress = f"{completed}/{total} complete, {pending} pending, {failed} failed"
+            progress = f"{completed}/{total} complete, {pending} pending, {processing} processing, {failed} failed"
             if progress != last_progress:
                 print(f"    Progress: {progress}")
                 last_progress = progress
             
-            if total > 0 and pending == 0:
+            # Done when no pending AND no processing
+            if total > 0 and pending == 0 and processing == 0:
                 if failed > 0:
                     print(f"  Warning: {failed} extractions failed")
                 print(f"  Phase 3 complete: {completed} succeeded, {failed} failed")
