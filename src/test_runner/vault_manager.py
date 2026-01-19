@@ -97,32 +97,39 @@ class VaultManager:
             )
         return response.status_code in [200, 201, 302]
     
+    def _get_vault_stats_with_retry(self, vault_id: str, max_retries: int = 3) -> Dict:
+        """Get vault stats with retry logic for server restarts."""
+        for attempt in range(max_retries):
+            response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
+            if response.status_code == 200:
+                return response.json()
+            elif response.status_code == 401:
+                # Server may have restarted, re-authenticate
+                if attempt < max_retries - 1:
+                    time.sleep(2)
+                    self.authenticate_dev()
+            else:
+                break
+        return {}
+    
     def get_document_count(self, vault_id: str) -> int:
         """Get number of documents in vault using vault stats endpoint."""
-        # Use vault stats endpoint which is more reliable than /api/documents
-        response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
-        if response.status_code == 200:
-            data = response.json()
-            return data.get('document_count', 0)
-        return 0
+        data = self._get_vault_stats_with_retry(vault_id)
+        return data.get('document_count', 0)
     
     def get_extraction_status(self, vault_id: str) -> Dict:
         """Get extraction status using vault stats endpoint."""
-        # Use vault stats endpoint which includes extraction status
-        response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
-        if response.status_code == 200:
-            data = response.json()
-            # Map vault stats to extraction status format
-            # API returns: document_count, completed_documents
-            total = data.get('document_count', 0)
-            completed = data.get('completed_documents', 0)
-            return {
-                "total": total,
-                "pending": total - completed,
-                "completed": completed,
-                "failed": 0
-            }
-        return {"total": 0, "pending": 0, "completed": 0, "failed": 0}
+        data = self._get_vault_stats_with_retry(vault_id)
+        # Map vault stats to extraction status format
+        # API returns: document_count, completed_documents
+        total = data.get('document_count', 0)
+        completed = data.get('completed_documents', 0)
+        return {
+            "total": total,
+            "pending": total - completed,
+            "completed": completed,
+            "failed": 0
+        }
     
     def get_vault_stats(self, vault_id: str) -> Dict:
         """Get vault statistics including chunk count."""
