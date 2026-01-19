@@ -244,25 +244,33 @@ class SpreadsheetLoader:
     }
 
     # Relationship patterns based on entity type
+    # Format: (source_prop, rel_type, target_type, target_prop, optional_subtype)
+    # Use ORGANIZATIONAL_UNIT as generic type with subtype property to avoid hardcoding
+    # entity types for every organizational structure variation (department, team, office, etc.)
     RELATIONSHIP_PATTERNS = {
         'PERSON': [
-            ('department', 'WORKS_IN', 'DEPARTMENT', 'name'),
-            ('manager', 'REPORTS_TO', 'PERSON', 'name'),
-            ('location', 'LOCATED_IN', 'LOCATION', 'name'),
-            ('office', 'WORKS_AT', 'OFFICE', 'name'),
+            ('department', 'WORKS_IN', 'ORGANIZATIONAL_UNIT', 'name', 'department'),
+            ('manager', 'REPORTS_TO', 'PERSON', 'name', None),
+            ('location', 'LOCATED_IN', 'ORGANIZATIONAL_UNIT', 'name', 'location'),
+            ('office', 'WORKS_AT', 'ORGANIZATIONAL_UNIT', 'name', 'office'),
+            ('team', 'MEMBER_OF', 'ORGANIZATIONAL_UNIT', 'name', 'team'),
+            ('division', 'WORKS_IN', 'ORGANIZATIONAL_UNIT', 'name', 'division'),
+            ('region', 'LOCATED_IN', 'ORGANIZATIONAL_UNIT', 'name', 'region'),
+            ('cost_center', 'BELONGS_TO', 'ORGANIZATIONAL_UNIT', 'name', 'cost_center'),
         ],
         'DEAL': [
-            ('owner', 'OWNED_BY', 'PERSON', 'name'),
-            ('company', 'WITH_COMPANY', 'CUSTOMER', 'name'),
+            ('owner', 'OWNED_BY', 'PERSON', 'name', None),
+            ('company', 'WITH_COMPANY', 'CUSTOMER', 'name', None),
         ],
         'EXPENSE': [
-            ('employee', 'SUBMITTED_BY', 'PERSON', 'name'),
-            ('vendor', 'PAID_TO', 'VENDOR', 'name'),
-            ('category', 'CATEGORIZED_AS', 'EXPENSE_CATEGORY', 'name'),
+            ('employee', 'SUBMITTED_BY', 'PERSON', 'name', None),
+            ('vendor', 'PAID_TO', 'VENDOR', 'name', None),
+            ('category', 'CATEGORIZED_AS', 'ORGANIZATIONAL_UNIT', 'name', 'expense_category'),
         ],
         'PROJECT': [
-            ('owner', 'OWNED_BY', 'PERSON', 'name'),
-            ('department', 'BELONGS_TO', 'DEPARTMENT', 'name'),
+            ('owner', 'OWNED_BY', 'PERSON', 'name', None),
+            ('department', 'BELONGS_TO', 'ORGANIZATIONAL_UNIT', 'name', 'department'),
+            ('team', 'BELONGS_TO', 'ORGANIZATIONAL_UNIT', 'name', 'team'),
         ],
     }
 
@@ -877,7 +885,14 @@ class SpreadsheetLoader:
             entity_type = entity['entity_type']
             patterns = self.RELATIONSHIP_PATTERNS.get(entity_type, [])
 
-            for source_prop, rel_type, target_type, target_prop in patterns:
+            for pattern in patterns:
+                # Pattern format: (source_prop, rel_type, target_type, target_prop, optional_subtype)
+                source_prop = pattern[0]
+                rel_type = pattern[1]
+                target_type = pattern[2]
+                target_prop = pattern[3]
+                target_subtype = pattern[4] if len(pattern) > 4 else None
+                
                 # Get the property value that references another entity
                 prop_value = entity.get('attributes', {}).get(source_prop)
 
@@ -901,6 +916,16 @@ class SpreadsheetLoader:
                     target_canonical = re.sub(r'\s+', '_', target_canonical)
 
                 if target_canonical:
+                    # Build relationship attributes
+                    rel_attributes = {
+                        'source_property': source_prop,
+                        'inferred': target_type not in entity_lookup,
+                    }
+                    
+                    # Add subtype for ORGANIZATIONAL_UNIT targets (Option B implementation)
+                    if target_subtype:
+                        rel_attributes['target_subtype'] = target_subtype
+                    
                     relationship = {
                         'relation_type': rel_type,
                         'source_name': entity['canonical_name'],
@@ -908,12 +933,16 @@ class SpreadsheetLoader:
                         'target_name': target_canonical,
                         'target_type': target_type,
                         'target_display_name': str(prop_value).strip(),
-                        'attributes': {
-                            'source_property': source_prop,
-                            'inferred': target_type not in entity_lookup,
-                        },
+                        'attributes': rel_attributes,
                         'confidence': 0.9 if target_type in entity_lookup else 0.7,
                     }
+                    
+                    # If target is ORGANIZATIONAL_UNIT, add subtype as target property
+                    if target_type == 'ORGANIZATIONAL_UNIT' and target_subtype:
+                        relationship['target_properties'] = {
+                            'subtype': target_subtype,
+                        }
+                    
                     relationships.append(relationship)
 
         return relationships
