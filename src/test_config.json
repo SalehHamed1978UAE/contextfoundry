@@ -1,24 +1,23 @@
 {
-  "api_base_url": "http://localhost:5000",
-  "auth_token": null,
+  "api_base_url": "http://localhost:5000/api",
   "corpora": {
-    "claudecode_medsync": {
-      "root_path": "test documents/ClaudeCode Medsync",
-      "questions_file": "qa_test_set.md",
+    "ClaudeCode Medsync": {
+      "root_path": "test documents/ClaudeCode Medsync/",
+      "questions_file": "medsync_235q.json",
       "current_vault_id": null,
       "last_run": null,
       "last_accuracy": null
     },
-    "manus_medsync": {
-      "root_path": "test documents/Manus Medsync",
-      "questions_file": "qa_test_set.md",
-      "current_vault_id": null,
+    "Manus Healthtec": {
+      "root_path": "test documents/Manus Healthtec/",
+      "questions_file": "medsync_235q.json",
+      "current_vault_id": "6b02ee93-2752-4709-8739-362c6c214d4d",
       "last_run": null,
       "last_accuracy": null
     },
-    "manus_healthtec": {
-      "root_path": "test documents/Manus Healthtec",
-      "questions_file": "qa_pairs.md",
+    "Manus Medsync": {
+      "root_path": "test documents/Manus Medsync/",
+      "questions_file": "medsync_235q.json",
       "current_vault_id": null,
       "last_run": null,
       "last_accuracy": null
@@ -27,13 +26,27 @@
   "questions_dir": "test_questions/",
   "results_dir": "test_results/",
   "upload_rules": {
-    "include_folders": ["documents", "excel_data"],
-    "valid_extensions": [".pdf", ".docx", ".xlsx", ".xls", ".csv", ".txt", ".md"],
-    "exclude_files": ["README.md"]
+    "include_folders": [
+      "documents",
+      "excel_data"
+    ],
+    "valid_extensions": [
+      ".pdf",
+      ".docx",
+      ".xlsx",
+      ".xls",
+      ".csv",
+      ".txt",
+      ".md"
+    ],
+    "exclude_files": [
+      "README.md",
+      "readme.md"
+    ]
   },
   "extraction": {
-    "timeout_minutes": 15,
+    "timeout_minutes": 20,
     "min_expected_chunks": 50,
-    "poll_interval_seconds": 5
+    "poll_interval_seconds": 10
   }
 }
