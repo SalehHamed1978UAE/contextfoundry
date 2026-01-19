@@ -1,0 +1,55 @@
+Looks good. Replit has a clear plan. A few notes to pass along:
+
+Notes for Replit
+1. Question File Format
+The markdown format with **Q#:** and **A#:** is fine. Just make sure the parser handles:
+
+Multi-line answers
+Answers with special characters
+The [NOT IN DOCUMENTS] marker for Q196-200
+
+pythondef parse_question_bank(md_file: Path) -> List[dict]:
+    """Parse markdown question bank into list of {id, question, expected}"""
+    content = md_file.read_text()
+    questions = []
+    
+    # Pattern: **Q1:** question text\n**A1:** answer text
+    pattern = r'\*\*Q(\d+):\*\*\s*(.*?)\n\*\*A\1:\*\*\s*(.*?)(?=\n\*\*Q|\Z)'
+    
+    for match in re.finditer(pattern, content, re.DOTALL):
+        questions.append({
+            "id": int(match.group(1)),
+            "question": match.group(2).strip(),
+            "expected": match.group(3).strip()
+        })
+    
+    return questions
+2. Endpoint Inconsistency
+Replit noted /api/vault/ vs /api/vaults/ — make sure to use the correct paths:
+
+/api/vaults (plural) for vault CRUD
+/api/vault/{id}/extraction/status (singular) for extraction status
+
+This inconsistency should probably be fixed eventually, but for now just use what exists.
+3. The 235 vs 200 Question Count
+The file is named question_bank_200.md but contains 235 questions. That's fine — the name is misleading but the content is correct. The test runner should just count what's actually in the file.
+4. Missing ClaudeCode Medsync Questions
+Replit says claudecode_medsync/ has no qa_test_set.md visible yet. Options:
+
+Check if it's in a subdirectory
+Copy from one of the other corpora (they're all MedSync variants)
+Ask me if you need the file
+
+5. Proceed with Implementation
+The task list looks correct:
+
+✅ Set up test runner files
+✅ Add file uploader with filters
+✅ Manage vault and extract data
+✅ Run tests and check answers
+✅ Create program start with options
+✅ Add endpoint for vault stats
+✅ Map test data folders/files
+✅ Check system works with tests
+
+Tell Replit: Proceed. The plan is solid.
