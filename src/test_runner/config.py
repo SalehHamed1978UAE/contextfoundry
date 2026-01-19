@@ -111,21 +111,25 @@ def save_config(config: TestConfig) -> None:
 
 
 def create_default_config() -> TestConfig:
-    """Create default configuration with known corpora."""
+    """Create default configuration with known corpora.
+    
+    All corpora are stored in 'test documents/' folder (with space).
+    Each corpus has a documents/ subfolder containing the actual files.
+    """
     config = TestConfig()
     
     config.corpora = {
-        "medsync_health": CorpusConfig(
-            root_path="test_documents/medsync_health/",
-            questions_file="question_bank_200.md"
+        "claudecode_medsync": CorpusConfig(
+            root_path="test documents/ClaudeCode Medsync",
+            questions_file="qa_test_set.md"
         ),
         "manus_medsync": CorpusConfig(
-            root_path="test_documents/manus_medsync/",
-            questions_file="question_bank_200.md"
+            root_path="test documents/Manus Medsync",
+            questions_file="qa_test_set.md"
         ),
-        "claudecode_medsync": CorpusConfig(
-            root_path="test_documents/claudecode_medsync/",
-            questions_file="qa_pairs.json"
+        "manus_healthtec": CorpusConfig(
+            root_path="test documents/Manus Healthtec",
+            questions_file="qa_pairs.md"
         )
     }
     
