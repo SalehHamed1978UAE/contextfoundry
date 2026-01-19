@@ -76,8 +76,8 @@ class PrecedencePipeline:
         self,
         session: Session,
         tenant_id: str,
-        semantic: SemanticMemory = None,
-        episodic: EpisodicMemory = None
+        semantic: Optional[SemanticMemory] = None,
+        episodic: Optional[EpisodicMemory] = None
     ):
         self.session = session
         self.tenant_id = tenant_id
@@ -92,7 +92,7 @@ class PrecedencePipeline:
         query: str,
         semantic_answer: str,
         context: Dict[str, Any],
-        bundle: ContextBundle = None
+        bundle: Optional[ContextBundle] = None
     ) -> PrecedenceResult:
         """
         Process a query through the precedence pipeline.
@@ -111,11 +111,9 @@ class PrecedencePipeline:
         logger.debug("[PRECEDENCE] Step 1: Checking symbolic rules...")
 
         entity_types = context.get('entity_types', [])
-        if bundle and hasattr(bundle, 'focal_entities'):
-            for e in bundle.focal_entities:
-                if hasattr(e, 'entity_type'):
-                    entity_types.append(e.entity_type)
-                elif isinstance(e, dict) and 'entity_type' in e:
+        if bundle and bundle.semantic_entities:
+            for e in bundle.semantic_entities:
+                if isinstance(e, dict) and 'entity_type' in e:
                     entity_types.append(e['entity_type'])
 
         symbolic_result = self.symbolic_engine.evaluate(
@@ -130,7 +128,7 @@ class PrecedencePipeline:
         if symbolic_result.should_override:
             logger.info(f"[PRECEDENCE] Symbolic override: {symbolic_result.explanation}")
             return PrecedenceResult(
-                answer=symbolic_result.override_answer,
+                answer=symbolic_result.override_answer or semantic_answer,
                 source=AnswerSource.SYMBOLIC,
                 confidence=0.95,
                 explanation=f"Answer from symbolic rule: {symbolic_result.explanation}",
@@ -141,16 +139,13 @@ class PrecedencePipeline:
 
         logger.debug("[PRECEDENCE] Step 2: Checking data gates...")
 
-        entities_found = []
-        chunks_retrieved = []
+        entities_found: List[Dict] = []
+        chunks_retrieved: List[str] = []
 
         if bundle:
-            if hasattr(bundle, 'focal_entities'):
-                entities_found = bundle.focal_entities
-            if hasattr(bundle, 'relevant_chunks'):
-                chunks_retrieved = bundle.relevant_chunks
-            elif hasattr(bundle, 'episodic_memory'):
-                chunks_retrieved = [c.get('content', '') for c in bundle.episodic_memory] if bundle.episodic_memory else []
+            entities_found = bundle.semantic_entities
+            if bundle.episodic_documents:
+                chunks_retrieved = [c.get('content', '') for c in bundle.episodic_documents]
 
         gate_result = self.data_gates.evaluate(
             query=query,
@@ -173,7 +168,7 @@ class PrecedencePipeline:
         else:
             logger.info(f"[PRECEDENCE] Data gates refused: {gate_result.explanation}")
             return PrecedenceResult(
-                answer=gate_result.alternative_response,
+                answer=gate_result.alternative_response or "I cannot provide a reliable answer.",
                 source=AnswerSource.REFUSED,
                 confidence=gate_result.confidence,
                 explanation=f"Data gates: {gate_result.explanation}",

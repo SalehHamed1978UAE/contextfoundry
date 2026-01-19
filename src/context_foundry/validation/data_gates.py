@@ -441,4 +441,4 @@ def evaluate_data_gates(
         return True, answer
     else:
         logger.info(f"[DATA_GATES] Blocked answer: {result.explanation}")
-        return False, result.alternative_response
+        return False, result.alternative_response or "I cannot provide this information."

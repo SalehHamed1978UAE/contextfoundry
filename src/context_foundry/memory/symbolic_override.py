@@ -358,7 +358,7 @@ def check_symbolic_override(
     query: str,
     semantic_answer: str,
     context: Dict[str, Any],
-    tenant_id: str = None
+    tenant_id: Optional[str] = None
 ) -> Tuple[bool, str, str]:
     """
     Check if symbolic rules should override the semantic answer.
@@ -372,6 +372,6 @@ def check_symbolic_override(
     result = engine.evaluate(query, semantic_answer, context)
 
     if result.should_override:
-        return True, result.override_answer, result.explanation
+        return True, result.override_answer or semantic_answer, result.explanation
     else:
         return False, semantic_answer, "No override"
