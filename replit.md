@@ -40,6 +40,10 @@ Architectural features include:
 - **Spreadsheet Entity Extraction**: Extracts PERSON and CLIENT entities with properties and relationships from spreadsheets.
 - **Graph-Only Entity Fallback**: Provides direct entity+properties lookup for spreadsheet-extracted entities when document chunks are unavailable.
 - **Dynamic Entity Type Handling**: Replaced corpus-specific entity types with generic `ORGANIZATIONAL_UNIT` with a `subtype` property for flexibility.
+- **Text Sanitization (NUL Character Fix)**: Centralized `sanitize_text()` utility removes NUL (0x00) and problematic ASCII control characters at storage boundaries before PostgreSQL insertion, preventing silent chunk storage failures from Excel/spreadsheet extraction.
+
+## Recent Changes
+- **Jan 2026**: Fixed critical NUL character bug that prevented Excel spreadsheet chunks from being stored. Test accuracy improved from 78.3% to 91.5% (+13.2 percentage points).
 
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)
