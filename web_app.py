@@ -1018,11 +1018,32 @@ def api_get_vault_stats(vault_id):
                 "SELECT COUNT(*) FROM platform.documents WHERE tenant_id = :vault_id AND status = 'completed'"
             ), {'vault_id': str(vault_uuid)}).scalar() or 0
             
+            # Get extraction request status counts
+            extraction_result = db_session.execute(text("""
+                SELECT status, COUNT(*) as count 
+                FROM platform.extraction_requests 
+                WHERE tenant_id = :vault_id
+                GROUP BY status
+            """), {'vault_id': str(vault_uuid)}).fetchall()
+            
+            extraction_counts = {'pending': 0, 'processing': 0, 'completed': 0, 'failed': 0}
+            extraction_total = 0
+            for row in extraction_result:
+                status, count = row
+                extraction_total += count
+                if status in extraction_counts:
+                    extraction_counts[status] = count
+            
             return jsonify({
                 'vault_id': vault_id,
                 'chunk_count': chunk_count,
                 'document_count': doc_count_result,
-                'completed_documents': completed_docs_result
+                'completed_documents': completed_docs_result,
+                'extraction_total': extraction_total,
+                'extraction_pending': extraction_counts['pending'],
+                'extraction_processing': extraction_counts['processing'],
+                'extraction_completed': extraction_counts['completed'],
+                'extraction_failed': extraction_counts['failed']
             })
         finally:
             db_session.close()

@@ -1,0 +1,55 @@
+Replit seems to have lost context. Let me give you the exact instruction to send:
+
+Tell Replit:
+STOP. You're missing context. Here's what we're doing:
+We just integrated the tri-memory precedence system (Symbolic Override + Data Gates). The files were created:
+
+src/context_foundry/memory/symbolic_override.py ✅
+src/context_foundry/validation/data_gates.py ✅
+src/context_foundry/pipeline/precedence_pipeline.py ✅
+
+But the integration is INCOMPLETE. The apply_precedence() function is NOT being called in core.py.
+Your ONE task right now:
+Add this block to src/context_foundry/core.py after line 268 (after response = self.reasoning.reason(...)) and BEFORE response = self.validation.validate_response(...):
+python# TRI-MEMORY PRECEDENCE: Symbolic > Semantic > Episodic
+try:
+    from .pipeline.precedence_pipeline import apply_precedence
+    
+    precedence_answer, precedence_source, precedence_confidence = apply_precedence(
+        session=self.session,
+        tenant_id=self.tenant_id,
+        query=query_text,
+        current_answer=response.get("answer", ""),
+        bundle=bundle,
+        context={
+            "target_entity": getattr(bundle, 'target_entity_found', None),
+            "target_entity_name": getattr(bundle, 'target_entity_name', None),
+            "entity_types": [
+                e.get("entity_type", "") 
+                for e in getattr(bundle, 'semantic_entities', [])
+                if isinstance(e, dict)
+            ],
+        }
+    )
+
+    response["answer"] = precedence_answer
+    response["answer_source"] = precedence_source
+    response["precedence_confidence"] = precedence_confidence
+
+    if precedence_source in ("symbolic", "refused"):
+        query_logger.log_event("PRECEDENCE_APPLIED", {
+            "source": precedence_source,
+            "confidence": precedence_confidence,
+        })
+
+except Exception as e:
+    logger.warning(f"Precedence pipeline error: {e}")
+    response["answer_source"] = "semantic"
+Then test with:
+pythonfrom src.context_foundry.core import ContextFoundry
+cf = ContextFoundry(tenant_id="19aade8a-8f7c-4a7e-9541-fce4af13f5b1")
+result = cf.query("What is the CEO's salary?")
+print(f"Source: {result.get('answer_source')}")  # Should be "refused"
+Why this matters:
+Q196-199 are failing because the system guesses instead of saying "I don't know." The Data Gates in apply_precedence() will catch the hedging and return a proper "I don't know" response. But it's not being called yet.
+Do this one task. Add the block to core.py.
