@@ -9,7 +9,7 @@ import os
 from datetime import datetime
 
 BASE_URL = "http://localhost:5000"
-VAULT_ID = "73beac38-9fdb-4d24-a68e-134b7a03aecd"
+VAULT_ID = "939cbeb4-43e4-4cdb-8aae-4328a6a16ed5"  # Manus HealthTech Clean vault
 RESULTS_DIR = "test_results"
 
 def parse_questions(filepath):
@@ -28,7 +28,7 @@ def check_answer(response, expected):
     return words and sum(1 for w in words if w in resp) >= len(words) * 0.5
 
 def main():
-    questions = parse_questions('test_documents/medsync_health/question_bank_200.md')
+    questions = parse_questions('test documents/Manus Healthtec/question_bank_200.md')
     print(f"Testing {len(questions)} questions from MedSync Health vault")
     print("=" * 60)
     
