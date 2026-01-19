@@ -978,6 +978,78 @@ def api_delete_vault(vault_id):
 
 from src.context_foundry.utils.vault_operations import delete_vault_and_artifacts
 
+
+@app.route('/api/vaults/<vault_id>/stats', methods=['GET'])
+def api_get_vault_stats(vault_id):
+    """Get detailed stats for a vault including chunk count."""
+    try:
+        vault_uuid = UUID(vault_id)
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid vault ID'}), 400
+    
+    # Check session auth first
+    if session.get('user_id'):
+        try:
+            user_uuid = UUID(session['user_id'])
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Invalid session'}), 401
+        
+        from platform_foundation.src.tenant_service import TenantService
+        tenant_svc = TenantService()
+        
+        if not tenant_svc.user_has_vault_access(user_uuid, vault_uuid):
+            return jsonify({'error': 'Access denied'}), 403
+    else:
+        # Fall back to API key auth
+        auth_result = validate_api_key()
+        tenant_id, key_data = auth_result
+        
+        if key_data and isinstance(key_data, tuple):
+            return key_data
+        
+        if not tenant_id:
+            return jsonify({'error': 'Unauthorized'}), 401
+        
+        # Ensure API key's tenant matches the requested vault
+        if str(tenant_id) != vault_id:
+            return jsonify({'error': 'Access denied - API key not authorized for this vault'}), 403
+    
+    try:
+        from src.context_foundry.core import get_db_session
+        db_session = get_db_session()
+        
+        try:
+            from src.context_foundry.models.schema import DocumentChunk
+            from platform_foundation.models import Document
+            from sqlalchemy import func
+            
+            chunk_count = db_session.query(func.count(DocumentChunk.id)).filter(
+                DocumentChunk.tenant_id == vault_uuid
+            ).scalar() or 0
+            
+            doc_count = db_session.query(func.count(Document.id)).filter(
+                Document.tenant_id == vault_uuid
+            ).scalar() or 0
+            
+            completed_docs = db_session.query(func.count(Document.id)).filter(
+                Document.tenant_id == vault_uuid,
+                Document.status == 'completed'
+            ).scalar() or 0
+            
+            return jsonify({
+                'vault_id': vault_id,
+                'chunk_count': chunk_count,
+                'document_count': doc_count,
+                'completed_documents': completed_docs
+            })
+        finally:
+            db_session.close()
+            
+    except Exception as e:
+        logger.error(f"Failed to get vault stats: {e}")
+        return jsonify({'error': 'Failed to get vault stats'}), 500
+
+
 # ============ Legacy App Routes (within vault context) ============
 
 def require_vault_access(vault_id):
