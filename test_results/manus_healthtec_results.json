@@ -1,0 +1,1091 @@
+{
+  "timestamp": "20260119_043303",
+  "vault_name": "manus_healthtec",
+  "tenant_id": "19aade8a-8f7c-4a7e-9541-fce4af13f5b1",
+  "summary": {
+    "total": 235,
+    "passed": 83,
+    "failed": 152,
+    "accuracy_pct": 35.3
+  },
+  "breakdown": {
+    "Q1-100": {
+      "passed": 54,
+      "total": 100
+    },
+    "Q101-200": {
+      "passed": 29,
+      "total": 100
+    },
+    "Q201-235": {
+      "passed": 0,
+      "total": 35
+    }
+  },
+  "failures": [
+    {
+      "q": 4,
+      "passed": false,
+      "query": "Who is the CEO of MedSync Health?",
+      "expected": "Dr. Evelyn Reed",
+      "answer": "The retrieved information does not specify who the CEO of Me"
+    },
+    {
+      "q": 5,
+      "passed": false,
+      "query": "Who is the CFO of MedSync Health?",
+      "expected": "Maria Rodriguez",
+      "answer": "The retrieved information does not specify who the CFO of Me"
+    },
+    {
+      "q": 6,
+      "passed": false,
+      "query": "Who is the CTO of MedSync Health?",
+      "expected": "Ben Carter",
+      "answer": "The retrieved information does not specify who the Chief Tec"
+    },
+    {
+      "q": 7,
+      "passed": false,
+      "query": "Who is the Chief Product Officer?",
+      "expected": "Sarah Chen",
+      "answer": "The information retrieved does not specify who the Chief Pro"
+    },
+    {
+      "q": 8,
+      "passed": false,
+      "query": "Who is the Chief Revenue Officer?",
+      "expected": "David Miller",
+      "answer": "The information retrieved does not specify who the Chief Rev"
+    },
+    {
+      "q": 22,
+      "passed": false,
+      "query": "What is the maximum hotel rate per night in major ",
+      "expected": "$350",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 23,
+      "passed": false,
+      "query": "Is MedSync Health SOC 2 Type II compliant?",
+      "expected": "Yes",
+      "answer": "The retrieved information does not explicitly state whether "
+    },
+    {
+      "q": 30,
+      "passed": false,
+      "query": "How many data breach incidents were reported in 20",
+      "expected": "Zero",
+      "answer": "The retrieved information does not provide any specific data"
+    },
+    {
+      "q": 31,
+      "passed": false,
+      "query": "What is the name of the new product launching in Q",
+      "expected": "MedSync Analytics Suite",
+      "answer": "The retrieved information does not specify the name of any n"
+    },
+    {
+      "q": 32,
+      "passed": false,
+      "query": "What cloud platform does MedSync use?",
+      "expected": "Amazon Web Services (AWS)",
+      "answer": "MedSync uses a cloud-based platform known as the MedSync Pla"
+    },
+    {
+      "q": 33,
+      "passed": false,
+      "query": "What programming languages are used in the backend",
+      "expected": "Go and Python",
+      "answer": "The retrieved information does not specify any programming l"
+    },
+    {
+      "q": 34,
+      "passed": false,
+      "query": "What frontend framework is used?",
+      "expected": "React with TypeScript",
+      "answer": "The retrieved information does not specify which frontend fr"
+    },
+    {
+      "q": 35,
+      "passed": false,
+      "query": "What is Emily Williams' job title?",
+      "expected": "Senior Software Engineer",
+      "answer": "The retrieved information does not specify Emily Williams' j"
+    },
+    {
+      "q": 36,
+      "passed": false,
+      "query": "What is Michael Chen's job title?",
+      "expected": "Product Manager",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 37,
+      "passed": false,
+      "query": "What is Sarah Johnson's job title?",
+      "expected": "Sales Director",
+      "answer": "The retrieved information does not specify Sarah Johnson's j"
+    },
+    {
+      "q": 38,
+      "passed": false,
+      "query": "What is James Thompson's job title?",
+      "expected": "Customer Success Manager",
+      "answer": "The retrieved information does not explicitly mention James "
+    },
+    {
+      "q": 39,
+      "passed": false,
+      "query": "What is Lisa Park's job title?",
+      "expected": "Marketing Manager",
+      "answer": "The retrieved information does not explicitly mention Lisa P"
+    },
+    {
+      "q": 40,
+      "passed": false,
+      "query": "What is Robert Martinez's job title?",
+      "expected": "DevOps Engineer",
+      "answer": "The retrieved information does not specify Robert Martinez's"
+    },
+    {
+      "q": 41,
+      "passed": false,
+      "query": "What encryption standard is used for data at rest?",
+      "expected": "AES-256",
+      "answer": "The retrieved information does not specify the encryption st"
+    },
+    {
+      "q": 42,
+      "passed": false,
+      "query": "What encryption standard is used for data in trans",
+      "expected": "TLS 1.2+",
+      "answer": "The retrieved information does not specify the encryption st"
+    },
+    {
+      "q": 43,
+      "passed": false,
+      "query": "What authentication method is supported for Single",
+      "expected": "SAML 2.0",
+      "answer": "The retrieved information does not contain any details regar"
+    },
+    {
+      "q": 44,
+      "passed": false,
+      "query": "What is the Recovery Time Objective (RTO) for the ",
+      "expected": "4 hours",
+      "answer": "The retrieved information does not specify the Recovery Time"
+    },
+    {
+      "q": 45,
+      "passed": false,
+      "query": "Who is the BCP Coordinator?",
+      "expected": "Ben Carter (CTO)",
+      "answer": "The search did not return any specific information regarding"
+    },
+    {
+      "q": 46,
+      "passed": false,
+      "query": "When was the Q4 2025 All-Hands meeting held?",
+      "expected": "January 17, 2026",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 48,
+      "passed": false,
+      "query": "What is the company match percentage for 401(k) co",
+      "expected": "50% of employee contributions up to 6% o",
+      "answer": "The retrieved information does not provide any details regar"
+    },
+    {
+      "q": 50,
+      "passed": false,
+      "query": "What is the bug ID for the patient search special ",
+      "expected": "MS-1234",
+      "answer": "The retrieved information does not contain any specific ment"
+    },
+    {
+      "q": 51,
+      "passed": false,
+      "query": "What is the corporate travel partner?",
+      "expected": "TravelCo",
+      "answer": "The retrieved information does not explicitly mention a \"cor"
+    },
+    {
+      "q": 52,
+      "passed": [],
+      "query": "How many conference rooms are in the Boston office",
+      "expected": "10",
+      "answer": "The retrieved information does not specify the number of con"
+    },
+    {
+      "q": 53,
+      "passed": [],
+      "query": "How many conference rooms are in the London office",
+      "expected": "3",
+      "answer": "The retrieved information does not specify the number of con"
+    },
+    {
+      "q": 54,
+      "passed": false,
+      "query": "What is the square footage of the Boston office?",
+      "expected": "25,000 sq ft",
+      "answer": "The retrieved information does not specify the square footag"
+    },
+    {
+      "q": 55,
+      "passed": false,
+      "query": "What CRM system does MedSync Health use?",
+      "expected": "Salesforce",
+      "answer": "MedSync Health uses the **MedSync Platform** as its primary "
+    },
+    {
+      "q": 56,
+      "passed": false,
+      "query": "What team communication tool does MedSync Health u",
+      "expected": "Slack",
+      "answer": "The retrieved information does not specify the exact team co"
+    },
+    {
+      "q": 57,
+      "passed": false,
+      "query": "What is the primary database used?",
+      "expected": "PostgreSQL",
+      "answer": "The retrieved information does not specify a primary databas"
+    },
+    {
+      "q": 58,
+      "passed": false,
+      "query": "What is the secondary database used for flexible d",
+      "expected": "MongoDB",
+      "answer": "The retrieved information does not explicitly mention a seco"
+    },
+    {
+      "q": 60,
+      "passed": false,
+      "query": "What is the support ticket number for the login is",
+      "expected": "9876",
+      "answer": "The retrieved information does not contain any specific deta"
+    },
+    {
+      "q": 67,
+      "passed": false,
+      "query": "What was the EBITDA in FY 2023?",
+      "expected": "$15.0 million",
+      "answer": "The EBITDA for FY 2023 is not explicitly stated in the retri"
+    },
+    {
+      "q": 68,
+      "passed": false,
+      "query": "What was the EBITDA in FY 2024?",
+      "expected": "$22.0 million",
+      "answer": "The retrieved information does not provide the EBITDA for FY"
+    },
+    {
+      "q": 71,
+      "passed": false,
+      "query": "What was the net income in FY 2023?",
+      "expected": "$12.0 million",
+      "answer": "The net income for FY 2023 was not explicitly provided in th"
+    },
+    {
+      "q": 72,
+      "passed": false,
+      "query": "What was the net income in FY 2024?",
+      "expected": "$17.5 million",
+      "answer": "The net income for FY 2024 is not explicitly provided in the"
+    },
+    {
+      "q": 76,
+      "passed": false,
+      "query": "What was Q1 2025 revenue?",
+      "expected": "$17.0 million",
+      "answer": "The retrieved information does not provide specific revenue "
+    },
+    {
+      "q": 77,
+      "passed": false,
+      "query": "What was Q2 2025 revenue?",
+      "expected": "$18.0 million",
+      "answer": "The retrieved information does not provide specific revenue "
+    },
+    {
+      "q": 88,
+      "passed": false,
+      "query": "What is the customer satisfaction (CSAT) target fo",
+      "expected": "95%",
+      "answer": "The retrieved information does not specify a customer satisf"
+    },
+    {
+      "q": 90,
+      "passed": false,
+      "query": "What is the Q1 2026 new sales pipeline target for ",
+      "expected": "$30 million",
+      "answer": "The retrieved information does not explicitly state the Q1 2"
+    },
+    {
+      "q": 98,
+      "passed": false,
+      "query": "What is the customer onboarding CSAT score?",
+      "expected": "4.6 / 5.0",
+      "answer": "The retrieved information does not explicitly mention a cust"
+    },
+    {
+      "q": 99,
+      "passed": false,
+      "query": "What was the cash at the end of FY 2025?",
+      "expected": "$138.0 million",
+      "answer": "The retrieved information does not provide a specific figure"
+    },
+    {
+      "q": 100,
+      "passed": false,
+      "query": "What was the net cash from operations in FY 2025?",
+      "expected": "$33.0 million",
+      "answer": "The retrieved information does not explicitly state the net "
+    },
+    {
+      "q": 101,
+      "passed": false,
+      "query": "What percentage of FY 2025 revenue came from the U",
+      "expected": "90%",
+      "answer": "The retrieved information does not specify the percentage of"
+    },
+    {
+      "q": 102,
+      "passed": false,
+      "query": "What percentage of FY 2025 revenue came from Europ",
+      "expected": "10%",
+      "answer": "The retrieved information does not specify the percentage of"
+    },
+    {
+      "q": 103,
+      "passed": false,
+      "query": "What is the total accounts receivable as of Januar",
+      "expected": "$16.6 million",
+      "answer": "The retrieved documents do not provide specific information "
+    },
+    {
+      "q": 104,
+      "passed": false,
+      "query": "What is Emily Williams' base salary as of January ",
+      "expected": "$160,000",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 105,
+      "passed": false,
+      "query": "What was Emily Williams' 2025 bonus?",
+      "expected": "$24,000",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 106,
+      "passed": false,
+      "query": "What is Sarah Johnson's base salary as of January ",
+      "expected": "$180,000",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 107,
+      "passed": false,
+      "query": "What was Sarah Johnson's 2025 bonus?",
+      "expected": "$54,000",
+      "answer": "The retrieved information does not provide any details regar"
+    },
+    {
+      "q": 108,
+      "passed": false,
+      "query": "What is the target bonus percentage for Directors?",
+      "expected": "25%",
+      "answer": "The target bonus percentage for Directors is not explicitly "
+    },
+    {
+      "q": 109,
+      "passed": false,
+      "query": "What is the target bonus percentage for VPs?",
+      "expected": "30%+",
+      "answer": "The retrieved information does not specify the target bonus "
+    },
+    {
+      "q": 110,
+      "passed": false,
+      "query": "What was the Q4 2025 new bookings in ACV?",
+      "expected": "$35 million",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 111,
+      "passed": false,
+      "query": "What is the total Q1 2026 sales pipeline value?",
+      "expected": "$61 million",
+      "answer": "The retrieved documents do not contain specific information "
+    },
+    {
+      "q": 112,
+      "passed": false,
+      "query": "How many deals are in the Q1 2026 sales pipeline?",
+      "expected": "118",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 113,
+      "passed": false,
+      "query": "What is the average deal size in the Q1 2026 pipel",
+      "expected": "$517,000",
+      "answer": "There is insufficient data available to determine the averag"
+    },
+    {
+      "q": 114,
+      "passed": false,
+      "query": "What is the total marketing budget for 2026?",
+      "expected": "$10 million",
+      "answer": "The retrieved information does not explicitly state the tota"
+    },
+    {
+      "q": 115,
+      "passed": false,
+      "query": "What is the marketing-influenced pipeline target f",
+      "expected": "$50 million",
+      "answer": "The marketing-influenced pipeline target for 2026 is not exp"
+    },
+    {
+      "q": 117,
+      "passed": false,
+      "query": "How many net new hires are planned for 2026?",
+      "expected": "138",
+      "answer": "The planned net new hires for 2026 are not explicitly stated"
+    },
+    {
+      "q": 118,
+      "passed": false,
+      "query": "How many customers are in \"Green\" health status?",
+      "expected": "110",
+      "answer": "The retrieved information does not specify the number of cus"
+    },
+    {
+      "q": 119,
+      "passed": [],
+      "query": "How many customers are in \"Red\" health status?",
+      "expected": "7",
+      "answer": "The retrieved information does not specify the number of cus"
+    },
+    {
+      "q": 120,
+      "passed": false,
+      "query": "What percentage of customers completed onboarding ",
+      "expected": "68%",
+      "answer": "I was unable to retrieve specific data regarding the percent"
+    },
+    {
+      "q": 122,
+      "passed": false,
+      "query": "What was the year-over-year revenue growth from FY",
+      "expected": "60%",
+      "answer": "The year-over-year revenue growth from FY 2024 to FY 2025 ca"
+    },
+    {
+      "q": 123,
+      "passed": false,
+      "query": "What was the EBITDA growth from FY 2024 to FY 2025",
+      "expected": "72.7%",
+      "answer": "To determine the EBITDA growth from FY 2024 to FY 2025, we n"
+    },
+    {
+      "q": 124,
+      "passed": false,
+      "query": "What was the net income growth from FY 2024 to FY ",
+      "expected": "82.9%",
+      "answer": "The retrieved information does not provide the net income fo"
+    },
+    {
+      "q": 125,
+      "passed": false,
+      "query": "How much did revenue increase from FY 2023 to FY 2",
+      "expected": "$40 million (from $40M to $80M)",
+      "answer": "To calculate the revenue increase from FY 2023 to FY 2025, w"
+    },
+    {
+      "q": 126,
+      "passed": false,
+      "query": "How much did net income increase from FY 2023 to F",
+      "expected": "$20 million (from $12M to $32M)",
+      "answer": "To determine the increase in net income from FY 2023 to FY 2"
+    },
+    {
+      "q": 127,
+      "passed": false,
+      "query": "What was the gross margin improvement from FY 2023",
+      "expected": "5 percentage points (from 65% to 70%)",
+      "answer": "The gross margin improvement from FY 2023 to FY 2025 can be "
+    },
+    {
+      "q": 131,
+      "passed": false,
+      "query": "What was the QoQ revenue growth from Q3 to Q4 2025",
+      "expected": "25%",
+      "answer": "To calculate the quarter-over-quarter (QoQ) revenue growth f"
+    },
+    {
+      "q": 132,
+      "passed": false,
+      "query": "What was the QoQ revenue growth from Q2 to Q3 2025",
+      "expected": "11.1%",
+      "answer": "The retrieved information does not provide the revenue for Q"
+    },
+    {
+      "q": 133,
+      "passed": false,
+      "query": "What was the QoQ revenue growth from Q1 to Q2 2025",
+      "expected": "5.9%",
+      "answer": "The retrieved information does not provide specific revenue "
+    },
+    {
+      "q": 134,
+      "passed": false,
+      "query": "What was the R&D spending growth from FY 2024 to F",
+      "expected": "50%",
+      "answer": "The retrieved information does not provide the actual R&D sp"
+    },
+    {
+      "q": 135,
+      "passed": false,
+      "query": "What was the COGS growth from FY 2024 to FY 2025?",
+      "expected": "50%",
+      "answer": "To calculate the COGS (Cost of Goods Sold) growth from FY 20"
+    },
+    {
+      "q": 136,
+      "passed": false,
+      "query": "What was the Sales & Marketing spending growth fro",
+      "expected": "33.3%",
+      "answer": "The retrieved information does not provide specific figures "
+    },
+    {
+      "q": 138,
+      "passed": false,
+      "query": "How many new hospital clients were added in Q4 202",
+      "expected": "Can be inferred but not explicitly state",
+      "answer": "The retrieved information does not provide specific data reg"
+    },
+    {
+      "q": 139,
+      "passed": false,
+      "query": "When did Emily Williams start at MedSync Health?",
+      "expected": "June 15, 2021",
+      "answer": "The retrieved information does not specify the exact date wh"
+    },
+    {
+      "q": 140,
+      "passed": false,
+      "query": "When did Michael Chen start at MedSync Health?",
+      "expected": "August 1, 2022",
+      "answer": "The retrieved information does not specify when Michael Chen"
+    },
+    {
+      "q": 141,
+      "passed": false,
+      "query": "When was the disaster recovery test conducted?",
+      "expected": "December 15, 2025",
+      "answer": "The retrieved information does not specify a date for when t"
+    },
+    {
+      "q": 142,
+      "passed": false,
+      "query": "When was the penetration test conducted?",
+      "expected": "November 2025",
+      "answer": "The retrieved information does not specify when the penetrat"
+    },
+    {
+      "q": 143,
+      "passed": false,
+      "query": "When was the system outage on January 29, 2026?",
+      "expected": "2:15 PM to 3:30 PM EST (75 minutes)",
+      "answer": "The retrieved information does not mention any details regar"
+    },
+    {
+      "q": 144,
+      "passed": false,
+      "query": "When was bug MS-1234 reported?",
+      "expected": "January 22, 2026",
+      "answer": "The retrieved information does not contain any details regar"
+    },
+    {
+      "q": 145,
+      "passed": false,
+      "query": "When was bug MS-1234 fixed?",
+      "expected": "January 23, 2026",
+      "answer": "The retrieved information does not contain any details regar"
+    },
+    {
+      "q": 146,
+      "passed": false,
+      "query": "When is the HIMSS 2026 conference?",
+      "expected": "March 10-14, 2026",
+      "answer": "The retrieved information does not include the specific date"
+    },
+    {
+      "q": 147,
+      "passed": false,
+      "query": "When is the Analytics Suite beta launch scheduled?",
+      "expected": "February 1, 2026",
+      "answer": "The retrieved information does not specify a launch date for"
+    },
+    {
+      "q": 148,
+      "passed": false,
+      "query": "When is the Analytics Suite general availability p",
+      "expected": "Q2 2026",
+      "answer": "The retrieved information does not provide any details regar"
+    },
+    {
+      "q": 149,
+      "passed": false,
+      "query": "When was the open enrollment period for benefits?",
+      "expected": "November 1-15, 2025",
+      "answer": "The retrieved information does not contain any details regar"
+    },
+    {
+      "q": 150,
+      "passed": false,
+      "query": "When was the leadership offsite held?",
+      "expected": "January 22-23, 2026",
+      "answer": "The retrieved information does not specify the date when the"
+    },
+    {
+      "q": 157,
+      "passed": false,
+      "query": "Which employee level receives the highest referral",
+      "expected": "Director and Above",
+      "answer": "The employee level that receives the highest referral bonus "
+    },
+    {
+      "q": 159,
+      "passed": false,
+      "query": "Who has the highest base salary among the document",
+      "expected": "Sarah Johnson ($180,000)",
+      "answer": "Based on the retrieved information, the following employees "
+    },
+    {
+      "q": 160,
+      "passed": false,
+      "query": "Who received the highest 2025 bonus among document",
+      "expected": "Sarah Johnson ($54,000)",
+      "answer": "Based on the retrieved information, there is no specific men"
+    },
+    {
+      "q": 163,
+      "passed": false,
+      "query": "Which customer health status has the most customer",
+      "expected": "Green (Healthy) with 110 customers",
+      "answer": "The retrieved documents do not provide specific details abou"
+    },
+    {
+      "q": 164,
+      "passed": false,
+      "query": "Which certification was audited most recently?",
+      "expected": "HIPAA (October 2025)",
+      "answer": "The most recently audited certification is **HIPAA**, with i"
+    },
+    {
+      "q": 168,
+      "passed": false,
+      "query": "Which region contributed more revenue in FY 2025?",
+      "expected": "United States ($72M vs. Europe's $8M)",
+      "answer": "The retrieved information does not specify revenue contribut"
+    },
+    {
+      "q": 169,
+      "passed": false,
+      "query": "Which office has more conference rooms?",
+      "expected": "Boston office (10 vs. London's 3)",
+      "answer": "I could not find specific information regarding the number o"
+    },
+    {
+      "q": 170,
+      "passed": false,
+      "query": "Which office has more square footage?",
+      "expected": "Boston office (25,000 sq ft vs. London's",
+      "answer": "The retrieved information does not provide specific square f"
+    },
+    {
+      "q": 171,
+      "passed": false,
+      "query": "Which employee received an \"Outstanding\" rating in",
+      "expected": "Sarah Johnson",
+      "answer": "The retrieved information does not specify which employee re"
+    },
+    {
+      "q": 173,
+      "passed": false,
+      "query": "Which database is used for flexible document stora",
+      "expected": "MongoDB",
+      "answer": "The retrieved information does not explicitly mention a spec"
+    },
+    {
+      "q": 174,
+      "passed": [],
+      "query": "Which programming language is used for high-perfor",
+      "expected": "Go",
+      "answer": "The retrieved information does not specify a particular prog"
+    },
+    {
+      "q": 176,
+      "passed": false,
+      "query": "What is the PTO policy for Directors?",
+      "expected": "25 days per year",
+      "answer": "The PTO (Paid Time Off) policy for Directors is as follows: "
+    },
+    {
+      "q": 179,
+      "passed": false,
+      "query": "What is the maximum reimbursement for software sub",
+      "expected": "$50 per month",
+      "answer": "The retrieved information does not specify the maximum reimb"
+    },
+    {
+      "q": 180,
+      "passed": [],
+      "query": "What is the maximum reimbursement for client meals",
+      "expected": "$75",
+      "answer": "The retrieved information does not contain any specific deta"
+    },
+    {
+      "q": 183,
+      "passed": false,
+      "query": "What is the preferred ground transportation method",
+      "expected": "Ride-sharing services (Uber, Lyft)",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 188,
+      "passed": false,
+      "query": "What is the target for user adoption of the automa",
+      "expected": "75%",
+      "answer": "The retrieved information does not specify a target for user"
+    },
+    {
+      "q": 189,
+      "passed": false,
+      "query": "What is the target for critical bug resolution tim",
+      "expected": "24 hours",
+      "answer": "The target for critical bug resolution time in Q1 2026 is no"
+    },
+    {
+      "q": 190,
+      "passed": false,
+      "query": "What are the core hours for remote employees?",
+      "expected": "10 AM - 3 PM local time",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 191,
+      "passed": false,
+      "query": "How many days are required to complete the recruit",
+      "expected": "4-6 weeks",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 192,
+      "passed": false,
+      "query": "How many professional references are required for ",
+      "expected": "2-3",
+      "answer": "The retrieved information does not specify the number of pro"
+    },
+    {
+      "q": 193,
+      "passed": false,
+      "query": "What is the failover time achieved in the disaster",
+      "expected": "3 hours 45 minutes",
+      "answer": "The retrieved information does not contain any details regar"
+    },
+    {
+      "q": 194,
+      "passed": false,
+      "query": "What is the vesting schedule for employer 401(k) m",
+      "expected": "4 years (25% per year)",
+      "answer": "The retrieved information does not provide any details regar"
+    },
+    {
+      "q": 196,
+      "passed": false,
+      "query": "What is the salary of the CEO?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "answer": "The salary of the CEO is not mentioned in any of the provide"
+    },
+    {
+      "q": 197,
+      "passed": false,
+      "query": "What is the company's valuation after Series C?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "answer": "The company's valuation after Series C is not disclosed in t"
+    },
+    {
+      "q": 198,
+      "passed": false,
+      "query": "How many customers are in the pipeline for Q2 2026",
+      "expected": "[NOT IN DOCUMENTS]",
+      "answer": "The information retrieved does not provide specific data reg"
+    },
+    {
+      "q": 199,
+      "passed": false,
+      "query": "What is the employee turnover rate?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "answer": "The employee turnover rate is not tracked in the documents p"
+    },
+    {
+      "q": 200,
+      "passed": false,
+      "query": "What is the average customer lifetime value (LTV)?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "answer": "The retrieved information does not provide a specific figure"
+    },
+    {
+      "q": 201,
+      "passed": [],
+      "query": "How many employees are listed in the employee dire",
+      "expected": "10",
+      "answer": "The employee directory lists **6 detailed employee profiles*"
+    },
+    {
+      "q": 202,
+      "passed": false,
+      "query": "What is Jennifer Lee's department?",
+      "expected": "Finance",
+      "answer": "The retrieved information does not specify Jennifer Lee's de"
+    },
+    {
+      "q": 203,
+      "passed": false,
+      "query": "What is Amanda Garcia's job title?",
+      "expected": "Software Engineer",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 204,
+      "passed": false,
+      "query": "When did Christopher Wilson start at MedSync Healt",
+      "expected": "November 1, 2023",
+      "answer": "The retrieved information does not specify when Christopher "
+    },
+    {
+      "q": 205,
+      "passed": false,
+      "query": "How many employees work remotely according to the ",
+      "expected": "4 (Sarah Johnson, Robert Martinez, David",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 206,
+      "passed": false,
+      "query": "What is the total ACV value of all deals in the Q1",
+      "expected": "$5,550,000",
+      "answer": "The retrieved documents do not contain specific information "
+    },
+    {
+      "q": 207,
+      "passed": false,
+      "query": "Which deal has the highest ACV in the Q1 2026 pipe",
+      "expected": "D-2026-005 (University Medical) at $1,20",
+      "answer": "The retrieved documents do not provide specific information "
+    },
+    {
+      "q": 208,
+      "passed": false,
+      "query": "How many deals are in the \"Negotiation\" stage?",
+      "expected": "2 (Regional Medical Center and Mountain ",
+      "answer": "The retrieved information does not provide any specific data"
+    },
+    {
+      "q": 209,
+      "passed": false,
+      "query": "What is the expected close date for the Mercy Hosp",
+      "expected": "February 28, 2026",
+      "answer": "The retrieved information does not provide a specific expect"
+    },
+    {
+      "q": 210,
+      "passed": false,
+      "query": "Which sales rep owns the most deals in the pipelin",
+      "expected": "Sarah Johnson (4 deals)",
+      "answer": "I currently do not have sufficient data to determine which s"
+    },
+    {
+      "q": 211,
+      "passed": false,
+      "query": "What is the ACV for Acme Hospital?",
+      "expected": "$850,000",
+      "answer": "The retrieved information does not provide a specific figure"
+    },
+    {
+      "q": 212,
+      "passed": false,
+      "query": "Which customer has the highest health score?",
+      "expected": "Acme Hospital (95)",
+      "answer": "The retrieved information does not provide specific health s"
+    },
+    {
+      "q": 213,
+      "passed": false,
+      "query": "When does Beta Health System's contract end?",
+      "expected": "May 31, 2026",
+      "answer": "The retrieved information does not specify the end date of B"
+    },
+    {
+      "q": 214,
+      "passed": false,
+      "query": "How many beds does Gamma Medical Center have?",
+      "expected": "300",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 215,
+      "passed": false,
+      "query": "Which customer has the lowest health score?",
+      "expected": "Delta Hospital (45)",
+      "answer": "The retrieved information does not provide specific health s"
+    },
+    {
+      "q": 216,
+      "passed": false,
+      "query": "What was the total revenue in December 2025?",
+      "expected": "$8,900,000",
+      "answer": "The total revenue for December 2025 is not explicitly stated"
+    },
+    {
+      "q": 217,
+      "passed": false,
+      "query": "Which month in 2025 had the highest total revenue?",
+      "expected": "December",
+      "answer": "It seems that I am unable to retrieve the monthly revenue da"
+    },
+    {
+      "q": 218,
+      "passed": false,
+      "query": "What was the new business revenue in March 2025?",
+      "expected": "$2,000,000",
+      "answer": "The retrieved information does not specify the new business "
+    },
+    {
+      "q": 219,
+      "passed": false,
+      "query": "What was the total churn in September 2025?",
+      "expected": "-$100,000",
+      "answer": "The retrieved documents do not provide specific information "
+    },
+    {
+      "q": 220,
+      "passed": false,
+      "query": "What was the expansion revenue in October 2025?",
+      "expected": "$650,000",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 221,
+      "passed": false,
+      "query": "How much did Maria Rodriguez spend on travel to Lo",
+      "expected": "$2,900 ($1,850 flight + $1,050 hotel)",
+      "answer": "The retrieved information does not contain any details regar"
+    },
+    {
+      "q": 222,
+      "passed": false,
+      "query": "What was the most expensive single expense in Q4 2",
+      "expected": "$2,500 for trade show booth materials by",
+      "answer": "The retrieved information does not explicitly mention the mo"
+    },
+    {
+      "q": 223,
+      "passed": false,
+      "query": "How many expenses did Sarah Johnson submit in Q4 2",
+      "expected": "2 (Flight and client dinner)",
+      "answer": "The retrieved information does not provide any specific deta"
+    },
+    {
+      "q": 224,
+      "passed": false,
+      "query": "What was Ben Carter's conference registration expe",
+      "expected": "$1,899 for AWS re:Invent",
+      "answer": "The retrieved information does not provide specific details "
+    },
+    {
+      "q": 225,
+      "passed": false,
+      "query": "What is the planned total headcount for Q4 2026?",
+      "expected": "686",
+      "answer": "The planned total headcount for Q4 2026 is 625 employees. Th"
+    },
+    {
+      "q": 226,
+      "passed": false,
+      "query": "Which department has the highest planned YoY growt",
+      "expected": "Customer Success (53%)",
+      "answer": "The retrieved information does not specify the planned year-"
+    },
+    {
+      "q": 227,
+      "passed": false,
+      "query": "How many people will be in Engineering by Q2 2026?",
+      "expected": "210",
+      "answer": "Based on the retrieved information, the number of people in "
+    },
+    {
+      "q": 228,
+      "passed": false,
+      "query": "Which department has zero planned growth?",
+      "expected": "Executive",
+      "answer": "The retrieved information does not specify any department wi"
+    },
+    {
+      "q": 229,
+      "passed": false,
+      "query": "Which customer has the highest monthly active user",
+      "expected": "Acme Hospital (450)",
+      "answer": "The retrieved documents do not contain specific information "
+    },
+    {
+      "q": 230,
+      "passed": false,
+      "query": "What is Delta Hospital's feature adoption rate?",
+      "expected": "52%",
+      "answer": "The retrieved information does not provide a specific featur"
+    },
+    {
+      "q": 231,
+      "passed": false,
+      "query": "Which customer has the lowest average session dura",
+      "expected": "Delta Hospital (15 minutes)",
+      "answer": "The documents retrieved do not contain specific information "
+    },
+    {
+      "q": 232,
+      "passed": false,
+      "query": "How many daily active users does Epsilon Health ha",
+      "expected": "155",
+      "answer": "The retrieved information does not provide any details about"
+    },
+    {
+      "q": 233,
+      "passed": false,
+      "query": "What is the ticket ID for the Beta Hospital login ",
+      "expected": "9876",
+      "answer": "The retrieved information does not contain any specific deta"
+    },
+    {
+      "q": 234,
+      "passed": false,
+      "query": "How long did it take to resolve the critical syste",
+      "expected": "2 hours",
+      "answer": "The retrieved information does not provide any details regar"
+    },
+    {
+      "q": 235,
+      "passed": false,
+      "query": "Which ticket had the longest resolution time?",
+      "expected": "Ticket 9880 (Data Export) at 40 hours",
+      "answer": "The retrieved information does not contain any specific deta"
+    }
+  ]
+}
