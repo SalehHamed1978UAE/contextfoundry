@@ -997,7 +997,7 @@ def api_get_vault_stats(vault_id):
             return jsonify({'error': 'Access denied - API key not authorized for this vault'}), 403
     
     try:
-        from src.context_foundry.models.schema import get_session, DocumentChunk
+        from src.context_foundry.models.schema import get_session, DocumentChunk, Entity, Relationship
         from sqlalchemy import func, text
         
         # Use non-RLS session for platform schema queries
@@ -1007,6 +1007,16 @@ def api_get_vault_stats(vault_id):
             # Get chunk count from knowledge graph
             chunk_count = db_session.query(func.count(DocumentChunk.id)).filter(
                 DocumentChunk.tenant_id == vault_uuid
+            ).scalar() or 0
+            
+            # Get entity count from knowledge graph
+            entity_count = db_session.query(func.count(Entity.id)).filter(
+                Entity.tenant_id == vault_uuid
+            ).scalar() or 0
+            
+            # Get relationship count from knowledge graph
+            relationship_count = db_session.query(func.count(Relationship.id)).filter(
+                Relationship.tenant_id == vault_uuid
             ).scalar() or 0
             
             # Use raw SQL for platform.documents table (no ORM model available)
@@ -1037,6 +1047,8 @@ def api_get_vault_stats(vault_id):
             return jsonify({
                 'vault_id': vault_id,
                 'chunk_count': chunk_count,
+                'entity_count': entity_count,
+                'relationship_count': relationship_count,
                 'document_count': doc_count_result,
                 'completed_documents': completed_docs_result,
                 'extraction_total': extraction_total,
