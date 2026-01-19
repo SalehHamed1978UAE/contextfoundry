@@ -12,10 +12,15 @@ class VaultManager:
         self.session.headers.update({'Content-Type': 'application/json'})
         self._authenticated = False
     
-    def authenticate_dev(self, tenant_id: str = None) -> bool:
-        """Authenticate with dev user for testing."""
+    def authenticate_dev(self, tenant_id: str = None, email: str = None) -> bool:
+        """Authenticate with dev user for testing.
+        
+        Args:
+            tenant_id: Optional tenant ID to set context for
+            email: Email to authenticate as (default: saleh.hamed@gmail.com for visibility in UI)
+        """
         try:
-            payload = {}
+            payload = {'email': email or 'saleh.hamed@gmail.com'}
             if tenant_id:
                 payload['tenant_id'] = tenant_id
             response = self.session.post(f'{self.api}/dev/auth', json=payload)
