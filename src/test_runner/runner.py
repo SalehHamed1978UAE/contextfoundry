@@ -7,9 +7,11 @@ Usage:
     python -m src.test_runner.runner --list                    # List available corpora
     python -m src.test_runner.runner --corpus "Manus Healthtec"  # Run specific corpus
     python -m src.test_runner.runner --all                      # Run all corpora (sequential)
+    python -m src.test_runner.runner --corpus "X" --resume      # Resume Q&A from checkpoint
 """
 
 import argparse
+import json
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -19,6 +21,36 @@ from .vault_manager import VaultManager
 from .document_uploader import get_files_to_upload
 from .test_executor import TestExecutor
 from .evaluator import FuzzyEvaluator
+
+
+def get_checkpoint_file(results_dir: Path, corpus_name: str) -> Path:
+    """Get path to checkpoint file for a corpus."""
+    safe_name = corpus_name.lower().replace(' ', '_')
+    return results_dir / f"{safe_name}_checkpoint.json"
+
+
+def load_checkpoint(results_dir: Path, corpus_name: str) -> dict | None:
+    """Load checkpoint if exists."""
+    checkpoint_file = get_checkpoint_file(results_dir, corpus_name)
+    if checkpoint_file.exists():
+        with open(checkpoint_file) as f:
+            return json.load(f)
+    return None
+
+
+def save_checkpoint(results_dir: Path, corpus_name: str, vault_id: str, extraction_complete: bool):
+    """Save checkpoint after extraction completes."""
+    checkpoint_file = get_checkpoint_file(results_dir, corpus_name)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint = {
+        "corpus_name": corpus_name,
+        "vault_id": vault_id,
+        "extraction_complete": extraction_complete,
+        "timestamp": datetime.now().isoformat()
+    }
+    with open(checkpoint_file, 'w') as f:
+        json.dump(checkpoint, f, indent=2)
+    print(f"  Checkpoint saved: {checkpoint_file.name}")
 
 
 def list_corpora(config: TestConfig):
@@ -38,11 +70,17 @@ def list_corpora(config: TestConfig):
     print("\n" + "=" * 60)
 
 
-def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False):
-    """Run test for a single corpus."""
+def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, resume: bool = False):
+    """Run test for a single corpus. Supports resume from checkpoint."""
+    
+    mode_str = ""
+    if resume:
+        mode_str = " (RESUME)"
+    elif questions_only:
+        mode_str = " (QUESTIONS ONLY)"
     
     print("\n" + "=" * 70)
-    print(f"TEST RUNNER: {corpus_name}" + (" (QUESTIONS ONLY)" if questions_only else ""))
+    print(f"TEST RUNNER: {corpus_name}{mode_str}")
     print("=" * 70)
     
     corpus = config.get_corpus(corpus_name)
@@ -67,7 +105,28 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         return None
     print("  Authenticated")
     
-    if questions_only:
+    # Initialize variables
+    vault_id = None
+    files = []
+    
+    # Check for checkpoint if resuming
+    checkpoint = None
+    if resume:
+        checkpoint = load_checkpoint(config.results_dir, corpus_name)
+        if checkpoint and checkpoint.get('extraction_complete'):
+            vault_id = checkpoint['vault_id']
+            print(f"\n[Step 2-4] SKIPPED (resuming from checkpoint)")
+            print(f"  Vault: {vault_id}")
+            print(f"  Checkpoint from: {checkpoint.get('timestamp', 'unknown')}")
+            if not vm.authenticate_dev(tenant_id=vault_id):
+                print("WARNING: Failed to set vault context, continuing...")
+            files = []
+        else:
+            print("  No valid checkpoint found, running full test")
+            resume = False
+            checkpoint = None
+    
+    if questions_only and not resume:
         # Use existing vault from config
         vault_id = corpus.get('current_vault_id')
         if not vault_id:
@@ -78,7 +137,7 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         if not vm.authenticate_dev(tenant_id=vault_id):
             print("WARNING: Failed to set vault context, continuing...")
         files = []  # No files uploaded
-    else:
+    elif not resume:
         if not root_path.exists():
             print(f"ERROR: Corpus path does not exist: {root_path}")
             return None
@@ -127,8 +186,15 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         except TimeoutError as e:
             print(f"  ERROR: {e}")
             return None
+        
+        # Save checkpoint after extraction completes successfully
+        save_checkpoint(config.results_dir, corpus_name, vault_id, extraction_complete=True)
     
     # Step 5: Run test
+    if not vault_id:
+        print("ERROR: No vault ID available")
+        return None
+    
     print(f"\n[Step 5] Running test questions...")
     extraction_config = config.extraction_config
     try:
@@ -174,6 +240,7 @@ def main():
     parser.add_argument('--corpus', type=str, help='Run test for specific corpus')
     parser.add_argument('--all', action='store_true', help='Run all corpora (sequential)')
     parser.add_argument('--questions-only', action='store_true', help='Skip upload/extraction, run questions only against existing vault')
+    parser.add_argument('--resume', action='store_true', help='Resume Q&A from checkpoint (skips setup if extraction complete)')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     
     args = parser.parse_args()
@@ -183,11 +250,11 @@ def main():
     if args.list:
         list_corpora(config)
     elif args.corpus:
-        run_corpus_test(args.corpus, config, questions_only=args.questions_only)
+        run_corpus_test(args.corpus, config, questions_only=args.questions_only, resume=args.resume)
     elif args.all:
         print("Running all corpora sequentially...")
         for name in config.list_corpora().keys():
-            run_corpus_test(name, config, questions_only=args.questions_only)
+            run_corpus_test(name, config, questions_only=args.questions_only, resume=args.resume)
     else:
         parser.print_help()
 

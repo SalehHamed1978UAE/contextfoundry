@@ -1,17 +1,49 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Set, Optional
 
 from .evaluator import FuzzyEvaluator
 from .vault_manager import VaultManager
 
 class TestExecutor:
-    """Run test questions against a vault."""
+    """Run test questions against a vault with resume support."""
     
     def __init__(self, vault_manager: VaultManager, evaluator: FuzzyEvaluator):
         self.vm = vault_manager
         self.evaluator = evaluator
+    
+    def _get_progress_file(self, results_dir: Path, corpus_name: str, vault_id: str) -> Path:
+        """Get path to progress file for incremental saving."""
+        safe_name = corpus_name.lower().replace(' ', '_')
+        return results_dir / f"{safe_name}_{vault_id[:8]}_progress.jsonl"
+    
+    def _load_completed_questions(self, progress_file: Path) -> tuple[List[Dict], Set[int]]:
+        """Load previously completed questions from progress file."""
+        results = []
+        completed_ids = set()
+        
+        if not progress_file.exists():
+            return results, completed_ids
+        
+        with open(progress_file) as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        result = json.loads(line)
+                        results.append(result)
+                        completed_ids.add(result.get('q'))
+                    except json.JSONDecodeError:
+                        continue
+        
+        return results, completed_ids
+    
+    def _save_result_incremental(self, progress_file: Path, result: Dict):
+        """Append a single result to progress file immediately."""
+        progress_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(progress_file, 'a') as f:
+            f.write(json.dumps(result) + '\n')
     
     def run_test(
         self, 
@@ -19,9 +51,10 @@ class TestExecutor:
         questions_file: Path,
         results_dir: Path,
         corpus_name: str,
-        min_chunks: int = 50
+        min_chunks: int = 50,
+        resume: bool = True
     ) -> dict:
-        """Run all questions, evaluate answers, save results."""
+        """Run all questions, evaluate answers, save results. Supports resume."""
         
         stats = self.vm.get_vault_stats(vault_id)
         chunk_count = stats.get('chunk_count', 0)
@@ -39,11 +72,26 @@ class TestExecutor:
         questions = self._load_questions(questions_file)
         print(f"  Running {len(questions)} questions...")
         
-        results = []
-        passed = 0
+        progress_file = self._get_progress_file(results_dir, corpus_name, vault_id)
+        
+        if resume:
+            results, completed_ids = self._load_completed_questions(progress_file)
+            if completed_ids:
+                print(f"  Resuming: {len(completed_ids)} questions already answered")
+        else:
+            results = []
+            completed_ids = set()
+            if progress_file.exists():
+                progress_file.unlink()
+        
+        passed = sum(1 for r in results if r.get('passed'))
         
         for i, q in enumerate(questions):
             q_num = q.get('id', q.get('q', i + 1))
+            
+            if q_num in completed_ids:
+                continue
+            
             query = q.get('question', q.get('query', ''))
             expected = q.get('expected_answer', q.get('expected', ''))
             
@@ -53,18 +101,22 @@ class TestExecutor:
             if is_pass:
                 passed += 1
             
-            results.append({
+            result = {
                 "q": q_num,
                 "passed": is_pass,
                 "match_type": match_type,
                 "query": query[:80],
                 "expected": expected[:80],
                 "actual": actual[:100] if actual else ""
-            })
+            }
+            results.append(result)
+            
+            self._save_result_incremental(progress_file, result)
             
             status = "PASS" if is_pass else "FAIL"
-            if (i + 1) % 25 == 0:
-                print(f"  [{i+1}/{len(questions)}] {passed}/{i+1} passed ({100*passed/(i+1):.1f}%)")
+            answered = len(results)
+            if answered % 25 == 0:
+                print(f"  [{answered}/{len(questions)}] {passed}/{answered} passed ({100*passed/answered:.1f}%)")
             elif not is_pass:
                 print(f"  Q{q_num}: {status} ({match_type})")
         
