@@ -24,6 +24,8 @@ from .utils.logger import logger, QueryLogger, display_context_bundle, display_r
 from .rlm.router import QueryComplexityRouter, QueryTier
 from .rlm.executor import RLMExecutor, RLMResult
 from .rlm.schemas import RLMConfig
+from .agents.financial_query_handler import FinancialQueryHandler
+from .pipeline.precedence_pipeline import apply_precedence
 
 try:
     from src.decision_trace_layer.decision_orchestrator import (
