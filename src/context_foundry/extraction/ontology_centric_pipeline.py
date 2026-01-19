@@ -28,6 +28,7 @@ from .post_processor import get_post_processor
 from .job_tracker import ExtractionJobTracker, get_job_tracker
 
 from ..utils.logger import logger
+from ..utils.text_sanitizer import sanitize_text
 from ..models.schema import DocumentChunk
 from ..memory.episodic import openai_embedding
 
@@ -361,7 +362,13 @@ class OntologyCentricPipeline:
                 logger.info(f"[OntologyCentricPipeline] Document {document_id} already has {len(existing_chunks)} chunks, returning existing")
                 return [DocumentChunk(id=row[0], chunk_index=row[1], text=row[2], document_id=document_id, tenant_id=self.tenant_id) for row in existing_chunks]
             
-            chunks_data = self._chunk_text(text, chunk_size=2000, overlap=400)
+            # Sanitize text to remove NUL (0x00) and other problematic control characters
+            # PostgreSQL cannot store NUL in text columns - this is the storage boundary
+            sanitized_text = sanitize_text(text)
+            if len(sanitized_text) != len(text):
+                logger.info(f"[OntologyCentricPipeline] Sanitized text: removed {len(text) - len(sanitized_text)} problematic characters")
+            
+            chunks_data = self._chunk_text(sanitized_text, chunk_size=2000, overlap=400)
             
             stored_chunks = []
             for idx, (chunk_text, char_start, char_end) in enumerate(chunks_data):
