@@ -43,7 +43,16 @@ Architectural features include:
 - **Text Sanitization (NUL Character Fix)**: Centralized `sanitize_text()` utility removes NUL (0x00) and problematic ASCII control characters at storage boundaries before PostgreSQL insertion, preventing silent chunk storage failures from Excel/spreadsheet extraction.
 
 ## Recent Changes
+- **Jan 19, 2026**: Added standardized test infrastructure (`src/test_runner/`) for automated corpus testing with fuzzy evaluation, vault lifecycle management, and CLI interface. Run with `python -m src.test_runner.runner --list` or `--corpus <name>`.
 - **Jan 2026**: Fixed critical NUL character bug that prevented Excel spreadsheet chunks from being stored. Test accuracy improved from 78.3% to 91.5% (+13.2 percentage points).
+
+## Test Infrastructure
+The test runner in `src/test_runner/` provides:
+- **One-command testing**: `python -m src.test_runner.runner --corpus medsync_health`
+- **Vault lifecycle**: Automatic vault creation/deletion, document upload, 3-phase extraction waiting
+- **Fuzzy evaluation**: Semantic answer matching (numbers, percentages, uncertainty phrases)
+- **Results tracking**: JSON output with accuracy metrics and failure analysis
+- **Configuration**: `src/test_config.json` defines corpora, paths, and settings
 
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)
