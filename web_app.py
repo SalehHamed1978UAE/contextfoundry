@@ -998,31 +998,30 @@ def api_get_vault_stats(vault_id):
     
     try:
         from src.context_foundry.models.schema import get_session, DocumentChunk
-        from platform_foundation.models import Document
-        from sqlalchemy import func
+        from sqlalchemy import func, text
         
         db_session = get_session()
         
         try:
-            
+            # Get chunk count from knowledge graph
             chunk_count = db_session.query(func.count(DocumentChunk.id)).filter(
                 DocumentChunk.tenant_id == vault_uuid
             ).scalar() or 0
             
-            doc_count = db_session.query(func.count(Document.id)).filter(
-                Document.tenant_id == vault_uuid
-            ).scalar() or 0
+            # Use raw SQL for platform.documents table (no ORM model available)
+            doc_count_result = db_session.execute(text(
+                "SELECT COUNT(*) FROM platform.documents WHERE tenant_id = :vault_id"
+            ), {'vault_id': str(vault_uuid)}).scalar() or 0
             
-            completed_docs = db_session.query(func.count(Document.id)).filter(
-                Document.tenant_id == vault_uuid,
-                Document.status == 'completed'
-            ).scalar() or 0
+            completed_docs_result = db_session.execute(text(
+                "SELECT COUNT(*) FROM platform.documents WHERE tenant_id = :vault_id AND status = 'completed'"
+            ), {'vault_id': str(vault_uuid)}).scalar() or 0
             
             return jsonify({
                 'vault_id': vault_id,
                 'chunk_count': chunk_count,
-                'document_count': doc_count,
-                'completed_documents': completed_docs
+                'document_count': doc_count_result,
+                'completed_documents': completed_docs_result
             })
         finally:
             db_session.close()
