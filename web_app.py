@@ -3760,7 +3760,12 @@ def vault_chat():
                 'time_ms': agent_result.get('time_ms', 0),
                 'mode': 'tool_agent',
                 'mentioned_entities': mentioned_entities,
-                'chunk_sources': [{'document': doc} for doc in source_documents]
+                'chunk_sources': [{'document': doc} for doc in source_documents],
+                'answer_source': agent_result.get('answer_source', 'semantic'),
+                'gate_blocked': agent_result.get('gate_blocked', False),
+                'gate_name': agent_result.get('gate_name'),
+                'precedence_applied': agent_result.get('precedence_applied', False),
+                'precedence_confidence': agent_result.get('precedence_confidence')
             }
             
             # Include QA validation notes (caveats) if present

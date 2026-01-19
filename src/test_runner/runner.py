@@ -38,11 +38,11 @@ def list_corpora(config: TestConfig):
     print("\n" + "=" * 60)
 
 
-def run_corpus_test(corpus_name: str, config: TestConfig):
+def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False):
     """Run test for a single corpus."""
     
     print("\n" + "=" * 70)
-    print(f"TEST RUNNER: {corpus_name}")
+    print(f"TEST RUNNER: {corpus_name}" + (" (QUESTIONS ONLY)" if questions_only else ""))
     print("=" * 70)
     
     corpus = config.get_corpus(corpus_name)
@@ -51,10 +51,6 @@ def run_corpus_test(corpus_name: str, config: TestConfig):
         return None
     
     root_path = Path(corpus['root_path'])
-    if not root_path.exists():
-        print(f"ERROR: Corpus path does not exist: {root_path}")
-        return None
-    
     questions_file = config.questions_dir / corpus['questions_file']
     if not questions_file.exists():
         print(f"ERROR: Questions file not found: {questions_file}")
@@ -71,53 +67,70 @@ def run_corpus_test(corpus_name: str, config: TestConfig):
         return None
     print("  Authenticated")
     
-    # Step 2: Create clean vault
-    print(f"\n[Step 2] Creating clean vault...")
-    vault_id = vm.ensure_clean_vault(corpus_name)
-    
-    # Step 2b: Re-authenticate with vault context
-    print(f"  Setting vault context...")
-    if not vm.authenticate_dev(tenant_id=vault_id):
-        print("WARNING: Failed to set vault context, continuing...")
-    
-    # Update config with new vault ID
-    config.update_corpus(corpus_name, current_vault_id=vault_id)
-    
-    # Step 3: Upload documents
-    print(f"\n[Step 3] Uploading documents...")
-    files = get_files_to_upload(root_path, config.upload_rules)
-    print(f"  Found {len(files)} files to upload")
-    
-    if len(files) == 0:
-        print("  WARNING: No files found to upload!")
-        print(f"  Looking in folders: {config.upload_rules.get('include_folders')}")
-        return None
-    
-    for i, file_path in enumerate(files):
-        success = vm.upload_document(vault_id, file_path)
-        status = "OK" if success else "FAIL"
-        if (i + 1) % 20 == 0 or not success:
-            print(f"  [{i+1}/{len(files)}] {file_path.name}: {status}")
-    
-    print(f"  Uploaded {len(files)} documents")
-    
-    # Step 4: Wait for extraction
-    print(f"\n[Step 4] Waiting for extraction...")
-    extraction_config = config.extraction_config
-    
-    try:
-        vm.wait_for_extraction(
-            vault_id,
-            expected_docs=len(files),
-            timeout_minutes=extraction_config.get('timeout_minutes', 20),
-            poll_interval=extraction_config.get('poll_interval_seconds', 10)
-        )
-    except TimeoutError as e:
-        print(f"  ERROR: {e}")
-        return None
+    if questions_only:
+        # Use existing vault from config
+        vault_id = corpus.get('current_vault_id')
+        if not vault_id:
+            print(f"ERROR: No vault ID configured for '{corpus_name}'. Run without --questions-only first.")
+            return None
+        print(f"\n[Step 2-4] SKIPPED (using existing vault: {vault_id})")
+        # Re-authenticate with vault context
+        if not vm.authenticate_dev(tenant_id=vault_id):
+            print("WARNING: Failed to set vault context, continuing...")
+        files = []  # No files uploaded
+    else:
+        if not root_path.exists():
+            print(f"ERROR: Corpus path does not exist: {root_path}")
+            return None
+        
+        # Step 2: Create clean vault
+        print(f"\n[Step 2] Creating clean vault...")
+        vault_id = vm.ensure_clean_vault(corpus_name)
+        
+        # Step 2b: Re-authenticate with vault context
+        print(f"  Setting vault context...")
+        if not vm.authenticate_dev(tenant_id=vault_id):
+            print("WARNING: Failed to set vault context, continuing...")
+        
+        # Update config with new vault ID
+        config.update_corpus(corpus_name, current_vault_id=vault_id)
+        
+        # Step 3: Upload documents
+        print(f"\n[Step 3] Uploading documents...")
+        files = get_files_to_upload(root_path, config.upload_rules)
+        print(f"  Found {len(files)} files to upload")
+        
+        if len(files) == 0:
+            print("  WARNING: No files found to upload!")
+            print(f"  Looking in folders: {config.upload_rules.get('include_folders')}")
+            return None
+        
+        for i, file_path in enumerate(files):
+            success = vm.upload_document(vault_id, file_path)
+            status = "OK" if success else "FAIL"
+            if (i + 1) % 20 == 0 or not success:
+                print(f"  [{i+1}/{len(files)}] {file_path.name}: {status}")
+        
+        print(f"  Uploaded {len(files)} documents")
+        
+        # Step 4: Wait for extraction
+        print(f"\n[Step 4] Waiting for extraction...")
+        extraction_config = config.extraction_config
+        
+        try:
+            vm.wait_for_extraction(
+                vault_id,
+                expected_docs=len(files),
+                timeout_minutes=extraction_config.get('timeout_minutes', 20),
+                poll_interval=extraction_config.get('poll_interval_seconds', 10)
+            )
+        except TimeoutError as e:
+            print(f"  ERROR: {e}")
+            return None
     
     # Step 5: Run test
     print(f"\n[Step 5] Running test questions...")
+    extraction_config = config.extraction_config
     try:
         results = executor.run_test(
             vault_id=vault_id,
@@ -160,6 +173,7 @@ def main():
     parser.add_argument('--list', action='store_true', help='List available corpora')
     parser.add_argument('--corpus', type=str, help='Run test for specific corpus')
     parser.add_argument('--all', action='store_true', help='Run all corpora (sequential)')
+    parser.add_argument('--questions-only', action='store_true', help='Skip upload/extraction, run questions only against existing vault')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     
     args = parser.parse_args()
@@ -169,11 +183,11 @@ def main():
     if args.list:
         list_corpora(config)
     elif args.corpus:
-        run_corpus_test(args.corpus, config)
+        run_corpus_test(args.corpus, config, questions_only=args.questions_only)
     elif args.all:
         print("Running all corpora sequentially...")
         for name in config.list_corpora().keys():
-            run_corpus_test(name, config)
+            run_corpus_test(name, config, questions_only=args.questions_only)
     else:
         parser.print_help()
 
