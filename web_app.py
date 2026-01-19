@@ -421,26 +421,8 @@ def dev_auth():
     # Allow tenant_id override from request (for testing specific vaults)
     if override_tenant_id:
         tenant_id = override_tenant_id
-    elif not tenant_id:
-        # Only create tenant if no override and user has no tenant
-        from src.context_foundry.models.schema import get_session
-        db_session = get_session()
-        try:
-            new_tenant_id = str(uuid.uuid4())
-            tenant_name = f"Stress Test Tenant ({email.split('@')[0]})"
-            tenant_slug = f"stress-test-{email.split('@')[0].replace('.', '-')}-{new_tenant_id[:8]}"
-            
-            from sqlalchemy import text
-            db_session.execute(text("""
-                INSERT INTO platform.tenants (id, name, slug, type, status, settings, created_at)
-                VALUES (:id, :name, :slug, 'demo', 'active', '{}', NOW())
-                ON CONFLICT (id) DO NOTHING
-            """), {'id': new_tenant_id, 'name': tenant_name, 'slug': tenant_slug})
-            
-            db_session.commit()
-            tenant_id = new_tenant_id
-        finally:
-            db_session.close()
+    # NOTE: Don't create a tenant here - the test runner will create vaults via API
+    # and pass the vault ID as override_tenant_id
     
     session['user_id'] = user_id
     session['user_name'] = verify_result.user.name or email.split('@')[0]
@@ -1015,13 +997,13 @@ def api_get_vault_stats(vault_id):
             return jsonify({'error': 'Access denied - API key not authorized for this vault'}), 403
     
     try:
-        from src.context_foundry.core import get_db_session
-        db_session = get_db_session()
+        from src.context_foundry.models.schema import get_session, DocumentChunk
+        from platform_foundation.models import Document
+        from sqlalchemy import func
+        
+        db_session = get_session()
         
         try:
-            from src.context_foundry.models.schema import DocumentChunk
-            from platform_foundation.models import Document
-            from sqlalchemy import func
             
             chunk_count = db_session.query(func.count(DocumentChunk.id)).filter(
                 DocumentChunk.tenant_id == vault_uuid

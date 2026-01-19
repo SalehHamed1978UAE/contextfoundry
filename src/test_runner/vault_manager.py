@@ -1,237 +1,189 @@
-"""
-Vault manager for vault lifecycle and extraction waiting.
-
-Handles:
-- Vault creation/deletion via API
-- Document upload
-- Three-phase extraction waiting
-"""
-
 import time
 import requests
 from pathlib import Path
-from typing import Optional, List
-import logging
-
-logger = logging.getLogger(__name__)
-
+from typing import Optional, Dict, List
 
 class VaultManager:
     """Manage vault lifecycle via CF API."""
     
-    def __init__(self, api_base_url: str, auth_token: str):
-        self.api = api_base_url.rstrip('/')
-        self.token = auth_token
-        self.headers = {"Authorization": f"Bearer {self.token}"}
+    def __init__(self, api_base_url: str):
+        self.api = api_base_url
+        self.session = requests.Session()
+        self.session.headers.update({'Content-Type': 'application/json'})
+        self._authenticated = False
+    
+    def authenticate_dev(self, tenant_id: str = None) -> bool:
+        """Authenticate with dev user for testing."""
+        try:
+            payload = {}
+            if tenant_id:
+                payload['tenant_id'] = tenant_id
+            response = self.session.post(f'{self.api}/dev/auth', json=payload)
+            self._authenticated = response.status_code == 200
+            if not self._authenticated:
+                print(f"  Auth response: {response.status_code} - {response.text[:200]}")
+            return self._authenticated
+        except Exception as e:
+            print(f"  Auth failed: {e}")
+            return False
     
     def find_vault_by_name(self, name: str) -> Optional[str]:
-        """Find existing vault ID by name. Returns None if not found."""
-        try:
-            response = requests.get(f"{self.api}/api/vaults", headers=self.headers)
-            response.raise_for_status()
-            vaults = response.json()
-            
-            for vault in vaults:
-                if vault.get('name') == name:
-                    return vault.get('id')
+        """Find existing vault ID by name."""
+        response = self.session.get(f"{self.api}/vaults")
+        if response.status_code != 200:
             return None
-        except requests.RequestException as e:
-            logger.error(f"Error finding vault: {e}")
-            return None
+        
+        data = response.json()
+        # API returns {'success': True, 'vaults': [...]}
+        vaults = data.get('vaults', []) if isinstance(data, dict) else data
+        for vault in vaults:
+            if isinstance(vault, dict) and vault.get('name') == name:
+                return vault.get('id')
+        return None
     
-    def delete_vault(self, vault_id: str) -> bool:
-        """Delete vault by ID."""
-        try:
-            response = requests.delete(
-                f"{self.api}/api/vaults/{vault_id}",
-                headers=self.headers
-            )
-            return response.status_code in [200, 204]
-        except requests.RequestException as e:
-            logger.error(f"Error deleting vault: {e}")
-            return False
+    def delete_vault(self, vault_id: str, vault_name: str) -> bool:
+        """Delete vault by ID with confirmation (requires vault name)."""
+        # DELETE endpoint requires both confirm_delete AND confirmation_name matching vault name
+        response = self.session.delete(
+            f"{self.api}/vaults/{vault_id}",
+            json={"confirm_delete": True, "confirmation_name": vault_name}
+        )
+        return response.status_code in [200, 204]
     
     def create_vault(self, name: str) -> str:
         """Create new vault, return ID."""
-        response = requests.post(
-            f"{self.api}/api/vaults",
-            headers=self.headers,
+        response = self.session.post(
+            f"{self.api}/vaults",
             json={"name": name}
         )
-        response.raise_for_status()
-        return response.json()['id']
+        if response.status_code not in [200, 201]:
+            raise Exception(f"Failed to create vault: {response.status_code} - {response.text}")
+        data = response.json()
+        # API returns {'success': True, 'vault': {'id': ..., 'name': ...}}
+        if 'vault' in data:
+            return data['vault'].get('id')
+        return data.get('id')
     
     def ensure_clean_vault(self, name: str) -> str:
-        """Delete existing vault if present, create fresh one, return ID."""
-        
+        """Delete existing vault if present, create fresh one."""
         existing_id = self.find_vault_by_name(name)
         if existing_id:
             print(f"  Deleting existing vault: {name} ({existing_id})")
-            self.delete_vault(existing_id)
-            time.sleep(2)
+            self.delete_vault(existing_id, name)
+            time.sleep(3)
         
         print(f"  Creating new vault: {name}")
         new_id = self.create_vault(name)
         print(f"  Vault ID: {new_id}")
-        
         return new_id
     
     def upload_document(self, vault_id: str, file_path: Path) -> bool:
-        """Upload a single document to vault."""
-        try:
-            with open(file_path, 'rb') as f:
-                files = {'file': (file_path.name, f)}
-                response = requests.post(
-                    f"{self.api}/documents",
-                    headers=self.headers,
-                    files=files,
-                    params={'vault_id': vault_id}
-                )
-            return response.status_code in [200, 201]
-        except Exception as e:
-            logger.error(f"Error uploading {file_path}: {e}")
-            return False
-    
-    def upload_documents(self, vault_id: str, files: List[Path], show_progress: bool = True) -> dict:
-        """Upload multiple documents to vault."""
-        uploaded = 0
-        failed = 0
+        """Upload a single document to vault using session-based endpoint."""
+        import mimetypes
         
-        for i, file_path in enumerate(files):
-            if show_progress:
-                print(f"  Uploading [{i+1}/{len(files)}]: {file_path.name}")
-            
-            if self.upload_document(vault_id, file_path):
-                uploaded += 1
-            else:
-                failed += 1
-                print(f"  ⚠ Failed: {file_path.name}")
+        mime_type, _ = mimetypes.guess_type(str(file_path))
+        if not mime_type:
+            mime_type = 'application/octet-stream'
         
-        return {"uploaded": uploaded, "failed": failed}
+        with open(file_path, 'rb') as f:
+            # Use list of tuples format for multipart file upload
+            files = [('files', (file_path.name, f, mime_type))]
+            # For file uploads: use fresh request with only cookies (not session headers)
+            # This lets requests library set proper Content-Type with boundary
+            response = requests.post(
+                f"{self.api}/documents/upload/multi",
+                files=files,
+                cookies=self.session.cookies
+            )
+        return response.status_code in [200, 201, 302]
     
     def get_document_count(self, vault_id: str) -> int:
-        """Get number of documents in vault."""
-        try:
-            response = requests.get(
-                f"{self.api}/api/vault/{vault_id}/documents",
-                headers=self.headers
-            )
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list):
-                    return len(data)
-                return data.get('count', 0)
-            return 0
-        except requests.RequestException:
-            return 0
+        """Get number of documents in vault using vault stats endpoint."""
+        # Use vault stats endpoint which is more reliable than /api/documents
+        response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('document_count', 0)
+        return 0
     
-    def get_extraction_status(self, vault_id: str) -> dict:
-        """
-        Get extraction status for vault.
-        Returns: {total: int, pending: int, completed: int, failed: int}
-        """
-        try:
-            response = requests.get(
-                f"{self.api}/api/vault/{vault_id}/extraction/status",
-                headers=self.headers
-            )
-            if response.status_code == 200:
-                return response.json()
-            return {"total": 0, "pending": 0, "completed": 0, "failed": 0}
-        except requests.RequestException:
-            return {"total": 0, "pending": 0, "completed": 0, "failed": 0}
+    def get_extraction_status(self, vault_id: str) -> Dict:
+        """Get extraction status using vault stats endpoint."""
+        # Use vault stats endpoint which includes extraction status
+        response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
+        if response.status_code == 200:
+            data = response.json()
+            # Map vault stats to extraction status format
+            # API returns: document_count, completed_documents
+            total = data.get('document_count', 0)
+            completed = data.get('completed_documents', 0)
+            return {
+                "total": total,
+                "pending": total - completed,
+                "completed": completed,
+                "failed": 0
+            }
+        return {"total": 0, "pending": 0, "completed": 0, "failed": 0}
     
-    def get_chunk_count(self, vault_id: str) -> int:
-        """Get number of chunks stored for vault."""
-        try:
-            response = requests.get(
-                f"{self.api}/api/vaults/{vault_id}/stats",
-                headers=self.headers
-            )
-            if response.status_code == 200:
-                return response.json().get('chunk_count', 0)
-            return 0
-        except requests.RequestException:
-            return 0
+    def get_vault_stats(self, vault_id: str) -> Dict:
+        """Get vault statistics including chunk count."""
+        response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
+        if response.status_code == 200:
+            data = response.json()
+            vault = data.get('vault', data)
+            return {
+                "chunk_count": vault.get('chunk_count', 0),
+                "entity_count": vault.get('entity_count', 0),
+                "relationship_count": vault.get('relationship_count', 0)
+            }
+        return {"chunk_count": 0, "entity_count": 0, "relationship_count": 0}
     
     def wait_for_extraction(
         self, 
         vault_id: str, 
         expected_docs: int,
-        timeout_minutes: int = 15,
-        poll_interval: int = 5
+        timeout_minutes: int = 20,
+        poll_interval: int = 10
     ) -> bool:
-        """
-        PROPERLY wait for extraction to complete.
-        
-        Three-phase wait:
-        1. Wait for documents to be registered
-        2. Wait for extraction requests to be created
-        3. Wait for all requests to complete
-        
-        Args:
-            vault_id: The vault to monitor
-            expected_docs: Number of documents we uploaded (sanity check)
-            timeout_minutes: Maximum time to wait
-            poll_interval: Seconds between status checks
-            
-        Returns:
-            True if extraction completed successfully
-            
-        Raises:
-            TimeoutError: If extraction doesn't complete in time
-        """
-        
+        """PROPERLY wait for extraction with 3 phases."""
         start = time.time()
         timeout = timeout_minutes * 60
         
         print(f"  Waiting for extraction (timeout: {timeout_minutes} min)...")
         
-        # ============================================
         # PHASE 1: Wait for documents to be registered
-        # ============================================
         print("  Phase 1: Waiting for documents to register...")
-        
         while time.time() - start < timeout:
             doc_count = self.get_document_count(vault_id)
-            
             if doc_count >= expected_docs:
-                print(f"  ✓ {doc_count}/{expected_docs} documents registered")
+                print(f"  Phase 1 complete: {doc_count}/{expected_docs} documents registered")
                 break
-            
             if doc_count > 0:
                 print(f"    {doc_count}/{expected_docs} documents registered...")
-            
             time.sleep(poll_interval)
         else:
             raise TimeoutError("Timeout waiting for documents to register")
         
-        # ============================================
         # PHASE 2: Wait for extraction requests to be created
-        # ============================================
-        print("  Phase 2: Waiting for extraction to start...")
-        
+        print("  Phase 2: Waiting for extraction requests...")
+        phase2_wait = 0
         while time.time() - start < timeout:
             status = self.get_extraction_status(vault_id)
             total = status.get('total', 0)
-            
             if total >= expected_docs:
-                print(f"  ✓ {total} extraction requests created")
+                print(f"  Phase 2 complete: {total} extraction requests created")
                 break
-            
             if total > 0:
                 print(f"    {total}/{expected_docs} extraction requests created...")
-            
             time.sleep(poll_interval)
+            phase2_wait += poll_interval
+            if phase2_wait > 120 and phase2_wait % 60 == 0:
+                print(f"  Phase 2 continuing... (waited {phase2_wait}s)")
         else:
-            raise TimeoutError("Timeout waiting for extraction requests to be created")
+            raise TimeoutError("Timeout waiting for extraction requests")
         
-        # ============================================
         # PHASE 3: Wait for all extractions to complete
-        # ============================================
         print("  Phase 3: Waiting for extraction to complete...")
-        
-        completed = 0
+        last_progress = ""
         while time.time() - start < timeout:
             status = self.get_extraction_status(vault_id)
             total = status.get('total', 0)
@@ -239,36 +191,28 @@ class VaultManager:
             pending = status.get('pending', 0)
             failed = status.get('failed', 0)
             
-            print(f"    Progress: {completed}/{total} complete, {pending} pending, {failed} failed")
+            progress = f"{completed}/{total} complete, {pending} pending, {failed} failed"
+            if progress != last_progress:
+                print(f"    Progress: {progress}")
+                last_progress = progress
             
-            # Check completion: no pending AND we have results
             if total > 0 and pending == 0:
                 if failed > 0:
-                    print(f"  ⚠ Warning: {failed} extractions failed")
-                print(f"  ✓ Extraction complete! ({completed} succeeded, {failed} failed)")
+                    print(f"  Warning: {failed} extractions failed")
+                print(f"  Phase 3 complete: {completed} succeeded, {failed} failed")
                 return True
             
             time.sleep(poll_interval)
         
-        raise TimeoutError(
-            f"Extraction did not complete within {timeout_minutes} minutes. "
-            f"Status: {completed}/{total} complete, {pending} pending"
-        )
+        raise TimeoutError(f"Extraction did not complete within {timeout_minutes} minutes")
     
-    def query_vault(self, vault_id: str, query: str) -> str:
-        """Query the vault and return the answer."""
-        try:
-            response = requests.post(
-                f"{self.api}/api/query",
-                headers={**self.headers, "Content-Type": "application/json"},
-                json={
-                    "query": query,
-                    "vault_id": vault_id
-                }
-            )
-            response.raise_for_status()
-            result = response.json()
-            return result.get('answer', result.get('response', ''))
-        except requests.RequestException as e:
-            logger.error(f"Query error: {e}")
-            return f"Error: {e}"
+    def query(self, vault_id: str, question: str) -> str:
+        """Query the vault and return answer using /api/vault/chat."""
+        response = self.session.post(
+            f"{self.api}/vault/chat",
+            json={"query": question, "vault_id": vault_id}
+        )
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('answer', data.get('response', data.get('message', '')))
+        return ""

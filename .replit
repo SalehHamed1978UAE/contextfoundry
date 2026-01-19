@@ -35,6 +35,18 @@ args = "E2E Lifecycle Test"
 task = "workflow.run"
 args = "235Q Test"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test: Manus Healthtec"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test: ClaudeCode Medsync"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test: Manus Medsync"
+
 [[workflows.workflow]]
 name = "Start All"
 author = "agent"
@@ -91,6 +103,39 @@ outputType = "console"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python -u scripts/run_200_question_test.py 2>&1"
+
+[[workflows.workflow]]
+name = "Test: Manus Healthtec"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m src.test_runner.runner --corpus \"Manus Healthtec\""
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Test: ClaudeCode Medsync"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m src.test_runner.runner --corpus \"ClaudeCode Medsync\""
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Test: Manus Medsync"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m src.test_runner.runner --corpus \"Manus Medsync\""
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [[ports]]
 localPort = 3000

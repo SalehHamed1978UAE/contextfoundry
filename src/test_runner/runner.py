@@ -1,230 +1,181 @@
+#!/usr/bin/env python3
 """
-Main entry point for the test runner.
+Context Foundry Test Runner
+One-command test runner for all corpora.
 
 Usage:
-    python -m test_runner.runner --corpus medsync_health
-    python -m test_runner.runner --list
-    python -m test_runner.runner --corpus medsync_health --skip-upload
+    python -m src.test_runner.runner --list                    # List available corpora
+    python -m src.test_runner.runner --corpus "Manus Healthtec"  # Run specific corpus
+    python -m src.test_runner.runner --all                      # Run all corpora (sequential)
 """
 
 import argparse
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
-from .config import load_config, save_config, update_corpus_state
-from .document_uploader import get_files_to_upload, summarize_upload_plan
+from .config import TestConfig
 from .vault_manager import VaultManager
-from .test_executor import TestExecutor, load_questions
+from .document_uploader import get_files_to_upload
+from .test_executor import TestExecutor
 from .evaluator import FuzzyEvaluator
 
 
-def list_corpora():
-    """List all configured corpora and their status."""
-    config = load_config()
+def list_corpora(config: TestConfig):
+    """List all available corpora with status."""
+    print("\n" + "=" * 60)
+    print("AVAILABLE TEST CORPORA")
+    print("=" * 60)
     
-    print("\n" + "="*60)
-    print("  CONFIGURED TEST CORPORA")
-    print("="*60)
+    for name, info in config.list_corpora().items():
+        print(f"\n{name}")
+        print(f"  Path: {info.get('root_path')}")
+        print(f"  Questions: {info.get('questions_file')}")
+        print(f"  Current Vault: {info.get('current_vault_id', 'None')}")
+        print(f"  Last Run: {info.get('last_run', 'Never')}")
+        print(f"  Last Accuracy: {info.get('last_accuracy', 'N/A')}")
     
-    for name, corpus in config.corpora.items():
-        print(f"\n  {name}")
-        print(f"    Root:       {corpus.root_path}")
-        print(f"    Questions:  {corpus.questions_file}")
-        print(f"    Vault ID:   {corpus.current_vault_id or 'None'}")
-        print(f"    Last Run:   {corpus.last_run or 'Never'}")
-        print(f"    Accuracy:   {corpus.last_accuracy or 'N/A'}%")
-    
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
 
 
-def run_test(corpus_name: str, skip_upload: bool = False, skip_extraction_wait: bool = False):
-    """Run test for a specific corpus."""
-    config = load_config()
+def run_corpus_test(corpus_name: str, config: TestConfig):
+    """Run test for a single corpus."""
     
-    if corpus_name not in config.corpora:
-        print(f"ERROR: Unknown corpus '{corpus_name}'")
-        print(f"Available: {list(config.corpora.keys())}")
-        sys.exit(1)
+    print("\n" + "=" * 70)
+    print(f"TEST RUNNER: {corpus_name}")
+    print("=" * 70)
     
-    corpus = config.corpora[corpus_name]
+    corpus = config.get_corpus(corpus_name)
+    if not corpus:
+        print(f"ERROR: Corpus '{corpus_name}' not found in config")
+        return None
     
-    # Validate auth token
-    if not config.auth_token:
-        print("ERROR: No auth token configured.")
-        print("Set CF_API_TOKEN environment variable or add auth_token to test_config.json")
-        sys.exit(1)
+    root_path = Path(corpus['root_path'])
+    if not root_path.exists():
+        print(f"ERROR: Corpus path does not exist: {root_path}")
+        return None
     
-    print("\n" + "="*60)
-    print(f"  RUNNING TEST: {corpus_name}")
-    print("="*60)
-    
-    # Validate paths
-    corpus_root = Path(corpus.root_path)
-    if not corpus_root.exists():
-        print(f"ERROR: Corpus root does not exist: {corpus_root}")
-        sys.exit(1)
-    
-    # Find questions file
-    questions_file = corpus_root / corpus.questions_file
+    questions_file = config.questions_dir / corpus['questions_file']
     if not questions_file.exists():
-        # Try in test_questions directory
-        questions_file = Path(config.questions_dir) / corpus.questions_file
-        if not questions_file.exists():
-            print(f"ERROR: Questions file not found: {corpus.questions_file}")
-            print(f"Checked: {corpus_root / corpus.questions_file}")
-            print(f"Checked: {Path(config.questions_dir) / corpus.questions_file}")
-            sys.exit(1)
+        print(f"ERROR: Questions file not found: {questions_file}")
+        return None
     
-    print(f"  Corpus root:     {corpus_root}")
-    print(f"  Questions file:  {questions_file}")
+    vm = VaultManager(config.api_base_url)
+    evaluator = FuzzyEvaluator()
+    executor = TestExecutor(vm, evaluator)
     
-    # Initialize vault manager
-    vault_manager = VaultManager(config.api_base_url, config.auth_token)
+    # Step 1: Initial auth (no tenant context yet)
+    print("\n[Step 1] Authenticating...")
+    if not vm.authenticate_dev():
+        print("ERROR: Failed to authenticate")
+        return None
+    print("  Authenticated")
     
-    if not skip_upload:
-        # Get files to upload
-        print("\n  Scanning for documents...")
-        files = get_files_to_upload(corpus_root)
-        
-        if not files:
-            print("  ERROR: No files to upload")
-            sys.exit(1)
-        
-        print(f"  Found {len(files)} files to upload")
-        
-        # Create/clean vault
-        print("\n  Setting up vault...")
-        vault_id = vault_manager.ensure_clean_vault(corpus_name)
-        
-        # Upload documents
-        print("\n  Uploading documents...")
-        upload_result = vault_manager.upload_documents(vault_id, files)
-        print(f"  Uploaded: {upload_result['uploaded']}, Failed: {upload_result['failed']}")
-        
-        if not skip_extraction_wait:
-            # Wait for extraction
-            print("\n  Waiting for extraction...")
-            try:
-                vault_manager.wait_for_extraction(
-                    vault_id,
-                    expected_docs=upload_result['uploaded'],
-                    timeout_minutes=config.extraction.timeout_minutes,
-                    poll_interval=config.extraction.poll_interval_seconds
-                )
-            except TimeoutError as e:
-                print(f"  ERROR: {e}")
-                print("  Continuing with test anyway...")
-    else:
-        # Use existing vault
-        vault_id = corpus.current_vault_id
-        if not vault_id:
-            vault_id = vault_manager.find_vault_by_name(corpus_name)
-        
-        if not vault_id:
-            print(f"  ERROR: No existing vault found for {corpus_name}")
-            print("  Run without --skip-upload to create one")
-            sys.exit(1)
-        
-        print(f"  Using existing vault: {vault_id}")
+    # Step 2: Create clean vault
+    print(f"\n[Step 2] Creating clean vault...")
+    vault_id = vm.ensure_clean_vault(corpus_name)
     
-    # Run tests
-    print("\n  Running test questions...")
-    executor = TestExecutor(vault_manager, FuzzyEvaluator())
+    # Step 2b: Re-authenticate with vault context
+    print(f"  Setting vault context...")
+    if not vm.authenticate_dev(tenant_id=vault_id):
+        print("WARNING: Failed to set vault context, continuing...")
     
-    summary = executor.run_test(
-        vault_id=vault_id,
-        questions_file=questions_file,
-        results_dir=Path(config.results_dir),
-        corpus_name=corpus_name,
-        min_chunks=config.extraction.min_expected_chunks
-    )
+    # Update config with new vault ID
+    config.update_corpus(corpus_name, current_vault_id=vault_id)
     
-    # Print summary
-    executor.print_summary(summary)
+    # Step 3: Upload documents
+    print(f"\n[Step 3] Uploading documents...")
+    files = get_files_to_upload(root_path, config.upload_rules)
+    print(f"  Found {len(files)} files to upload")
+    
+    if len(files) == 0:
+        print("  WARNING: No files found to upload!")
+        print(f"  Looking in folders: {config.upload_rules.get('include_folders')}")
+        return None
+    
+    for i, file_path in enumerate(files):
+        success = vm.upload_document(vault_id, file_path)
+        status = "OK" if success else "FAIL"
+        if (i + 1) % 20 == 0 or not success:
+            print(f"  [{i+1}/{len(files)}] {file_path.name}: {status}")
+    
+    print(f"  Uploaded {len(files)} documents")
+    
+    # Step 4: Wait for extraction
+    print(f"\n[Step 4] Waiting for extraction...")
+    extraction_config = config.extraction_config
+    
+    try:
+        vm.wait_for_extraction(
+            vault_id,
+            expected_docs=len(files),
+            timeout_minutes=extraction_config.get('timeout_minutes', 20),
+            poll_interval=extraction_config.get('poll_interval_seconds', 10)
+        )
+    except TimeoutError as e:
+        print(f"  ERROR: {e}")
+        return None
+    
+    # Step 5: Run test
+    print(f"\n[Step 5] Running test questions...")
+    try:
+        results = executor.run_test(
+            vault_id=vault_id,
+            questions_file=questions_file,
+            results_dir=config.results_dir,
+            corpus_name=corpus_name,
+            min_chunks=extraction_config.get('min_expected_chunks', 50)
+        )
+    except ValueError as e:
+        print(f"  ERROR: {e}")
+        return None
     
     # Update config with results
-    update_corpus_state(
+    config.update_corpus(
         corpus_name,
-        vault_id=vault_id,
-        accuracy=summary['summary']['accuracy_pct']
+        last_run=datetime.now().isoformat(),
+        last_accuracy=f"{results['results']['accuracy_pct']}%"
     )
     
-    print(f"\n  Vault preserved: {vault_id}")
-    print(f"  You can query it manually in the UI")
+    # Final summary
+    print("\n" + "=" * 70)
+    print("TEST COMPLETE")
+    print("=" * 70)
+    print(f"Corpus:    {corpus_name}")
+    print(f"Vault ID:  {vault_id}")
+    print(f"Documents: {len(files)}")
+    print(f"Chunks:    {results['vault_stats']['chunks']}")
+    print(f"Entities:  {results['vault_stats']['entities']}")
+    print(f"Relations: {results['vault_stats']['relationships']}")
+    print(f"Score:     {results['results']['passed']}/{results['results']['total']} ({results['results']['accuracy_pct']}%)")
+    print("=" * 70)
+    print("Vault preserved for manual queries in UI")
+    print("=" * 70 + "\n")
     
-    return summary
+    return results
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Context Foundry Test Runner",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python -m test_runner.runner --list
-  python -m test_runner.runner --corpus medsync_health
-  python -m test_runner.runner --corpus medsync_health --skip-upload
-        """
-    )
-    
-    parser.add_argument(
-        '--corpus', '-c',
-        help='Name of corpus to test (e.g., medsync_health)'
-    )
-    parser.add_argument(
-        '--list', '-l',
-        action='store_true',
-        help='List all configured corpora'
-    )
-    parser.add_argument(
-        '--skip-upload',
-        action='store_true',
-        help='Skip upload, use existing vault'
-    )
-    parser.add_argument(
-        '--skip-extraction-wait',
-        action='store_true',
-        help='Skip waiting for extraction (useful if already complete)'
-    )
-    parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Show what would be uploaded without actually uploading'
-    )
+    parser = argparse.ArgumentParser(description="Context Foundry Test Runner")
+    parser.add_argument('--list', action='store_true', help='List available corpora')
+    parser.add_argument('--corpus', type=str, help='Run test for specific corpus')
+    parser.add_argument('--all', action='store_true', help='Run all corpora (sequential)')
+    parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     
     args = parser.parse_args()
     
+    config = TestConfig(args.config)
+    
     if args.list:
-        list_corpora()
-        return
-    
-    if args.dry_run and args.corpus:
-        config = load_config()
-        if args.corpus not in config.corpora:
-            print(f"ERROR: Unknown corpus '{args.corpus}'")
-            sys.exit(1)
-        
-        corpus = config.corpora[args.corpus]
-        summary = summarize_upload_plan(Path(corpus.root_path))
-        
-        print(f"\nDry run for: {args.corpus}")
-        print(f"Total files: {summary['total_files']}")
-        print(f"By folder: {summary['by_folder']}")
-        print(f"By extension: {summary['by_extension']}")
-        print(f"\nFiles:")
-        for f in summary['files'][:20]:
-            print(f"  {f}")
-        if len(summary['files']) > 20:
-            print(f"  ... and {len(summary['files']) - 20} more")
-        return
-    
-    if not args.corpus:
+        list_corpora(config)
+    elif args.corpus:
+        run_corpus_test(args.corpus, config)
+    elif args.all:
+        print("Running all corpora sequentially...")
+        for name in config.list_corpora().keys():
+            run_corpus_test(name, config)
+    else:
         parser.print_help()
-        print("\nERROR: --corpus or --list required")
-        sys.exit(1)
-    
-    run_test(args.corpus, args.skip_upload, args.skip_extraction_wait)
 
 
 if __name__ == '__main__':
