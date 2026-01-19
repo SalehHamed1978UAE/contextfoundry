@@ -267,6 +267,28 @@ class ContextFoundry:
             
             response = self.reasoning.reason(bundle, query_logger=query_logger)
             
+            # Apply precedence pipeline (Symbolic > Semantic > Episodic)
+            current_answer = response.get("answer", "")
+            final_answer, answer_source, prec_confidence = apply_precedence(
+                session=self.session,
+                tenant_id=self.tenant_id,
+                query=query_text,
+                current_answer=current_answer,
+                bundle=bundle,
+                context={"target_entity": bundle.target_entity_name}
+            )
+            
+            # Update response if precedence changed it
+            if final_answer != current_answer:
+                query_logger.log_event("PRECEDENCE_OVERRIDE", {
+                    "source": answer_source,
+                    "confidence": prec_confidence
+                })
+                response["answer"] = final_answer
+                response["precedence_source"] = answer_source
+                if answer_source == "symbolic":
+                    response["confidence"] = prec_confidence
+            
             response = self.validation.validate_response(
                 response, bundle, query_logger=query_logger
             )
