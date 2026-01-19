@@ -3,11 +3,15 @@
 Context Foundry Test Runner
 One-command test runner for all corpora.
 
+DEFAULT BEHAVIOR:
+- If checkpoint exists (extraction complete), resume Q&A from last answered question
+- If no checkpoint, run full test (upload, extract, Q&A)
+
 Usage:
     python -m src.test_runner.runner --list                    # List available corpora
-    python -m src.test_runner.runner --corpus "Manus Healthtec"  # Run specific corpus
-    python -m src.test_runner.runner --all                      # Run all corpora (sequential)
-    python -m src.test_runner.runner --corpus "X" --resume      # Resume Q&A from checkpoint
+    python -m src.test_runner.runner --corpus "Manus Healthtec"  # Run (auto-resume if checkpoint exists)
+    python -m src.test_runner.runner --corpus "X" --fresh        # Force fresh start (delete vault, recreate, full run)
+    python -m src.test_runner.runner --all                       # Run all corpora (sequential)
 """
 
 import argparse
@@ -38,6 +42,14 @@ def load_checkpoint(results_dir: Path, corpus_name: str) -> dict | None:
     return None
 
 
+def delete_checkpoint(results_dir: Path, corpus_name: str):
+    """Delete checkpoint file if exists."""
+    checkpoint_file = get_checkpoint_file(results_dir, corpus_name)
+    if checkpoint_file.exists():
+        checkpoint_file.unlink()
+        print(f"  Deleted checkpoint: {checkpoint_file.name}")
+
+
 def save_checkpoint(results_dir: Path, corpus_name: str, vault_id: str, extraction_complete: bool):
     """Save checkpoint after extraction completes."""
     checkpoint_file = get_checkpoint_file(results_dir, corpus_name)
@@ -60,9 +72,13 @@ def list_corpora(config: TestConfig):
     print("=" * 60)
     
     for name, info in config.list_corpora().items():
+        checkpoint = load_checkpoint(config.results_dir, name)
+        checkpoint_status = "YES" if checkpoint and checkpoint.get('extraction_complete') else "NO"
+        
         print(f"\n{name}")
         print(f"  Path: {info.get('root_path')}")
         print(f"  Questions: {info.get('questions_file')}")
+        print(f"  Checkpoint: {checkpoint_status}")
         print(f"  Current Vault: {info.get('current_vault_id', 'None')}")
         print(f"  Last Run: {info.get('last_run', 'Never')}")
         print(f"  Last Accuracy: {info.get('last_accuracy', 'N/A')}")
@@ -70,12 +86,29 @@ def list_corpora(config: TestConfig):
     print("\n" + "=" * 60)
 
 
-def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, resume: bool = False):
-    """Run test for a single corpus. Supports resume from checkpoint."""
+def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, fresh: bool = False):
+    """
+    Run test for a single corpus.
+    
+    Default: Auto-resume if checkpoint exists (extraction complete)
+    --fresh: Force full run from scratch (delete vault, upload, extract, Q&A)
+    """
+    
+    # Check for checkpoint first (unless --fresh is specified)
+    checkpoint = None
+    if not fresh:
+        checkpoint = load_checkpoint(config.results_dir, corpus_name)
+        if checkpoint and checkpoint.get('extraction_complete'):
+            print(f"\n  Found checkpoint from {checkpoint.get('timestamp', 'unknown')}")
+    
+    # Determine mode
+    will_resume = checkpoint and checkpoint.get('extraction_complete') and not fresh
     
     mode_str = ""
-    if resume:
-        mode_str = " (RESUME)"
+    if fresh:
+        mode_str = " (FRESH START)"
+    elif will_resume:
+        mode_str = " (RESUMING)"
     elif questions_only:
         mode_str = " (QUESTIONS ONLY)"
     
@@ -109,35 +142,35 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
     vault_id = None
     files = []
     
-    # Check for checkpoint if resuming
-    checkpoint = None
-    if resume:
-        checkpoint = load_checkpoint(config.results_dir, corpus_name)
-        if checkpoint and checkpoint.get('extraction_complete'):
-            vault_id = checkpoint['vault_id']
-            print(f"\n[Step 2-4] SKIPPED (resuming from checkpoint)")
-            print(f"  Vault: {vault_id}")
-            print(f"  Checkpoint from: {checkpoint.get('timestamp', 'unknown')}")
-            if not vm.authenticate_dev(tenant_id=vault_id):
-                print("WARNING: Failed to set vault context, continuing...")
-            files = []
-        else:
-            print("  No valid checkpoint found, running full test")
-            resume = False
-            checkpoint = None
+    # RESUME PATH: Checkpoint exists and extraction is complete
+    if will_resume and checkpoint:
+        vault_id = checkpoint['vault_id']
+        print(f"\n[Step 2-4] SKIPPED (checkpoint: extraction complete)")
+        print(f"  Vault ID: {vault_id}")
+        print(f"  Checkpoint from: {checkpoint.get('timestamp', 'unknown')}")
+        
+        # Re-authenticate with vault context
+        if not vm.authenticate_dev(tenant_id=vault_id):
+            print("WARNING: Failed to set vault context, continuing...")
+        files = []  # No files to track since we're resuming
     
-    if questions_only and not resume:
-        # Use existing vault from config
+    # QUESTIONS-ONLY PATH: Use existing vault without extraction
+    elif questions_only:
         vault_id = corpus.get('current_vault_id')
         if not vault_id:
             print(f"ERROR: No vault ID configured for '{corpus_name}'. Run without --questions-only first.")
             return None
         print(f"\n[Step 2-4] SKIPPED (using existing vault: {vault_id})")
-        # Re-authenticate with vault context
         if not vm.authenticate_dev(tenant_id=vault_id):
             print("WARNING: Failed to set vault context, continuing...")
-        files = []  # No files uploaded
-    elif not resume:
+        files = []
+    
+    # FRESH PATH: Full run from scratch
+    else:
+        # If --fresh, delete existing checkpoint first
+        if fresh:
+            delete_checkpoint(config.results_dir, corpus_name)
+        
         if not root_path.exists():
             print(f"ERROR: Corpus path does not exist: {root_path}")
             return None
@@ -190,7 +223,7 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         # Save checkpoint after extraction completes successfully
         save_checkpoint(config.results_dir, corpus_name, vault_id, extraction_complete=True)
     
-    # Step 5: Run test
+    # Step 5: Run test (with auto-resume from progress file)
     if not vault_id:
         print("ERROR: No vault ID available")
         return None
@@ -235,12 +268,25 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Context Foundry Test Runner")
-    parser.add_argument('--list', action='store_true', help='List available corpora')
+    parser = argparse.ArgumentParser(
+        description="Context Foundry Test Runner",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Default behavior:
+  - If checkpoint exists (extraction complete), resume Q&A from last answered question
+  - If no checkpoint, run full test (upload, extract, Q&A)
+
+Examples:
+  %(prog)s --corpus "Manus Healthtec"          # Auto-resume if checkpoint exists
+  %(prog)s --corpus "Manus Healthtec" --fresh  # Force fresh start from scratch
+  %(prog)s --list                              # Show checkpoint status for all corpora
+"""
+    )
+    parser.add_argument('--list', action='store_true', help='List available corpora with checkpoint status')
     parser.add_argument('--corpus', type=str, help='Run test for specific corpus')
     parser.add_argument('--all', action='store_true', help='Run all corpora (sequential)')
     parser.add_argument('--questions-only', action='store_true', help='Skip upload/extraction, run questions only against existing vault')
-    parser.add_argument('--resume', action='store_true', help='Resume Q&A from checkpoint (skips setup if extraction complete)')
+    parser.add_argument('--fresh', action='store_true', help='Force fresh start: delete vault, recreate, upload, extract, run Q&A (ignores checkpoint)')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     
     args = parser.parse_args()
@@ -250,11 +296,11 @@ def main():
     if args.list:
         list_corpora(config)
     elif args.corpus:
-        run_corpus_test(args.corpus, config, questions_only=args.questions_only, resume=args.resume)
+        run_corpus_test(args.corpus, config, questions_only=args.questions_only, fresh=args.fresh)
     elif args.all:
         print("Running all corpora sequentially...")
         for name in config.list_corpora().keys():
-            run_corpus_test(name, config, questions_only=args.questions_only, resume=args.resume)
+            run_corpus_test(name, config, questions_only=args.questions_only, fresh=args.fresh)
     else:
         parser.print_help()
 
