@@ -1000,7 +1000,8 @@ def api_get_vault_stats(vault_id):
         from src.context_foundry.models.schema import get_session, DocumentChunk
         from sqlalchemy import func, text
         
-        db_session = get_session()
+        # Use non-RLS session for platform schema queries
+        db_session = get_session(use_rls_role=False)
         
         try:
             # Get chunk count from knowledge graph
