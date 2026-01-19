@@ -947,6 +947,90 @@ class SpreadsheetLoader:
 
         return relationships
 
+    def extract_implicit_entities_from_relationships(
+        self,
+        relationships: List[Dict[str, Any]],
+        explicit_entities: List[Dict[str, Any]],
+        source_document: str
+    ) -> List[Dict[str, Any]]:
+        """
+        Extract implicit entities referenced in relationships but not in explicit entities.
+        
+        This implements Option B for dynamic entity handling: ORGANIZATIONAL_UNIT entities
+        are created with subtype properties (department, location, team, etc.) rather than
+        hardcoding each entity type in the ontology.
+        
+        Args:
+            relationships: List of relationship dicts from extract_relationships()
+            explicit_entities: List of entities explicitly extracted from rows
+            source_document: Source document name
+            
+        Returns:
+            List of implicit entity dicts ready for Knowledge Graph insertion
+        """
+        implicit_entities = []
+        
+        # Build set of existing entity names by type for deduplication
+        existing_entities = set()
+        for entity in explicit_entities:
+            key = (entity['entity_type'], entity['canonical_name'].lower())
+            existing_entities.add(key)
+        
+        # Track already-created implicit entities to avoid duplicates
+        created_implicit = set()
+        
+        for rel in relationships:
+            target_type = rel.get('target_type')
+            target_name = rel.get('target_name')
+            target_display = rel.get('target_display_name', target_name)
+            target_props = rel.get('target_properties', {})
+            
+            if not target_name:
+                continue
+            
+            # Check if target already exists in explicit entities
+            key = (target_type, target_name.lower())
+            if key in existing_entities or key in created_implicit:
+                continue
+            
+            # Only create implicit entities for inferred relationships
+            if not rel.get('attributes', {}).get('inferred', False):
+                continue
+            
+            # Create implicit entity with subtype property
+            entity_props = {
+                '_source_document': source_document,
+                '_implicit': True,  # Mark as implicitly created
+            }
+            
+            # Add subtype for ORGANIZATIONAL_UNIT (Option B implementation)
+            if target_props.get('subtype'):
+                entity_props['subtype'] = target_props['subtype']
+            
+            implicit_entity = {
+                'entity_type': target_type,
+                'canonical_name': target_name,
+                'display_name': target_display,
+                'attributes': entity_props,
+                'confidence': 0.7,  # Lower confidence for implicit entities
+            }
+            
+            implicit_entities.append(implicit_entity)
+            created_implicit.add(key)
+            
+            logger.debug(
+                f"  [ImplicitEntity] Created {target_type} '{target_display}' "
+                f"(subtype: {target_props.get('subtype', 'none')})"
+            )
+        
+        if implicit_entities:
+            logger.info(
+                f"  [ImplicitEntity] Created {len(implicit_entities)} implicit entities "
+                f"from relationships"
+            )
+        
+        return implicit_entities
+
     def extract_all_row_entities(
         self,
         tables: List[ExtractedTable],
@@ -956,9 +1040,10 @@ class SpreadsheetLoader:
         Extract row-level entities and relationships from all tables in a spreadsheet.
         
         Returns:
-            Tuple of (entities, relationships)
+            Tuple of (entities, relationships) where entities includes both explicit
+            row entities and implicit entities derived from relationships (Option B).
         """
-        all_entities = []
+        all_explicit_entities = []
         all_relationships = []
 
         for table in tables:
@@ -974,7 +1059,7 @@ class SpreadsheetLoader:
                     sheet_type,
                     source_filename
                 )
-                all_entities.extend(entities)
+                all_explicit_entities.extend(entities)
 
                 # Extract relationships
                 relationships = self.extract_relationships(entities)
@@ -987,5 +1072,23 @@ class SpreadsheetLoader:
                 table.metadata['relationship_count'] = len(relationships)
 
                 logger.info(f"    Extracted {len(entities)} entities, {len(relationships)} relationships")
+
+        # Option B implementation: Extract implicit ORGANIZATIONAL_UNIT entities
+        # from relationships to avoid hardcoding entity types in the ontology
+        implicit_entities = self.extract_implicit_entities_from_relationships(
+            all_relationships,
+            all_explicit_entities,
+            source_filename
+        )
+        
+        # Combine explicit and implicit entities
+        # Insert implicit entities first so they exist when relationships are created
+        all_entities = implicit_entities + all_explicit_entities
+        
+        if implicit_entities:
+            logger.info(
+                f"  [RowExtract] Total: {len(all_explicit_entities)} explicit + "
+                f"{len(implicit_entities)} implicit = {len(all_entities)} entities"
+            )
 
         return all_entities, all_relationships
