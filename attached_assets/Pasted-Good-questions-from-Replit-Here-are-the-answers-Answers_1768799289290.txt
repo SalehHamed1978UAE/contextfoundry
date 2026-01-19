@@ -1,0 +1,94 @@
+Good questions from Replit. Here are the answers:
+
+---
+
+## Answers for Replit
+
+### 1. Test Corpus Directories
+
+**Use the existing folder names exactly as they are on disk.** Update the config to match reality:
+
+```json
+{
+  "corpora": {
+    "claudecode_medsync": {
+      "root_path": "test_documents/claudecode_medsync/",
+      ...
+    },
+    "manus_medsync": {
+      "root_path": "test_documents/manus_medsync/",
+      ...
+    },
+    "medsync_health": {
+      "root_path": "test_documents/medsync_health/",
+      ...
+    }
+  }
+}
+```
+
+The vault name created in CF can be the same as the folder name. Don't rename folders — adapt the config.
+
+---
+
+### 2. Questions File
+
+The 235Q test file already exists somewhere — it was used in the previous tests. Find it and move/copy it to `test_questions/medsync_235q.json`. 
+
+If you can't find it, ask me — I may have it in uploads or we can reconstruct it from the test results JSON which has all the questions.
+
+---
+
+### 3. API Endpoints
+
+**Check what endpoints actually exist.** The spec assumes:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/vaults` | List vaults |
+| `POST /api/vaults` | Create vault |
+| `DELETE /api/vaults/{id}` | Delete vault |
+| `POST /api/vaults/{id}/documents` | Upload document |
+| `GET /api/vaults/{id}/documents` | List documents |
+| `POST /api/vaults/{id}/query` | Query vault |
+| `GET /api/vaults/{id}/extraction-status` | Get extraction progress |
+| `GET /api/vaults/{id}/stats` | Get vault stats (chunk count) |
+
+**If `/extraction-status` or `/stats` don't exist, you'll need to either:**
+- Add them (simple endpoints that query the DB)
+- Or use alternative methods (query extraction_requests table via an existing endpoint)
+
+Let me know which endpoints exist and which are missing.
+
+---
+
+### 4. Auth Token
+
+**Use the existing API key mechanism.** The test runner should:
+
+1. Read token from `test_config.json` (already in the spec)
+2. Or read from environment variable `CF_API_TOKEN`
+3. Or prompt once and save to config
+
+The token should be the same one used to access the UI — this ensures the vaults created are visible to the user.
+
+```json
+{
+  "api_base_url": "http://localhost:5000/api",
+  "auth_token": "${CF_API_TOKEN}",  // or actual token
+  ...
+}
+```
+
+---
+
+## Summary for Replit
+
+| Question | Answer |
+|----------|--------|
+| Folder names | Use existing names as-is, update config to match |
+| Questions file | Find existing 235Q file, move to `test_questions/` |
+| API endpoints | Check which exist; add `/extraction-status` and `/stats` if missing |
+| Auth token | Use existing API key mechanism, store in config or env var |
+
+**Proceed with implementation once endpoints are verified.**
