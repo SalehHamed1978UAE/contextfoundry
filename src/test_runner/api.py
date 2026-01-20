@@ -124,20 +124,27 @@ def upload_question_set():
         return jsonify({'error': 'vault_id is required'}), 400
     
     file = request.files['file']
+    logger.info(f"[Upload] Filename: {file.filename}")
     if not file.filename:
+        logger.error("[Upload] No filename")
         return jsonify({'error': 'No file selected'}), 400
     
     if not file.filename.endswith(('.json', '.jsonl', '.md')):
+        logger.error(f"[Upload] Invalid extension: {file.filename}")
         return jsonify({'error': 'File must be .json, .jsonl, or .md'}), 400
     
     name = request.form.get('name') or Path(file.filename).stem
+    logger.info(f"[Upload] Name: {name}")
     
     try:
         content = file.read().decode('utf-8')
+        logger.info(f"[Upload] Content length: {len(content)} chars")
         
         if file.filename.endswith('.md'):
             questions = parse_markdown_questions(content)
+            logger.info(f"[Upload] Parsed {len(questions)} questions from markdown")
             if not questions:
+                logger.error(f"[Upload] No questions found in markdown. Content preview: {content[:500]}")
                 return jsonify({'error': 'No questions found in markdown file. Expected format: ### Q1\\n**Question:** ...\\n**Answer:** ...'}), 400
         elif file.filename.endswith('.jsonl'):
             questions = []
