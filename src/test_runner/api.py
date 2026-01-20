@@ -28,12 +28,14 @@ from .persistence import (
     get_db_session as persistence_get_db_session
 )
 from .state_machine import (
-    create_test_run as sm_create_test_run,
+    create_test_run,
     transition_to,
-    get_running_test as sm_get_running_test,
+    get_running_test,
+    get_test_run,
     cleanup_stale_tests,
-    TestRunState,
-    TestRunStage
+    refresh_heartbeat,
+    TestRunStatus,
+    ACTIVE_STATUSES
 )
 
 test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
@@ -54,29 +56,14 @@ def startup_cleanup():
     logger = logging.getLogger(__name__)
     
     try:
+        count = cleanup_stale_tests()
+        if count > 0:
+            logger.info(f"[Startup Cleanup] Marked {count} stale tests as interrupted")
+        
         db = persistence_get_db_session()
         try:
-            # Only interrupt tests with STALE heartbeats (older than timeout)
-            # Tests with fresh heartbeats are still actively running
-            result = db.execute(text("""
-                UPDATE test_runs 
-                SET status = 'interrupted', 
-                    error_message = 'Server restarted - test interrupted (stale heartbeat)'
-                WHERE status = 'running'
-                  AND (heartbeat_at IS NULL OR heartbeat_at < NOW() - INTERVAL ':timeout seconds')
-                RETURNING id
-            """.replace(':timeout', str(HEARTBEAT_TIMEOUT_SECONDS))))
-            db.commit()
-            
-            rows = result.fetchall()
-            if rows:
-                logger.info(f"[Startup Cleanup] Marked {len(rows)} stale tests as interrupted")
-                for row in rows:
-                    logger.info(f"  - Test run {row[0]} marked as interrupted (stale heartbeat)")
-            
-            # Log any tests that were preserved due to fresh heartbeat
             active_result = db.execute(text("""
-                SELECT id FROM test_runs WHERE status = 'running'
+                SELECT id FROM test_runs WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
             """))
             active_rows = active_result.fetchall()
             if active_rows:
@@ -460,19 +447,20 @@ def start_test():
         reset_test_run_for_resume(test_run_id)
     else:
         test_run_id = create_test_run(
-            vault_id=vault_id,
+            mode=mode,
+            vault_id=vault_id if mode == 'auto' else None,
             vault_name=vault_name,
             question_set_id=question_set_id,
-            question_set_name=question_set_name,
-            mode=mode,
-            corpus_folder=corpus_folder
+            questions_total=0
         )
     
     cmd = ['python', '-m', 'src.test_runner.runner', 
-           '--vault-id', vault_id,
            '--question-set-id', question_set_id,
            '--mode', mode,
            '--test-run-id', test_run_id]
+    
+    if mode == 'auto' and vault_id:
+        cmd.extend(['--vault-id', vault_id])
     
     if corpus_folder:
         cmd.extend(['--corpus-folder', corpus_folder])
@@ -544,27 +532,41 @@ def start_test():
             'command': ' '.join(cmd)
         }), 202
     except Exception as e:
-        complete_test_run(test_run_id, status='failed', error_message=str(e))
+        transition_to(test_run_id, TestRunStatus.FAILED, error_message=str(e))
         initial_status['status'] = 'failed'
         initial_status['error'] = str(e)
         write_status_file(initial_status)
         return jsonify({'error': f'Failed to start test: {str(e)}'}), 500
 
 
-def derive_pipeline_stages(db_stage: str, mode: str) -> dict:
-    """Derive pipeline stages from the database stage field.
+def derive_pipeline_stages(db_status: str, mode: str) -> dict:
+    """Derive pipeline stages from the database status field.
     
+    Maps TestRunStatus values to pipeline stage visualization.
     This ensures UI shows correct progress even when status.json is missing.
     """
-    stage_order = ['delete', 'create', 'upload', 'extract', 'qa']
     is_fresh = mode == 'fresh'
     
-    stages = {}
-    current_stage_idx = stage_order.index(db_stage) if db_stage in stage_order else -1
+    status_to_stage = {
+        'creating_vault': 'create',
+        'uploading': 'upload',
+        'extracting': 'extract',
+        'running_qa': 'qa',
+        'complete': 'complete',
+        'failed': 'failed',
+        'interrupted': 'interrupted',
+    }
     
+    current_stage = status_to_stage.get(db_status, 'qa')
+    stage_order = ['delete', 'create', 'upload', 'extract', 'qa']
+    current_stage_idx = stage_order.index(current_stage) if current_stage in stage_order else len(stage_order)
+    
+    stages = {}
     for i, stage in enumerate(stage_order):
         if stage in ['delete', 'create', 'upload', 'extract'] and not is_fresh:
             stages[stage] = {'status': 'skipped'}
+        elif db_status in ('complete', 'failed', 'interrupted'):
+            stages[stage] = {'status': 'complete' if stage != 'qa' else db_status}
         elif i < current_stage_idx:
             stages[stage] = {'status': 'complete'}
         elif i == current_stage_idx:
@@ -679,7 +681,7 @@ def stop_test():
                 pass  # Process already dead
         
         # EXPLICITLY set status in DB - this is the single source of truth
-        complete_test_run(test_run_id, status='interrupted', error_message='Manually stopped by user')
+        transition_to(test_run_id, TestRunStatus.INTERRUPTED, error_message='Manually stopped by user')
         
         # Clean up ephemeral status file
         clear_status_file()

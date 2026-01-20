@@ -46,6 +46,15 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 20, 2026**: **State Machine Implementation** - Implemented formal state machine per specification:
+  - `TestRunStatus` enum with 7 states: CREATING_VAULT, UPLOADING, EXTRACTING, RUNNING_QA, COMPLETE, FAILED, INTERRUPTED
+  - Valid transitions table enforced by `transition_to()` function (the ONLY way to change status)
+  - Fresh mode: starts with vault_id=NULL, status=CREATING_VAULT → creates vault → transitions to UPLOADING with vault_id set
+  - Auto mode: starts with vault_id set, status=RUNNING_QA (skips delete/create/upload/extract)
+  - Heartbeat stale detection (5 minutes) automatically marks tests as INTERRUPTED on startup
+  - Resume only allowed from INTERRUPTED status
+  - Database is single source of truth - no PID/status.json inference
+  - Schema updated: vault_id now nullable, current_question JSONB column added
 - **Jan 20, 2026**: **Fresh Mode Fixes** - Fixed critical bugs in the test runner Fresh mode:
   - Fixed delete_vault call: Now uses `find_vault_by_name()` to look up correct vault ID by name before deletion
   - Fixed corpus folder path resolution: Uses `config.get_corpus()` to get root_path from config (with fallback)

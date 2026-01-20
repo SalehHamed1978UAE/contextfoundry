@@ -143,7 +143,7 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
     from .evaluator import FuzzyEvaluator
     from .test_executor import TestExecutor
     from .state_machine import (
-        transition_to, TestRunState, TestRunStage, refresh_heartbeat
+        transition_to, TestRunStatus, refresh_heartbeat
     )
     
     if config is None:
@@ -157,10 +157,6 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
     log("=" * 70)
     
     update_status(overall_status='running')
-    
-    if test_run_id:
-        initial_stage = TestRunStage.DELETE if mode == 'fresh' else TestRunStage.QA
-        transition_to(test_run_id, new_state=TestRunState.RUNNING, new_stage=initial_stage)
     
     # Track completion status for try/finally
     test_completed = False
@@ -206,8 +202,6 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
                 log(f"  Delete skipped (may not exist): {e}")
                 update_status('delete', stage_status='complete')
             
-            if test_run_id:
-                transition_to(test_run_id, new_stage=TestRunStage.CREATE)
             update_status('create', stage_status='running')
             log(f"\n[Stage: Create] Creating new vault '{vault_name}'...")
             new_vault_id = vm.create_vault(vault_name)
@@ -217,14 +211,12 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             update_status('create', stage_status='complete', vault_id=str(vault_id))
             
             if test_run_id:
-                transition_to(test_run_id, vault_id=str(vault_id))
-                log(f"  [DB] Updated test_run vault_id to: {vault_id}")
+                transition_to(test_run_id, TestRunStatus.UPLOADING, vault_id=str(vault_id), vault_name=vault_name)
+                log(f"  [DB] Updated test_run vault_id to: {vault_id}, transitioned to UPLOADING")
             
             if not vm.authenticate_dev(tenant_id=vault_id):
                 log("WARNING: Failed to set vault context")
             
-            if test_run_id:
-                transition_to(test_run_id, new_stage=TestRunStage.UPLOAD)
             update_status('upload', stage_status='running')
             log("\n[Stage: Upload] Uploading documents...")
             from .document_uploader import get_files_to_upload
@@ -240,7 +232,7 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             update_status('upload', stage_status='complete', file_count=len(files))
             
             if test_run_id:
-                transition_to(test_run_id, new_stage=TestRunStage.EXTRACT)
+                transition_to(test_run_id, TestRunStatus.EXTRACTING)
             update_status('extract', stage_status='running')
             log("\n[Stage: Extract] Waiting for extraction...")
             extraction_config = config.extraction_config
@@ -277,7 +269,7 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
                 log("WARNING: Failed to set vault context")
         
         if test_run_id:
-            transition_to(test_run_id, new_stage=TestRunStage.QA)
+            transition_to(test_run_id, TestRunStatus.RUNNING_QA)
         update_status('qa', stage_status='running')
         log("\n[Stage: Q&A] Loading questions...")
         questions_data = load_question_set_from_db(question_set_id)
@@ -331,18 +323,17 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
                 progress_file = config.results_dir / f"{safe_name}_{vault_id[:8]}_progress.jsonl"
                 transition_to(
                     test_run_id,
-                    new_state=TestRunState.COMPLETE,
-                    new_stage=TestRunStage.COMPLETE,
+                    TestRunStatus.COMPLETE,
                     questions_answered=results['results']['total'],
                     questions_passed=results['results']['passed'],
                     questions_failed=results['results']['failed'],
                     results_file=str(progress_file) if progress_file.exists() else None
                 )
             else:
-                new_state = TestRunState.FAILED if final_status == 'failed' else TestRunState.INTERRUPTED
+                new_status = TestRunStatus.FAILED if final_status == 'failed' else TestRunStatus.INTERRUPTED
                 transition_to(
                     test_run_id,
-                    new_state=new_state,
+                    new_status,
                     error_message=error_msg
                 )
             log(f"[DB] Test run {test_run_id} marked as {final_status}")
@@ -603,14 +594,14 @@ Examples:
     
     if args.list:
         list_corpora(config)
-    elif args.vault_id and args.question_set_id:
+    elif args.question_set_id:
         run_vault_test(
             vault_id=args.vault_id,
             question_set_id=args.question_set_id,
             mode=args.mode,
             corpus_folder=args.corpus_folder,
             config=config,
-            test_run_id=getattr(args, 'test_run_id', None)
+            test_run_id=args.test_run_id
         )
     elif args.corpus:
         run_corpus_test(args.corpus, config, 
