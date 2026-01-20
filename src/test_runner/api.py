@@ -74,9 +74,46 @@ def clear_status_file():
 import re
 
 def parse_markdown_questions(content: str) -> list:
-    """Parse questions from markdown format with **Question:**/**Answer:** structure."""
+    """Parse questions from markdown format. Supports multiple formats:
+    
+    Format 1 (Q/A numbered):
+        **Q1:** What is the question?
+        **A1:** The answer
+        **Source:** optional_source.md
+        
+    Format 2 (Question/Answer labeled):
+        ### Q1
+        **Question:** What is the question?
+        **Answer:** The answer
+    """
     questions = []
     
+    # Format 1: **Q1:** ... **A1:** ...
+    qa_pattern = re.compile(
+        r'\*\*Q(\d+):\*\*\s*(.+?)\s*\n'
+        r'\*\*A\1:\*\*\s*(.+?)\s*\n'
+        r'(?:\*\*Source:\*\*\s*(.+?)\s*\n)?'
+        r'(?:\*\*Type:\*\*\s*(.+?)\s*(?:\n|$))?',
+        re.MULTILINE
+    )
+    
+    for match in qa_pattern.finditer(content):
+        q_num, question, answer, source, q_type = match.groups()
+        q_obj = {
+            'question': question.strip(),
+            'expected_answer': answer.strip()
+        }
+        if source:
+            q_obj['source'] = source.strip()
+        if q_type:
+            q_obj['type'] = q_type.strip()
+        questions.append(q_obj)
+    
+    # If format 1 found questions, return them
+    if questions:
+        return questions
+    
+    # Format 2: ### Q1 \n **Question:** ... **Answer:** ...
     question_pattern = re.compile(
         r'###\s*Q(\d+)\s*\n'
         r'\*\*Question:\*\*\s*(.+?)\s*\n'
