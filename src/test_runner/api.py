@@ -451,6 +451,7 @@ def start_test():
             vault_id=vault_id if mode == 'auto' else None,
             vault_name=vault_name,
             question_set_id=question_set_id,
+            question_set_name=question_set_name,
             questions_total=0
         )
     
