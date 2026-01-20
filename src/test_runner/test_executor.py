@@ -106,10 +106,12 @@ class TestExecutor:
         
         if resume and test_run_id:
             db_completed_ids = get_answered_question_ids(test_run_id)
-            results, file_completed_ids = self._load_completed_questions(progress_file)
-            completed_ids = db_completed_ids | file_completed_ids
+            completed_ids = db_completed_ids
+            results = []
+            if progress_file.exists():
+                progress_file.unlink()
             if completed_ids:
-                print(f"  Resuming: {len(completed_ids)} questions already answered")
+                print(f"  Resuming from DB: {len(completed_ids)} questions already answered")
         elif resume:
             results, completed_ids = self._load_completed_questions(progress_file)
             if completed_ids:

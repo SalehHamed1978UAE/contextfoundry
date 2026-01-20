@@ -931,11 +931,12 @@
                                     <th>Status</th>
                                     <th>Progress</th>
                                     <th>Started</th>
+                                    <th>Output File</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="historyBody">
-                                <tr><td colspan="6" class="empty-state">Loading history...</td></tr>
+                                <tr><td colspan="7" class="empty-state">Loading history...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1121,7 +1122,7 @@
                 const tbody = document.getElementById('historyBody');
                 
                 if (!data.runs || data.runs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No test runs yet</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No test runs yet</td></tr>';
                     return;
                 }
                 
@@ -1157,6 +1158,10 @@
                         actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
                     }
                     
+                    const outputFileCell = resultsFile 
+                        ? `<a href="/api/test-runner/results-files/${encodeURIComponent(resultsFile.split('/').pop())}" target="_blank" style="color: var(--accent-success);">${resultsFile.split('/').pop()}</a>`
+                        : '-';
+                    
                     return `
                         <tr data-id="${run.id}">
                             <td>${escapeHtml(run.vault_name || '-')}</td>
@@ -1168,6 +1173,7 @@
                                 <span style="color: var(--accent-error); margin-left: 4px;">✗${run.questions_failed || 0}</span>
                             </td>
                             <td>${run.started_at ? formatDate(run.started_at) : '-'}</td>
+                            <td>${outputFileCell}</td>
                             <td>
                                 <div class="action-btns">
                                     ${actionButtons}
