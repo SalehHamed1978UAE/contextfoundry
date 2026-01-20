@@ -320,6 +320,29 @@ def get_answered_question_ids(test_run_id: str) -> set:
         session.close()
 
 
+def get_test_run_progress(test_run_id: str) -> dict:
+    """Get the current progress counts for a test run."""
+    session = get_db_session()
+    try:
+        result = session.execute(text("""
+            SELECT questions_total, questions_answered, questions_passed, questions_failed
+            FROM test_runs
+            WHERE id = :test_run_id
+        """), {'test_run_id': test_run_id})
+        
+        row = result.fetchone()
+        if row:
+            return {
+                'total': row[0] or 0,
+                'answered': row[1] or 0,
+                'passed': row[2] or 0,
+                'failed': row[3] or 0
+            }
+        return {'total': 0, 'answered': 0, 'passed': 0, 'failed': 0}
+    finally:
+        session.close()
+
+
 def reset_test_run_for_resume(test_run_id: str):
     """Reset a test run's status to running for resume."""
     session = get_db_session()

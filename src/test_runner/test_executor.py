@@ -12,7 +12,8 @@ from .persistence import (
     update_test_run_progress,
     save_test_result,
     complete_test_run,
-    get_answered_question_ids
+    get_answered_question_ids,
+    get_test_run_progress
 )
 
 class TestExecutor:
@@ -108,21 +109,28 @@ class TestExecutor:
             db_completed_ids = get_answered_question_ids(test_run_id)
             completed_ids = db_completed_ids
             results = []
+            prior_progress = get_test_run_progress(test_run_id)
+            prior_passed = prior_progress['passed']
+            prior_answered = prior_progress['answered']
             if progress_file.exists():
                 progress_file.unlink()
             if completed_ids:
-                print(f"  Resuming from DB: {len(completed_ids)} questions already answered")
+                print(f"  Resuming from DB: {len(completed_ids)} questions already answered ({prior_passed} passed)")
         elif resume:
             results, completed_ids = self._load_completed_questions(progress_file)
+            prior_passed = sum(1 for r in results if r.get('passed'))
+            prior_answered = len(results)
             if completed_ids:
                 print(f"  Resuming: {len(completed_ids)} questions already answered")
         else:
             results = []
             completed_ids = set()
+            prior_passed = 0
+            prior_answered = 0
             if progress_file.exists():
                 progress_file.unlink()
         
-        passed = sum(1 for r in results if r.get('passed'))
+        passed = prior_passed
         
         for i, q in enumerate(questions):
             q_num = q.get('id', q.get('q', i + 1))
@@ -155,7 +163,7 @@ class TestExecutor:
             
             self._save_result_incremental(progress_file, result)
             
-            answered = len(results)
+            answered = prior_answered + len(results)
             failed = answered - passed
             accuracy = round(100 * passed / answered, 1) if answered > 0 else 0
             
