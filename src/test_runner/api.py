@@ -545,8 +545,14 @@ def get_test_status():
         try:
             os.kill(file_status['pid'], 0)
         except OSError:
-            if file_status.get('status') == 'running':
-                file_status['status'] = 'finished'
+            qa_stage = file_status.get('stages', {}).get('qa', {})
+            qa_progress = file_status.get('qa_progress', {})
+            was_in_qa = qa_stage.get('status') == 'running'
+            has_progress = qa_progress.get('answered', 0) > 0 and qa_progress.get('answered', 0) < qa_progress.get('total', 0)
+            
+            if file_status.get('status') == 'running' or (was_in_qa and has_progress):
+                file_status['status'] = 'interrupted'
+                file_status['message'] = f"Test interrupted at {qa_progress.get('answered', 0)}/{qa_progress.get('total', 0)} questions. Click Resume to continue."
                 write_status_file(file_status)
     
     return jsonify(file_status)

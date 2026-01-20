@@ -1222,6 +1222,38 @@
             }
         }
         
+        async function restartInterruptedTest(vaultId, questionSetId) {
+            if (!vaultId || !questionSetId) {
+                addLog('Cannot restart: missing vault or question set ID', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vault_id: vaultId,
+                        question_set_id: questionSetId,
+                        mode: 'auto'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Restarting test...', 'success');
+                    fetchStatus();
+                    fetchHistory();
+                    scrollToCurrentTest();
+                } else {
+                    addLog(`Failed to restart: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Restart error: ${error.message}`, 'error');
+            }
+        }
+        
         async function retryTest(vaultId, questionSetId, corpusFolder) {
             if (!vaultId || !questionSetId) {
                 addLog('Cannot retry: missing vault or question set ID', 'error');
@@ -1461,13 +1493,23 @@
                 
                 if (status.message) {
                     currentQuestionBox.style.display = 'block';
-                    currentQuestionText.innerHTML = `
-                        <span style="color: var(--accent-warning);">${status.message}</span>
-                        <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
-                                onclick="resumeTest('${status.vault_id}', '${status.question_set_id}', '${status.test_run_id}')">
-                            Resume Test
-                        </button>
-                    `;
+                    if (status.test_run_id) {
+                        currentQuestionText.innerHTML = `
+                            <span style="color: var(--accent-warning);">${status.message}</span>
+                            <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
+                                    onclick="resumeTest('${status.vault_id}', '${status.question_set_id}', '${status.test_run_id}')">
+                                Resume Test
+                            </button>
+                        `;
+                    } else {
+                        currentQuestionText.innerHTML = `
+                            <span style="color: var(--accent-warning);">${status.message}</span>
+                            <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
+                                    onclick="restartInterruptedTest('${status.vault_id}', '${status.question_set_id}')">
+                                Restart Test
+                            </button>
+                        `;
+                    }
                 }
                 fetchHistory();
             } else {
