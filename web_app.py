@@ -755,6 +755,16 @@ def vault_new():
                          user_name=session.get('user_name', 'User'),
                          cache_bust=int(time.time()))
 
+@app.route('/test-runner')
+def test_runner():
+    """Test Runner Dashboard page."""
+    if not session.get('user_id'):
+        return redirect(url_for('landing'))
+    import time
+    return render_template('test_runner.html',
+                         user_name=session.get('user_name', 'User'),
+                         cache_bust=int(time.time()))
+
 @app.route('/app/<vault_id>')
 def vault_view(vault_id):
     """Vault view - file tree and chat interface."""

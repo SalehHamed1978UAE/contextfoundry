@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Runner Dashboard - Context Foundry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ cache_bust }}">
+    <style>
+        .runner-page {
+            min-height: 100vh;
+            background: var(--bg-primary);
+            padding: 32px;
+        }
+        
+        .runner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .runner-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .runner-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        .runner-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .runner-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+        
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-title svg {
+            color: var(--accent-primary);
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-select, .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        
+        .form-select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .radio-option input {
+            accent-color: var(--accent-primary);
+        }
+        
+        .radio-option span {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            border-color: var(--accent-primary);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: none;
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--accent-glow);
+        }
+        
+        .btn-danger {
+            background: var(--accent-error);
+            border-color: var(--accent-error);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .status-panel {
+            grid-column: 1 / -1;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .status-item {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+        
+        .status-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        
+        .status-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+        
+        .status-value.idle { color: var(--text-muted); }
+        .status-value.running { color: var(--accent-primary); }
+        .status-value.finished { color: var(--accent-success); }
+        .status-value.failed { color: var(--accent-error); }
+        .status-value.stopped { color: var(--accent-warning); }
+        
+        .progress-container {
+            margin-bottom: 16px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .progress-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .progress-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-primary);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .log-viewer {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .log-entry {
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .log-entry.info { color: var(--accent-primary); }
+        .log-entry.success { color: var(--accent-success); }
+        .log-entry.warning { color: var(--accent-warning); }
+        .log-entry.error { color: var(--accent-error); }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th,
+        .history-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .history-table th {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        .history-table td {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .history-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+        
+        .history-table tbody tr {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .status-badge.completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-success);
+        }
+        
+        .status-badge.running {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-primary);
+        }
+        
+        .status-badge.failed {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-error);
+        }
+        
+        .status-badge.stopped {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-warning);
+        }
+        
+        .results-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 600px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .results-panel.open {
+            display: block;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+        }
+        
+        .results-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .close-btn:hover {
+            color: var(--text-primary);
+        }
+        
+        .results-content {
+            padding: 24px;
+        }
+        
+        .results-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .summary-stat {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .summary-value.passed { color: var(--accent-success); }
+        .summary-value.failed { color: var(--accent-error); }
+        .summary-value.total { color: var(--accent-primary); }
+        
+        .summary-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        
+        .result-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .result-item.passed {
+            border-left: 3px solid var(--accent-success);
+        }
+        
+        .result-item.failed {
+            border-left: 3px solid var(--accent-error);
+        }
+        
+        .result-question {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .result-answer {
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+        }
+        
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+        
+        .user-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-name {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .logout-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .logout-btn:hover {
+            border-color: var(--accent-error);
+            color: var(--accent-error);
+        }
+        
+        .content-wrapper {
+            margin-top: 56px;
+        }
+        
+        .upload-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .file-input-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .file-label:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .file-label.has-file {
+            border-style: solid;
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="user-bar">
+        <a href="/vaults" class="logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <span class="logo-text">Context Foundry</span>
+        </a>
+        <div class="user-info">
+            <span class="user-name">{{ user_name }}</span>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    
+    <div class="content-wrapper">
+        <div class="runner-page">
+            <div class="runner-header">
+                <div class="header-left">
+                    <a href="/vaults" class="back-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="runner-title">Test Runner Dashboard</h1>
+                        <p class="runner-subtitle">Run and monitor automated Q&A tests against your corpora</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="runner-grid">
+                <div class="runner-card">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Corpus Selection
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Corpus Folder</label>
+                        <select id="corpusSelect" class="form-select">
+                            <option value="">Select a corpus folder...</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="runner-card">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        Question Set
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Question Set</label>
+                        <select id="questionSetSelect" class="form-select">
+                            <option value="">Use built-in questions</option>
+                        </select>
+                    </div>
+                    <div class="upload-section">
+                        <label class="form-label">Or Upload New</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="questionFile" accept=".json,.jsonl">
+                            <label for="questionFile" class="file-label" id="fileLabel">
+                                Click to upload .json or .jsonl
+                            </label>
+                            <button type="button" class="btn" id="uploadBtn" disabled>Upload</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="runner-card" style="grid-column: 1 / -1;">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Test Configuration
+                    </h2>
+                    <div class="form-group">
+                        <label class="form-label">Mode</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="mode" value="resume" checked>
+                                <span>Auto-Resume (continue from checkpoint)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="mode" value="fresh">
+                                <span>Fresh Start (reset progress)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-primary" id="startBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            Start Test
+                        </button>
+                        <button type="button" class="btn btn-danger" id="stopBtn" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="6" y="6" width="12" height="12"/>
+                            </svg>
+                            Stop Test
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="runner-card status-panel">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                        Live Status
+                    </h2>
+                    <div class="status-grid">
+                        <div class="status-item">
+                            <div class="status-label">Status</div>
+                            <div class="status-value idle" id="statusValue">Idle</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Stage</div>
+                            <div class="status-value" id="stageValue">-</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Passed</div>
+                            <div class="status-value" id="passedValue" style="color: var(--accent-success)">0</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">Failed</div>
+                            <div class="status-value" id="failedValue" style="color: var(--accent-error)">0</div>
+                        </div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-label">Progress</span>
+                            <span class="progress-value" id="progressText">0 / 0</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="log-viewer" id="logViewer">
+                        <div class="log-entry info">Waiting for test to start...</div>
+                    </div>
+                </div>
+                
+                <div class="runner-card" style="grid-column: 1 / -1;">
+                    <h2 class="card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        Test History
+                    </h2>
+                    <div id="historyContainer">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Corpus</th>
+                                    <th>Status</th>
+                                    <th>Questions</th>
+                                    <th>Passed</th>
+                                    <th>Failed</th>
+                                    <th>Started</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyBody">
+                                <tr><td colspan="6" class="empty-state">Loading history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="results-panel" id="resultsPanel">
+        <div class="results-header">
+            <h2 class="results-title">Test Results</h2>
+            <button class="close-btn" id="closeResults">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="results-content" id="resultsContent">
+        </div>
+    </div>
+    
+    <script>
+        let pollInterval = null;
+        let currentStatus = null;
+        const logs = [];
+        
+        async function fetchCorpusFolders() {
+            try {
+                const response = await fetch('/api/test-runner/corpus-folders');
+                const data = await response.json();
+                const select = document.getElementById('corpusSelect');
+                select.innerHTML = '<option value="">Select a corpus folder...</option>';
+                data.corpus_folders.forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder.name;
+                    option.textContent = `${folder.name} (${folder.document_count} docs)`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to fetch corpus folders:', error);
+            }
+        }
+        
+        async function fetchQuestionSets() {
+            try {
+                const response = await fetch('/api/test-runner/question-sets');
+                const data = await response.json();
+                const select = document.getElementById('questionSetSelect');
+                select.innerHTML = '<option value="">Use built-in questions</option>';
+                data.question_sets.forEach(qs => {
+                    const option = document.createElement('option');
+                    option.value = qs.id;
+                    option.textContent = `${qs.name} (${qs.question_count} questions)`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to fetch question sets:', error);
+            }
+        }
+        
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/api/test-runner/history?limit=20');
+                const data = await response.json();
+                const tbody = document.getElementById('historyBody');
+                
+                if (data.runs.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No test runs yet</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.runs.map(run => `
+                    <tr data-id="${run.id}">
+                        <td>${run.corpus_folder || run.vault_name || '-'}</td>
+                        <td><span class="status-badge ${run.status}">${run.status}</span></td>
+                        <td>${run.questions_answered || 0} / ${run.questions_total || 0}</td>
+                        <td style="color: var(--accent-success)">${run.questions_passed || 0}</td>
+                        <td style="color: var(--accent-error)">${run.questions_failed || 0}</td>
+                        <td>${run.started_at ? new Date(run.started_at).toLocaleString() : '-'}</td>
+                    </tr>
+                `).join('');
+                
+                tbody.querySelectorAll('tr[data-id]').forEach(row => {
+                    row.addEventListener('click', () => showResults(row.dataset.id));
+                });
+            } catch (error) {
+                console.error('Failed to fetch history:', error);
+            }
+        }
+        
+        async function showResults(testId) {
+            try {
+                const response = await fetch(`/api/test-runner/results/${testId}`);
+                const data = await response.json();
+                
+                const panel = document.getElementById('resultsPanel');
+                const content = document.getElementById('resultsContent');
+                
+                const run = data.run;
+                const results = data.results || [];
+                
+                content.innerHTML = `
+                    <div class="results-summary">
+                        <div class="summary-stat">
+                            <div class="summary-value total">${run.questions_answered || 0}</div>
+                            <div class="summary-label">Answered</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="summary-value passed">${run.questions_passed || 0}</div>
+                            <div class="summary-label">Passed</div>
+                        </div>
+                        <div class="summary-stat">
+                            <div class="summary-value failed">${run.questions_failed || 0}</div>
+                            <div class="summary-label">Failed</div>
+                        </div>
+                    </div>
+                    <div class="results-list">
+                        ${results.length === 0 ? '<div class="empty-state">No results available</div>' : ''}
+                        ${results.map(r => `
+                            <div class="result-item ${r.passed ? 'passed' : 'failed'}">
+                                <div class="result-question">${escapeHtml(r.question_text || '')}</div>
+                                <div class="result-answer">
+                                    <strong>Expected:</strong> ${escapeHtml(r.expected_answer || '-')}<br>
+                                    <strong>Actual:</strong> ${escapeHtml(r.actual_answer || '-')}
+                                </div>
+                                <div class="result-meta">
+                                    <span>${r.category || 'General'}</span>
+                                    <span>${r.duration_ms ? r.duration_ms + 'ms' : '-'}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                panel.classList.add('open');
+            } catch (error) {
+                console.error('Failed to fetch results:', error);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/test-runner/status');
+                const data = await response.json();
+                updateStatusUI(data);
+                return data;
+            } catch (error) {
+                console.error('Failed to fetch status:', error);
+                return null;
+            }
+        }
+        
+        function updateStatusUI(status) {
+            const statusValue = document.getElementById('statusValue');
+            const stageValue = document.getElementById('stageValue');
+            const passedValue = document.getElementById('passedValue');
+            const failedValue = document.getElementById('failedValue');
+            const progressText = document.getElementById('progressText');
+            const progressFill = document.getElementById('progressFill');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            
+            const displayStatus = status.status || 'idle';
+            statusValue.textContent = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
+            statusValue.className = 'status-value ' + displayStatus;
+            
+            stageValue.textContent = status.stage || '-';
+            
+            const progress = status.progress || {};
+            passedValue.textContent = progress.passed || 0;
+            failedValue.textContent = progress.failed || 0;
+            
+            const completed = progress.completed || 0;
+            const total = progress.total || 0;
+            progressText.textContent = `${completed} / ${total}`;
+            
+            const percentage = total > 0 ? (completed / total) * 100 : 0;
+            progressFill.style.width = percentage + '%';
+            
+            if (displayStatus === 'running') {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                startPolling();
+            } else {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                stopPolling();
+                
+                if (currentStatus && currentStatus.status === 'running' && displayStatus !== 'running') {
+                    fetchHistory();
+                }
+            }
+            
+            if (status !== currentStatus) {
+                addLog(`Status: ${displayStatus}`, displayStatus === 'running' ? 'info' : 
+                       displayStatus === 'finished' ? 'success' : 
+                       displayStatus === 'failed' ? 'error' : '');
+            }
+            
+            currentStatus = status;
+        }
+        
+        function addLog(message, type = '') {
+            const logViewer = document.getElementById('logViewer');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logViewer.appendChild(entry);
+            logViewer.scrollTop = logViewer.scrollHeight;
+            
+            while (logViewer.children.length > 100) {
+                logViewer.removeChild(logViewer.firstChild);
+            }
+        }
+        
+        function startPolling() {
+            if (pollInterval) return;
+            pollInterval = setInterval(fetchStatus, 2000);
+        }
+        
+        function stopPolling() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        }
+        
+        async function startTest() {
+            const corpus = document.getElementById('corpusSelect').value;
+            if (!corpus) {
+                alert('Please select a corpus folder');
+                return;
+            }
+            
+            const questionSetId = document.getElementById('questionSetSelect').value || null;
+            const fresh = document.querySelector('input[name="mode"]:checked').value === 'fresh';
+            
+            try {
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        corpus: corpus,
+                        question_set_id: questionSetId,
+                        fresh: fresh
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog(`Test started for corpus: ${corpus}`, 'success');
+                    fetchStatus();
+                } else {
+                    addLog(`Failed to start: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function stopTest() {
+            try {
+                const response = await fetch('/api/test-runner/stop', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Test stopped', 'warning');
+                    fetchStatus();
+                } else {
+                    addLog(`Failed to stop: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function uploadQuestionSet() {
+            const fileInput = document.getElementById('questionFile');
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/api/test-runner/question-sets/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog(`Uploaded: ${data.name} (${data.question_count} questions)`, 'success');
+                    fetchQuestionSets();
+                    fileInput.value = '';
+                    document.getElementById('fileLabel').textContent = 'Click to upload .json or .jsonl';
+                    document.getElementById('fileLabel').classList.remove('has-file');
+                    document.getElementById('uploadBtn').disabled = true;
+                } else {
+                    addLog(`Upload failed: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Upload error: ${error.message}`, 'error');
+            }
+        }
+        
+        document.getElementById('startBtn').addEventListener('click', startTest);
+        document.getElementById('stopBtn').addEventListener('click', stopTest);
+        document.getElementById('uploadBtn').addEventListener('click', uploadQuestionSet);
+        
+        document.getElementById('questionFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.getElementById('fileLabel');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            if (file) {
+                label.textContent = file.name;
+                label.classList.add('has-file');
+                uploadBtn.disabled = false;
+            } else {
+                label.textContent = 'Click to upload .json or .jsonl';
+                label.classList.remove('has-file');
+                uploadBtn.disabled = true;
+            }
+        });
+        
+        document.getElementById('closeResults').addEventListener('click', function() {
+            document.getElementById('resultsPanel').classList.remove('open');
+        });
+        
+        fetchCorpusFolders();
+        fetchQuestionSets();
+        fetchHistory();
+        fetchStatus();
+    </script>
+</body>
+</html>
