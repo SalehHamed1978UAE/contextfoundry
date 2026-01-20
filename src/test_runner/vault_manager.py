@@ -158,17 +158,14 @@ class VaultManager:
         }
     
     def get_vault_stats(self, vault_id: str) -> Dict:
-        """Get vault statistics including chunk count."""
-        response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
-        if response.status_code == 200:
-            data = response.json()
-            vault = data.get('vault', data)
-            return {
-                "chunk_count": vault.get('chunk_count', 0),
-                "entity_count": vault.get('entity_count', 0),
-                "relationship_count": vault.get('relationship_count', 0)
-            }
-        return {"chunk_count": 0, "entity_count": 0, "relationship_count": 0}
+        """Get vault statistics including chunk count (with retry logic)."""
+        data = self._get_vault_stats_with_retry(vault_id)
+        vault = data.get('vault', data)
+        return {
+            "chunk_count": vault.get('chunk_count', 0),
+            "entity_count": vault.get('entity_count', 0),
+            "relationship_count": vault.get('relationship_count', 0)
+        }
     
     def wait_for_extraction(
         self, 
