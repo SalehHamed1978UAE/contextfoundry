@@ -172,9 +172,14 @@ class VaultManager:
         vault_id: str, 
         expected_docs: int,
         timeout_minutes: int = 30,
-        poll_interval: int = 10
+        poll_interval: int = 10,
+        heartbeat_callback=None
     ) -> bool:
-        """PROPERLY wait for extraction with 3 phases."""
+        """PROPERLY wait for extraction with 3 phases.
+        
+        Args:
+            heartbeat_callback: Optional callable to refresh heartbeat during long waits
+        """
         start = time.time()
         timeout = timeout_minutes * 60
         
@@ -183,6 +188,8 @@ class VaultManager:
         # PHASE 1: Wait for documents to be registered
         print("  Phase 1: Waiting for documents to register...")
         while time.time() - start < timeout:
+            if heartbeat_callback:
+                heartbeat_callback()
             doc_count = self.get_document_count(vault_id)
             if doc_count >= expected_docs:
                 print(f"  Phase 1 complete: {doc_count}/{expected_docs} documents registered")
@@ -200,6 +207,8 @@ class VaultManager:
         last_total = 0
         stable_count = 0
         while time.time() - start < timeout:
+            if heartbeat_callback:
+                heartbeat_callback()
             status = self.get_extraction_status(vault_id)
             total = status.get('total', 0)
             
@@ -232,6 +241,8 @@ class VaultManager:
         print("  Phase 3: Waiting for extraction to complete...")
         last_progress = ""
         while time.time() - start < timeout:
+            if heartbeat_callback:
+                heartbeat_callback()
             status = self.get_extraction_status(vault_id)
             total = status.get('total', 0)
             completed = status.get('completed', 0)

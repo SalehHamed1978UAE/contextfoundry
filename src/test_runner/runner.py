@@ -216,6 +216,9 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             if not vm.authenticate_dev(tenant_id=vault_id):
                 log("WARNING: Failed to set vault context")
             
+            # Update DB stage to upload
+            if test_run_id:
+                update_test_run_stage(test_run_id, 'upload')
             update_status('upload', stage_status='running')
             log("\n[Stage: Upload] Uploading documents...")
             from .document_uploader import get_files_to_upload
@@ -230,6 +233,9 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             
             update_status('upload', stage_status='complete', file_count=len(files))
             
+            # Update DB stage to extract
+            if test_run_id:
+                update_test_run_stage(test_run_id, 'extract')
             update_status('extract', stage_status='running')
             log("\n[Stage: Extract] Waiting for extraction...")
             extraction_config = config.extraction_config
@@ -238,11 +244,17 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
                 def on_entity_update(count):
                     update_status('extract', stage_status='running', entities=count)
                 
+                # Create heartbeat callback to keep test run alive during long extraction
+                def heartbeat_refresh():
+                    if test_run_id:
+                        update_test_run_stage(test_run_id, 'extract')
+                
                 vm.wait_for_extraction(
                     vault_id,
                     expected_docs=len(files),
                     timeout_minutes=extraction_config.get('timeout_minutes', 20),
-                    poll_interval=extraction_config.get('poll_interval_seconds', 10)
+                    poll_interval=extraction_config.get('poll_interval_seconds', 10),
+                    heartbeat_callback=heartbeat_refresh
                 )
                 stats = vm.get_vault_stats(vault_id)
                 update_status('extract', stage_status='complete', entities=stats.get('entity_count', 0))
