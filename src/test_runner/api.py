@@ -462,11 +462,17 @@ def start_test():
             log_f.write("-" * 50 + "\n")
         
         log_handle = open(log_file, 'a')
+        
+        env = os.environ.copy()
+        env['PYTHONUNBUFFERED'] = '1'
+        
         process = subprocess.Popen(
             cmd,
             stdout=log_handle,
             stderr=subprocess.STDOUT,
-            start_new_session=True
+            start_new_session=True,
+            env=env,
+            cwd=os.getcwd()
         )
         
         initial_status['status'] = 'running'
