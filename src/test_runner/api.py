@@ -28,10 +28,59 @@ from .persistence import (
     get_running_test,
     reset_test_run_for_resume,
     recover_file_test_to_db,
-    HEARTBEAT_TIMEOUT_SECONDS
+    HEARTBEAT_TIMEOUT_SECONDS,
+    get_db_session as persistence_get_db_session
 )
 
 test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
+
+# Define constants first (before startup_cleanup uses them)
+STATUS_FILE_PATH = Path('data/test-runner/status.json')
+CORPUS_FOLDERS_PATH = Path('test documents')
+
+
+def startup_cleanup():
+    """Mark all running tests as interrupted on server startup.
+    
+    This ensures no zombie 'running' tests persist after server restarts.
+    Called when the blueprint is registered.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        db = persistence_get_db_session()
+        try:
+            result = db.execute(text("""
+                UPDATE test_runs 
+                SET status = 'interrupted', 
+                    error_message = 'Server restarted - test interrupted'
+                WHERE status = 'running'
+                RETURNING id
+            """))
+            db.commit()
+            
+            rows = result.fetchall()
+            if rows:
+                logger.info(f"[Startup Cleanup] Marked {len(rows)} running tests as interrupted")
+                for row in rows:
+                    logger.info(f"  - Test run {row[0]} marked as interrupted")
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning(f"[Startup Cleanup] Failed to cleanup running tests: {e}")
+    
+    # Delete status.json on startup - it's ephemeral
+    if STATUS_FILE_PATH.exists():
+        try:
+            STATUS_FILE_PATH.unlink()
+            logger.info("[Startup Cleanup] Deleted stale status.json")
+        except Exception as e:
+            logger.warning(f"[Startup Cleanup] Failed to delete status.json: {e}")
+
+
+# Run startup cleanup when module is imported
+startup_cleanup()
 
 
 def require_auth(f):
@@ -42,9 +91,6 @@ def require_auth(f):
             return jsonify({'error': 'Authentication required'}), 401
         return f(*args, **kwargs)
     return decorated_function
-
-STATUS_FILE_PATH = Path('data/test-runner/status.json')
-CORPUS_FOLDERS_PATH = Path('test documents')
 
 
 def get_db_session():
@@ -500,128 +546,221 @@ def start_test():
 def get_test_status():
     """Get current test status.
     
-    Combines status file (for real-time stage updates) with database
-    (for persistence and heartbeat-based interrupted detection).
+    DATABASE IS THE SINGLE SOURCE OF TRUTH.
+    status.json is only used for real-time stage details during active runs.
+    NO PID-BASED INFERENCE - status is explicitly set in DB.
     """
-    file_status = read_status_file()
     db_test = get_running_test()
+    file_status = read_status_file()
     
+    # DB is authoritative - check it first
     if db_test:
-        if db_test['status'] == 'interrupted':
-            if file_status:
-                file_status['status'] = 'interrupted'
-                file_status['db_status'] = db_test
-                write_status_file(file_status)
-            return jsonify({
-                'status': 'interrupted',
-                'test_run_id': db_test['id'],
-                'vault_id': db_test['vault_id'],
-                'vault_name': db_test['vault_name'],
-                'question_set_id': db_test['question_set_id'],
-                'question_set_name': db_test['question_set_name'],
-                'stage': db_test['stage'],
-                'qa_progress': {
-                    'total': db_test['questions_total'],
-                    'answered': db_test['questions_answered'],
-                    'passed': db_test['questions_passed'],
-                    'failed': db_test['questions_failed'],
-                    'accuracy_percent': round(100 * db_test['questions_passed'] / max(db_test['questions_answered'], 1), 1)
-                },
-                'checkpoint': db_test['checkpoint'],
-                'message': f"Test interrupted at {db_test['questions_answered']}/{db_test['questions_total']} questions. Click Resume to continue."
-            })
-        elif db_test['status'] == 'running':
-            if file_status:
-                file_status['test_run_id'] = db_test['id']
-                file_status['db_progress'] = {
-                    'answered': db_test['questions_answered'],
-                    'passed': db_test['questions_passed'],
-                    'failed': db_test['questions_failed']
-                }
-                return jsonify(file_status)
-            return jsonify({
-                'status': 'running',
-                'test_run_id': db_test['id'],
-                'vault_id': db_test['vault_id'],
-                'vault_name': db_test['vault_name'],
-                'stage': db_test['stage'],
-                'qa_progress': {
-                    'total': db_test['questions_total'],
-                    'answered': db_test['questions_answered'],
-                    'passed': db_test['questions_passed'],
-                    'failed': db_test['questions_failed']
-                }
-            })
+        status = db_test['status']  # 'running' or 'interrupted' (set by heartbeat check)
+        
+        response = {
+            'status': status,
+            'test_run_id': db_test['id'],
+            'vault_id': db_test['vault_id'],
+            'vault_name': db_test['vault_name'],
+            'question_set_id': db_test['question_set_id'],
+            'question_set_name': db_test['question_set_name'],
+            'stage': db_test['stage'],
+            'qa_progress': {
+                'total': db_test['questions_total'],
+                'answered': db_test['questions_answered'],
+                'passed': db_test['questions_passed'],
+                'failed': db_test['questions_failed'],
+                'accuracy_percent': round(100 * db_test['questions_passed'] / max(db_test['questions_answered'], 1), 1)
+            },
+            'checkpoint': db_test['checkpoint']
+        }
+        
+        # Add real-time stage details from status.json if available
+        if file_status and file_status.get('stages'):
+            response['stages'] = file_status['stages']
+        if file_status and file_status.get('current_question'):
+            response['current_question'] = file_status['current_question']
+        
+        if status == 'interrupted':
+            response['message'] = f"Test interrupted at {db_test['questions_answered']}/{db_test['questions_total']} questions. Click Resume to continue."
+        
+        return jsonify(response)
     
-    if not file_status:
-        return jsonify({
-            'status': 'idle',
-            'message': 'No test is currently running'
-        })
+    # No running/interrupted test in DB - check if file has stale data
+    if file_status:
+        # Status file exists but no matching DB record - likely completed or stale
+        if file_status.get('status') in ('finished', 'complete', 'failed'):
+            return jsonify(file_status)
+        # Otherwise it's stale - delete it
+        clear_status_file()
     
-    if file_status.get('pid'):
-        try:
-            os.kill(file_status['pid'], 0)
-        except OSError:
-            qa_stage = file_status.get('stages', {}).get('qa', {})
-            qa_progress = file_status.get('qa_progress', {})
-            was_in_qa = qa_stage.get('status') == 'running'
-            has_progress = qa_progress.get('answered', 0) > 0 and qa_progress.get('answered', 0) < qa_progress.get('total', 0)
-            
-            if file_status.get('status') == 'running' or (was_in_qa and has_progress):
-                file_status['status'] = 'interrupted'
-                file_status['message'] = f"Test interrupted at {qa_progress.get('answered', 0)}/{qa_progress.get('total', 0)} questions. Click Resume to continue."
-                
-                if not file_status.get('test_run_id') and file_status.get('vault_id') and file_status.get('question_set_id'):
-                    recovered_id = recover_file_test_to_db(file_status)
-                    if recovered_id:
-                        file_status['test_run_id'] = recovered_id
-                        file_status['recovered_from_file'] = True
-                
-                write_status_file(file_status)
-    
-    return jsonify(file_status)
+    return jsonify({
+        'status': 'idle',
+        'message': 'No test is currently running'
+    })
 
 
 @test_runner_api.route('/stop', methods=['POST'])
 @require_auth
 def stop_test():
-    """Stop the currently running test."""
-    file_status = read_status_file()
-    db_test = get_running_test()
+    """Stop the currently running test.
     
-    if not file_status and not db_test:
+    Explicitly sets status in DB - no inference.
+    """
+    db_test = get_running_test()
+    file_status = read_status_file()
+    
+    if not db_test:
         return jsonify({'error': 'No test is currently running'}), 400
     
+    test_run_id = db_test['id']
     pid = file_status.get('pid') if file_status else None
-    test_run_id = file_status.get('test_run_id') if file_status else (db_test.get('id') if db_test else None)
     
     try:
+        # Kill process if PID available
         if pid:
-            os.killpg(os.getpgid(pid), signal.SIGTERM)
+            try:
+                os.killpg(os.getpgid(pid), signal.SIGTERM)
+            except (ProcessLookupError, OSError):
+                pass  # Process already dead
         
-        if test_run_id:
-            complete_test_run(test_run_id, status='interrupted', error_message='Manually stopped by user')
+        # EXPLICITLY set status in DB - this is the single source of truth
+        complete_test_run(test_run_id, status='interrupted', error_message='Manually stopped by user')
         
-        if file_status:
-            file_status['status'] = 'stopped'
-            file_status['stopped_at'] = datetime.now().isoformat()
-            write_status_file(file_status)
+        # Clean up ephemeral status file
+        clear_status_file()
         
         return jsonify({
             'message': 'Test stopped',
-            'pid': pid,
-            'test_run_id': test_run_id
+            'test_run_id': test_run_id,
+            'status': 'interrupted'
         })
-    except ProcessLookupError:
-        if test_run_id:
-            complete_test_run(test_run_id, status='interrupted', error_message='Process not found')
-        if file_status:
-            file_status['status'] = 'finished'
-            write_status_file(file_status)
-        return jsonify({'message': 'Process already finished'})
     except Exception as e:
         return jsonify({'error': f'Failed to stop test: {str(e)}'}), 500
+
+
+@test_runner_api.route('/health', methods=['GET'])
+def health_check():
+    """Health check endpoint - no auth required.
+    
+    Returns ready status and any running test info.
+    """
+    try:
+        db = persistence_get_db_session()
+        try:
+            db.execute(text("SELECT 1"))
+        finally:
+            db.close()
+        
+        db_test = get_running_test()
+        
+        return jsonify({
+            'status': 'ready',
+            'database': 'connected',
+            'running_test': db_test['id'] if db_test else None,
+            'test_status': db_test['status'] if db_test else 'idle'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e)
+        }), 503
+
+
+@test_runner_api.route('/force-clear', methods=['POST'])
+@require_auth
+def force_clear_state():
+    """Force clear all running/stuck tests.
+    
+    Use this to manually reset stuck state when the normal stop doesn't work.
+    Marks all running tests as interrupted.
+    """
+    db = persistence_get_db_session()
+    try:
+        result = db.execute(text("""
+            UPDATE test_runs 
+            SET status = 'interrupted', 
+                error_message = 'Force cleared by user',
+                completed_at = NOW()
+            WHERE status = 'running'
+            RETURNING id
+        """))
+        db.commit()
+        
+        rows = result.fetchall()
+        cleared_ids = [str(row[0]) for row in rows]
+    finally:
+        db.close()
+    
+    # Delete status file
+    clear_status_file()
+    
+    return jsonify({
+        'message': f'Cleared {len(cleared_ids)} running tests',
+        'cleared_test_ids': cleared_ids
+    })
+
+
+@test_runner_api.route('/reset', methods=['POST'])
+@require_auth
+def reset_test_state():
+    """Reset all test state for a fresh start.
+    
+    This clears:
+    - All running/interrupted tests (marks as failed)
+    - status.json file
+    - Progress files (optional, based on request param)
+    
+    Use with caution - this is a destructive operation.
+    """
+    data = request.get_json() or {}
+    clear_results = data.get('clear_results', False)
+    
+    db = persistence_get_db_session()
+    try:
+        # Mark all running/interrupted tests as failed
+        result = db.execute(text("""
+            UPDATE test_runs 
+            SET status = 'failed', 
+                error_message = 'Reset by user',
+                completed_at = NOW()
+            WHERE status IN ('running', 'interrupted')
+            RETURNING id
+        """))
+        db.commit()
+        
+        rows = result.fetchall()
+        reset_ids = [str(row[0]) for row in rows]
+    finally:
+        db.close()
+    
+    # Delete status file
+    clear_status_file()
+    
+    # Optionally clear progress files
+    files_deleted = 0
+    if clear_results:
+        results_dir = Path('test_results')
+        if results_dir.exists():
+            for f in results_dir.glob('*.jsonl'):
+                try:
+                    f.unlink()
+                    files_deleted += 1
+                except Exception:
+                    pass
+            for f in results_dir.glob('*_checkpoint.json'):
+                try:
+                    f.unlink()
+                    files_deleted += 1
+                except Exception:
+                    pass
+    
+    return jsonify({
+        'message': 'Test state reset complete',
+        'reset_test_ids': reset_ids,
+        'files_deleted': files_deleted,
+        'status': 'idle'
+    })
 
 
 @test_runner_api.route('/history', methods=['GET'])

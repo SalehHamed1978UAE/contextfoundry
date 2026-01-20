@@ -145,100 +145,109 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
     if config is None:
         config = TestConfig('src/test_config.json')
     
-    print("\n" + "=" * 70)
-    print(f"TEST RUNNER: Vault {vault_id[:8]}... ({mode.upper()} mode)")
+    log("\n" + "=" * 70)
+    log(f"TEST RUNNER: Vault {vault_id[:8]}... ({mode.upper()} mode)")
     if test_run_id:
-        print(f"Test Run ID: {test_run_id}")
-    print("=" * 70)
+        log(f"Test Run ID: {test_run_id}")
+    log("=" * 70)
     
     update_status(overall_status='running')
     if test_run_id:
         update_test_run_stage(test_run_id, 'create' if mode == 'fresh' else 'qa')
     
+    # Track completion status for try/finally
+    test_completed = False
+    final_status = 'failed'
+    error_msg = None
+    results = None
+    
     vm = VaultManager(config.api_base_url)
     evaluator = FuzzyEvaluator()
     executor = TestExecutor(vm, evaluator)
     
-    print("\n[Auth] Authenticating...")
-    if not vm.authenticate_dev():
-        print("ERROR: Failed to authenticate")
-        update_status('qa', stage_status='failed', overall_status='failed')
-        return None
-    
-    if mode == 'fresh':
-        update_status('delete', stage_status='running')
-        print("\n[Stage: Delete] Deleting existing vault data...")
-        try:
-            vm.delete_vault(vault_id)
-            update_status('delete', stage_status='complete')
-        except Exception as e:
-            print(f"  Delete failed (may not exist): {e}")
-            update_status('delete', stage_status='complete')
-        
-        update_status('create', stage_status='running')
-        print("\n[Stage: Create] Creating new vault...")
-        new_vault_id = vm.create_vault(f"test-{vault_id[:8]}")
-        vault_id = new_vault_id
-        update_status('create', stage_status='complete', vault_id=str(vault_id))
-        
-        if not vm.authenticate_dev(tenant_id=vault_id):
-            print("WARNING: Failed to set vault context")
-        
-        update_status('upload', stage_status='running')
-        print("\n[Stage: Upload] Uploading documents...")
-        from .document_uploader import get_files_to_upload
-        root_path = Path(corpus_folder)
-        files = get_files_to_upload(root_path, config.upload_rules)
-        print(f"  Found {len(files)} files")
-        
-        for i, file_path in enumerate(files):
-            success = vm.upload_document(vault_id, file_path)
-            if (i + 1) % 20 == 0:
-                print(f"  [{i+1}/{len(files)}] uploaded")
-        
-        update_status('upload', stage_status='complete', file_count=len(files))
-        
-        update_status('extract', stage_status='running')
-        print("\n[Stage: Extract] Waiting for extraction...")
-        extraction_config = config.extraction_config
-        
-        try:
-            def on_entity_update(count):
-                update_status('extract', stage_status='running', entities=count)
-            
-            vm.wait_for_extraction(
-                vault_id,
-                expected_docs=len(files),
-                timeout_minutes=extraction_config.get('timeout_minutes', 20),
-                poll_interval=extraction_config.get('poll_interval_seconds', 10)
-            )
-            stats = vm.get_vault_stats(vault_id)
-            update_status('extract', stage_status='complete', entities=stats.get('entity_count', 0))
-        except TimeoutError as e:
-            print(f"  ERROR: {e}")
-            update_status('extract', stage_status='failed', overall_status='failed')
-            return None
-    else:
-        update_status('delete', stage_status='skipped')
-        update_status('create', stage_status='skipped')
-        update_status('upload', stage_status='skipped')
-        update_status('extract', stage_status='skipped')
-        
-        if not vm.authenticate_dev(tenant_id=vault_id):
-            print("WARNING: Failed to set vault context")
-    
-    update_status('qa', stage_status='running')
-    print("\n[Stage: Q&A] Loading questions...")
-    questions_data = load_question_set_from_db(question_set_id)
-    if not questions_data:
-        print(f"ERROR: Question set not found: {question_set_id}")
-        update_status('qa', stage_status='failed', overall_status='failed')
-        return None
-    print(f"  Loaded {len(questions_data)} questions")
-    
-    print("\n[Stage: Q&A] Running test...")
-    extraction_config = config.extraction_config
     try:
+        log("\n[Auth] Authenticating...")
+        if not vm.authenticate_dev():
+            log("ERROR: Failed to authenticate")
+            update_status('qa', stage_status='failed', overall_status='failed')
+            error_msg = "Failed to authenticate"
+            return None
+        
+        if mode == 'fresh':
+            update_status('delete', stage_status='running')
+            log("\n[Stage: Delete] Deleting existing vault data...")
+            try:
+                vm.delete_vault(vault_id)
+                update_status('delete', stage_status='complete')
+            except Exception as e:
+                log(f"  Delete failed (may not exist): {e}")
+                update_status('delete', stage_status='complete')
+            
+            update_status('create', stage_status='running')
+            log("\n[Stage: Create] Creating new vault...")
+            new_vault_id = vm.create_vault(f"test-{vault_id[:8]}")
+            vault_id = new_vault_id
+            update_status('create', stage_status='complete', vault_id=str(vault_id))
+            
+            if not vm.authenticate_dev(tenant_id=vault_id):
+                log("WARNING: Failed to set vault context")
+            
+            update_status('upload', stage_status='running')
+            log("\n[Stage: Upload] Uploading documents...")
+            from .document_uploader import get_files_to_upload
+            root_path = Path(corpus_folder)
+            files = get_files_to_upload(root_path, config.upload_rules)
+            log(f"  Found {len(files)} files")
+            
+            for i, file_path in enumerate(files):
+                success = vm.upload_document(vault_id, file_path)
+                if (i + 1) % 20 == 0:
+                    log(f"  [{i+1}/{len(files)}] uploaded")
+            
+            update_status('upload', stage_status='complete', file_count=len(files))
+            
+            update_status('extract', stage_status='running')
+            log("\n[Stage: Extract] Waiting for extraction...")
+            extraction_config = config.extraction_config
+            
+            try:
+                def on_entity_update(count):
+                    update_status('extract', stage_status='running', entities=count)
+                
+                vm.wait_for_extraction(
+                    vault_id,
+                    expected_docs=len(files),
+                    timeout_minutes=extraction_config.get('timeout_minutes', 20),
+                    poll_interval=extraction_config.get('poll_interval_seconds', 10)
+                )
+                stats = vm.get_vault_stats(vault_id)
+                update_status('extract', stage_status='complete', entities=stats.get('entity_count', 0))
+            except TimeoutError as e:
+                log(f"  ERROR: {e}")
+                update_status('extract', stage_status='failed', overall_status='failed')
+                error_msg = str(e)
+                return None
+        else:
+            update_status('delete', stage_status='skipped')
+            update_status('create', stage_status='skipped')
+            update_status('upload', stage_status='skipped')
+            update_status('extract', stage_status='skipped')
+            
+            if not vm.authenticate_dev(tenant_id=vault_id):
+                log("WARNING: Failed to set vault context")
+        
+        update_status('qa', stage_status='running')
+        log("\n[Stage: Q&A] Loading questions...")
+        questions_data = load_question_set_from_db(question_set_id)
+        if not questions_data:
+            log(f"ERROR: Question set not found: {question_set_id}")
+            update_status('qa', stage_status='failed', overall_status='failed')
+            error_msg = f"Question set not found: {question_set_id}"
+            return None
+        log(f"  Loaded {len(questions_data)} questions")
+        
+        log("\n[Stage: Q&A] Running test...")
+        extraction_config = config.extraction_config
         results = executor.run_test(
             vault_id=vault_id,
             questions_data=questions_data,
@@ -247,37 +256,55 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             min_chunks=extraction_config.get('min_expected_chunks', 50),
             test_run_id=test_run_id
         )
-    except ValueError as e:
-        print(f"  ERROR: {e}")
-        update_status('qa', stage_status='failed', overall_status='failed')
+        
+        update_status('qa', stage_status='complete', overall_status='finished', 
+                      qa_progress={
+                          'total': results['results']['total'],
+                          'answered': results['results']['total'],
+                          'passed': results['results']['passed'],
+                          'failed': results['results']['failed'],
+                          'accuracy_percent': results['results']['accuracy_pct']
+                      })
+        
+        test_completed = True
+        final_status = 'complete'
+        
+        log("\n" + "=" * 70)
+        log("TEST COMPLETE")
+        log(f"Score: {results['results']['passed']}/{results['results']['total']} ({results['results']['accuracy_pct']}%)")
+        log("=" * 70 + "\n")
+        
+        return results
+        
+    except Exception as e:
+        log(f"ERROR: Unexpected exception: {e}")
+        error_msg = str(e)
+        final_status = 'failed'
+        raise
+        
+    finally:
+        # ALWAYS update DB with final status - this is the single source of truth
         if test_run_id:
-            complete_test_run(test_run_id, status='failed', error_message=str(e))
-        return None
-    
-    update_status('qa', stage_status='complete', overall_status='finished', 
-                  qa_progress={
-                      'total': results['results']['total'],
-                      'answered': results['results']['total'],
-                      'passed': results['results']['passed'],
-                      'failed': results['results']['failed'],
-                      'accuracy_percent': results['results']['accuracy_pct']
-                  })
-    
-    if test_run_id:
-        safe_name = f"vault_{vault_id[:8]}"
-        progress_file = config.results_dir / f"{safe_name}_{vault_id[:8]}_progress.jsonl"
-        complete_test_run(
-            test_run_id, 
-            status='complete',
-            results_file=str(progress_file) if progress_file.exists() else None
-        )
-    
-    print("\n" + "=" * 70)
-    print("TEST COMPLETE")
-    print(f"Score: {results['results']['passed']}/{results['results']['total']} ({results['results']['accuracy_pct']}%)")
-    print("=" * 70 + "\n")
-    
-    return results
+            if test_completed:
+                safe_name = f"vault_{vault_id[:8]}"
+                progress_file = config.results_dir / f"{safe_name}_{vault_id[:8]}_progress.jsonl"
+                complete_test_run(
+                    test_run_id, 
+                    status='complete',
+                    results_file=str(progress_file) if progress_file.exists() else None
+                )
+            else:
+                # Test didn't complete normally - mark as failed or interrupted
+                complete_test_run(test_run_id, status=final_status, error_message=error_msg)
+            log(f"[DB] Test run {test_run_id} marked as {final_status}")
+        
+        # Clean up ephemeral status file on completion/failure
+        if STATUS_FILE_PATH.exists():
+            try:
+                STATUS_FILE_PATH.unlink()
+                log("[Cleanup] Deleted status.json")
+            except Exception:
+                pass
 
 
 def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, fresh: bool = False, question_set_id: str = None):
