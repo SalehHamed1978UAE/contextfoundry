@@ -64,6 +64,24 @@ def create_test_run(
         session.close()
 
 
+def update_question_set_vault(question_set_id: str, new_vault_id: str):
+    """Update the vault_id of a question set when Fresh mode creates a new vault.
+    
+    This ensures the question set remains accessible after the old vault is deleted
+    and a new one is created with the same name.
+    """
+    session = get_db_session()
+    try:
+        session.execute(text("""
+            UPDATE question_sets 
+            SET vault_id = :new_vault_id
+            WHERE id = :question_set_id
+        """), {'question_set_id': question_set_id, 'new_vault_id': new_vault_id})
+        session.commit()
+    finally:
+        session.close()
+
+
 def update_test_run_stage(test_run_id: str, stage: str, **kwargs):
     """Update the current stage of a test run and refresh heartbeat."""
     session = get_db_session()
