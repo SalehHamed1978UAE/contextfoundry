@@ -1438,7 +1438,8 @@
             
             if (status.current_question) {
                 currentQuestionBox.style.display = 'block';
-                currentQuestionText.textContent = status.current_question;
+                const q = status.current_question;
+                currentQuestionText.textContent = typeof q === 'string' ? q : (q.text || q.question || JSON.stringify(q));
             } else {
                 currentQuestionBox.style.display = 'none';
             }
