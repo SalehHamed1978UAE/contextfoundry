@@ -146,6 +146,8 @@ class TestExecutor:
             if q_num in completed_ids or str(q_num) in completed_ids:
                 continue
             
+            log(f"  Processing Q{q_num}/{len(questions)}...")
+            
             query = q.get('question', q.get('query', ''))
             expected = q.get('expected_answer', q.get('expected', ''))
             category = q.get('category', q.get('type', ''))

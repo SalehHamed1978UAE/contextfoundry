@@ -1,12 +1,12 @@
 {
-  "status": "running",
+  "status": "interrupted",
   "vault_id": "47d54408-69f8-4af8-934e-df5909ee2071",
   "question_set_id": "3b322d7f-74f1-4bed-ad59-f8b3d873981a",
   "test_run_id": "d43638fb-5449-4f5a-b7bd-4341903e23a1",
   "mode": "auto",
   "corpus_folder": null,
-  "started_at": "2026-01-20T07:51:15.693251",
-  "pid": 8798,
+  "started_at": "2026-01-20T08:44:22.186153",
+  "pid": 10243,
   "stages": {
     "delete": {
       "status": "skipped"
@@ -32,5 +32,29 @@
     "accuracy_percent": 0
   },
   "current_question": null,
-  "updated_at": "2026-01-20T07:51:16.927292"
+  "updated_at": "2026-01-20T08:58:41.534513",
+  "db_status": {
+    "id": "d43638fb-5449-4f5a-b7bd-4341903e23a1",
+    "vault_id": "47d54408-69f8-4af8-934e-df5909ee2071",
+    "vault_name": "Manus Healthtec",
+    "question_set_id": "3b322d7f-74f1-4bed-ad59-f8b3d873981a",
+    "question_set_name": "question_bank_200",
+    "mode": "auto",
+    "corpus_folder": null,
+    "status": "interrupted",
+    "db_status": "running",
+    "stage": "qa",
+    "started_at": "2026-01-20T05:13:47.973371+00:00",
+    "questions_total": 235,
+    "questions_answered": 195,
+    "questions_passed": 181,
+    "questions_failed": 14,
+    "checkpoint": {
+      "last_question_id": 195,
+      "last_question_text": "How many office days per week are encouraged for teams?"
+    },
+    "heartbeat_at": "2026-01-20T08:44:24.537749+00:00",
+    "heartbeat_age_seconds": 300.316448
+  },
+  "message": "Test interrupted at 0/0 questions. Click Resume to continue."
 }
