@@ -71,10 +71,43 @@ def clear_status_file():
         STATUS_FILE_PATH.unlink()
 
 
+import re
+
+def parse_markdown_questions(content: str) -> list:
+    """Parse questions from markdown format with **Question:**/**Answer:** structure."""
+    questions = []
+    
+    question_pattern = re.compile(
+        r'###\s*Q(\d+)\s*\n'
+        r'\*\*Question:\*\*\s*(.+?)\s*\n'
+        r'\*\*Answer:\*\*\s*(.+?)\s*\n'
+        r'(?:\*\*Source:\*\*\s*(.+?)\s*\n)?'
+        r'(?:\*\*Type:\*\*\s*(.+?)\s*\n)?'
+        r'(?:\*\*Difficulty:\*\*\s*(.+?)\s*(?:\n|$))?',
+        re.MULTILINE | re.DOTALL
+    )
+    
+    for match in question_pattern.finditer(content):
+        q_num, question, answer, source, q_type, difficulty = match.groups()
+        q_obj = {
+            'question': question.strip(),
+            'expected_answer': answer.strip()
+        }
+        if source:
+            q_obj['source'] = source.strip()
+        if q_type:
+            q_obj['type'] = q_type.strip()
+        if difficulty:
+            q_obj['difficulty'] = difficulty.strip()
+        questions.append(q_obj)
+    
+    return questions
+
+
 @test_runner_api.route('/question-sets/upload', methods=['POST'])
 @require_auth
 def upload_question_set():
-    """Upload a question set from JSON or JSONL file."""
+    """Upload a question set from JSON, JSONL, or Markdown file."""
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
     
@@ -82,15 +115,19 @@ def upload_question_set():
     if not file.filename:
         return jsonify({'error': 'No file selected'}), 400
     
-    if not file.filename.endswith(('.json', '.jsonl')):
-        return jsonify({'error': 'File must be .json or .jsonl'}), 400
+    if not file.filename.endswith(('.json', '.jsonl', '.md')):
+        return jsonify({'error': 'File must be .json, .jsonl, or .md'}), 400
     
     name = request.form.get('name') or Path(file.filename).stem
     
     try:
         content = file.read().decode('utf-8')
         
-        if file.filename.endswith('.jsonl'):
+        if file.filename.endswith('.md'):
+            questions = parse_markdown_questions(content)
+            if not questions:
+                return jsonify({'error': 'No questions found in markdown file. Expected format: ### Q1\\n**Question:** ...\\n**Answer:** ...'}), 400
+        elif file.filename.endswith('.jsonl'):
             questions = []
             for line in content.strip().split('\n'):
                 if line.strip():

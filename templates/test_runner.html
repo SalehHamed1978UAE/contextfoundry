@@ -795,9 +795,9 @@
                     <div class="upload-section">
                         <label class="form-label">Upload New Question Set</label>
                         <div class="file-input-wrapper">
-                            <input type="file" id="questionFile" accept=".json,.jsonl">
+                            <input type="file" id="questionFile" accept=".json,.jsonl,.md">
                             <label for="questionFile" class="file-label" id="fileLabel">
-                                Click to upload .json or .jsonl
+                                Click to upload .json, .jsonl, or .md
                             </label>
                             <button type="button" class="btn" id="uploadBtn" disabled>Upload</button>
                         </div>
@@ -1594,7 +1594,7 @@
                     addLog(`Uploaded: ${data.name} (${data.question_count} questions)`, 'success');
                     fetchQuestionSets();
                     fileInput.value = '';
-                    document.getElementById('fileLabel').textContent = 'Click to upload .json or .jsonl';
+                    document.getElementById('fileLabel').textContent = 'Click to upload .json, .jsonl, or .md';
                     document.getElementById('fileLabel').classList.remove('has-file');
                     document.getElementById('uploadBtn').disabled = true;
                 } else {
@@ -1634,7 +1634,7 @@
                 label.classList.add('has-file');
                 uploadBtn.disabled = false;
             } else {
-                label.textContent = 'Click to upload .json or .jsonl';
+                label.textContent = 'Click to upload .json, .jsonl, or .md';
                 label.classList.remove('has-file');
                 uploadBtn.disabled = true;
             }
