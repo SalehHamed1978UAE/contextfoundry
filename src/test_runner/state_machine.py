@@ -1,225 +1,194 @@
 """
-Test Runner State Machine
+Test Runner State Machine - Single Source of Truth
 
-Defines the formal state machine for test runs with:
-- TestRunState enum for overall test status
-- TestRunStage enum for pipeline stages
-- Valid transitions with validation
-- Atomic transition_to() function
+Implements the specification exactly:
+- TestRunStatus enum with 7 states
+- Valid transitions table
+- transition_to() as the ONLY way to change status
+- Heartbeat stale detection for INTERRUPTED
 """
 
 from enum import Enum
-from typing import Optional, Set, Dict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta
+from typing import Optional, Dict, Any, Set
+import os
 import logging
+import json
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-import os
 
 logger = logging.getLogger(__name__)
 
+HEARTBEAT_TIMEOUT_MINUTES = 5
 
-class TestRunState(Enum):
-    """Overall status of a test run."""
-    PENDING = 'pending'
-    RUNNING = 'running'
+
+class TestRunStatus(Enum):
+    CREATING_VAULT = 'creating_vault'
+    UPLOADING = 'uploading'
+    EXTRACTING = 'extracting'
+    RUNNING_QA = 'running_qa'
     COMPLETE = 'complete'
     FAILED = 'failed'
     INTERRUPTED = 'interrupted'
 
 
-class TestRunStage(Enum):
-    """Pipeline stages for a test run (Fresh mode uses all, Auto mode skips to QA)."""
-    INIT = 'init'
-    DELETE = 'delete'
-    CREATE = 'create'
-    UPLOAD = 'upload'
-    EXTRACT = 'extract'
-    QA = 'qa'
-    COMPLETE = 'complete'
+ACTIVE_STATUSES = [
+    TestRunStatus.CREATING_VAULT.value,
+    TestRunStatus.UPLOADING.value,
+    TestRunStatus.EXTRACTING.value,
+    TestRunStatus.RUNNING_QA.value,
+]
 
-
-VALID_STATE_TRANSITIONS: Dict[TestRunState, Set[TestRunState]] = {
-    TestRunState.PENDING: {TestRunState.RUNNING, TestRunState.FAILED},
-    TestRunState.RUNNING: {TestRunState.COMPLETE, TestRunState.FAILED, TestRunState.INTERRUPTED},
-    TestRunState.COMPLETE: set(),
-    TestRunState.FAILED: {TestRunState.RUNNING},
-    TestRunState.INTERRUPTED: {TestRunState.RUNNING, TestRunState.FAILED},
+VALID_TRANSITIONS: Dict[Optional[TestRunStatus], Set[TestRunStatus]] = {
+    None: {TestRunStatus.CREATING_VAULT, TestRunStatus.RUNNING_QA},
+    TestRunStatus.CREATING_VAULT: {TestRunStatus.UPLOADING, TestRunStatus.FAILED, TestRunStatus.INTERRUPTED},
+    TestRunStatus.UPLOADING: {TestRunStatus.EXTRACTING, TestRunStatus.FAILED, TestRunStatus.INTERRUPTED},
+    TestRunStatus.EXTRACTING: {TestRunStatus.RUNNING_QA, TestRunStatus.FAILED, TestRunStatus.INTERRUPTED},
+    TestRunStatus.RUNNING_QA: {TestRunStatus.COMPLETE, TestRunStatus.FAILED, TestRunStatus.INTERRUPTED},
+    TestRunStatus.INTERRUPTED: {TestRunStatus.RUNNING_QA},
+    TestRunStatus.COMPLETE: set(),
+    TestRunStatus.FAILED: set(),
 }
 
-STAGE_ORDER = [
-    TestRunStage.INIT,
-    TestRunStage.DELETE,
-    TestRunStage.CREATE,
-    TestRunStage.UPLOAD,
-    TestRunStage.EXTRACT,
-    TestRunStage.QA,
-    TestRunStage.COMPLETE,
-]
+
+class InvalidStateTransition(Exception):
+    """Raised when an invalid state transition is attempted."""
+    def __init__(self, from_status: Optional[str], to_status: str):
+        self.from_status = from_status
+        self.to_status = to_status
+        super().__init__(f"Invalid transition from '{from_status}' to '{to_status}'")
+
+
+def is_valid_transition(from_status: Optional[TestRunStatus], to_status: TestRunStatus) -> bool:
+    """Check if a transition is valid according to the state machine."""
+    valid_targets = VALID_TRANSITIONS.get(from_status, set())
+    return to_status in valid_targets
 
 
 def get_db_session():
-    """Get database session."""
+    """Get a database session."""
     database_url = os.environ.get('DATABASE_URL')
     if not database_url:
-        raise RuntimeError("DATABASE_URL not configured")
+        raise RuntimeError("DATABASE_URL not set")
+    
     engine = create_engine(database_url)
     Session = sessionmaker(bind=engine)
     return Session()
 
 
-def is_valid_state_transition(from_state: TestRunState, to_state: TestRunState) -> bool:
-    """Check if a state transition is valid."""
-    if from_state == to_state:
-        return True
-    return to_state in VALID_STATE_TRANSITIONS.get(from_state, set())
-
-
-def is_valid_stage_progression(from_stage: TestRunStage, to_stage: TestRunStage, mode: str) -> bool:
-    """Check if a stage progression is valid.
-    
-    In Fresh mode, must progress through all stages in order.
-    In Auto mode, can skip directly to QA.
-    """
-    if from_stage == to_stage:
-        return True
-    
-    from_idx = STAGE_ORDER.index(from_stage)
-    to_idx = STAGE_ORDER.index(to_stage)
-    
-    if mode == 'auto':
-        return to_idx > from_idx
-    
-    return to_idx == from_idx + 1
-
-
 def create_test_run(
-    vault_id: Optional[str],
-    vault_name: str,
-    question_set_id: str,
-    question_set_name: str,
     mode: str,
-    corpus_folder: Optional[str] = None,
-    questions_total: int = 0
+    vault_id: Optional[str],
+    vault_name: Optional[str],
+    question_set_id: str,
+    questions_total: int
 ) -> str:
-    """Create a new test run in PENDING state.
+    """
+    Create a new test run with appropriate initial status.
     
-    For Fresh mode, vault_id can be NULL (will be set after vault creation).
-    For Auto mode, vault_id must be provided.
+    Fresh mode: status=CREATING_VAULT, vault_id=NULL
+    Auto mode: status=RUNNING_QA, vault_id from payload
     
-    Returns the test_run_id.
+    Returns the new test run ID.
     """
     session = get_db_session()
     try:
-        initial_stage = TestRunStage.INIT.value
+        if mode == 'fresh':
+            initial_status = TestRunStatus.CREATING_VAULT.value
+            actual_vault_id = None
+        else:
+            initial_status = TestRunStatus.RUNNING_QA.value
+            actual_vault_id = vault_id
         
-        result = session.execute(text("""
-            INSERT INTO test_runs (
-                vault_id, vault_name, question_set_id, question_set_name,
-                mode, corpus_folder, status, stage, questions_total, heartbeat_at
-            ) VALUES (
-                :vault_id, :vault_name, :question_set_id, :question_set_name,
-                :mode, :corpus_folder, :status, :stage, :questions_total, NOW()
-            )
-            RETURNING id
-        """), {
-            'vault_id': vault_id,
-            'vault_name': vault_name,
-            'question_set_id': question_set_id,
-            'question_set_name': question_set_name,
-            'mode': mode,
-            'corpus_folder': corpus_folder,
-            'status': TestRunState.PENDING.value,
-            'stage': initial_stage,
-            'questions_total': questions_total
-        })
-        session.commit()
+        now = datetime.utcnow()
+        
+        result = session.execute(
+            text("""
+                INSERT INTO test_runs (
+                    status, mode, vault_id, vault_name, question_set_id,
+                    questions_total, questions_answered, questions_passed, questions_failed,
+                    created_at, heartbeat_at, started_at
+                ) VALUES (
+                    :status, :mode, :vault_id, :vault_name, :question_set_id,
+                    :questions_total, 0, 0, 0,
+                    :created_at, :heartbeat_at, :started_at
+                ) RETURNING id
+            """),
+            {
+                'status': initial_status,
+                'mode': mode,
+                'vault_id': actual_vault_id,
+                'vault_name': vault_name,
+                'question_set_id': question_set_id,
+                'questions_total': questions_total,
+                'created_at': now,
+                'heartbeat_at': now,
+                'started_at': now if mode == 'auto' else None,
+            }
+        )
         row = result.fetchone()
-        test_run_id = str(row[0])
-        
-        logger.info(f"[StateMachine] Created test run {test_run_id}: state=PENDING, stage=INIT, mode={mode}")
-        return test_run_id
+        if not row:
+            raise RuntimeError("Failed to insert test run - no ID returned")
+        run_id = row[0]
+        session.commit()
+        logger.info(f"[StateMachine] Created test run {run_id}: status={initial_status}, mode={mode}")
+        return str(run_id)
     finally:
         session.close()
 
 
 def transition_to(
-    test_run_id: str,
-    new_state: Optional[TestRunState] = None,
-    new_stage: Optional[TestRunStage] = None,
+    run_id: str,
+    new_status: TestRunStatus,
     vault_id: Optional[str] = None,
-    error_message: Optional[str] = None,
-    questions_total: Optional[int] = None,
+    vault_name: Optional[str] = None,
     questions_answered: Optional[int] = None,
     questions_passed: Optional[int] = None,
     questions_failed: Optional[int] = None,
+    current_question: Optional[Dict[str, Any]] = None,
+    error_message: Optional[str] = None,
     results_file: Optional[str] = None
-) -> bool:
-    """Transition a test run to a new state and/or stage.
+) -> None:
+    """
+    Transition a test run to a new status.
     
-    This is the ONLY function that should modify test_run status/stage.
-    It validates transitions and atomically updates the DB.
+    This is the ONLY function that should modify test_run status.
+    Validates the transition before applying it.
     
-    Args:
-        test_run_id: The test run to transition
-        new_state: New status (if changing)
-        new_stage: New stage (if changing)
-        vault_id: New vault_id (for Fresh mode after vault creation)
-        error_message: Error message (for FAILED state)
-        questions_*: Q&A progress counters
-        results_file: Path to results file (on completion)
-    
-    Returns:
-        True if transition was successful, False if invalid
+    Raises InvalidStateTransition if the transition is not allowed.
     """
     session = get_db_session()
     try:
-        result = session.execute(text("""
-            SELECT status, stage, mode FROM test_runs WHERE id = :id
-        """), {'id': test_run_id})
+        result = session.execute(
+            text("SELECT status FROM test_runs WHERE id = :id"),
+            {'id': run_id}
+        )
         row = result.fetchone()
-        
         if not row:
-            logger.error(f"[StateMachine] Test run {test_run_id} not found")
-            return False
+            raise ValueError(f"Test run {run_id} not found")
         
-        current_state = TestRunState(row[0])
-        current_stage = TestRunStage(row[1])
-        mode = row[2]
+        old_status_str = row[0]
+        old_status = TestRunStatus(old_status_str) if old_status_str else None
         
-        if new_state and not is_valid_state_transition(current_state, new_state):
-            logger.error(f"[StateMachine] Invalid state transition: {current_state.value} -> {new_state.value}")
-            return False
+        if not is_valid_transition(old_status, new_status):
+            raise InvalidStateTransition(old_status_str, new_status.value)
         
-        if new_stage and not is_valid_stage_progression(current_stage, new_stage, mode):
-            logger.warning(f"[StateMachine] Stage progression {current_stage.value} -> {new_stage.value} (allowing anyway)")
+        now = datetime.utcnow()
         
-        updates = ["heartbeat_at = NOW()"]
-        params = {'id': test_run_id}
-        
-        if new_state:
-            updates.append("status = :new_status")
-            params['new_status'] = new_state.value
-            
-            if new_state == TestRunState.COMPLETE:
-                updates.append("completed_at = NOW()")
-        
-        if new_stage:
-            updates.append("stage = :new_stage")
-            params['new_stage'] = new_stage.value
+        updates = ["status = :new_status", "heartbeat_at = :now"]
+        params = {
+            'new_status': new_status.value,
+            'now': now,
+        }
         
         if vault_id is not None:
             updates.append("vault_id = :vault_id")
             params['vault_id'] = vault_id
         
-        if error_message is not None:
-            updates.append("error_message = :error_message")
-            params['error_message'] = error_message
-        
-        if questions_total is not None:
-            updates.append("questions_total = :questions_total")
-            params['questions_total'] = questions_total
+        if vault_name is not None:
+            updates.append("vault_name = :vault_name")
+            params['vault_name'] = vault_name
         
         if questions_answered is not None:
             updates.append("questions_answered = :questions_answered")
@@ -233,153 +202,213 @@ def transition_to(
             updates.append("questions_failed = :questions_failed")
             params['questions_failed'] = questions_failed
         
+        if current_question is not None:
+            updates.append("current_question = :current_question")
+            params['current_question'] = json.dumps(current_question)
+        
+        if error_message is not None:
+            updates.append("error_message = :error_message")
+            params['error_message'] = error_message
+        
         if results_file is not None:
             updates.append("results_file = :results_file")
             params['results_file'] = results_file
         
-        session.execute(text(f"""
-            UPDATE test_runs SET {', '.join(updates)} WHERE id = :id
-        """), params)
+        if new_status == TestRunStatus.RUNNING_QA:
+            updates.append("started_at = COALESCE(started_at, :started_at)")
+            params['started_at'] = now
+        
+        if new_status in (TestRunStatus.COMPLETE, TestRunStatus.FAILED, TestRunStatus.INTERRUPTED):
+            updates.append("completed_at = :completed_at")
+            params['completed_at'] = now
+        
+        params['id'] = run_id
+        sql = f"UPDATE test_runs SET {', '.join(updates)} WHERE id = :id"
+        session.execute(text(sql), params)
         session.commit()
         
-        state_str = f"state={new_state.value}" if new_state else ""
-        stage_str = f"stage={new_stage.value}" if new_stage else ""
-        logger.info(f"[StateMachine] Transition {test_run_id}: {state_str} {stage_str}".strip())
+        logger.info(f"[StateMachine] Transition {run_id}: {old_status_str} -> {new_status.value}")
         
-        return True
-    except Exception as e:
-        logger.error(f"[StateMachine] Transition failed: {e}")
-        session.rollback()
-        return False
     finally:
         session.close()
 
 
-def get_test_run(test_run_id: str) -> Optional[dict]:
-    """Get a test run by ID."""
+def refresh_heartbeat(
+    run_id: str,
+    questions_answered: Optional[int] = None,
+    questions_passed: Optional[int] = None,
+    questions_failed: Optional[int] = None,
+    current_question: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Update heartbeat and optionally progress counters.
+    
+    Called after each question and after each major stage during Fresh mode.
+    Does NOT change status - use transition_to() for that.
+    """
     session = get_db_session()
     try:
-        result = session.execute(text("""
-            SELECT 
-                id, vault_id, vault_name, question_set_id, question_set_name,
-                mode, corpus_folder, status, stage, started_at, completed_at,
-                questions_total, questions_answered, questions_passed, questions_failed,
-                error_message, results_file, heartbeat_at
-            FROM test_runs WHERE id = :id
-        """), {'id': test_run_id})
-        row = result.fetchone()
+        now = datetime.utcnow()
         
+        updates = ["heartbeat_at = :now"]
+        params = {'id': run_id, 'now': now}
+        
+        if questions_answered is not None:
+            updates.append("questions_answered = :questions_answered")
+            params['questions_answered'] = questions_answered
+        
+        if questions_passed is not None:
+            updates.append("questions_passed = :questions_passed")
+            params['questions_passed'] = questions_passed
+        
+        if questions_failed is not None:
+            updates.append("questions_failed = :questions_failed")
+            params['questions_failed'] = questions_failed
+        
+        if current_question is not None:
+            updates.append("current_question = :current_question")
+            params['current_question'] = json.dumps(current_question)
+        
+        sql = f"UPDATE test_runs SET {', '.join(updates)} WHERE id = :id"
+        session.execute(text(sql), params)
+        session.commit()
+        
+    finally:
+        session.close()
+
+
+def get_running_test() -> Optional[Dict[str, Any]]:
+    """
+    Get the currently running test (if any).
+    
+    Returns the test run with an active status, or None if no test is running.
+    """
+    session = get_db_session()
+    try:
+        result = session.execute(
+            text("""
+                SELECT id, status, mode, vault_id, vault_name, question_set_id,
+                       questions_total, questions_answered, questions_passed, questions_failed,
+                       current_question, created_at, started_at, completed_at, heartbeat_at,
+                       error_message, results_file
+                FROM test_runs
+                WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
+                ORDER BY created_at DESC
+                LIMIT 1
+            """)
+        )
+        row = result.fetchone()
         if not row:
             return None
         
         return {
             'id': str(row[0]),
-            'vault_id': str(row[1]) if row[1] else None,
-            'vault_name': row[2],
-            'question_set_id': str(row[3]) if row[3] else None,
-            'question_set_name': row[4],
-            'mode': row[5],
-            'corpus_folder': row[6],
-            'status': row[7],
-            'state': TestRunState(row[7]),
-            'stage': row[8],
-            'stage_enum': TestRunStage(row[8]),
-            'started_at': row[9],
-            'completed_at': row[10],
-            'questions_total': row[11] or 0,
-            'questions_answered': row[12] or 0,
-            'questions_passed': row[13] or 0,
-            'questions_failed': row[14] or 0,
+            'status': row[1],
+            'mode': row[2],
+            'vault_id': row[3],
+            'vault_name': row[4],
+            'question_set_id': row[5],
+            'questions_total': row[6],
+            'questions_answered': row[7],
+            'questions_passed': row[8],
+            'questions_failed': row[9],
+            'current_question': row[10],
+            'created_at': row[11],
+            'started_at': row[12],
+            'completed_at': row[13],
+            'heartbeat_at': row[14],
             'error_message': row[15],
             'results_file': row[16],
-            'heartbeat_at': row[17]
         }
     finally:
         session.close()
 
 
-def get_running_test() -> Optional[dict]:
-    """Get the currently running test, or None if no test is running.
-    
-    Uses heartbeat to detect stale tests and mark them as interrupted.
+def cleanup_stale_tests() -> int:
     """
-    from .persistence import HEARTBEAT_TIMEOUT_SECONDS
+    Detect and interrupt stale runs (heartbeat older than HEARTBEAT_TIMEOUT_MINUTES).
     
+    Called on API startup and can be called via cron.
+    Returns the number of tests interrupted.
+    """
     session = get_db_session()
     try:
-        result = session.execute(text("""
-            SELECT id, heartbeat_at FROM test_runs 
-            WHERE status = 'running' 
-            ORDER BY started_at DESC LIMIT 1
-        """))
-        row = result.fetchone()
+        cutoff = datetime.utcnow() - timedelta(minutes=HEARTBEAT_TIMEOUT_MINUTES)
         
+        result = session.execute(
+            text("""
+                UPDATE test_runs
+                SET status = 'interrupted',
+                    error_message = 'Interrupted: heartbeat stale',
+                    completed_at = :now,
+                    heartbeat_at = :now
+                WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
+                AND heartbeat_at < :cutoff
+                RETURNING id
+            """),
+            {'cutoff': cutoff, 'now': datetime.utcnow()}
+        )
+        rows = result.fetchall()
+        session.commit()
+        
+        for row in rows:
+            logger.info(f"[StateMachine] Marked stale test {row[0]} as interrupted")
+        
+        return len(rows)
+        
+    finally:
+        session.close()
+
+
+def get_test_run(run_id: str) -> Optional[Dict[str, Any]]:
+    """Get a specific test run by ID."""
+    session = get_db_session()
+    try:
+        result = session.execute(
+            text("""
+                SELECT id, status, mode, vault_id, vault_name, question_set_id,
+                       questions_total, questions_answered, questions_passed, questions_failed,
+                       current_question, created_at, started_at, completed_at, heartbeat_at,
+                       error_message, results_file
+                FROM test_runs
+                WHERE id = :id
+            """),
+            {'id': run_id}
+        )
+        row = result.fetchone()
         if not row:
             return None
         
-        test_run_id = str(row[0])
-        heartbeat_at = row[1]
-        now = datetime.now(timezone.utc)
-        
-        if heartbeat_at:
-            if heartbeat_at.tzinfo is None:
-                heartbeat_at = heartbeat_at.replace(tzinfo=timezone.utc)
-            age_seconds = (now - heartbeat_at).total_seconds()
-            is_stale = age_seconds > HEARTBEAT_TIMEOUT_SECONDS
-        else:
-            is_stale = True
-        
-        if is_stale:
-            transition_to(test_run_id, new_state=TestRunState.INTERRUPTED, 
-                         error_message='Stale heartbeat - test interrupted')
-            return None
-        
-        return get_test_run(test_run_id)
+        return {
+            'id': str(row[0]),
+            'status': row[1],
+            'mode': row[2],
+            'vault_id': row[3],
+            'vault_name': row[4],
+            'question_set_id': row[5],
+            'questions_total': row[6],
+            'questions_answered': row[7],
+            'questions_passed': row[8],
+            'questions_failed': row[9],
+            'current_question': row[10],
+            'created_at': row[11],
+            'started_at': row[12],
+            'completed_at': row[13],
+            'heartbeat_at': row[14],
+            'error_message': row[15],
+            'results_file': row[16],
+        }
     finally:
         session.close()
 
 
-def cleanup_stale_tests() -> int:
-    """Mark tests with stale heartbeats as interrupted.
-    
-    Called on startup. Only affects tests with heartbeats older than timeout.
-    Returns count of tests marked as interrupted.
+def can_resume(run_id: str) -> bool:
     """
-    from .persistence import HEARTBEAT_TIMEOUT_SECONDS
+    Check if a test run can be resumed.
     
-    session = get_db_session()
-    try:
-        result = session.execute(text(f"""
-            UPDATE test_runs 
-            SET status = 'interrupted', 
-                error_message = 'Server restarted - stale heartbeat'
-            WHERE status = 'running'
-              AND (heartbeat_at IS NULL OR heartbeat_at < NOW() - INTERVAL '{HEARTBEAT_TIMEOUT_SECONDS} seconds')
-            RETURNING id
-        """))
-        session.commit()
-        
-        rows = result.fetchall()
-        if rows:
-            for row in rows:
-                logger.info(f"[StateMachine] Marked stale test {row[0]} as interrupted")
-        
-        return len(rows)
-    finally:
-        session.close()
-
-
-def refresh_heartbeat(test_run_id: str) -> bool:
-    """Refresh the heartbeat for a running test."""
-    session = get_db_session()
-    try:
-        session.execute(text("""
-            UPDATE test_runs SET heartbeat_at = NOW() WHERE id = :id
-        """), {'id': test_run_id})
-        session.commit()
-        return True
-    except Exception as e:
-        logger.error(f"[StateMachine] Failed to refresh heartbeat: {e}")
+    Resume only allowed when status is INTERRUPTED.
+    """
+    run = get_test_run(run_id)
+    if not run:
         return False
-    finally:
-        session.close()
+    return run['status'] == TestRunStatus.INTERRUPTED.value
