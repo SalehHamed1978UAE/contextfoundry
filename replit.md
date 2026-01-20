@@ -46,6 +46,11 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 20, 2026**: **Fresh Mode Fixes** - Fixed critical bugs in the test runner Fresh mode:
+  - Fixed delete_vault call: Now uses `find_vault_by_name()` to look up correct vault ID by name before deletion
+  - Fixed corpus folder path resolution: Uses `config.get_corpus()` to get root_path from config (with fallback)
+  - Added robust connection retry logic: `get_vault_stats()` now uses `_get_vault_stats_with_retry` with 5 retries, timeout handling, and re-authentication on connection errors
+  - Fresh mode now correctly finds 114 files in "Manus Healthtec" corpus
 - **Jan 20, 2026**: **State Management Refactoring** - Made database the single source of truth for test status:
   - Eliminated conflicting sources of truth between DB and status.json
   - Added try/finally in runner.py to ensure complete_test_run() always called
