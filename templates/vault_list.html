@@ -53,6 +53,32 @@
             box-shadow: 0 8px 24px var(--accent-glow);
         }
         
+        .test-runner-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .test-runner-btn:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-tertiary);
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
         .vaults-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -265,12 +291,20 @@
                     <h1 class="vault-title">My Vaults</h1>
                     <p class="vault-subtitle">Organize your knowledge into isolated spaces</p>
                 </div>
-                <a href="/app/new" class="create-btn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 5v14M5 12h14"/>
-                    </svg>
-                    Create New Vault
-                </a>
+                <div class="header-buttons">
+                    <a href="/test-runner" class="test-runner-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Test Runner
+                    </a>
+                    <a href="/app/new" class="create-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Create New Vault
+                    </a>
+                </div>
             </div>
             
             <div id="vaultsContainer" class="loading">
