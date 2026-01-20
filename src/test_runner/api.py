@@ -385,7 +385,7 @@ def start_test():
         resume_run_id: UUID of a previous run to resume (optional)
     """
     running_test = get_running_test()
-    if running_test and running_test.get('status') == 'running':
+    if running_test and running_test.get('status') in ACTIVE_STATUSES:
         return jsonify({
             'error': 'A test is already running',
             'current_test': running_test
@@ -438,7 +438,7 @@ def start_test():
                 return jsonify({'error': 'Resume run not found'}), 404
             if str(row[0]) != vault_id or str(row[1]) != question_set_id:
                 return jsonify({'error': 'Resume run does not match vault/question set'}), 400
-            if row[2] not in ('running', 'interrupted'):
+            if row[2] != 'interrupted':
                 return jsonify({'error': f'Cannot resume a {row[2]} test. Start a new test instead.'}), 400
         finally:
             db_session.close()
