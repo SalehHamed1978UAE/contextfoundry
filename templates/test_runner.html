@@ -1322,11 +1322,17 @@
         async function fetchStatus() {
             try {
                 const response = await fetch('/api/test-runner/status');
+                if (!response.ok) {
+                    console.error('Status API error:', response.status);
+                    updateStatusUI({status: 'idle'});
+                    return null;
+                }
                 const data = await response.json();
                 updateStatusUI(data);
                 return data;
             } catch (error) {
                 console.error('Failed to fetch status:', error);
+                updateStatusUI({status: 'idle'});
                 return null;
             }
         }
