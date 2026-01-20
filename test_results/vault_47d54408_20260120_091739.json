@@ -1,0 +1,554 @@
+{
+  "timestamp": "2026-01-20T09:17:39.742749",
+  "corpus": "vault_47d54408",
+  "vault_id": "47d54408-69f8-4af8-934e-df5909ee2071",
+  "vault_stats": {
+    "chunks": 116,
+    "entities": 1050,
+    "relationships": 81
+  },
+  "results": {
+    "total": 235,
+    "passed": 198,
+    "failed": 37,
+    "accuracy_pct": 84.3
+  },
+  "breakdown": {
+    "no_answer": {
+      "passed": 0,
+      "failed": 1
+    },
+    "uncertainty_match": {
+      "passed": 4,
+      "failed": 0
+    },
+    "exact_match": {
+      "passed": 5,
+      "failed": 0
+    },
+    "no_match": {
+      "passed": 0,
+      "failed": 22
+    },
+    "boolean_match": {
+      "passed": 1,
+      "failed": 0
+    },
+    "number_match": {
+      "passed": 6,
+      "failed": 0
+    },
+    "entity_match": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "failures": [
+    {
+      "q": 196,
+      "passed": false,
+      "match_type": "no_answer",
+      "query": "What is the salary of the CEO?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "actual": ""
+    },
+    {
+      "q": 202,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Jennifer Lee's department?",
+      "expected": "Finance",
+      "actual": "The retrieved information does not contain any details about Jennifer Lee or her department. Therefo"
+    },
+    {
+      "q": 203,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Amanda Garcia's job title?",
+      "expected": "Software Engineer",
+      "actual": "The retrieved information does not explicitly mention Amanda Garcia's job title. It includes details"
+    },
+    {
+      "q": 206,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is the total ACV value of all deals in the Q1 2026 sales pipeline?",
+      "expected": "$5,550,000",
+      "actual": "The total ACV (Annual Contract Value) of all deals in the Q1 2026 sales pipeline can be calculated f"
+    },
+    {
+      "q": 207,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which deal has the highest ACV in the Q1 2026 pipeline?",
+      "expected": "D-2026-005 (University Medical) at $1,200,000",
+      "actual": "The deal with the highest ACV (Annual Contract Value) in the Q1 2026 pipeline is the **Acme Hospital"
+    },
+    {
+      "q": 210,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which sales rep owns the most deals in the pipeline?",
+      "expected": "Sarah Johnson (4 deals)",
+      "actual": "I was unable to find specific information regarding which sales representative owns the most deals i"
+    },
+    {
+      "q": 212,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which customer has the highest health score?",
+      "expected": "Acme Hospital (95)",
+      "actual": "The customer with the highest health score is categorized as \"Green (Healthy),\" which includes 110 c"
+    },
+    {
+      "q": 216,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the total revenue in December 2025?",
+      "expected": "$8,900,000",
+      "actual": "The total revenue for MedSync Health in December 2025 is not explicitly stated in the provided infor"
+    },
+    {
+      "q": 217,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which month in 2025 had the highest total revenue?",
+      "expected": "December",
+      "actual": "The retrieved documents do not provide specific monthly revenue figures for each month in 2025. Howe"
+    },
+    {
+      "q": 218,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the new business revenue in March 2025?",
+      "expected": "$2,000,000",
+      "actual": "The new business revenue for MedSync Health, Inc. in March 2025 is not explicitly stated in the retr"
+    },
+    {
+      "q": 219,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the total churn in September 2025?",
+      "expected": "-$100,000",
+      "actual": "The retrieved documents do not provide specific churn data for September 2025. However, they do ment"
+    },
+    {
+      "q": 221,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "How much did Maria Rodriguez spend on travel to London?",
+      "expected": "$2,900 ($1,850 flight + $1,050 hotel)",
+      "actual": "Maria Rodriguez spent a total of $3,080 on travel to London in December 2025. This amount includes: "
+    },
+    {
+      "q": 222,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the most expensive single expense in Q4 2025?",
+      "expected": "$2,500 for trade show booth materials by Lisa Park",
+      "actual": "The retrieved information does not explicitly state the most expensive single expense in Q4 2025. Ho"
+    },
+    {
+      "q": 224,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was Ben Carter's conference registration expense?",
+      "expected": "$1,899 for AWS re:Invent",
+      "actual": "The retrieved information does not provide any details regarding Ben Carter's conference registratio"
+    },
+    {
+      "q": 225,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is the planned total headcount for Q4 2026?",
+      "expected": "686",
+      "actual": "The planned total headcount for Q4 2026 is 625 employees. This figure represents the target headcoun"
+    },
+    {
+      "q": 226,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which department has the highest planned YoY growth rate?",
+      "expected": "Customer Success (53%)",
+      "actual": "The metric growth from Oct_2025 to Sep_2025 was -7.88%. (Calculated: (7600000.0 - 8250000.0) / 82500"
+    },
+    {
+      "q": 227,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "How many people will be in Engineering by Q2 2026?",
+      "expected": "210",
+      "actual": "Based on the retrieved information, the headcount in the Engineering team by Q2 2026 is expected to "
+    },
+    {
+      "q": 228,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which department has zero planned growth?",
+      "expected": "Executive",
+      "actual": "Based on the retrieved information, there is no specific mention of any department having zero plann"
+    },
+    {
+      "q": 229,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which customer has the highest monthly active users?",
+      "expected": "Acme Hospital (450)",
+      "actual": "The search did not yield specific information regarding which customer has the highest monthly activ"
+    },
+    {
+      "q": 230,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Delta Hospital's feature adoption rate?",
+      "expected": "52%",
+      "actual": "The retrieved information does not provide a specific feature adoption rate for Delta Hospital. Howe"
+    },
+    {
+      "q": 231,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which customer has the lowest average session duration?",
+      "expected": "Delta Hospital (15 minutes)",
+      "actual": "The search did not yield specific information regarding which customer has the lowest average sessio"
+    },
+    {
+      "q": 232,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "How many daily active users does Epsilon Health have?",
+      "expected": "155",
+      "actual": "The retrieved information does not provide specific data regarding the number of daily active users "
+    },
+    {
+      "q": 235,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which ticket had the longest resolution time?",
+      "expected": "Ticket 9880 (Data Export) at 40 hours",
+      "actual": "The search did not yield specific information regarding the ticket with the longest resolution time."
+    }
+  ],
+  "all_results": [
+    {
+      "q": 196,
+      "passed": false,
+      "match_type": "no_answer",
+      "query": "What is the salary of the CEO?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "actual": ""
+    },
+    {
+      "q": 197,
+      "passed": true,
+      "match_type": "uncertainty_match",
+      "query": "What is the company's valuation after Series C?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "actual": "The company's valuation after the Series C funding round is not explicitly stated in the retrieved i"
+    },
+    {
+      "q": 198,
+      "passed": true,
+      "match_type": "uncertainty_match",
+      "query": "How many customers are in the pipeline for Q2 2026?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "actual": "Based on the retrieved information, there is no specific mention of the number of customers in the p"
+    },
+    {
+      "q": 199,
+      "passed": true,
+      "match_type": "uncertainty_match",
+      "query": "What is the employee turnover rate?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "actual": "The retrieved information does not provide any specific data regarding the employee turnover rate at"
+    },
+    {
+      "q": 200,
+      "passed": true,
+      "match_type": "uncertainty_match",
+      "query": "What is the average customer lifetime value (LTV)?",
+      "expected": "[NOT IN DOCUMENTS]",
+      "actual": "The retrieved information does not provide a specific value for the average customer lifetime value "
+    },
+    {
+      "q": 201,
+      "passed": true,
+      "match_type": "exact_match",
+      "query": "How many employees are listed in the employee directory?",
+      "expected": "10",
+      "actual": "The retrieved information does not provide a specific count of employees listed in the employee dire"
+    },
+    {
+      "q": 202,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Jennifer Lee's department?",
+      "expected": "Finance",
+      "actual": "The retrieved information does not contain any details about Jennifer Lee or her department. Therefo"
+    },
+    {
+      "q": 203,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Amanda Garcia's job title?",
+      "expected": "Software Engineer",
+      "actual": "The retrieved information does not explicitly mention Amanda Garcia's job title. It includes details"
+    },
+    {
+      "q": 204,
+      "passed": true,
+      "match_type": "boolean_match",
+      "query": "When did Christopher Wilson start at MedSync Health?",
+      "expected": "November 1, 2023",
+      "actual": "The retrieved information does not specify when Christopher Wilson started at MedSync Health. It inc"
+    },
+    {
+      "q": 205,
+      "passed": true,
+      "match_type": "number_match",
+      "query": "How many employees work remotely according to the employee directory?",
+      "expected": "4 (Sarah Johnson, Robert Martinez, David Brown, Christopher Wilson)",
+      "actual": "The retrieved information does not provide a specific number of employees who work remotely accordin"
+    },
+    {
+      "q": 206,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is the total ACV value of all deals in the Q1 2026 sales pipeline?",
+      "expected": "$5,550,000",
+      "actual": "The total ACV (Annual Contract Value) of all deals in the Q1 2026 sales pipeline can be calculated f"
+    },
+    {
+      "q": 207,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which deal has the highest ACV in the Q1 2026 pipeline?",
+      "expected": "D-2026-005 (University Medical) at $1,200,000",
+      "actual": "The deal with the highest ACV (Annual Contract Value) in the Q1 2026 pipeline is the **Acme Hospital"
+    },
+    {
+      "q": 208,
+      "passed": true,
+      "match_type": "number_match",
+      "query": "How many deals are in the \"Negotiation\" stage?",
+      "expected": "2 (Regional Medical Center and Mountain View Hospital)",
+      "actual": "Based on the retrieved information, there are **8 deals** in the \"Negotiation\" stage as indicated in"
+    },
+    {
+      "q": 209,
+      "passed": true,
+      "match_type": "number_match",
+      "query": "What is the expected close date for the Mercy Hospital deal?",
+      "expected": "February 28, 2026",
+      "actual": "The expected close date for the Mercy Hospital deal is not explicitly mentioned in the retrieved inf"
+    },
+    {
+      "q": 210,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which sales rep owns the most deals in the pipeline?",
+      "expected": "Sarah Johnson (4 deals)",
+      "actual": "I was unable to find specific information regarding which sales representative owns the most deals i"
+    },
+    {
+      "q": 211,
+      "passed": true,
+      "match_type": "exact_match",
+      "query": "What is the ACV for Acme Hospital?",
+      "expected": "$850,000",
+      "actual": "The Annual Contract Value (ACV) for Acme Hospital is $850,000, as indicated in the deal review docum"
+    },
+    {
+      "q": 212,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which customer has the highest health score?",
+      "expected": "Acme Hospital (95)",
+      "actual": "The customer with the highest health score is categorized as \"Green (Healthy),\" which includes 110 c"
+    },
+    {
+      "q": 213,
+      "passed": true,
+      "match_type": "number_match",
+      "query": "When does Beta Health System's contract end?",
+      "expected": "May 31, 2026",
+      "actual": "Beta Health System's contract is set to end on February 28, 2026.\n\n---\n**Confidence: Medium (80%)**\n"
+    },
+    {
+      "q": 214,
+      "passed": true,
+      "match_type": "exact_match",
+      "query": "How many beds does Gamma Medical Center have?",
+      "expected": "300",
+      "actual": "Gamma Medical Center has **300 beds**. This information is confirmed in the retrieved data, specific"
+    },
+    {
+      "q": 215,
+      "passed": true,
+      "match_type": "entity_match",
+      "query": "Which customer has the lowest health score?",
+      "expected": "Delta Hospital (45)",
+      "actual": "Based on the retrieved information, the customer with the lowest health score is **Delta Hospital**,"
+    },
+    {
+      "q": 216,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the total revenue in December 2025?",
+      "expected": "$8,900,000",
+      "actual": "The total revenue for MedSync Health in December 2025 is not explicitly stated in the provided infor"
+    },
+    {
+      "q": 217,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which month in 2025 had the highest total revenue?",
+      "expected": "December",
+      "actual": "The retrieved documents do not provide specific monthly revenue figures for each month in 2025. Howe"
+    },
+    {
+      "q": 218,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the new business revenue in March 2025?",
+      "expected": "$2,000,000",
+      "actual": "The new business revenue for MedSync Health, Inc. in March 2025 is not explicitly stated in the retr"
+    },
+    {
+      "q": 219,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the total churn in September 2025?",
+      "expected": "-$100,000",
+      "actual": "The retrieved documents do not provide specific churn data for September 2025. However, they do ment"
+    },
+    {
+      "q": 220,
+      "passed": true,
+      "match_type": "exact_match",
+      "query": "What was the expansion revenue in October 2025?",
+      "expected": "$650,000",
+      "actual": "In October 2025, the expansion revenue was not explicitly stated in the retrieved information. Howev"
+    },
+    {
+      "q": 221,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "How much did Maria Rodriguez spend on travel to London?",
+      "expected": "$2,900 ($1,850 flight + $1,050 hotel)",
+      "actual": "Maria Rodriguez spent a total of $3,080 on travel to London in December 2025. This amount includes: "
+    },
+    {
+      "q": 222,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was the most expensive single expense in Q4 2025?",
+      "expected": "$2,500 for trade show booth materials by Lisa Park",
+      "actual": "The retrieved information does not explicitly state the most expensive single expense in Q4 2025. Ho"
+    },
+    {
+      "q": 223,
+      "passed": true,
+      "match_type": "number_match",
+      "query": "How many expenses did Sarah Johnson submit in Q4 2025?",
+      "expected": "2 (Flight and client dinner)",
+      "actual": "The retrieved information does not provide any specific details regarding the number of expenses tha"
+    },
+    {
+      "q": 224,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What was Ben Carter's conference registration expense?",
+      "expected": "$1,899 for AWS re:Invent",
+      "actual": "The retrieved information does not provide any details regarding Ben Carter's conference registratio"
+    },
+    {
+      "q": 225,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is the planned total headcount for Q4 2026?",
+      "expected": "686",
+      "actual": "The planned total headcount for Q4 2026 is 625 employees. This figure represents the target headcoun"
+    },
+    {
+      "q": 226,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which department has the highest planned YoY growth rate?",
+      "expected": "Customer Success (53%)",
+      "actual": "The metric growth from Oct_2025 to Sep_2025 was -7.88%. (Calculated: (7600000.0 - 8250000.0) / 82500"
+    },
+    {
+      "q": 227,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "How many people will be in Engineering by Q2 2026?",
+      "expected": "210",
+      "actual": "Based on the retrieved information, the headcount in the Engineering team by Q2 2026 is expected to "
+    },
+    {
+      "q": 228,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which department has zero planned growth?",
+      "expected": "Executive",
+      "actual": "Based on the retrieved information, there is no specific mention of any department having zero plann"
+    },
+    {
+      "q": 229,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which customer has the highest monthly active users?",
+      "expected": "Acme Hospital (450)",
+      "actual": "The search did not yield specific information regarding which customer has the highest monthly activ"
+    },
+    {
+      "q": 230,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Delta Hospital's feature adoption rate?",
+      "expected": "52%",
+      "actual": "The retrieved information does not provide a specific feature adoption rate for Delta Hospital. Howe"
+    },
+    {
+      "q": 231,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which customer has the lowest average session duration?",
+      "expected": "Delta Hospital (15 minutes)",
+      "actual": "The search did not yield specific information regarding which customer has the lowest average sessio"
+    },
+    {
+      "q": 232,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "How many daily active users does Epsilon Health have?",
+      "expected": "155",
+      "actual": "The retrieved information does not provide specific data regarding the number of daily active users "
+    },
+    {
+      "q": 233,
+      "passed": true,
+      "match_type": "exact_match",
+      "query": "What is the ticket ID for the Beta Hospital login issue?",
+      "expected": "9876",
+      "actual": "The ticket ID for the Beta Hospital login issue is **#9876**."
+    },
+    {
+      "q": 234,
+      "passed": true,
+      "match_type": "number_match",
+      "query": "How long did it take to resolve the critical system outage ticket?",
+      "expected": "2 hours",
+      "actual": "The critical system outage for the MedSync Platform occurred on January 29, 2026, from 2:15 PM to 3:"
+    },
+    {
+      "q": 235,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which ticket had the longest resolution time?",
+      "expected": "Ticket 9880 (Data Export) at 40 hours",
+      "actual": "The search did not yield specific information regarding the ticket with the longest resolution time."
+    }
+  ]
+}
