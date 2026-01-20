@@ -102,19 +102,42 @@ class VaultManager:
             )
         return response.status_code in [200, 201, 302]
     
-    def _get_vault_stats_with_retry(self, vault_id: str, max_retries: int = 3) -> Dict:
-        """Get vault stats with retry logic for server restarts."""
+    def _get_vault_stats_with_retry(self, vault_id: str, max_retries: int = 5) -> Dict:
+        """Get vault stats with retry logic for server restarts and connection issues."""
+        import requests.exceptions
+        
         for attempt in range(max_retries):
-            response = self.session.get(f"{self.api}/vaults/{vault_id}/stats")
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 401:
-                # Server may have restarted, re-authenticate
+            try:
+                response = self.session.get(f"{self.api}/vaults/{vault_id}/stats", timeout=30)
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 401:
+                    # Server may have restarted, re-authenticate
+                    if attempt < max_retries - 1:
+                        print(f"  [Retry {attempt+1}] Re-authenticating...")
+                        time.sleep(2)
+                        self.authenticate_dev(tenant_id=vault_id)
+                else:
+                    print(f"  [Retry {attempt+1}] Unexpected status: {response.status_code}")
+                    if attempt < max_retries - 1:
+                        time.sleep(3)
+            except requests.exceptions.ConnectionError as e:
                 if attempt < max_retries - 1:
+                    print(f"  [Retry {attempt+1}] Connection error, retrying in 5s...")
+                    time.sleep(5)
+                    # Re-authenticate in case server restarted
+                    try:
+                        self.authenticate_dev(tenant_id=vault_id)
+                    except:
+                        pass
+                else:
+                    raise
+            except requests.exceptions.Timeout:
+                if attempt < max_retries - 1:
+                    print(f"  [Retry {attempt+1}] Timeout, retrying...")
                     time.sleep(2)
-                    self.authenticate_dev()
-            else:
-                break
+                else:
+                    raise
         return {}
     
     def get_document_count(self, vault_id: str) -> int:
