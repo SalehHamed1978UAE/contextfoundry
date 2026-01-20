@@ -46,6 +46,15 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 20, 2026**: **State Management Refactoring** - Made database the single source of truth for test status:
+  - Eliminated conflicting sources of truth between DB and status.json
+  - Added try/finally in runner.py to ensure complete_test_run() always called
+  - Added startup cleanup: marks all running tests as interrupted on server restart
+  - New endpoints: `/api/test-runner/health` (status), `/force-clear` (reset stuck), `/reset` (full cleanup)
+  - Removed all PID-based state inference - status derived exclusively from DB
+  - Made status.json ephemeral (deleted on completion/failure/startup)
+  - 60-second per-query timeout verified working (Q196 timeout handled gracefully)
+  - CLI test result: **198/235 (84.3%)** on Manus Healthtec vault
 - **Jan 20, 2026**: **Subprocess Output Buffering Fix** - Fixed test subprocess hanging issues:
   - Added `log()` function with explicit `sys.stdout.flush()` in test_executor.py and runner.py
   - Subprocess output now visible in log files immediately (not buffered)
