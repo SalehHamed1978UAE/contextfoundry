@@ -1144,7 +1144,7 @@
                         `;
                     } else if (status === 'interrupted' || status === 'stopped') {
                         actionButtons = `
-                            <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}')">Resume</button>
+                            <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}', '${run.id}')">Resume</button>
                             <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
                             <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
                         `;
@@ -1185,28 +1185,34 @@
             document.getElementById('currentTestPanel').scrollIntoView({ behavior: 'smooth' });
         }
         
-        async function resumeTest(vaultId, questionSetId) {
+        async function resumeTest(vaultId, questionSetId, resumeRunId) {
             if (!vaultId || !questionSetId) {
                 addLog('Cannot resume: missing vault or question set ID', 'error');
                 return;
             }
             
             try {
+                const body = {
+                    vault_id: vaultId,
+                    question_set_id: questionSetId,
+                    mode: 'auto'
+                };
+                if (resumeRunId) {
+                    body.resume_run_id = resumeRunId;
+                }
+                
                 const response = await fetch('/api/test-runner/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        vault_id: vaultId,
-                        question_set_id: questionSetId,
-                        mode: 'auto'
-                    })
+                    body: JSON.stringify(body)
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    addLog('Resuming test...', 'success');
+                    addLog('Resuming test from checkpoint...', 'success');
                     fetchStatus();
+                    fetchHistory();
                     scrollToCurrentTest();
                 } else {
                     addLog(`Failed to resume: ${data.error}`, 'error');
@@ -1448,6 +1454,22 @@
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 startPolling();
+            } else if (displayStatus === 'interrupted') {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                stopPolling();
+                
+                if (status.message) {
+                    currentQuestionBox.style.display = 'block';
+                    currentQuestionText.innerHTML = `
+                        <span style="color: var(--accent-warning);">${status.message}</span>
+                        <button class="btn btn-sm btn-primary" style="margin-left: 12px;" 
+                                onclick="resumeTest('${status.vault_id}', '${status.question_set_id}', '${status.test_run_id}')">
+                            Resume Test
+                        </button>
+                    `;
+                }
+                fetchHistory();
             } else {
                 startBtn.disabled = false;
                 stopBtn.disabled = true;
@@ -1461,7 +1483,7 @@
             if (status !== currentStatus && status.status !== currentStatus?.status) {
                 addLog(`Status: ${displayStatus}`, displayStatus === 'running' ? 'info' : 
                        displayStatus === 'finished' ? 'success' : 
-                       displayStatus === 'failed' ? 'error' : '');
+                       displayStatus === 'failed' || displayStatus === 'interrupted' ? 'error' : '');
             }
             
             currentStatus = status;

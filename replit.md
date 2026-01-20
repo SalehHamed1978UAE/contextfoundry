@@ -46,6 +46,13 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 20, 2026**: **Test Run Persistence & Resume** - Made test runs survive server restarts:
+  - Database persistence: Test runs saved to DB immediately when started (not just on completion)
+  - Heartbeat mechanism: Progress updated after each question with heartbeat timestamp (migration 024)
+  - Interrupted detection: Stale heartbeat (>30s) automatically marks test as "interrupted"
+  - Resume functionality: Resume button continues from last answered question
+  - Validation: Resume validates ownership (vault_id, question_set_id) and status
+  - UI: Interrupted status shows Resume button with clear progress message
 - **Jan 20, 2026**: **Test Results Download** - Added ability to view and download test results files:
   - API endpoints: `/api/test-runner/results-files` (list) and `/results-files/<filename>` (download)
   - Secure file access with path traversal protection (regex validation, resolved paths)

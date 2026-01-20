@@ -1,0 +1,47 @@
+This is not acceptable. The test was at 50/235 questions (92% accuracy) and then your server restart killed it. Now it shows "Finished" when it clearly didn't finish, and Test History shows nothing.
+Critical issues:
+
+Test state is lost on restart — The whole point of checkpoints was to survive this. Where's the checkpoint? Why can't I resume?
+"Finished" is wrong — Status shows "Finished" but only 50/235 questions were answered. This is a lie. It should show "Interrupted" or "Failed".
+Test History is empty — The run should be saved to the database so it appears in history, even if interrupted. Right now there's no record it ever happened.
+No resume option — Even if the test was saved, there's no Resume button to continue from question 51.
+
+What needs to happen:
+
+Save test runs to database immediately when started — Not just when complete
+Update database after every question — So progress is never lost
+Detect interrupted state correctly — If the runner dies mid-test, status should be "Interrupted", not "Finished"
+Add Resume button — That picks up from the last answered question
+
+Do not make any more UI changes until the backend can reliably save and resume tests.
+The dashboard is useless if the underlying test execution is fragile.
+
+Test the fix properly: Before saying it's done, simulate a crash:                                      
+  1. Start a test                                                                                        
+  2. Wait for 10+ questions to complete                                                                  
+  3. Kill the server (or restart Replit)                                                                 
+  4. Verify: Test History shows the interrupted run with correct progress (e.g., "10/235")  
+  5. Verify: Resume button works and continues from question 11                                          
+  6. Verify: Final results include ALL questions (not just the resumed portion)                          
+
+  Run lifecycle never persisted – we aren’t creating a test_runs row when [Start Test] fires. Everything
+    lives in an in-memory object, so as soon as the process restarts there’s no record, which is why Test
+    History is empty and the Current Test panel falls back to the default “Finished” state. We have to
+    insert a test_runs record immediately (status running, vault/question_set IDs, started_at), update it
+    after each stage/question, and only mark it complete when progress hits total. Until that’s done, the
+    UI has no source of truth.
+  - No heartbeat/checkpoint guard – even the “Option A” status file from the spec isn’t being written.
+    Without a heartbeat timestamp we can’t tell whether the runner is alive. When the API sees “no worker
+    thread” it just returns the default “running=false” payload, so the frontend renders “Finished” because
+    it assumes the last run exited normally. We need to write the checkpoint JSON after each question and
+    teach /api/test-runner/status to: (a) load the last checkpoint from disk/DB, (b) inspect a heartbeat to
+    decide between RUNNING vs INTERRUPTED, and (c) surface the saved stage/progress. Only then can the UI
+    render “Interrupted 50/235 – Resume” truthfully.
+
+  Once we have persistent test_runs rows + checkpoint files + heartbeat detection, adding “Resume” is just
+  directing the runner to the last qa_progress.last_question_id. Until then every restart will annihilate
+  progress and mislabel the run.
+                                                                                                         
+  If it can't survive that test, it's not fixed.                                                         
+
+                                                              

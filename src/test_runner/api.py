@@ -12,7 +12,7 @@ import json
 import os
 import subprocess
 import signal
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
@@ -20,6 +20,15 @@ from flask import Blueprint, request, jsonify, session
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from functools import wraps
+
+from .persistence import (
+    create_test_run,
+    update_test_run_stage,
+    complete_test_run,
+    get_running_test,
+    reset_test_run_for_resume,
+    HEARTBEAT_TIMEOUT_SECONDS
+)
 
 test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
 
@@ -329,12 +338,13 @@ def start_test():
             - auto: Use existing vault, run Q&A against it
             - fresh: Delete vault, upload from corpus_folder, extract, then run Q&A
         corpus_folder: Path to corpus folder (required for fresh mode)
+        resume_run_id: UUID of a previous run to resume (optional)
     """
-    current_status = read_status_file()
-    if current_status and current_status.get('status') == 'running':
+    running_test = get_running_test()
+    if running_test and running_test.get('status') == 'running':
         return jsonify({
             'error': 'A test is already running',
-            'current_test': current_status
+            'current_test': running_test
         }), 409
     
     data = request.get_json() or {}
@@ -342,6 +352,7 @@ def start_test():
     question_set_id = data.get('question_set_id')
     mode = data.get('mode', 'auto')
     corpus_folder = data.get('corpus_folder')
+    resume_run_id = data.get('resume_run_id')
     
     if not vault_id:
         return jsonify({'error': 'vault_id is required'}), 400
@@ -355,20 +366,56 @@ def start_test():
     if mode == 'fresh' and not corpus_folder:
         return jsonify({'error': 'corpus_folder is required for fresh mode'}), 400
     
-    session = get_db_session()
+    db_session = get_db_session()
     try:
-        result = session.execute(text("""
-            SELECT id FROM question_sets WHERE id = :qs_id AND vault_id = :vault_id
+        result = db_session.execute(text("""
+            SELECT qs.id, qs.name, v.name as vault_name
+            FROM question_sets qs
+            LEFT JOIN vaults v ON v.id = qs.vault_id
+            WHERE qs.id = :qs_id AND qs.vault_id = :vault_id
         """), {'qs_id': question_set_id, 'vault_id': vault_id})
-        if not result.fetchone():
+        row = result.fetchone()
+        if not row:
             return jsonify({'error': 'Question set not found or does not belong to this vault'}), 400
+        question_set_name = row[1]
+        vault_name = row[2] or 'Unknown'
     finally:
-        session.close()
+        db_session.close()
+    
+    if resume_run_id:
+        db_session = get_db_session()
+        try:
+            verify_result = db_session.execute(text("""
+                SELECT vault_id, question_set_id, status 
+                FROM test_runs WHERE id = :id
+            """), {'id': resume_run_id})
+            row = verify_result.fetchone()
+            if not row:
+                return jsonify({'error': 'Resume run not found'}), 404
+            if str(row[0]) != vault_id or str(row[1]) != question_set_id:
+                return jsonify({'error': 'Resume run does not match vault/question set'}), 400
+            if row[2] not in ('running', 'interrupted'):
+                return jsonify({'error': f'Cannot resume a {row[2]} test. Start a new test instead.'}), 400
+        finally:
+            db_session.close()
+        
+        test_run_id = resume_run_id
+        reset_test_run_for_resume(test_run_id)
+    else:
+        test_run_id = create_test_run(
+            vault_id=vault_id,
+            vault_name=vault_name,
+            question_set_id=question_set_id,
+            question_set_name=question_set_name,
+            mode=mode,
+            corpus_folder=corpus_folder
+        )
     
     cmd = ['python', '-m', 'src.test_runner.runner', 
            '--vault-id', vault_id,
            '--question-set-id', question_set_id,
-           '--mode', mode]
+           '--mode', mode,
+           '--test-run-id', test_run_id]
     
     if corpus_folder:
         cmd.extend(['--corpus-folder', corpus_folder])
@@ -385,6 +432,7 @@ def start_test():
         'status': 'starting',
         'vault_id': vault_id,
         'question_set_id': question_set_id,
+        'test_run_id': test_run_id,
         'mode': mode,
         'corpus_folder': corpus_folder,
         'started_at': datetime.now().isoformat(),
@@ -417,10 +465,12 @@ def start_test():
             'message': 'Test started',
             'pid': process.pid,
             'vault_id': vault_id,
+            'test_run_id': test_run_id,
             'mode': mode,
             'command': ' '.join(cmd)
         }), 202
     except Exception as e:
+        complete_test_run(test_run_id, status='failed', error_message=str(e))
         initial_status['status'] = 'failed'
         initial_status['error'] = str(e)
         write_status_file(initial_status)
@@ -430,51 +480,114 @@ def start_test():
 @test_runner_api.route('/status', methods=['GET'])
 @require_auth
 def get_test_status():
-    """Get current test status."""
-    status = read_status_file()
-    if not status:
+    """Get current test status.
+    
+    Combines status file (for real-time stage updates) with database
+    (for persistence and heartbeat-based interrupted detection).
+    """
+    file_status = read_status_file()
+    db_test = get_running_test()
+    
+    if db_test:
+        if db_test['status'] == 'interrupted':
+            if file_status:
+                file_status['status'] = 'interrupted'
+                file_status['db_status'] = db_test
+                write_status_file(file_status)
+            return jsonify({
+                'status': 'interrupted',
+                'test_run_id': db_test['id'],
+                'vault_id': db_test['vault_id'],
+                'vault_name': db_test['vault_name'],
+                'question_set_id': db_test['question_set_id'],
+                'question_set_name': db_test['question_set_name'],
+                'stage': db_test['stage'],
+                'qa_progress': {
+                    'total': db_test['questions_total'],
+                    'answered': db_test['questions_answered'],
+                    'passed': db_test['questions_passed'],
+                    'failed': db_test['questions_failed'],
+                    'accuracy_percent': round(100 * db_test['questions_passed'] / max(db_test['questions_answered'], 1), 1)
+                },
+                'checkpoint': db_test['checkpoint'],
+                'message': f"Test interrupted at {db_test['questions_answered']}/{db_test['questions_total']} questions. Click Resume to continue."
+            })
+        elif db_test['status'] == 'running':
+            if file_status:
+                file_status['test_run_id'] = db_test['id']
+                file_status['db_progress'] = {
+                    'answered': db_test['questions_answered'],
+                    'passed': db_test['questions_passed'],
+                    'failed': db_test['questions_failed']
+                }
+                return jsonify(file_status)
+            return jsonify({
+                'status': 'running',
+                'test_run_id': db_test['id'],
+                'vault_id': db_test['vault_id'],
+                'vault_name': db_test['vault_name'],
+                'stage': db_test['stage'],
+                'qa_progress': {
+                    'total': db_test['questions_total'],
+                    'answered': db_test['questions_answered'],
+                    'passed': db_test['questions_passed'],
+                    'failed': db_test['questions_failed']
+                }
+            })
+    
+    if not file_status:
         return jsonify({
             'status': 'idle',
             'message': 'No test is currently running'
         })
     
-    if status.get('pid'):
+    if file_status.get('pid'):
         try:
-            os.kill(status['pid'], 0)
+            os.kill(file_status['pid'], 0)
         except OSError:
-            if status.get('status') == 'running':
-                status['status'] = 'finished'
-                write_status_file(status)
+            if file_status.get('status') == 'running':
+                file_status['status'] = 'finished'
+                write_status_file(file_status)
     
-    return jsonify(status)
+    return jsonify(file_status)
 
 
 @test_runner_api.route('/stop', methods=['POST'])
 @require_auth
 def stop_test():
     """Stop the currently running test."""
-    status = read_status_file()
-    if not status or status.get('status') != 'running':
+    file_status = read_status_file()
+    db_test = get_running_test()
+    
+    if not file_status and not db_test:
         return jsonify({'error': 'No test is currently running'}), 400
     
-    pid = status.get('pid')
-    if not pid:
-        return jsonify({'error': 'No process ID found'}), 400
+    pid = file_status.get('pid') if file_status else None
+    test_run_id = file_status.get('test_run_id') if file_status else (db_test.get('id') if db_test else None)
     
     try:
-        os.killpg(os.getpgid(pid), signal.SIGTERM)
+        if pid:
+            os.killpg(os.getpgid(pid), signal.SIGTERM)
         
-        status['status'] = 'stopped'
-        status['stopped_at'] = datetime.now().isoformat()
-        write_status_file(status)
+        if test_run_id:
+            complete_test_run(test_run_id, status='interrupted', error_message='Manually stopped by user')
+        
+        if file_status:
+            file_status['status'] = 'stopped'
+            file_status['stopped_at'] = datetime.now().isoformat()
+            write_status_file(file_status)
         
         return jsonify({
             'message': 'Test stopped',
-            'pid': pid
+            'pid': pid,
+            'test_run_id': test_run_id
         })
     except ProcessLookupError:
-        status['status'] = 'finished'
-        write_status_file(status)
+        if test_run_id:
+            complete_test_run(test_run_id, status='interrupted', error_message='Process not found')
+        if file_status:
+            file_status['status'] = 'finished'
+            write_status_file(file_status)
         return jsonify({'message': 'Process already finished'})
     except Exception as e:
         return jsonify({'error': f'Failed to stop test: {str(e)}'}), 500
