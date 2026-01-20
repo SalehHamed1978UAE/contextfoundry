@@ -494,7 +494,7 @@ def get_test_history():
                 id, vault_id, vault_name, question_set_id, question_set_name,
                 mode, corpus_folder, status, stage, started_at, completed_at,
                 questions_total, questions_answered, questions_passed, questions_failed,
-                error_message
+                error_message, results_file
             FROM test_runs
             ORDER BY started_at DESC
             LIMIT :limit OFFSET :offset
@@ -518,7 +518,8 @@ def get_test_history():
                 'questions_answered': row[12],
                 'questions_passed': row[13],
                 'questions_failed': row[14],
-                'error_message': row[15]
+                'error_message': row[15],
+                'results_file': row[16]
             })
         
         count_result = session.execute(text("SELECT COUNT(*) FROM test_runs"))
@@ -602,6 +603,57 @@ def get_test_results(test_id: UUID):
         })
     finally:
         session.close()
+
+
+@test_runner_api.route('/results-files', methods=['GET'])
+@require_auth
+def list_results_files():
+    """List available results files from the test_results directory."""
+    results_dir = Path('test_results')
+    files = []
+    
+    if results_dir.exists():
+        for item in sorted(results_dir.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True):
+            if item.is_file() and (item.suffix == '.jsonl' or item.suffix == '.json'):
+                files.append({
+                    'name': item.name,
+                    'path': str(item),
+                    'size': item.stat().st_size,
+                    'modified': datetime.fromtimestamp(item.stat().st_mtime).isoformat()
+                })
+    
+    return jsonify({'results_files': files})
+
+
+@test_runner_api.route('/results-files/<path:filename>', methods=['GET'])
+@require_auth
+def download_results_file(filename: str):
+    """Download a results file."""
+    from flask import send_file
+    
+    results_dir = Path('test_results')
+    file_path = results_dir / filename
+    
+    if '..' in filename or not filename:
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    if not file_path.exists() or not file_path.is_file():
+        return jsonify({'error': 'Results file not found'}), 404
+    
+    download = request.args.get('download', 'false').lower() == 'true'
+    
+    if download:
+        return send_file(file_path, as_attachment=True, download_name=filename)
+    else:
+        try:
+            content = file_path.read_text()
+            if file_path.suffix == '.jsonl':
+                lines = [json.loads(line) for line in content.strip().split('\n') if line.strip()]
+                return jsonify({'filename': filename, 'results': lines, 'count': len(lines)})
+            else:
+                return jsonify({'filename': filename, 'content': json.loads(content)})
+        except Exception as e:
+            return jsonify({'error': f'Failed to parse results: {str(e)}'}), 500
 
 
 @test_runner_api.route('/corpus-folders', methods=['GET'])

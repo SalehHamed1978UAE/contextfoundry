@@ -1133,15 +1133,20 @@
                     
                     let actionButtons = '';
                     const status = (run.status || '').toLowerCase();
+                    const resultsFile = run.results_file || '';
                     
                     if (status === 'running') {
                         actionButtons = `<button class="btn btn-sm btn-ghost" onclick="scrollToCurrentTest()">View Progress</button>`;
                     } else if (status === 'completed' || status === 'complete' || status === 'finished') {
-                        actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>`;
+                        actionButtons = `
+                            <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
+                            <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
+                        `;
                     } else if (status === 'interrupted' || status === 'stopped') {
                         actionButtons = `
                             <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}')">Resume</button>
                             <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
+                            <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
                         `;
                     } else if (status === 'failed') {
                         actionButtons = `
@@ -1246,6 +1251,55 @@
             } catch (error) {
                 addLog(`Retry error: ${error.message}`, 'error');
             }
+        }
+        
+        async function downloadResultsFile(vaultId, vaultName) {
+            try {
+                const response = await fetch('/api/test-runner/results-files');
+                const data = await response.json();
+                
+                if (!data.results_files || data.results_files.length === 0) {
+                    addLog('No results files found', 'error');
+                    return;
+                }
+                
+                const safeName = vaultName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                const vaultPrefix = vaultId ? vaultId.substring(0, 8) : '';
+                
+                const matchingFile = data.results_files.find(f => 
+                    f.name.includes(vaultPrefix) || f.name.includes(safeName)
+                );
+                
+                if (matchingFile) {
+                    window.open(`/api/test-runner/results-files/${matchingFile.name}?download=true`, '_blank');
+                } else {
+                    showResultsFilePicker(data.results_files);
+                }
+            } catch (error) {
+                addLog(`Failed to download results: ${error.message}`, 'error');
+            }
+        }
+        
+        function showResultsFilePicker(files) {
+            const modal = document.getElementById('questionsModal');
+            const title = document.getElementById('questionsModalTitle');
+            const content = document.getElementById('questionsModalContent');
+            
+            title.textContent = 'Select Results File';
+            content.innerHTML = `
+                <div style="max-height: 400px; overflow-y: auto;">
+                    ${files.map(f => `
+                        <div style="padding: 12px; border-bottom: 1px solid var(--bg-tertiary); cursor: pointer;" 
+                             onclick="window.open('/api/test-runner/results-files/${f.name}?download=true', '_blank'); document.getElementById('questionsModal').classList.remove('open');">
+                            <div style="font-weight: 500;">${escapeHtml(f.name)}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">
+                                ${(f.size / 1024).toFixed(1)} KB | Modified: ${new Date(f.modified).toLocaleString()}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            modal.classList.add('open');
         }
         
         async function showResults(testId) {
