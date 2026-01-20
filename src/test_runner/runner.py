@@ -119,7 +119,7 @@ def list_corpora(config: TestConfig):
     print("\n" + "=" * 60)
 
 
-def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder: str = None, config: TestConfig = None):
+def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder: str = None, config: TestConfig = None, test_run_id: str = None):
     """
     Run test for a vault with 5-stage status tracking.
     
@@ -129,20 +129,25 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
         mode: 'auto' or 'fresh'
         corpus_folder: Path to corpus folder (required for fresh mode)
         config: TestConfig instance
+        test_run_id: Database ID for the test run (for persistence)
     """
     from .vault_manager import VaultManager
     from .evaluator import FuzzyEvaluator
     from .test_executor import TestExecutor
+    from .persistence import update_test_run_stage, complete_test_run
     
     if config is None:
         config = TestConfig('src/test_config.json')
     
     print("\n" + "=" * 70)
     print(f"TEST RUNNER: Vault {vault_id[:8]}... ({mode.upper()} mode)")
+    if test_run_id:
+        print(f"Test Run ID: {test_run_id}")
     print("=" * 70)
     
-    # Set overall status to running at start
     update_status(overall_status='running')
+    if test_run_id:
+        update_test_run_stage(test_run_id, 'create' if mode == 'fresh' else 'qa')
     
     vm = VaultManager(config.api_base_url)
     evaluator = FuzzyEvaluator()
@@ -233,11 +238,14 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             questions_data=questions_data,
             results_dir=config.results_dir,
             corpus_name=f"vault_{vault_id[:8]}",
-            min_chunks=extraction_config.get('min_expected_chunks', 50)
+            min_chunks=extraction_config.get('min_expected_chunks', 50),
+            test_run_id=test_run_id
         )
     except ValueError as e:
         print(f"  ERROR: {e}")
         update_status('qa', stage_status='failed', overall_status='failed')
+        if test_run_id:
+            complete_test_run(test_run_id, status='failed', error_message=str(e))
         return None
     
     update_status('qa', stage_status='complete', overall_status='finished', 
@@ -248,6 +256,15 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
                       'failed': results['results']['failed'],
                       'accuracy_percent': results['results']['accuracy_pct']
                   })
+    
+    if test_run_id:
+        safe_name = f"vault_{vault_id[:8]}"
+        progress_file = config.results_dir / f"{safe_name}_{vault_id[:8]}_progress.jsonl"
+        complete_test_run(
+            test_run_id, 
+            status='complete',
+            results_file=str(progress_file) if progress_file.exists() else None
+        )
     
     print("\n" + "=" * 70)
     print("TEST COMPLETE")
@@ -496,6 +513,7 @@ Examples:
     parser.add_argument('--questions-only', action='store_true', help='Skip upload/extraction, run questions only against existing vault')
     parser.add_argument('--fresh', action='store_true', help='Force fresh start (legacy flag)')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
+    parser.add_argument('--test-run-id', type=str, help='Database test run ID (for persistence)')
     
     args = parser.parse_args()
     
@@ -509,7 +527,8 @@ Examples:
             question_set_id=args.question_set_id,
             mode=args.mode,
             corpus_folder=args.corpus_folder,
-            config=config
+            config=config,
+            test_run_id=getattr(args, 'test_run_id', None)
         )
     elif args.corpus:
         run_corpus_test(args.corpus, config, 

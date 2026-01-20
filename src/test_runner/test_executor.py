@@ -1,4 +1,5 @@
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Optional
@@ -6,6 +7,13 @@ from typing import Dict, List, Set, Optional
 from .evaluator import FuzzyEvaluator
 from .vault_manager import VaultManager
 from .status import update_status
+from .persistence import (
+    update_test_run_stage,
+    update_test_run_progress,
+    save_test_result,
+    complete_test_run,
+    get_answered_question_ids
+)
 
 class TestExecutor:
     """Run test questions against a vault with resume support."""
@@ -54,7 +62,8 @@ class TestExecutor:
         results_dir: Path = None,
         corpus_name: str = "",
         min_chunks: int = 50,
-        resume: bool = True
+        resume: bool = True,
+        test_run_id: str = None
     ) -> dict:
         """Run all questions, evaluate answers, save results. Supports resume.
         
@@ -66,6 +75,7 @@ class TestExecutor:
             corpus_name: Name of the corpus being tested
             min_chunks: Minimum chunks required in vault
             resume: Whether to resume from previous progress
+            test_run_id: Database ID of the test run (for persistence)
         """
         
         stats = self.vm.get_vault_stats(vault_id)
@@ -89,9 +99,18 @@ class TestExecutor:
             raise ValueError("Either questions_file or questions_data must be provided")
         print(f"  Running {len(questions)} questions...")
         
+        if test_run_id:
+            update_test_run_stage(test_run_id, 'qa', questions_total=len(questions))
+        
         progress_file = self._get_progress_file(results_dir, corpus_name, vault_id)
         
-        if resume:
+        if resume and test_run_id:
+            db_completed_ids = get_answered_question_ids(test_run_id)
+            results, file_completed_ids = self._load_completed_questions(progress_file)
+            completed_ids = db_completed_ids | file_completed_ids
+            if completed_ids:
+                print(f"  Resuming: {len(completed_ids)} questions already answered")
+        elif resume:
             results, completed_ids = self._load_completed_questions(progress_file)
             if completed_ids:
                 print(f"  Resuming: {len(completed_ids)} questions already answered")
@@ -106,13 +125,17 @@ class TestExecutor:
         for i, q in enumerate(questions):
             q_num = q.get('id', q.get('q', i + 1))
             
-            if q_num in completed_ids:
+            if q_num in completed_ids or str(q_num) in completed_ids:
                 continue
             
             query = q.get('question', q.get('query', ''))
             expected = q.get('expected_answer', q.get('expected', ''))
+            category = q.get('category', q.get('type', ''))
             
+            start_time = time.time()
             actual = self.vm.query(vault_id, query)
+            duration_ms = int((time.time() - start_time) * 1000)
+            
             is_pass, match_type = self.evaluator.evaluate(expected, actual)
             
             if is_pass:
@@ -134,6 +157,28 @@ class TestExecutor:
             failed = answered - passed
             accuracy = round(100 * passed / answered, 1) if answered > 0 else 0
             
+            current_q = {'id': q_num, 'text': query[:200]}
+            
+            if test_run_id:
+                save_test_result(
+                    test_run_id=test_run_id,
+                    question_id=str(q_num),
+                    question_text=query,
+                    expected_answer=expected,
+                    actual_answer=actual or '',
+                    passed=is_pass,
+                    failure_reason=None if is_pass else match_type,
+                    category=category,
+                    duration_ms=duration_ms
+                )
+                update_test_run_progress(
+                    test_run_id=test_run_id,
+                    questions_answered=answered,
+                    questions_passed=passed,
+                    questions_failed=failed,
+                    current_question=current_q
+                )
+            
             update_status(
                 'qa',
                 stage_status='running',
@@ -144,10 +189,7 @@ class TestExecutor:
                     'failed': failed,
                     'accuracy_percent': accuracy
                 },
-                current_question={
-                    'id': q_num,
-                    'text': query[:200]
-                }
+                current_question=current_q
             )
             
             status = "PASS" if is_pass else "FAIL"
