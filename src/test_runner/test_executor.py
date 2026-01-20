@@ -5,6 +5,7 @@ from typing import Dict, List, Set, Optional
 
 from .evaluator import FuzzyEvaluator
 from .vault_manager import VaultManager
+from .status import update_status
 
 class TestExecutor:
     """Run test questions against a vault with resume support."""
@@ -129,10 +130,29 @@ class TestExecutor:
             
             self._save_result_incremental(progress_file, result)
             
-            status = "PASS" if is_pass else "FAIL"
             answered = len(results)
+            failed = answered - passed
+            accuracy = round(100 * passed / answered, 1) if answered > 0 else 0
+            
+            update_status(
+                'qa',
+                stage_status='running',
+                qa_progress={
+                    'total': len(questions),
+                    'answered': answered,
+                    'passed': passed,
+                    'failed': failed,
+                    'accuracy_percent': accuracy
+                },
+                current_question={
+                    'id': q_num,
+                    'text': query[:200]
+                }
+            )
+            
+            status = "PASS" if is_pass else "FAIL"
             if answered % 25 == 0:
-                print(f"  [{answered}/{len(questions)}] {passed}/{answered} passed ({100*passed/answered:.1f}%)")
+                print(f"  [{answered}/{len(questions)}] {passed}/{answered} passed ({accuracy}%)")
             elif not is_pass:
                 print(f"  Q{q_num}: {status} ({match_type})")
         

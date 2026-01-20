@@ -212,7 +212,16 @@ def delete_question_set(question_set_id: UUID):
 @test_runner_api.route('/start', methods=['POST'])
 @require_auth
 def start_test():
-    """Start a new test run."""
+    """Start a new test run.
+    
+    Request body:
+        vault_id: UUID of the vault to test against (required)
+        question_set_id: UUID of the question set to use (required)
+        mode: 'auto' or 'fresh' (default: 'auto')
+            - auto: Use existing vault, run Q&A against it
+            - fresh: Delete vault, upload from corpus_folder, extract, then run Q&A
+        corpus_folder: Path to corpus folder (required for fresh mode)
+    """
     current_status = read_status_file()
     if current_status and current_status.get('status') == 'running':
         return jsonify({
@@ -221,35 +230,56 @@ def start_test():
         }), 409
     
     data = request.get_json() or {}
-    corpus = data.get('corpus')
+    vault_id = data.get('vault_id')
     question_set_id = data.get('question_set_id')
-    fresh = data.get('fresh', False)
+    mode = data.get('mode', 'auto')
+    corpus_folder = data.get('corpus_folder')
     
-    if not corpus:
-        return jsonify({'error': 'corpus is required'}), 400
+    if not vault_id:
+        return jsonify({'error': 'vault_id is required'}), 400
     
-    cmd = ['python', '-m', 'src.test_runner.runner', '--corpus', corpus]
+    if not question_set_id:
+        return jsonify({'error': 'question_set_id is required'}), 400
     
-    if question_set_id:
-        cmd.extend(['--question-set-id', question_set_id])
+    if mode not in ('auto', 'fresh'):
+        return jsonify({'error': 'mode must be "auto" or "fresh"'}), 400
     
-    if fresh:
-        cmd.append('--fresh')
+    if mode == 'fresh' and not corpus_folder:
+        return jsonify({'error': 'corpus_folder is required for fresh mode'}), 400
+    
+    cmd = ['python', '-m', 'src.test_runner.runner', 
+           '--vault-id', vault_id,
+           '--question-set-id', question_set_id,
+           '--mode', mode]
+    
+    if corpus_folder:
+        cmd.extend(['--corpus-folder', corpus_folder])
+    
+    initial_stages = {
+        'delete': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'create': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'upload': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'extract': {'status': 'pending' if mode == 'fresh' else 'skipped'},
+        'qa': {'status': 'pending'}
+    }
     
     initial_status = {
         'status': 'starting',
-        'corpus': corpus,
+        'vault_id': vault_id,
         'question_set_id': question_set_id,
-        'fresh': fresh,
+        'mode': mode,
+        'corpus_folder': corpus_folder,
         'started_at': datetime.now().isoformat(),
         'pid': None,
-        'stage': 'init',
-        'progress': {
+        'stages': initial_stages,
+        'qa_progress': {
             'total': 0,
-            'completed': 0,
+            'answered': 0,
             'passed': 0,
-            'failed': 0
-        }
+            'failed': 0,
+            'accuracy_percent': 0
+        },
+        'current_question': None
     }
     write_status_file(initial_status)
     
@@ -268,7 +298,8 @@ def start_test():
         return jsonify({
             'message': 'Test started',
             'pid': process.pid,
-            'corpus': corpus,
+            'vault_id': vault_id,
+            'mode': mode,
             'command': ' '.join(cmd)
         }), 202
     except Exception as e:
@@ -476,3 +507,45 @@ def list_corpus_folders():
                 })
     
     return jsonify({'corpus_folders': folders})
+
+
+@test_runner_api.route('/vaults', methods=['GET'])
+@require_auth
+def list_vaults():
+    """List all vaults the user has access to with entity count and last updated."""
+    try:
+        from uuid import UUID as UUIDType
+        from platform_foundation.src.tenant_service import TenantService
+        
+        tenant_svc = TenantService()
+        vaults = tenant_svc.list_user_vaults(UUIDType(session['user_id']))
+        
+        db_session = get_db_session()
+        result = []
+        try:
+            for v in vaults:
+                vault_id = str(v['id'])
+                
+                entity_count = 0
+                try:
+                    entity_result = db_session.execute(text("""
+                        SELECT COUNT(*) FROM entities WHERE tenant_id = :tenant_id
+                    """), {'tenant_id': vault_id})
+                    row = entity_result.fetchone()
+                    if row:
+                        entity_count = row[0]
+                except Exception:
+                    pass
+                
+                result.append({
+                    'id': vault_id,
+                    'name': v['name'],
+                    'entity_count': entity_count,
+                    'last_updated': v['updated_at'].isoformat() if v.get('updated_at') else None
+                })
+        finally:
+            db_session.close()
+        
+        return jsonify({'vaults': result})
+    except Exception as e:
+        return jsonify({'error': f'Failed to list vaults: {str(e)}'}), 500
