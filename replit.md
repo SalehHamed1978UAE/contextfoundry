@@ -46,12 +46,15 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
-- **Jan 20, 2026**: Added **Test Runner Dashboard** (`/test-runner`) - a web UI for monitoring and controlling test execution. Features include:
-  - Upload custom question sets (JSON/JSONL)
-  - Start/stop tests with live progress monitoring
-  - View test history and detailed results
-  - Automatic checkpoint-based resume capability
-  - API endpoints with authentication at `/api/test-runner/*`
+- **Jan 20, 2026**: Enhanced **Test Runner Dashboard** (`/test-runner`) with full spec compliance:
+  - **Vault Selection**: Dropdown to select existing vaults with entity counts
+  - **5-Stage Pipeline Visualization**: Delete → Create → Upload → Extract → Q&A with live status icons
+  - **Question Sets Management**: Table with View/Delete actions, JSON/JSONL upload
+  - **History Actions**: Resume interrupted tests, View Results, Retry failed tests
+  - **Live Progress Monitoring**: Real-time Q&A progress with current question display
+  - **Mode Selection**: Auto (use existing vault) or Fresh (rebuild with corpus folder)
+  - **Status Tracking**: Centralized `status.py` module with proper lifecycle transitions (running→finished/failed)
+  - API endpoints: `/api/test-runner/vaults`, updated `/start`, question sets CRUD
   - Database tables: `question_sets`, `test_runs`, `test_results` (migration 021)
 - **Jan 19, 2026**: Latest 235Q test run achieved **92.3% accuracy (217/235 passed)** on the MedSync Health test suite. Test infrastructure validated with 30-minute extraction timeout for 114-document corpus. Results saved to `test_results/medsync_health_235q_results.json`.
 - **Jan 19, 2026**: Validated tri-memory precedence pipeline with **91.5% accuracy (215/235 passed)** on the MedSync Health 235-question test suite. Precedence metadata now exposed in all API responses (`/api/vault/chat`):
