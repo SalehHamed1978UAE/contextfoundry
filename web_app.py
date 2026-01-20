@@ -82,6 +82,9 @@ app.register_blueprint(ontology_bp)
 from src.context_foundry.api.extraction_api import extraction_api
 app.register_blueprint(extraction_api)
 
+from src.test_runner.api import test_runner_api
+app.register_blueprint(test_runner_api)
+
 def validate_api_key():
     """
     Validate API key from Authorization header.

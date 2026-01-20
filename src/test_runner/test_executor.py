@@ -48,13 +48,24 @@ class TestExecutor:
     def run_test(
         self, 
         vault_id: str, 
-        questions_file: Path,
-        results_dir: Path,
-        corpus_name: str,
+        questions_file: Optional[Path] = None,
+        questions_data: Optional[List[Dict]] = None,
+        results_dir: Path = None,
+        corpus_name: str = "",
         min_chunks: int = 50,
         resume: bool = True
     ) -> dict:
-        """Run all questions, evaluate answers, save results. Supports resume."""
+        """Run all questions, evaluate answers, save results. Supports resume.
+        
+        Args:
+            vault_id: The vault to query against
+            questions_file: Path to questions file (optional if questions_data provided)
+            questions_data: List of question dicts (optional if questions_file provided)
+            results_dir: Directory to save results
+            corpus_name: Name of the corpus being tested
+            min_chunks: Minimum chunks required in vault
+            resume: Whether to resume from previous progress
+        """
         
         stats = self.vm.get_vault_stats(vault_id)
         chunk_count = stats.get('chunk_count', 0)
@@ -69,7 +80,12 @@ class TestExecutor:
                 f"Extraction likely incomplete. Aborting test."
             )
         
-        questions = self._load_questions(questions_file)
+        if questions_data:
+            questions = questions_data
+        elif questions_file:
+            questions = self._load_questions(questions_file)
+        else:
+            raise ValueError("Either questions_file or questions_data must be provided")
         print(f"  Running {len(questions)} questions...")
         
         progress_file = self._get_progress_file(results_dir, corpus_name, vault_id)

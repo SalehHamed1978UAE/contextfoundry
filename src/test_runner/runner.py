@@ -12,10 +12,12 @@ Usage:
     python -m src.test_runner.runner --corpus "Manus Healthtec"  # Run (auto-resume if checkpoint exists)
     python -m src.test_runner.runner --corpus "X" --fresh        # Force fresh start (delete vault, recreate, full run)
     python -m src.test_runner.runner --all                       # Run all corpora (sequential)
+    python -m src.test_runner.runner --corpus "X" --question-set-id <uuid>  # Use question set from DB
 """
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -25,6 +27,58 @@ from .vault_manager import VaultManager
 from .document_uploader import get_files_to_upload
 from .test_executor import TestExecutor
 from .evaluator import FuzzyEvaluator
+
+STATUS_FILE_PATH = Path('data/test-runner/status.json')
+
+
+def update_status(stage: str, **kwargs):
+    """Update the status file with current progress."""
+    STATUS_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    status = {}
+    if STATUS_FILE_PATH.exists():
+        try:
+            with open(STATUS_FILE_PATH) as f:
+                status = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            pass
+    
+    status['stage'] = stage
+    status['updated_at'] = datetime.now().isoformat()
+    status.update(kwargs)
+    
+    with open(STATUS_FILE_PATH, 'w') as f:
+        json.dump(status, f, indent=2, default=str)
+
+
+def load_question_set_from_db(question_set_id: str) -> list | None:
+    """Load questions from database by question_set_id."""
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        print("ERROR: DATABASE_URL not configured")
+        return None
+    
+    try:
+        from sqlalchemy import create_engine, text
+        from sqlalchemy.orm import sessionmaker
+        
+        engine = create_engine(database_url)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        
+        result = session.execute(text("""
+            SELECT questions FROM question_sets WHERE id = :id
+        """), {'id': question_set_id})
+        
+        row = result.fetchone()
+        session.close()
+        
+        if row:
+            return row[0]
+        return None
+    except Exception as e:
+        print(f"ERROR: Failed to load question set: {e}")
+        return None
 
 
 def get_checkpoint_file(results_dir: Path, corpus_name: str) -> Path:
@@ -86,13 +140,16 @@ def list_corpora(config: TestConfig):
     print("\n" + "=" * 60)
 
 
-def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, fresh: bool = False):
+def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, fresh: bool = False, question_set_id: str = None):
     """
     Run test for a single corpus.
     
     Default: Auto-resume if checkpoint exists (extraction complete)
     --fresh: Force full run from scratch (delete vault, upload, extract, Q&A)
+    --question-set-id: Use questions from database instead of file
     """
+    
+    update_status('init', corpus=corpus_name, status='running')
     
     # Check for checkpoint first (unless --fresh is specified)
     checkpoint = None
@@ -122,10 +179,24 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         return None
     
     root_path = Path(corpus['root_path'])
-    questions_file = config.questions_dir / corpus['questions_file']
-    if not questions_file.exists():
-        print(f"ERROR: Questions file not found: {questions_file}")
-        return None
+    
+    questions_data = None
+    questions_file = None
+    
+    if question_set_id:
+        print(f"\n  Loading questions from database (ID: {question_set_id})")
+        questions_data = load_question_set_from_db(question_set_id)
+        if not questions_data:
+            print(f"ERROR: Question set not found in database: {question_set_id}")
+            update_status('failed', status='failed', error='Question set not found')
+            return None
+        print(f"  Loaded {len(questions_data)} questions from database")
+    else:
+        questions_file = config.questions_dir / corpus['questions_file']
+        if not questions_file.exists():
+            print(f"ERROR: Questions file not found: {questions_file}")
+            update_status('failed', status='failed', error='Questions file not found')
+            return None
     
     vm = VaultManager(config.api_base_url)
     evaluator = FuzzyEvaluator()
@@ -177,6 +248,7 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         
         # Step 2: Create clean vault
         print(f"\n[Step 2] Creating clean vault...")
+        update_status('create', vault_name=corpus_name)
         vault_id = vm.ensure_clean_vault(corpus_name)
         
         # Step 2b: Re-authenticate with vault context
@@ -189,6 +261,7 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         
         # Step 3: Upload documents
         print(f"\n[Step 3] Uploading documents...")
+        update_status('upload', vault_id=str(vault_id))
         files = get_files_to_upload(root_path, config.upload_rules)
         print(f"  Found {len(files)} files to upload")
         
@@ -207,6 +280,7 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         
         # Step 4: Wait for extraction
         print(f"\n[Step 4] Waiting for extraction...")
+        update_status('extract', documents_uploaded=len(files))
         extraction_config = config.extraction_config
         
         try:
@@ -229,17 +303,20 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         return None
     
     print(f"\n[Step 5] Running test questions...")
+    update_status('qa', vault_id=str(vault_id))
     extraction_config = config.extraction_config
     try:
         results = executor.run_test(
             vault_id=vault_id,
             questions_file=questions_file,
+            questions_data=questions_data,
             results_dir=config.results_dir,
             corpus_name=corpus_name,
             min_chunks=extraction_config.get('min_expected_chunks', 50)
         )
     except ValueError as e:
         print(f"  ERROR: {e}")
+        update_status('failed', status='failed', error=str(e))
         return None
     
     # Update config with results
@@ -264,6 +341,16 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
     print("Vault preserved for manual queries in UI")
     print("=" * 70 + "\n")
     
+    update_status('complete', 
+                  status='finished',
+                  progress={
+                      'total': results['results']['total'],
+                      'completed': results['results']['total'],
+                      'passed': results['results']['passed'],
+                      'failed': results['results']['failed']
+                  },
+                  accuracy=results['results']['accuracy_pct'])
+    
     return results
 
 
@@ -287,6 +374,7 @@ Examples:
     parser.add_argument('--all', action='store_true', help='Run all corpora (sequential)')
     parser.add_argument('--questions-only', action='store_true', help='Skip upload/extraction, run questions only against existing vault')
     parser.add_argument('--fresh', action='store_true', help='Force fresh start: delete vault, recreate, upload, extract, run Q&A (ignores checkpoint)')
+    parser.add_argument('--question-set-id', type=str, help='Use questions from database by question set ID')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     
     args = parser.parse_args()
@@ -296,11 +384,17 @@ Examples:
     if args.list:
         list_corpora(config)
     elif args.corpus:
-        run_corpus_test(args.corpus, config, questions_only=args.questions_only, fresh=args.fresh)
+        run_corpus_test(args.corpus, config, 
+                       questions_only=args.questions_only, 
+                       fresh=args.fresh,
+                       question_set_id=args.question_set_id)
     elif args.all:
         print("Running all corpora sequentially...")
         for name in config.list_corpora().keys():
-            run_corpus_test(name, config, questions_only=args.questions_only, fresh=args.fresh)
+            run_corpus_test(name, config, 
+                           questions_only=args.questions_only, 
+                           fresh=args.fresh,
+                           question_set_id=args.question_set_id)
     else:
         parser.print_help()
 
