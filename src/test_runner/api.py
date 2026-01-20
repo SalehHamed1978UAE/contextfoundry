@@ -22,14 +22,18 @@ from sqlalchemy.orm import sessionmaker
 from functools import wraps
 
 from .persistence import (
-    create_test_run,
-    update_test_run_stage,
-    complete_test_run,
-    get_running_test,
     reset_test_run_for_resume,
     recover_file_test_to_db,
     HEARTBEAT_TIMEOUT_SECONDS,
     get_db_session as persistence_get_db_session
+)
+from .state_machine import (
+    create_test_run as sm_create_test_run,
+    transition_to,
+    get_running_test as sm_get_running_test,
+    cleanup_stale_tests,
+    TestRunState,
+    TestRunStage
 )
 
 test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
@@ -40,9 +44,10 @@ CORPUS_FOLDERS_PATH = Path('test documents')
 
 
 def startup_cleanup():
-    """Mark all running tests as interrupted on server startup.
+    """Mark ONLY stale running tests as interrupted on server startup.
     
-    This ensures no zombie 'running' tests persist after server restarts.
+    Tests with a recent heartbeat (within HEARTBEAT_TIMEOUT_SECONDS) are preserved
+    as they are likely still actively running in a subprocess.
     Called when the blueprint is registered.
     """
     import logging
@@ -51,32 +56,37 @@ def startup_cleanup():
     try:
         db = persistence_get_db_session()
         try:
+            # Only interrupt tests with STALE heartbeats (older than timeout)
+            # Tests with fresh heartbeats are still actively running
             result = db.execute(text("""
                 UPDATE test_runs 
                 SET status = 'interrupted', 
-                    error_message = 'Server restarted - test interrupted'
+                    error_message = 'Server restarted - test interrupted (stale heartbeat)'
                 WHERE status = 'running'
+                  AND (heartbeat_at IS NULL OR heartbeat_at < NOW() - INTERVAL ':timeout seconds')
                 RETURNING id
-            """))
+            """.replace(':timeout', str(HEARTBEAT_TIMEOUT_SECONDS))))
             db.commit()
             
             rows = result.fetchall()
             if rows:
-                logger.info(f"[Startup Cleanup] Marked {len(rows)} running tests as interrupted")
+                logger.info(f"[Startup Cleanup] Marked {len(rows)} stale tests as interrupted")
                 for row in rows:
-                    logger.info(f"  - Test run {row[0]} marked as interrupted")
+                    logger.info(f"  - Test run {row[0]} marked as interrupted (stale heartbeat)")
+            
+            # Log any tests that were preserved due to fresh heartbeat
+            active_result = db.execute(text("""
+                SELECT id FROM test_runs WHERE status = 'running'
+            """))
+            active_rows = active_result.fetchall()
+            if active_rows:
+                logger.info(f"[Startup Cleanup] Preserved {len(active_rows)} tests with fresh heartbeats")
+                for row in active_rows:
+                    logger.info(f"  - Test run {row[0]} still running (fresh heartbeat)")
         finally:
             db.close()
     except Exception as e:
         logger.warning(f"[Startup Cleanup] Failed to cleanup running tests: {e}")
-    
-    # Delete status.json on startup - it's ephemeral
-    if STATUS_FILE_PATH.exists():
-        try:
-            STATUS_FILE_PATH.unlink()
-            logger.info("[Startup Cleanup] Deleted stale status.json")
-        except Exception as e:
-            logger.warning(f"[Startup Cleanup] Failed to delete status.json: {e}")
 
 
 # Run startup cleanup when module is imported
@@ -541,6 +551,45 @@ def start_test():
         return jsonify({'error': f'Failed to start test: {str(e)}'}), 500
 
 
+def derive_pipeline_stages(db_stage: str, mode: str) -> dict:
+    """Derive pipeline stages from the database stage field.
+    
+    This ensures UI shows correct progress even when status.json is missing.
+    """
+    stage_order = ['delete', 'create', 'upload', 'extract', 'qa']
+    is_fresh = mode == 'fresh'
+    
+    stages = {}
+    current_stage_idx = stage_order.index(db_stage) if db_stage in stage_order else -1
+    
+    for i, stage in enumerate(stage_order):
+        if stage in ['delete', 'create', 'upload', 'extract'] and not is_fresh:
+            stages[stage] = {'status': 'skipped'}
+        elif i < current_stage_idx:
+            stages[stage] = {'status': 'complete'}
+        elif i == current_stage_idx:
+            stages[stage] = {'status': 'running'}
+        else:
+            stages[stage] = {'status': 'pending'}
+    
+    return stages
+
+
+def format_timestamp(dt) -> str:
+    """Format datetime as DD/MM/YYYY HH:MM.
+    
+    Accepts datetime object or ISO format string.
+    """
+    if dt is None:
+        return '-'
+    if isinstance(dt, str):
+        try:
+            dt = datetime.fromisoformat(dt.replace('Z', '+00:00'))
+        except (ValueError, AttributeError):
+            return dt  # Return as-is if can't parse
+    return dt.strftime('%d/%m/%Y %H:%M')
+
+
 @test_runner_api.route('/status', methods=['GET'])
 @require_auth
 def get_test_status():
@@ -565,6 +614,7 @@ def get_test_status():
             'question_set_id': db_test['question_set_id'],
             'question_set_name': db_test['question_set_name'],
             'stage': db_test['stage'],
+            'started_at': format_timestamp(db_test.get('started_at')),
             'qa_progress': {
                 'total': db_test['questions_total'],
                 'answered': db_test['questions_answered'],
@@ -575,9 +625,13 @@ def get_test_status():
             'checkpoint': db_test['checkpoint']
         }
         
-        # Add real-time stage details from status.json if available
+        # Add real-time stage details from status.json if available, otherwise derive from DB
         if file_status and file_status.get('stages'):
             response['stages'] = file_status['stages']
+        else:
+            # Derive stages from DB stage field
+            response['stages'] = derive_pipeline_stages(db_test['stage'], db_test.get('mode', 'auto'))
+        
         if file_status and file_status.get('current_question'):
             response['current_question'] = file_status['current_question']
         
