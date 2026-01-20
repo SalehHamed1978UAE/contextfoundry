@@ -143,7 +143,7 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
     from .evaluator import FuzzyEvaluator
     from .test_executor import TestExecutor
     from .state_machine import (
-        transition_to, TestRunStatus, refresh_heartbeat
+        transition_to, TestRunStatus, refresh_heartbeat, get_test_run
     )
     
     if config is None:
@@ -269,7 +269,9 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
                 log("WARNING: Failed to set vault context")
         
         if test_run_id:
-            transition_to(test_run_id, TestRunStatus.RUNNING_QA)
+            current_run = get_test_run(test_run_id)
+            if current_run and current_run['status'] != 'running_qa':
+                transition_to(test_run_id, TestRunStatus.RUNNING_QA)
         update_status('qa', stage_status='running')
         log("\n[Stage: Q&A] Loading questions...")
         questions_data = load_question_set_from_db(question_set_id)
