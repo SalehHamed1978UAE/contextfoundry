@@ -82,6 +82,7 @@ def create_test_run(
     vault_id: Optional[str],
     vault_name: Optional[str],
     question_set_id: str,
+    question_set_name: str,
     questions_total: int
 ) -> str:
     """
@@ -106,11 +107,11 @@ def create_test_run(
         result = session.execute(
             text("""
                 INSERT INTO test_runs (
-                    status, mode, vault_id, vault_name, question_set_id,
+                    status, mode, vault_id, vault_name, question_set_id, question_set_name,
                     questions_total, questions_answered, questions_passed, questions_failed,
                     created_at, heartbeat_at, started_at
                 ) VALUES (
-                    :status, :mode, :vault_id, :vault_name, :question_set_id,
+                    :status, :mode, :vault_id, :vault_name, :question_set_id, :question_set_name,
                     :questions_total, 0, 0, 0,
                     :created_at, :heartbeat_at, :started_at
                 ) RETURNING id
@@ -121,6 +122,7 @@ def create_test_run(
                 'vault_id': actual_vault_id,
                 'vault_name': vault_name,
                 'question_set_id': question_set_id,
+                'question_set_name': question_set_name,
                 'questions_total': questions_total,
                 'created_at': now,
                 'heartbeat_at': now,
