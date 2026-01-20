@@ -771,58 +771,32 @@
                 <div class="runner-card" style="grid-column: 1 / -1;">
                     <h2 class="card-title">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                        Question Sets
-                    </h2>
-                    <div id="questionSetsContainer">
-                        <table class="qs-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Questions</th>
-                                    <th>Uploaded</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="questionSetsBody">
-                                <tr><td colspan="4" class="empty-state">Loading question sets...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="upload-section">
-                        <label class="form-label">Upload New Question Set</label>
-                        <div class="file-input-wrapper">
-                            <input type="file" id="questionFile" accept=".json,.jsonl,.md">
-                            <label for="questionFile" class="file-label" id="fileLabel">
-                                Click to upload .json, .jsonl, or .md
-                            </label>
-                            <button type="button" class="btn" id="uploadBtn" disabled>Upload</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="runner-card" style="grid-column: 1 / -1;">
-                    <h2 class="card-title">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="5 3 19 12 5 21 5 3"/>
                         </svg>
                         Start New Test
                     </h2>
-                    <div class="runner-grid" style="margin-bottom: 0; gap: 16px;">
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Vault</label>
-                            <select id="vaultSelect" class="form-select">
-                                <option value="">Select a vault...</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label class="form-label">Question Set</label>
-                            <select id="questionSetSelect" class="form-select">
-                                <option value="">Select a question set...</option>
-                            </select>
+                    <div class="form-group">
+                        <label class="form-label">Vault</label>
+                        <select id="vaultSelect" class="form-select">
+                            <option value="">Select a vault...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="questionSetGroup" style="display: none;">
+                        <label class="form-label">Question Set</label>
+                        <select id="questionSetSelect" class="form-select">
+                            <option value="">Select a question set...</option>
+                        </select>
+                        <div class="inline-upload" style="margin-top: 8px;">
+                            <input type="file" id="questionFile" accept=".json,.jsonl,.md" style="display: none;">
+                            <button type="button" class="btn btn-sm" id="uploadTriggerBtn">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                Upload Question Set
+                            </button>
+                            <span id="uploadStatus" style="margin-left: 8px; font-size: 13px; color: var(--text-muted);"></span>
                         </div>
                     </div>
                     <div class="form-group" style="margin-top: 16px;">
@@ -1039,53 +1013,55 @@
             }
         }
         
-        async function fetchQuestionSets() {
-            try {
-                const response = await fetch('/api/test-runner/question-sets');
-                const data = await response.json();
-                questionSetsCache = data.question_sets || [];
-                
-                const select = document.getElementById('questionSetSelect');
-                select.innerHTML = '<option value="">Select a question set...</option>';
-                questionSetsCache.forEach(qs => {
-                    const option = document.createElement('option');
-                    option.value = qs.id;
-                    option.textContent = `${qs.name} (${qs.question_count} questions)`;
-                    select.appendChild(option);
-                });
-                
-                renderQuestionSetsTable();
-            } catch (error) {
-                console.error('Failed to fetch question sets:', error);
-            }
-        }
-        
-        function renderQuestionSetsTable() {
-            const tbody = document.getElementById('questionSetsBody');
+        async function fetchQuestionSets(vaultId) {
+            const select = document.getElementById('questionSetSelect');
+            const group = document.getElementById('questionSetGroup');
             
-            if (questionSetsCache.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No question sets uploaded yet</td></tr>';
+            if (!vaultId) {
+                group.style.display = 'none';
+                select.innerHTML = '<option value="">Select a question set...</option>';
+                questionSetsCache = [];
                 return;
             }
             
-            tbody.innerHTML = questionSetsCache.map(qs => `
-                <tr data-id="${qs.id}">
-                    <td>${escapeHtml(qs.name)}</td>
-                    <td>${qs.question_count}</td>
-                    <td>${qs.uploaded_at ? formatDate(qs.uploaded_at) : '-'}</td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="btn btn-sm btn-ghost" onclick="viewQuestionSet('${qs.id}')">View</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteQuestionSet('${qs.id}', '${escapeHtml(qs.name)}')">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            group.style.display = 'block';
+            select.innerHTML = '<option value="">Loading...</option>';
+            
+            try {
+                const response = await fetch(`/api/test-runner/question-sets?vault_id=${vaultId}`);
+                const data = await response.json();
+                questionSetsCache = data.question_sets || [];
+                
+                select.innerHTML = '<option value="">Select a question set...</option>';
+                if (questionSetsCache.length === 0) {
+                    select.innerHTML = '<option value="">No question sets - upload one below</option>';
+                } else {
+                    questionSetsCache.forEach(qs => {
+                        const option = document.createElement('option');
+                        option.value = qs.id;
+                        option.textContent = `${qs.name} (${qs.question_count} questions)`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch question sets:', error);
+                select.innerHTML = '<option value="">Error loading question sets</option>';
+            }
+        }
+        
+        function onVaultChange() {
+            const vaultId = document.getElementById('vaultSelect').value;
+            fetchQuestionSets(vaultId);
         }
         
         async function viewQuestionSet(id) {
+            const vaultId = document.getElementById('vaultSelect').value;
+            if (!vaultId) {
+                addLog('No vault selected', 'error');
+                return;
+            }
             try {
-                const response = await fetch(`/api/test-runner/question-sets/${id}`);
+                const response = await fetch(`/api/test-runner/question-sets/${id}?vault_id=${vaultId}`);
                 const data = await response.json();
                 
                 const modal = document.getElementById('questionsModal');
@@ -1110,18 +1086,25 @@
         }
         
         async function deleteQuestionSet(id, name) {
+            const vaultId = document.getElementById('vaultSelect').value;
+            if (!vaultId) {
+                addLog('No vault selected', 'error');
+                return;
+            }
+            
             if (!confirm(`Are you sure you want to delete "${name}"?`)) {
                 return;
             }
             
             try {
-                const response = await fetch(`/api/test-runner/question-sets/${id}`, {
+                const response = await fetch(`/api/test-runner/question-sets/${id}?vault_id=${vaultId}`, {
                     method: 'DELETE'
                 });
                 
                 if (response.ok) {
                     addLog(`Deleted question set: ${name}`, 'success');
-                    fetchQuestionSets();
+                    const vaultId = document.getElementById('vaultSelect').value;
+                    fetchQuestionSets(vaultId);
                 } else {
                     const data = await response.json();
                     addLog(`Failed to delete: ${data.error}`, 'error');
@@ -1577,10 +1560,20 @@
         async function uploadQuestionSet() {
             const fileInput = document.getElementById('questionFile');
             const file = fileInput.files[0];
+            const vaultId = document.getElementById('vaultSelect').value;
+            const statusSpan = document.getElementById('uploadStatus');
+            
             if (!file) return;
+            if (!vaultId) {
+                addLog('Please select a vault first', 'error');
+                return;
+            }
+            
+            statusSpan.textContent = 'Uploading...';
             
             const formData = new FormData();
             formData.append('file', file);
+            formData.append('vault_id', vaultId);
             
             try {
                 const response = await fetch('/api/test-runner/question-sets/upload', {
@@ -1592,16 +1585,16 @@
                 
                 if (response.ok) {
                     addLog(`Uploaded: ${data.name} (${data.question_count} questions)`, 'success');
-                    fetchQuestionSets();
+                    statusSpan.textContent = `Uploaded ${data.name}`;
+                    fetchQuestionSets(vaultId);
                     fileInput.value = '';
-                    document.getElementById('fileLabel').textContent = 'Click to upload .json, .jsonl, or .md';
-                    document.getElementById('fileLabel').classList.remove('has-file');
-                    document.getElementById('uploadBtn').disabled = true;
                 } else {
                     addLog(`Upload failed: ${data.error}`, 'error');
+                    statusSpan.textContent = 'Upload failed';
                 }
             } catch (error) {
                 addLog(`Upload error: ${error.message}`, 'error');
+                statusSpan.textContent = 'Upload error';
             }
         }
         
@@ -1618,26 +1611,20 @@
         
         document.getElementById('startBtn').addEventListener('click', startTest);
         document.getElementById('stopBtn').addEventListener('click', stopTest);
-        document.getElementById('uploadBtn').addEventListener('click', uploadQuestionSet);
+        document.getElementById('vaultSelect').addEventListener('change', onVaultChange);
         
-        document.querySelectorAll('input[name="mode"]').forEach(radio => {
-            radio.addEventListener('change', toggleCorpusFolderVisibility);
+        document.getElementById('uploadTriggerBtn').addEventListener('click', function() {
+            document.getElementById('questionFile').click();
         });
         
         document.getElementById('questionFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const label = document.getElementById('fileLabel');
-            const uploadBtn = document.getElementById('uploadBtn');
-            
-            if (file) {
-                label.textContent = file.name;
-                label.classList.add('has-file');
-                uploadBtn.disabled = false;
-            } else {
-                label.textContent = 'Click to upload .json, .jsonl, or .md';
-                label.classList.remove('has-file');
-                uploadBtn.disabled = true;
+            if (e.target.files[0]) {
+                uploadQuestionSet();
             }
+        });
+        
+        document.querySelectorAll('input[name="mode"]').forEach(radio => {
+            radio.addEventListener('change', toggleCorpusFolderVisibility);
         });
         
         document.getElementById('closeResults').addEventListener('click', function() {
@@ -1650,7 +1637,6 @@
         
         fetchVaults();
         fetchCorpusFolders();
-        fetchQuestionSets();
         fetchHistory();
         fetchStatus();
         toggleCorpusFolderVisibility();

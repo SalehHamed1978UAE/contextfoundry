@@ -107,9 +107,13 @@ def parse_markdown_questions(content: str) -> list:
 @test_runner_api.route('/question-sets/upload', methods=['POST'])
 @require_auth
 def upload_question_set():
-    """Upload a question set from JSON, JSONL, or Markdown file."""
+    """Upload a question set for a specific vault."""
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
+    
+    vault_id = request.form.get('vault_id')
+    if not vault_id:
+        return jsonify({'error': 'vault_id is required'}), 400
     
     file = request.files['file']
     if not file.filename:
@@ -146,10 +150,11 @@ def upload_question_set():
         session = get_db_session()
         try:
             result = session.execute(text("""
-                INSERT INTO question_sets (name, question_count, questions, uploaded_by)
-                VALUES (:name, :count, :questions, :uploaded_by)
+                INSERT INTO question_sets (vault_id, name, question_count, questions, uploaded_by)
+                VALUES (:vault_id, :name, :count, :questions, :uploaded_by)
                 RETURNING id
             """), {
+                'vault_id': vault_id,
                 'name': name,
                 'count': question_count,
                 'questions': json.dumps(questions),
@@ -160,6 +165,7 @@ def upload_question_set():
             
             return jsonify({
                 'id': str(question_set_id),
+                'vault_id': vault_id,
                 'name': name,
                 'question_count': question_count,
                 'message': f'Uploaded {question_count} questions successfully'
@@ -175,14 +181,19 @@ def upload_question_set():
 @test_runner_api.route('/question-sets', methods=['GET'])
 @require_auth
 def list_question_sets():
-    """List all question sets."""
+    """List question sets for a specific vault."""
+    vault_id = request.args.get('vault_id')
+    if not vault_id:
+        return jsonify({'error': 'vault_id query parameter is required'}), 400
+    
     session = get_db_session()
     try:
         result = session.execute(text("""
             SELECT id, name, question_count, uploaded_at, uploaded_by
             FROM question_sets
+            WHERE vault_id = :vault_id
             ORDER BY uploaded_at DESC
-        """))
+        """), {'vault_id': vault_id})
         
         question_sets = []
         for row in result:
@@ -202,14 +213,18 @@ def list_question_sets():
 @test_runner_api.route('/question-sets/<uuid:question_set_id>', methods=['GET'])
 @require_auth
 def get_question_set(question_set_id: UUID):
-    """Get a question set with its questions."""
+    """Get a question set with its questions. Requires vault_id query param for ownership validation."""
+    vault_id = request.args.get('vault_id')
+    if not vault_id:
+        return jsonify({'error': 'vault_id query parameter is required'}), 400
+    
     session = get_db_session()
     try:
         result = session.execute(text("""
             SELECT id, name, question_count, questions, uploaded_at, uploaded_by
             FROM question_sets
-            WHERE id = :id
-        """), {'id': str(question_set_id)})
+            WHERE id = :id AND vault_id = :vault_id
+        """), {'id': str(question_set_id), 'vault_id': vault_id})
         
         row = result.fetchone()
         if not row:
@@ -230,12 +245,16 @@ def get_question_set(question_set_id: UUID):
 @test_runner_api.route('/question-sets/<uuid:question_set_id>', methods=['DELETE'])
 @require_auth
 def delete_question_set(question_set_id: UUID):
-    """Delete a question set."""
+    """Delete a question set. Requires vault_id query param for ownership validation."""
+    vault_id = request.args.get('vault_id')
+    if not vault_id:
+        return jsonify({'error': 'vault_id query parameter is required'}), 400
+    
     session = get_db_session()
     try:
         result = session.execute(text("""
-            DELETE FROM question_sets WHERE id = :id RETURNING id
-        """), {'id': str(question_set_id)})
+            DELETE FROM question_sets WHERE id = :id AND vault_id = :vault_id RETURNING id
+        """), {'id': str(question_set_id), 'vault_id': vault_id})
         
         if not result.fetchone():
             return jsonify({'error': 'Question set not found'}), 404
@@ -283,6 +302,16 @@ def start_test():
     
     if mode == 'fresh' and not corpus_folder:
         return jsonify({'error': 'corpus_folder is required for fresh mode'}), 400
+    
+    session = get_db_session()
+    try:
+        result = session.execute(text("""
+            SELECT id FROM question_sets WHERE id = :qs_id AND vault_id = :vault_id
+        """), {'qs_id': question_set_id, 'vault_id': vault_id})
+        if not result.fetchone():
+            return jsonify({'error': 'Question set not found or does not belong to this vault'}), 400
+    finally:
+        session.close()
     
     cmd = ['python', '-m', 'src.test_runner.runner', 
            '--vault-id', vault_id,
