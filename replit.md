@@ -46,6 +46,11 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 20, 2026**: **Subprocess Output Buffering Fix** - Fixed test subprocess hanging issues:
+  - Added `log()` function with explicit `sys.stdout.flush()` in test_executor.py and runner.py
+  - Subprocess output now visible in log files immediately (not buffered)
+  - Question IDs now use consistent loop index (i+1) for reliable resume matching
+  - Log files at `test_results/test_run_<id>.log` show real-time progress
 - **Jan 20, 2026**: **Test Run Persistence & Resume** - Made test runs survive server restarts:
   - Database persistence: Test runs saved to DB immediately when started (not just on completion)
   - Heartbeat mechanism: Progress updated after each question with heartbeat timestamp (migration 024)
