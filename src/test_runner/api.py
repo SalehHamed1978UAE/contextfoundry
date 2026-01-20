@@ -16,11 +16,22 @@ from datetime import datetime
 from pathlib import Path
 from uuid import UUID
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+from functools import wraps
 
 test_runner_api = Blueprint('test_runner_api', __name__, url_prefix='/api/test-runner')
+
+
+def require_auth(f):
+    """Decorator to require authentication for API endpoints."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_id'):
+            return jsonify({'error': 'Authentication required'}), 401
+        return f(*args, **kwargs)
+    return decorated_function
 
 STATUS_FILE_PATH = Path('data/test-runner/status.json')
 CORPUS_FOLDERS_PATH = Path('test documents')
@@ -61,6 +72,7 @@ def clear_status_file():
 
 
 @test_runner_api.route('/question-sets/upload', methods=['POST'])
+@require_auth
 def upload_question_set():
     """Upload a question set from JSON or JSONL file."""
     if 'file' not in request.files:
@@ -124,6 +136,7 @@ def upload_question_set():
 
 
 @test_runner_api.route('/question-sets', methods=['GET'])
+@require_auth
 def list_question_sets():
     """List all question sets."""
     session = get_db_session()
@@ -150,6 +163,7 @@ def list_question_sets():
 
 
 @test_runner_api.route('/question-sets/<uuid:question_set_id>', methods=['GET'])
+@require_auth
 def get_question_set(question_set_id: UUID):
     """Get a question set with its questions."""
     session = get_db_session()
@@ -177,6 +191,7 @@ def get_question_set(question_set_id: UUID):
 
 
 @test_runner_api.route('/question-sets/<uuid:question_set_id>', methods=['DELETE'])
+@require_auth
 def delete_question_set(question_set_id: UUID):
     """Delete a question set."""
     session = get_db_session()
@@ -195,6 +210,7 @@ def delete_question_set(question_set_id: UUID):
 
 
 @test_runner_api.route('/start', methods=['POST'])
+@require_auth
 def start_test():
     """Start a new test run."""
     current_status = read_status_file()
@@ -263,6 +279,7 @@ def start_test():
 
 
 @test_runner_api.route('/status', methods=['GET'])
+@require_auth
 def get_test_status():
     """Get current test status."""
     status = read_status_file()
@@ -284,6 +301,7 @@ def get_test_status():
 
 
 @test_runner_api.route('/stop', methods=['POST'])
+@require_auth
 def stop_test():
     """Stop the currently running test."""
     status = read_status_file()
@@ -314,6 +332,7 @@ def stop_test():
 
 
 @test_runner_api.route('/history', methods=['GET'])
+@require_auth
 def get_test_history():
     """Get test run history."""
     limit = request.args.get('limit', 50, type=int)
@@ -367,6 +386,7 @@ def get_test_history():
 
 
 @test_runner_api.route('/results/<uuid:test_id>', methods=['GET'])
+@require_auth
 def get_test_results(test_id: UUID):
     """Get detailed results for a specific test run."""
     session = get_db_session()
@@ -436,6 +456,7 @@ def get_test_results(test_id: UUID):
 
 
 @test_runner_api.route('/corpus-folders', methods=['GET'])
+@require_auth
 def list_corpus_folders():
     """List available corpus folders from test documents directory."""
     folders = []
