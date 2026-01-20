@@ -174,18 +174,26 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             return None
         
         if mode == 'fresh':
-            # corpus_folder is just the folder name (e.g., "Manus Healthtec")
-            # Full path is "test documents/<corpus_folder>"
-            corpus_base = Path('test documents')
-            corpus_path = corpus_base / corpus_folder
+            # Get corpus path from config if available, otherwise use default path
             vault_name = corpus_folder  # Use corpus folder name as vault name
+            corpus_config = config.get_corpus(corpus_folder)
+            if corpus_config and corpus_config.get('root_path'):
+                corpus_path = Path(corpus_config['root_path'])
+            else:
+                # Fallback to default path pattern
+                corpus_path = Path('test documents') / corpus_folder
             
             update_status('delete', stage_status='running')
             log(f"\n[Stage: Delete] Deleting vault '{vault_name}'...")
             try:
-                # Try to delete by vault_id with vault_name for confirmation
-                vm.delete_vault(vault_id, vault_name)
-                log(f"  Deleted vault {vault_id}")
+                # Look up vault by name to get the correct ID for deletion
+                existing_id = vm.find_vault_by_name(vault_name)
+                if existing_id:
+                    log(f"  Found existing vault: {existing_id}")
+                    vm.delete_vault(existing_id, vault_name)
+                    log(f"  Deleted vault {existing_id}")
+                else:
+                    log(f"  No existing vault found with name '{vault_name}'")
                 update_status('delete', stage_status='complete')
             except Exception as e:
                 log(f"  Delete skipped (may not exist): {e}")
