@@ -46,6 +46,11 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 20, 2026**: **Test Results Download** - Added ability to view and download test results files:
+  - API endpoints: `/api/test-runner/results-files` (list) and `/results-files/<filename>` (download)
+  - Secure file access with path traversal protection (regex validation, resolved paths)
+  - UI: Download button in Test History for completed/interrupted tests
+  - Auto-matching by vault ID prefix and name with fallback file picker modal
 - **Jan 20, 2026**: **Vault-Scoped Question Sets** - Redesigned question sets from global to vault-specific:
   - Added `vault_id` column to `question_sets` table with unique constraint `(vault_id, name)` (migration 022)
   - API endpoints require vault_id for all operations (upload, list, get, delete)
