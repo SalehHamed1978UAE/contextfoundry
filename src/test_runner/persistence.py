@@ -12,7 +12,7 @@ from uuid import UUID
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-HEARTBEAT_TIMEOUT_SECONDS = 30
+HEARTBEAT_TIMEOUT_SECONDS = 300  # 5 minutes - long enough for slow LLM calls
 
 
 def get_db_session():
