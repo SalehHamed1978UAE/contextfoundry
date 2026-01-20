@@ -153,10 +153,21 @@ class TestExecutor:
             category = q.get('category', q.get('type', ''))
             
             start_time = time.time()
-            actual = self.vm.query(vault_id, query)
+            actual, error_type = self.vm.query(vault_id, query, timeout=60)
             duration_ms = int((time.time() - start_time) * 1000)
             
-            is_pass, match_type = self.evaluator.evaluate(expected, actual)
+            if error_type == 'timeout':
+                log(f"  Q{q_num}: TIMEOUT after 60s - {query[:60]}...")
+                is_pass = False
+                match_type = 'timeout'
+                failure_reason = 'timeout'
+            elif error_type:
+                is_pass = False
+                match_type = 'error'
+                failure_reason = error_type
+            else:
+                is_pass, match_type = self.evaluator.evaluate(expected, actual)
+                failure_reason = None if is_pass else match_type
             
             if is_pass:
                 passed += 1
@@ -167,7 +178,8 @@ class TestExecutor:
                 "match_type": match_type,
                 "query": query[:80],
                 "expected": expected[:80],
-                "actual": actual[:100] if actual else ""
+                "actual": actual[:100] if actual else "",
+                "error_type": error_type
             }
             results.append(result)
             
@@ -187,7 +199,7 @@ class TestExecutor:
                     expected_answer=expected,
                     actual_answer=actual or '',
                     passed=is_pass,
-                    failure_reason=None if is_pass else match_type,
+                    failure_reason=failure_reason,
                     category=category,
                     duration_ms=duration_ms
                 )

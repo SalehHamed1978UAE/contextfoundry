@@ -235,25 +235,42 @@ class VaultManager:
         
         raise TimeoutError(f"Extraction did not complete within {timeout_minutes} minutes")
     
-    def query(self, vault_id: str, question: str) -> str:
-        """Query the vault and return answer using /api/vault/chat."""
+    def query(self, vault_id: str, question: str, timeout: int = 60) -> tuple[str, str]:
+        """Query the vault and return (answer, error_type).
+        
+        Args:
+            vault_id: The vault to query
+            question: The question to ask
+            timeout: Timeout in seconds (default 60)
+            
+        Returns:
+            Tuple of (answer, error_type) where error_type is None on success,
+            'timeout' on timeout, or 'error' on other failures.
+        """
         import sys
-        print(f"    [VM.query] Sending request...", flush=True)
+        from requests.exceptions import ReadTimeout, Timeout
+        
+        print(f"    [VM.query] Sending request (timeout={timeout}s)...", flush=True)
         sys.stdout.flush()
         try:
             response = self.session.post(
                 f"{self.api}/vault/chat",
                 json={"query": question, "vault_id": vault_id},
-                timeout=120
+                timeout=timeout
             )
             print(f"    [VM.query] Response: {response.status_code}", flush=True)
             sys.stdout.flush()
             if response.status_code == 200:
                 data = response.json()
-                return data.get('answer', data.get('response', data.get('message', '')))
+                answer = data.get('answer', data.get('response', data.get('message', '')))
+                return (answer, None)
             print(f"    [VM.query] Error: {response.text[:200]}", flush=True)
-            return ""
+            return ("", "error")
+        except (ReadTimeout, Timeout) as e:
+            print(f"    [VM.query] TIMEOUT after {timeout}s: {question[:50]}...", flush=True)
+            sys.stdout.flush()
+            return ("", "timeout")
         except Exception as e:
             print(f"    [VM.query] Exception: {e}", flush=True)
             sys.stdout.flush()
-            return ""
+            return ("", "error")
