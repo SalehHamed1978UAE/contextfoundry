@@ -213,6 +213,11 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             if test_run_id:
                 transition_to(test_run_id, TestRunStatus.UPLOADING, vault_id=str(vault_id), vault_name=vault_name)
                 log(f"  [DB] Updated test_run vault_id to: {vault_id}, transitioned to UPLOADING")
+                
+                # Update question set to point to new vault (fresh mode creates new vault)
+                from .persistence import update_question_set_vault
+                update_question_set_vault(question_set_id, str(vault_id))
+                log(f"  [DB] Updated question_set vault_id to: {vault_id}")
             
             if not vm.authenticate_dev(tenant_id=vault_id):
                 log("WARNING: Failed to set vault context")
