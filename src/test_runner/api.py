@@ -108,11 +108,19 @@ def parse_markdown_questions(content: str) -> list:
 @require_auth
 def upload_question_set():
     """Upload a question set for a specific vault."""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info(f"[Upload] Request files: {list(request.files.keys())}")
+    logger.info(f"[Upload] Request form: {dict(request.form)}")
+    
     if 'file' not in request.files:
+        logger.error("[Upload] No file in request")
         return jsonify({'error': 'No file provided'}), 400
     
     vault_id = request.form.get('vault_id')
     if not vault_id:
+        logger.error("[Upload] No vault_id in form")
         return jsonify({'error': 'vault_id is required'}), 400
     
     file = request.files['file']
