@@ -370,9 +370,9 @@ def start_test():
     db_session = get_db_session()
     try:
         result = db_session.execute(text("""
-            SELECT qs.id, qs.name, v.name as vault_name
+            SELECT qs.id, qs.name, t.name as vault_name
             FROM question_sets qs
-            LEFT JOIN vaults v ON v.id = qs.vault_id
+            LEFT JOIN platform.tenants t ON t.id = qs.vault_id
             WHERE qs.id = :qs_id AND qs.vault_id = :vault_id
         """), {'qs_id': question_set_id, 'vault_id': vault_id})
         row = result.fetchone()

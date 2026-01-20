@@ -365,7 +365,7 @@ def recover_file_test_to_db(file_status: dict) -> Optional[str]:
             return None
         
         vault_result = session.execute(text("""
-            SELECT name FROM vaults WHERE id = :vault_id
+            SELECT name FROM platform.tenants WHERE id = :vault_id
         """), {'vault_id': vault_id})
         vault_row = vault_result.fetchone()
         vault_name = vault_row[0] if vault_row else 'Unknown'
