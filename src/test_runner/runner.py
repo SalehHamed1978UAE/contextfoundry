@@ -174,19 +174,28 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             return None
         
         if mode == 'fresh':
+            # corpus_folder is just the folder name (e.g., "Manus Healthtec")
+            # Full path is "test documents/<corpus_folder>"
+            corpus_base = Path('test documents')
+            corpus_path = corpus_base / corpus_folder
+            vault_name = corpus_folder  # Use corpus folder name as vault name
+            
             update_status('delete', stage_status='running')
-            log("\n[Stage: Delete] Deleting existing vault data...")
+            log(f"\n[Stage: Delete] Deleting vault '{vault_name}'...")
             try:
-                vm.delete_vault(vault_id)
+                # Try to delete by vault_id with vault_name for confirmation
+                vm.delete_vault(vault_id, vault_name)
+                log(f"  Deleted vault {vault_id}")
                 update_status('delete', stage_status='complete')
             except Exception as e:
-                log(f"  Delete failed (may not exist): {e}")
+                log(f"  Delete skipped (may not exist): {e}")
                 update_status('delete', stage_status='complete')
             
             update_status('create', stage_status='running')
-            log("\n[Stage: Create] Creating new vault...")
-            new_vault_id = vm.create_vault(f"test-{vault_id[:8]}")
+            log(f"\n[Stage: Create] Creating new vault '{vault_name}'...")
+            new_vault_id = vm.create_vault(vault_name)
             vault_id = new_vault_id
+            log(f"  Created vault: {vault_id}")
             update_status('create', stage_status='complete', vault_id=str(vault_id))
             
             if not vm.authenticate_dev(tenant_id=vault_id):
@@ -195,8 +204,8 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             update_status('upload', stage_status='running')
             log("\n[Stage: Upload] Uploading documents...")
             from .document_uploader import get_files_to_upload
-            root_path = Path(corpus_folder)
-            files = get_files_to_upload(root_path, config.upload_rules)
+            files = get_files_to_upload(corpus_path, config.upload_rules)
+            log(f"  Corpus path: {corpus_path}")
             log(f"  Found {len(files)} files")
             
             for i, file_path in enumerate(files):
