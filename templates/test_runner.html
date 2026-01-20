@@ -195,6 +195,16 @@
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
         }
         
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border-color);
+        }
+        
         .status-panel {
             grid-column: 1 / -1;
         }
@@ -233,6 +243,72 @@
         .status-value.failed { color: var(--accent-error); }
         .status-value.stopped { color: var(--accent-warning); }
         
+        .pipeline-stages {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .pipeline-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .pipeline-stage {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .pipeline-stage:last-child {
+            border-bottom: none;
+        }
+        
+        .stage-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        .stage-name {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .stage-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+        
+        .stage-status.complete { color: var(--accent-success); }
+        .stage-status.running { color: var(--accent-primary); }
+        .stage-status.pending { color: var(--text-muted); }
+        .stage-status.skipped { color: var(--text-muted); opacity: 0.6; }
+        .stage-status.failed { color: var(--accent-error); }
+        
+        .stage-detail {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+        
         .progress-container {
             margin-bottom: 16px;
         }
@@ -268,6 +344,44 @@
             transition: width 0.3s ease;
         }
         
+        .progress-stats {
+            display: flex;
+            gap: 24px;
+            margin-top: 12px;
+        }
+        
+        .progress-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+        
+        .progress-stat.passed { color: var(--accent-success); }
+        .progress-stat.failed { color: var(--accent-error); }
+        .progress-stat.accuracy { color: var(--accent-primary); }
+        
+        .current-question {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .current-question-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .current-question-text {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-style: italic;
+        }
+        
         .log-viewer {
             background: var(--bg-secondary);
             border-radius: var(--radius-md);
@@ -289,19 +403,19 @@
         .log-entry.warning { color: var(--accent-warning); }
         .log-entry.error { color: var(--accent-error); }
         
-        .history-table {
+        .history-table, .qs-table {
             width: 100%;
             border-collapse: collapse;
         }
         
-        .history-table th,
-        .history-table td {
+        .history-table th, .history-table td,
+        .qs-table th, .qs-table td {
             padding: 12px 16px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
         
-        .history-table th {
+        .history-table th, .qs-table th {
             font-size: 11px;
             color: var(--text-muted);
             text-transform: uppercase;
@@ -309,18 +423,18 @@
             font-weight: 500;
         }
         
-        .history-table td {
+        .history-table td, .qs-table td {
             font-size: 13px;
             color: var(--text-secondary);
         }
         
-        .history-table tr:hover td {
+        .history-table tr:hover td, .qs-table tr:hover td {
             background: var(--bg-secondary);
         }
         
-        .history-table tbody tr {
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .action-btns {
+            display: flex;
+            gap: 8px;
         }
         
         .status-badge {
@@ -334,7 +448,7 @@
             text-transform: uppercase;
         }
         
-        .status-badge.completed {
+        .status-badge.completed, .status-badge.complete {
             background: rgba(16, 185, 129, 0.1);
             color: var(--accent-success);
         }
@@ -349,12 +463,12 @@
             color: var(--accent-error);
         }
         
-        .status-badge.stopped {
+        .status-badge.stopped, .status-badge.interrupted {
             background: rgba(245, 158, 11, 0.1);
             color: var(--accent-warning);
         }
         
-        .results-panel {
+        .results-panel, .questions-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -367,11 +481,11 @@
             overflow-y: auto;
         }
         
-        .results-panel.open {
+        .results-panel.open, .questions-modal.open {
             display: block;
         }
         
-        .results-header {
+        .results-header, .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -382,7 +496,7 @@
             background: var(--bg-secondary);
         }
         
-        .results-title {
+        .results-title, .modal-title {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 18px;
             font-weight: 600;
@@ -401,7 +515,7 @@
             color: var(--text-primary);
         }
         
-        .results-content {
+        .results-content, .modal-content {
             padding: 24px;
         }
         
@@ -471,6 +585,25 @@
             display: flex;
             justify-content: space-between;
             font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        .question-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+        
+        .question-item-text {
+            font-size: 13px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        
+        .question-item-answer {
+            font-size: 12px;
             color: var(--text-muted);
         }
         
@@ -590,6 +723,14 @@
             border-color: var(--accent-primary);
             color: var(--accent-primary);
         }
+        
+        .conditional-group {
+            display: none;
+        }
+        
+        .conditional-group.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -621,44 +762,38 @@
                     </a>
                     <div>
                         <h1 class="runner-title">Test Runner Dashboard</h1>
-                        <p class="runner-subtitle">Run and monitor automated Q&A tests against your corpora</p>
+                        <p class="runner-subtitle">Run and monitor automated Q&A tests against your vaults</p>
                     </div>
                 </div>
             </div>
             
             <div class="runner-grid">
-                <div class="runner-card">
-                    <h2 class="card-title">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                        </svg>
-                        Corpus Selection
-                    </h2>
-                    <div class="form-group">
-                        <label class="form-label">Corpus Folder</label>
-                        <select id="corpusSelect" class="form-select">
-                            <option value="">Select a corpus folder...</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="runner-card">
+                <div class="runner-card" style="grid-column: 1 / -1;">
                     <h2 class="card-title">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"/>
                             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
                             <line x1="12" y1="17" x2="12.01" y2="17"/>
                         </svg>
-                        Question Set
+                        Question Sets
                     </h2>
-                    <div class="form-group">
-                        <label class="form-label">Question Set</label>
-                        <select id="questionSetSelect" class="form-select">
-                            <option value="">Use built-in questions</option>
-                        </select>
+                    <div id="questionSetsContainer">
+                        <table class="qs-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Questions</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="questionSetsBody">
+                                <tr><td colspan="4" class="empty-state">Loading question sets...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div class="upload-section">
-                        <label class="form-label">Or Upload New</label>
+                        <label class="form-label">Upload New Question Set</label>
                         <div class="file-input-wrapper">
                             <input type="file" id="questionFile" accept=".json,.jsonl">
                             <label for="questionFile" class="file-label" id="fileLabel">
@@ -674,20 +809,40 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polygon points="5 3 19 12 5 21 5 3"/>
                         </svg>
-                        Test Configuration
+                        Start New Test
                     </h2>
-                    <div class="form-group">
+                    <div class="runner-grid" style="margin-bottom: 0; gap: 16px;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Vault</label>
+                            <select id="vaultSelect" class="form-select">
+                                <option value="">Select a vault...</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Question Set</label>
+                            <select id="questionSetSelect" class="form-select">
+                                <option value="">Select a question set...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
                         <label class="form-label">Mode</label>
                         <div class="radio-group">
                             <label class="radio-option">
-                                <input type="radio" name="mode" value="resume" checked>
-                                <span>Auto-Resume (continue from checkpoint)</span>
+                                <input type="radio" name="mode" value="auto" checked>
+                                <span>Auto (use existing vault)</span>
                             </label>
                             <label class="radio-option">
                                 <input type="radio" name="mode" value="fresh">
-                                <span>Fresh Start (reset progress)</span>
+                                <span>Fresh (delete vault, re-upload, re-extract)</span>
                             </label>
                         </div>
+                    </div>
+                    <div class="form-group conditional-group" id="corpusFolderGroup">
+                        <label class="form-label">Corpus Folder (for Fresh mode)</label>
+                        <select id="corpusSelect" class="form-select">
+                            <option value="">Select a corpus folder...</option>
+                        </select>
                     </div>
                     <div class="btn-row">
                         <button type="button" class="btn btn-primary" id="startBtn">
@@ -705,12 +860,12 @@
                     </div>
                 </div>
                 
-                <div class="runner-card status-panel">
+                <div class="runner-card status-panel" id="currentTestPanel">
                     <h2 class="card-title">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
                         </svg>
-                        Live Status
+                        Current Test
                     </h2>
                     <div class="status-grid">
                         <div class="status-item">
@@ -718,27 +873,68 @@
                             <div class="status-value idle" id="statusValue">Idle</div>
                         </div>
                         <div class="status-item">
-                            <div class="status-label">Stage</div>
-                            <div class="status-value" id="stageValue">-</div>
+                            <div class="status-label">Vault</div>
+                            <div class="status-value" id="vaultNameValue" style="font-size: 16px;">-</div>
                         </div>
                         <div class="status-item">
-                            <div class="status-label">Passed</div>
-                            <div class="status-value" id="passedValue" style="color: var(--accent-success)">0</div>
+                            <div class="status-label">Question Set</div>
+                            <div class="status-value" id="qsNameValue" style="font-size: 16px;">-</div>
                         </div>
                         <div class="status-item">
-                            <div class="status-label">Failed</div>
-                            <div class="status-value" id="failedValue" style="color: var(--accent-error)">0</div>
+                            <div class="status-label">Started</div>
+                            <div class="status-value" id="startedValue" style="font-size: 16px;">-</div>
                         </div>
                     </div>
+                    
+                    <div class="pipeline-stages" id="pipelineStages">
+                        <div class="pipeline-title">Pipeline Progress</div>
+                        <div class="pipeline-stage" data-stage="delete">
+                            <span class="stage-number">1</span>
+                            <span class="stage-name">Delete vault</span>
+                            <span class="stage-status pending" id="stage-delete">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="create">
+                            <span class="stage-number">2</span>
+                            <span class="stage-name">Create vault</span>
+                            <span class="stage-status pending" id="stage-create">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="upload">
+                            <span class="stage-number">3</span>
+                            <span class="stage-name">Upload docs</span>
+                            <span class="stage-status pending" id="stage-upload">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="extract">
+                            <span class="stage-number">4</span>
+                            <span class="stage-name">Extraction</span>
+                            <span class="stage-status pending" id="stage-extract">⏳ Pending</span>
+                        </div>
+                        <div class="pipeline-stage" data-stage="qa">
+                            <span class="stage-number">5</span>
+                            <span class="stage-name">Q&A</span>
+                            <span class="stage-status pending" id="stage-qa">⏳ Pending</span>
+                        </div>
+                    </div>
+                    
                     <div class="progress-container">
                         <div class="progress-header">
-                            <span class="progress-label">Progress</span>
+                            <span class="progress-label">Q&A Progress</span>
                             <span class="progress-value" id="progressText">0 / 0</span>
                         </div>
                         <div class="progress-bar">
                             <div class="progress-fill" id="progressFill" style="width: 0%"></div>
                         </div>
+                        <div class="progress-stats">
+                            <span class="progress-stat passed">✅ Passed: <strong id="passedValue">0</strong></span>
+                            <span class="progress-stat failed">❌ Failed: <strong id="failedValue">0</strong></span>
+                            <span class="progress-stat accuracy">📊 Accuracy: <strong id="accuracyValue">0%</strong></span>
+                        </div>
                     </div>
+                    
+                    <div class="current-question" id="currentQuestionBox" style="display: none;">
+                        <div class="current-question-label">Current Question</div>
+                        <div class="current-question-text" id="currentQuestionText"></div>
+                    </div>
+                    
                     <div class="log-viewer" id="logViewer">
                         <div class="log-entry info">Waiting for test to start...</div>
                     </div>
@@ -756,12 +952,12 @@
                         <table class="history-table">
                             <thead>
                                 <tr>
-                                    <th>Corpus</th>
+                                    <th>Vault</th>
+                                    <th>Question Set</th>
                                     <th>Status</th>
-                                    <th>Questions</th>
-                                    <th>Passed</th>
-                                    <th>Failed</th>
+                                    <th>Progress</th>
                                     <th>Started</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="historyBody">
@@ -788,10 +984,43 @@
         </div>
     </div>
     
+    <div class="questions-modal" id="questionsModal">
+        <div class="modal-header">
+            <h2 class="modal-title" id="questionsModalTitle">Questions</h2>
+            <button class="close-btn" id="closeQuestionsModal">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-content" id="questionsModalContent">
+        </div>
+    </div>
+    
     <script>
         let pollInterval = null;
         let currentStatus = null;
-        const logs = [];
+        let vaultsCache = [];
+        let questionSetsCache = [];
+        
+        async function fetchVaults() {
+            try {
+                const response = await fetch('/api/test-runner/vaults');
+                const data = await response.json();
+                vaultsCache = data.vaults || [];
+                const select = document.getElementById('vaultSelect');
+                select.innerHTML = '<option value="">Select a vault...</option>';
+                vaultsCache.forEach(vault => {
+                    const option = document.createElement('option');
+                    option.value = vault.id;
+                    option.textContent = `${vault.name} (${vault.entity_count} entities)`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Failed to fetch vaults:', error);
+            }
+        }
         
         async function fetchCorpusFolders() {
             try {
@@ -799,7 +1028,7 @@
                 const data = await response.json();
                 const select = document.getElementById('corpusSelect');
                 select.innerHTML = '<option value="">Select a corpus folder...</option>';
-                data.corpus_folders.forEach(folder => {
+                (data.corpus_folders || []).forEach(folder => {
                     const option = document.createElement('option');
                     option.value = folder.name;
                     option.textContent = `${folder.name} (${folder.document_count} docs)`;
@@ -814,16 +1043,91 @@
             try {
                 const response = await fetch('/api/test-runner/question-sets');
                 const data = await response.json();
+                questionSetsCache = data.question_sets || [];
+                
                 const select = document.getElementById('questionSetSelect');
-                select.innerHTML = '<option value="">Use built-in questions</option>';
-                data.question_sets.forEach(qs => {
+                select.innerHTML = '<option value="">Select a question set...</option>';
+                questionSetsCache.forEach(qs => {
                     const option = document.createElement('option');
                     option.value = qs.id;
                     option.textContent = `${qs.name} (${qs.question_count} questions)`;
                     select.appendChild(option);
                 });
+                
+                renderQuestionSetsTable();
             } catch (error) {
                 console.error('Failed to fetch question sets:', error);
+            }
+        }
+        
+        function renderQuestionSetsTable() {
+            const tbody = document.getElementById('questionSetsBody');
+            
+            if (questionSetsCache.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No question sets uploaded yet</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = questionSetsCache.map(qs => `
+                <tr data-id="${qs.id}">
+                    <td>${escapeHtml(qs.name)}</td>
+                    <td>${qs.question_count}</td>
+                    <td>${qs.uploaded_at ? formatDate(qs.uploaded_at) : '-'}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-sm btn-ghost" onclick="viewQuestionSet('${qs.id}')">View</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteQuestionSet('${qs.id}', '${escapeHtml(qs.name)}')">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        async function viewQuestionSet(id) {
+            try {
+                const response = await fetch(`/api/test-runner/question-sets/${id}`);
+                const data = await response.json();
+                
+                const modal = document.getElementById('questionsModal');
+                const title = document.getElementById('questionsModalTitle');
+                const content = document.getElementById('questionsModalContent');
+                
+                title.textContent = `${data.name} (${data.question_count} questions)`;
+                
+                const questions = data.questions || [];
+                content.innerHTML = questions.map((q, i) => `
+                    <div class="question-item">
+                        <div class="question-item-text"><strong>Q${i + 1}:</strong> ${escapeHtml(q.question || q.text || q.q || JSON.stringify(q))}</div>
+                        ${q.answer || q.expected || q.a ? `<div class="question-item-answer">Expected: ${escapeHtml(q.answer || q.expected || q.a)}</div>` : ''}
+                    </div>
+                `).join('');
+                
+                modal.classList.add('open');
+            } catch (error) {
+                console.error('Failed to view question set:', error);
+                addLog(`Failed to load question set: ${error.message}`, 'error');
+            }
+        }
+        
+        async function deleteQuestionSet(id, name) {
+            if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/test-runner/question-sets/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    addLog(`Deleted question set: ${name}`, 'success');
+                    fetchQuestionSets();
+                } else {
+                    const data = await response.json();
+                    addLog(`Failed to delete: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Delete error: ${error.message}`, 'error');
             }
         }
         
@@ -833,27 +1137,131 @@
                 const data = await response.json();
                 const tbody = document.getElementById('historyBody');
                 
-                if (data.runs.length === 0) {
+                if (!data.runs || data.runs.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No test runs yet</td></tr>';
                     return;
                 }
                 
-                tbody.innerHTML = data.runs.map(run => `
-                    <tr data-id="${run.id}">
-                        <td>${run.corpus_folder || run.vault_name || '-'}</td>
-                        <td><span class="status-badge ${run.status}">${run.status}</span></td>
-                        <td>${run.questions_answered || 0} / ${run.questions_total || 0}</td>
-                        <td style="color: var(--accent-success)">${run.questions_passed || 0}</td>
-                        <td style="color: var(--accent-error)">${run.questions_failed || 0}</td>
-                        <td>${run.started_at ? new Date(run.started_at).toLocaleString() : '-'}</td>
-                    </tr>
-                `).join('');
-                
-                tbody.querySelectorAll('tr[data-id]').forEach(row => {
-                    row.addEventListener('click', () => showResults(row.dataset.id));
-                });
+                tbody.innerHTML = data.runs.map(run => {
+                    const progress = `${run.questions_answered || 0} / ${run.questions_total || 0}`;
+                    const accuracy = run.questions_answered > 0 
+                        ? ((run.questions_passed / run.questions_answered) * 100).toFixed(1) + '%'
+                        : '-';
+                    
+                    let actionButtons = '';
+                    const status = (run.status || '').toLowerCase();
+                    
+                    if (status === 'running') {
+                        actionButtons = `<button class="btn btn-sm btn-ghost" onclick="scrollToCurrentTest()">View Progress</button>`;
+                    } else if (status === 'completed' || status === 'complete' || status === 'finished') {
+                        actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>`;
+                    } else if (status === 'interrupted' || status === 'stopped') {
+                        actionButtons = `
+                            <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}')">Resume</button>
+                            <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
+                        `;
+                    } else if (status === 'failed') {
+                        actionButtons = `
+                            <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Logs</button>
+                            <button class="btn btn-sm btn-primary" onclick="retryTest('${run.vault_id}', '${run.question_set_id}', '${run.corpus_folder || ''}')">Retry</button>
+                        `;
+                    } else {
+                        actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
+                    }
+                    
+                    return `
+                        <tr data-id="${run.id}">
+                            <td>${escapeHtml(run.vault_name || '-')}</td>
+                            <td>${escapeHtml(run.question_set_name || '-')}</td>
+                            <td><span class="status-badge ${status}">${run.status}</span></td>
+                            <td>
+                                ${progress}
+                                <span style="color: var(--accent-success); margin-left: 8px;">✓${run.questions_passed || 0}</span>
+                                <span style="color: var(--accent-error); margin-left: 4px;">✗${run.questions_failed || 0}</span>
+                            </td>
+                            <td>${run.started_at ? formatDate(run.started_at) : '-'}</td>
+                            <td>
+                                <div class="action-btns">
+                                    ${actionButtons}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             } catch (error) {
                 console.error('Failed to fetch history:', error);
+            }
+        }
+        
+        function scrollToCurrentTest() {
+            document.getElementById('currentTestPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        async function resumeTest(vaultId, questionSetId) {
+            if (!vaultId || !questionSetId) {
+                addLog('Cannot resume: missing vault or question set ID', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        vault_id: vaultId,
+                        question_set_id: questionSetId,
+                        mode: 'auto'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Resuming test...', 'success');
+                    fetchStatus();
+                    scrollToCurrentTest();
+                } else {
+                    addLog(`Failed to resume: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Resume error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function retryTest(vaultId, questionSetId, corpusFolder) {
+            if (!vaultId || !questionSetId) {
+                addLog('Cannot retry: missing vault or question set ID', 'error');
+                return;
+            }
+            
+            const body = {
+                vault_id: vaultId,
+                question_set_id: questionSetId,
+                mode: corpusFolder ? 'fresh' : 'auto'
+            };
+            
+            if (corpusFolder) {
+                body.corpus_folder = corpusFolder;
+            }
+            
+            try {
+                const response = await fetch('/api/test-runner/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog('Retrying test...', 'success');
+                    fetchStatus();
+                    scrollToCurrentTest();
+                } else {
+                    addLog(`Failed to retry: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addLog(`Retry error: ${error.message}`, 'error');
             }
         }
         
@@ -883,6 +1291,7 @@
                             <div class="summary-label">Failed</div>
                         </div>
                     </div>
+                    ${run.error_message ? `<div class="result-item failed"><div class="result-question">Error: ${escapeHtml(run.error_message)}</div></div>` : ''}
                     <div class="results-list">
                         ${results.length === 0 ? '<div class="empty-state">No results available</div>' : ''}
                         ${results.map(r => `
@@ -891,6 +1300,7 @@
                                 <div class="result-answer">
                                     <strong>Expected:</strong> ${escapeHtml(r.expected_answer || '-')}<br>
                                     <strong>Actual:</strong> ${escapeHtml(r.actual_answer || '-')}
+                                    ${r.failure_reason ? `<br><strong>Reason:</strong> ${escapeHtml(r.failure_reason)}` : ''}
                                 </div>
                                 <div class="result-meta">
                                     <span>${r.category || 'General'}</span>
@@ -904,13 +1314,26 @@
                 panel.classList.add('open');
             } catch (error) {
                 console.error('Failed to fetch results:', error);
+                addLog(`Failed to load results: ${error.message}`, 'error');
             }
         }
         
         function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+        
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
         
         async function fetchStatus() {
@@ -927,30 +1350,55 @@
         
         function updateStatusUI(status) {
             const statusValue = document.getElementById('statusValue');
-            const stageValue = document.getElementById('stageValue');
+            const vaultNameValue = document.getElementById('vaultNameValue');
+            const qsNameValue = document.getElementById('qsNameValue');
+            const startedValue = document.getElementById('startedValue');
             const passedValue = document.getElementById('passedValue');
             const failedValue = document.getElementById('failedValue');
+            const accuracyValue = document.getElementById('accuracyValue');
             const progressText = document.getElementById('progressText');
             const progressFill = document.getElementById('progressFill');
             const startBtn = document.getElementById('startBtn');
             const stopBtn = document.getElementById('stopBtn');
+            const currentQuestionBox = document.getElementById('currentQuestionBox');
+            const currentQuestionText = document.getElementById('currentQuestionText');
             
             const displayStatus = status.status || 'idle';
             statusValue.textContent = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
             statusValue.className = 'status-value ' + displayStatus;
             
-            stageValue.textContent = status.stage || '-';
+            const vault = vaultsCache.find(v => v.id === status.vault_id);
+            vaultNameValue.textContent = vault ? vault.name : (status.vault_id ? status.vault_id.substring(0, 8) + '...' : '-');
             
-            const progress = status.progress || {};
-            passedValue.textContent = progress.passed || 0;
-            failedValue.textContent = progress.failed || 0;
+            const qs = questionSetsCache.find(q => q.id === status.question_set_id);
+            qsNameValue.textContent = qs ? qs.name : (status.question_set_id ? 'Selected' : '-');
             
-            const completed = progress.completed || 0;
-            const total = progress.total || 0;
-            progressText.textContent = `${completed} / ${total}`;
+            startedValue.textContent = status.started_at ? new Date(status.started_at).toLocaleTimeString() : '-';
             
-            const percentage = total > 0 ? (completed / total) * 100 : 0;
+            updatePipelineStages(status.stages || {});
+            
+            const qaProgress = status.qa_progress || status.progress || {};
+            const answered = qaProgress.answered || qaProgress.completed || 0;
+            const total = qaProgress.total || 0;
+            const passed = qaProgress.passed || 0;
+            const failed = qaProgress.failed || 0;
+            
+            passedValue.textContent = passed;
+            failedValue.textContent = failed;
+            
+            const accuracy = answered > 0 ? ((passed / answered) * 100).toFixed(1) : 0;
+            accuracyValue.textContent = accuracy + '%';
+            
+            progressText.textContent = `${answered} / ${total}`;
+            const percentage = total > 0 ? (answered / total) * 100 : 0;
             progressFill.style.width = percentage + '%';
+            
+            if (status.current_question) {
+                currentQuestionBox.style.display = 'block';
+                currentQuestionText.textContent = status.current_question;
+            } else {
+                currentQuestionBox.style.display = 'none';
+            }
             
             if (displayStatus === 'running') {
                 startBtn.disabled = true;
@@ -966,13 +1414,66 @@
                 }
             }
             
-            if (status !== currentStatus) {
+            if (status !== currentStatus && status.status !== currentStatus?.status) {
                 addLog(`Status: ${displayStatus}`, displayStatus === 'running' ? 'info' : 
                        displayStatus === 'finished' ? 'success' : 
                        displayStatus === 'failed' ? 'error' : '');
             }
             
             currentStatus = status;
+        }
+        
+        function updatePipelineStages(stages) {
+            const stageMap = {
+                'delete': 'stage-delete',
+                'create': 'stage-create',
+                'upload': 'stage-upload',
+                'extract': 'stage-extract',
+                'extraction': 'stage-extract',
+                'qa': 'stage-qa'
+            };
+            
+            for (const [stageName, elementId] of Object.entries(stageMap)) {
+                const element = document.getElementById(elementId);
+                if (!element) continue;
+                
+                const stageData = stages[stageName] || {};
+                const stageStatus = stageData.status || 'pending';
+                
+                element.className = 'stage-status ' + stageStatus;
+                
+                let statusText = '';
+                let detail = '';
+                
+                switch (stageStatus) {
+                    case 'complete':
+                    case 'completed':
+                        statusText = '✅ Complete';
+                        if (stageData.vault_id) detail = `(${stageData.vault_id.substring(0, 8)}...)`;
+                        if (stageData.file_count) detail = `(${stageData.file_count} files)`;
+                        if (stageData.entity_count) detail = `(${stageData.entity_count} entities)`;
+                        if (stageData.duration) detail += ` ${stageData.duration}`;
+                        break;
+                    case 'running':
+                        statusText = '🔄 Running';
+                        if (stageData.progress) detail = `(${stageData.progress})`;
+                        break;
+                    case 'pending':
+                        statusText = '⏳ Pending';
+                        break;
+                    case 'skipped':
+                        statusText = '⏭️ Skipped';
+                        break;
+                    case 'failed':
+                        statusText = '❌ Failed';
+                        if (stageData.error) detail = `(${stageData.error})`;
+                        break;
+                    default:
+                        statusText = stageStatus;
+                }
+                
+                element.innerHTML = statusText + (detail ? `<span class="stage-detail">${detail}</span>` : '');
+            }
         }
         
         function addLog(message, type = '') {
@@ -1001,31 +1502,50 @@
         }
         
         async function startTest() {
-            const corpus = document.getElementById('corpusSelect').value;
-            if (!corpus) {
-                alert('Please select a corpus folder');
+            const vaultId = document.getElementById('vaultSelect').value;
+            const questionSetId = document.getElementById('questionSetSelect').value;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const corpusFolder = document.getElementById('corpusSelect').value;
+            
+            if (!vaultId) {
+                alert('Please select a vault');
                 return;
             }
             
-            const questionSetId = document.getElementById('questionSetSelect').value || null;
-            const fresh = document.querySelector('input[name="mode"]:checked').value === 'fresh';
+            if (!questionSetId) {
+                alert('Please select a question set');
+                return;
+            }
+            
+            if (mode === 'fresh' && !corpusFolder) {
+                alert('Please select a corpus folder for fresh mode');
+                return;
+            }
+            
+            const body = {
+                vault_id: vaultId,
+                question_set_id: questionSetId,
+                mode: mode
+            };
+            
+            if (mode === 'fresh' && corpusFolder) {
+                body.corpus_folder = corpusFolder;
+            }
             
             try {
                 const response = await fetch('/api/test-runner/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        corpus: corpus,
-                        question_set_id: questionSetId,
-                        fresh: fresh
-                    })
+                    body: JSON.stringify(body)
                 });
                 
                 const data = await response.json();
                 
                 if (response.ok) {
-                    addLog(`Test started for corpus: ${corpus}`, 'success');
+                    const vault = vaultsCache.find(v => v.id === vaultId);
+                    addLog(`Test started for vault: ${vault ? vault.name : vaultId}`, 'success');
                     fetchStatus();
+                    scrollToCurrentTest();
                 } else {
                     addLog(`Failed to start: ${data.error}`, 'error');
                 }
@@ -1045,6 +1565,7 @@
                 if (response.ok) {
                     addLog('Test stopped', 'warning');
                     fetchStatus();
+                    fetchHistory();
                 } else {
                     addLog(`Failed to stop: ${data.error}`, 'error');
                 }
@@ -1084,9 +1605,24 @@
             }
         }
         
+        function toggleCorpusFolderVisibility() {
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const corpusGroup = document.getElementById('corpusFolderGroup');
+            
+            if (mode === 'fresh') {
+                corpusGroup.classList.add('visible');
+            } else {
+                corpusGroup.classList.remove('visible');
+            }
+        }
+        
         document.getElementById('startBtn').addEventListener('click', startTest);
         document.getElementById('stopBtn').addEventListener('click', stopTest);
         document.getElementById('uploadBtn').addEventListener('click', uploadQuestionSet);
+        
+        document.querySelectorAll('input[name="mode"]').forEach(radio => {
+            radio.addEventListener('change', toggleCorpusFolderVisibility);
+        });
         
         document.getElementById('questionFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -1108,10 +1644,16 @@
             document.getElementById('resultsPanel').classList.remove('open');
         });
         
+        document.getElementById('closeQuestionsModal').addEventListener('click', function() {
+            document.getElementById('questionsModal').classList.remove('open');
+        });
+        
+        fetchVaults();
         fetchCorpusFolders();
         fetchQuestionSets();
         fetchHistory();
         fetchStatus();
+        toggleCorpusFolderVisibility();
     </script>
 </body>
 </html>

@@ -27,28 +27,7 @@ from .vault_manager import VaultManager
 from .document_uploader import get_files_to_upload
 from .test_executor import TestExecutor
 from .evaluator import FuzzyEvaluator
-
-STATUS_FILE_PATH = Path('data/test-runner/status.json')
-
-
-def update_status(stage: str, **kwargs):
-    """Update the status file with current progress."""
-    STATUS_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    status = {}
-    if STATUS_FILE_PATH.exists():
-        try:
-            with open(STATUS_FILE_PATH) as f:
-                status = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            pass
-    
-    status['stage'] = stage
-    status['updated_at'] = datetime.now().isoformat()
-    status.update(kwargs)
-    
-    with open(STATUS_FILE_PATH, 'w') as f:
-        json.dump(status, f, indent=2, default=str)
+from .status import update_status, STATUS_FILE_PATH
 
 
 def load_question_set_from_db(question_set_id: str) -> list | None:
@@ -140,16 +119,154 @@ def list_corpora(config: TestConfig):
     print("\n" + "=" * 60)
 
 
+def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder: str = None, config: TestConfig = None):
+    """
+    Run test for a vault with 5-stage status tracking.
+    
+    Args:
+        vault_id: UUID of the vault to test
+        question_set_id: UUID of the question set
+        mode: 'auto' or 'fresh'
+        corpus_folder: Path to corpus folder (required for fresh mode)
+        config: TestConfig instance
+    """
+    from .vault_manager import VaultManager
+    from .evaluator import FuzzyEvaluator
+    from .test_executor import TestExecutor
+    
+    if config is None:
+        config = TestConfig('src/test_config.json')
+    
+    print("\n" + "=" * 70)
+    print(f"TEST RUNNER: Vault {vault_id[:8]}... ({mode.upper()} mode)")
+    print("=" * 70)
+    
+    # Set overall status to running at start
+    update_status(overall_status='running')
+    
+    vm = VaultManager(config.api_base_url)
+    evaluator = FuzzyEvaluator()
+    executor = TestExecutor(vm, evaluator)
+    
+    print("\n[Auth] Authenticating...")
+    if not vm.authenticate_dev():
+        print("ERROR: Failed to authenticate")
+        update_status('qa', stage_status='failed', overall_status='failed')
+        return None
+    
+    if mode == 'fresh':
+        update_status('delete', stage_status='running')
+        print("\n[Stage: Delete] Deleting existing vault data...")
+        try:
+            vm.delete_vault(vault_id)
+            update_status('delete', stage_status='complete')
+        except Exception as e:
+            print(f"  Delete failed (may not exist): {e}")
+            update_status('delete', stage_status='complete')
+        
+        update_status('create', stage_status='running')
+        print("\n[Stage: Create] Creating new vault...")
+        new_vault_id = vm.create_vault(f"test-{vault_id[:8]}")
+        vault_id = new_vault_id
+        update_status('create', stage_status='complete', vault_id=str(vault_id))
+        
+        if not vm.authenticate_dev(tenant_id=vault_id):
+            print("WARNING: Failed to set vault context")
+        
+        update_status('upload', stage_status='running')
+        print("\n[Stage: Upload] Uploading documents...")
+        from .document_uploader import get_files_to_upload
+        root_path = Path(corpus_folder)
+        files = get_files_to_upload(root_path, config.upload_rules)
+        print(f"  Found {len(files)} files")
+        
+        for i, file_path in enumerate(files):
+            success = vm.upload_document(vault_id, file_path)
+            if (i + 1) % 20 == 0:
+                print(f"  [{i+1}/{len(files)}] uploaded")
+        
+        update_status('upload', stage_status='complete', file_count=len(files))
+        
+        update_status('extract', stage_status='running')
+        print("\n[Stage: Extract] Waiting for extraction...")
+        extraction_config = config.extraction_config
+        
+        try:
+            def on_entity_update(count):
+                update_status('extract', stage_status='running', entities=count)
+            
+            vm.wait_for_extraction(
+                vault_id,
+                expected_docs=len(files),
+                timeout_minutes=extraction_config.get('timeout_minutes', 20),
+                poll_interval=extraction_config.get('poll_interval_seconds', 10)
+            )
+            stats = vm.get_vault_stats(vault_id)
+            update_status('extract', stage_status='complete', entities=stats.get('entity_count', 0))
+        except TimeoutError as e:
+            print(f"  ERROR: {e}")
+            update_status('extract', stage_status='failed', overall_status='failed')
+            return None
+    else:
+        update_status('delete', stage_status='skipped')
+        update_status('create', stage_status='skipped')
+        update_status('upload', stage_status='skipped')
+        update_status('extract', stage_status='skipped')
+        
+        if not vm.authenticate_dev(tenant_id=vault_id):
+            print("WARNING: Failed to set vault context")
+    
+    update_status('qa', stage_status='running')
+    print("\n[Stage: Q&A] Loading questions...")
+    questions_data = load_question_set_from_db(question_set_id)
+    if not questions_data:
+        print(f"ERROR: Question set not found: {question_set_id}")
+        update_status('qa', stage_status='failed', overall_status='failed')
+        return None
+    print(f"  Loaded {len(questions_data)} questions")
+    
+    print("\n[Stage: Q&A] Running test...")
+    extraction_config = config.extraction_config
+    try:
+        results = executor.run_test(
+            vault_id=vault_id,
+            questions_data=questions_data,
+            results_dir=config.results_dir,
+            corpus_name=f"vault_{vault_id[:8]}",
+            min_chunks=extraction_config.get('min_expected_chunks', 50)
+        )
+    except ValueError as e:
+        print(f"  ERROR: {e}")
+        update_status('qa', stage_status='failed', overall_status='failed')
+        return None
+    
+    update_status('qa', stage_status='complete', overall_status='finished', 
+                  qa_progress={
+                      'total': results['results']['total'],
+                      'answered': results['results']['total'],
+                      'passed': results['results']['passed'],
+                      'failed': results['results']['failed'],
+                      'accuracy_percent': results['results']['accuracy_pct']
+                  })
+    
+    print("\n" + "=" * 70)
+    print("TEST COMPLETE")
+    print(f"Score: {results['results']['passed']}/{results['results']['total']} ({results['results']['accuracy_pct']}%)")
+    print("=" * 70 + "\n")
+    
+    return results
+
+
 def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, fresh: bool = False, question_set_id: str = None):
     """
-    Run test for a single corpus.
+    Run test for a single corpus (legacy mode).
     
     Default: Auto-resume if checkpoint exists (extraction complete)
     --fresh: Force full run from scratch (delete vault, upload, extract, Q&A)
     --question-set-id: Use questions from database instead of file
     """
     
-    update_status('init', corpus=corpus_name, status='running')
+    update_status('init', stage_status=None)
     
     # Check for checkpoint first (unless --fresh is specified)
     checkpoint = None
@@ -188,14 +305,14 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         questions_data = load_question_set_from_db(question_set_id)
         if not questions_data:
             print(f"ERROR: Question set not found in database: {question_set_id}")
-            update_status('failed', status='failed', error='Question set not found')
+            update_status('qa', stage_status='failed', overall_status='failed')
             return None
         print(f"  Loaded {len(questions_data)} questions from database")
     else:
         questions_file = config.questions_dir / corpus['questions_file']
         if not questions_file.exists():
             print(f"ERROR: Questions file not found: {questions_file}")
-            update_status('failed', status='failed', error='Questions file not found')
+            update_status('qa', stage_status='failed', overall_status='failed')
             return None
     
     vm = VaultManager(config.api_base_url)
@@ -316,7 +433,7 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         )
     except ValueError as e:
         print(f"  ERROR: {e}")
-        update_status('failed', status='failed', error=str(e))
+        update_status('qa', stage_status='failed', overall_status='failed')
         return None
     
     # Update config with results
@@ -341,15 +458,14 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
     print("Vault preserved for manual queries in UI")
     print("=" * 70 + "\n")
     
-    update_status('complete', 
-                  status='finished',
-                  progress={
+    update_status('qa', stage_status='complete', overall_status='finished',
+                  qa_progress={
                       'total': results['results']['total'],
-                      'completed': results['results']['total'],
+                      'answered': results['results']['total'],
                       'passed': results['results']['passed'],
-                      'failed': results['results']['failed']
-                  },
-                  accuracy=results['results']['accuracy_pct'])
+                      'failed': results['results']['failed'],
+                      'accuracy_percent': results['results']['accuracy_pct']
+                  })
     
     return results
 
@@ -364,17 +480,21 @@ Default behavior:
   - If no checkpoint, run full test (upload, extract, Q&A)
 
 Examples:
-  %(prog)s --corpus "Manus Healthtec"          # Auto-resume if checkpoint exists
-  %(prog)s --corpus "Manus Healthtec" --fresh  # Force fresh start from scratch
+  %(prog)s --vault-id <uuid> --question-set-id <uuid> --mode auto  # Run Q&A on existing vault
+  %(prog)s --vault-id <uuid> --question-set-id <uuid> --mode fresh --corpus-folder "test documents/Manus Healthtec"
+  %(prog)s --corpus "Manus Healthtec"          # Legacy: Auto-resume if checkpoint exists
   %(prog)s --list                              # Show checkpoint status for all corpora
 """
     )
     parser.add_argument('--list', action='store_true', help='List available corpora with checkpoint status')
-    parser.add_argument('--corpus', type=str, help='Run test for specific corpus')
+    parser.add_argument('--corpus', type=str, help='Run test for specific corpus (legacy mode)')
+    parser.add_argument('--vault-id', type=str, help='Vault ID to test against')
+    parser.add_argument('--question-set-id', type=str, help='Question set ID from database')
+    parser.add_argument('--mode', type=str, choices=['auto', 'fresh'], default='auto', help='Test mode: auto (use existing) or fresh (rebuild)')
+    parser.add_argument('--corpus-folder', type=str, help='Corpus folder path (required for fresh mode)')
     parser.add_argument('--all', action='store_true', help='Run all corpora (sequential)')
     parser.add_argument('--questions-only', action='store_true', help='Skip upload/extraction, run questions only against existing vault')
-    parser.add_argument('--fresh', action='store_true', help='Force fresh start: delete vault, recreate, upload, extract, run Q&A (ignores checkpoint)')
-    parser.add_argument('--question-set-id', type=str, help='Use questions from database by question set ID')
+    parser.add_argument('--fresh', action='store_true', help='Force fresh start (legacy flag)')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     
     args = parser.parse_args()
@@ -383,6 +503,14 @@ Examples:
     
     if args.list:
         list_corpora(config)
+    elif args.vault_id and args.question_set_id:
+        run_vault_test(
+            vault_id=args.vault_id,
+            question_set_id=args.question_set_id,
+            mode=args.mode,
+            corpus_folder=args.corpus_folder,
+            config=config
+        )
     elif args.corpus:
         run_corpus_test(args.corpus, config, 
                        questions_only=args.questions_only, 

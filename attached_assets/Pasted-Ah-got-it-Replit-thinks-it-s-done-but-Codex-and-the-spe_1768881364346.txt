@@ -1,0 +1,56 @@
+Ah, got it. Replit thinks it's done but Codex (and the spec) say otherwise.
+
+---
+
+**Message to Replit:**
+
+The dashboard is a good start, but it's not finished. Here's what's missing compared to the spec I provided:
+
+### Critical Gaps (must fix)
+
+**1. Vault vs Corpus — These are different things**
+
+The spec says:
+- **Vault** = Where data lives (existing vault to test against)
+- **Corpus Folder** = Source documents (only needed for Fresh mode)
+
+Current UI only has "Corpus Selection" which conflates both. This breaks the core use case:
+- **Auto mode:** I pick an *existing vault* and run questions against it. No upload needed.
+- **Fresh mode:** I pick a vault to clear, AND a corpus folder to upload from.
+
+**Fix:** Add a Vault dropdown. Show Corpus Folder only when Fresh mode is selected.
+
+**2. Pipeline stages not visible**
+
+The spec shows a 5-stage breakdown:
+```
+[1] Delete vault    ✅ Complete
+[2] Create vault    ✅ Complete (id: 47d54...)
+[3] Upload docs     ✅ Complete (114 files)
+[4] Extraction      🔄 Running (1050 entities)
+[5] Q&A             ⏳ Pending
+```
+
+Current UI just shows "Stage: init" — I can't see which stage is running or completed.
+
+**3. Progress shows 0/0 while status is "Running"**
+
+Something is broken. Either the runner isn't writing progress updates, or the UI isn't reading them. The whole point of this dashboard is real-time visibility.
+
+**4. Question Sets management table**
+
+The spec has a dedicated section showing all uploaded question sets with View/Delete actions. Current UI only has a dropdown — I can't see what question sets exist or manage them.
+
+**5. Test History has no actions**
+
+Each row should have Resume (if interrupted) or View Results (if complete) buttons. Currently it's just a static table.
+
+---
+
+Please review the spec again: `CF_Test_Runner_Dashboard_Spec.md`
+
+The dashboard structure is right, but the functionality isn't complete. Let me know when these gaps are addressed.
+
+---
+
+Send that to Replit. They need to know the job isn't done.
