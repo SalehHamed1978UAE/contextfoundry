@@ -403,6 +403,27 @@
         .log-entry.warning { color: var(--accent-warning); }
         .log-entry.error { color: var(--accent-error); }
         
+        .spinner-small {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
         .history-table, .qs-table {
             width: 100%;
             border-collapse: collapse;
@@ -1191,11 +1212,22 @@
             document.getElementById('currentTestPanel').scrollIntoView({ behavior: 'smooth' });
         }
         
-        async function resumeTest(vaultId, questionSetId, resumeRunId) {
+        async function resumeTest(vaultId, questionSetId, resumeRunId, buttonEl) {
             if (!vaultId || !questionSetId) {
                 addLog('Cannot resume: missing vault or question set ID', 'error');
                 return;
             }
+            
+            // Show immediate feedback
+            addLog('Starting resume... Please wait.', 'info');
+            
+            // Disable all resume buttons and show loading state
+            const resumeButtons = document.querySelectorAll('button[onclick*="resumeTest"]');
+            resumeButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.dataset.originalText = btn.textContent;
+                btn.innerHTML = '<span class="spinner-small"></span> Resuming...';
+            });
             
             try {
                 const body = {
@@ -1222,9 +1254,20 @@
                     scrollToCurrentTest();
                 } else {
                     addLog(`Failed to resume: ${data.error}`, 'error');
+                    // Re-enable buttons on failure
+                    resumeButtons.forEach(btn => {
+                        btn.disabled = false;
+                        btn.textContent = btn.dataset.originalText || 'Resume';
+                    });
                 }
             } catch (error) {
                 addLog(`Resume error: ${error.message}`, 'error');
+                // Re-enable buttons on error
+                const resumeButtons = document.querySelectorAll('button[onclick*="resumeTest"]');
+                resumeButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = btn.dataset.originalText || 'Resume';
+                });
             }
         }
         
