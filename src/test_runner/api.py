@@ -451,10 +451,21 @@ def start_test():
     write_status_file(initial_status)
     
     try:
+        log_dir = Path('test_results')
+        log_dir.mkdir(exist_ok=True)
+        log_file = log_dir / f'test_run_{test_run_id}.log'
+        
+        with open(log_file, 'w') as log_f:
+            log_f.write(f"Starting test run: {test_run_id}\n")
+            log_f.write(f"Command: {' '.join(cmd)}\n")
+            log_f.write(f"Time: {datetime.now().isoformat()}\n")
+            log_f.write("-" * 50 + "\n")
+        
+        log_handle = open(log_file, 'a')
         process = subprocess.Popen(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=log_handle,
+            stderr=subprocess.STDOUT,
             start_new_session=True
         )
         
