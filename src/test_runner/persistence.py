@@ -85,6 +85,33 @@ def update_test_run_stage(test_run_id: str, stage: str, **kwargs):
         session.close()
 
 
+def update_test_run_vault_id(test_run_id: str, new_vault_id: str, new_vault_name: str = None):
+    """Update the vault_id in a test run after Fresh mode creates a new vault.
+    
+    This is critical for Fresh mode: after deleting the old vault and creating
+    a new one, we must update the test_run record with the NEW vault ID so that
+    all subsequent operations (extraction polling, Q&A, UI display) use the
+    correct vault.
+    """
+    session = get_db_session()
+    try:
+        updates = ["vault_id = :new_vault_id", "heartbeat_at = NOW()"]
+        params = {'test_run_id': test_run_id, 'new_vault_id': new_vault_id}
+        
+        if new_vault_name:
+            updates.append("vault_name = :new_vault_name")
+            params['new_vault_name'] = new_vault_name
+        
+        session.execute(text(f"""
+            UPDATE test_runs 
+            SET {', '.join(updates)}
+            WHERE id = :test_run_id
+        """), params)
+        session.commit()
+    finally:
+        session.close()
+
+
 def update_test_run_progress(
     test_run_id: str,
     questions_answered: int,
