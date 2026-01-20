@@ -609,7 +609,7 @@ def get_test_results(test_id: UUID):
 @require_auth
 def list_results_files():
     """List available results files from the test_results directory."""
-    results_dir = Path('test_results')
+    results_dir = Path('test_results').resolve()
     files = []
     
     if results_dir.exists():
@@ -617,7 +617,6 @@ def list_results_files():
             if item.is_file() and (item.suffix == '.jsonl' or item.suffix == '.json'):
                 files.append({
                     'name': item.name,
-                    'path': str(item),
                     'size': item.stat().st_size,
                     'modified': datetime.fromtimestamp(item.stat().st_mtime).isoformat()
                 })
@@ -625,16 +624,26 @@ def list_results_files():
     return jsonify({'results_files': files})
 
 
-@test_runner_api.route('/results-files/<path:filename>', methods=['GET'])
+@test_runner_api.route('/results-files/<filename>', methods=['GET'])
 @require_auth
 def download_results_file(filename: str):
-    """Download a results file."""
+    """Download a results file. Only allows basenames, no path traversal."""
     from flask import send_file
+    from urllib.parse import unquote
+    import re
     
-    results_dir = Path('test_results')
-    file_path = results_dir / filename
+    filename = unquote(filename)
     
-    if '..' in filename or not filename:
+    if not filename or not re.match(r'^[\w\-\.]+$', filename):
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    if '..' in filename or '/' in filename or '\\' in filename:
+        return jsonify({'error': 'Invalid filename'}), 400
+    
+    results_dir = Path('test_results').resolve()
+    file_path = (results_dir / filename).resolve()
+    
+    if not str(file_path).startswith(str(results_dir)):
         return jsonify({'error': 'Invalid filename'}), 400
     
     if not file_path.exists() or not file_path.is_file():
