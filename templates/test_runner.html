@@ -436,6 +436,27 @@
             border-bottom: 1px solid var(--border-color);
         }
         
+        .history-table td.output-file-cell {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .history-table td.output-file-cell a {
+            color: var(--accent-success);
+            text-decoration: none;
+        }
+        
+        .history-table td.output-file-cell a:hover {
+            text-decoration: underline;
+        }
+        
+        .accuracy-cell {
+            font-weight: 600;
+            color: var(--accent-success);
+        }
+        
         .history-table th, .qs-table th {
             font-size: 11px;
             color: var(--text-muted);
@@ -951,13 +972,14 @@
                                     <th>Question Set</th>
                                     <th>Status</th>
                                     <th>Progress</th>
+                                    <th>Accuracy</th>
                                     <th>Started</th>
                                     <th>Output File</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="historyBody">
-                                <tr><td colspan="7" class="empty-state">Loading history...</td></tr>
+                                <tr><td colspan="8" class="empty-state">Loading history...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1143,7 +1165,7 @@
                 const tbody = document.getElementById('historyBody');
                 
                 if (!data.runs || data.runs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No test runs yet</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No test runs yet</td></tr>';
                     return;
                 }
                 
@@ -1179,9 +1201,7 @@
                         actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
                     }
                     
-                    const outputFileCell = resultsFile 
-                        ? `<a href="/api/test-runner/results-files/${encodeURIComponent(resultsFile.split('/').pop())}" target="_blank" style="color: var(--accent-success);">${resultsFile.split('/').pop()}</a>`
-                        : '-';
+                    const fileName = resultsFile ? resultsFile.split('/').pop() : '';
                     
                     return `
                         <tr data-id="${run.id}">
@@ -1193,8 +1213,11 @@
                                 <span style="color: var(--accent-success); margin-left: 8px;">✓${run.questions_passed || 0}</span>
                                 <span style="color: var(--accent-error); margin-left: 4px;">✗${run.questions_failed || 0}</span>
                             </td>
+                            <td class="accuracy-cell">${accuracy}</td>
                             <td>${run.started_at ? formatDate(run.started_at) : '-'}</td>
-                            <td>${outputFileCell}</td>
+                            <td class="output-file-cell" title="${escapeHtml(fileName)}">
+                                ${fileName ? `<a href="/api/test-runner/results-files/${encodeURIComponent(fileName)}" target="_blank">${escapeHtml(fileName)}</a>` : '-'}
+                            </td>
                             <td>
                                 <div class="action-btns">
                                     ${actionButtons}
