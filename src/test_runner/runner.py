@@ -140,7 +140,7 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
     from .vault_manager import VaultManager
     from .evaluator import FuzzyEvaluator
     from .test_executor import TestExecutor
-    from .persistence import update_test_run_stage, complete_test_run
+    from .persistence import update_test_run_stage, complete_test_run, update_test_run_vault_id
     
     if config is None:
         config = TestConfig('src/test_config.json')
@@ -202,9 +202,16 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             update_status('create', stage_status='running')
             log(f"\n[Stage: Create] Creating new vault '{vault_name}'...")
             new_vault_id = vm.create_vault(vault_name)
+            old_vault_id = vault_id  # Save for logging
             vault_id = new_vault_id
-            log(f"  Created vault: {vault_id}")
+            log(f"  Created vault: {vault_id} (replaced old: {old_vault_id})")
             update_status('create', stage_status='complete', vault_id=str(vault_id))
+            
+            # CRITICAL: Update the test_run record in DB with the NEW vault ID
+            # Without this, all subsequent operations would use the old (deleted) vault ID
+            if test_run_id:
+                update_test_run_vault_id(test_run_id, str(vault_id), vault_name)
+                log(f"  [DB] Updated test_run vault_id to: {vault_id}")
             
             if not vm.authenticate_dev(tenant_id=vault_id):
                 log("WARNING: Failed to set vault context")
