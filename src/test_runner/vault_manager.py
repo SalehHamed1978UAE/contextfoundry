@@ -237,11 +237,23 @@ class VaultManager:
     
     def query(self, vault_id: str, question: str) -> str:
         """Query the vault and return answer using /api/vault/chat."""
-        response = self.session.post(
-            f"{self.api}/vault/chat",
-            json={"query": question, "vault_id": vault_id}
-        )
-        if response.status_code == 200:
-            data = response.json()
-            return data.get('answer', data.get('response', data.get('message', '')))
-        return ""
+        import sys
+        print(f"    [VM.query] Sending request...", flush=True)
+        sys.stdout.flush()
+        try:
+            response = self.session.post(
+                f"{self.api}/vault/chat",
+                json={"query": question, "vault_id": vault_id},
+                timeout=120
+            )
+            print(f"    [VM.query] Response: {response.status_code}", flush=True)
+            sys.stdout.flush()
+            if response.status_code == 200:
+                data = response.json()
+                return data.get('answer', data.get('response', data.get('message', '')))
+            print(f"    [VM.query] Error: {response.text[:200]}", flush=True)
+            return ""
+        except Exception as e:
+            print(f"    [VM.query] Exception: {e}", flush=True)
+            sys.stdout.flush()
+            return ""
