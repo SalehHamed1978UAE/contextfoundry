@@ -30,6 +30,12 @@ from .evaluator import FuzzyEvaluator
 from .status import update_status, STATUS_FILE_PATH
 
 
+def log(msg: str):
+    """Print with immediate flush for subprocess visibility."""
+    print(msg)
+    sys.stdout.flush()
+
+
 def load_question_set_from_db(question_set_id: str) -> list | None:
     """Load questions from database by question_set_id."""
     database_url = os.environ.get('DATABASE_URL')

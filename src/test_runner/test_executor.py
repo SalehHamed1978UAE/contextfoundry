@@ -1,4 +1,5 @@
 import json
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -15,6 +16,12 @@ from .persistence import (
     get_answered_question_ids,
     get_test_run_progress
 )
+
+
+def log(msg: str):
+    """Print with immediate flush for subprocess visibility."""
+    print(msg)
+    sys.stdout.flush()
 
 class TestExecutor:
     """Run test questions against a vault with resume support."""
@@ -84,7 +91,7 @@ class TestExecutor:
         entity_count = stats.get('entity_count', 0)
         rel_count = stats.get('relationship_count', 0)
         
-        print(f"  Vault stats: {chunk_count} chunks, {entity_count} entities, {rel_count} relationships")
+        log(f"  Vault stats: {chunk_count} chunks, {entity_count} entities, {rel_count} relationships")
         
         if chunk_count < min_chunks:
             raise ValueError(
@@ -98,7 +105,7 @@ class TestExecutor:
             questions = self._load_questions(questions_file)
         else:
             raise ValueError("Either questions_file or questions_data must be provided")
-        print(f"  Running {len(questions)} questions...")
+        log(f"  Running {len(questions)} questions...")
         
         if test_run_id:
             update_test_run_stage(test_run_id, 'qa', questions_total=len(questions))
@@ -115,13 +122,14 @@ class TestExecutor:
             if progress_file.exists():
                 progress_file.unlink()
             if completed_ids:
-                print(f"  Resuming from DB: {len(completed_ids)} questions already answered ({prior_passed} passed)")
+                log(f"  Resuming from DB: {len(completed_ids)} questions already answered ({prior_passed} passed)")
+            log(f"  Starting Q&A loop for {len(questions)} questions (skipping {len(completed_ids)} completed)...")
         elif resume:
             results, completed_ids = self._load_completed_questions(progress_file)
             prior_passed = sum(1 for r in results if r.get('passed'))
             prior_answered = len(results)
             if completed_ids:
-                print(f"  Resuming: {len(completed_ids)} questions already answered")
+                log(f"  Resuming: {len(completed_ids)} questions already answered")
         else:
             results = []
             completed_ids = set()
@@ -133,7 +141,7 @@ class TestExecutor:
         passed = prior_passed
         
         for i, q in enumerate(questions):
-            q_num = q.get('id', q.get('q', i + 1))
+            q_num = i + 1
             
             if q_num in completed_ids or str(q_num) in completed_ids:
                 continue
@@ -203,10 +211,10 @@ class TestExecutor:
             )
             
             status = "PASS" if is_pass else "FAIL"
-            if answered % 25 == 0:
-                print(f"  [{answered}/{len(questions)}] {passed}/{answered} passed ({accuracy}%)")
+            if answered % 25 == 0 or answered == prior_answered + 1:
+                log(f"  [{answered}/{len(questions)}] {passed}/{answered} passed ({accuracy}%)")
             elif not is_pass:
-                print(f"  Q{q_num}: {status} ({match_type})")
+                log(f"  Q{q_num}: {status} ({match_type})")
         
         summary = {
             "timestamp": datetime.now().isoformat(),
@@ -236,7 +244,7 @@ class TestExecutor:
         with open(output_file, 'w') as f:
             json.dump(summary, f, indent=2)
         
-        print(f"\n  Results saved to: {output_file}")
+        log(f"\n  Results saved to: {output_file}")
         return summary
     
     def _load_questions(self, questions_file: Path) -> List[Dict]:
