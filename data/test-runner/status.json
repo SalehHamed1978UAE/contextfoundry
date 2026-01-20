@@ -1,0 +1,38 @@
+{
+  "status": "running",
+  "vault_id": "84a908db-198d-423b-bb66-fff49ac4e9a2",
+  "question_set_id": "87ff4b43-9e58-4830-becb-6474cfa4c867",
+  "test_run_id": "b929608c-631c-4499-9663-c1658b152e17",
+  "mode": "fresh",
+  "corpus_folder": "Manus Healthtec",
+  "started_at": "2026-01-20T16:21:03.312153",
+  "pid": 14277,
+  "stages": {
+    "delete": {
+      "status": "complete"
+    },
+    "create": {
+      "status": "complete",
+      "vault_id": "f0906dfa-576a-4edb-a8d7-43cf66f51acc"
+    },
+    "upload": {
+      "status": "complete",
+      "file_count": 114
+    },
+    "extract": {
+      "status": "running"
+    },
+    "qa": {
+      "status": "pending"
+    }
+  },
+  "qa_progress": {
+    "total": 0,
+    "answered": 0,
+    "passed": 0,
+    "failed": 0,
+    "accuracy_percent": 0
+  },
+  "current_question": null,
+  "updated_at": "2026-01-20T16:22:07.187200"
+}

@@ -289,7 +289,7 @@ def get_running_test() -> Optional[Dict[str, Any]]:
     try:
         result = session.execute(
             text("""
-                SELECT id, status, mode, vault_id, vault_name, question_set_id,
+                SELECT id, status, mode, vault_id, vault_name, question_set_id, question_set_name,
                        questions_total, questions_answered, questions_passed, questions_failed,
                        current_question, created_at, started_at, completed_at, heartbeat_at,
                        error_message, results_file
@@ -303,24 +303,37 @@ def get_running_test() -> Optional[Dict[str, Any]]:
         if not row:
             return None
         
+        status = row[1]
+        # Map state machine status to stage name
+        stage_map = {
+            'creating_vault': 'create',
+            'uploading': 'upload',
+            'extracting': 'extract',
+            'running_qa': 'qa'
+        }
+        stage = stage_map.get(status, 'qa')
+        
         return {
             'id': str(row[0]),
-            'status': row[1],
+            'status': status,
             'mode': row[2],
             'vault_id': row[3],
             'vault_name': row[4],
             'question_set_id': row[5],
-            'questions_total': row[6],
-            'questions_answered': row[7],
-            'questions_passed': row[8],
-            'questions_failed': row[9],
-            'current_question': row[10],
-            'created_at': row[11],
-            'started_at': row[12],
-            'completed_at': row[13],
-            'heartbeat_at': row[14],
-            'error_message': row[15],
-            'results_file': row[16],
+            'question_set_name': row[6],
+            'questions_total': row[7],
+            'questions_answered': row[8],
+            'questions_passed': row[9],
+            'questions_failed': row[10],
+            'current_question': row[11],
+            'created_at': row[12],
+            'started_at': row[13],
+            'completed_at': row[14],
+            'heartbeat_at': row[15],
+            'error_message': row[16],
+            'results_file': row[17],
+            'stage': stage,
+            'checkpoint': row[8],  # questions_answered is the checkpoint
         }
     finally:
         session.close()
