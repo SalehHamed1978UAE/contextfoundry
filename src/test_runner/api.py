@@ -27,6 +27,7 @@ from .persistence import (
     complete_test_run,
     get_running_test,
     reset_test_run_for_resume,
+    recover_file_test_to_db,
     HEARTBEAT_TIMEOUT_SECONDS
 )
 
@@ -553,6 +554,13 @@ def get_test_status():
             if file_status.get('status') == 'running' or (was_in_qa and has_progress):
                 file_status['status'] = 'interrupted'
                 file_status['message'] = f"Test interrupted at {qa_progress.get('answered', 0)}/{qa_progress.get('total', 0)} questions. Click Resume to continue."
+                
+                if not file_status.get('test_run_id') and file_status.get('vault_id') and file_status.get('question_set_id'):
+                    recovered_id = recover_file_test_to_db(file_status)
+                    if recovered_id:
+                        file_status['test_run_id'] = recovered_id
+                        file_status['recovered_from_file'] = True
+                
                 write_status_file(file_status)
     
     return jsonify(file_status)

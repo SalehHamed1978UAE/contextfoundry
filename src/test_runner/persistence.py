@@ -336,3 +336,78 @@ def reset_test_run_for_resume(test_run_id: str):
         session.commit()
     finally:
         session.close()
+
+
+def recover_file_test_to_db(file_status: dict) -> Optional[str]:
+    """Create a DB record from a file-only interrupted test.
+    
+    This handles backward compatibility for tests run before DB persistence was added.
+    Returns the new test_run_id if successful, None otherwise.
+    """
+    vault_id = file_status.get('vault_id')
+    question_set_id = file_status.get('question_set_id')
+    
+    if not vault_id or not question_set_id:
+        return None
+    
+    qa_progress = file_status.get('qa_progress', {})
+    current_question = file_status.get('current_question', {})
+    
+    session = get_db_session()
+    try:
+        existing = session.execute(text("""
+            SELECT id FROM test_runs 
+            WHERE vault_id = :vault_id AND question_set_id = :question_set_id 
+            AND status IN ('running', 'interrupted')
+            LIMIT 1
+        """), {'vault_id': vault_id, 'question_set_id': question_set_id})
+        if existing.fetchone():
+            return None
+        
+        vault_result = session.execute(text("""
+            SELECT name FROM vaults WHERE id = :vault_id
+        """), {'vault_id': vault_id})
+        vault_row = vault_result.fetchone()
+        vault_name = vault_row[0] if vault_row else 'Unknown'
+        
+        qs_result = session.execute(text("""
+            SELECT name FROM question_sets WHERE id = :qs_id
+        """), {'qs_id': question_set_id})
+        qs_row = qs_result.fetchone()
+        qs_name = qs_row[0] if qs_row else 'Unknown'
+        
+        result = session.execute(text("""
+            INSERT INTO test_runs (
+                vault_id, vault_name, question_set_id, question_set_name,
+                mode, corpus_folder, status, stage, 
+                questions_total, questions_answered, questions_passed, questions_failed,
+                started_at, heartbeat_at, error_message
+            ) VALUES (
+                :vault_id, :vault_name, :question_set_id, :question_set_name,
+                :mode, :corpus_folder, 'interrupted', 'qa',
+                :questions_total, :questions_answered, :questions_passed, :questions_failed,
+                :started_at, NOW(), 'Recovered from status file (pre-persistence test)'
+            )
+            RETURNING id
+        """), {
+            'vault_id': vault_id,
+            'vault_name': vault_name,
+            'question_set_id': question_set_id,
+            'question_set_name': qs_name,
+            'mode': file_status.get('mode', 'auto'),
+            'corpus_folder': file_status.get('corpus_folder'),
+            'questions_total': qa_progress.get('total', 0),
+            'questions_answered': qa_progress.get('answered', 0),
+            'questions_passed': qa_progress.get('passed', 0),
+            'questions_failed': qa_progress.get('failed', 0),
+            'started_at': file_status.get('started_at', datetime.now(timezone.utc).isoformat())
+        })
+        session.commit()
+        row = result.fetchone()
+        return str(row[0]) if row else None
+    except Exception as e:
+        session.rollback()
+        print(f"[Persistence] Failed to recover file test to DB: {e}")
+        return None
+    finally:
+        session.close()
