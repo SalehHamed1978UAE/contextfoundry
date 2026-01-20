@@ -260,7 +260,7 @@ def get_running_test() -> Optional[Dict]:
             'questions_answered': row[11] or 0,
             'questions_passed': row[12] or 0,
             'questions_failed': row[13] or 0,
-            'checkpoint': json.loads(row[14]) if row[14] else None,
+            'checkpoint': row[14] if isinstance(row[14], dict) else (json.loads(row[14]) if row[14] else None),
             'heartbeat_at': heartbeat_at.isoformat() if heartbeat_at else None,
             'heartbeat_age_seconds': age_seconds
         }
