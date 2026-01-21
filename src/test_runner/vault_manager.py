@@ -200,9 +200,8 @@ class VaultManager:
             completed = status.get('completed', 0)
             failed = status.get('failed', 0)
             
-            if first_check:
-                print(f"  API returned: total={total}, pending={pending}, processing={processing}, completed={completed}, failed={failed}")
-                first_check = False
+            elapsed = int(time.time() - start)
+            print(f"  [{elapsed}s] Extraction status: total={total}, pending={pending}, processing={processing}, completed={completed}, failed={failed}")
             
             # If no extractions at all, check vault stats for content
             if total == 0:
