@@ -1,0 +1,40 @@
+{
+  "status": "running",
+  "vault_id": "63f37cfb-d7dd-4068-a553-95193be88afa",
+  "question_set_id": "14776bd1-6b0a-4c08-8d72-3821319431d6",
+  "test_run_id": "9bbc347b-00e8-4f2e-ab99-8ddfb6b9ee02",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-01-21T19:17:46.430284",
+  "pid": 34270,
+  "stages": {
+    "delete": {
+      "status": "skipped"
+    },
+    "create": {
+      "status": "skipped"
+    },
+    "upload": {
+      "status": "skipped"
+    },
+    "extract": {
+      "status": "complete",
+      "entities": 2200
+    },
+    "qa": {
+      "status": "running"
+    }
+  },
+  "qa_progress": {
+    "total": 215,
+    "answered": 2,
+    "passed": 1,
+    "failed": 1,
+    "accuracy_percent": 50.0
+  },
+  "current_question": {
+    "id": 3,
+    "text": "What is the company headquarters location?"
+  },
+  "updated_at": "2026-01-21T19:18:02.524023"
+}
