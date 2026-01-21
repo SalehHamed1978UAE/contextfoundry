@@ -257,6 +257,10 @@ def upload_question_set():
             result = session.execute(text("""
                 INSERT INTO question_sets (vault_id, name, question_count, questions, uploaded_by)
                 VALUES (:vault_id, :name, :count, :questions, :uploaded_by)
+                ON CONFLICT (vault_id, name) DO UPDATE SET
+                    question_count = EXCLUDED.question_count,
+                    questions = EXCLUDED.questions,
+                    uploaded_by = EXCLUDED.uploaded_by
                 RETURNING id
             """), {
                 'vault_id': vault_id,
