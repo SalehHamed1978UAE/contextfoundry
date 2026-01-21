@@ -1224,7 +1224,7 @@
                                 <span style="color: var(--accent-error); margin-left: 4px;">✗${run.questions_failed || 0}</span>
                             </td>
                             <td class="accuracy-cell">${accuracy}</td>
-                            <td>${run.started_at ? formatDate(run.started_at) : '-'}</td>
+                            <td>${run.started_at || '-'}</td>
                             <td class="output-file-cell" title="${escapeHtml(fileName)}">
                                 ${fileName ? `<a href="/api/test-runner/results-files/${encodeURIComponent(fileName)}" target="_blank">${escapeHtml(fileName)}</a>` : '-'}
                             </td>

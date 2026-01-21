@@ -161,13 +161,24 @@ class TestExecutor:
                 is_pass = False
                 match_type = 'timeout'
                 failure_reason = 'timeout'
+                failure_category = 'TIMEOUT'
+                expected_norm = expected
+                actual_norm = ''
             elif error_type:
                 is_pass = False
                 match_type = 'error'
                 failure_reason = error_type
+                failure_category = 'ERROR'
+                expected_norm = expected
+                actual_norm = actual or ''
             else:
-                is_pass, match_type = self.evaluator.evaluate(expected, actual)
-                failure_reason = None if is_pass else match_type
+                eval_details = self.evaluator.evaluate_with_details(expected, actual)
+                is_pass = eval_details['passed']
+                match_type = eval_details['match_type']
+                failure_reason = eval_details.get('failure_reason') if not is_pass else None
+                failure_category = self.evaluator.get_failure_category(match_type) if not is_pass else None
+                expected_norm = eval_details.get('expected_normalized', expected)
+                actual_norm = eval_details.get('actual_normalized', actual or '')
             
             if is_pass:
                 passed += 1
@@ -178,8 +189,12 @@ class TestExecutor:
                 "match_type": match_type,
                 "query": query[:80],
                 "expected": expected[:80],
+                "expected_normalized": expected_norm[:80] if expected_norm else '',
                 "actual": actual[:100] if actual else "",
-                "error_type": error_type
+                "actual_normalized": actual_norm[:100] if actual_norm else '',
+                "error_type": error_type,
+                "failure_reason": failure_reason,
+                "failure_category": failure_category
             }
             results.append(result)
             
