@@ -1,0 +1,32 @@
+continue immediately:
+
+  1. Evaluator normalization fixes
+      - The latest run (/Users/saleh/Downloads/manus_healthtec_20260121_063400.json) shows four answers
+        incorrectly classified as no_data even though the expected text is present:
+        • Q138 – “Can be inferred…” answer.
+        • Q143 – outage window “2:15 PM to 3:30 PM EST (75 minutes)”.
+        • Q163 – “Green (Healthy) with 110 customers”.
+        • Q193 – “3 hours 45 minutes” failover time.
+      - Adjust the evaluator so these pass (e.g., treat identical phrasing as matches before running
+        no_data detection, and allow parenthetical/duplicate wording).
+  2. Retrieval/prompt reliability (data exists but runner missed it)
+      - The corpus already includes the facts below; the runner should surface them instead of returning
+        “not specified”:
+        • Q14 – Total funding $165M (healthtech_corpus/qa_pairs.md:72-74).
+        • Q16 – EU operations year 2022 (same file lines 77-85).
+        • Q55 – CRM = Salesforce (documents/operations/vendor_list.md:5-7).
+        • Q56 – Communication tool = Slack (same vendor file).
+        • Q183 – Preferred ground transport = ride‑sharing (documents/hr/hr_policies.md, line about ride-
+        sharing).
+      - Please adjust retrieval/prompting so those facts come back as answers.
+  3. Document ingestion gaps (true no_data)
+      - The remaining 16 no_data cases cannot be answered because the supporting info only exists in Excel
+        files or the question bank. We need the source data added to the corpus (or those questions removed
+        until it is). Missing items include:
+        • Q203–205 (employee details; names only exist in question_bank).
+        • Deal/customer metrics Q209, Q212, Q230, Q232.
+        • Monthly finance/expense stats Q216, Q218–224.
+        • Headcount plan Q227–228.
+      - Please confirm whether we can ingest the referenced Excel sheets (e.g., excel_data/
+        headcount_plan_2026.xlsx, expense reports, pipeline spreadsheets) into text/JSON so the runner has
+        sources, or mark those questions as out-of-scope.
