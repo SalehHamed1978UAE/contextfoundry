@@ -268,10 +268,27 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
             update_status('delete', stage_status='skipped')
             update_status('create', stage_status='skipped')
             update_status('upload', stage_status='skipped')
-            update_status('extract', stage_status='skipped')
+            update_status('extract', stage_status='running')
             
             if not vm.authenticate_dev(tenant_id=vault_id):
                 log("WARNING: Failed to set vault context")
+            
+            # Verify extraction is complete before starting Q&A (auto mode)
+            log("\n[Stage: Extract] Verifying extraction is complete...")
+            try:
+                vm.verify_extraction_complete(vault_id, timeout_minutes=30)
+                stats = vm.get_vault_stats(vault_id)
+                update_status('extract', stage_status='complete', entities=stats.get('entity_count', 0))
+            except TimeoutError as e:
+                log(f"  ERROR: {e}")
+                update_status('extract', stage_status='failed', overall_status='failed')
+                error_msg = str(e)
+                return None
+            except ValueError as e:
+                log(f"  ERROR: {e}")
+                update_status('extract', stage_status='failed', overall_status='failed')
+                error_msg = str(e)
+                return None
         
         if test_run_id:
             current_run = get_test_run(test_run_id)
@@ -437,6 +454,14 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         # Re-authenticate with vault context
         if not vm.authenticate_dev(tenant_id=vault_id):
             print("WARNING: Failed to set vault context, continuing...")
+        
+        # Verify extraction is actually complete before Q&A
+        try:
+            vm.verify_extraction_complete(vault_id, timeout_minutes=30)
+        except (TimeoutError, ValueError) as e:
+            print(f"ERROR: {e}")
+            return None
+        
         files = []  # No files to track since we're resuming
     
     # QUESTIONS-ONLY PATH: Use existing vault without extraction
@@ -448,6 +473,14 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         print(f"\n[Step 2-4] SKIPPED (using existing vault: {vault_id})")
         if not vm.authenticate_dev(tenant_id=vault_id):
             print("WARNING: Failed to set vault context, continuing...")
+        
+        # Verify extraction is actually complete before Q&A
+        try:
+            vm.verify_extraction_complete(vault_id, timeout_minutes=30)
+        except (TimeoutError, ValueError) as e:
+            print(f"ERROR: {e}")
+            return None
+        
         files = []
     
     # FRESH PATH: Full run from scratch

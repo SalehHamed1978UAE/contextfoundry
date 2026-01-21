@@ -167,6 +167,59 @@ class VaultManager:
             "relationship_count": vault.get('relationship_count', 0)
         }
     
+    def verify_extraction_complete(self, vault_id: str, timeout_minutes: int = 30, poll_interval: int = 10) -> bool:
+        """Verify extraction is complete before starting Q&A.
+        
+        Returns True if extraction is complete, raises TimeoutError if not complete within timeout.
+        Handles edge cases like spreadsheet-only vaults where extraction_total may be 0.
+        """
+        import time
+        start = time.time()
+        timeout = timeout_minutes * 60
+        
+        print(f"  Verifying extraction is complete (timeout: {timeout_minutes} min)...")
+        
+        while time.time() - start < timeout:
+            status = self.get_extraction_status(vault_id)
+            total = status.get('total', 0)
+            pending = status.get('pending', 0)
+            processing = status.get('processing', 0)
+            completed = status.get('completed', 0)
+            failed = status.get('failed', 0)
+            
+            # If no extractions at all, check vault stats for content
+            if total == 0:
+                doc_count = self.get_document_count(vault_id)
+                if doc_count == 0:
+                    raise ValueError("No documents found in vault - cannot run Q&A")
+                
+                # Check if vault has chunks/entities (spreadsheet extraction may skip extraction_requests)
+                stats = self.get_vault_stats(vault_id)
+                chunk_count = stats.get('chunk_count', 0)
+                entity_count = stats.get('entity_count', 0)
+                
+                if chunk_count > 0 or entity_count > 0:
+                    # Vault has content from spreadsheet or other sync extraction
+                    print(f"  Extraction complete (spreadsheet mode): {chunk_count} chunks, {entity_count} entities")
+                    return True
+                
+                elapsed = int(time.time() - start)
+                print(f"  Waiting for extraction to start: {doc_count} docs, {chunk_count} chunks ({elapsed}s elapsed)")
+            else:
+                # Done when no pending AND no processing
+                if pending == 0 and processing == 0:
+                    if failed > 0:
+                        print(f"  Warning: {failed} extractions failed")
+                    print(f"  Extraction verified complete: {completed}/{total} succeeded")
+                    return True
+                    
+                elapsed = int(time.time() - start)
+                print(f"  Extraction in progress: {completed}/{total} complete, {pending} pending, {processing} processing ({elapsed}s elapsed)")
+            
+            time.sleep(poll_interval)
+        
+        raise TimeoutError(f"Extraction did not complete within {timeout_minutes} minutes")
+    
     def wait_for_extraction(
         self, 
         vault_id: str, 
