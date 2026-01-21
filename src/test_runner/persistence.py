@@ -240,10 +240,10 @@ def get_running_test() -> Optional[Dict]:
     """Get the currently running test, or None if no test is running.
     
     A test is considered "running" if:
-    - status = 'running' AND heartbeat_at is within HEARTBEAT_TIMEOUT_SECONDS
+    - status in active statuses AND heartbeat_at is within HEARTBEAT_TIMEOUT_SECONDS
     
     A test is considered "interrupted" if:
-    - status = 'running' AND heartbeat_at is older than HEARTBEAT_TIMEOUT_SECONDS
+    - status in active statuses AND heartbeat_at is older than HEARTBEAT_TIMEOUT_SECONDS
     
     If a stale heartbeat is detected, the test is marked as interrupted in the DB.
     """
@@ -254,9 +254,9 @@ def get_running_test() -> Optional[Dict]:
                 id, vault_id, vault_name, question_set_id, question_set_name,
                 mode, corpus_folder, status, stage, started_at, 
                 questions_total, questions_answered, questions_passed, questions_failed,
-                checkpoint, heartbeat_at
+                checkpoint, heartbeat_at, pid
             FROM test_runs
-            WHERE status = 'running'
+            WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
             ORDER BY started_at DESC
             LIMIT 1
         """))
@@ -307,7 +307,8 @@ def get_running_test() -> Optional[Dict]:
             'questions_failed': row[13] or 0,
             'checkpoint': row[14] if isinstance(row[14], dict) else (json.loads(row[14]) if row[14] else None),
             'heartbeat_at': heartbeat_at.isoformat() if heartbeat_at else None,
-            'heartbeat_age_seconds': age_seconds
+            'heartbeat_age_seconds': age_seconds,
+            'pid': row[16]
         }
     finally:
         session.close()
@@ -389,12 +390,12 @@ def get_test_run_progress(test_run_id: str) -> dict:
 
 
 def reset_test_run_for_resume(test_run_id: str):
-    """Reset a test run's status to running for resume."""
+    """Reset a test run's status to running_qa for resume."""
     session = get_db_session()
     try:
         session.execute(text("""
             UPDATE test_runs
-            SET status = 'running',
+            SET status = 'running_qa',
                 stage = 'qa',
                 heartbeat_at = NOW(),
                 completed_at = NULL,

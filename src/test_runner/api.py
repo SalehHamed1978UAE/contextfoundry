@@ -48,12 +48,20 @@ CORPUS_FOLDERS_PATH = Path('test documents')
 def startup_cleanup():
     """Mark ONLY stale running tests as interrupted on server startup.
     
-    Tests with a recent heartbeat (within HEARTBEAT_TIMEOUT_SECONDS) are preserved
-    as they are likely still actively running in a subprocess.
+    Checks if processes are actually alive before preserving 'running' tests.
     Called when the blueprint is registered.
     """
     import logging
     logger = logging.getLogger(__name__)
+    
+    def is_process_alive(pid):
+        if not pid:
+            return False
+        try:
+            os.kill(pid, 0)  # Signal 0 just checks if process exists
+            return True
+        except (ProcessLookupError, OSError):
+            return False
     
     try:
         count = cleanup_stale_tests()
@@ -62,14 +70,39 @@ def startup_cleanup():
         
         db = persistence_get_db_session()
         try:
+            # Get active tests with their PIDs
             active_result = db.execute(text("""
-                SELECT id FROM test_runs WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
+                SELECT id, pid FROM test_runs 
+                WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa')
             """))
             active_rows = active_result.fetchall()
-            if active_rows:
-                logger.info(f"[Startup Cleanup] Preserved {len(active_rows)} tests with fresh heartbeats")
-                for row in active_rows:
-                    logger.info(f"  - Test run {row[0]} still running (fresh heartbeat)")
+            
+            dead_tests = []
+            alive_tests = []
+            
+            for row in active_rows:
+                test_id, pid = row[0], row[1]
+                if pid and is_process_alive(pid):
+                    alive_tests.append(test_id)
+                    logger.info(f"  - Test run {test_id} still running (PID {pid} alive)")
+                else:
+                    dead_tests.append(str(test_id))
+                    logger.info(f"  - Test run {test_id} has dead process (PID {pid}), marking interrupted")
+            
+            # Mark dead tests as interrupted
+            if dead_tests:
+                db.execute(text("""
+                    UPDATE test_runs 
+                    SET status = 'interrupted', 
+                        error_message = 'Process died during server restart',
+                        completed_at = NOW()
+                    WHERE id = ANY(:ids::uuid[])
+                """), {'ids': dead_tests})
+                db.commit()
+                logger.info(f"[Startup Cleanup] Marked {len(dead_tests)} dead tests as interrupted")
+            
+            if alive_tests:
+                logger.info(f"[Startup Cleanup] Preserved {len(alive_tests)} tests with live processes")
         finally:
             db.close()
     except Exception as e:
@@ -528,6 +561,15 @@ def start_test():
         initial_status['pid'] = process.pid
         write_status_file(initial_status)
         
+        # Store PID in database for reliable cleanup
+        db_session = persistence_get_db_session()
+        try:
+            db_session.execute(text("UPDATE test_runs SET pid = :pid WHERE id = :id"), 
+                              {'pid': process.pid, 'id': test_run_id})
+            db_session.commit()
+        finally:
+            db_session.close()
+        
         return jsonify({
             'message': 'Test started',
             'pid': process.pid,
@@ -666,7 +708,7 @@ def get_test_status():
 def stop_test():
     """Stop the currently running test.
     
-    Explicitly sets status in DB - no inference.
+    Gets PID from database (reliable) or file (fallback), kills process, updates DB.
     """
     db_test = get_running_test()
     file_status = read_status_file()
@@ -675,7 +717,11 @@ def stop_test():
         return jsonify({'error': 'No test is currently running'}), 400
     
     test_run_id = db_test['id']
-    pid = file_status.get('pid') if file_status else None
+    
+    # Get PID from database first (reliable), then fall back to file
+    pid = db_test.get('pid')
+    if not pid and file_status:
+        pid = file_status.get('pid')
     
     try:
         # Kill process if PID available
