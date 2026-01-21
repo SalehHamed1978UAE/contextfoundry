@@ -8,7 +8,7 @@ import socket
 import time
 from datetime import timedelta
 from uuid import UUID
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, g
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, g, send_from_directory
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,11 @@ app.register_blueprint(extraction_api)
 
 from src.test_runner.api import test_runner_api
 app.register_blueprint(test_runner_api)
+
+@app.route('/test_results/<path:filename>')
+def serve_test_results(filename):
+    """Serve test result files from the test_results directory."""
+    return send_from_directory('test_results', filename)
 
 def validate_api_key():
     """
