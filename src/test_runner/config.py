@@ -7,21 +7,21 @@ DEFAULT_CONFIG = {
     "api_base_url": "http://localhost:5000/api",
     "corpora": {
         "ClaudeCode Medsync": {
-            "root_path": "test_documents/ClaudeCode Medsync/",
+            "root_path": "test_documents/claudecode_medsync/",
             "questions_file": "medsync_235q.json",
             "current_vault_id": None,
             "last_run": None,
             "last_accuracy": None
         },
         "Manus Healthtec": {
-            "root_path": "test_documents/Manus Healthtec/",
+            "root_path": "test_documents/medsync_health/",
             "questions_file": "medsync_235q.json",
             "current_vault_id": None,
             "last_run": None,
             "last_accuracy": None
         },
         "Manus Medsync": {
-            "root_path": "test_documents/Manus Medsync/",
+            "root_path": "test_documents/manus_medsync/",
             "questions_file": "medsync_235q.json",
             "current_vault_id": None,
             "last_run": None,
