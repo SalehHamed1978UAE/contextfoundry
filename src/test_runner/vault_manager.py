@@ -103,8 +103,14 @@ class VaultManager:
         return response.status_code in [200, 201, 302]
     
     def _get_vault_stats_with_retry(self, vault_id: str, max_retries: int = 5) -> Dict:
-        """Get vault stats with retry logic for server restarts and connection issues."""
+        """Get vault stats with retry logic for server restarts and connection issues.
+        
+        Raises RuntimeError if all retries fail - never returns empty data silently.
+        """
         import requests.exceptions
+        
+        last_error = None
+        last_status = None
         
         for attempt in range(max_retries):
             try:
@@ -112,20 +118,23 @@ class VaultManager:
                 if response.status_code == 200:
                     return response.json()
                 elif response.status_code == 401:
-                    # Server may have restarted, re-authenticate
+                    last_status = 401
+                    last_error = "Authentication failed"
                     if attempt < max_retries - 1:
                         print(f"  [Retry {attempt+1}] Re-authenticating...")
                         time.sleep(2)
                         self.authenticate_dev(tenant_id=vault_id)
                 else:
+                    last_status = response.status_code
+                    last_error = f"HTTP {response.status_code}"
                     print(f"  [Retry {attempt+1}] Unexpected status: {response.status_code}")
                     if attempt < max_retries - 1:
                         time.sleep(3)
             except requests.exceptions.ConnectionError as e:
+                last_error = f"Connection error: {e}"
                 if attempt < max_retries - 1:
                     print(f"  [Retry {attempt+1}] Connection error, retrying in 5s...")
                     time.sleep(5)
-                    # Re-authenticate in case server restarted
                     try:
                         self.authenticate_dev(tenant_id=vault_id)
                     except:
@@ -133,12 +142,14 @@ class VaultManager:
                 else:
                     raise
             except requests.exceptions.Timeout:
+                last_error = "Request timeout"
                 if attempt < max_retries - 1:
                     print(f"  [Retry {attempt+1}] Timeout, retrying...")
                     time.sleep(2)
                 else:
                     raise
-        return {}
+        
+        raise RuntimeError(f"Failed to get vault stats after {max_retries} retries: {last_error}")
     
     def get_document_count(self, vault_id: str) -> int:
         """Get number of documents in vault using vault stats endpoint."""
@@ -176,8 +187,10 @@ class VaultManager:
         import time
         start = time.time()
         timeout = timeout_minutes * 60
+        first_check = True
         
         print(f"  Verifying extraction is complete (timeout: {timeout_minutes} min)...")
+        print(f"  Vault ID: {vault_id}")
         
         while time.time() - start < timeout:
             status = self.get_extraction_status(vault_id)
@@ -186,6 +199,10 @@ class VaultManager:
             processing = status.get('processing', 0)
             completed = status.get('completed', 0)
             failed = status.get('failed', 0)
+            
+            if first_check:
+                print(f"  API returned: total={total}, pending={pending}, processing={processing}, completed={completed}, failed={failed}")
+                first_check = False
             
             # If no extractions at all, check vault stats for content
             if total == 0:
