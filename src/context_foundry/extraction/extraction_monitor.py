@@ -161,12 +161,44 @@ class ExtractionMonitor:
         self.db.commit()
         
         for req in recovered:
-            logger.info(f"[ExtractionMonitor] Recovered stale request: id={req.id}, document={req.document_id}, retry={req.retry_count}")
+            logger.info(f"[ExtractionMonitor] Recovered stale processing request: id={req.id}, document={req.document_id}, retry={req.retry_count}")
         
         if recovered:
-            logger.warning(f"[ExtractionMonitor] Recovered {len(recovered)} stale extraction requests (stuck > {stale_minutes} min)")
+            logger.warning(f"[ExtractionMonitor] Recovered {len(recovered)} stale processing requests (stuck > {stale_minutes} min)")
         
         return len(recovered)
+    
+    def recover_stale_pending(self, stale_minutes: int = 30) -> int:
+        """
+        Re-queue extraction_requests stuck in 'pending' status.
+        
+        This fixes requests that were never picked up by workers (e.g., worker pool
+        was busy or crashed before picking them up). Pending requests with submitted_at
+        older than stale_minutes are re-queued by updating submitted_at to NOW().
+        
+        Uses submitted_at (not created_at) so requests are only re-queued once per
+        stale_minutes interval, not every cycle.
+        """
+        result = self.db.execute(text("""
+            UPDATE platform.extraction_requests 
+            SET submitted_at = NOW(),
+                retry_count = LEAST(retry_count + 1, max_retries)
+            WHERE status = 'pending'
+              AND submitted_at < NOW() - MAKE_INTERVAL(mins => :stale_minutes)
+              AND retry_count < max_retries
+            RETURNING id, document_id, retry_count
+        """), {"stale_minutes": stale_minutes})
+        
+        requeued = result.fetchall()
+        self.db.commit()
+        
+        for req in requeued:
+            logger.info(f"[ExtractionMonitor] Re-queued stale pending request: id={req.id}, document={req.document_id}, retry={req.retry_count}")
+        
+        if requeued:
+            logger.warning(f"[ExtractionMonitor] Re-queued {len(requeued)} stale pending requests (stuck > {stale_minutes} min)")
+        
+        return len(requeued)
     
     def check_orphaned_requests(self) -> Dict[str, int]:
         """
@@ -194,14 +226,16 @@ class ExtractionMonitor:
     def run_cycle(self) -> Dict[str, Any]:
         """Run a complete monitoring cycle"""
         
-        stale_recovered = self.recover_stale_requests()
+        stale_processing_recovered = self.recover_stale_requests()
+        stale_pending_requeued = self.recover_stale_pending()
         timeouts = self.check_timeouts()
         retries = self.process_retries()
         health = self.get_health_summary()
         
         return {
             "timestamp": datetime.utcnow().isoformat(),
-            "stale_requests_recovered": stale_recovered,
+            "stale_processing_recovered": stale_processing_recovered,
+            "stale_pending_requeued": stale_pending_requeued,
             "timeouts_detected": timeouts,
             "retries": retries,
             "health": health
