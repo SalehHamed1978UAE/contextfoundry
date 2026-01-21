@@ -83,50 +83,49 @@ class FuzzyEvaluator:
         """
         Convert various number formats to a canonical float value.
         Handles: $40M, $40.0 million, 40,000,000, 40 million, etc.
+        
+        IMPORTANT: Only use this for short, focused expressions (typically expected values).
+        For long verbose answers, use _extract_numbers() instead which finds all numbers.
         """
         if not text:
             return None
         
-        # Clean the text
-        cleaned = text.strip().lower()
-        cleaned = cleaned.replace('$', '').replace(',', '').replace(' ', '')
+        text = text.strip()
         
-        # Handle word-based multipliers (must check before stripping letters)
-        multiplier = 1
-        if 'trillion' in cleaned:
-            multiplier = 1_000_000_000_000
-            cleaned = cleaned.replace('trillion', '')
-        elif 'billion' in cleaned:
-            multiplier = 1_000_000_000
-            cleaned = cleaned.replace('billion', '')
-        elif 'million' in cleaned:
-            multiplier = 1_000_000
-            cleaned = cleaned.replace('million', '')
-        elif 'thousand' in cleaned:
-            multiplier = 1_000
-            cleaned = cleaned.replace('thousand', '')
-        # Handle letter suffixes (M, B, K)
-        elif cleaned.endswith('t'):
-            multiplier = 1_000_000_000_000
-            cleaned = cleaned[:-1]
-        elif cleaned.endswith('b'):
-            multiplier = 1_000_000_000
-            cleaned = cleaned[:-1]
-        elif cleaned.endswith('m'):
-            multiplier = 1_000_000
-            cleaned = cleaned[:-1]
-        elif cleaned.endswith('k'):
-            multiplier = 1_000
-            cleaned = cleaned[:-1]
+        # Skip very long text (likely verbose answer) - use legacy extraction instead
+        if len(text) > 50:
+            return None
         
-        # Extract the numeric part
-        match = re.search(r'[\d.]+', cleaned)
-        if match:
-            try:
-                return float(match.group()) * multiplier
-            except ValueError:
+        # Pattern: optional $, number (with optional commas/decimals), optional multiplier
+        # This matches complete currency/number expressions like "$40 million", "40M", "2,500"
+        pattern = r'^\s*\$?\s*([\d,]+(?:\.\d+)?)\s*(million|billion|trillion|thousand|[mbkt])?\s*$'
+        match = re.match(pattern, text.lower())
+        
+        if not match:
+            # Try simpler pattern: just a number with possible $ and commas
+            pattern2 = r'^\s*\$?\s*([\d,]+(?:\.\d+)?)\s*$'
+            match = re.match(pattern2, text.lower())
+            if not match:
                 return None
-        return None
+            multiplier = 1
+        else:
+            multiplier_str = match.group(2) or ''
+            if multiplier_str in ('trillion', 't'):
+                multiplier = 1_000_000_000_000
+            elif multiplier_str in ('billion', 'b'):
+                multiplier = 1_000_000_000
+            elif multiplier_str in ('million', 'm'):
+                multiplier = 1_000_000
+            elif multiplier_str in ('thousand', 'k'):
+                multiplier = 1_000
+            else:
+                multiplier = 1
+        
+        try:
+            num_str = match.group(1).replace(',', '')
+            return float(num_str) * multiplier
+        except ValueError:
+            return None
     
     def normalize_percentage(self, text: str) -> Optional[float]:
         """
@@ -198,12 +197,8 @@ class FuzzyEvaluator:
         # Check if actual answer indicates no data was found
         actual_no_data = self.detect_no_data(actual)
         
-        # Exact/substring match (after normalization)
-        if expected_lower in actual_lower:
-            self.last_evaluation_details['match_type'] = 'exact_match'
-            return True, "exact_match"
-        
-        # Handle expected "[not in documents]" - system should admit uncertainty
+        # Handle expected "[not in documents]" FIRST - before substring match
+        # Otherwise verbose actual that includes "[not in documents]" substring could false-match
         if expected_lower == "[not in documents]":
             if actual_no_data:
                 self.last_evaluation_details['match_type'] = 'uncertainty_match'
@@ -211,10 +206,14 @@ class FuzzyEvaluator:
             self.last_evaluation_details['failure_reason'] = 'should_say_unknown'
             return False, "should_say_unknown"
         
-        # If actual says no data but expected has content, it's a no_data failure
-        if actual_no_data:
-            self.last_evaluation_details['failure_reason'] = 'no_data'
-            return False, "no_data"
+        # Exact/substring match (after normalization)
+        if expected_lower in actual_lower:
+            self.last_evaluation_details['match_type'] = 'exact_match'
+            return True, "exact_match"
+        
+        # NOTE: NO_DATA check moved to AFTER all matching attempts
+        # This prevents false NO_DATA when response contains both "does not specify" boilerplate
+        # AND actual data/numbers that could match
         
         # Try number matching with improved normalization
         expected_num = self.normalize_number(expected)
@@ -274,7 +273,18 @@ class FuzzyEvaluator:
             self.last_evaluation_details['match_type'] = 'boolean_match'
             return True, "boolean_match"
         
-        # Determine specific failure reason
+        # All matching attempts failed - now check if it's a NO_DATA response
+        # This is checked LAST so that responses with both "does not specify" boilerplate
+        # AND actual matching data still pass the matching checks above
+        # 
+        # Additional safeguard: if actual contains numbers, don't classify as NO_DATA
+        # because the response DID provide data (even if it didn't match expected)
+        actual_has_numbers = bool(actual_numbers) or self._extract_numbers(actual)
+        if actual_no_data and not actual_has_numbers:
+            self.last_evaluation_details['failure_reason'] = 'no_data'
+            return False, "no_data"
+        
+        # Determine specific failure reason for non-NO_DATA failures
         if expected_numbers or expected_num is not None:
             self.last_evaluation_details['failure_reason'] = 'no_match_numeric'
         elif expected_entities:
@@ -286,35 +296,61 @@ class FuzzyEvaluator:
     
     def _extract_numbers(self, text: str) -> set:
         numbers = set()
-        for match in re.findall(r'\$[\d,]+(?:\.\d+)?(?:[MmBbKk])?', text):
-            numbers.add(self._normalize_number(match))
+        
+        # Pattern 1: Currency with suffix like $40M, $2.5B
+        for match in re.findall(r'\$[\d,]+(?:\.\d+)?(?:[MmBbKkTt])?', text):
+            numbers.add(self._normalize_number_legacy(match))
+        
+        # Pattern 2: Number with word multiplier like "40 million", "$2.5 billion"
+        for match in re.findall(r'\$?[\d,]+(?:\.\d+)?\s*(?:million|billion|trillion|thousand)', text, re.IGNORECASE):
+            numbers.add(self._normalize_number_legacy(match))
+        
+        # Pattern 3: Plain numbers (only if not already captured)
         for match in re.findall(r'\b[\d,]+(?:\.\d+)?\b', text):
-            normalized = self._normalize_number(match)
+            normalized = self._normalize_number_legacy(match)
             if normalized:
                 numbers.add(normalized)
+        
         return numbers
     
-    def _normalize_number(self, num_str: str) -> str:
-        normalized = num_str.replace('$', '').replace(',', '')
-        if normalized.endswith(('M', 'm')):
-            try:
-                value = float(normalized[:-1]) * 1_000_000
-                return str(int(value))
-            except:
-                pass
-        elif normalized.endswith(('B', 'b')):
-            try:
-                value = float(normalized[:-1]) * 1_000_000_000
-                return str(int(value))
-            except:
-                pass
-        elif normalized.endswith(('K', 'k')):
-            try:
-                value = float(normalized[:-1]) * 1_000
-                return str(int(value))
-            except:
-                pass
-        return normalized
+    def _normalize_number_legacy(self, num_str: str) -> str:
+        """Legacy normalization for _extract_numbers - handles various formats."""
+        cleaned = num_str.replace('$', '').replace(',', '').strip().lower()
+        
+        # Handle word multipliers
+        multiplier = 1
+        if 'trillion' in cleaned:
+            multiplier = 1_000_000_000_000
+            cleaned = cleaned.replace('trillion', '').strip()
+        elif 'billion' in cleaned:
+            multiplier = 1_000_000_000
+            cleaned = cleaned.replace('billion', '').strip()
+        elif 'million' in cleaned:
+            multiplier = 1_000_000
+            cleaned = cleaned.replace('million', '').strip()
+        elif 'thousand' in cleaned:
+            multiplier = 1_000
+            cleaned = cleaned.replace('thousand', '').strip()
+        # Handle letter suffixes
+        elif cleaned.endswith(('t',)):
+            multiplier = 1_000_000_000_000
+            cleaned = cleaned[:-1]
+        elif cleaned.endswith(('b',)):
+            multiplier = 1_000_000_000
+            cleaned = cleaned[:-1]
+        elif cleaned.endswith(('m',)):
+            multiplier = 1_000_000
+            cleaned = cleaned[:-1]
+        elif cleaned.endswith(('k',)):
+            multiplier = 1_000
+            cleaned = cleaned[:-1]
+        
+        try:
+            value = float(cleaned) * multiplier
+            return str(int(value))
+        except:
+            return cleaned
+    
     
     def _get_primary_number(self, text: str) -> Optional[str]:
         numbers = list(self._extract_numbers(text))
