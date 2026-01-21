@@ -50,6 +50,24 @@ class FuzzyEvaluator:
         "i cannot find", "there is no", "there's no"
     ]
     
+    # Location aliases for HQ/office location matching
+    LOCATION_ALIASES = {
+        "boston": ["boston, ma", "boston, massachusetts", "boston, massachusetts, usa", "boston ma", "boston massachusetts"],
+        "san francisco": ["san francisco, ca", "san francisco, california", "sf", "san francisco ca", "san francisco california"],
+        "new york": ["new york, ny", "new york city", "nyc", "new york, new york", "new york ny"],
+        "los angeles": ["los angeles, ca", "la", "los angeles california", "los angeles ca"],
+        "seattle": ["seattle, wa", "seattle, washington", "seattle wa"],
+        "austin": ["austin, tx", "austin, texas", "austin tx"],
+        "chicago": ["chicago, il", "chicago, illinois", "chicago il"],
+        "denver": ["denver, co", "denver, colorado", "denver co"],
+    }
+    
+    # Boolean/compliance answer normalization
+    BOOLEAN_ALIASES = {
+        "yes": ["yes", "true", "affirmative", "correct", "confirmed", "compliant", "achieved", "passed"],
+        "no": ["no", "false", "negative", "not compliant", "not achieved", "failed", "n/a"],
+    }
+    
     def __init__(self):
         self.last_evaluation_details: Optional[Dict[str, Any]] = None
     
@@ -84,6 +102,44 @@ class FuzzyEvaluator:
         normalized = re.sub(r'[\.,:;!]+$', '', normalized)
         
         return normalized.strip()
+    
+    def normalize_location(self, text: str) -> str:
+        """Normalize location text to canonical form."""
+        if not text:
+            return ""
+        text_lower = text.lower().strip()
+        for canonical, aliases in self.LOCATION_ALIASES.items():
+            if text_lower == canonical or text_lower in aliases:
+                return canonical
+        return text_lower
+    
+    def normalize_boolean(self, text: str) -> Optional[str]:
+        """Normalize boolean/compliance answers to 'yes' or 'no'."""
+        if not text:
+            return None
+        text_lower = text.lower().strip()
+        for canonical, aliases in self.BOOLEAN_ALIASES.items():
+            if text_lower in aliases or text_lower == canonical:
+                return canonical
+        return None
+    
+    def _locations_match(self, expected: str, actual: str) -> bool:
+        """Check if two locations refer to the same place."""
+        norm_expected = self.normalize_location(expected)
+        norm_actual = self.normalize_location(actual)
+        if norm_expected == norm_actual:
+            return True
+        if norm_expected in norm_actual or norm_actual in norm_expected:
+            return True
+        return False
+    
+    def _booleans_match(self, expected: str, actual: str) -> bool:
+        """Check if two boolean/compliance answers match."""
+        norm_expected = self.normalize_boolean(expected)
+        norm_actual = self.normalize_boolean(actual)
+        if norm_expected is None or norm_actual is None:
+            return False
+        return norm_expected == norm_actual
     
     def normalize_number(self, text: str) -> Optional[float]:
         """
@@ -275,6 +331,16 @@ class FuzzyEvaluator:
         if self.key_component_match(expected, actual):
             self.last_evaluation_details['match_type'] = 'component_match'
             return True, "component_match"
+        
+        # Location matching (Boston vs Boston, MA vs Boston, Massachusetts)
+        if self._locations_match(expected_norm, actual_norm):
+            self.last_evaluation_details['match_type'] = 'location_match'
+            return True, "location_match"
+        
+        # Boolean/compliance matching (Yes vs Compliant vs Achieved)
+        if self._booleans_match(expected_norm, actual_norm):
+            self.last_evaluation_details['match_type'] = 'boolean_match'
+            return True, "boolean_match"
         
         # NOTE: NO_DATA check moved to AFTER all matching attempts
         # This prevents false NO_DATA when response contains both "does not specify" boilerplate

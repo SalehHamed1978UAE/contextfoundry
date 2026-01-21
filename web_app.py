@@ -2196,12 +2196,69 @@ def _process_spreadsheet_and_extract_entities(storage_path: str, filename: str, 
                   json.dumps(properties), metric.get('confidence', 0.95), str(doc_id)))
         entities_created += 1
     
-    logger.info(f"[SPREADSHEET] Processed {filename}: {entities_created} entities, {len(document.tables)} tables")
+    chunks_created = 0
+    if document.raw_text and document.raw_text.strip():
+        try:
+            import openai
+            from uuid import uuid4 as uuid4_chunk
+            
+            raw_text = document.raw_text.strip()
+            MAX_CHUNK_SIZE = 2000
+            text_chunks = []
+            
+            if len(raw_text) <= MAX_CHUNK_SIZE:
+                text_chunks.append((raw_text, 0, len(raw_text)))
+            else:
+                start = 0
+                while start < len(raw_text):
+                    end = min(start + MAX_CHUNK_SIZE, len(raw_text))
+                    if end < len(raw_text):
+                        newline_pos = raw_text.rfind('\n', start, end)
+                        if newline_pos > start + 500:
+                            end = newline_pos + 1
+                    text_chunks.append((raw_text[start:end], start, end))
+                    start = end
+            
+            client = openai.OpenAI()
+            for chunk_idx, (chunk_text, char_start, char_end) in enumerate(text_chunks):
+                try:
+                    embedding_response = client.embeddings.create(
+                        model="text-embedding-3-small",
+                        input=chunk_text
+                    )
+                    embedding = embedding_response.data[0].embedding
+                    
+                    chunk_id = uuid4_chunk()
+                    chunk_metadata = {
+                        "source_document": filename,
+                        "source_type": "spreadsheet",
+                        "chunk_index": chunk_idx,
+                        "total_chunks": len(text_chunks)
+                    }
+                    
+                    cur.execute("""
+                        INSERT INTO document_chunks (
+                            id, document_id, tenant_id, chunk_index, text,
+                            char_start, char_end, chunk_metadata, embedding, created_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                    """, (str(chunk_id), str(doc_id), str(tenant_id), chunk_idx,
+                          chunk_text, char_start, char_end, json.dumps(chunk_metadata),
+                          embedding))
+                    chunks_created += 1
+                except Exception as emb_err:
+                    logger.warning(f"[SPREADSHEET] Failed to create chunk {chunk_idx} for {filename}: {emb_err}")
+            
+            logger.info(f"[SPREADSHEET] Created {chunks_created} document chunks for {filename}")
+        except Exception as chunk_err:
+            logger.warning(f"[SPREADSHEET] Failed to create document chunks for {filename}: {chunk_err}")
+    
+    logger.info(f"[SPREADSHEET] Processed {filename}: {entities_created} entities, {len(document.tables)} tables, {chunks_created} chunks")
     
     return {
         'entities_created': entities_created,
         'metrics': extracted_metrics,
-        'tables_found': len(document.tables)
+        'tables_found': len(document.tables),
+        'chunks_created': chunks_created
     }
 
 @app.route('/test-upload', methods=['POST'])
