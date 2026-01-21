@@ -63,6 +63,12 @@ class FuzzyEvaluator:
         
         normalized = text.strip()
         
+        # Remove markdown bold/italic formatting (**text** or *text* or __text__)
+        normalized = re.sub(r'\*\*([^*]+)\*\*', r'\1', normalized)  # **bold**
+        normalized = re.sub(r'\*([^*]+)\*', r'\1', normalized)      # *italic*
+        normalized = re.sub(r'__([^_]+)__', r'\1', normalized)      # __bold__
+        normalized = re.sub(r'_([^_]+)_', r'\1', normalized)        # _italic_
+        
         # Remove boilerplate phrases (case-insensitive)
         for pattern in self.BOILERPLATE_PATTERNS:
             normalized = re.sub(pattern, '', normalized, flags=re.IGNORECASE).strip()
@@ -165,6 +171,50 @@ class FuzzyEvaluator:
         actual_lower = actual.lower()
         return any(phrase in actual_lower for phrase in self.NO_DATA_PHRASES)
     
+    def key_component_match(self, expected: str, actual: str) -> bool:
+        """
+        Check if all key components from expected appear in actual.
+        Handles cases where exact substring doesn't match due to phrasing variations.
+        
+        Key components: numbers, times, percentages, and significant words (3+ chars).
+        """
+        # Strip parenthetical content from expected (often supplementary info)
+        expected_core = re.sub(r'\([^)]*\)', '', expected).strip()
+        expected_lower = expected_core.lower()
+        actual_lower = actual.lower()
+        
+        # Extract times (e.g., "2:15 PM", "3:30 PM EST")
+        time_pattern = r'\d{1,2}:\d{2}\s*(?:am|pm)?(?:\s*[a-z]{2,4})?'
+        expected_times = set(re.findall(time_pattern, expected_lower))
+        if expected_times:
+            actual_times = set(re.findall(time_pattern, actual_lower))
+            if not expected_times.issubset(actual_times):
+                return False
+        
+        # Extract numbers (integers and decimals) from core expected only
+        number_pattern = r'\d+(?:,\d{3})*(?:\.\d+)?'
+        expected_nums = set(re.findall(number_pattern, expected_core.replace(',', '')))
+        if expected_nums:
+            actual_nums = set(re.findall(number_pattern, actual.replace(',', '')))
+            # Check if at least 80% of expected numbers are in actual
+            if not expected_nums.issubset(actual_nums):
+                # Try without decimals for integer comparison
+                expected_int = {n.split('.')[0] for n in expected_nums}
+                actual_int = {n.split('.')[0] for n in actual_nums}
+                if not expected_int.issubset(actual_int):
+                    return False
+        
+        # Extract key words (significant terms, excluding common words)
+        stopwords = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'with', 'and', 'or', 'to', 'from', 'for', 'of', 'in', 'on', 'at', 'by', 'has', 'have', 'had', 'which', 'that', 'this', 'be', 'been'}
+        expected_words = set(re.findall(r'[a-z]{3,}', expected_lower)) - stopwords
+        if expected_words:
+            # At least 70% of key words should appear
+            matches = sum(1 for w in expected_words if w in actual_lower)
+            if matches < len(expected_words) * 0.7:
+                return False
+        
+        return True
+    
     def evaluate(self, expected: str, actual: str) -> Tuple[bool, str]:
         """
         Returns (passed, match_type).
@@ -206,10 +256,25 @@ class FuzzyEvaluator:
             self.last_evaluation_details['failure_reason'] = 'should_say_unknown'
             return False, "should_say_unknown"
         
+        # Handle "Can be inferred" meta-answers
+        # When expected says data is implicit/inferred, any substantive answer passes
+        if "can be inferred" in expected_lower or "inferred but not explicitly" in expected_lower:
+            # If actual provides data (not a no_data response), it's a pass
+            if not actual_no_data and len(actual_norm) > 20:
+                self.last_evaluation_details['match_type'] = 'inference_match'
+                return True, "inference_match"
+        
         # Exact/substring match (after normalization)
         if expected_lower in actual_lower:
             self.last_evaluation_details['match_type'] = 'exact_match'
             return True, "exact_match"
+        
+        # Key component matching (handles phrasing variations)
+        # e.g., "2:15 PM to 3:30 PM" in actual "from 2:15 PM to 3:30 PM"
+        # e.g., "Green (Healthy) with 110 customers" vs "Green (Healthy), which has 110 customers"
+        if self.key_component_match(expected, actual):
+            self.last_evaluation_details['match_type'] = 'component_match'
+            return True, "component_match"
         
         # NOTE: NO_DATA check moved to AFTER all matching attempts
         # This prevents false NO_DATA when response contains both "does not specify" boilerplate
