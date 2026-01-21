@@ -1,12 +1,12 @@
 {
   "status": "running",
-  "vault_id": "63f37cfb-d7dd-4068-a553-95193be88afa",
-  "question_set_id": "14776bd1-6b0a-4c08-8d72-3821319431d6",
-  "test_run_id": "9bbc347b-00e8-4f2e-ab99-8ddfb6b9ee02",
+  "vault_id": "d1eb12f7-c5b3-4dfe-b87e-8f9d912a6fbb",
+  "question_set_id": "af3147da-799b-4903-b8dc-df225a6b663f",
+  "test_run_id": "89025dea-d2e1-4fbd-afac-b85febdb6165",
   "mode": "auto",
   "corpus_folder": null,
-  "started_at": "2026-01-21T19:17:46.430284",
-  "pid": 34270,
+  "started_at": "2026-01-21T20:13:42.984196",
+  "pid": 37946,
   "stages": {
     "delete": {
       "status": "skipped"
@@ -18,23 +18,19 @@
       "status": "skipped"
     },
     "extract": {
-      "status": "complete",
-      "entities": 2200
+      "status": "running"
     },
     "qa": {
-      "status": "running"
+      "status": "pending"
     }
   },
   "qa_progress": {
-    "total": 215,
-    "answered": 63,
-    "passed": 18,
-    "failed": 45,
-    "accuracy_percent": 28.6
+    "total": 0,
+    "answered": 0,
+    "passed": 0,
+    "failed": 0,
+    "accuracy_percent": 0
   },
-  "current_question": {
-    "id": 64,
-    "text": "How many employees are in the Engineering department?"
-  },
-  "updated_at": "2026-01-21T19:21:03.997944"
+  "current_question": null,
+  "updated_at": "2026-01-21T20:13:43.650565"
 }

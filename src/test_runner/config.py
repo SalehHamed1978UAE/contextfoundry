@@ -31,10 +31,10 @@ DEFAULT_CONFIG = {
     "questions_dir": "test_questions/",
     "results_dir": "test_results/",
     "upload_rules": {
-        "include_folders": ["documents", "excel_data"],
+        "include_folders": ["documents", "excel_data", "compliance", "customers", "financials", "hr", "legal", "operations", "projects", "reports", "spreadsheets"],
         "include_root_extensions": [".md", ".txt"],
         "valid_extensions": [".pdf", ".docx", ".xlsx", ".xls", ".csv", ".txt", ".md"],
-        "exclude_files": ["README.md", "readme.md", "qa_pairs.md", "question_bank_200.md", "ambiguity_log.md", "consistency_validation.md"]
+        "exclude_files": ["README.md", "readme.md", "qa_pairs.md", "question_bank_200.md", "ambiguity_log.md", "consistency_validation.md", "CORPUS_STATS.txt"]
     },
     "extraction": {
         "timeout_minutes": 20,
