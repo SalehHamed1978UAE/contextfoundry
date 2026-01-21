@@ -181,33 +181,62 @@ class EpisodicMemory:
         doc_types: List[str] = None,
         limit: int = 5
     ) -> List[Dict]:
-        """Fallback keyword search on document chunks when vector search returns nothing."""
-        sql = text("""
+        """Fallback keyword search on document chunks using SQL LIKE filtering.
+        
+        Strategy:
+        - Uses SQL LIKE to filter chunks containing ANY keyword (no row limit)
+        - First keyword (most specific) gets 3x weight in scoring
+        - Document name matches get 5 points
+        - Bonus for matching multiple unique keywords
+        """
+        if not keywords:
+            return []
+        
+        like_clauses = []
+        params = {"tid": self.tenant_id}
+        for i, kw in enumerate(keywords[:5]):
+            param_name = f"kw{i}"
+            like_clauses.append(f"LOWER(dc.text) LIKE :{param_name} OR LOWER(d.name) LIKE :{param_name}")
+            params[param_name] = f"%{kw.lower()}%"
+        
+        where_keywords = " OR ".join(like_clauses)
+        
+        sql = text(f"""
             SELECT 
                 dc.id, dc.document_id, dc.chunk_index, dc.text,
                 d.name as source_document, d.mime_type
             FROM document_chunks dc
             JOIN platform.documents d ON dc.document_id = d.id
             WHERE dc.tenant_id = :tid
-            LIMIT 500
+              AND ({where_keywords})
         """)
         
-        rows = self.session.execute(sql, {"tid": self.tenant_id}).fetchall()
+        rows = self.session.execute(sql, params).fetchall()
         
         results = []
         for row in rows:
             score = 0
+            unique_keywords_matched = 0
             content_lower = (row.text or "").lower()
             doc_name_lower = (row.source_document or "").lower()
             
-            for keyword in keywords:
+            for i, keyword in enumerate(keywords):
                 keyword_lower = keyword.lower()
+                weight = 10 if i == 0 else 1
+                
                 if keyword_lower in doc_name_lower:
-                    score += 2
+                    score += 5 * weight
+                    unique_keywords_matched += 1
+                
                 if keyword_lower in content_lower:
-                    score += content_lower.count(keyword_lower)
+                    count = content_lower.count(keyword_lower)
+                    score += min(count, 3) * weight
+                    unique_keywords_matched += 1
             
             if score > 0:
+                bonus = unique_keywords_matched * 2
+                final_score = score + bonus
+                
                 results.append({
                     "id": str(row.id),
                     "document_id": str(row.document_id),
@@ -215,13 +244,14 @@ class EpisodicMemory:
                     "content": row.text[:2000] if row.text else "",
                     "source_document": row.source_document or "Unknown",
                     "doc_type": row.mime_type or "unknown",
-                    "similarity": min(score / 10, 1.0)
+                    "similarity": min(final_score / 20, 1.0),
+                    "_raw_score": final_score
                 })
         
-        results.sort(key=lambda x: x["similarity"], reverse=True)
+        results.sort(key=lambda x: x["_raw_score"], reverse=True)
         results = results[:limit]
         
-        logger.debug(f"Keyword search {keywords}: found {len(results)} chunks")
+        logger.debug(f"Keyword search {keywords}: found {len(results)} chunks (from {len(rows)} matches)")
         return results
     
     def search_for_rule_context(

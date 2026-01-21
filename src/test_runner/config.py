@@ -32,8 +32,9 @@ DEFAULT_CONFIG = {
     "results_dir": "test_results/",
     "upload_rules": {
         "include_folders": ["documents", "excel_data"],
+        "include_root_extensions": [".md", ".txt"],
         "valid_extensions": [".pdf", ".docx", ".xlsx", ".xls", ".csv", ".txt", ".md"],
-        "exclude_files": ["README.md", "readme.md"]
+        "exclude_files": ["README.md", "readme.md", "qa_pairs.md", "question_bank_200.md", "ambiguity_log.md", "consistency_validation.md"]
     },
     "extraction": {
         "timeout_minutes": 20,

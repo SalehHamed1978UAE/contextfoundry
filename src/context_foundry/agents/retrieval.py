@@ -376,7 +376,7 @@ class RetrievalAgent:
         query_text: str,
         query_logger: Optional[QueryLogger] = None,
         max_entities: int = 20,
-        max_documents: int = 5,
+        max_documents: int = 15,
         max_rules: int = 10,
         traverse_depth: int = 2,
         as_of_date: Optional[str] = None
@@ -1793,14 +1793,49 @@ class RetrievalAgent:
         max_documents: int,
         query_logger: Optional[QueryLogger]
     ) -> List[Dict]:
-        """Query episodic memory (vector store) for similar documents."""
+        """Query episodic memory (vector store) for similar documents.
+        
+        Uses hybrid search strategy:
+        1. Primary: Vector similarity search with increased top-K
+        2. Fallback: Keyword search when semantic scores are low (<0.5)
+        
+        This handles cases where embedding model struggles with:
+        - Markdown tables (e.g., vendor lists)
+        - Policy documents with specific terminology
+        - Structured data that doesn't embed well
+        """
         documents = self.episodic.search_similar(
             query_text,
             limit=max_documents,
             min_similarity=0.0
         )
         
-        if len(documents) < max_documents and keywords:
+        top_score = documents[0].get("similarity", 0) if documents else 0
+        use_keyword_fallback = top_score < 0.7
+        
+        if use_keyword_fallback:
+            query_keywords = self._extract_keywords_for_fallback(query_text)
+            seen = set()
+            all_keywords = []
+            for kw in query_keywords + keywords:
+                kw_lower = kw.lower()
+                if kw_lower not in seen:
+                    seen.add(kw_lower)
+                    all_keywords.append(kw)
+            
+            if all_keywords:
+                logger.info(f"Low semantic score ({top_score:.3f}), using keyword fallback: {all_keywords[:5]}")
+                keyword_docs = self.episodic.search_by_keywords(
+                    all_keywords,
+                    limit=max_documents
+                )
+                
+                seen_ids = {d["id"] for d in documents}
+                for doc in keyword_docs:
+                    if doc["id"] not in seen_ids:
+                        documents.append(doc)
+                        seen_ids.add(doc["id"])
+        elif len(documents) < max_documents and keywords:
             keyword_docs = self.episodic.search_by_keywords(
                 keywords,
                 limit=max_documents - len(documents)
@@ -1814,10 +1849,58 @@ class RetrievalAgent:
         if query_logger:
             similarities = [d.get("similarity", 0) for d in documents]
             query_logger.log_episodic_retrieval(documents, similarities)
+            if use_keyword_fallback:
+                query_logger.log_event("KEYWORD_FALLBACK_TRIGGERED", {
+                    "top_semantic_score": top_score,
+                    "total_docs_after_fallback": len(documents)
+                })
         
-        logger.debug(f"Episodic query: {len(documents)} documents")
+        logger.debug(f"Episodic query: {len(documents)} documents (top_score={top_score:.3f})")
         
         return documents
+    
+    def _extract_keywords_for_fallback(self, query_text: str) -> List[str]:
+        """Extract meaningful keywords from query for fallback search.
+        
+        Priority ordering (MOST IMPORTANT first for keyword search weighting):
+        1. Technical terms / acronyms (CRM, API, SSO) - most specific
+        2. Domain nouns (transportation, vendor, travel)
+        3. Proper nouns (company/product names like MedSync, Salesforce)
+        
+        This ordering matters because search_by_keywords weights first keywords 3x.
+        """
+        import re
+        
+        stopwords = {'what', 'which', 'who', 'where', 'when', 'how', 'why', 'does', 
+                     'did', 'is', 'are', 'was', 'were', 'the', 'a', 'an', 'for', 
+                     'to', 'of', 'in', 'on', 'at', 'by', 'use', 'uses', 'used',
+                     'have', 'has', 'had', 'do', 'that', 'this', 'with', 'from',
+                     'company', 'health', 'inc', 'organization'}
+        
+        words = re.findall(r'\b[A-Za-z][a-zA-Z0-9-]+\b', query_text)
+        
+        acronyms = []
+        technical = []
+        proper_nouns = []
+        other = []
+        
+        for word in words:
+            if word.lower() in stopwords or len(word) < 3:
+                continue
+            
+            if word.isupper() and len(word) >= 2:
+                acronyms.append(word)
+            elif word[0].isupper() and not word.isupper():
+                proper_nouns.append(word)
+            elif word.lower() in {'system', 'service', 'platform', 'tool', 'method', 
+                                   'transportation', 'vendor', 'travel', 'policy',
+                                   'preferred', 'ground', 'local', 'communication'}:
+                technical.append(word)
+            else:
+                other.append(word)
+        
+        keywords = acronyms + technical + proper_nouns + other
+        return keywords[:10]
     
     def _get_rule_document_keywords(self, query_text: str) -> List[str]:
         """
