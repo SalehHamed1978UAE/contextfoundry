@@ -640,6 +640,124 @@
             color: var(--text-muted);
         }
         
+        /* Failure Breakdown Styles */
+        .failure-breakdown {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .breakdown-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .breakdown-chart {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+        
+        .pie-chart {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .breakdown-legend {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: background 0.2s;
+        }
+        
+        .legend-item:hover {
+            background: var(--bg-secondary);
+        }
+        
+        .legend-item.active {
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-primary);
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .legend-count {
+            margin-left: auto;
+            font-weight: 600;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 13px;
+            min-width: 150px;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
+        .export-btn {
+            padding: 8px 16px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .export-btn:hover {
+            background: var(--accent-hover);
+        }
+        
+        .results-count {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        
         .question-item {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -1422,6 +1540,156 @@
             modal.classList.add('open');
         }
         
+        // Store current results for filtering/export
+        let currentResults = [];
+        let currentBreakdown = {};
+        let currentFilter = 'all';
+        
+        // Color mapping for failure reasons
+        const failureColors = {
+            'no_data': '#f59e0b',      // Amber - missing data
+            'no_match_numeric': '#ef4444', // Red - wrong number
+            'name_variant': '#8b5cf6',  // Purple - entity mismatch
+            'timeout': '#6b7280',       // Gray - timeout
+            'no_match': '#dc2626',      // Dark red - general mismatch
+            'unknown': '#94a3b8',       // Slate - unknown/uncategorized
+            'passed': '#22c55e'         // Green - passed
+        };
+        
+        const failureLabels = {
+            'no_data': 'No Data',
+            'no_match_numeric': 'Numeric Mismatch',
+            'name_variant': 'Name Variant',
+            'timeout': 'Timeout',
+            'no_match': 'No Match',
+            'unknown': 'Unknown'
+        };
+        
+        // Fixed ordering for consistent pie chart display
+        const failureOrder = ['no_data', 'no_match_numeric', 'name_variant', 'timeout', 'no_match', 'unknown'];
+        
+        function buildPieChart(breakdown, passed) {
+            const total = Object.values(breakdown).reduce((a, b) => a + b, 0) + passed;
+            if (total === 0) return '';
+            
+            let gradientParts = [];
+            let currentAngle = 0;
+            
+            // Add passed first
+            if (passed > 0) {
+                const passedDegrees = (passed / total) * 360;
+                gradientParts.push(`${failureColors['passed']} ${currentAngle}deg ${currentAngle + passedDegrees}deg`);
+                currentAngle += passedDegrees;
+            }
+            
+            // Add failure categories in fixed order for consistency
+            for (const reason of failureOrder) {
+                const count = breakdown[reason];
+                if (count && count > 0) {
+                    const degrees = (count / total) * 360;
+                    const color = failureColors[reason] || '#888';
+                    gradientParts.push(`${color} ${currentAngle}deg ${currentAngle + degrees}deg`);
+                    currentAngle += degrees;
+                }
+            }
+            
+            // Handle any reasons not in failureOrder
+            for (const [reason, count] of Object.entries(breakdown)) {
+                if (!failureOrder.includes(reason) && count > 0) {
+                    const degrees = (count / total) * 360;
+                    const color = failureColors[reason] || '#888';
+                    gradientParts.push(`${color} ${currentAngle}deg ${currentAngle + degrees}deg`);
+                    currentAngle += degrees;
+                }
+            }
+            
+            return `conic-gradient(${gradientParts.join(', ')})`;
+        }
+        
+        function setFilter(filter) {
+            currentFilter = filter;
+            // Sync dropdown
+            const dropdown = document.getElementById('resultFilter');
+            if (dropdown) dropdown.value = filter;
+            // Update legend active states
+            document.querySelectorAll('.legend-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.filter === filter) {
+                    item.classList.add('active');
+                }
+            });
+            renderResultsList(filter);
+        }
+        
+        function renderResultsList(filter) {
+            currentFilter = filter;
+            const listContainer = document.getElementById('resultsListContainer');
+            const countSpan = document.getElementById('resultsCount');
+            
+            let filtered = currentResults;
+            if (filter === 'passed') {
+                filtered = currentResults.filter(r => r.passed);
+            } else if (filter === 'failed') {
+                filtered = currentResults.filter(r => !r.passed);
+            } else if (filter !== 'all') {
+                filtered = currentResults.filter(r => !r.passed && r.failure_reason === filter);
+            }
+            
+            countSpan.textContent = `Showing ${filtered.length} of ${currentResults.length}`;
+            
+            listContainer.innerHTML = filtered.length === 0 
+                ? '<div class="empty-state">No results match filter</div>'
+                : filtered.map(r => `
+                    <div class="result-item ${r.passed ? 'passed' : 'failed'}" data-reason="${r.failure_reason || ''}">
+                        <div class="result-question">${escapeHtml(r.question_text || '')}</div>
+                        <div class="result-answer">
+                            <strong>Expected:</strong> ${escapeHtml(r.expected_answer || '-')}<br>
+                            <strong>Actual:</strong> ${escapeHtml(r.actual_answer || '-')}
+                            ${r.failure_reason ? `<br><strong>Reason:</strong> <span style="color: ${failureColors[r.failure_reason] || '#888'}">${escapeHtml(failureLabels[r.failure_reason] || r.failure_reason)}</span>` : ''}
+                        </div>
+                        <div class="result-meta">
+                            <span>${r.category || 'General'}</span>
+                            <span>${r.duration_ms ? r.duration_ms + 'ms' : '-'}</span>
+                        </div>
+                    </div>
+                `).join('');
+        }
+        
+        function exportFilteredResults() {
+            let filtered = currentResults;
+            if (currentFilter === 'passed') {
+                filtered = currentResults.filter(r => r.passed);
+            } else if (currentFilter === 'failed') {
+                filtered = currentResults.filter(r => !r.passed);
+            } else if (currentFilter !== 'all') {
+                filtered = currentResults.filter(r => !r.passed && r.failure_reason === currentFilter);
+            }
+            
+            const exportData = {
+                filter: currentFilter,
+                count: filtered.length,
+                breakdown: currentBreakdown,
+                results: filtered.map(r => ({
+                    question: r.question_text,
+                    expected: r.expected_answer,
+                    actual: r.actual_answer,
+                    passed: r.passed,
+                    failure_reason: r.failure_reason,
+                    category: r.category
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test_failures_${currentFilter}_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
         async function showResults(testId) {
             try {
                 const response = await fetch(`/api/test-runner/results/${testId}`);
@@ -1431,7 +1699,15 @@
                 const content = document.getElementById('resultsContent');
                 
                 const run = data.run;
-                const results = data.results || [];
+                currentResults = data.results || [];
+                currentBreakdown = data.failure_breakdown || {};
+                currentFilter = 'all';
+                
+                const passed = run.questions_passed || 0;
+                const failed = run.questions_failed || 0;
+                const hasBreakdown = Object.keys(currentBreakdown).length > 0;
+                
+                const pieGradient = buildPieChart(currentBreakdown, passed);
                 
                 content.innerHTML = `
                     <div class="results-summary">
@@ -1440,24 +1716,73 @@
                             <div class="summary-label">Answered</div>
                         </div>
                         <div class="summary-stat">
-                            <div class="summary-value passed">${run.questions_passed || 0}</div>
+                            <div class="summary-value passed">${passed}</div>
                             <div class="summary-label">Passed</div>
                         </div>
                         <div class="summary-stat">
-                            <div class="summary-value failed">${run.questions_failed || 0}</div>
+                            <div class="summary-value failed">${failed}</div>
                             <div class="summary-label">Failed</div>
                         </div>
                     </div>
+                    
+                    ${hasBreakdown ? `
+                    <div class="failure-breakdown">
+                        <div class="breakdown-title">Failure Analysis</div>
+                        <div class="breakdown-chart">
+                            <div class="pie-chart" style="background: ${pieGradient}"></div>
+                            <div class="breakdown-legend">
+                                <div class="legend-item" data-filter="passed" onclick="setFilter('passed')">
+                                    <div class="legend-color" style="background: ${failureColors['passed']}"></div>
+                                    <span>Passed</span>
+                                    <span class="legend-count">${passed}</span>
+                                </div>
+                                <div class="legend-item" data-filter="failed" onclick="setFilter('failed')">
+                                    <div class="legend-color" style="background: #ef4444"></div>
+                                    <span>All Failed</span>
+                                    <span class="legend-count">${failed}</span>
+                                </div>
+                                ${failureOrder.filter(r => currentBreakdown[r]).map(reason => `
+                                    <div class="legend-item" data-filter="${reason}" onclick="setFilter('${reason}')" style="padding-left: 16px;">
+                                        <div class="legend-color" style="background: ${failureColors[reason] || '#888'}"></div>
+                                        <span>${failureLabels[reason] || reason}</span>
+                                        <span class="legend-count">${currentBreakdown[reason]}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="filter-bar">
+                        <select class="filter-select" id="resultFilter" onchange="setFilter(this.value)">
+                            <option value="all">All Results</option>
+                            <option value="passed">Passed Only</option>
+                            <option value="failed">Failed Only</option>
+                            ${failureOrder.filter(r => currentBreakdown[r]).map(reason => `
+                                <option value="${reason}">${failureLabels[reason] || reason} (${currentBreakdown[reason]})</option>
+                            `).join('')}
+                        </select>
+                        <button class="export-btn" onclick="exportFilteredResults()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export
+                        </button>
+                        <span class="results-count" id="resultsCount">Showing ${currentResults.length} of ${currentResults.length}</span>
+                    </div>
+                    
                     ${run.error_message ? `<div class="result-item failed"><div class="result-question">Error: ${escapeHtml(run.error_message)}</div></div>` : ''}
-                    <div class="results-list">
-                        ${results.length === 0 ? '<div class="empty-state">No results available</div>' : ''}
-                        ${results.map(r => `
-                            <div class="result-item ${r.passed ? 'passed' : 'failed'}">
+                    <div class="results-list" id="resultsListContainer">
+                        ${currentResults.length === 0 ? '<div class="empty-state">No results available</div>' : ''}
+                        ${currentResults.map(r => `
+                            <div class="result-item ${r.passed ? 'passed' : 'failed'}" data-reason="${r.failure_reason || ''}">
                                 <div class="result-question">${escapeHtml(r.question_text || '')}</div>
                                 <div class="result-answer">
                                     <strong>Expected:</strong> ${escapeHtml(r.expected_answer || '-')}<br>
                                     <strong>Actual:</strong> ${escapeHtml(r.actual_answer || '-')}
-                                    ${r.failure_reason ? `<br><strong>Reason:</strong> ${escapeHtml(r.failure_reason)}` : ''}
+                                    ${r.failure_reason ? `<br><strong>Reason:</strong> <span style="color: ${failureColors[r.failure_reason] || '#888'}">${escapeHtml(failureLabels[r.failure_reason] || r.failure_reason)}</span>` : ''}
                                 </div>
                                 <div class="result-meta">
                                     <span>${r.category || 'General'}</span>

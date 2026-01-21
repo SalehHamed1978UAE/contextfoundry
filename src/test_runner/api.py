@@ -957,6 +957,14 @@ def get_test_results(test_id: UUID):
                 'answered_at': row[9].isoformat() if row[9] else None
             })
         
+        # Compute failure breakdown by category
+        # Use 'unknown' for failures without a specific reason
+        failure_breakdown = {}
+        for r in results:
+            if not r['passed']:
+                reason = r['failure_reason'] if r['failure_reason'] else 'unknown'
+                failure_breakdown[reason] = failure_breakdown.get(reason, 0) + 1
+        
         return jsonify({
             'run': {
                 'id': str(run_row[0]),
@@ -977,7 +985,8 @@ def get_test_results(test_id: UUID):
                 'checkpoint': run_row[15],
                 'error_message': run_row[16]
             },
-            'results': results
+            'results': results,
+            'failure_breakdown': failure_breakdown
         })
     finally:
         session.close()
