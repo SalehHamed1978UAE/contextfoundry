@@ -874,7 +874,7 @@ def get_test_history():
                 questions_total, questions_answered, questions_passed, questions_failed,
                 error_message, results_file
             FROM test_runs
-            ORDER BY started_at DESC
+            ORDER BY COALESCE(started_at, created_at) DESC
             LIMIT :limit OFFSET :offset
         """), {'limit': limit, 'offset': offset})
         
