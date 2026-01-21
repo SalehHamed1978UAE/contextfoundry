@@ -763,49 +763,87 @@ def force_clear_state():
 def reset_test_state():
     """Reset all test state for a fresh start.
     
-    This clears:
-    - All running/interrupted tests (marks as failed)
+    This DELETES:
+    - All running/interrupted test run records from the database
     - status.json file
-    - Progress files (optional, based on request param)
+    - Progress files (log files for deleted tests)
     
     Use with caution - this is a destructive operation.
     """
     data = request.get_json() or {}
-    clear_results = data.get('clear_results', False)
+    clear_all_results = data.get('clear_all_results', False)
     
     db = persistence_get_db_session()
+    deleted_ids = []
     try:
-        # Mark all running/interrupted tests as failed
+        # Get IDs and vault_ids of tests to delete (all active/stuck statuses including legacy 'running')
         result = db.execute(text("""
-            UPDATE test_runs 
-            SET status = 'failed', 
-                error_message = 'Reset by user',
-                completed_at = NOW()
-            WHERE status IN ('running', 'interrupted')
-            RETURNING id
+            SELECT id, vault_id FROM test_runs 
+            WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa', 'running', 'interrupted')
         """))
-        db.commit()
-        
         rows = result.fetchall()
-        reset_ids = [str(row[0]) for row in rows]
+        deleted_ids = [str(row[0]) for row in rows]
+        vault_ids = [str(row[1])[:8] if row[1] else None for row in rows]
+        
+        # Delete test results for these tests
+        if deleted_ids:
+            db.execute(text("""
+                DELETE FROM test_results 
+                WHERE test_run_id = ANY(:ids)
+            """), {'ids': deleted_ids})
+            
+            # Delete the test runs themselves
+            db.execute(text("""
+                DELETE FROM test_runs 
+                WHERE status IN ('creating_vault', 'uploading', 'extracting', 'running_qa', 'running', 'interrupted')
+            """))
+        
+        db.commit()
     finally:
         db.close()
     
     # Delete status file
     clear_status_file()
     
-    # Optionally clear progress files
+    # Delete progress/log files for deleted tests
     files_deleted = 0
-    if clear_results:
-        results_dir = Path('test_results')
-        if results_dir.exists():
+    results_dir = Path('test_results')
+    if results_dir.exists():
+        for i, test_id in enumerate(deleted_ids):
+            vault_prefix = vault_ids[i] if i < len(vault_ids) and vault_ids[i] else None
+            
+            # Delete log files by test_run_id
+            for f in results_dir.glob(f'test_run_{test_id}*'):
+                try:
+                    f.unlink()
+                    files_deleted += 1
+                except Exception:
+                    pass
+            
+            # Delete vault-based progress/results files (e.g., vault_48abba58_*.jsonl)
+            if vault_prefix:
+                for f in results_dir.glob(f'vault_{vault_prefix}*'):
+                    try:
+                        f.unlink()
+                        files_deleted += 1
+                    except Exception:
+                        pass
+                for f in results_dir.glob(f'*_{vault_prefix}_*'):
+                    try:
+                        f.unlink()
+                        files_deleted += 1
+                    except Exception:
+                        pass
+        
+        # If clear_all_results, delete all progress files
+        if clear_all_results:
             for f in results_dir.glob('*.jsonl'):
                 try:
                     f.unlink()
                     files_deleted += 1
                 except Exception:
                     pass
-            for f in results_dir.glob('*_checkpoint.json'):
+            for f in results_dir.glob('*.log'):
                 try:
                     f.unlink()
                     files_deleted += 1
@@ -813,8 +851,8 @@ def reset_test_state():
                     pass
     
     return jsonify({
-        'message': 'Test state reset complete',
-        'reset_test_ids': reset_ids,
+        'message': f'Reset complete: {len(deleted_ids)} test(s) deleted',
+        'deleted_test_ids': deleted_ids,
         'files_deleted': files_deleted,
         'status': 'idle'
     })
@@ -852,8 +890,8 @@ def get_test_history():
                 'corpus_folder': row[6],
                 'status': row[7],
                 'stage': row[8],
-                'started_at': row[9].isoformat() if row[9] else None,
-                'completed_at': row[10].isoformat() if row[10] else None,
+                'started_at': format_timestamp(row[9]),
+                'completed_at': format_timestamp(row[10]),
                 'questions_total': row[11],
                 'questions_answered': row[12],
                 'questions_passed': row[13],

@@ -239,7 +239,7 @@
         
         .status-value.idle { color: var(--text-muted); }
         .status-value.running { color: var(--accent-primary); }
-        .status-value.finished { color: var(--accent-success); }
+        .status-value.finished, .status-value.complete { color: var(--accent-success); }
         .status-value.failed { color: var(--accent-error); }
         .status-value.stopped { color: var(--accent-warning); }
         
@@ -1525,8 +1525,24 @@
             const currentQuestionBox = document.getElementById('currentQuestionBox');
             const currentQuestionText = document.getElementById('currentQuestionText');
             
-            const displayStatus = status.status || 'idle';
-            statusValue.textContent = displayStatus.charAt(0).toUpperCase() + displayStatus.slice(1);
+            const rawStatus = status.status || 'idle';
+            // Map DB statuses to UI-friendly values
+            const ACTIVE_STATUSES = ['creating_vault', 'uploading', 'extracting', 'running_qa'];
+            const isRunning = ACTIVE_STATUSES.includes(rawStatus);
+            const displayStatus = isRunning ? 'running' : rawStatus;
+            
+            // Show user-friendly status text
+            const statusTextMap = {
+                'creating_vault': 'Creating Vault',
+                'uploading': 'Uploading',
+                'extracting': 'Extracting',
+                'running_qa': 'Running Q&A',
+                'complete': 'Complete',
+                'failed': 'Failed',
+                'interrupted': 'Interrupted',
+                'idle': 'Idle'
+            };
+            statusValue.textContent = statusTextMap[rawStatus] || rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
             statusValue.className = 'status-value ' + displayStatus;
             
             const vault = vaultsCache.find(v => v.id === status.vault_id);
@@ -1535,7 +1551,8 @@
             const qs = questionSetsCache.find(q => q.id === status.question_set_id);
             qsNameValue.textContent = qs ? qs.name : (status.question_set_id ? 'Selected' : '-');
             
-            startedValue.textContent = status.started_at ? new Date(status.started_at).toLocaleTimeString() : '-';
+            // started_at is already formatted as DD/MM/YYYY HH:MM by the API
+            startedValue.textContent = status.started_at || '-';
             
             updatePipelineStages(status.stages || {});
             
@@ -1605,7 +1622,7 @@
             
             if (status !== currentStatus && status.status !== currentStatus?.status) {
                 addLog(`Status: ${displayStatus}`, displayStatus === 'running' ? 'info' : 
-                       displayStatus === 'finished' ? 'success' : 
+                       (displayStatus === 'finished' || displayStatus === 'complete') ? 'success' : 
                        displayStatus === 'failed' || displayStatus === 'interrupted' ? 'error' : '');
             }
             
