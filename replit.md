@@ -46,6 +46,12 @@ Architectural features include:
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates` in `src/context_foundry/validation/data_gates.py`).
 
 ## Recent Changes
+- **Jan 21, 2026**: **Evaluator Accuracy Improvements** - Improved test evaluation from 77.9% (183/235) baseline to 82.1% (193/235):
+  - Answer normalization: 8 boilerplate patterns + 11 company suffix removals
+  - Number/currency normalization: Conservative <50 char limit with word multipliers (million/billion/thousand)
+  - Fixed NO_DATA misclassification: Check moved after matching attempts, with number content safeguard
+  - Failure categories now correctly distinguished: NO_DATA (25), no_match_numeric (11), name_variant (5), timeout (1)
+  - Evaluation logging: Normalized values and failure reasons stored in JSON results
 - **Jan 20, 2026**: **State Machine Implementation** - Implemented formal state machine per specification:
   - `TestRunStatus` enum with 7 states: CREATING_VAULT, UPLOADING, EXTRACTING, RUNNING_QA, COMPLETE, FAILED, INTERRUPTED
   - Valid transitions table enforced by `transition_to()` function (the ONLY way to change status)
