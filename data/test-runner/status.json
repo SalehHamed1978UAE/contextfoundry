@@ -2,11 +2,11 @@
   "status": "running",
   "vault_id": "d1eb12f7-c5b3-4dfe-b87e-8f9d912a6fbb",
   "question_set_id": "af3147da-799b-4903-b8dc-df225a6b663f",
-  "test_run_id": "89025dea-d2e1-4fbd-afac-b85febdb6165",
+  "test_run_id": "3b417861-7cee-42c8-a87a-c1b9fcd9af47",
   "mode": "auto",
   "corpus_folder": null,
-  "started_at": "2026-01-21T20:13:42.984196",
-  "pid": 37946,
+  "started_at": "2026-01-22T04:05:19.879037",
+  "pid": 44399,
   "stages": {
     "delete": {
       "status": "skipped"
@@ -18,19 +18,23 @@
       "status": "skipped"
     },
     "extract": {
-      "status": "running"
+      "status": "complete",
+      "entities": 2384
     },
     "qa": {
-      "status": "pending"
+      "status": "running"
     }
   },
   "qa_progress": {
-    "total": 0,
-    "answered": 0,
-    "passed": 0,
+    "total": 400,
+    "answered": 100,
+    "passed": 100,
     "failed": 0,
-    "accuracy_percent": 0
+    "accuracy_percent": 100.0
   },
-  "current_question": null,
-  "updated_at": "2026-01-21T20:13:43.650565"
+  "current_question": {
+    "id": 100,
+    "text": "Which facility is responsible for energy production?"
+  },
+  "updated_at": "2026-01-22T04:18:39.801224"
 }
