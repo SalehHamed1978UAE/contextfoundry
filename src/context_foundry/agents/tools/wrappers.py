@@ -39,6 +39,26 @@ def extract_person_names(text: str) -> List[str]:
         'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
     }
     
+    # Words that indicate NON-person entities (projects, systems, platforms, etc.)
+    # These should never be part of a person's name
+    excluded_non_person_words = {
+        # Technical/System terms
+        'system', 'systems', 'platform', 'platforms', 'program', 'programs',
+        'project', 'projects', 'network', 'networks', 'hub', 'hubs',
+        'lab', 'labs', 'laboratory', 'center', 'centres', 'facility', 'facilities',
+        'initiative', 'initiatives', 'service', 'services', 'software', 'solution', 'solutions',
+        'technology', 'technologies', 'infrastructure', 'database', 'api', 'framework',
+        # Business terms
+        'corporation', 'corp', 'company', 'companies', 'enterprise', 'enterprises',
+        'group', 'groups', 'division', 'divisions', 'unit', 'units', 'department', 'departments',
+        'logistics', 'aerospace', 'energy', 'manufacturing', 'dynamics', 'industries',
+        # Location/Facility terms
+        'campus', 'plant', 'office', 'headquarters', 'branch', 'site',
+        # Product/Project names
+        'falcon', 'helios', 'nexgen', 'autonav', 'urbanmesh', 'skylink', 'quantum',
+        'uav', 'iot', 'satellite', 'battery', 'storage', 'chain', 'supply',
+    }
+    
     # Pattern 1: Possessive form - "Name's" or "Names'"
     # Matches: "Jennifer Lee's", "John Smith's", "Sarah O'Brien's"
     possessive_pattern = r"\b([A-Z][a-z]+(?:\s+(?:[A-Z][a-z]+|O'[A-Z][a-z]+))+)(?:'s?|')\b"
@@ -92,13 +112,26 @@ def extract_person_names(text: str) -> List[str]:
                 if clean_name not in names:
                     names.append(clean_name)
     
-    # Clean up: remove any possessive suffixes that might have slipped through
+    # Helper function to check if a name contains non-person words
+    def is_likely_person_name(name: str) -> bool:
+        """Check if name is likely a person name (not a project/system/etc.)."""
+        words = name.lower().split()
+        # Reject if ANY word is in the non-person blocklist
+        for word in words:
+            if word in excluded_non_person_words:
+                logger.debug(f"[NAME_EXTRACT] Rejected '{name}' - contains non-person word: '{word}'")
+                return False
+        return True
+    
+    # Clean up: remove any possessive suffixes and filter non-person names
     cleaned_names = []
     for name in names:
         # Remove trailing 's or ' 
         clean = re.sub(r"['']s?$", "", name).strip()
         if clean and clean not in cleaned_names:
-            cleaned_names.append(clean)
+            # Filter out non-person entities (projects, systems, platforms, etc.)
+            if is_likely_person_name(clean):
+                cleaned_names.append(clean)
     
     logger.debug(f"[NAME_EXTRACT] From '{text}' extracted names: {cleaned_names}")
     return cleaned_names

@@ -337,9 +337,9 @@ class RetrievalRouter:
         
         for person_name in person_names:
             try:
-                # Find person entity
+                # Find person entity - first try TRUSTED, then ARCHIVED as fallback
                 entity_sql = text("""
-                    SELECT id, name, entity_type, confidence, properties
+                    SELECT id, name, entity_type, confidence, properties, lifecycle_state
                     FROM entities
                     WHERE tenant_id = :tenant_id
                       AND name ILIKE :name_pattern
@@ -351,6 +351,23 @@ class RetrievalRouter:
                     "tenant_id": self.tenant_id,
                     "name_pattern": f"%{person_name}%"
                 }).fetchall()
+                
+                # Fallback: If no TRUSTED entities found, try ARCHIVED entities
+                if not entity_results:
+                    logger.info(f"[ROUTER] No TRUSTED entity for '{person_name}', trying ARCHIVED fallback")
+                    entity_sql_archived = text("""
+                        SELECT id, name, entity_type, confidence, properties, lifecycle_state
+                        FROM entities
+                        WHERE tenant_id = :tenant_id
+                          AND name ILIKE :name_pattern
+                          AND lifecycle_state = 'ARCHIVED'
+                        ORDER BY confidence DESC
+                        LIMIT 3
+                    """)
+                    entity_results = self.session.execute(entity_sql_archived, {
+                        "tenant_id": self.tenant_id,
+                        "name_pattern": f"%{person_name}%"
+                    }).fetchall()
                 
                 for entity in entity_results:
                     entity_id = str(entity.id)
@@ -694,6 +711,7 @@ class RetrievalRouter:
         # Early extraction: detect person names for graph-only entity fallback
         # This handles entities from spreadsheets that have no document chunks
         detected_person_names = extract_person_names(query)
+        logger.info(f"[ROUTER] DEBUG: detected_person_names={detected_person_names}, query_type={query_type}")
         if detected_person_names:
             logger.info(f"[ROUTER] Detected person names in query: {detected_person_names}")
         
@@ -716,18 +734,22 @@ class RetrievalRouter:
             logger.info(f"[ROUTER] Person query detected - prioritizing KG person-role lookup for: {detected_person_names}")
             person_entities, role_relationships = self._lookup_person_role(detected_person_names)
             
+            # Always fetch document chunks for person queries (fallback when KG lookup fails)
+            chunks = self._search_documents(query, classification, role_resolution, limit)
+            result.chunks = chunks
+            
             if person_entities or role_relationships:
                 result.entities = person_entities
                 result.relationships = role_relationships
-                logger.info(f"[ROUTER] Person-role KG lookup: {len(person_entities)} entities, {len(role_relationships)} relationships")
-                
-                # Also fetch document chunks for additional context
-                chunks = self._search_documents(query, classification, role_resolution, limit)
-                result.chunks = chunks
                 result.strategy_used = "PERSON_KG_FIRST"
-                
-                logger.info(f"[ROUTER] Person query complete: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
-                return result
+                logger.info(f"[ROUTER] Person-role KG lookup: {len(person_entities)} entities, {len(role_relationships)} relationships")
+            else:
+                # Entity not found in KG (may be ARCHIVED) - fallback to document-based answer
+                result.strategy_used = "PERSON_DOCS_FALLBACK"
+                logger.info(f"[ROUTER] Person entity not found in KG for {detected_person_names} - using document fallback with {len(chunks)} chunks")
+            
+            logger.info(f"[ROUTER] Person query complete: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
+            return result
         
         # Handle role-title queries (e.g., "Who is the CEO?") where no person name detected
         # but role_resolution succeeded

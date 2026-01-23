@@ -1,0 +1,23 @@
+look at this: what is Sarah Chen's role?
+Based on the retrieved information, Sarah Chen holds the role of "" across multiple documents. This indicates that she is responsible for overseeing and managing these documents, which include customer-related documents, engineering documents, compliance documents, and quality control procedures. However, the specific nature of her overall role or title beyond being a is not provided in the information retrieved.
+
+85% confidence
+Based on: customers_doc_018.md, quality_control_procedures.md, compliance_doc_014.md +2 more
+
+Problem: The role field is empty:                                                                      
+  - "Sarah Chen holds the role of """                                                                    
+  - "beyond being a [blank] is not provided"                                                             
+                                                                                                         
+  The logs showed:                                                                                       
+  Sarah Chen --[HOLDS_POSITION]--> Chief Executive Officer                                               
+                                                                                                         
+  But the synthesis received an empty role. Something is wrong between:                                  
+  1. Finding the relationship (working - logs show CEO)                                                  
+  2. Passing it to synthesis (broken - empty string)                                                     
+                                                                                                         
+  Ask Replit to check:                                                                                   
+  1. What does _lookup_person_role() actually return for Sarah Chen?                                     
+  2. Is the role being passed to the synthesis context?                                                  
+  3. Why is "Chief Executive Officer" in the logs but empty in the answer?                               
+                                                                                                         
+  The data exists but isn't making it to the final answer.  

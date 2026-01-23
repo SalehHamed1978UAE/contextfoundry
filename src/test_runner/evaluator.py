@@ -320,7 +320,8 @@ Reply YES or NO only."""
         Returns (passed, match_type).
         Also populates self.last_evaluation_details with detailed info.
         """
-        logger.info(f"[EVAL] evaluate() called: expected='{expected[:50]}...' actual='{actual[:50] if actual else ''}...'")
+        import sys
+        print(f"[EVAL] evaluate() called: expected='{expected[:50]}...' actual='{actual[:50] if actual else ''}...'", flush=True)
         # Initialize evaluation details for logging
         self.last_evaluation_details = {
             'expected_raw': expected,
@@ -368,7 +369,7 @@ Reply YES or NO only."""
         # Exact/substring match (after normalization)
         if expected_lower in actual_lower:
             self.last_evaluation_details['match_type'] = 'exact_match'
-            logger.info(f"[EVAL] Early match: exact_match (skipping semantic check)")
+            print(f"[EVAL] Early match: exact_match (skipping semantic check)", flush=True)
             return True, "exact_match"
         
         # Key component matching (handles phrasing variations)
@@ -467,7 +468,7 @@ Reply YES or NO only."""
             return False, "no_data"
         
         # Try LLM semantic equivalence as last resort
-        logger.info(f"[SEMANTIC] ENTRY: Calling _check_semantic_equivalence for query='{query[:50]}...'")
+        print(f"[SEMANTIC] ENTRY: Calling _check_semantic_equivalence for query='{query[:50]}...'", flush=True)
         if self._check_semantic_equivalence(expected, actual, query):
             self.last_evaluation_details['match_type'] = 'semantic_match'
             return True, "semantic_match"

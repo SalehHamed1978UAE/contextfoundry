@@ -192,6 +192,11 @@ class ToolAgent:
             logger.info(f"[AGENT] Direct answer: role resolved + {num_chunks} chunks")
             return True
         
+        # PERSON_DOCS_FALLBACK: When KG entity lookup fails but documents have relevant info
+        if pipeline_result.strategy_used == "PERSON_DOCS_FALLBACK" and num_chunks >= 3:
+            logger.info(f"[AGENT] Direct answer: person docs fallback with {num_chunks} chunks")
+            return True
+        
         if classification.query_type == "RELATIONSHIP" and num_relationships >= 1:
             logger.info(f"[AGENT] Direct answer: relationship query + {num_relationships} relationships found")
             return True
