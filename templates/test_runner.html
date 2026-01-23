@@ -1092,6 +1092,21 @@
                         </svg>
                         Test History
                     </h2>
+                    <div class="history-filters" style="display: flex; gap: 12px; margin-bottom: 12px; align-items: center;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--muted); text-transform: uppercase;">Filter by Vault</label>
+                            <select id="historyVaultFilter" class="form-select" style="min-width: 180px; padding: 6px 10px; font-size: 13px;">
+                                <option value="">All Vaults</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 11px; color: var(--muted); text-transform: uppercase;">Filter by Question Set</label>
+                            <select id="historyQsFilter" class="form-select" style="min-width: 180px; padding: 6px 10px; font-size: 13px;">
+                                <option value="">All Question Sets</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-sm btn-ghost" onclick="clearHistoryFilters()" style="margin-top: 18px;">Clear Filters</button>
+                    </div>
                     <div id="historyContainer">
                         <table class="history-table">
                             <thead>
@@ -1298,74 +1313,117 @@
             }
         }
         
-        async function fetchHistory() {
-            try {
-                const response = await fetch('/api/test-runner/history?limit=20');
-                const data = await response.json();
-                const tbody = document.getElementById('historyBody');
+        let historyCache = [];
+        
+        function populateHistoryFilters() {
+            const vaultFilter = document.getElementById('historyVaultFilter');
+            const qsFilter = document.getElementById('historyQsFilter');
+            
+            const vaults = [...new Set(historyCache.map(r => r.vault_name).filter(Boolean))];
+            const questionSets = [...new Set(historyCache.map(r => r.question_set_name).filter(Boolean))];
+            
+            const currentVault = vaultFilter.value;
+            const currentQs = qsFilter.value;
+            
+            vaultFilter.innerHTML = '<option value="">All Vaults</option>' + 
+                vaults.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+            qsFilter.innerHTML = '<option value="">All Question Sets</option>' + 
+                questionSets.map(q => `<option value="${escapeHtml(q)}">${escapeHtml(q)}</option>`).join('');
+            
+            vaultFilter.value = currentVault;
+            qsFilter.value = currentQs;
+        }
+        
+        function applyHistoryFilters() {
+            const vaultFilter = document.getElementById('historyVaultFilter').value;
+            const qsFilter = document.getElementById('historyQsFilter').value;
+            
+            let filtered = historyCache;
+            if (vaultFilter) {
+                filtered = filtered.filter(r => r.vault_name === vaultFilter);
+            }
+            if (qsFilter) {
+                filtered = filtered.filter(r => r.question_set_name === qsFilter);
+            }
+            
+            renderHistory(filtered);
+        }
+        
+        function clearHistoryFilters() {
+            document.getElementById('historyVaultFilter').value = '';
+            document.getElementById('historyQsFilter').value = '';
+            renderHistory(historyCache);
+        }
+        
+        function renderHistory(runs) {
+            const tbody = document.getElementById('historyBody');
+            
+            if (!runs || runs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No test runs match filters</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = runs.map(run => {
+                const progress = `${run.questions_answered || 0} / ${run.questions_total || 0}`;
+                const accuracy = run.questions_answered > 0 
+                    ? ((run.questions_passed / run.questions_answered) * 100).toFixed(1) + '%'
+                    : '-';
                 
-                if (!data.runs || data.runs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No test runs yet</td></tr>';
-                    return;
+                let actionButtons = '';
+                const status = (run.status || '').toLowerCase();
+                const resultsFile = run.results_file || '';
+                
+                if (status === 'running') {
+                    actionButtons = `<button class="btn btn-sm btn-ghost" onclick="scrollToCurrentTest()">View Progress</button>`;
+                } else if (status === 'completed' || status === 'complete' || status === 'finished') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
+                        <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
+                    `;
+                } else if (status === 'interrupted' || status === 'stopped') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}', '${run.id}')">Resume</button>
+                        <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
+                        <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
+                    `;
+                } else if (status === 'failed') {
+                    actionButtons = `
+                        <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Logs</button>
+                        <button class="btn btn-sm btn-primary" onclick="retryTest('${run.vault_id}', '${run.question_set_id}', '${run.corpus_folder || ''}')">Retry</button>
+                    `;
+                } else {
+                    actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
                 }
                 
-                tbody.innerHTML = data.runs.map(run => {
-                    const progress = `${run.questions_answered || 0} / ${run.questions_total || 0}`;
-                    const accuracy = run.questions_answered > 0 
-                        ? ((run.questions_passed / run.questions_answered) * 100).toFixed(1) + '%'
-                        : '-';
-                    
-                    let actionButtons = '';
-                    const status = (run.status || '').toLowerCase();
-                    const resultsFile = run.results_file || '';
-                    
-                    if (status === 'running') {
-                        actionButtons = `<button class="btn btn-sm btn-ghost" onclick="scrollToCurrentTest()">View Progress</button>`;
-                    } else if (status === 'completed' || status === 'complete' || status === 'finished') {
-                        actionButtons = `
-                            <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
-                            <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
-                        `;
-                    } else if (status === 'interrupted' || status === 'stopped') {
-                        actionButtons = `
-                            <button class="btn btn-sm btn-primary" onclick="resumeTest('${run.vault_id}', '${run.question_set_id}', '${run.id}')">Resume</button>
-                            <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Results</button>
-                            <button class="btn btn-sm btn-ghost" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}')">Download</button>
-                        `;
-                    } else if (status === 'failed') {
-                        actionButtons = `
-                            <button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View Logs</button>
-                            <button class="btn btn-sm btn-primary" onclick="retryTest('${run.vault_id}', '${run.question_set_id}', '${run.corpus_folder || ''}')">Retry</button>
-                        `;
-                    } else {
-                        actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
-                    }
-                    
-                    const fileName = resultsFile ? resultsFile.split('/').pop() : '';
-                    
-                    return `
-                        <tr data-id="${run.id}">
-                            <td>${escapeHtml(run.vault_name || '-')}</td>
-                            <td>${escapeHtml(run.question_set_name || '-')}</td>
-                            <td><span class="status-badge ${status}">${run.status}</span></td>
-                            <td>
-                                ${progress}
-                                <span style="color: var(--accent-success); margin-left: 8px;">✓${run.questions_passed || 0}</span>
-                                <span style="color: var(--accent-error); margin-left: 4px;">✗${run.questions_failed || 0}</span>
-                            </td>
-                            <td class="accuracy-cell">${accuracy}</td>
-                            <td>${run.started_at || '-'}</td>
-                            <td class="output-file-cell" title="${escapeHtml(fileName)}">
-                                ${fileName ? `<a href="/api/test-runner/results-files/${encodeURIComponent(fileName)}" target="_blank">${escapeHtml(fileName)}</a>` : '-'}
-                            </td>
-                            <td>
-                                <div class="action-btns">
-                                    ${actionButtons}
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                const startedAt = run.started_at ? new Date(run.started_at).toLocaleString() : '-';
+                const outputFile = resultsFile ? resultsFile.split('/').pop() : '-';
+                const progressHtml = run.questions_answered > 0 
+                    ? `${progress} <span style="color: var(--success);">&check;${run.questions_passed || 0}</span> <span style="color: var(--error);">&times;${(run.questions_answered || 0) - (run.questions_passed || 0)}</span>`
+                    : progress;
+                
+                return `
+                    <tr>
+                        <td>${escapeHtml(run.vault_name || '-')}</td>
+                        <td>${escapeHtml(run.question_set_name || '-')}</td>
+                        <td><span class="status-badge status-${status}">${status.toUpperCase()}</span></td>
+                        <td>${progressHtml}</td>
+                        <td>${accuracy}</td>
+                        <td>${startedAt}</td>
+                        <td class="output-file-cell">${outputFile !== '-' ? `<a href="#" onclick="downloadResultsFile('${run.vault_id}', '${escapeHtml(run.vault_name || '')}'); return false;">${outputFile.substring(0, 15)}...</a>` : '-'}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/api/test-runner/history?limit=50');
+                const data = await response.json();
+                
+                historyCache = data.runs || [];
+                populateHistoryFilters();
+                applyHistoryFilters();
             } catch (error) {
                 console.error('Failed to fetch history:', error);
             }
@@ -2172,6 +2230,9 @@
         document.getElementById('startBtn').addEventListener('click', startTest);
         document.getElementById('stopBtn').addEventListener('click', stopTest);
         document.getElementById('vaultSelect').addEventListener('change', onVaultChange);
+        
+        document.getElementById('historyVaultFilter').addEventListener('change', applyHistoryFilters);
+        document.getElementById('historyQsFilter').addEventListener('change', applyHistoryFilters);
         
         document.getElementById('uploadTriggerBtn').addEventListener('click', function() {
             document.getElementById('questionFile').click();
