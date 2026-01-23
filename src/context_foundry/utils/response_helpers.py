@@ -250,7 +250,8 @@ def build_response(
     gate_blocked: bool = False,
     gate_name: Optional[str] = None,
     precedence_applied: bool = False,
-    precedence_confidence: Optional[float] = None
+    precedence_confidence: Optional[float] = None,
+    query_type: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Build consistent response dictionary for both CLI and Web.
@@ -277,6 +278,21 @@ def build_response(
     if not final_sources and evidence:
         final_sources = list(set(evidence.chunk_sources))[:5]
     
+    # Extract query_type from pipeline_result if not provided explicitly
+    final_query_type = query_type
+    if not final_query_type and pipeline_result:
+        classification = None
+        if hasattr(pipeline_result, 'classification') and pipeline_result.classification:
+            classification = pipeline_result.classification
+        elif isinstance(pipeline_result, dict) and 'classification' in pipeline_result:
+            classification = pipeline_result['classification']
+        
+        if classification:
+            if hasattr(classification, 'query_type'):
+                final_query_type = classification.query_type
+            elif isinstance(classification, dict):
+                final_query_type = classification.get('query_type')
+    
     response = {
         "answer": answer,
         "confidence": confidence,
@@ -289,7 +305,8 @@ def build_response(
         "gate_blocked": gate_blocked,
         "gate_name": gate_name,
         "precedence_applied": precedence_applied,
-        "precedence_confidence": precedence_confidence
+        "precedence_confidence": precedence_confidence,
+        "query_type": final_query_type or "unknown"
     }
     
     if qa_verdict:

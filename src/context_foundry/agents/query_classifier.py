@@ -65,6 +65,31 @@ class QueryClassifier:
     def __init__(self, llm_model: str = "gpt-4o-mini"):
         self.llm_client = OpenAI()
         self.llm_model = llm_model
+        # Pre-compile regex patterns for person-role and org-unit queries
+        # These patterns check for proper names (capitalized words) to avoid false positives
+        import re
+        
+        # Person-role patterns - looking for proper names (First Last) with role keywords
+        self._person_role_re = [
+            # "What is [Name]'s role/position/title/job?"
+            re.compile(r"what is ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)'s (?:role|position|title|job)", re.IGNORECASE),
+            # "[Name]'s role/position/title/job/responsibilities"
+            re.compile(r"([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)'s (?:role|position|title|job|responsibilities)", re.IGNORECASE),
+            # "What does [Name] do?"
+            re.compile(r"what does ([A-Z][a-z]+\s+[A-Z][a-z]+) do\b", re.IGNORECASE),
+            # "Who is [Name]?" - but NOT "Who is the CEO?"
+            re.compile(r"who is ([A-Z][a-z]+\s+[A-Z][a-z]+)\??$", re.IGNORECASE),
+            # "What is/are the responsibilities of [Name]?"
+            re.compile(r"what (?:are|is) the (?:responsibilities|duties) of ([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)", re.IGNORECASE),
+        ]
+        
+        # Org-unit patterns - business unit/division queries
+        self._org_unit_re = [
+            re.compile(r"what (?:are|is) the (?:four |main |primary )?business units?\b", re.IGNORECASE),
+            re.compile(r"(?:main|primary|key) business (?:units|areas|segments)\b", re.IGNORECASE),
+            re.compile(r"what does (?:Orion|the) [\w\s]+ (?:focus on|specialize in)\??$", re.IGNORECASE),
+            re.compile(r"tell me about (?:the )?[\w\s]+ (?:division|business unit|department)\b", re.IGNORECASE),
+        ]
     
     def _quick_role_check(self, query: str) -> tuple:
         """Fast regex-free check for role references."""
@@ -81,6 +106,51 @@ class QueryClassifier:
             if indicator in query_lower:
                 return True
         return False
+    
+    def _is_proper_name(self, text: str) -> bool:
+        """Check if text looks like a proper name (First Last format with capitalization)."""
+        if not text:
+            return False
+        # Proper names have capitalized words (Sarah Chen, Evelyn Reed)
+        # Exclude patterns like "the CEO", "the company", etc.
+        words = text.strip().split()
+        if len(words) < 2:
+            return False
+        # Each word should start with uppercase and rest lowercase (typical name format)
+        for word in words:
+            if not word[0].isupper():  # First letter must be uppercase
+                return False
+            if len(word) > 1 and word[1:].lower() != word[1:]:  # Rest should be lowercase
+                return False
+        return True
+    
+    def _should_use_graph_first(self, query: str) -> tuple:
+        """
+        Check if query should prioritize Knowledge Graph over document search.
+        
+        Returns: (should_use_kg, reason)
+        
+        These patterns indicate the answer likely lives in the KG:
+        - Person-role queries (What is Sarah Chen's role?)
+        - Business unit definitions (What are the business units?)
+        - Organizational structure queries
+        """
+        # Check person-role patterns and validate that matched name is a proper name
+        for pattern in self._person_role_re:
+            match = pattern.search(query)
+            if match:
+                # Patterns capture the name in group 1 - validate it's a proper name
+                name = match.group(1) if match.lastindex else None
+                if name and self._is_proper_name(name):
+                    logger.info(f"[CLASSIFIER] Person-role pattern detected for '{name}': prioritizing KG")
+                    return True, "person_role_query"
+        
+        for pattern in self._org_unit_re:
+            if pattern.search(query):
+                logger.info(f"[CLASSIFIER] Org-unit pattern detected: prioritizing KG")
+                return True, "org_unit_query"
+        
+        return False, None
     
     def classify(self, query: str) -> QueryClassification:
         """Classify a query and determine retrieval strategy."""
@@ -160,6 +230,13 @@ RESPOND WITH JSON ONLY:
             strategy = result.get("retrieval_strategy", "HYBRID")
             if final_expects_list and strategy == "GRAPH_ONLY":
                 logger.info(f"[CLASSIFIER] Overriding GRAPH_ONLY → HYBRID for list query (KG coverage uncertain)")
+                strategy = "HYBRID"
+            
+            # Override: Person-role and org-unit queries should use HYBRID (KG-first with doc fallback)
+            # These patterns indicate data likely lives in KG, but use HYBRID to allow doc fallback
+            should_graph_first, graph_reason = self._should_use_graph_first(query)
+            if should_graph_first and strategy == "DOCS_ONLY":
+                logger.info(f"[CLASSIFIER] Overriding DOCS_ONLY → HYBRID for {graph_reason} (KG-first with doc fallback)")
                 strategy = "HYBRID"
             
             classification = QueryClassification(
