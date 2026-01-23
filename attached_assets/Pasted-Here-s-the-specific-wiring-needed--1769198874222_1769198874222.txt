@@ -1,0 +1,124 @@
+Here's the specific wiring needed:                                                                     
+                                                                                                         
+  Current Flow (Broken)                                                                                  
+                                                                                                         
+  ToolAgent.query()                                                                                      
+      ↓                                                                                                  
+  QueryPipeline.process()  ← Simple pattern-based classification                                         
+      ↓                                                                                                  
+  RetrievalRouter.route()  ← Searches KG + docs in parallel, returns everything                          
+      ↓                                                                                                  
+  _synthesize_direct_answer()  ← LLM has no idea what was actually asked                                 
+                                                                                                         
+  Target Flow (RLM-Style)                                                                                
+                                                                                                         
+  ToolAgent.query()                                                                                      
+      ↓                                                                                                  
+  QueryInterpreter.interpret()  ← LLM understands: entity="Sarah Chen", intent="role"                    
+      ↓                                                                                                  
+  Route based on intent:                                                                                 
+      ├── relationship/entity → DirectedGraphRetriever.execute()  ← KG traversal                         
+      ├── attribute/property → KG property lookup                                                        
+      └── content/policy → Document search (only when needed)                                            
+      ↓                                                                                                  
+  _synthesize_direct_answer(intent=intent)  ← LLM knows to answer with "role", not biography             
+      ↓                                                                                                  
+  QAVerifier.verify()  ← Confirms answer matches intent                                                  
+                                                                                                         
+  Specific Code Changes                                                                                  
+                                                                                                         
+  1. In ToolAgent.__init__() - Add the components                                                        
+                                                                                                         
+  from .query_interpreter import QueryInterpreter                                                        
+  from .directed_retriever import DirectedGraphRetriever                                                 
+                                                                                                         
+  self.query_interpreter = QueryInterpreter(model=model, session=session, tenant_id=tenant_id)           
+  self.directed_retriever = DirectedGraphRetriever(session, tenant_id)                                   
+                                                                                                         
+  2. In ToolAgent.query() - Use QueryInterpreter FIRST                                                   
+                                                                                                         
+  def query(self, question: str, ...):                                                                   
+      # STEP 1: LLM interprets what user wants                                                           
+      intent = self.query_interpreter.interpret(question)                                                
+      logger.info(f"[AGENT] Intent: entity='{intent.entity}', type='{intent.query_type}',                
+  target='{intent.target_type}'")                                                                        
+                                                                                                         
+      # STEP 2: Route based on intent                                                                    
+      if intent.query_type == "graph_traversal":                                                         
+          # Use KG - don't touch documents                                                               
+          kg_result = self.directed_retriever.execute(intent)                                            
+          if kg_result.has_data:                                                                         
+              return self._synthesize_from_kg(question, kg_result, intent)                               
+                                                                                                         
+      elif intent.query_type == "property_lookup":                                                       
+          # Look up entity properties in KG                                                              
+          entity_props = self._lookup_entity_properties(intent.entity)                                   
+          if entity_props:                                                                               
+              return self._synthesize_from_properties(question, entity_props, intent)                    
+                                                                                                         
+      # STEP 3: Fall back to document search only if KG doesn't have answer                              
+      pipeline_result = self.query_pipeline.process(question, vault_context=vault_context)               
+      return self._synthesize_direct_answer(question, pipeline_result, intent)                           
+                                                                                                         
+  3. In _synthesize_direct_answer() - Pass intent to LLM                                                 
+                                                                                                         
+  def _synthesize_direct_answer(self, question, result, intent=None):                                    
+      # Build context from result...                                                                     
+                                                                                                         
+      intent_guidance = ""                                                                               
+      if intent:                                                                                         
+          if intent.target_type:                                                                         
+              intent_guidance = f"\nUser is asking for: {intent.target_type}"                            
+          if intent.query_type == "property_lookup":                                                     
+              intent_guidance += "\nProvide the specific attribute value, not a description."            
+          intent_guidance += f"\nQuery interpretation: {intent.reasoning}"                               
+                                                                                                         
+      prompt = f"""Question: {question}                                                                  
+  {intent_guidance}                                                                                      
+                                                                                                         
+  Retrieved data:                                                                                        
+  {context}                                                                                              
+                                                                                                         
+  Answer the specific question asked. Match your answer type to what was asked."""                       
+                                                                                                         
+  4. Add KG-first synthesis method                                                                       
+                                                                                                         
+  def _synthesize_from_kg(self, question, kg_result, intent):                                            
+      """Synthesize answer directly from KG data without document search."""                             
+                                                                                                         
+      # Format KG data                                                                                   
+      context = f"Entity: {kg_result.entity_name}\n"                                                     
+      if kg_result.properties:                                                                           
+          context += f"Properties: {kg_result.properties}\n"                                             
+      for rel in kg_result.relationships:                                                                
+          context += f"- {rel.source} {rel.type} {rel.target}\n"                                         
+                                                                                                         
+      prompt = f"""Question: {question}                                                                  
+  Query interpretation: {intent.reasoning}                                                               
+                                                                                                         
+  Knowledge Graph data:                                                                                  
+  {context}                                                                                              
+                                                                                                         
+  Answer based on the structured data above."""                                                          
+                                                                                                         
+      return self._call_llm(prompt)                                                                      
+                                                                                                         
+  Summary: 4 Changes                                                                                     
+  Change: Add QueryInterpreter + DirectedGraphRetriever                                                  
+  File: tool_agent.py __init__                                                                           
+  What: Import and initialize                                                                            
+  ────────────────────────────────────────                                                               
+  Change: Use intent-based routing                                                                       
+  File: tool_agent.py query()                                                                            
+  What: KG first, docs as fallback                                                                       
+  ────────────────────────────────────────                                                               
+  Change: Pass intent to synthesis                                                                       
+  File: tool_agent.py _synthesize_direct_answer()                                                        
+  What: LLM knows what to answer                                                                         
+  ────────────────────────────────────────                                                               
+  Change: Add KG-only synthesis                                                                          
+  File: tool_agent.py new method                                                                         
+  What: Skip docs when KG has answer                                                                     
+  This implements the RLM pattern: parse intent → programmatic KG access → synthesize with context of    
+  what was asked.                                                                                        
+                 

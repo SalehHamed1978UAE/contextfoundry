@@ -99,6 +99,11 @@ def build_qa_evidence(
         
         rr_relationships = get_field(retrieval_result, 'relationships') or []
         evidence.relationships.extend(rr_relationships)
+        for rel in rr_relationships:
+            if isinstance(rel, dict):
+                source_doc = rel.get('source_document') or rel.get('source_document_id')
+                if source_doc and source_doc not in evidence.chunk_sources:
+                    evidence.chunk_sources.append(source_doc)
         
         rr_chunks = get_field(retrieval_result, 'chunks') or []
         evidence.chunks.extend(rr_chunks)
@@ -152,9 +157,17 @@ def build_qa_evidence(
                             evidence.entity_names.append(name)
             
             if tool_name in ('get_knowledge_bundle', 'discover_relationships'):
-                evidence.relationships.extend(result.get('relationships', []))
-                evidence.relationships.extend(result.get('incoming', []))
-                evidence.relationships.extend(result.get('outgoing', []))
+                all_rels = (
+                    result.get('relationships', []) +
+                    result.get('incoming', []) +
+                    result.get('outgoing', [])
+                )
+                evidence.relationships.extend(all_rels)
+                for rel in all_rels:
+                    if isinstance(rel, dict):
+                        source_doc = rel.get('source_document') or rel.get('source_document_id')
+                        if source_doc and source_doc not in evidence.chunk_sources:
+                            evidence.chunk_sources.append(source_doc)
     
     return evidence
 

@@ -342,11 +342,13 @@ class ToolExecutor:
                         "properties": props
                     }
                     
-                    # Get ALL outgoing relationships (no limit)
+                    # Get ALL outgoing relationships (no limit), including source document
                     rel_sql = sql_text("""
-                        SELECT r.relationship_type, e2.name as target_name, e2.entity_type as target_type
+                        SELECT r.relationship_type, e2.name as target_name, e2.entity_type as target_type,
+                               COALESCE(d.original_filename, d.name, r.source_document_id::text) as source_document
                         FROM relationships r
                         JOIN entities e2 ON r.target_id = e2.id
+                        LEFT JOIN platform.documents d ON r.source_document_id::text = d.id::text AND d.tenant_id = :tid
                         WHERE r.source_id = :eid AND r.tenant_id = :tid
                         ORDER BY r.relationship_type, e2.name
                     """)
@@ -355,7 +357,8 @@ class ToolExecutor:
                     }).fetchall()
                     
                     relationships = [
-                        {"type": r.relationship_type, "target": r.target_name, "target_type": r.target_type}
+                        {"type": r.relationship_type, "target": r.target_name, "target_type": r.target_type,
+                         "source_document": r.source_document}
                         for r in rel_rows
                     ]
                     
@@ -393,9 +396,11 @@ class ToolExecutor:
                     
                     for row in search_rows:
                         rel_sql = sql_text("""
-                            SELECT r.relationship_type, e2.name as target_name
+                            SELECT r.relationship_type, e2.name as target_name,
+                                   COALESCE(d.original_filename, d.name, r.source_document_id::text) as source_document
                             FROM relationships r
                             JOIN entities e2 ON r.target_id = e2.id
+                            LEFT JOIN platform.documents d ON r.source_document_id::text = d.id::text AND d.tenant_id = :tid
                             WHERE r.source_id = :eid AND r.tenant_id = :tid
                             LIMIT 15
                         """)
@@ -414,7 +419,7 @@ class ToolExecutor:
                         
                         results.append({
                             "entity": {"id": str(row.id), "name": row.name, "type": row.entity_type, "properties": row_props},
-                            "relationships": [{"type": r.relationship_type, "target": r.target_name} for r in rel_rows]
+                            "relationships": [{"type": r.relationship_type, "target": r.target_name, "source_document": r.source_document} for r in rel_rows]
                         })
                 except Exception as search_err:
                     logger.debug(f"[TOOL] Search failed: {search_err}")
