@@ -362,9 +362,10 @@ class VaultManager:
             'gate_name': None
         }
         
-        print(f"    [VM.query] Sending request (timeout={timeout}s)...", flush=True)
+        print(f"    [VM.query] ENTRY: vault={vault_id[:8]}..., q='{question[:40]}...' timeout={timeout}s", flush=True)
         sys.stdout.flush()
         try:
+            print(f"    [VM.query] Sending POST to {self.api}/vault/chat...", flush=True)
             response = self.session.post(
                 f"{self.api}/vault/chat",
                 json={"query": question, "vault_id": vault_id},
@@ -400,7 +401,9 @@ class VaultManager:
                 return ("", "timeout", empty_metadata)
             return ("", "timeout")
         except Exception as e:
+            import traceback
             print(f"    [VM.query] Exception: {e}", flush=True)
+            print(f"    [VM.query] Traceback:\n{traceback.format_exc()}", flush=True)
             sys.stdout.flush()
             if return_metadata:
                 return ("", "error", empty_metadata)
