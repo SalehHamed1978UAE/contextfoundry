@@ -145,12 +145,12 @@ outputType = "console"
 name = "Test: Manus Orion"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python -m src.test_runner.runner --corpus \"Manus Orion\" 2>&1"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m src.test_runner.runner --corpus \"Manus Orion\" --questions-only 2>&1"
 
 [[ports]]
 localPort = 3000
@@ -170,5 +170,6 @@ run = ["gunicorn", "--bind", "0.0.0.0:5000", "--reuse-port", "--workers", "2", "
 BRAIN_INTERNAL_URL = "http://localhost:3000"
 USE_ONTOLOGY_CENTRIC_PIPELINE = "true"
 RLM_ENABLED = "true"
+EXTRACTION_WORKERS = "6"
 
 [userenv.development]

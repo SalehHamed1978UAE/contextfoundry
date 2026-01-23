@@ -25,7 +25,7 @@
     "Manus Orion": {
       "root_path": "test documents/Manus Orion/",
       "questions_file": "orion_verified_120q.json",
-      "current_vault_id": "16cea24e-9084-4f31-984b-8ee8a123bd45",
+      "current_vault_id": "aab0ec76-3b72-43e5-a41f-15e08771bc24",
       "last_run": null,
       "last_accuracy": null
     }
@@ -35,7 +35,9 @@
   "upload_rules": {
     "include_folders": [
       "documents",
-      "excel_data"
+      "excel_data",
+      "customers",
+      "compliance"
     ],
     "valid_extensions": [
       ".pdf",
@@ -52,7 +54,7 @@
     ]
   },
   "extraction": {
-    "timeout_minutes": 30,
+    "timeout_minutes": 120,
     "min_expected_chunks": 50,
     "poll_interval_seconds": 10
   }
