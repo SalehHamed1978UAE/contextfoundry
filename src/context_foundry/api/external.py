@@ -378,7 +378,7 @@ def query_knowledge():
     analysis_type = data.get('analysis_type', 'general')
     context = data.get('context', {})
     
-    use_semantic_agent = request.args.get('semantic_agent', 'false').lower() == 'true'
+    use_semantic_agent = request.args.get('semantic_agent', 'true').lower() == 'true'
     
     if use_semantic_agent:
         return _handle_semantic_agent_query(query_text, context, start_time)

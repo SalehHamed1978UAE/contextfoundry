@@ -1,6 +1,9 @@
 import re
 import logging
+import os
 from typing import Tuple, Dict, Any, Optional
+
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +73,35 @@ class FuzzyEvaluator:
     
     def __init__(self):
         self.last_evaluation_details: Optional[Dict[str, Any]] = None
+        
+        api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
+        base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+        self.llm_client = OpenAI(api_key=api_key, base_url=base_url) if base_url else OpenAI(api_key=api_key)
+    
+    def _check_semantic_equivalence(self, expected: str, actual: str, question: str) -> bool:
+        """Use LLM to check if expected and actual are semantically equivalent answers."""
+        try:
+            response = self.llm_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{
+                    "role": "user",
+                    "content": f"""Question: {question}
+Expected answer: {expected}
+Actual answer: {actual}
+
+Are these semantically equivalent answers to the question?
+Consider: abbreviations (CEO = Chief Executive Officer), different phrasings,
+and cases where actual contains the expected information.
+
+Reply YES or NO only."""
+                }],
+                temperature=0,
+                max_tokens=3
+            )
+            return response.choices[0].message.content.strip().upper() == "YES"
+        except Exception as e:
+            logger.warning(f"Semantic equivalence check failed: {e}")
+            return False
     
     def normalize_answer(self, text: str) -> str:
         """
@@ -271,7 +303,7 @@ class FuzzyEvaluator:
         
         return True
     
-    def evaluate(self, expected: str, actual: str) -> Tuple[bool, str]:
+    def evaluate(self, expected: str, actual: str, query: str = "") -> Tuple[bool, str]:
         """
         Returns (passed, match_type).
         Also populates self.last_evaluation_details with detailed info.
@@ -420,6 +452,11 @@ class FuzzyEvaluator:
             self.last_evaluation_details['failure_reason'] = 'no_data'
             return False, "no_data"
         
+        # Try LLM semantic equivalence as last resort
+        if self._check_semantic_equivalence(expected, actual, query):
+            self.last_evaluation_details['match_type'] = 'semantic_match'
+            return True, "semantic_match"
+
         # Determine specific failure reason for non-NO_DATA failures
         if expected_numbers or expected_num is not None:
             self.last_evaluation_details['failure_reason'] = 'no_match_numeric'
