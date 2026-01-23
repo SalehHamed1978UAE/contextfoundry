@@ -26,15 +26,22 @@ DEFAULT_CONFIG = {
             "current_vault_id": None,
             "last_run": None,
             "last_accuracy": None
+        },
+        "Manus Orion": {
+            "root_path": "test documents/Manus Orion/",
+            "questions_file": "orion_400q.json",
+            "current_vault_id": None,
+            "last_run": None,
+            "last_accuracy": None
         }
     },
     "questions_dir": "test_questions/",
     "results_dir": "test_results/",
     "upload_rules": {
-        "include_folders": ["documents", "excel_data", "compliance", "customers", "financials", "hr", "legal", "operations", "projects", "reports", "spreadsheets"],
+        "include_folders": ["documents", "excel_data", "compliance", "customers", "financials", "hr", "legal", "operations", "projects", "reports", "spreadsheets", "strategy", "engineering", "meeting_notes", "policies", "finances"],
         "include_root_extensions": [".md", ".txt"],
         "valid_extensions": [".pdf", ".docx", ".xlsx", ".xls", ".csv", ".txt", ".md"],
-        "exclude_files": ["README.md", "readme.md", "qa_pairs.md", "question_bank_200.md", "ambiguity_log.md", "consistency_validation.md", "CORPUS_STATS.txt"]
+        "exclude_files": ["README.md", "readme.md", "qa_pairs.md", "question_bank_200.md", "ambiguity_log.md", "consistency_validation.md", "CORPUS_STATS.txt", "qa_master.md", "qa_master.jsonl"]
     },
     "extraction": {
         "timeout_minutes": 20,
