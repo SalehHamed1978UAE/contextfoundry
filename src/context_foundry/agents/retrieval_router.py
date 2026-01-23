@@ -308,6 +308,112 @@ class RetrievalRouter:
         
         return entities
     
+    def _lookup_person_role(
+        self,
+        person_names: List[str]
+    ) -> tuple:
+        """
+        Directly query HOLDS_POSITION relationships for given person names.
+        
+        This is a specialized lookup for person-role queries like "What is Sarah Chen's role?"
+        that bypasses the generic graph search which may fail due to query text matching.
+        
+        Args:
+            person_names: List of person names to lookup roles for
+            
+        Returns:
+            Tuple of (entities, relationships) where relationships contain HOLDS_POSITION data
+        """
+        if not person_names:
+            return [], []
+        
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+        
+        entities = []
+        relationships = []
+        seen_entity_ids = set()
+        
+        for person_name in person_names:
+            try:
+                # Find person entity
+                entity_sql = text("""
+                    SELECT id, name, entity_type, confidence, properties
+                    FROM entities
+                    WHERE tenant_id = :tenant_id
+                      AND name ILIKE :name_pattern
+                      AND lifecycle_state = 'TRUSTED'
+                    ORDER BY confidence DESC
+                    LIMIT 3
+                """)
+                entity_results = self.session.execute(entity_sql, {
+                    "tenant_id": self.tenant_id,
+                    "name_pattern": f"%{person_name}%"
+                }).fetchall()
+                
+                for entity in entity_results:
+                    entity_id = str(entity.id)
+                    if entity_id in seen_entity_ids:
+                        continue
+                    seen_entity_ids.add(entity_id)
+                    
+                    # Add entity to results
+                    props = entity.properties if entity.properties else {}
+                    if isinstance(props, str):
+                        import json
+                        try:
+                            props = json.loads(props)
+                        except:
+                            props = {}
+                    
+                    entities.append({
+                        "id": entity_id,
+                        "name": entity.name,
+                        "type": entity.entity_type,
+                        "confidence": entity.confidence,
+                        "properties": props,
+                        "source": "person_role_lookup"
+                    })
+                    
+                    # Look for HOLDS_POSITION or similar role relationships
+                    rel_sql = text("""
+                        SELECT r.id, r.relationship_type, r.source_id, r.target_id,
+                               r.confidence, r.provenance_text,
+                               se.name as source_name, se.entity_type as source_type,
+                               te.name as target_name, te.entity_type as target_type
+                        FROM relationships r
+                        JOIN entities se ON r.source_id = se.id
+                        JOIN entities te ON r.target_id = te.id
+                        WHERE r.tenant_id = :tenant_id
+                          AND r.source_id = :entity_id
+                          AND r.relationship_type IN ('HOLDS_POSITION', 'HAS_ROLE', 'WORKS_AS', 'IS_A')
+                          AND r.lifecycle_state = 'TRUSTED'
+                        ORDER BY r.confidence DESC
+                        LIMIT 5
+                    """)
+                    rel_results = self.session.execute(rel_sql, {
+                        "tenant_id": self.tenant_id,
+                        "entity_id": entity_id
+                    }).fetchall()
+                    
+                    for r in rel_results:
+                        relationships.append({
+                            "id": str(r.id),
+                            "type": r.relationship_type,
+                            "source": r.source_name,
+                            "source_type": r.source_type,
+                            "target": r.target_name,
+                            "target_type": r.target_type,
+                            "confidence": r.confidence,
+                            "provenance": r.provenance_text
+                        })
+                        logger.info(f"[ROUTER] Person-role lookup found: {r.source_name} --[{r.relationship_type}]--> {r.target_name}")
+                
+            except Exception as e:
+                logger.warning(f"[ROUTER] Person-role lookup failed for '{person_name}': {e}")
+        
+        return entities, relationships
+    
     def _search_graph(
         self,
         query: str,
@@ -682,8 +788,8 @@ class RetrievalRouter:
         if should_fallback:
             logger.info(f"[ROUTER] Triggering graph-first entity fallback: chunks={len(result.chunks)}, chunks_mention_target={chunks_mention_target}, entities={len(result.entities)}, names={detected_person_names}")
             
-            # Direct entity table lookup for the detected person names
-            direct_entities = self._resolve_person_entities(detected_person_names, limit=limit)
+            # Use person-role lookup to get both entities AND relationships (e.g., HOLDS_POSITION)
+            direct_entities, role_relationships = self._lookup_person_role(detected_person_names)
             
             if direct_entities:
                 # Merge with existing entities (avoid duplicates)
@@ -694,6 +800,15 @@ class RetrievalRouter:
                     result.entities = list(result.entities) + new_entities
                     logger.info(f"[ROUTER] Graph-first fallback added {len(new_entities)} entities with properties")
                     result.strategy_used = f"{result.strategy_used}+ENTITY_FALLBACK"
+            
+            if role_relationships:
+                # Merge relationships (avoid duplicates)
+                existing_rel_ids = {r.get("id") for r in result.relationships}
+                new_relationships = [r for r in role_relationships if r.get("id") not in existing_rel_ids]
+                
+                if new_relationships:
+                    result.relationships = list(result.relationships) + new_relationships
+                    logger.info(f"[ROUTER] Graph-first fallback added {len(new_relationships)} role relationships")
         
         logger.info(f"[ROUTER] Retrieved: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
         
