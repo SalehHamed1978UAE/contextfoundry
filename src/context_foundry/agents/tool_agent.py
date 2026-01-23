@@ -23,6 +23,8 @@ from .tools.definitions import TOOL_DEFINITIONS
 from .tools.wrappers import ToolExecutor
 from .retrieval_router import QueryPipeline, RetrievalResult, AmbiguityResult
 from .disambiguation_reasoner import DisambiguationReasoner, DisambiguationResult
+from .query_interpreter import QueryInterpreter, QueryIntent
+from .directed_retriever import DirectedGraphRetriever, RetrievalResult as DirectedRetrievalResult
 from ..models.schema import set_tenant_context
 from ..utils.response_helpers import build_qa_evidence, calculate_confidence, build_response, QAEvidence
 from ..rlm.router import QueryComplexityRouter, QueryTier
@@ -119,6 +121,9 @@ class ToolAgent:
         self.disambiguator = DisambiguationReasoner(model=model)
         self.complexity_router = QueryComplexityRouter(complexity_threshold=0.10)
         
+        self.query_interpreter = QueryInterpreter(model=model, session=session, tenant_id=tenant_id)
+        self.directed_retriever = DirectedGraphRetriever(session, tenant_id)
+        
         self.client = OpenAI(
             api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY"),
             base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -212,7 +217,7 @@ class ToolAgent:
                     f"chunks={num_chunks}, entities={num_entities}, rels={num_relationships}")
         return False
     
-    def _synthesize_direct_answer(self, question: str, pipeline_result: RetrievalResult) -> str:
+    def _synthesize_direct_answer(self, question: str, pipeline_result: RetrievalResult, intent: Optional[QueryIntent] = None) -> str:
         """Synthesize answer directly from pre-fetched data without tool calls."""
         logger.info(f"[TOOL_AGENT] _synthesize_direct_answer: question='{question[:80]}...'")
         logger.info(f"[TOOL_AGENT] Pipeline result: entities={len(pipeline_result.entities) if pipeline_result.entities else 0}, "
@@ -312,6 +317,15 @@ class ToolAgent:
         if pipeline_result.relationships and ('role' in query_lower or 'position' in query_lower or 'who is' in query_lower):
             kg_prioritization = "\n\nWhen answering person/role questions, prioritize the Relationships data (e.g., HOLDS_POSITION, HAS_ROLE) over document content. The relationship data is the authoritative source for organizational roles."
         
+        intent_guidance = ""
+        if intent:
+            if intent.target_type:
+                intent_guidance = f"\n\nUser is asking for: {intent.target_type}"
+            if intent.query_type == "property_lookup":
+                intent_guidance += "\nProvide the specific attribute value, not a description."
+            if intent.reasoning:
+                intent_guidance += f"\nQuery interpretation: {intent.reasoning}"
+        
         synthesis_prompt = f"""Based on the following retrieved information, answer the user's question.
 
 QUESTION: {question}
@@ -319,7 +333,7 @@ QUESTION: {question}
 RETRIEVED INFORMATION:
 {context}
 
-Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{question_type_instruction}{kg_prioritization}"""
+Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{question_type_instruction}{kg_prioritization}{intent_guidance}"""
 
         try:
             max_tokens = 900 if expects_list else 600
@@ -336,6 +350,93 @@ Provide a clear, comprehensive answer based on the information above. If specifi
         except Exception as e:
             logger.error(f"[AGENT] Direct synthesis failed: {e}")
             return f"Error synthesizing answer: {str(e)}"
+    
+    def _synthesize_from_kg(
+        self,
+        question: str,
+        kg_result: DirectedRetrievalResult,
+        intent: QueryIntent,
+        start_time: float
+    ) -> Dict[str, Any]:
+        """
+        Synthesize answer directly from KG data without document search.
+        
+        This is the KG-first path where the answer comes purely from
+        structured knowledge graph data.
+        """
+        logger.info(f"[AGENT] Synthesizing from KG: entity='{kg_result.entity_name}', rels={len(kg_result.relationships)}")
+        
+        context_parts = []
+        context_parts.append(f"Entity: {kg_result.entity_name} ({kg_result.entity_type})")
+        source_docs = set()
+        
+        if kg_result.relationships:
+            rel_lines = []
+            for rel in kg_result.relationships[:20]:
+                rel_lines.append(f"- {rel.source_name} --[{rel.relationship_type}]--> {rel.target_name}")
+                if hasattr(rel, 'source_location') and rel.source_location:
+                    source_docs.add(rel.source_location)
+            context_parts.append(f"Relationships:\n" + "\n".join(rel_lines))
+            if source_docs:
+                context_parts.append(f"Source documents: {', '.join(list(source_docs)[:5])}")
+        
+        context = "\n\n".join(context_parts)
+        
+        intent_guidance = ""
+        if intent.target_type:
+            intent_guidance = f"\nUser is asking for: {intent.target_type}"
+        if intent.query_type == "property_lookup":
+            intent_guidance += "\nProvide the specific attribute value, not a description."
+        if intent.reasoning:
+            intent_guidance += f"\nQuery interpretation: {intent.reasoning}"
+        
+        prompt = f"""Question: {question}
+{intent_guidance}
+
+Knowledge Graph data:
+{context}
+
+Answer the specific question asked based on the structured data above.
+Match your answer type to what was asked. If asking for a role, give the role. If asking for a list, enumerate all items."""
+        
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=500,
+                temperature=0.0
+            )
+            answer = response.choices[0].message.content or "Unable to generate answer."
+        except Exception as e:
+            logger.error(f"[AGENT] KG synthesis failed: {e}")
+            answer = f"Error synthesizing answer from knowledge graph: {str(e)}"
+        
+        evidence = QAEvidence(
+            entity_names=[kg_result.entity_name] if kg_result.entity_name else [],
+            chunk_sources=list(source_docs)[:5]
+        )
+        evidence.relationship_count = len(kg_result.relationships)
+        evidence.entity_count = 1
+        
+        confidence = calculate_confidence("SUPPORTED", evidence, answer)
+        
+        return build_response(
+            answer=answer,
+            confidence=confidence,
+            qa_verdict={"status": "SUPPORTED", "reason": "Answered from Knowledge Graph"},
+            evidence=evidence,
+            iterations=0,
+            time_ms=int((time.time() - start_time) * 1000),
+            success=True,
+            pipeline_result=None,
+            extra={
+                "mode": "KG_FIRST",
+                "intent_entity": intent.entity,
+                "intent_type": intent.query_type,
+                "relationship_count": len(kg_result.relationships),
+                "answer_source": "knowledge_graph"
+            }
+        )
     
     def _get_vault_matching_org(self, match: Dict[str, Any], vault_context: Optional[str]) -> Optional[str]:
         """
@@ -645,6 +746,28 @@ Which one would you like to know more about? Please specify by name."""
         elif tier == QueryTier.TIER2_RLM:
             logger.info("[AGENT] Tier 2 query detected but RLM disabled (set RLM_ENABLED=true to enable)")
         
+        intent: Optional[QueryIntent] = None
+        try:
+            intent = self.query_interpreter.interpret(question)
+            logger.info(f"[AGENT] Intent: entity='{intent.entity}', type='{intent.query_type}', target='{intent.target_type}'")
+            
+            if intent.query_type == "graph_traversal" and intent.entity:
+                kg_result = self.directed_retriever.execute(intent)
+                if kg_result.entity_found and kg_result.relationships:
+                    logger.info(f"[AGENT] KG has data: {len(kg_result.relationships)} relationships for '{intent.entity}'")
+                    return self._synthesize_from_kg(question, kg_result, intent, start_time)
+                elif kg_result.entity_found:
+                    logger.info(f"[AGENT] KG entity found but no matching relationships, falling back to pipeline")
+                else:
+                    logger.info(f"[AGENT] KG entity not found for '{intent.entity}', falling back to pipeline")
+            
+            elif intent.query_type == "property_lookup" and intent.entity:
+                kg_result = self.directed_retriever.execute(intent)
+                if kg_result.entity_found:
+                    logger.info(f"[AGENT] Property lookup for '{intent.entity}', falling through to pipeline with intent")
+        except Exception as e:
+            logger.warning(f"[AGENT] Intent interpretation failed (continuing without): {e}")
+        
         pipeline_result = None
         try:
             pipeline_result = self.query_pipeline.process(question, vault_context=vault_context)
@@ -658,7 +781,7 @@ Which one would you like to know more about? Please specify by name."""
         
         if pipeline_result and self._can_answer_directly(pipeline_result):
             logger.info("[AGENT] Using DIRECT ANSWER path (skipping tool loop)")
-            answer = self._synthesize_direct_answer(question, pipeline_result)
+            answer = self._synthesize_direct_answer(question, pipeline_result, intent)
             
             # Issue 1 Fix: Clean metadata garbage from answer
             from ..utils.qa_validation import clean_metadata_garbage
