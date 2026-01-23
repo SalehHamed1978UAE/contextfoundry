@@ -1105,21 +1105,92 @@ def download_results_file(filename: str):
 @test_runner_api.route('/corpus-folders', methods=['GET'])
 @require_auth
 def list_corpus_folders():
-    """List available corpus folders from test documents directory."""
+    """List available corpus folders from test documents directory (auto-discovery)."""
+    from .config import TestConfig
     folders = []
+    config = TestConfig()
+    
+    valid_extensions = {'.md', '.txt', '.pdf', '.docx', '.xlsx', '.xls', '.csv', '.html', '.json'}
+    exclude_files = {'README.md', 'readme.md', 'CORPUS_STATS.txt', 'qa_master.md', 'qa_master.jsonl'}
+    exclude_folders = {'question_sets', '.git', '__pycache__'}
     
     if CORPUS_FOLDERS_PATH.exists():
         for item in sorted(CORPUS_FOLDERS_PATH.iterdir()):
             if item.is_dir() and not item.name.startswith('.'):
+                # Count all valid document files across all subfolders
                 doc_count = 0
-                doc_folder = item / 'documents'
-                if doc_folder.exists():
-                    doc_count = sum(1 for f in doc_folder.rglob('*') if f.is_file())
+                for f in item.rglob('*'):
+                    if f.is_file() and f.suffix.lower() in valid_extensions:
+                        if f.name not in exclude_files:
+                            # Skip files in excluded folders
+                            if not any(part in exclude_folders for part in f.parts):
+                                doc_count += 1
+                
+                # Check if this corpus has a matching question file
+                questions_dir = Path('test_questions')
+                question_file = None
+                question_count = 0
+                
+                # Check config for question file
+                corpus_config = config.get_corpus(item.name)
+                if corpus_config and corpus_config.get('questions_file'):
+                    qf = questions_dir / corpus_config['questions_file']
+                    if qf.exists():
+                        question_file = corpus_config['questions_file']
+                        try:
+                            import json
+                            with open(qf) as f:
+                                data = json.load(f)
+                                question_count = len(data) if isinstance(data, list) else 0
+                        except:
+                            pass
+                
+                # Also check for auto-detected question files
+                if not question_file:
+                    # Look for question files matching corpus name
+                    corpus_name_lower = item.name.lower().replace(' ', '_')
+                    for qf in questions_dir.glob('*.json'):
+                        if corpus_name_lower in qf.stem.lower():
+                            question_file = qf.name
+                            try:
+                                import json
+                                with open(qf) as f:
+                                    data = json.load(f)
+                                    question_count = len(data) if isinstance(data, list) else 0
+                            except:
+                                pass
+                            break
+                
+                # Check for question files inside the corpus folder
+                if not question_file:
+                    qs_folder = item / 'question_sets'
+                    if qs_folder.exists():
+                        for qf in qs_folder.glob('*.jsonl'):
+                            question_file = f"{item.name}/question_sets/{qf.name}"
+                            try:
+                                question_count = sum(1 for line in open(qf) if line.strip())
+                            except:
+                                pass
+                            break
+                        for qf in qs_folder.glob('*.json'):
+                            if not question_file:
+                                question_file = f"{item.name}/question_sets/{qf.name}"
+                                try:
+                                    import json
+                                    with open(qf) as f:
+                                        data = json.load(f)
+                                        question_count = len(data) if isinstance(data, list) else 0
+                                except:
+                                    pass
+                                break
                 
                 folders.append({
                     'name': item.name,
                     'path': str(item),
-                    'document_count': doc_count
+                    'document_count': doc_count,
+                    'question_file': question_file,
+                    'question_count': question_count,
+                    'configured': corpus_config is not None
                 })
     
     return jsonify({'corpus_folders': folders})
