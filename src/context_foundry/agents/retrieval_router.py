@@ -12,8 +12,9 @@ from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import concurrent.futures
+import re
 
-from src.context_foundry.agents.query_classifier import QueryClassification
+from src.context_foundry.agents.query_classifier import QueryClassification, classify_query_type
 from src.context_foundry.agents.role_resolver import RoleResolution
 from src.context_foundry.agents.query_intent_detector import (
     QueryIntent,
@@ -662,6 +663,11 @@ class RetrievalRouter:
         """
         Route query to optimal retrieval strategy with intent-based entity filtering.
         
+        Enhanced with query type classification for person/relationship routing:
+        - 'person' queries: Call _lookup_person_role() FIRST to get KG relationships
+        - 'relationship' queries: Use directed KG traversal
+        - Always include KG results in the answer synthesis context
+        
         Args:
             query: The user's query
             classification: Query classification result
@@ -678,6 +684,10 @@ class RetrievalRouter:
         expanded_query = query
         if role_resolution and role_resolution.is_resolved:
             expanded_query = f"{query} (Note: {role_resolution.role} = {role_resolution.resolved_name})"
+        
+        # Enhanced query type classification for person/relationship routing
+        query_type = classify_query_type(query)
+        logger.info(f"[ROUTER] Query type classification: {query_type}")
         
         # Early extraction: detect person names for graph-only entity fallback
         # This handles entities from spreadsheets that have no document chunks
@@ -697,6 +707,140 @@ class RetrievalRouter:
             expanded_query=expanded_query,
             classified_query=classified_query
         )
+        
+        # PERSON QUERY ROUTING: For person/role queries, call _lookup_person_role() FIRST
+        # This ensures KG relationships (HOLDS_POSITION) are retrieved before document search
+        if query_type == 'person' and detected_person_names:
+            logger.info(f"[ROUTER] Person query detected - prioritizing KG person-role lookup for: {detected_person_names}")
+            person_entities, role_relationships = self._lookup_person_role(detected_person_names)
+            
+            if person_entities or role_relationships:
+                result.entities = person_entities
+                result.relationships = role_relationships
+                logger.info(f"[ROUTER] Person-role KG lookup: {len(person_entities)} entities, {len(role_relationships)} relationships")
+                
+                # Also fetch document chunks for additional context
+                chunks = self._search_documents(query, classification, role_resolution, limit)
+                result.chunks = chunks
+                result.strategy_used = "PERSON_KG_FIRST"
+                
+                logger.info(f"[ROUTER] Person query complete: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
+                return result
+        
+        # Handle role-title queries (e.g., "Who is the CEO?") where no person name detected
+        # but role_resolution succeeded
+        if query_type == 'person' and not detected_person_names:
+            if classification.has_role_reference and role_resolution and role_resolution.is_resolved and role_resolution.resolved_name:
+                resolved_names = [role_resolution.resolved_name]
+                role_entities, role_relationships = self._lookup_person_role(resolved_names)
+                if role_entities or role_relationships:
+                    result.entities = role_entities
+                    result.relationships = role_relationships
+                    result.strategy_used = "ROLE_KG_FIRST"
+                    logger.info(f"[ROUTER] Role-title KG lookup: resolved {role_resolution.role} to {role_resolution.resolved_name}")
+                    
+                    # Also fetch document chunks for additional context
+                    chunks = self._search_documents(query, classification, role_resolution, limit)
+                    result.chunks = chunks
+                    
+                    logger.info(f"[ROUTER] Role-title query complete: {len(result.entities)} entities, {len(result.relationships)} rels, {len(result.chunks)} chunks")
+                    return result
+        
+        # RELATIONSHIP QUERY ROUTING: For ownership/structure queries, use directed KG traversal
+        if query_type == 'relationship':
+            logger.info(f"[ROUTER] Relationship query detected - using directed KG traversal")
+            
+            # Extract subject entity from query for directed traversal
+            subject_patterns = [
+                r"(?:owns|handles|manages)\s+(.+?)(?:\?|$)",
+                r"(.+?)\s+(?:belongs to|reports to)",
+                r"(?:which|what)\s+(?:business unit|team|department|group)\s+(?:owns|handles|manages)\s+(.+?)(?:\?|$)",
+            ]
+            subject = None
+            for pattern in subject_patterns:
+                match = re.search(pattern, query, re.IGNORECASE)
+                if match:
+                    subject = match.group(1).strip()
+                    break
+            
+            if subject:
+                logger.info(f"[ROUTER] Extracted subject entity for directed traversal: '{subject}'")
+                # Direct SQL query for ownership/structure relationships
+                rel_types = ('OWNS', 'OWNED_BY', 'BELONGS_TO', 'MANAGES', 'HANDLES', 'PART_OF', 'HAS_UNIT', 'CONTAINS')
+                
+                try:
+                    from src.context_foundry.models.schema import set_tenant_context
+                    set_tenant_context(self.session, self.tenant_id)
+                    
+                    # Query for relationships where subject is the target
+                    # Use = ANY() for Postgres array binding instead of IN
+                    rel_sql = text("""
+                        SELECT 
+                            r.id, r.relationship_type, r.confidence, r.provenance_text,
+                            src.name as source_name, src.entity_type as source_type,
+                            tgt.name as target_name, tgt.entity_type as target_type
+                        FROM relationships r
+                        JOIN entities src ON r.source_id = src.id
+                        JOIN entities tgt ON r.target_id = tgt.id
+                        WHERE r.tenant_id = :tenant_id
+                        AND r.relationship_type = ANY(:rel_types)
+                        AND LOWER(tgt.name) LIKE :subject_pattern
+                        AND r.lifecycle_state = 'TRUSTED'
+                        ORDER BY r.confidence DESC
+                        LIMIT :limit
+                    """)
+                    
+                    rel_results = self.session.execute(rel_sql, {
+                        "tenant_id": self.tenant_id,
+                        "rel_types": list(rel_types),
+                        "subject_pattern": f"%{subject.lower()}%",
+                        "limit": limit
+                    }).fetchall()
+                    
+                    directed_relationships = [
+                        {
+                            "id": str(r.id),
+                            "type": r.relationship_type,
+                            "source": r.source_name,
+                            "source_type": r.source_type,
+                            "target": r.target_name,
+                            "target_type": r.target_type,
+                            "confidence": r.confidence,
+                            "provenance": r.provenance_text
+                        }
+                        for r in rel_results
+                        if not _is_blacklisted_entity(r.source_name) and not _is_blacklisted_entity(r.target_name)
+                    ]
+                    
+                    if directed_relationships:
+                        result.relationships = directed_relationships
+                        logger.info(f"[ROUTER] Directed relationship retrieval found {len(directed_relationships)} matches")
+                        
+                        # Also get entities and chunks
+                        entities, _ = self._search_graph(query, classification, role_resolution, limit, classified_query)
+                        chunks = self._search_documents(query, classification, role_resolution, limit)
+                        
+                        result.entities = entities
+                        result.chunks = chunks
+                        result.strategy_used = "DIRECTED_RELATIONSHIP_TRAVERSAL"
+                        
+                        logger.info(f"[ROUTER] Relationship query: {len(entities)} entities, {len(directed_relationships)} rels, {len(chunks)} chunks")
+                        return result
+                        
+                except Exception as e:
+                    logger.warning(f"[ROUTER] Directed relationship query failed: {e}")
+            
+            # Fallback to standard graph search if directed retrieval didn't find anything
+            entities, relationships = self._search_graph(query, classification, role_resolution, limit, classified_query)
+            chunks = self._search_documents(query, classification, role_resolution, limit)
+            
+            result.entities = entities
+            result.relationships = relationships
+            result.chunks = chunks
+            result.strategy_used = "RELATIONSHIP_KG_TRAVERSAL"
+            
+            logger.info(f"[ROUTER] Relationship query: {len(entities)} entities, {len(relationships)} rels, {len(chunks)} chunks")
+            return result
         
         if intent and intent.intent_type == "relationship" and intent.relationship_type:
             directed_retriever = DirectedRelationshipRetriever(self.session, self.tenant_id)

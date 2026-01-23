@@ -270,6 +270,67 @@ RESPOND WITH JSON ONLY:
             )
 
 
+def classify_query_type(query: str) -> str:
+    """
+    Enhanced query type classification for intelligent routing.
+    
+    Returns: 'person', 'relationship', 'financial', or 'factual'
+    
+    This classification is used to:
+    - Route person queries to KG (HOLDS_POSITION relationships)
+    - Route relationship queries to KG traversal
+    - Apply financial-specific handling
+    - Default to factual document search
+    """
+    import re
+    query_lower = query.lower()
+    
+    # Person queries - route to KG for HOLDS_POSITION relationships
+    person_patterns = [
+        r"who is",
+        r"who's",
+        r"what is .+'s role",
+        r"what are .+'s responsibilities",
+        r"what does .+ do\b",
+        r"what is .+'s position",
+        r"what is .+'s title",
+        r"what is .+'s job",
+        r"role of",
+        r"position of",
+        r"responsibilities of",
+        r"duties of",
+    ]
+    if any(re.search(p, query_lower) for p in person_patterns):
+        return 'person'
+    
+    # Relationship queries - route to KG traversal
+    relationship_patterns = [
+        r"which .+ owns",
+        r"who owns",
+        r"what .+ handles",
+        r"which .+ handles",
+        r"belongs to",
+        r"reports to",
+        r"managed by",
+        r"manages",
+        r"works for",
+        r"part of",
+        r"member of",
+        r"responsible for",
+    ]
+    if any(re.search(p, query_lower) for p in relationship_patterns):
+        return 'relationship'
+    
+    # Financial queries - need specific numerical data
+    financial_keywords = ['budget', 'revenue', 'cost', 'spending', 'million', 'target', 
+                          'profit', 'margin', 'growth', 'forecast', 'projection', 
+                          'allocation', 'investment', 'funding', 'expense']
+    if any(w in query_lower for w in financial_keywords):
+        return 'financial'
+    
+    return 'factual'
+
+
 def classify_query(query: str) -> str:
     """
     Classify query type for routing decisions.

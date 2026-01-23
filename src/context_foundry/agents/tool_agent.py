@@ -263,9 +263,45 @@ class ToolAgent:
         if expects_list:
             list_instruction = "\n\nIMPORTANT: This question expects a LIST of items. Make sure to enumerate ALL items mentioned in the retrieved information. Do not stop at just one example - list every relevant item you can find in the data."
         
-        # DISABLED FOR RLM TEST - was: OKR interpretation guidance
-        # To restore: see git history for interpretation_rules logic
-        interpretation_rules = ""  # Disabled - RLM should handle without hardcoded prompts
+        # Question-type-aware prompting for better answer synthesis
+        # Only apply role/ownership prompt constraints when KG relationships are actually present
+        query_lower = question.lower()
+        question_type_instruction = ""
+        
+        # Check if we have role-related relationships from KG
+        has_role_relationships = any(
+            r.get('type') in ('HOLDS_POSITION', 'HAS_ROLE', 'WORKS_AS', 'IS_A') 
+            for r in pipeline_result.relationships
+        ) if pipeline_result.relationships else False
+        
+        # Check if we have ownership/structure relationships from KG
+        has_ownership_relationships = any(
+            r.get('type') in ('OWNS', 'OWNED_BY', 'BELONGS_TO', 'MANAGES', 'HANDLES', 'PART_OF', 'HAS_UNIT', 'CONTAINS')
+            for r in pipeline_result.relationships
+        ) if pipeline_result.relationships else False
+        
+        if 'responsibilities' in query_lower or 'duties' in query_lower:
+            question_type_instruction = "\n\nIMPORTANT: This question asks about RESPONSIBILITIES or DUTIES. Return a concise list of responsibilities/duties. Do NOT just return the person's name or title."
+        
+        elif ("'s role" in query_lower or "role of" in query_lower) and has_role_relationships:
+            question_type_instruction = "\n\nIMPORTANT: This question asks about a person's ROLE or JOB TITLE. Return ONLY the job title (e.g., 'CEO', 'CFO', 'CTO'). Do NOT return a description of the person. If you see a relationship like 'HOLDS_POSITION', extract the position name from it."
+        
+        elif ("'s position" in query_lower or "position of" in query_lower) and has_role_relationships:
+            question_type_instruction = "\n\nIMPORTANT: This question asks about a person's POSITION or TITLE. Return the specific position/title. Look for HOLDS_POSITION relationships in the data."
+        
+        elif ("who is" in query_lower or "who's" in query_lower) and has_role_relationships:
+            question_type_instruction = "\n\nIMPORTANT: This question asks WHO someone is. Provide their name and role/title if available from HOLDS_POSITION relationships."
+        
+        elif "which" in query_lower and ("owns" in query_lower or "handles" in query_lower or "responsible" in query_lower) and has_ownership_relationships:
+            question_type_instruction = "\n\nIMPORTANT: This question asks about OWNERSHIP or RESPONSIBILITY. Look for relationships that show ownership or assignment, and return the owning entity/unit."
+        
+        elif ("belongs to" in query_lower or "part of" in query_lower) and has_ownership_relationships:
+            question_type_instruction = "\n\nIMPORTANT: This question asks about organizational membership or structure. Look for relationships showing containment or membership."
+        
+        # KG prioritization instruction for person/role queries
+        kg_prioritization = ""
+        if pipeline_result.relationships and ('role' in query_lower or 'position' in query_lower or 'who is' in query_lower):
+            kg_prioritization = "\n\nWhen answering person/role questions, prioritize the Relationships data (e.g., HOLDS_POSITION, HAS_ROLE) over document content. The relationship data is the authoritative source for organizational roles."
         
         synthesis_prompt = f"""Based on the following retrieved information, answer the user's question.
 
@@ -274,7 +310,7 @@ QUESTION: {question}
 RETRIEVED INFORMATION:
 {context}
 
-Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{interpretation_rules}"""
+Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{question_type_instruction}{kg_prioritization}"""
 
         try:
             max_tokens = 900 if expects_list else 600
