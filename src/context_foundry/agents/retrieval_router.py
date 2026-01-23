@@ -462,10 +462,12 @@ class RetrievalRouter:
                 params[f"term{i}"] = f"%{term}%"
             
             entity_results = self.session.execute(entity_query, params).fetchall()
+            logger.info(f"[ROUTER] _search_graph: query='{query}', search_terms={search_terms}, raw_results={len(entity_results)}")
             entities = []
             for r in entity_results:
                 if _is_blacklisted_entity(r.name):
                     continue
+                logger.info(f"[ROUTER] _search_graph found: name='{r.name}', type={r.entity_type}, confidence={r.confidence}")
                 entity_dict = {
                     "id": str(r.id),
                     "name": r.name,
