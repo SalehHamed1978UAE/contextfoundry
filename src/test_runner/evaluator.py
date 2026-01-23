@@ -465,6 +465,7 @@ Reply YES or NO only."""
             return False, "no_data"
         
         # Try LLM semantic equivalence as last resort
+        logger.info(f"[SEMANTIC] ENTRY: Calling _check_semantic_equivalence for query='{query[:50]}...'")
         if self._check_semantic_equivalence(expected, actual, query):
             self.last_evaluation_details['match_type'] = 'semantic_match'
             return True, "semantic_match"

@@ -214,6 +214,15 @@ class ToolAgent:
     
     def _synthesize_direct_answer(self, question: str, pipeline_result: RetrievalResult) -> str:
         """Synthesize answer directly from pre-fetched data without tool calls."""
+        logger.info(f"[TOOL_AGENT] _synthesize_direct_answer: question='{question[:80]}...'")
+        logger.info(f"[TOOL_AGENT] Pipeline result: entities={len(pipeline_result.entities) if pipeline_result.entities else 0}, "
+                    f"rels={len(pipeline_result.relationships) if pipeline_result.relationships else 0}, "
+                    f"chunks={len(pipeline_result.chunks) if pipeline_result.chunks else 0}")
+        if pipeline_result.entities:
+            for e in pipeline_result.entities[:5]:
+                logger.info(f"[TOOL_AGENT] Entity: {e.get('name')} ({e.get('type')})")
+        if pipeline_result.role_resolution and pipeline_result.role_resolution.is_resolved:
+            logger.info(f"[TOOL_AGENT] Role resolution: {pipeline_result.role_resolution.role} = {pipeline_result.role_resolution.resolved_name}")
         context_parts = []
         
         classification = pipeline_result.classification
