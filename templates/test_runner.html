@@ -1395,7 +1395,7 @@
                     actionButtons = `<button class="btn btn-sm btn-ghost" onclick="showResults('${run.id}')">View</button>`;
                 }
                 
-                const startedAt = run.started_at ? new Date(run.started_at).toLocaleString() : '-';
+                const startedAt = run.started_at || '-';
                 const outputFile = resultsFile ? resultsFile.split('/').pop() : '-';
                 const progressHtml = run.questions_answered > 0 
                     ? `${progress} <span style="color: var(--success);">&check;${run.questions_passed || 0}</span> <span style="color: var(--error);">&times;${(run.questions_answered || 0) - (run.questions_passed || 0)}</span>`
