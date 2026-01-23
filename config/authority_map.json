@@ -1,0 +1,95 @@
+{
+  "_comment": "Source authority mapping - defines which folders are authoritative for different fact types",
+  "_usage": "Both retriever (for ranking) and evaluator (for answer validation) use this config",
+  
+  "default_folder_priority": {
+    "strategy": 1.0,
+    "finances": 0.95,
+    "operations": 0.90,
+    "engineering": 0.85,
+    "projects": 0.85,
+    "legal": 0.80,
+    "compliance": 0.80,
+    "customers": 0.75,
+    "policies": 0.75,
+    "meeting_notes": 0.60
+  },
+  
+  "fact_type_authorities": {
+    "program_ownership": {
+      "primary_folders": ["strategy"],
+      "secondary_folders": ["projects", "operations"],
+      "doc_patterns": ["strategic_plan", "program_overview", "initiative_summary"]
+    },
+    "budget_financial": {
+      "primary_folders": ["finances"],
+      "secondary_folders": ["strategy", "projects"],
+      "doc_patterns": ["budget", "financial", "revenue", "cost"]
+    },
+    "executive_roles": {
+      "primary_folders": ["strategy", "policies"],
+      "secondary_folders": ["meeting_notes"],
+      "doc_patterns": ["org_chart", "leadership", "executive"]
+    },
+    "project_timeline": {
+      "primary_folders": ["projects", "strategy"],
+      "secondary_folders": ["operations"],
+      "doc_patterns": ["schedule", "timeline", "roadmap", "milestone"]
+    },
+    "compliance_regulatory": {
+      "primary_folders": ["compliance", "legal"],
+      "secondary_folders": ["policies"],
+      "doc_patterns": ["compliance", "regulatory", "audit", "certification"]
+    },
+    "customer_contracts": {
+      "primary_folders": ["customers", "legal"],
+      "secondary_folders": ["operations"],
+      "doc_patterns": ["contract", "sla", "agreement", "customer"]
+    },
+    "technical_specs": {
+      "primary_folders": ["engineering"],
+      "secondary_folders": ["projects", "operations"],
+      "doc_patterns": ["spec", "design", "architecture", "technical"]
+    },
+    "supplier_vendor": {
+      "primary_folders": ["operations", "legal"],
+      "secondary_folders": ["compliance"],
+      "doc_patterns": ["supplier", "vendor", "procurement", "sourcing"]
+    }
+  },
+  
+  "canonical_terms": {
+    "_comment": "Terms that trigger canonical boosting when semantic scores are low",
+    "project_names": [
+      "project helios", "falcon uav", "urbanmesh", "autonav", "project borealis",
+      "greenstream", "nexgen battery", "skylink satellite", "quantum-secured"
+    ],
+    "business_units": [
+      "orion aerospace", "orion energy", "orion logistics", "orion smartcity",
+      "aerospace", "energy solutions", "logistics", "smartcity"
+    ],
+    "executives": [
+      "sarah chen", "marcus webb", "evelyn reed", "alex thorne",
+      "fatima al-mansoori", "james park", "elena rostova", "michael torres"
+    ]
+  },
+  
+  "corpus_overrides": {
+    "Manus Orion": {
+      "notes": "Enterprise knowledge corpus with nested documents folder",
+      "document_root": "documents/",
+      "canonical_terms": {
+        "project_names": ["project helios", "falcon uav", "urbanmesh", "autonav", "project borealis"],
+        "business_units": ["orion aerospace", "orion energy", "orion logistics", "orion smartcity"]
+      }
+    },
+    "ClaudeCode Medsync": {
+      "notes": "Healthcare SaaS corpus",
+      "document_root": "",
+      "canonical_terms": {
+        "project_names": ["medsync", "patient portal", "healthconnect"],
+        "business_units": ["medical records", "patient services", "clinical operations"]
+      }
+    }
+  }
+}
