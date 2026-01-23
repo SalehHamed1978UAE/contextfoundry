@@ -1,0 +1,22 @@
+Add logging first, then we can see what's actually happening.                             
+                                                                                                         
+  Specifically:                                                                                          
+                                                                                                         
+  1. In _check_semantic_equivalence() - log entry, the expected/actual being compared, and the LLM       
+  response                                                                                               
+  eval_logger.info(f"[SEMANTIC] Checking: expected='{expected}' vs actual='{actual[:100]}...'")          
+  # ... LLM call ...                                                                                     
+  eval_logger.info(f"[SEMANTIC] Result: {result}")                                                       
+                                                                                                         
+  2. In QueryTimeSemanticAgent._parse_query() - log what entity it extracts                              
+  logger.info(f"[SEMANTIC_AGENT] Parsed query: entity='{extracted_entity}'")                             
+                                                                                                         
+  3. In QueryTimeSemanticAgent._resolve_entity() - log the resolution attempt                            
+  logger.info(f"[SEMANTIC_AGENT] Resolving entity: '{name}' -> found={result}")                          
+                                                                                                         
+  Run the test again with logging, then share the logs for Q9. We need to see:                           
+  - Is semantic equivalence check being called?                                                          
+  - What entity is being extracted from "What is Sarah Chen's role?"                                     
+  - Is Sarah Chen being found in the database?                                                           
+                                                                                                         
+  Don't make more code changes until we see the logs. Debugging blind leads to more regressions.  
