@@ -746,27 +746,29 @@ Which one would you like to know more about? Please specify by name."""
         elif tier == QueryTier.TIER2_RLM:
             logger.info("[AGENT] Tier 2 query detected but RLM disabled (set RLM_ENABLED=true to enable)")
         
+        # DISABLED: QueryInterpreter causing timeouts (29 errors in Orion test)
+        # TODO: Re-enable after optimizing latency or adding caching
         intent: Optional[QueryIntent] = None
-        try:
-            intent = self.query_interpreter.interpret(question)
-            logger.info(f"[AGENT] Intent: entity='{intent.entity}', type='{intent.query_type}', target='{intent.target_type}'")
-            
-            if intent.query_type == "graph_traversal" and intent.entity:
-                kg_result = self.directed_retriever.execute(intent)
-                if kg_result.entity_found and kg_result.relationships:
-                    logger.info(f"[AGENT] KG has data: {len(kg_result.relationships)} relationships for '{intent.entity}'")
-                    return self._synthesize_from_kg(question, kg_result, intent, start_time)
-                elif kg_result.entity_found:
-                    logger.info(f"[AGENT] KG entity found but no matching relationships, falling back to pipeline")
-                else:
-                    logger.info(f"[AGENT] KG entity not found for '{intent.entity}', falling back to pipeline")
-            
-            elif intent.query_type == "property_lookup" and intent.entity:
-                kg_result = self.directed_retriever.execute(intent)
-                if kg_result.entity_found:
-                    logger.info(f"[AGENT] Property lookup for '{intent.entity}', falling through to pipeline with intent")
-        except Exception as e:
-            logger.warning(f"[AGENT] Intent interpretation failed (continuing without): {e}")
+        # try:
+        #     intent = self.query_interpreter.interpret(question)
+        #     logger.info(f"[AGENT] Intent: entity='{intent.entity}', type='{intent.query_type}', target='{intent.target_type}'")
+        #     
+        #     if intent.query_type == "graph_traversal" and intent.entity:
+        #         kg_result = self.directed_retriever.execute(intent)
+        #         if kg_result.entity_found and kg_result.relationships:
+        #             logger.info(f"[AGENT] KG has data: {len(kg_result.relationships)} relationships for '{intent.entity}'")
+        #             return self._synthesize_from_kg(question, kg_result, intent, start_time)
+        #         elif kg_result.entity_found:
+        #             logger.info(f"[AGENT] KG entity found but no matching relationships, falling back to pipeline")
+        #         else:
+        #             logger.info(f"[AGENT] KG entity not found for '{intent.entity}', falling back to pipeline")
+        #     
+        #     elif intent.query_type == "property_lookup" and intent.entity:
+        #         kg_result = self.directed_retriever.execute(intent)
+        #         if kg_result.entity_found:
+        #             logger.info(f"[AGENT] Property lookup for '{intent.entity}', falling through to pipeline with intent")
+        # except Exception as e:
+        #     logger.warning(f"[AGENT] Intent interpretation failed (continuing without): {e}")
         
         pipeline_result = None
         try:
