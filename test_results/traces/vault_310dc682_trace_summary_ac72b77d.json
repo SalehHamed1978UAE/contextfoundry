@@ -1,0 +1,1286 @@
+{
+  "run_timestamp": "2026-01-23T09:31:50.102998",
+  "trace_file": "test_results/traces/vault_310dc682_traces_ac72b77d.jsonl",
+  "stats": {
+    "total_questions": 235,
+    "avg_chunks_retrieved": 4.655319148936169,
+    "avg_semantic_score": 0.02431574468085106,
+    "query_type_distribution": {
+      "unknown": 235
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 162,
+      "location_match": 1,
+      "no_match": 7,
+      "component_match": 53,
+      "number_match": 2,
+      "no_data": 2,
+      "error": 2,
+      "entity_match": 1,
+      "timeout": 1,
+      "uncertainty_match": 4
+    },
+    "low_score_queries": 229
+  },
+  "low_score_questions": [
+    {
+      "q_id": 1,
+      "question": "What is the name of the company?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 2,
+      "question": "When was MedSync Health founded?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 3,
+      "question": "Where is MedSync Health headquartered?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 4,
+      "question": "Who is the CEO of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 5,
+      "question": "Who is the CFO of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 6,
+      "question": "Who is the CTO of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 7,
+      "question": "Who is the Chief Product Officer?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 8,
+      "question": "Who is the Chief Revenue Officer?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 9,
+      "question": "What is MedSync Health's primary product?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 10,
+      "question": "What industry does MedSync Health operate in?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 11,
+      "question": "How many employees does MedSync Health have as of December 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 12,
+      "question": "What is the funding stage of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 13,
+      "question": "How much did MedSync Health raise in its Series C round?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 15,
+      "question": "Where is MedSync Health's European operations located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 16,
+      "question": "When was MedSync Health's European operations established?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 17,
+      "question": "What is the standard PTO for all employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 18,
+      "question": "How many weeks of parental leave does a primary caregiver receive?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 19,
+      "question": "How many weeks of parental leave does a secondary caregiver receive?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 20,
+      "question": "What is the referral bonus for a Senior Engineer?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 21,
+      "question": "What is the referral bonus for a Director?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 22,
+      "question": "What is the maximum hotel rate per night in major metropolitan areas?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 23,
+      "question": "Is MedSync Health SOC 2 Type II compliant?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 24,
+      "question": "Is MedSync Health HIPAA compliant?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 25,
+      "question": "Is MedSync Health ISO 27001 certified?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 26,
+      "question": "When was the last SOC 2 audit?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 27,
+      "question": "When was the last HIPAA audit?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 28,
+      "question": "When was the last ISO 27001 audit?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 29,
+      "question": "How many hospital clients does MedSync Health have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 30,
+      "question": "How many data breach incidents were reported in 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 31,
+      "question": "What is the name of the new product launching in Q2 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 32,
+      "question": "What cloud platform does MedSync use?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 33,
+      "question": "What programming languages are used in the backend?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 34,
+      "question": "What frontend framework is used?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 35,
+      "question": "What is Emily Williams' job title?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 36,
+      "question": "What is Michael Chen's job title?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 37,
+      "question": "What is Sarah Johnson's job title?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 38,
+      "question": "What is James Thompson's job title?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 39,
+      "question": "What is Lisa Park's job title?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 40,
+      "question": "What is Robert Martinez's job title?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 41,
+      "question": "What encryption standard is used for data at rest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 42,
+      "question": "What encryption standard is used for data in transit?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 43,
+      "question": "What authentication method is supported for Single Sign-On?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 44,
+      "question": "What is the Recovery Time Objective (RTO) for the MedSync Platform?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 45,
+      "question": "Who is the BCP Coordinator?",
+      "avg_score": 0.3303
+    },
+    {
+      "q_id": 46,
+      "question": "When was the Q4 2025 All-Hands meeting held?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 47,
+      "question": "When was the Series C funding round completed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 48,
+      "question": "What is the company match percentage for 401(k) contributions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 49,
+      "question": "How many years does it take for employer 401(k) match to fully vest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 50,
+      "question": "What is the bug ID for the patient search special characters issue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 51,
+      "question": "What is the corporate travel partner?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 52,
+      "question": "How many conference rooms are in the Boston office?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 53,
+      "question": "How many conference rooms are in the London office?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 54,
+      "question": "What is the square footage of the Boston office?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 55,
+      "question": "What CRM system does MedSync Health use?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 56,
+      "question": "What team communication tool does MedSync Health use?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 57,
+      "question": "What is the primary database used?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 58,
+      "question": "What is the secondary database used for flexible document storage?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 59,
+      "question": "How many EHR systems does MedSync Platform integrate with?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 60,
+      "question": "What is the support ticket number for the login issue at Beta Hospital?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 61,
+      "question": "What was MedSync Health's revenue in FY 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 62,
+      "question": "What was MedSync Health's revenue in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 63,
+      "question": "What was MedSync Health's revenue in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 64,
+      "question": "What was the gross margin in FY 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 65,
+      "question": "What was the gross margin in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 66,
+      "question": "What was the gross margin in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 67,
+      "question": "What was the EBITDA in FY 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 68,
+      "question": "What was the EBITDA in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 69,
+      "question": "What was the EBITDA in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 70,
+      "question": "What was the EBITDA margin in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 71,
+      "question": "What was the net income in FY 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 72,
+      "question": "What was the net income in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 73,
+      "question": "What was the net income in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 74,
+      "question": "What was the net income margin in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 75,
+      "question": "What was the Cost of Goods Sold (COGS) in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 76,
+      "question": "What was Q1 2025 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 77,
+      "question": "What was Q2 2025 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 78,
+      "question": "What was Q3 2025 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 79,
+      "question": "What was Q4 2025 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 80,
+      "question": "What was Q4 2025 net income?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 81,
+      "question": "What was the R&D spending in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 82,
+      "question": "What was the Sales & Marketing spending in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 83,
+      "question": "What was the General & Administrative spending in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 84,
+      "question": "What is the 2026 R&D budget?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 85,
+      "question": "What is the 2026 Sales & Marketing budget?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 86,
+      "question": "What is the 2026 ARR target?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 87,
+      "question": "What is the target for new hospital client acquisitions in 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 88,
+      "question": "What is the customer satisfaction (CSAT) target for 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 89,
+      "question": "What is the target for average customer onboarding time in 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 90,
+      "question": "What is the Q1 2026 new sales pipeline target for Sales & Marketing?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 91,
+      "question": "What is the customer retention rate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 92,
+      "question": "What is the logo retention rate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 93,
+      "question": "What is the Net Revenue Retention (NRR)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 94,
+      "question": "What is the annual churn rate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 95,
+      "question": "What is the Net Promoter Score (NPS)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 96,
+      "question": "How many data subject requests were received in 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 97,
+      "question": "What is the average onboarding time in Q4 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 98,
+      "question": "What is the customer onboarding CSAT score?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 99,
+      "question": "What was the cash at the end of FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What was the net cash from operations in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 101,
+      "question": "What percentage of FY 2025 revenue came from the United States?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 102,
+      "question": "What percentage of FY 2025 revenue came from Europe?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 103,
+      "question": "What is the total accounts receivable as of January 31, 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 104,
+      "question": "What is Emily Williams' base salary as of January 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 105,
+      "question": "What was Emily Williams' 2025 bonus?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 106,
+      "question": "What is Sarah Johnson's base salary as of January 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 107,
+      "question": "What was Sarah Johnson's 2025 bonus?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 108,
+      "question": "What is the target bonus percentage for Directors?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 109,
+      "question": "What is the target bonus percentage for VPs?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 110,
+      "question": "What was the Q4 2025 new bookings in ACV?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 112,
+      "question": "How many deals are in the Q1 2026 sales pipeline?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 113,
+      "question": "What is the average deal size in the Q1 2026 pipeline?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 114,
+      "question": "What is the total marketing budget for 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 115,
+      "question": "What is the marketing-influenced pipeline target for 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 116,
+      "question": "What is the target headcount for EOY 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 117,
+      "question": "How many net new hires are planned for 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 118,
+      "question": "How many customers are in \"Green\" health status?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 119,
+      "question": "How many customers are in \"Red\" health status?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 120,
+      "question": "What percentage of customers completed onboarding on time in Q4 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 121,
+      "question": "What was the year-over-year revenue growth from FY 2023 to FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 122,
+      "question": "What was the year-over-year revenue growth from FY 2024 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 123,
+      "question": "What was the EBITDA growth from FY 2024 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 124,
+      "question": "What was the net income growth from FY 2024 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 125,
+      "question": "How much did revenue increase from FY 2023 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 126,
+      "question": "How much did net income increase from FY 2023 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 127,
+      "question": "What was the gross margin improvement from FY 2023 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 128,
+      "question": "When is the next SOC 2 audit scheduled?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 129,
+      "question": "When is the next HIPAA audit scheduled?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 130,
+      "question": "When is the next ISO 27001 audit scheduled?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 131,
+      "question": "What was the QoQ revenue growth from Q3 to Q4 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 132,
+      "question": "What was the QoQ revenue growth from Q2 to Q3 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 133,
+      "question": "What was the QoQ revenue growth from Q1 to Q2 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 134,
+      "question": "What was the R&D spending growth from FY 2024 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 135,
+      "question": "What was the COGS growth from FY 2024 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 136,
+      "question": "What was the Sales & Marketing spending growth from FY 2024 to FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 137,
+      "question": "How many new hospital clients were acquired in 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 138,
+      "question": "How many new hospital clients were added in Q4 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 139,
+      "question": "When did Emily Williams start at MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 140,
+      "question": "When did Michael Chen start at MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 141,
+      "question": "When was the disaster recovery test conducted?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 142,
+      "question": "When was the penetration test conducted?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 143,
+      "question": "When was the system outage on January 29, 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 144,
+      "question": "When was bug MS-1234 reported?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 145,
+      "question": "When was bug MS-1234 fixed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 146,
+      "question": "When is the HIMSS 2026 conference?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 147,
+      "question": "When is the Analytics Suite beta launch scheduled?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 148,
+      "question": "When is the Analytics Suite general availability planned?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 149,
+      "question": "When was the open enrollment period for benefits?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 150,
+      "question": "When was the leadership offsite held?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 151,
+      "question": "Which fiscal year had the highest revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 152,
+      "question": "Which fiscal year had the highest net income margin?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 153,
+      "question": "Which fiscal year had the highest EBITDA margin?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 155,
+      "question": "Which quarter in 2025 had the highest revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 156,
+      "question": "Which quarter in 2025 had the highest EBITDA margin?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 157,
+      "question": "Which employee level receives the highest referral bonus?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 158,
+      "question": "Which caregiver type receives more parental leave?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 159,
+      "question": "Who has the highest base salary among the documented employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 160,
+      "question": "Who received the highest 2025 bonus among documented employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 161,
+      "question": "Which retention metric is the highest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 162,
+      "question": "Which retention metric is the lowest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 163,
+      "question": "Which customer health status has the most customers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 164,
+      "question": "Which certification was audited most recently?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 165,
+      "question": "Which certification was audited earliest in 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 167,
+      "question": "Which fiscal year had the lowest gross margin?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 168,
+      "question": "Which region contributed more revenue in FY 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 169,
+      "question": "Which office has more conference rooms?",
+      "avg_score": 0.2913
+    },
+    {
+      "q_id": 170,
+      "question": "Which office has more square footage?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 171,
+      "question": "Which employee received an \"Outstanding\" rating in December 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 172,
+      "question": "Which database is used for relational data?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 173,
+      "question": "Which database is used for flexible document storage?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 174,
+      "question": "Which programming language is used for high-performance services?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 175,
+      "question": "Which programming language is used for data science and AI?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 176,
+      "question": "What is the PTO policy for Directors?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 177,
+      "question": "What is the referral bonus for an Associate level candidate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 178,
+      "question": "What is the referral bonus for a Manager level candidate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 179,
+      "question": "What is the maximum reimbursement for software subscriptions without pre-approva",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 180,
+      "question": "What is the maximum reimbursement for client meals per person?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 181,
+      "question": "What class of air travel is permitted for domestic flights?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 182,
+      "question": "What class of air travel is permitted for international flights over 8 hours?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 183,
+      "question": "What is the preferred ground transportation method for local travel?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 184,
+      "question": "What is the data retention period for customer data (PHI)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 185,
+      "question": "What is the data retention period for financial records?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 186,
+      "question": "What is the data retention period for system logs?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 187,
+      "question": "What is the target gross margin for 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 188,
+      "question": "What is the target for user adoption of the automated discharge planning module?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 189,
+      "question": "What is the target for critical bug resolution time in Q1 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 190,
+      "question": "What are the core hours for remote employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 191,
+      "question": "How many days are required to complete the recruiting process?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 192,
+      "question": "How many professional references are required for final candidates?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 193,
+      "question": "What is the failover time achieved in the disaster recovery test?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 194,
+      "question": "What is the vesting schedule for employer 401(k) match?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 195,
+      "question": "How many office days per week are encouraged for teams?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 196,
+      "question": "What is the salary of the CEO?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 197,
+      "question": "What is the company's valuation after Series C?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 198,
+      "question": "How many customers are in the pipeline for Q2 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 199,
+      "question": "What is the employee turnover rate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 200,
+      "question": "What is the average customer lifetime value (LTV)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 201,
+      "question": "How many employees are listed in the employee directory?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 202,
+      "question": "What is Jennifer Lee's department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 203,
+      "question": "What is Amanda Garcia's job title?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 204,
+      "question": "When did Christopher Wilson start at MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 205,
+      "question": "How many employees work remotely according to the employee directory?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 207,
+      "question": "Which deal has the highest ACV in the Q1 2026 pipeline?",
+      "avg_score": 0.318
+    },
+    {
+      "q_id": 208,
+      "question": "How many deals are in the \"Negotiation\" stage?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 209,
+      "question": "What is the expected close date for the Mercy Hospital deal?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 211,
+      "question": "What is the ACV for Acme Hospital?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 212,
+      "question": "Which customer has the highest health score?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 213,
+      "question": "When does Beta Health System's contract end?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 214,
+      "question": "How many beds does Gamma Medical Center have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 215,
+      "question": "Which customer has the lowest health score?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 216,
+      "question": "What was the total revenue in December 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 217,
+      "question": "Which month in 2025 had the highest total revenue?",
+      "avg_score": 0.3587
+    },
+    {
+      "q_id": 218,
+      "question": "What was the new business revenue in March 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 219,
+      "question": "What was the total churn in September 2025?",
+      "avg_score": 0.2925
+    },
+    {
+      "q_id": 220,
+      "question": "What was the expansion revenue in October 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 221,
+      "question": "How much did Maria Rodriguez spend on travel to London?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 222,
+      "question": "What was the most expensive single expense in Q4 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 223,
+      "question": "How many expenses did Sarah Johnson submit in Q4 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 224,
+      "question": "What was Ben Carter's conference registration expense?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 225,
+      "question": "What is the planned total headcount for Q4 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 226,
+      "question": "Which department has the highest planned YoY growth rate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 227,
+      "question": "How many people will be in Engineering by Q2 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 228,
+      "question": "Which department has zero planned growth?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 229,
+      "question": "Which customer has the highest monthly active users?",
+      "avg_score": 0.3271
+    },
+    {
+      "q_id": 230,
+      "question": "What is Delta Hospital's feature adoption rate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 231,
+      "question": "Which customer has the lowest average session duration?",
+      "avg_score": 0.2326
+    },
+    {
+      "q_id": 232,
+      "question": "How many daily active users does Epsilon Health have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 233,
+      "question": "What is the ticket ID for the Beta Hospital login issue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 234,
+      "question": "How long did it take to resolve the critical system outage ticket?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 235,
+      "question": "Which ticket had the longest resolution time?",
+      "avg_score": 0.0
+    }
+  ],
+  "failures_by_type": {
+    "no_match": [
+      {
+        "q_id": 14,
+        "question": "What is the total funding raised by MedSync Health?",
+        "expected": "$165 million",
+        "actual": "MedSync Health has raised a total of **$",
+        "files_retrieved": [
+          "financials_2025.md",
+          "cash_flow_statement_2025.md",
+          "press_release_series_c.md"
+        ]
+      },
+      {
+        "q_id": 16,
+        "question": "When was MedSync Health's European operations established?",
+        "expected": "2022",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "financials_2025.md",
+          "security_compliance.md",
+          "press_release_series_c.md"
+        ]
+      },
+      {
+        "q_id": 131,
+        "question": "What was the QoQ revenue growth from Q3 to Q4 2025?",
+        "expected": "25%",
+        "actual": "The revenue growth from Oct_2025 to Sep_",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 132,
+        "question": "What was the QoQ revenue growth from Q2 to Q3 2025?",
+        "expected": "11.1%",
+        "actual": "The revenue growth from Oct_2025 to Sep_",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 133,
+        "question": "What was the QoQ revenue growth from Q1 to Q2 2025?",
+        "expected": "5.9%",
+        "actual": "The revenue growth from Oct_2025 to Sep_",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 206,
+        "question": "What is the total ACV value of all deals in the Q1 2026 sale",
+        "expected": "$5,550,000",
+        "actual": "The total ACV value of all deals in the ",
+        "files_retrieved": [
+          "quarterly_report_q4_2025.md",
+          "sales_pipeline_report_q1_2026.md",
+          "sales_pipeline_q1_2026.xlsx"
+        ]
+      },
+      {
+        "q_id": 226,
+        "question": "Which department has the highest planned YoY growth rate?",
+        "expected": "Customer Success (53%)",
+        "actual": "The metric growth from Oct_2025 to Sep_2",
+        "files_retrieved": []
+      }
+    ],
+    "no_data": [
+      {
+        "q_id": 55,
+        "question": "What CRM system does MedSync Health use?",
+        "expected": "Salesforce",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "recruiting_process.md",
+          "security_compliance.md",
+          "press_release_series_c.md"
+        ]
+      },
+      {
+        "q_id": 56,
+        "question": "What team communication tool does MedSync Health use?",
+        "expected": "Slack",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "recruiting_process.md",
+          "security_compliance.md",
+          "press_release_series_c.md"
+        ]
+      }
+    ],
+    "error": [
+      {
+        "q_id": 75,
+        "question": "What was the Cost of Goods Sold (COGS) in FY 2025?",
+        "expected": "$24.0 million",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 76,
+        "question": "What was Q1 2025 revenue?",
+        "expected": "$17.0 million",
+        "actual": "",
+        "files_retrieved": []
+      }
+    ],
+    "timeout": [
+      {
+        "q_id": 196,
+        "question": "What is the salary of the CEO?",
+        "expected": "[NOT IN DOCUMENTS]",
+        "actual": "",
+        "files_retrieved": []
+      }
+    ]
+  }
+}
