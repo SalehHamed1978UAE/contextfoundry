@@ -23,61 +23,19 @@ from ..utils.logger import logger
 
 _inflect_engine = inflect.engine()
 
-ABBREVIATION_MAP = {
-    "auth": "authentication",
-    "db": "database",
-    "svc": "service",
-    "srv": "service", 
-    "svr": "server",
-    "msg": "message",
-    "mgr": "manager",
-    "cfg": "config",
-    "config": "configuration",
-    "repo": "repository",
-    "api": "api",
-    "k8s": "kubernetes",
-    "pg": "postgresql",
-    "postgres": "postgresql",
-    "redis": "redis",
-    "mq": "message queue",
-    "lb": "load balancer",
-    "cdn": "content delivery network",
-    "ci": "continuous integration",
-    "cd": "continuous deployment",
-    "ml": "machine learning",
-    "ai": "artificial intelligence",
-    "vpc": "virtual private cloud",
-    "vm": "virtual machine",
-    "ec2": "elastic compute cloud",
-    "s3": "simple storage service",
-    "rds": "relational database service",
-    "iam": "identity access management",
-    "dns": "domain name system",
-    "ssl": "secure sockets layer",
-    "tls": "transport layer security",
-    "http": "hypertext transfer protocol",
-    "https": "hypertext transfer protocol secure",
-    "ui": "user interface",
-    "ux": "user experience",
-    "qa": "quality assurance",
-}
-
 def normalize_for_matching(name: str) -> str:
     """
     Normalize entity name for matching by:
     1. Converting to lowercase
-    2. Expanding common abbreviations (preserving token boundaries)
-    3. Singularizing plural words using inflect
-    4. Sorting tokens for order-independent matching
+    2. Singularizing plural words using inflect
+    3. Sorting tokens for order-independent matching
+    
+    Note: Abbreviation expansion removed - LLM handles semantic equivalence.
     """
     tokens = name.lower().replace('-', ' ').replace('_', ' ').split()
-    expanded_tokens = []
-    for token in tokens:
-        expansion = ABBREVIATION_MAP.get(token, token)
-        expanded_tokens.extend(expansion.split())
     
     normalized = []
-    for token in expanded_tokens:
+    for token in tokens:
         singular = _inflect_engine.singular_noun(token)
         normalized.append(singular if singular else token)
     return ' '.join(sorted(normalized))
