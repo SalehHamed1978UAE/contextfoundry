@@ -1,0 +1,1079 @@
+{
+  "run_timestamp": "2026-01-23T20:38:10.947751",
+  "trace_file": "test_results/traces/vault_aab0ec76_traces_039a4c4f.jsonl",
+  "stats": {
+    "total_questions": 106,
+    "avg_chunks_retrieved": 2.764150943396227,
+    "avg_semantic_score": 0.02131415094339623,
+    "query_type_distribution": {
+      "unknown": 106
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 25,
+      "no_match": 26,
+      "no_data": 7,
+      "boolean_match": 2,
+      "component_match": 10,
+      "number_match": 3,
+      "error": 29,
+      "percentage_match": 1,
+      "entity_match": 3
+    },
+    "low_score_queries": 103
+  },
+  "low_score_questions": [
+    {
+      "q_id": 1,
+      "question": "Who is the CEO of Manus Orion Group?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 2,
+      "question": "Who is the CFO of Manus Orion Group?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 3,
+      "question": "Who is the CTO of Manus Orion Group?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 4,
+      "question": "Who is the COO of Manus Orion Group?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 5,
+      "question": "Who is the Chief Sustainability Officer?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 6,
+      "question": "Who is the General Counsel?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 7,
+      "question": "Who is the Chief Data Officer?",
+      "avg_score": 0.285
+    },
+    {
+      "q_id": 8,
+      "question": "Who is the VP Defense & Aerospace?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 10,
+      "question": "What is Marcus Webb's role?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 11,
+      "question": "What is Dr. Evelyn Reed's role?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 12,
+      "question": "What is Alex Thorne's role?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 13,
+      "question": "What are the CEO's key responsibilities?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 14,
+      "question": "What are the CFO's key responsibilities?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 15,
+      "question": "What are the CTO's key responsibilities?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 16,
+      "question": "What are the COO's key responsibilities?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 17,
+      "question": "How many business units does Manus Orion Group have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 18,
+      "question": "What are the four main business units?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 19,
+      "question": "What does Orion Aerospace focus on?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 20,
+      "question": "What does Orion Energy Solutions focus on?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 21,
+      "question": "What does Orion Logistics focus on?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 23,
+      "question": "Which business unit handles defense systems?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 25,
+      "question": "What is the Falcon UAV Program?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 26,
+      "question": "Which business unit owns the Falcon UAV Program?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 27,
+      "question": "What is the budget for the Falcon UAV Program?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 28,
+      "question": "What is the timeline for the Falcon UAV Program?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 29,
+      "question": "What is Project Helios?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 30,
+      "question": "Which business unit owns Project Helios?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 31,
+      "question": "What is the budget for Project Helios?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 32,
+      "question": "What is the timeline for Project Helios?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 33,
+      "question": "What is the capacity of Project Helios?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 34,
+      "question": "Where is Project Helios located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 35,
+      "question": "What is the UrbanMesh IoT Platform?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 36,
+      "question": "Which business unit owns UrbanMesh IoT Platform?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 37,
+      "question": "What is the budget for UrbanMesh IoT Platform?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 38,
+      "question": "What is the AutoNav Logistics System?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 39,
+      "question": "Which business unit owns AutoNav Logistics System?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 40,
+      "question": "What is the budget for AutoNav Logistics System?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 41,
+      "question": "What is the timeline for AutoNav Logistics System?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 42,
+      "question": "What is Project Borealis?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 43,
+      "question": "What is the expected revenue from Project Borealis?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 44,
+      "question": "What is the GreenStream Hydrogen Initiative?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 45,
+      "question": "What is the capacity target for GreenStream Hydrogen?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 46,
+      "question": "What is NexGen Battery Storage's capacity target?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 47,
+      "question": "What is the SkyLink Satellite Network target?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 48,
+      "question": "What is the Quantum-Secured Supply Chain?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 49,
+      "question": "Where is the Orion Aerospace Plant located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 50,
+      "question": "Where is the Orion Energy Hub located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 51,
+      "question": "Where is the Orion Logistics Center located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 52,
+      "question": "Where is the SmartCity Innovation Lab located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 53,
+      "question": "Where is the Orion R&D Campus located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 54,
+      "question": "Where is the Manufacturing Facility located?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 55,
+      "question": "How many global facilities does Manus Orion Group have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 56,
+      "question": "Which facility handles aerospace manufacturing?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 57,
+      "question": "Which facility handles energy operations?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 58,
+      "question": "Which facility handles logistics operations?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 59,
+      "question": "Which facility handles smart city R&D?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 60,
+      "question": "What is the Falcon UAV production capacity target at Toulouse?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 61,
+      "question": "What is the 2027 revenue target?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 62,
+      "question": "What is the 2027 EBITDA margin target?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 63,
+      "question": "What is Project Helios expected to contribute by 2026?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 64,
+      "question": "What percentage market share does Falcon UAV have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 65,
+      "question": "What is the R&D spending target as percentage of revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 66,
+      "question": "What is the expected ROI range for strategic initiatives?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 67,
+      "question": "What is the target payback period for investments?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 68,
+      "question": "What is the budget allocation for R&D?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 69,
+      "question": "What is the budget allocation for CapEx?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 70,
+      "question": "What is the budget allocation for M&A?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 71,
+      "question": "What is the budget allocation for working capital?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 72,
+      "question": "What is the compliance cost estimate for Falcon UAV export controls?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 73,
+      "question": "What is the UrbanMesh deployment target for Q4 2025?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 74,
+      "question": "What is the target PPA capacity for Project Borealis?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 75,
+      "question": "What is the net-zero target year?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 76,
+      "question": "Who is the supplier for avionics components?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 77,
+      "question": "Which supplier provides components for AutoNav?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 78,
+      "question": "Which supplier is Quantum Dynamics Ltd?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 79,
+      "question": "Which supplier provides logistics support?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 80,
+      "question": "Which supplier provides security systems?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 81,
+      "question": "Which supplier handles component sourcing?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 82,
+      "question": "Which supplier provides materials support?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 83,
+      "question": "What risk does TechFlow Industries present?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 84,
+      "question": "What is the safety stock recommendation for critical components?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 85,
+      "question": "What is the dual-sourcing strategy for?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 86,
+      "question": "Who is Metropolitan Transit Corp?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 87,
+      "question": "Who is Neo-City Development Authority?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 88,
+      "question": "Who is SolarFuture Holdings?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 89,
+      "question": "Who is EuroGrid Energy?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 90,
+      "question": "Who is Global Defense Systems?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 91,
+      "question": "Who is Pacific Rim Airlines?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 92,
+      "question": "How many major customer accounts does Manus Orion have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 93,
+      "question": "Which customer has expressed interest in AutoNav capabilities?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 94,
+      "question": "Which customer requires workshops for Project Helios?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 95,
+      "question": "Which customer is targeted for first commercial order from UrbanMesh?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 96,
+      "question": "What is the target autonomous logistics market share?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 97,
+      "question": "When is Project Borealis commissioning scheduled?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 98,
+      "question": "What regions are targeted for regulatory engagement?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 99,
+      "question": "What is the working capital inventory target?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "What is the CapEx approval threshold for individual projects?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 101,
+      "question": "Who oversees budget and monthly variance reviews?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 102,
+      "question": "Who leads the engineering team?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 103,
+      "question": "Who oversees operational execution?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 104,
+      "question": "Who ensures regulatory compliance?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 105,
+      "question": "What is the export control policy reference?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 106,
+      "question": "What is the data privacy policy reference?",
+      "avg_score": 0.0
+    }
+  ],
+  "failures_by_type": {
+    "no_match": [
+      {
+        "q_id": 9,
+        "question": "What is Sarah Chen's role?",
+        "expected": "CEO",
+        "actual": "I couldn't find specific information abo",
+        "files_retrieved": [
+          "compliance_doc_014.md",
+          "quality_control_procedures.md",
+          "customers_doc_018.md"
+        ]
+      },
+      {
+        "q_id": 13,
+        "question": "What are the CEO's key responsibilities?",
+        "expected": "Overall strategy, board relations, M&A",
+        "actual": "The key responsibilities of the CEO, Sar",
+        "files_retrieved": [
+          "compliance_doc_014.md",
+          "quality_control_procedures.md",
+          "finances_doc_012.md"
+        ]
+      },
+      {
+        "q_id": 14,
+        "question": "What are the CFO's key responsibilities?",
+        "expected": "Financial planning, capital allocation, ",
+        "actual": "The CFO of Manus Orion is Marcus Webb.",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 15,
+        "question": "What are the CTO's key responsibilities?",
+        "expected": "R&D, technology roadmap, innovation",
+        "actual": "The CTO of Manus Orion is Dr. Evelyn Ree",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 16,
+        "question": "What are the COO's key responsibilities?",
+        "expected": "Operations, manufacturing, supply chain",
+        "actual": "The COO of Manus Orion is Alex Thorne.",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 18,
+        "question": "What are the four main business units?",
+        "expected": "Orion Aerospace, Orion Energy Solutions,",
+        "actual": "Based on the retrieved information, the ",
+        "files_retrieved": [
+          "finances_doc_017.md",
+          "finances_doc_012.md",
+          "legal_doc_004.md"
+        ]
+      },
+      {
+        "q_id": 19,
+        "question": "What does Orion Aerospace focus on?",
+        "expected": "Aircraft, UAVs, satellites, defense syst",
+        "actual": "The retrieved information does not expli",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 22,
+        "question": "What does Orion SmartCity focus on?",
+        "expected": "IoT platforms, urban infrastructure, sma",
+        "actual": "Orion SmartCity focuses on developing Io",
+        "files_retrieved": [
+          "legal_doc_004.md",
+          "kpi_dashboard_q1_2025.xlsx",
+          "engineering_doc_009.md"
+        ]
+      },
+      {
+        "q_id": 24,
+        "question": "Which business unit handles hydrogen production?",
+        "expected": "Orion Energy Solutions",
+        "actual": "The business unit that handles hydrogen ",
+        "files_retrieved": [
+          "vendor_management_procedures.txt",
+          "engineering_doc_020.md",
+          "ops_kpis_monthly_report.md"
+        ]
+      },
+      {
+        "q_id": 27,
+        "question": "What is the budget for the Falcon UAV Program?",
+        "expected": "$45M",
+        "actual": "The budget for the Falcon UAV Program va",
+        "files_retrieved": [
+          "scenario_planning_2026.md",
+          "pricing_strategy_review.md",
+          "strategic_kpis_dashboard.txt"
+        ]
+      },
+      {
+        "q_id": 28,
+        "question": "What is the timeline for the Falcon UAV Program?",
+        "expected": "2024-2025",
+        "actual": "The timeline for the Falcon UAV Program ",
+        "files_retrieved": [
+          "supply_chain_strategy.md",
+          "scenario_planning_2026.md",
+          "talent_acquisition_strategy.txt"
+        ]
+      },
+      {
+        "q_id": 30,
+        "question": "Which business unit owns Project Helios?",
+        "expected": "Energy",
+        "actual": "Project Helios is managed by Dr. Evelyn ",
+        "files_retrieved": [
+          "finances_doc_009.md",
+          "policies_doc_010.md",
+          "customers_doc_010.md"
+        ]
+      },
+      {
+        "q_id": 31,
+        "question": "What is the budget for Project Helios?",
+        "expected": "$850M",
+        "actual": "The budget for Project Helios includes s",
+        "files_retrieved": [
+          "finances_doc_013.md",
+          "talent_acquisition_strategy.txt",
+          "compliance_doc_007.md"
+        ]
+      },
+      {
+        "q_id": 32,
+        "question": "What is the timeline for Project Helios?",
+        "expected": "2024-2026",
+        "actual": "The timeline for Project Helios includes",
+        "files_retrieved": [
+          "supply_chain_strategy.md",
+          "investor_relations_strategy.txt",
+          "talent_acquisition_strategy.txt"
+        ]
+      },
+      {
+        "q_id": 33,
+        "question": "What is the capacity of Project Helios?",
+        "expected": "800 MW",
+        "actual": "The production capacity of Project Helio",
+        "files_retrieved": [
+          "supply_chain_strategy.md",
+          "policies_doc_002.md",
+          "projects_doc_011.md"
+        ]
+      },
+      {
+        "q_id": 40,
+        "question": "What is the budget for AutoNav Logistics System?",
+        "expected": "$120M",
+        "actual": "The budget for the AutoNav Logistics Sys",
+        "files_retrieved": [
+          "finances_doc_024.md",
+          "finances_doc_001.md",
+          "innovation_portfolio_review.txt"
+        ]
+      },
+      {
+        "q_id": 42,
+        "question": "What is Project Borealis?",
+        "expected": "Offshore wind farm",
+        "actual": "Project Borealis is a wind farm initiati",
+        "files_retrieved": [
+          "innovation_portfolio_review.txt",
+          "projects_doc_019.md",
+          "technology_radar_q2_2025.txt"
+        ]
+      },
+      {
+        "q_id": 46,
+        "question": "What is NexGen Battery Storage's capacity target?",
+        "expected": "1 GWh",
+        "actual": "The capacity target for NexGen Battery S",
+        "files_retrieved": [
+          "engineering_doc_004.md",
+          "maintenance_logs_toulouse.txt",
+          "policies_doc_006.md"
+        ]
+      },
+      {
+        "q_id": 48,
+        "question": "What is the Quantum-Secured Supply Chain?",
+        "expected": "Blockchain-based tracking system with qu",
+        "actual": "The Quantum-Secured Supply Chain is iden",
+        "files_retrieved": [
+          "projects_doc_008.md",
+          "engineering_doc_015.md",
+          "finances_doc_020.md"
+        ]
+      },
+      {
+        "q_id": 62,
+        "question": "What is the 2027 EBITDA margin target?",
+        "expected": "24%",
+        "actual": "The ebitda for FY2027 was $702,000,000.0",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 65,
+        "question": "What is the R&D spending target as percentage of revenue?",
+        "expected": "12%",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "compliance_doc_017.md",
+          "meeting_notes_doc_017.md",
+          "projects_doc_015.md"
+        ]
+      },
+      {
+        "q_id": 72,
+        "question": "What is the compliance cost estimate for Falcon UAV export c",
+        "expected": "$12M annually",
+        "actual": "The compliance cost estimates for Falcon",
+        "files_retrieved": [
+          "market_entry_strategy_india.md",
+          "three_year_financial_plan.md",
+          "meeting_notes_doc_016.md"
+        ]
+      },
+      {
+        "q_id": 74,
+        "question": "What is the target PPA capacity for Project Borealis?",
+        "expected": "2 GW",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "legal_doc_013.md",
+          "projects_doc_025.md",
+          "customers_doc_010.md"
+        ]
+      },
+      {
+        "q_id": 78,
+        "question": "Which supplier is Quantum Dynamics Ltd?",
+        "expected": "Critical supplier for Manus Orion operat",
+        "actual": "Quantum Dynamics Ltd is identified as a ",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 81,
+        "question": "Which supplier handles component sourcing?",
+        "expected": "EcoSolutions Corp",
+        "actual": "The supplier that handles component sour",
+        "files_retrieved": [
+          "engineering_doc_022.md",
+          "supplier_scorecard_2025.csv",
+          "projects_doc_017.md"
+        ]
+      },
+      {
+        "q_id": 82,
+        "question": "Which supplier provides materials support?",
+        "expected": "GreenTech Materials",
+        "actual": "Based on the retrieved information, the ",
+        "files_retrieved": []
+      }
+    ],
+    "no_data": [
+      {
+        "q_id": 20,
+        "question": "What does Orion Energy Solutions focus on?",
+        "expected": "Solar, wind, hydrogen, battery storage",
+        "actual": "The retrieved information does not provi",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 23,
+        "question": "Which business unit handles defense systems?",
+        "expected": "Orion Aerospace",
+        "actual": "The information provided does not explic",
+        "files_retrieved": [
+          "finances_doc_017.md",
+          "meeting_notes_doc_024.md",
+          "meeting_notes_doc_002.md"
+        ]
+      },
+      {
+        "q_id": 26,
+        "question": "Which business unit owns the Falcon UAV Program?",
+        "expected": "Aerospace",
+        "actual": "The Falcon UAV Program is overseen by mu",
+        "files_retrieved": [
+          "policies_doc_004.md",
+          "engineering_doc_025.md",
+          "brand_positioning_analysis.md"
+        ]
+      },
+      {
+        "q_id": 34,
+        "question": "Where is Project Helios located?",
+        "expected": "Morocco",
+        "actual": "Based on the retrieved information, Proj",
+        "files_retrieved": [
+          "finances_doc_013.md",
+          "finances_doc_009.md",
+          "policies_doc_002.md"
+        ]
+      },
+      {
+        "q_id": 36,
+        "question": "Which business unit owns UrbanMesh IoT Platform?",
+        "expected": "SmartCity",
+        "actual": "The information provided does not explic",
+        "files_retrieved": [
+          "warehouse_operations_manual.txt",
+          "legal_doc_020.md",
+          "engineering_doc_018.md"
+        ]
+      },
+      {
+        "q_id": 104,
+        "question": "Who ensures regulatory compliance?",
+        "expected": "General Counsel James Park",
+        "actual": "Based on the retrieved information, it a",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 106,
+        "question": "What is the data privacy policy reference?",
+        "expected": "POL-SC-003",
+        "actual": "The retrieved information does not expli",
+        "files_retrieved": [
+          "legal_doc_017.md",
+          "policies_doc_006.md",
+          "policies_doc_007.md"
+        ]
+      }
+    ],
+    "error": [
+      {
+        "q_id": 49,
+        "question": "Where is the Orion Aerospace Plant located?",
+        "expected": "Toulouse, France",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 50,
+        "question": "Where is the Orion Energy Hub located?",
+        "expected": "Copenhagen, Denmark",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 51,
+        "question": "Where is the Orion Logistics Center located?",
+        "expected": "Singapore",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 52,
+        "question": "Where is the SmartCity Innovation Lab located?",
+        "expected": "Seoul, South Korea",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 53,
+        "question": "Where is the Orion R&D Campus located?",
+        "expected": "Boulder",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 54,
+        "question": "Where is the Manufacturing Facility located?",
+        "expected": "Bangalore",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 55,
+        "question": "How many global facilities does Manus Orion Group have?",
+        "expected": "6",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 56,
+        "question": "Which facility handles aerospace manufacturing?",
+        "expected": "Orion Aerospace Plant - Toulouse",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 57,
+        "question": "Which facility handles energy operations?",
+        "expected": "Orion Energy Hub - Copenhagen",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 58,
+        "question": "Which facility handles logistics operations?",
+        "expected": "Orion Logistics Center - Singapore",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 59,
+        "question": "Which facility handles smart city R&D?",
+        "expected": "SmartCity Innovation Lab - Seoul",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 60,
+        "question": "What is the Falcon UAV production capacity target at Toulous",
+        "expected": "200 to 400 units annually",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 75,
+        "question": "What is the net-zero target year?",
+        "expected": "2035",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 76,
+        "question": "Who is the supplier for avionics components?",
+        "expected": "TechFlow Industries",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 86,
+        "question": "Who is Metropolitan Transit Corp?",
+        "expected": "A customer of Manus Orion Group",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 87,
+        "question": "Who is Neo-City Development Authority?",
+        "expected": "A customer of Manus Orion Group",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 88,
+        "question": "Who is SolarFuture Holdings?",
+        "expected": "A customer of Manus Orion Group",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 89,
+        "question": "Who is EuroGrid Energy?",
+        "expected": "A customer of Manus Orion Group",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 90,
+        "question": "Who is Global Defense Systems?",
+        "expected": "A customer of Manus Orion Group",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 91,
+        "question": "Who is Pacific Rim Airlines?",
+        "expected": "A customer of Manus Orion Group",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 92,
+        "question": "How many major customer accounts does Manus Orion have?",
+        "expected": "6",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 93,
+        "question": "Which customer has expressed interest in AutoNav capabilitie",
+        "expected": "Metropolitan Transit Corp",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 94,
+        "question": "Which customer requires workshops for Project Helios?",
+        "expected": "Neo-City Development Authority",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 95,
+        "question": "Which customer is targeted for first commercial order from U",
+        "expected": "Metropolitan Transit Corp",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 96,
+        "question": "What is the target autonomous logistics market share?",
+        "expected": "30%",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 97,
+        "question": "When is Project Borealis commissioning scheduled?",
+        "expected": "Q4 2025",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 98,
+        "question": "What regions are targeted for regulatory engagement?",
+        "expected": "EU, US, APAC",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 99,
+        "question": "What is the working capital inventory target?",
+        "expected": "90 days",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 100,
+        "question": "What is the CapEx approval threshold for individual projects",
+        "expected": "$7M",
+        "actual": "",
+        "files_retrieved": []
+      }
+    ]
+  }
+}
