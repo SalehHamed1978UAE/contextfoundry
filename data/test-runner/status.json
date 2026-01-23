@@ -1,0 +1,40 @@
+{
+  "status": "running",
+  "vault_id": "310dc682-8cd4-4822-94de-0c8cbdb1a2c2",
+  "question_set_id": "1f827636-fb0a-4911-b77f-5dda9b28b921",
+  "test_run_id": "61a7b441-c3dd-42e4-81f8-2b412972bdb6",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-01-23T08:29:53.374223",
+  "pid": 15690,
+  "stages": {
+    "delete": {
+      "status": "skipped"
+    },
+    "create": {
+      "status": "skipped"
+    },
+    "upload": {
+      "status": "skipped"
+    },
+    "extract": {
+      "status": "complete",
+      "entities": 1069
+    },
+    "qa": {
+      "status": "running"
+    }
+  },
+  "qa_progress": {
+    "total": 235,
+    "answered": 195,
+    "passed": 138,
+    "failed": 57,
+    "accuracy_percent": 70.8
+  },
+  "current_question": {
+    "id": 195,
+    "text": "How many office days per week are encouraged for teams?"
+  },
+  "updated_at": "2026-01-23T08:46:36.393058"
+}

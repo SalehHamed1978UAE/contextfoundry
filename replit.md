@@ -52,6 +52,7 @@ Architectural features include:
   - **Authority Config** (`config/authority_map.json`): Defines fact type authorities, folder priorities, and canonical terms with per-corpus overrides.
   - **Evaluator Entity Aliases**: Supports abbreviation matching (e.g., "GDS" ↔ "Global Defense Systems") in answer evaluation.
   - **Detailed Failure Categories**: Evaluator classifies failures as `ALTERNATE_SOURCE`, `FORMAT_MISMATCH`, `NOT_FOUND` instead of generic mismatch.
+  - **Person-Role/Org-Unit Query Routing Override**: QueryClassifier now detects person-role queries (e.g., "What is Sarah Chen's role?") and org-unit queries (e.g., "What are the business units?") with proper name validation (`_is_proper_name()`) to prioritize Knowledge Graph routing with HYBRID fallback. Prevents false positives on generic queries like "Who is the CEO?" which use existing role resolution.
 
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)
