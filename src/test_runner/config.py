@@ -29,7 +29,7 @@ DEFAULT_CONFIG = {
         },
         "Manus Orion": {
             "root_path": "test documents/Manus Orion/",
-            "questions_file": "orion_400q.json",
+            "questions_file": "orion_320q.json",
             "current_vault_id": None,
             "last_run": None,
             "last_accuracy": None
