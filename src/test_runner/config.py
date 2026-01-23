@@ -8,7 +8,7 @@ DEFAULT_CONFIG = {
     "corpora": {
         "ClaudeCode Medsync": {
             "root_path": "test_documents/claudecode_medsync/",
-            "questions_file": "medsync_235q.json",
+            "questions_file": "medsync_235q_v2.json",
             "current_vault_id": None,
             "last_run": None,
             "last_accuracy": None
