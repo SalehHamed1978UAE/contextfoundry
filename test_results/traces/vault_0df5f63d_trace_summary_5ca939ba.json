@@ -1,0 +1,1395 @@
+{
+  "run_timestamp": "2026-01-23T16:48:58.945489",
+  "trace_file": "test_results/traces/vault_0df5f63d_traces_5ca939ba.jsonl",
+  "stats": {
+    "total_questions": 215,
+    "avg_chunks_retrieved": 3.958139534883722,
+    "avg_semantic_score": 0.026596279069767432,
+    "query_type_distribution": {
+      "unknown": 215
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 86,
+      "entity_match": 1,
+      "no_data": 2,
+      "component_match": 65,
+      "boolean_match": 3,
+      "number_match": 5,
+      "no_match": 24,
+      "semantic_match": 15,
+      "percentage_match": 1,
+      "timeout": 1,
+      "uncertainty_match": 9,
+      "should_say_unknown": 3
+    },
+    "low_score_queries": 207
+  },
+  "low_score_questions": [
+    {
+      "q_id": 1,
+      "question": "Who is the CEO of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 2,
+      "question": "Who is the CFO of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 3,
+      "question": "What is the company headquarters location?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 4,
+      "question": "When was MedSync Health founded?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 5,
+      "question": "How many offices does MedSync Health have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 6,
+      "question": "What is the name of the CTO?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 7,
+      "question": "What industry does MedSync Health operate in?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 8,
+      "question": "What is the company's current funding stage?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 9,
+      "question": "Who is the Chief Product Officer?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 10,
+      "question": "What is the name of the General Counsel?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 11,
+      "question": "How many product lines does MedSync Health have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 12,
+      "question": "What is the name of the hospital-clinic integration platform product?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 13,
+      "question": "When was MedSync Connect launched?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 14,
+      "question": "When was the SOC 2 Type II certification first obtained?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 15,
+      "question": "When was HIPAA compliance certified?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 16,
+      "question": "When was ISO 27001 certification obtained?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 17,
+      "question": "Who is the VP of Sales?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 18,
+      "question": "How many departments does MedSync Health have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 19,
+      "question": "What is the name of the patient engagement platform product?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 20,
+      "question": "When was MedSync Patient Portal launched?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 21,
+      "question": "What cloud provider does MedSync Health primarily use?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 22,
+      "question": "When did MedSync Health implement GDPR compliance?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 23,
+      "question": "What is the name of the compliance product?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 24,
+      "question": "When was MedSync Compliance Suite launched?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 25,
+      "question": "Who is the Chief Marketing Officer?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 27,
+      "question": "Who is the Chief Operating Officer?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 28,
+      "question": "What is the name of the analytics product?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 29,
+      "question": "When was MedSync Analytics launched?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 30,
+      "question": "How many employees are in the Boston office?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 31,
+      "question": "How many employees are in the London office?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 32,
+      "question": "How many employees are in the Berlin office?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 33,
+      "question": "How many employees are in the Singapore office?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 34,
+      "question": "When did MedSync Health partner with Epic Systems?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 35,
+      "question": "When did MedSync Health partner with Cerner?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 36,
+      "question": "What is the company's fiscal year?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 37,
+      "question": "What currency does MedSync Health use for financial reporting?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 38,
+      "question": "What is the name of the VP of Customer Success?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 39,
+      "question": "How many customer types does MedSync Health serve?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 40,
+      "question": "When was the Series D funding round completed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 41,
+      "question": "What was MedSync Health's total revenue in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 42,
+      "question": "What was the total revenue in FY 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 43,
+      "question": "What was the total revenue in FY 2022?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 44,
+      "question": "How many total employees does MedSync Health have as of Q4 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 45,
+      "question": "What was Q1 2024 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 46,
+      "question": "What was Q2 2024 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 47,
+      "question": "What was Q3 2024 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 48,
+      "question": "What was Q4 2024 revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 49,
+      "question": "What is the gross margin for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 52,
+      "question": "How many hospitals are customers of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 53,
+      "question": "How many clinics are customers of MedSync Health?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 54,
+      "question": "How many insurance providers are customers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 55,
+      "question": "What is the NPS score for MedSync Connect?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 56,
+      "question": "What is the NPS score for MedSync Analytics?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 57,
+      "question": "What is the NPS score for MedSync Patient Portal?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 58,
+      "question": "What is the NPS score for MedSync Compliance Suite?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 59,
+      "question": "What is the company-wide NPS score for Q4 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 60,
+      "question": "What is the Logo Retention Rate for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 61,
+      "question": "What is the Customer Retention Rate for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 62,
+      "question": "What is the Gross Revenue Retention (GRR) for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 63,
+      "question": "What is the Net Revenue Retention (NRR) for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 64,
+      "question": "How many employees are in the Engineering department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 65,
+      "question": "How many employees are in the Sales department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 66,
+      "question": "How many employees are in the Customer Success department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 67,
+      "question": "What is the ARR for MedSync Connect in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 68,
+      "question": "What is the ARR for MedSync Analytics in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 69,
+      "question": "What is the ARR for MedSync Patient Portal in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 70,
+      "question": "What is the ARR for MedSync Compliance Suite in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 71,
+      "question": "What was the COGS (Cost of Goods Sold) for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 73,
+      "question": "What was the R&D spending for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 74,
+      "question": "What was the Sales & Marketing spending for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 75,
+      "question": "How many new customers were acquired in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 76,
+      "question": "How many customers churned in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 77,
+      "question": "What is the voluntary attrition rate for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 79,
+      "question": "What is the average tenure of employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 80,
+      "question": "What percentage of revenue comes from North America in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 81,
+      "question": "What percentage of revenue comes from EMEA in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 82,
+      "question": "What percentage of revenue comes from APAC in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 83,
+      "question": "What was the operating income for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 84,
+      "question": "What was the net income for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 85,
+      "question": "What is the operating margin for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 86,
+      "question": "What is the net margin for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 87,
+      "question": "How many employees are in the Product department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 88,
+      "question": "How many employees are in the Marketing department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 89,
+      "question": "How many employees are in the Operations department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 90,
+      "question": "How many employees are in the Finance & Legal department?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 91,
+      "question": "What was the year-over-year revenue growth from FY 2023 to FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 92,
+      "question": "What was the year-over-year revenue growth from FY 2022 to FY 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 93,
+      "question": "What was the sequential revenue growth from Q1 2024 to Q2 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 94,
+      "question": "What was the sequential revenue growth from Q2 2024 to Q3 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 95,
+      "question": "What was the sequential revenue growth from Q3 2024 to Q4 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 96,
+      "question": "How many employees did MedSync Health have at the end of Q4 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 97,
+      "question": "How many employees did MedSync Health have at the end of Q4 2022?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 98,
+      "question": "What was the employee growth from Q4 2023 to Q4 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 99,
+      "question": "When was the SOC 2 Type II certification renewed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 100,
+      "question": "How long has MedSync Health held HIPAA compliance certification as of December 2",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 101,
+      "question": "What was the revenue in Q3 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 102,
+      "question": "What was the revenue in Q4 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 103,
+      "question": "What was the revenue in Q1 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 104,
+      "question": "What was the revenue in Q2 2023?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 105,
+      "question": "How many years has MedSync Health been in operation as of December 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 106,
+      "question": "How long after founding did MedSync Health achieve Series A funding?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 107,
+      "question": "How long after founding did MedSync Health launch its first product?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 108,
+      "question": "What is the time gap between MedSync Connect and MedSync Analytics launches?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 109,
+      "question": "What is the time gap between Series C and Series D funding rounds?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 110,
+      "question": "How long after HIPAA certification was ISO 27001 obtained?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 111,
+      "question": "When was the Seed funding round completed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 112,
+      "question": "When was the Series A funding round completed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 113,
+      "question": "When was the Series B funding round completed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 114,
+      "question": "When was the Series C funding round completed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 115,
+      "question": "How many months are between MedSync Patient Portal and MedSync Compliance Suite ",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 116,
+      "question": "What was the H1 2024 revenue (first half)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 117,
+      "question": "What was the H2 2024 revenue (second half)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 118,
+      "question": "How much did revenue grow from H1 2024 to H2 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 119,
+      "question": "What was the average quarterly revenue in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 120,
+      "question": "How many years after founding did MedSync Health reach Series D?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 121,
+      "question": "Which product has the highest NPS score?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 122,
+      "question": "Which product has the lowest NPS score?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 123,
+      "question": "Which product generates the most revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 124,
+      "question": "Which product generates the least revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 125,
+      "question": "Which department has the most employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 126,
+      "question": "Which department has the fewest employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 127,
+      "question": "Which office has the most employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 128,
+      "question": "Which office has the fewest employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 129,
+      "question": "Which region generates the most revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 130,
+      "question": "Which region generates the least revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 131,
+      "question": "Which quarter in 2024 had the highest revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 132,
+      "question": "Which quarter in 2024 had the lowest revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 133,
+      "question": "Which product was launched first?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 134,
+      "question": "Which product was launched most recently?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 135,
+      "question": "Which funding round was the largest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 136,
+      "question": "Which funding round was the smallest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 137,
+      "question": "Which retention metric is highest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 138,
+      "question": "Which retention metric is lowest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 139,
+      "question": "Which department has the largest budget in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 140,
+      "question": "Which year had the highest revenue growth rate?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 141,
+      "question": "Which product has the most hospital customers?",
+      "avg_score": 0.3637
+    },
+    {
+      "q_id": 143,
+      "question": "Is the NRR higher or lower than the GRR?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 144,
+      "question": "Which half of 2024 had higher revenue, H1 or H2?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 145,
+      "question": "Which expense category is largest: R&D, Sales & Marketing, or G&A?",
+      "avg_score": 0.2865
+    },
+    {
+      "q_id": 146,
+      "question": "What is the referral bonus for Individual Contributors (IC)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 147,
+      "question": "What is the referral bonus for Managers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 148,
+      "question": "What is the referral bonus for Directors and above?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 149,
+      "question": "How many days of PTO do employees receive annually?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 150,
+      "question": "How many weeks of parental leave are offered?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 151,
+      "question": "What is the daily meal allowance for domestic travel?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 152,
+      "question": "What is the daily meal allowance for international travel?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 153,
+      "question": "What is the maximum expense approval limit for managers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 154,
+      "question": "What is the maximum expense approval limit for directors?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 155,
+      "question": "What is the minimum tenure required for promotion to Manager?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 156,
+      "question": "What is the minimum tenure required for promotion to Director?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 157,
+      "question": "How often are performance reviews conducted?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 158,
+      "question": "What is the remote work policy for employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 159,
+      "question": "What is the notice period for employee resignation?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 160,
+      "question": "What encryption standard is used for data at rest?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 161,
+      "question": "What encryption standard is used for data in transit?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 162,
+      "question": "What is the password complexity requirement?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 163,
+      "question": "How often must passwords be changed?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 164,
+      "question": "What is the RTO (Recovery Time Objective) in the disaster recovery plan?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 165,
+      "question": "What is the RPO (Recovery Point Objective) in the disaster recovery plan?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 166,
+      "question": "What is the maximum contract value that requires board approval?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 167,
+      "question": "What is the SLA uptime guarantee for enterprise customers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 168,
+      "question": "What is the data retention period for customer data?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 169,
+      "question": "What is the notice period for contract termination?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 170,
+      "question": "What is the liability cap in the Master Service Agreement?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 171,
+      "question": "What is the average compensation for Individual Contributors?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 172,
+      "question": "What is the average compensation for Managers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 173,
+      "question": "What is the average compensation for Directors?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 174,
+      "question": "What is the average compensation for VPs?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 175,
+      "question": "What is the average compensation for C-Level executives?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 176,
+      "question": "What health insurance benefits are provided?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 177,
+      "question": "Is there a 401(k) or retirement plan?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 178,
+      "question": "What is the company match for retirement contributions?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 179,
+      "question": "What is the equipment budget for new hires?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 180,
+      "question": "What is the meeting room booking policy?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 181,
+      "question": "What is the revenue per employee for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 182,
+      "question": "What percentage of total revenue does MedSync Connect represent?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 183,
+      "question": "What percentage of total revenue does MedSync Analytics represent?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 184,
+      "question": "What is the gross profit for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 185,
+      "question": "What is the average deal size for new customers in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 186,
+      "question": "What is the Customer Acquisition Cost (CAC) for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 187,
+      "question": "What is the net new customer count for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 188,
+      "question": "What percentage of employees work in the Boston HQ?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 189,
+      "question": "What percentage of employees are in Engineering and Product combined?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 190,
+      "question": "What is the total revenue from EMEA in FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 191,
+      "question": "What is the monthly burn rate for FY 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 192,
+      "question": "What is the runway in months based on post-Series D cash?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 194,
+      "question": "What percentage of employees are in go-to-market functions (Sales + Marketing + ",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 195,
+      "question": "What is the R&D spending as a percentage of revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 196,
+      "question": "What is the Sales & Marketing spending as a percentage of revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 197,
+      "question": "How many total unique customer organizations are there?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 198,
+      "question": "What is the average revenue per customer organization?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 199,
+      "question": "What is the employee growth rate from Q4 2023 to Q4 2024?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 200,
+      "question": "What is the total funding raised per employee?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 201,
+      "question": "What is the company's target IPO date?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 203,
+      "question": "What is the company's market share in the healthcare tech industry?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 204,
+      "question": "What is the customer satisfaction score (CSAT)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 205,
+      "question": "What is the average response time for customer support tickets?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 206,
+      "question": "What is the employee satisfaction score (eNPS)?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 207,
+      "question": "What is the company's valuation after Series D?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 208,
+      "question": "What is the average time to close for enterprise deals?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 209,
+      "question": "What is the company's credit rating?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 210,
+      "question": "What is the company's debt-to-equity ratio?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 211,
+      "question": "What is the average contract length for customers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 212,
+      "question": "What is the company's patent portfolio size?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 213,
+      "question": "What is the average time to implement for new customers?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 214,
+      "question": "What is the company's cybersecurity insurance coverage amount?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 215,
+      "question": "What is the company's annual marketing budget breakdown by channel?",
+      "avg_score": 0.0
+    }
+  ],
+  "failures_by_type": {
+    "no_data": [
+      {
+        "q_id": 4,
+        "question": "When was MedSync Health founded?",
+        "expected": "January 2019",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "6_WA8vpK4dIir8ozk9Uq7DQV_1768679057907_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMDdfQ2FzZV9TdHVkeV9TaW5nYXBvcmVfSGVhbHRoY2FyZV9Hcm91cA.md",
+          "4_ekkhVoxS5KqOp8Ayy0v8Xm_1768679054114_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMDVfQ2FzZV9TdHVkeV9Mb25kb25fSGVhbHRoX05ldHdvcms.md",
+          "5_sQa977G8KPlwntlyOoOE1i_1768679058417_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMDZfQ2FzZV9TdHVkeV9CZXJsaW5fTWVkaWNhbF9DZW50ZXI.md"
+        ]
+      },
+      {
+        "q_id": 155,
+        "question": "What is the minimum tenure required for promotion to Manager",
+        "expected": "[Answer depends on document content]",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "5_ymZmzexUbGk7Rk49TJKPWq_1768680077098_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9PUFMtMDA2X0ZsZWV0X1BvbGljeQ.md",
+          "6_B7lDW1LPG8RciIa3ew1TOp_1768680080606_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9PUFMtMDA3X0ZhY2lsaXRpZXNfR3VpZGU.md"
+        ]
+      }
+    ],
+    "no_match": [
+      {
+        "q_id": 72,
+        "question": "What were the total operating expenses for FY 2024?",
+        "expected": "AED 383,544,000",
+        "actual": "The total operating expenses for FY 2024",
+        "files_retrieved": [
+          "14_KBJ8zjIm047SVewjxOoARq_1768677327358_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDE1X0ZZXzIwMjVfQnVkZ2V0X1BsYW4.md",
+          "0_b5isQ522snCaPWDiR1DiFL_1768677317675_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDAxX0FubnVhbF9SZXBvcnRfMjAyNA.md"
+        ]
+      },
+      {
+        "q_id": 102,
+        "question": "What was the revenue in Q4 2023?",
+        "expected": "AED 102,900,000",
+        "actual": "The revenue for Q4 2023 is reported as *",
+        "files_retrieved": [
+          "4_4CCofv7spkLT5bF6ZvXpjW_1768677315322_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA1X1EyXzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md",
+          "5_DEyR0hZooTn4qzKY3xgLAw_1768679922415_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMDZfUHJvZHVjdF9EZXBhcnRtZW50X09LUnNfMjAyNA.md",
+          "6_vsq4lfLk4bHEsTSPEUpa0o_1768677325031_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA3X1E0XzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md"
+        ]
+      },
+      {
+        "q_id": 103,
+        "question": "What was the revenue in Q1 2023?",
+        "expected": "AED 80,850,000",
+        "actual": "The revenue for Q1 2023 is reported as *",
+        "files_retrieved": [
+          "4_4CCofv7spkLT5bF6ZvXpjW_1768677315322_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA1X1EyXzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md",
+          "5_DEyR0hZooTn4qzKY3xgLAw_1768679922415_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMDZfUHJvZHVjdF9EZXBhcnRtZW50X09LUnNfMjAyNA.md",
+          "6_vsq4lfLk4bHEsTSPEUpa0o_1768677325031_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA3X1E0XzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md"
+        ]
+      },
+      {
+        "q_id": 104,
+        "question": "What was the revenue in Q2 2023?",
+        "expected": "AED 88,200,000",
+        "actual": "The revenue for Q2 2023 is not explicitl",
+        "files_retrieved": [
+          "4_4CCofv7spkLT5bF6ZvXpjW_1768677315322_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA1X1EyXzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md",
+          "2_tuMA8dS2efmhpKNc2ba2RY_1768677315876_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDAzX0FubnVhbF9SZXBvcnRfMjAyMg.md",
+          "6_vsq4lfLk4bHEsTSPEUpa0o_1768677325031_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA3X1E0XzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md"
+        ]
+      },
+      {
+        "q_id": 116,
+        "question": "What was the H1 2024 revenue (first half)?",
+        "expected": "AED 227,850,000 (Q1 + Q2)",
+        "actual": "The H1 2024 revenue (first half) is not ",
+        "files_retrieved": [
+          "14_KBJ8zjIm047SVewjxOoARq_1768677327358_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDE1X0ZZXzIwMjVfQnVkZ2V0X1BsYW4.md",
+          "3_ZZEYd6xPLFb1Lnt1uFiASM_1768677336035_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA0X1ExXzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md",
+          "9_A8GzGMOgVqWRKbqykrfQ86_1768679920879_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMTBfTWFya2V0X0FuYWx5c2lzX1JlcG9ydF8yMDI0.md"
+        ]
+      },
+      {
+        "q_id": 117,
+        "question": "What was the H2 2024 revenue (second half)?",
+        "expected": "AED 257,250,000 (Q3 + Q4)",
+        "actual": "The revenue for the second half of 2024 ",
+        "files_retrieved": [
+          "4_4CCofv7spkLT5bF6ZvXpjW_1768677315322_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDA1X1EyXzIwMjRfUXVhcnRlcmx5X1JlcG9ydA.md",
+          "14_KBJ8zjIm047SVewjxOoARq_1768677327358_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDE1X0ZZXzIwMjVfQnVkZ2V0X1BsYW4.md",
+          "9_A8GzGMOgVqWRKbqykrfQ86_1768679920879_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMTBfTWFya2V0X0FuYWx5c2lzX1JlcG9ydF8yMDI0.md"
+        ]
+      },
+      {
+        "q_id": 130,
+        "question": "Which region generates the least revenue?",
+        "expected": "APAC with AED 48,510,000 (10% of total)",
+        "actual": "Based on the retrieved information, the ",
+        "files_retrieved": [
+          "1_TTW5gYUNWdDmaPgsOcRv5R_1768677318108_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDAyX0FubnVhbF9SZXBvcnRfMjAyMw.md",
+          "11_URcAZR1nkIuUJzits0Xuqe_1768677347316_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDEy.md",
+          "12_KsxpdNdMoGPuDApFMfMbWW_1768678739230_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9QUk9ELTAxMw.md"
+        ]
+      },
+      {
+        "q_id": 134,
+        "question": "Which product was launched most recently?",
+        "expected": "MedSync Compliance Suite (February 2022)",
+        "actual": "The most recently launched product, base",
+        "files_retrieved": [
+          "5_DEyR0hZooTn4qzKY3xgLAw_1768679922415_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMDZfUHJvZHVjdF9EZXBhcnRtZW50X09LUnNfMjAyNA.md",
+          "5_gFRFjX8U0j6LbP0blyIeV3_1768678739987_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9QUk9ELTAwNl9NZWRTeW5jX0FuYWx5dGljc19Qcm9kdWN0X1JvYWRtYXBfMjAyNQ.md",
+          "0_KvJ5WGvZTYA4xaLpZNS5pV_1768679053981_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMDFfQ3VzdG9tZXJfTWV0cmljc19SZXBvcnRfRlkyMDI0.md"
+        ]
+      },
+      {
+        "q_id": 145,
+        "question": "Which expense category is largest: R&D, Sales & Marketing, o",
+        "expected": "R&D with AED 174,636,000",
+        "actual": "The expense categories and their respect",
+        "files_retrieved": [
+          "4_pNgM8ie5iJ7EtsDx0BD47V_1768678334793_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDVfVHJhdmVsX1BvbGljeQ.md",
+          "3_7QHSPKPsdoM2iauzpkKYz4_1768678326487_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDRfRXhwZW5zZV9Qb2xpY3k.md",
+          "14_KBJ8zjIm047SVewjxOoARq_1768677327358_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDE1X0ZZXzIwMjVfQnVkZ2V0X1BsYW4.md"
+        ]
+      },
+      {
+        "q_id": 150,
+        "question": "How many weeks of parental leave are offered?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The parental leave offered includes the ",
+        "files_retrieved": [
+          "2_PfrXDoeNv5wjyFuYn25LnY_1768678329517_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDNfUGFyZW50YWxfTGVhdmVfUG9saWN5.md",
+          "0_b6rNBdBszbaupfvjHxsKef_1768678332842_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDFfRW1wbG95ZWVfSGFuZGJvb2s.md",
+          "13_M5ffBMshMUhuaUAqPvMpQB_1768678335513_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMTRfQmVuZWZpdHNfU3VtbWFyeQ.md"
+        ]
+      },
+      {
+        "q_id": 157,
+        "question": "How often are performance reviews conducted?",
+        "expected": "[Answer depends on document content]",
+        "actual": "Performance reviews at MedSync Health ar",
+        "files_retrieved": [
+          "12_KjNC3Uylq1YL8jcLec6rFg_1768678336603_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMTNfREVJX1JlcG9ydA.md",
+          "14_fQ9ZVTr4yl0tgYAy0Sc7WK_1768678332202_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMTU.md",
+          "8_AwiNBNB8Gq8xalZSLmMkxi_1768678333518_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDk.md"
+        ]
+      },
+      {
+        "q_id": 160,
+        "question": "What encryption standard is used for data at rest?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The encryption standard used for data at",
+        "files_retrieved": [
+          "3_JwQmv8PUsn4EeA5D7Xe85w_1768679338664_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDA0X0dEUFJfUG9saWN5X2FuZF9Qcm9jZWR1cmVz.md",
+          "11_wEa5V4LHXT3x23p73ESS5y_1768679337993_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDEyX0VuY3J5cHRpb25fU3RhbmRhcmRz.md"
+        ]
+      },
+      {
+        "q_id": 161,
+        "question": "What encryption standard is used for data in transit?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The encryption standard used for data in",
+        "files_retrieved": [
+          "2_lKACkht4DfOjYO9EB6MEyA_1768679332149_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDAzX0lTT18yNzAwMV9DZXJ0aWZpY2F0aW9u.md",
+          "3_JwQmv8PUsn4EeA5D7Xe85w_1768679338664_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDA0X0dEUFJfUG9saWN5X2FuZF9Qcm9jZWR1cmVz.md",
+          "11_wEa5V4LHXT3x23p73ESS5y_1768679337993_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDEyX0VuY3J5cHRpb25fU3RhbmRhcmRz.md"
+        ]
+      },
+      {
+        "q_id": 164,
+        "question": "What is the RTO (Recovery Time Objective) in the disaster re",
+        "expected": "[Answer depends on document content]",
+        "actual": "The Recovery Time Objective (RTO) in the",
+        "files_retrieved": [
+          "9_Or62Aaemd4Ib7Wx4zM6Z8H_1768679332388_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDEwX0Rpc2FzdGVyX1JlY292ZXJ5X1BsYW4.md",
+          "8_NyvKpwDSMt9Vl7QAV6WhAy_1768679331717_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDA5X0J1c2luZXNzX0NvbnRpbnVpdHlfUGxhbg.md"
+        ]
+      },
+      {
+        "q_id": 166,
+        "question": "What is the maximum contract value that requires board appro",
+        "expected": "[Answer depends on document content]",
+        "actual": "The maximum contract value that requires",
+        "files_retrieved": [
+          "11_oxdXi0S2y4SkjzUxSPmjWK_1768679050715_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMTJfUGFydG5lcl9BZ3JlZW1lbnRfQ2VybmVy.md",
+          "0_SpiRvGKSugMESmydFhG8KX_1768680081012_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9PUFMtMDAxX1ZlbmRvcl9Db250cmFjdHNfU3VtbWFyeQ.md",
+          "6_5ZNzdTXiSEiykN5RfRTiLb_1768679517138_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9MRUdBTC0wMDdfQm9hcmRfUmVzb2x1dGlvbnNfMjAyNA.md"
+        ]
+      },
+      {
+        "q_id": 167,
+        "question": "What is the SLA uptime guarantee for enterprise customers?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The SLA uptime guarantee for enterprise ",
+        "files_retrieved": [
+          "3_gz2XGpMwpOf4XjkMjhkspT_1768680094734_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9PUFMtMDA0X1NvZnR3YXJlX0xpY2Vuc2Vz.md",
+          "14_qqT20cELTG4qmZnrcfHJnA_1768678731835_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9QUk9ELTAxNV9QcmljaW5nX1NoZWV0cw.md",
+          "3_5M3lAWsKEXIkLFuZiKqYzL_1768679541904_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9MRUdBTC0wMDQ.md"
+        ]
+      },
+      {
+        "q_id": 169,
+        "question": "What is the notice period for contract termination?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": [
+          "2_WA3nxsQ1V4YNx6tUjhGe5f_1768679524017_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9MRUdBTC0wMDMtTWFzdGVyX1NlcnZpY2VfQWdyZWVtZW50X1RlbXBsYXRl.md",
+          "4_iatQWqs5fgbjvMmz0zXERH_1768679525997_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9MRUdBTC0wMDVfSW50ZWxsZWN0dWFsX1Byb3BlcnR5X1BvbGljeQ.md",
+          "10_81LqSt3CGjq7DVxjIZqMVC_1768679339363_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDExX0FjY2Vzc19Db250cm9sX1BvbGljeQ.md"
+        ]
+      },
+      {
+        "q_id": 176,
+        "question": "What health insurance benefits are provided?",
+        "expected": "[Answer depends on document content]",
+        "actual": "Based on the retrieved information, the ",
+        "files_retrieved": [
+          "0_r2epDMEIrqx6ptr22qLmtc_1768679532719_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9MRUdBTC0wMDFfVGVybXNfb2ZfU2VydmljZQ.md",
+          "2_PfrXDoeNv5wjyFuYn25LnY_1768678329517_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDNfUGFyZW50YWxfTGVhdmVfUG9saWN5.md",
+          "10_81LqSt3CGjq7DVxjIZqMVC_1768679339363_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TRUMtMDExX0FjY2Vzc19Db250cm9sX1BvbGljeQ.md"
+        ]
+      },
+      {
+        "q_id": 178,
+        "question": "What is the company match for retirement contributions?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The company match for retirement contrib",
+        "files_retrieved": [
+          "13_M5ffBMshMUhuaUAqPvMpQB_1768678335513_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMTRfQmVuZWZpdHNfU3VtbWFyeQ.md",
+          "2_PfrXDoeNv5wjyFuYn25LnY_1768678329517_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDNfUGFyZW50YWxfTGVhdmVfUG9saWN5.md",
+          "0_b6rNBdBszbaupfvjHxsKef_1768678332842_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDFfRW1wbG95ZWVfSGFuZGJvb2s.md"
+        ]
+      },
+      {
+        "q_id": 179,
+        "question": "What is the equipment budget for new hires?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The equipment budget for new hires at Me",
+        "files_retrieved": [
+          "8_99twcznvFQGMm6udPlIP9U_1768680085262_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9PUFMtMDA5X0VxdWlwbWVudF9Qb2xpY3k.md",
+          "2_PfrXDoeNv5wjyFuYn25LnY_1768678329517_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDNfUGFyZW50YWxfTGVhdmVfUG9saWN5.md",
+          "6_kKAR36Y3JyYPuApVZLhnRp_1768678330788_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDdfQ29tcGVuc2F0aW9uX0JhbmRz.md"
+        ]
+      },
+      {
+        "q_id": 180,
+        "question": "What is the meeting room booking policy?",
+        "expected": "[Answer depends on document content]",
+        "actual": "The meeting room booking policy at MedSy",
+        "files_retrieved": [
+          "7_vhQHqWkijMnPOkvghlHT2C_1768680069919_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9PUFMtMDA4X01lZXRpbmdfUm9vbV9Qb2xpY3k.md",
+          "4_pNgM8ie5iJ7EtsDx0BD47V_1768678334793_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDVfVHJhdmVsX1BvbGljeQ.md"
+        ]
+      },
+      {
+        "q_id": 196,
+        "question": "What is the Sales & Marketing spending as a percentage of re",
+        "expected": "28.1% (AED 136,143,000 / AED 485,100,000",
+        "actual": "The Sales & Marketing spending as a perc",
+        "files_retrieved": [
+          "14_KBJ8zjIm047SVewjxOoARq_1768677327358_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDE1X0ZZXzIwMjVfQnVkZ2V0X1BsYW4.md",
+          "8_4WRnN1CF2VY6F1e8bCKE0a_1768679057951_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMDlfU2FsZXNfUGxheWJvb2tfMjAyNQ.md",
+          "4_pNgM8ie5iJ7EtsDx0BD47V_1768678334793_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDVfVHJhdmVsX1BvbGljeQ.md"
+        ]
+      },
+      {
+        "q_id": 198,
+        "question": "What is the average revenue per customer organization?",
+        "expected": "AED 123,435 (AED 485,100,000 / 3,930 cus",
+        "actual": "To calculate the average revenue per cus",
+        "files_retrieved": [
+          "9_A8GzGMOgVqWRKbqykrfQ86_1768679920879_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMTBfTWFya2V0X0FuYWx5c2lzX1JlcG9ydF8yMDI0.md",
+          "2_LXrQjU2QrCPrr3d7VxuOAh_1768679920450_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMDNfQ29tcGFueV9PS1JzX1EzXzIwMjQ.md",
+          "1_TTW5gYUNWdDmaPgsOcRv5R_1768677318108_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDAyX0FubnVhbF9SZXBvcnRfMjAyMw.md"
+        ]
+      },
+      {
+        "q_id": 208,
+        "question": "What is the average time to close for enterprise deals?",
+        "expected": "[NOT IN DOCUMENTS - only average sales c",
+        "actual": "The average time to close for enterprise",
+        "files_retrieved": [
+          "0_SpiRvGKSugMESmydFhG8KX_1768680081012_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9PUFMtMDAxX1ZlbmRvcl9Db250cmFjdHNfU3VtbWFyeQ.md",
+          "11_oxdXi0S2y4SkjzUxSPmjWK_1768679050715_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMTJfUGFydG5lcl9BZ3JlZW1lbnRfQ2VybmVy.md",
+          "7_QgkhjpnItq3fwu3TtmDlR3_1768679916202_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMDhfQ3VzdG9tZXJfU3VjY2Vzc19PS1JzXzIwMjQ.md"
+        ]
+      }
+    ],
+    "timeout": [
+      {
+        "q_id": 172,
+        "question": "What is the average compensation for Managers?",
+        "expected": "AED 441,000",
+        "actual": "",
+        "files_retrieved": []
+      }
+    ],
+    "should_say_unknown": [
+      {
+        "q_id": 202,
+        "question": "Who are the members of the Board of Directors?",
+        "expected": "[NOT IN DOCUMENTS]",
+        "actual": "The members of the Board of Directors in",
+        "files_retrieved": [
+          "0_b6rNBdBszbaupfvjHxsKef_1768678332842_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9IUi0wMDFfRW1wbG95ZWVfSGFuZGJvb2s.md",
+          "11_oxdXi0S2y4SkjzUxSPmjWK_1768679050715_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMTJfUGFydG5lcl9BZ3JlZW1lbnRfQ2VybmVy.md",
+          "7_PSjiXL6PWJf3Qqhv6s7xk7_1768679525403_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9MRUdBTC0wMDhfQ29ycG9yYXRlX0J5bGF3cw.md"
+        ]
+      },
+      {
+        "q_id": 207,
+        "question": "What is the company's valuation after Series D?",
+        "expected": "[NOT IN DOCUMENTS]",
+        "actual": "The company's valuation after the Series",
+        "files_retrieved": [
+          "13_DKhfTpz0KykGLWy3B7cKs9_1768677308892_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDE0X0Z1bmRpbmdfSGlzdG9yeQ.md",
+          "12_LNSOznwk9Mzntxb3RmoIh7_1768677310921_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDEzX0NhcF9UYWJsZV9Qb3N0LVNlcmllc19E.md",
+          "11_URcAZR1nkIuUJzits0Xuqe_1768677347316_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9GSU4tMDEy.md"
+        ]
+      },
+      {
+        "q_id": 213,
+        "question": "What is the average time to implement for new customers?",
+        "expected": "[NOT IN DOCUMENTS]",
+        "actual": "The average time to implement for new cu",
+        "files_retrieved": [
+          "5_DEyR0hZooTn4qzKY3xgLAw_1768679922415_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMDZfUHJvZHVjdF9EZXBhcnRtZW50X09LUnNfMjAyNA.md",
+          "7_l8Kwaarv5ZUmC28rZ8bciU_1768679058895_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TQUxFUy0wMDhfQ2FzZV9TdHVkeV9Vbml0ZWRfSW5zdXJhbmNlX1BhcnRuZXJz.md",
+          "7_QgkhjpnItq3fwu3TtmDlR3_1768679916202_na1fn_L2hvbWUvdWJ1bnR1L21lZHN5bmNfY29ycHVzL2RvY3VtZW50cy9TVFJBVC0wMDhfQ3VzdG9tZXJfU3VjY2Vzc19PS1JzXzIwMjQ.md"
+        ]
+      }
+    ]
+  }
+}
