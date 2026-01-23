@@ -1,20 +1,40 @@
 {
+  "status": "running",
+  "vault_id": "63f37cfb-d7dd-4068-a553-95193be88afa",
+  "question_set_id": "14776bd1-6b0a-4c08-8d72-3821319431d6",
+  "test_run_id": "089c632f-e85b-430e-9b7a-d9cb28c5d918",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-01-23T12:58:19.995980",
+  "pid": 39280,
   "stages": {
     "delete": {
-      "status": "pending"
+      "status": "skipped"
     },
     "create": {
-      "status": "pending"
+      "status": "skipped"
     },
     "upload": {
-      "status": "pending"
+      "status": "skipped"
     },
     "extract": {
-      "status": "pending"
+      "status": "complete",
+      "entities": 2200
     },
     "qa": {
-      "status": "pending"
+      "status": "running"
     }
   },
-  "updated_at": "2026-01-23T12:56:57.954809"
+  "qa_progress": {
+    "total": 215,
+    "answered": 82,
+    "passed": 79,
+    "failed": 3,
+    "accuracy_percent": 96.3
+  },
+  "current_question": {
+    "id": 82,
+    "text": "What percentage of revenue comes from APAC in FY 2024?"
+  },
+  "updated_at": "2026-01-23T13:07:10.059037"
 }
