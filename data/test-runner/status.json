@@ -1,20 +1,40 @@
 {
+  "status": "running",
+  "vault_id": "0df5f63d-3858-4c5c-88df-4068be0d40de",
+  "question_set_id": "90103123-ee5b-4c68-a10b-91adbc375304",
+  "test_run_id": "5ca939ba-a217-479e-9865-9c73ea08a58a",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-01-23T16:18:08.351707",
+  "pid": 1707,
   "stages": {
     "delete": {
-      "status": "pending"
+      "status": "skipped"
     },
     "create": {
-      "status": "pending"
+      "status": "skipped"
     },
     "upload": {
-      "status": "pending"
+      "status": "skipped"
     },
     "extract": {
-      "status": "pending"
+      "status": "complete",
+      "entities": 1974
     },
     "qa": {
-      "status": "pending"
+      "status": "running"
     }
   },
-  "updated_at": "2026-01-23T14:02:26.607555"
+  "qa_progress": {
+    "total": 215,
+    "answered": 101,
+    "passed": 99,
+    "failed": 2,
+    "accuracy_percent": 98.0
+  },
+  "current_question": {
+    "id": 101,
+    "text": "What was the revenue in Q3 2023?"
+  },
+  "updated_at": "2026-01-23T16:29:52.189407"
 }
