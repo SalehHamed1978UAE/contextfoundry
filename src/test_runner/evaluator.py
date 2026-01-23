@@ -76,10 +76,17 @@ class FuzzyEvaluator:
         
         api_key = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
         base_url = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
-        self.llm_client = OpenAI(api_key=api_key, base_url=base_url) if base_url else OpenAI(api_key=api_key)
+        self.llm_client = None
+        if api_key:
+            try:
+                self.llm_client = OpenAI(api_key=api_key, base_url=base_url) if base_url else OpenAI(api_key=api_key)
+            except Exception as e:
+                logger.warning(f"OpenAI client init failed, semantic equivalence disabled: {e}")
     
     def _check_semantic_equivalence(self, expected: str, actual: str, question: str) -> bool:
         """Use LLM to check if expected and actual are semantically equivalent answers."""
+        if not self.llm_client:
+            return False
         try:
             response = self.llm_client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -571,12 +578,12 @@ Reply YES or NO only."""
         
         return False
     
-    def evaluate_with_details(self, expected: str, actual: str) -> Dict[str, Any]:
+    def evaluate_with_details(self, expected: str, actual: str, query: str = "") -> Dict[str, Any]:
         """
         Evaluate and return full details including normalized values and failure reason.
         Useful for logging and debugging.
         """
-        passed, match_type = self.evaluate(expected, actual)
+        passed, match_type = self.evaluate(expected, actual, query)
         
         details = self.last_evaluation_details.copy() if self.last_evaluation_details else {}
         details['passed'] = passed
