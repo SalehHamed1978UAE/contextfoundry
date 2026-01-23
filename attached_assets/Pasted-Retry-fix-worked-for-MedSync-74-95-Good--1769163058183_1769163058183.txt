@@ -1,0 +1,29 @@
+Retry fix worked for MedSync (74% → 95%). Good.                                                        
+                                                                                                         
+  Manus Orion still stuck at 52.8%. No errors to retry - the problem is architectural, not               
+  infrastructure.                                                                                        
+                                                                                                         
+  You already diagnosed this before the crash investigation:                                             
+                                                                                                         
+  1. Query routing broken - "What is Sarah Chen's role?" routes to doc search instead of KG, even though 
+  KG has the answer                                                                                      
+  2. KG not used for relationships - "Which business unit owns Project Helios?" should query the graph   
+  directly                                                                                               
+  3. Question-type prompting missing - "What are the CFO's responsibilities?" returns the CFO's name     
+  instead of responsibilities                                                                            
+                                                                                                         
+  The crash fix is done. Now implement the capability fixes you identified:                              
+                                                                                                         
+  Priority order:                                                                                        
+  1. Fix query routing - person/role queries → KG first                                                  
+  2. KG traversal for ownership/relationship queries                                                     
+  3. Question-type-aware prompting (what vs who)                                                         
+                                                                                                         
+  The 5 pending tasks from your original plan:                                                           
+  - ❌ KG traversal for ownership questions                                                              
+  - ❌ Question-type prompting                                                                           
+  - ❌ Adaptive top-K                                                                                    
+  - ❌ Numeric reconciliation                                                                            
+  - ❌ Conflict detection                                                                                
+                                                                                                         
+  These are what will move Manus Orion from 52% toward the 90%+ range.
