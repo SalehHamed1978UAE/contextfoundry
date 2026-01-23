@@ -418,8 +418,12 @@ Return only valid JSON."""
                 cleaned = cleaned.split("```")[1]
                 if cleaned.startswith("json"):
                     cleaned = cleaned[4:]
-            return json.loads(cleaned)
+            parsed = json.loads(cleaned)
+            entity_text = parsed.get("subject", {}).get("text", "none")
+            logger.info(f"[SEMANTIC_AGENT] Parsed query: entity='{entity_text}' relationship='{parsed.get('relationship', {}).get('text', 'none')}'")
+            return parsed
         except json.JSONDecodeError:
+            logger.warning(f"[SEMANTIC_AGENT] Failed to parse query JSON, using fallback")
             return {
                 "intent": "describe",
                 "subject": {"text": query, "likely_entity_types": []},
@@ -428,6 +432,7 @@ Return only valid JSON."""
     
     def _resolve_entity(self, name: str, type_hints: List[str] = None) -> Optional[dict]:
         """Resolve entity name flexibly."""
+        logger.info(f"[SEMANTIC_AGENT] Resolving entity: '{name}' with hints={type_hints}")
         
         result = self.session.execute(
             text("""
@@ -468,12 +473,14 @@ Return only valid JSON."""
         ).fetchone()
         
         if result:
+            logger.info(f"[SEMANTIC_AGENT] Resolved entity: '{name}' -> found='{result.name}' (type={result.entity_type})")
             return {
                 "id": str(result.id),
                 "name": result.name,
                 "type": result.entity_type
             }
         
+        logger.info(f"[SEMANTIC_AGENT] Resolved entity: '{name}' -> NOT FOUND")
         return None
     
     def _discover_relationships(self, entity_id: str) -> List[dict]:

@@ -86,7 +86,10 @@ class FuzzyEvaluator:
     def _check_semantic_equivalence(self, expected: str, actual: str, question: str) -> bool:
         """Use LLM to check if expected and actual are semantically equivalent answers."""
         if not self.llm_client:
+            logger.debug("[SEMANTIC] Skipped - no LLM client")
             return False
+        
+        logger.info(f"[SEMANTIC] Checking: expected='{expected}' vs actual='{actual[:100]}...' question='{question[:50]}...'")
         try:
             response = self.llm_client.chat.completions.create(
                 model="gpt-4o-mini",
@@ -105,9 +108,11 @@ Reply YES or NO only."""
                 temperature=0,
                 max_tokens=3
             )
-            return response.choices[0].message.content.strip().upper() == "YES"
+            result = response.choices[0].message.content.strip().upper() == "YES"
+            logger.info(f"[SEMANTIC] Result: {result} (LLM response: '{response.choices[0].message.content.strip()}')")
+            return result
         except Exception as e:
-            logger.warning(f"Semantic equivalence check failed: {e}")
+            logger.warning(f"[SEMANTIC] Check failed: {e}")
             return False
     
     def normalize_answer(self, text: str) -> str:
