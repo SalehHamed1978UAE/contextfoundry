@@ -39,10 +39,10 @@ class LoadedDocument:
 class DocumentLoader:
     """
     Loads documents from various file formats.
-    Supports: PDF, DOCX, MD, TXT
+    Supports: PDF, DOCX, MD, TXT, JSON, JSONL, HTML
     """
     
-    SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".md", ".txt", ".markdown"}
+    SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".md", ".txt", ".markdown", ".json", ".jsonl", ".html"}
     
     def __init__(self):
         self._pdf_available = self._check_pdf_support()
