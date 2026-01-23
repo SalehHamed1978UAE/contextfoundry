@@ -47,6 +47,10 @@ args = "Test: ClaudeCode Medsync"
 task = "workflow.run"
 args = "Test: Manus Medsync"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test: Manus Orion"
+
 [[workflows.workflow]]
 name = "Start All"
 author = "agent"
@@ -133,6 +137,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python -m src.test_runner.runner --corpus \"Manus Medsync\""
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Test: Manus Orion"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m src.test_runner.runner --corpus \"Manus Orion\" 2>&1"
 
 [workflows.workflow.metadata]
 outputType = "console"
