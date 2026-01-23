@@ -1,0 +1,154 @@
+ Fix Manus Orion Query Routing                                                 
+                                                                                                         
+  Current Problem                                                                                        
+                                                                                                         
+  MedSync: 94.9% ✅ (fixed by retry logic)                                                               
+  Manus Orion: 52.8% ❌ (architectural issue, not infrastructure)                                        
+                                                                                                         
+  Root cause: All queries go through the same path. Person/role queries route to document search, but the
+   answers are in the Knowledge Graph.                                                                   
+                                                                                                         
+  ---                                                                                                    
+  What to Implement                                                                                      
+                                                                                                         
+  1. Query Type Classifier                                                                               
+                                                                                                         
+  Create a function that classifies incoming queries:                                                    
+                                                                                                         
+  def classify_query(query: str) -> str:                                                                 
+      """                                                                                                
+      Returns: 'person', 'relationship', 'financial', 'factual'                                          
+      """                                                                                                
+      query_lower = query.lower()                                                                        
+                                                                                                         
+      # Person queries - route to KG                                                                     
+      if any(p in query_lower for p in ['who is', "who's", 'what is .* role', 'what are .*               
+  responsibilities']):                                                                                   
+          return 'person'                                                                                
+                                                                                                         
+      # Relationship queries - route to KG traversal                                                     
+      if any(p in query_lower for p in ['which .* owns', 'who owns', 'what .* handles', 'which .*        
+  handles']):                                                                                            
+          return 'relationship'                                                                          
+                                                                                                         
+      # Financial queries - route to docs with authority ranking                                         
+      if any(p in query_lower for p in ['budget', 'revenue', 'cost', 'spending', 'million', 'target']):  
+          return 'financial'                                                                             
+                                                                                                         
+      # Default                                                                                          
+      return 'factual'                                                                                   
+                                                                                                         
+  2. Query Router                                                                                        
+                                                                                                         
+  Route queries to different handlers based on type:                                                     
+                                                                                                         
+  def route_query(vault_id: str, query: str) -> str:                                                     
+      query_type = classify_query(query)                                                                 
+                                                                                                         
+      if query_type == 'person':                                                                         
+          return query_knowledge_graph_person(vault_id, query)                                           
+                                                                                                         
+      elif query_type == 'relationship':                                                                 
+          return query_knowledge_graph_relationship(vault_id, query)                                     
+                                                                                                         
+      elif query_type == 'financial':                                                                    
+          return query_docs_with_authority(vault_id, query)                                              
+                                                                                                         
+      else:                                                                                              
+          return query_docs_default(vault_id, query)                                                     
+                                                                                                         
+  3. KG Person Handler                                                                                   
+                                                                                                         
+  For "Who is X?" and "What is X's role?":                                                               
+                                                                                                         
+  def query_knowledge_graph_person(vault_id: str, query: str) -> str:                                    
+      """                                                                                                
+      1. Extract person name or role title from query                                                    
+      2. Query KG for entity with that name/title                                                        
+      3. Return role/title attribute directly                                                            
+      4. Only fall back to docs if KG has no answer                                                      
+      """                                                                                                
+      # Extract entity (e.g., "Sarah Chen" or "CEO" or "Chief Data Officer")                             
+      entity = extract_entity_from_query(query)                                                          
+                                                                                                         
+      # Query KG directly                                                                                
+      kg_result = kg_lookup_person(vault_id, entity)                                                     
+                                                                                                         
+      if kg_result:                                                                                      
+          return format_person_answer(kg_result, query)                                                  
+                                                                                                         
+      # Fallback to docs only if KG fails                                                                
+      return query_docs_default(vault_id, query)                                                         
+                                                                                                         
+  4. KG Relationship Handler                                                                             
+                                                                                                         
+  For "Which business unit owns X?":                                                                     
+                                                                                                         
+  def query_knowledge_graph_relationship(vault_id: str, query: str) -> str:                              
+      """                                                                                                
+      1. Extract subject entity (e.g., "Project Helios")                                                 
+      2. Extract relationship type (e.g., "owns", "handles")                                             
+      3. Traverse KG: find edges where target = subject                                                  
+      4. Return source entity                                                                            
+      """                                                                                                
+      subject = extract_subject_entity(query)  # "Project Helios"                                        
+      rel_type = extract_relationship_type(query)  # "OWNED_BY" or "BELONGS_TO"                          
+                                                                                                         
+      # Traverse KG                                                                                      
+      result = kg_traverse(vault_id, subject, rel_type)                                                  
+                                                                                                         
+      if result:                                                                                         
+          return result.source_entity  # "Energy" or "Orion Energy Solutions"                            
+                                                                                                         
+      return query_docs_default(vault_id, query)                                                         
+                                                                                                         
+  5. Question-Type-Aware Prompting                                                                       
+                                                                                                         
+  When the query asks for responsibilities but retrieval returns names, fix the LLM prompt:              
+                                                                                                         
+  def get_answer_prompt(query: str, context: str) -> str:                                                
+      query_lower = query.lower()                                                                        
+                                                                                                         
+      if 'responsibilities' in query_lower or 'duties' in query_lower:                                   
+          return f"""                                                                                    
+          Question: {query}                                                                              
+          Context: {context}                                                                             
+                                                                                                         
+          Extract ONLY the responsibilities/duties. Do NOT return the person's name.                     
+          Return a concise list of responsibilities.                                                     
+          """                                                                                            
+                                                                                                         
+      elif 'role' in query_lower:                                                                        
+          return f"""                                                                                    
+          Question: {query}                                                                              
+          Context: {context}                                                                             
+                                                                                                         
+          Return ONLY the job title/role (e.g., "CEO", "CFO", "CTO").                                    
+          Do NOT return a description of the person.                                                     
+          """                                                                                            
+                                                                                                         
+      else:                                                                                              
+          return f"Question: {query}\nContext: {context}\nAnswer concisely."                             
+                                                                                                         
+  ---                                                                                                    
+  Implementation Order                                                                                   
+                                                                                                         
+  Step 1: Add classify_query() function                                                                  
+  Step 2: Add route_query() that dispatches based on type                                                
+  Step 3: Implement query_knowledge_graph_person()                                                       
+  Step 4: Implement query_knowledge_graph_relationship()                                                 
+  Step 5: Update LLM prompts to be question-type-aware                                                   
+  Step 6: Test on Manus Orion                                                                            
+                                                                                                         
+  ---                                                                                                    
+  Expected Results                                                                                       
+  ┌────────────────────────────────────────────┬───────────────────────────┬─────────────────────┐       
+  │                 Query Type                 │          Before           │        After        │       
+  ├────────────────────────────────────────────┼───────────────────────────┼─────────────────────┤       
+  │ "Who is the CEO?"                          │ ✅ (already works via KG) │ ✅                  │       
+  ├────────────────────────────────────────────┼───────────────────────────┼─────────────────────┤       
+  │ "What is Sarah Chen's role?"               │ ❌ (routes to docs)       │ ✅ (routes to KG)   │       
+  ├────────────────────────────────────────────┼───────────────────────────┼─────────────────────┤       
+  │ "What are the CFO's responsibilities?"     │ ❌ (returns name)         │ ✅ (returns duties) │       
+  ├────────────────────────────────────────────┼───────────────────────────┼─────────────────────┤       
+  │ "Which business unit owns Project Helios?" │ ❌ (can't find)           │ ✅ (KG traversal)   │  
