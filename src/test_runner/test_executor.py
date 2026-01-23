@@ -8,6 +8,7 @@ from typing import Dict, List, Set, Optional
 from .evaluator import FuzzyEvaluator
 from .vault_manager import VaultManager
 from .status import update_status
+from .trace_logger import QuestionTraceLogger
 from .persistence import (
     update_test_run_stage,
     update_test_run_progress,
@@ -71,7 +72,8 @@ class TestExecutor:
         corpus_name: str = "",
         min_chunks: int = 50,
         resume: bool = True,
-        test_run_id: str = None
+        test_run_id: str = None,
+        enable_tracing: bool = True
     ) -> dict:
         """Run all questions, evaluate answers, save results. Supports resume.
         
@@ -84,6 +86,7 @@ class TestExecutor:
             min_chunks: Minimum chunks required in vault
             resume: Whether to resume from previous progress
             test_run_id: Database ID of the test run (for persistence)
+            enable_tracing: Whether to log per-question retrieval traces (default True)
         """
         
         stats = self.vm.get_vault_stats(vault_id)
@@ -111,6 +114,12 @@ class TestExecutor:
             update_test_run_stage(test_run_id, 'qa', questions_total=len(questions))
         
         progress_file = self._get_progress_file(results_dir, corpus_name, vault_id)
+        
+        trace_logger = None
+        if enable_tracing:
+            trace_dir = results_dir / "traces"
+            trace_logger = QuestionTraceLogger(trace_dir, corpus_name, test_run_id or vault_id[:8])
+            log(f"  Trace logging enabled: {trace_logger.trace_file}")
         
         if resume and test_run_id:
             db_completed_ids = get_answered_question_ids(test_run_id)
@@ -153,7 +162,15 @@ class TestExecutor:
             category = q.get('category', q.get('type', ''))
             
             start_time = time.time()
-            actual, error_type = self.vm.query(vault_id, query, timeout=60)
+            
+            if trace_logger:
+                actual, error_type, retrieval_metadata = self.vm.query(
+                    vault_id, query, timeout=60, return_metadata=True
+                )
+            else:
+                actual, error_type = self.vm.query(vault_id, query, timeout=60)
+                retrieval_metadata = {}
+            
             duration_ms = int((time.time() - start_time) * 1000)
             
             if error_type == 'timeout':
@@ -175,13 +192,31 @@ class TestExecutor:
                 eval_details = self.evaluator.evaluate_with_details(expected, actual)
                 is_pass = eval_details['passed']
                 match_type = eval_details['match_type']
-                failure_reason = eval_details.get('failure_reason') if not is_pass else None
-                failure_category = self.evaluator.get_failure_category(match_type) if not is_pass else None
                 expected_norm = eval_details.get('expected_normalized', expected)
                 actual_norm = eval_details.get('actual_normalized', actual or '')
+                
+                if not is_pass:
+                    failure_classification = self.evaluator.classify_failure(expected, actual, match_type)
+                    failure_reason = failure_classification.get('reason', eval_details.get('failure_reason'))
+                    failure_category = failure_classification.get('category', 'MISMATCH')
+                else:
+                    failure_reason = None
+                    failure_category = None
             
             if is_pass:
                 passed += 1
+            
+            if trace_logger:
+                trace_logger.log_question(
+                    question_id=q_num,
+                    question_text=query,
+                    expected_answer=expected,
+                    actual_answer=actual or '',
+                    passed=is_pass,
+                    match_type=match_type,
+                    retrieval_data=retrieval_metadata,
+                    duration_ms=duration_ms
+                )
             
             result = {
                 "q": q_num,
@@ -245,6 +280,13 @@ class TestExecutor:
             elif not is_pass:
                 log(f"  Q{q_num}: {status} ({match_type})")
         
+        trace_summary = None
+        if trace_logger:
+            trace_summary = trace_logger.finalize()
+            log(f"  Trace summary saved to: {trace_logger.summary_file}")
+            log(f"  Trace stats: avg_score={trace_summary['stats']['avg_semantic_score']:.3f}, "
+                f"low_score_queries={trace_summary['stats']['low_score_queries']}")
+        
         summary = {
             "timestamp": datetime.now().isoformat(),
             "corpus": corpus_name,
@@ -264,6 +306,10 @@ class TestExecutor:
             "failures": [r for r in results if not r['passed']],
             "all_results": results
         }
+        
+        if trace_summary and trace_logger:
+            summary["trace_stats"] = trace_summary["stats"]
+            summary["trace_file"] = str(trace_logger.trace_file)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         safe_name = corpus_name.lower().replace(' ', '_')

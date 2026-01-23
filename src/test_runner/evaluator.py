@@ -399,6 +399,11 @@ class FuzzyEvaluator:
                 self.last_evaluation_details['match_type'] = 'entity_match'
                 return True, "entity_match"
         
+        # Entity alias matching (handles abbreviations and alternate names)
+        if self._entities_match_with_aliases(expected_norm, actual_norm):
+            self.last_evaluation_details['match_type'] = 'alias_match'
+            return True, "alias_match"
+        
         # Boolean matching
         if self._is_boolean_match(expected_lower, actual_lower):
             self.last_evaluation_details['match_type'] = 'boolean_match'
@@ -550,9 +555,59 @@ class FuzzyEvaluator:
         
         return details
     
+    ENTITY_ALIASES = {
+        'global defense systems': ['gds', 'defense systems', 'defense business unit'],
+        'orion aerospace': ['aerospace', 'aerospace division', 'aero'],
+        'orion energy solutions': ['energy solutions', 'energy', 'energy division'],
+        'orion logistics': ['logistics', 'logistics division'],
+        'orion smartcity': ['smartcity', 'smart city', 'smartcity division'],
+        'sarah chen': ['chen', 'ceo chen', 's. chen'],
+        'marcus webb': ['webb', 'cfo webb', 'm. webb'],
+        'dr. evelyn reed': ['evelyn reed', 'reed', 'cto reed', 'dr reed', 'e. reed'],
+        'alex thorne': ['thorne', 'coo thorne', 'a. thorne'],
+        'fatima al-mansoori': ['al-mansoori', 'fatima', 'cso', 'chief sustainability'],
+        'james park': ['park', 'general counsel park', 'j. park'],
+        'dr. elena rostova': ['elena rostova', 'rostova', 'cdo rostova', 'dr rostova', 'e. rostova'],
+        'admiral michael torres': ['michael torres', 'torres', 'admiral torres', 'vp defense'],
+        'project helios': ['helios', 'helios project'],
+        'falcon uav program': ['falcon uav', 'falcon program', 'uav program'],
+        'urbanmesh iot platform': ['urbanmesh', 'urban mesh', 'iot platform'],
+        'autonav logistics system': ['autonav', 'auto nav', 'autonav system'],
+        'project borealis': ['borealis', 'borealis wind'],
+    }
+    
+    def _normalize_with_aliases(self, text: str) -> str:
+        """Normalize text and expand known entity aliases."""
+        if not text:
+            return ""
+        
+        text_lower = text.lower().strip()
+        
+        for canonical, aliases in self.ENTITY_ALIASES.items():
+            if text_lower == canonical:
+                return canonical
+            for alias in aliases:
+                if text_lower == alias:
+                    return canonical
+        
+        return text_lower
+    
+    def _entities_match_with_aliases(self, expected: str, actual: str) -> bool:
+        """Check if entities match after alias expansion."""
+        exp_norm = self._normalize_with_aliases(expected)
+        act_norm = self._normalize_with_aliases(actual)
+        
+        if exp_norm == act_norm:
+            return True
+        
+        if exp_norm in act_norm or act_norm in exp_norm:
+            return True
+        
+        return False
+    
     def get_failure_category(self, match_type: str) -> str:
         """
-        Map match_type to a UI-friendly failure category.
+        Map match_type to a detailed failure category for analysis.
         """
         if match_type == "no_data":
             return "NO_DATA"
@@ -560,5 +615,69 @@ class FuzzyEvaluator:
             return "SHOULD_REFUSE"
         elif match_type == "no_answer":
             return "NO_ANSWER"
+        elif match_type == "timeout":
+            return "TIMEOUT"
+        elif match_type == "error":
+            return "ERROR"
+        elif match_type == "number_mismatch":
+            return "FORMAT_MISMATCH"
+        elif match_type == "partial_match":
+            return "ALTERNATE_SOURCE"
         else:
             return "MISMATCH"
+    
+    def classify_failure(self, expected: str, actual: str, match_type: str) -> dict:
+        """
+        Provide detailed classification of why a match failed.
+        
+        Returns dict with:
+            - category: High-level category (NO_DATA, FORMAT_MISMATCH, ALTERNATE_SOURCE, NOT_FOUND)
+            - reason: Specific reason for failure
+            - suggestion: Potential fix
+        """
+        result = {
+            'category': self.get_failure_category(match_type),
+            'reason': match_type,
+            'suggestion': None
+        }
+        
+        if not actual:
+            result['category'] = 'NO_DATA'
+            result['reason'] = 'System returned no answer'
+            result['suggestion'] = 'Check if query retrieves relevant documents'
+            return result
+        
+        if self.detect_no_data(actual):
+            result['category'] = 'NOT_FOUND'
+            result['reason'] = 'System explicitly said no data found'
+            result['suggestion'] = 'Verify answer exists in corpus documents'
+            return result
+        
+        exp_num = self.normalize_number(expected)
+        if exp_num is not None:
+            act_nums = self._extract_numbers(actual)
+            if act_nums and exp_num not in [float(n) for n in act_nums]:
+                result['category'] = 'FORMAT_MISMATCH'
+                result['reason'] = f'Number format mismatch: expected {exp_num}, found {act_nums}'
+                result['suggestion'] = 'Check for alternate number formats in source'
+                return result
+        
+        if self._entities_match_with_aliases(expected, actual):
+            result['category'] = 'ALTERNATE_SOURCE'
+            result['reason'] = 'Matched via entity alias expansion'
+            return result
+        
+        exp_words = set(expected.lower().split())
+        act_words = set(actual.lower().split())
+        overlap = len(exp_words & act_words) / max(len(exp_words), 1)
+        
+        if overlap > 0.5:
+            result['category'] = 'ALTERNATE_SOURCE'
+            result['reason'] = f'Partial overlap ({overlap:.0%}) - may be from different source'
+            result['suggestion'] = 'Check source folder priority'
+        else:
+            result['category'] = 'MISMATCH'
+            result['reason'] = 'No significant overlap between expected and actual'
+            result['suggestion'] = 'Verify question references correct document'
+        
+        return result

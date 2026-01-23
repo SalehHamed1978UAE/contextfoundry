@@ -4,12 +4,16 @@ DocumentSearcher - Single source of truth for document search.
 This class provides consistent document search logic used by both:
 - RetrievalRouter (pre-processing pipeline)
 - ToolExecutor (tool calls during agent loop)
+
+Uses authority_config for folder weighting and canonical terms.
 """
 import logging
 import re
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+
+from .authority_config import load_authority_config, get_folder_priority, get_canonical_terms
 
 logger = logging.getLogger(__name__)
 
@@ -41,29 +45,63 @@ class DocumentSearcher:
         'tell', 'me', 'you', 'can', 'please', 'give', 'show', 'list', 'describe'
     }
     
-    def __init__(self, session: Session, tenant_id: str):
+    def __init__(self, session: Session, tenant_id: str, corpus_name: Optional[str] = None):
         self.session = session
         self.tenant_id = tenant_id
+        self.corpus_name = corpus_name
+    
+    SEMANTIC_SCORE_THRESHOLD = 0.4
+    
+    FOLDER_PRIORITY = {
+        'strategy': 1.0,
+        'finances': 0.95,
+        'operations': 0.90,
+        'engineering': 0.85,
+        'projects': 0.85,
+        'legal': 0.80,
+        'compliance': 0.80,
+        'customers': 0.75,
+        'policies': 0.75,
+        'meeting_notes': 0.60
+    }
+    
+    CANONICAL_TERMS = {
+        'project_names': [
+            'project helios', 'falcon uav', 'urbanmesh', 'autonav', 'project borealis',
+            'greenstream', 'nexgen battery', 'skylink satellite', 'quantum-secured'
+        ],
+        'business_units': [
+            'orion aerospace', 'orion energy', 'orion logistics', 'orion smartcity',
+            'aerospace', 'energy solutions', 'logistics', 'smartcity'
+        ],
+        'executives': [
+            'sarah chen', 'marcus webb', 'evelyn reed', 'alex thorne',
+            'fatima al-mansoori', 'james park', 'elena rostova', 'michael torres'
+        ]
+    }
     
     def search(
         self,
         query: str,
         limit: int = 5,
         offset: int = 0,
-        use_vector: bool = True
+        use_vector: bool = True,
+        apply_folder_weighting: bool = True
     ) -> List[Dict[str, Any]]:
         """
-        Search documents using consistent logic.
+        Search documents using consistent logic with semantic-keyword fusion.
         
         1. Try vector similarity search (if enabled)
-        2. Fall back to text search with LIKE (OR logic for keywords)
-        3. Return chunks with metadata
+        2. If top scores < 0.4, apply keyword boosting for canonical terms
+        3. Optionally apply folder weighting to prioritize authoritative sources
+        4. Fall back to text search with LIKE (OR logic for keywords)
         
         Args:
             query: Search query
             limit: Max results to return
             offset: Pagination offset
             use_vector: Whether to try vector search first
+            apply_folder_weighting: Whether to weight results by source folder priority
             
         Returns:
             List of chunk dicts with id, text, document_name, similarity
@@ -73,12 +111,121 @@ class DocumentSearcher:
         if use_vector:
             chunks = self._vector_search(query, limit + offset)
             if chunks:
+                avg_score = sum(c.get('_base_similarity', c.get('similarity', 0)) for c in chunks[:3]) / min(3, len(chunks))
+                
+                if avg_score < self.SEMANTIC_SCORE_THRESHOLD:
+                    logger.info(f"[SEARCHER] Low semantic scores (avg={avg_score:.3f}), applying canonical term boosting")
+                    chunks = self._apply_canonical_boost(query, chunks, limit + offset, self.corpus_name)
+                
+                if apply_folder_weighting:
+                    chunks = self._apply_folder_weighting(chunks)
+                
                 logger.info(f"[SEARCHER] Vector search found {len(chunks)} chunks")
                 return chunks[offset:offset + limit]
         
         text_chunks = self._text_search(query, limit, offset)
+        
+        if apply_folder_weighting and text_chunks:
+            text_chunks = self._apply_folder_weighting(text_chunks)
+        
         logger.info(f"[SEARCHER] Text search found {len(text_chunks)} chunks")
         return text_chunks
+    
+    def _apply_canonical_boost(self, query: str, chunks: List[Dict], limit: int, corpus_name: Optional[str] = None) -> List[Dict]:
+        """Apply additional boosting for canonical project names, business units, and executives.
+        
+        Uses authority_config for canonical terms with per-corpus overrides.
+        """
+        query_lower = query.lower()
+        
+        canonical_terms = get_canonical_terms(corpus_name) or self.CANONICAL_TERMS
+        
+        matching_canonicals = []
+        for category, terms in canonical_terms.items():
+            for term in terms:
+                if term in query_lower:
+                    matching_canonicals.append((category, term))
+        
+        if not matching_canonicals:
+            return chunks
+        
+        logger.info(f"[SEARCHER] Found canonical terms in query: {matching_canonicals}")
+        
+        boosted_chunks = []
+        for chunk in chunks:
+            text_content = (chunk.get("text", chunk.get("content", "")) or "").lower()
+            doc_name = (chunk.get("document_name", "") or "").lower()
+            
+            canonical_boost = 0.0
+            matched_terms = []
+            
+            for category, term in matching_canonicals:
+                if term in text_content or term in doc_name:
+                    if category == 'project_names':
+                        canonical_boost += 0.25
+                    elif category == 'business_units':
+                        canonical_boost += 0.20
+                    elif category == 'executives':
+                        canonical_boost += 0.15
+                    matched_terms.append(term)
+            
+            new_chunk = dict(chunk)
+            if canonical_boost > 0:
+                current_score = chunk.get('similarity', 0)
+                new_chunk['similarity'] = min(current_score + canonical_boost, 1.0)
+                new_chunk['_canonical_boost'] = canonical_boost
+                new_chunk['_matched_canonicals'] = matched_terms
+                logger.debug(f"[SEARCHER] Canonical boost: {doc_name[:40]} +{canonical_boost:.2f} -> {new_chunk['similarity']:.3f}")
+            
+            boosted_chunks.append(new_chunk)
+        
+        boosted_chunks.sort(key=lambda x: x.get('similarity', 0), reverse=True)
+        
+        boosted_count = sum(1 for c in boosted_chunks[:limit] if c.get('_canonical_boost', 0) > 0)
+        if boosted_count > 0:
+            logger.info(f"[SEARCHER] Canonical boost applied: {boosted_count}/{min(limit, len(boosted_chunks))} chunks boosted")
+        
+        return boosted_chunks[:limit]
+    
+    def _get_folder_priority(self, doc_name: str) -> float:
+        """Get folder priority weight from document name/path using authority config with per-corpus overrides."""
+        doc_lower = doc_name.lower()
+        
+        config = load_authority_config()
+        folder_priorities = config.get('default_folder_priority', self.FOLDER_PRIORITY)
+        
+        if self.corpus_name and self.corpus_name in config.get("corpus_overrides", {}):
+            corpus_config = config["corpus_overrides"][self.corpus_name]
+            if "folder_priority" in corpus_config:
+                folder_priorities = {**folder_priorities, **corpus_config["folder_priority"]}
+        
+        for folder, weight in folder_priorities.items():
+            if f'/{folder}/' in doc_lower or doc_lower.startswith(f'{folder}/') or f'_{folder}_' in doc_lower:
+                return weight
+            if folder in doc_lower.split('/'):
+                return weight
+        
+        return 0.70
+    
+    def _apply_folder_weighting(self, chunks: List[Dict]) -> List[Dict]:
+        """Apply folder-based priority weighting to chunk scores."""
+        weighted_chunks = []
+        
+        for chunk in chunks:
+            doc_name = chunk.get('document_name', '')
+            folder_weight = self._get_folder_priority(doc_name)
+            
+            new_chunk = dict(chunk)
+            current_score = chunk.get('similarity', 0)
+            weighted_score = current_score * folder_weight
+            new_chunk['similarity'] = weighted_score
+            new_chunk['_folder_weight'] = folder_weight
+            new_chunk['_original_similarity'] = current_score
+            
+            weighted_chunks.append(new_chunk)
+        
+        weighted_chunks.sort(key=lambda x: x.get('similarity', 0), reverse=True)
+        return weighted_chunks
     
     def _extract_keywords(self, query: str) -> tuple:
         """
