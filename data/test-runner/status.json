@@ -1,0 +1,40 @@
+{
+  "status": "running",
+  "vault_id": "aab0ec76-3b72-43e5-a41f-15e08771bc24",
+  "question_set_id": "0d8ce0c1-a8d1-4532-bfe5-88da22db2f62",
+  "test_run_id": "039a4c4f-c6f0-4ec8-a4d6-b556aedb9cd4",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-01-23T20:21:27.444465",
+  "pid": 25150,
+  "stages": {
+    "delete": {
+      "status": "skipped"
+    },
+    "create": {
+      "status": "skipped"
+    },
+    "upload": {
+      "status": "skipped"
+    },
+    "extract": {
+      "status": "complete",
+      "entities": 3301
+    },
+    "qa": {
+      "status": "running"
+    }
+  },
+  "qa_progress": {
+    "total": 106,
+    "answered": 80,
+    "passed": 37,
+    "failed": 43,
+    "accuracy_percent": 46.2
+  },
+  "current_question": {
+    "id": 80,
+    "text": "Which supplier provides security systems?"
+  },
+  "updated_at": "2026-01-23T20:34:11.897429"
+}
