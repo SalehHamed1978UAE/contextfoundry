@@ -1177,7 +1177,19 @@
                 (data.corpus_folders || []).forEach(folder => {
                     const option = document.createElement('option');
                     option.value = folder.name;
-                    option.textContent = `${folder.name} (${folder.document_count} docs)`;
+                    // Show docs and questions count
+                    let label = `${folder.name} (${folder.document_count} docs`;
+                    if (folder.question_count > 0) {
+                        label += `, ${folder.question_count} questions`;
+                    } else {
+                        label += `, no questions`;
+                    }
+                    label += ')';
+                    option.textContent = label;
+                    // Disable if no documents
+                    if (folder.document_count === 0) {
+                        option.disabled = true;
+                    }
                     select.appendChild(option);
                 });
             } catch (error) {
