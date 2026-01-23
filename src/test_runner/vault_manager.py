@@ -335,7 +335,7 @@ class VaultManager:
         
         raise TimeoutError(f"Extraction did not complete within {timeout_minutes} minutes")
     
-    def query(self, vault_id: str, question: str, timeout: int = 60, return_metadata: bool = False) -> tuple:
+    def query(self, vault_id: str, question: str, timeout: int = 60, return_metadata: bool = False, max_retries: int = 3) -> tuple:
         """Query the vault and return (answer, error_type) or (answer, error_type, metadata).
         
         Args:
@@ -343,6 +343,7 @@ class VaultManager:
             question: The question to ask
             timeout: Timeout in seconds (default 60)
             return_metadata: If True, also return retrieval metadata for tracing
+            max_retries: Maximum number of retry attempts for connection failures (default 3)
             
         Returns:
             If return_metadata=False: Tuple of (answer, error_type)
@@ -351,7 +352,8 @@ class VaultManager:
             error_type is None on success, 'timeout' on timeout, or 'error' on other failures.
         """
         import sys
-        from requests.exceptions import ReadTimeout, Timeout
+        import traceback
+        from requests.exceptions import ReadTimeout, Timeout, ConnectionError, RequestException
         
         empty_metadata = {
             'chunk_sources': [],
@@ -362,49 +364,87 @@ class VaultManager:
             'gate_name': None
         }
         
+        last_error = None
         print(f"    [VM.query] ENTRY: vault={vault_id[:8]}..., q='{question[:40]}...' timeout={timeout}s", flush=True)
-        sys.stdout.flush()
-        try:
-            print(f"    [VM.query] Sending POST to {self.api}/vault/chat...", flush=True)
-            response = self.session.post(
-                f"{self.api}/vault/chat",
-                json={"query": question, "vault_id": vault_id},
-                timeout=timeout
-            )
-            print(f"    [VM.query] Response: {response.status_code}", flush=True)
-            sys.stdout.flush()
-            if response.status_code == 200:
-                data = response.json()
-                answer = data.get('answer', data.get('response', data.get('message', '')))
+        
+        for attempt in range(max_retries):
+            try:
+                if attempt > 0:
+                    backoff = min(2 ** attempt, 10)  # Exponential backoff: 2s, 4s, 8s, max 10s
+                    print(f"    [VM.query] Retry {attempt}/{max_retries-1} after {backoff}s backoff...", flush=True)
+                    time.sleep(backoff)
                 
+                print(f"    [VM.query] Sending POST to {self.api}/vault/chat...", flush=True)
+                sys.stdout.flush()
+                response = self.session.post(
+                    f"{self.api}/vault/chat",
+                    json={"query": question, "vault_id": vault_id},
+                    timeout=timeout
+                )
+                print(f"    [VM.query] Response: {response.status_code}", flush=True)
+                sys.stdout.flush()
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    answer = data.get('answer', data.get('response', data.get('message', '')))
+                    
+                    if return_metadata:
+                        metadata = {
+                            'chunk_sources': data.get('chunk_sources', []),
+                            'tool_calls': data.get('tool_calls', []),
+                            'confidence': data.get('confidence', 0),
+                            'query_type': data.get('query_type', 'unknown'),
+                            'gate_blocked': data.get('gate_blocked', False),
+                            'gate_name': data.get('gate_name'),
+                            'answer_source': data.get('answer_source', 'unknown'),
+                            'time_ms': data.get('time_ms', 0)
+                        }
+                        return (answer, None, metadata)
+                    return (answer, None)
+                
+                # 401 Unauthorized - try re-authenticating
+                if response.status_code == 401:
+                    last_error = "HTTP 401 Unauthorized"
+                    print(f"    [VM.query] Auth expired, re-authenticating...", flush=True)
+                    self.authenticate_dev(tenant_id=vault_id)
+                    continue
+                
+                # Non-200 response - check if retryable
+                if response.status_code in (429, 502, 503, 504):  # Rate limit or server errors
+                    last_error = f"HTTP {response.status_code}"
+                    print(f"    [VM.query] Retryable error: {response.status_code}", flush=True)
+                    continue
+                
+                # Non-retryable error
+                print(f"    [VM.query] Error: {response.text[:200]}", flush=True)
                 if return_metadata:
-                    metadata = {
-                        'chunk_sources': data.get('chunk_sources', []),
-                        'tool_calls': data.get('tool_calls', []),
-                        'confidence': data.get('confidence', 0),
-                        'query_type': data.get('query_type', 'unknown'),
-                        'gate_blocked': data.get('gate_blocked', False),
-                        'gate_name': data.get('gate_name'),
-                        'answer_source': data.get('answer_source', 'unknown'),
-                        'time_ms': data.get('time_ms', 0)
-                    }
-                    return (answer, None, metadata)
-                return (answer, None)
-            print(f"    [VM.query] Error: {response.text[:200]}", flush=True)
-            if return_metadata:
-                return ("", "error", empty_metadata)
-            return ("", "error")
-        except (ReadTimeout, Timeout) as e:
-            print(f"    [VM.query] TIMEOUT after {timeout}s: {question[:50]}...", flush=True)
-            sys.stdout.flush()
-            if return_metadata:
-                return ("", "timeout", empty_metadata)
-            return ("", "timeout")
-        except Exception as e:
-            import traceback
-            print(f"    [VM.query] Exception: {e}", flush=True)
-            print(f"    [VM.query] Traceback:\n{traceback.format_exc()}", flush=True)
-            sys.stdout.flush()
-            if return_metadata:
-                return ("", "error", empty_metadata)
-            return ("", "error")
+                    return ("", "error", empty_metadata)
+                return ("", "error")
+                
+            except (ReadTimeout, Timeout) as e:
+                print(f"    [VM.query] TIMEOUT after {timeout}s: {question[:50]}...", flush=True)
+                sys.stdout.flush()
+                if return_metadata:
+                    return ("", "timeout", empty_metadata)
+                return ("", "timeout")
+                
+            except (ConnectionError, RequestException) as e:
+                # Broader exception handling for connection pool exhaustion, SSL errors, etc.
+                last_error = f"Request error: {type(e).__name__}: {e}"
+                print(f"    [VM.query] Request error (attempt {attempt+1}/{max_retries}): {type(e).__name__}: {e}", flush=True)
+                sys.stdout.flush()
+                continue
+                
+            except Exception as e:
+                print(f"    [VM.query] Unexpected exception: {e}", flush=True)
+                print(f"    [VM.query] Traceback:\n{traceback.format_exc()}", flush=True)
+                sys.stdout.flush()
+                if return_metadata:
+                    return ("", "error", empty_metadata)
+                return ("", "error")
+        
+        # All retries exhausted
+        print(f"    [VM.query] All {max_retries} retries failed: {last_error}", flush=True)
+        if return_metadata:
+            return ("", "error", empty_metadata)
+        return ("", "error")
