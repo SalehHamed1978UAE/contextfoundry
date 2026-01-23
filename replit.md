@@ -22,7 +22,7 @@ Architectural features include:
 - **Implicit Role Extraction**: `GraphBuilder` automatically creates `HOLDS_POSITION` relationships.
 - **QA Verifier**: Two-layer verification (structural rules + LLM semantic check).
 - **Dynamic Confidence Scoring**: Computed scores based on answer quality and evidence.
-- **Source Attribution**: Extracts and displays sources from various tools.
+- **Source Attribution**: Extracts and displays sources from various tools. Knowledge graph relationship sources now include the original document filename (via platform.documents JOIN).
 - **Deterministic Document Fallback**: Automatic document search when KG lacks data.
 - **Context Injection**: Passes `vault_context` for target entity resolution.
 - **Extraction Hardening**: Post-processor (`ExtractionPostProcessor`) uses regex patterns to catch missed relationships.
