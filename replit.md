@@ -51,6 +51,9 @@ Architectural features include:
   - **Batch Extraction Runner** (`scripts/run_multi_extraction.py`): Processes entire corpora, stores outputs per model in `extraction_outputs/{vault_id}/{model}/`.
   - **Partial Parse Recovery**: Fallback regex parsing for incomplete JSON responses with metadata flag for down-weighting.
   - **Document Truncation**: Large documents (>15k chars) truncated to avoid token limits with metadata flag.
+  - **Phase 2 Entity Resolution** (`src/context_foundry/extraction/entity_resolver.py`): Multi-model consensus building with name normalization, fuzzy matching (Levenshtein), and confidence boosting (+0.15 for multi-model agreement). Achieved 35% entity reduction (77→50) in testing.
+  - **Name Variant Matching**: Handles "CEO Sarah Chen" → "Sarah Chen", "Ms. Chen" → "Chen", strips titles/roles/org suffixes.
+  - **Property Merging**: Union strategy with conflict detection (differing values collected into lists).
 - **Retrieval Robustness Improvements** (January 2026):
   - **Per-Question Trace Logging**: Captures retrieved files, semantic scores, query_type, and match_type to JSONL traces for debugging retrieval quality.
   - **Keyword+Semantic Fusion**: When semantic scores < 0.4, applies canonical term boosting for project names, business units, and executives using config-driven terms.
