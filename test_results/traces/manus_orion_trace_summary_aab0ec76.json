@@ -1,25 +1,25 @@
 {
-  "run_timestamp": "2026-01-23T22:29:16.888573",
+  "run_timestamp": "2026-01-24T06:46:18.652456",
   "trace_file": "test_results/traces/manus_orion_traces_aab0ec76.jsonl",
   "stats": {
     "total_questions": 120,
-    "avg_chunks_retrieved": 4.025,
-    "avg_semantic_score": 0.015686666666666668,
+    "avg_chunks_retrieved": 4.066666666666665,
+    "avg_semantic_score": 0.022620000000000005,
     "query_type_distribution": {
       "unknown": 120
     },
     "evaluator_rule_distribution": {
-      "exact_match": 40,
+      "exact_match": 39,
       "semantic_match": 1,
-      "no_match": 35,
+      "no_match": 34,
       "no_data": 17,
       "boolean_match": 2,
-      "component_match": 18,
-      "number_match": 4,
+      "component_match": 17,
+      "number_match": 6,
       "percentage_match": 1,
-      "entity_match": 2
+      "entity_match": 3
     },
-    "low_score_queries": 118
+    "low_score_queries": 117
   },
   "low_score_questions": [
     {
@@ -113,11 +113,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 19,
-      "question": "What does Orion Aerospace focus on?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 20,
       "question": "What does Orion Energy Solutions focus on?",
       "avg_score": 0.0
@@ -128,14 +123,14 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 22,
-      "question": "What does Orion SmartCity focus on?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 23,
       "question": "Which business unit handles defense systems?",
       "avg_score": 0.0
+    },
+    {
+      "q_id": 24,
+      "question": "Which business unit handles hydrogen production?",
+      "avg_score": 0.2966
     },
     {
       "q_id": 25,
@@ -621,9 +616,9 @@
         "expected": "Overall strategy, board relations, M&A",
         "actual": "The key responsibilities of the CEO, Sar",
         "files_retrieved": [
-          "meeting_notes_doc_008.md",
-          "customers_doc_018.md",
-          "procurement_pipeline_dashboard.md"
+          "projects_doc_020.md",
+          "legal_doc_023.md",
+          "finances_doc_012.md"
         ]
       },
       {
@@ -651,19 +646,34 @@
         "q_id": 18,
         "question": "What are the four main business units?",
         "expected": "Orion Aerospace, Orion Energy Solutions,",
-        "actual": "The four main business units mentioned i",
+        "actual": "Based on the retrieved information, the ",
         "files_retrieved": [
-          "legal_doc_025.md",
-          "legal_doc_004.md",
-          "ops_budget_variance_analysis.md"
+          "meeting_notes_doc_002.md",
+          "finances_doc_017.md",
+          "board_presentation_q1_2025.md"
         ]
       },
       {
         "q_id": 19,
         "question": "What does Orion Aerospace focus on?",
         "expected": "Aircraft, UAVs, satellites, defense syst",
-        "actual": "Orion Aerospace appears to focus on the ",
-        "files_retrieved": []
+        "actual": "Orion Aerospace focuses on several key a",
+        "files_retrieved": [
+          "partnership_strategy_apac.md",
+          "investor_relations_strategy.txt",
+          "finances_doc_010.md"
+        ]
+      },
+      {
+        "q_id": 22,
+        "question": "What does Orion SmartCity focus on?",
+        "expected": "IoT platforms, urban infrastructure, sma",
+        "actual": "Orion SmartCity focuses on developing an",
+        "files_retrieved": [
+          "kpi_dashboard_q1_2025.xlsx",
+          "engineering_doc_009.md",
+          "strategic_plan_2025_2027.md"
+        ]
       },
       {
         "q_id": 23,
@@ -671,9 +681,20 @@
         "expected": "Orion Aerospace",
         "actual": "The business unit that handles defense s",
         "files_retrieved": [
+          "finances_doc_017.md",
           "projects_doc_010.md",
-          "finances_doc_016.md",
-          "meeting_notes_doc_024.md"
+          "finances_doc_016.md"
+        ]
+      },
+      {
+        "q_id": 24,
+        "question": "Which business unit handles hydrogen production?",
+        "expected": "Orion Energy Solutions",
+        "actual": "The business unit that handles hydrogen ",
+        "files_retrieved": [
+          "engineering_doc_007.md",
+          "ops_kpis_monthly_report.md",
+          "meeting_notes_doc_013.md"
         ]
       },
       {
@@ -682,9 +703,9 @@
         "expected": "$45M",
         "actual": "The budget for the Falcon UAV Program va",
         "files_retrieved": [
-          "scenario_planning_2026.md",
           "pricing_strategy_review.md",
-          "market_entry_strategy_india.md"
+          "market_entry_strategy_india.md",
+          "strategic_kpis_dashboard.txt"
         ]
       },
       {
@@ -693,9 +714,9 @@
         "expected": "2024-2025",
         "actual": "The timeline for the Falcon UAV Program ",
         "files_retrieved": [
-          "scenario_planning_2026.md",
-          "vertical_integration_analysis.md",
-          "talent_acquisition_strategy.txt"
+          "talent_acquisition_strategy.txt",
+          "ceo_memo_strategic_priorities.txt",
+          "supply_chain_strategy.md"
         ]
       },
       {
@@ -705,8 +726,8 @@
         "actual": "The budget for Project Helios includes s",
         "files_retrieved": [
           "talent_acquisition_strategy.txt",
-          "market_entry_strategy_india.md",
-          "finances_doc_013.md"
+          "compliance_doc_007.md",
+          "market_entry_strategy_india.md"
         ]
       },
       {
@@ -717,7 +738,7 @@
         "files_retrieved": [
           "talent_acquisition_strategy.txt",
           "investor_relations_strategy.txt",
-          "policies_doc_002.md"
+          "engineering_doc_001.md"
         ]
       },
       {
@@ -726,20 +747,9 @@
         "expected": "800 MW",
         "actual": "The capacity of Project Helios is report",
         "files_retrieved": [
+          "lean_manufacturing_initiative.txt",
           "engineering_doc_001.md",
-          "policies_doc_002.md",
-          "lean_manufacturing_initiative.txt"
-        ]
-      },
-      {
-        "q_id": 34,
-        "question": "Where is Project Helios located?",
-        "expected": "Morocco",
-        "actual": "Project Helios is associated with the Ma",
-        "files_retrieved": [
-          "finances_doc_009.md",
-          "finances_doc_013.md",
-          "policies_doc_019.md"
+          "supply_chain_strategy.md"
         ]
       },
       {
@@ -748,9 +758,9 @@
         "expected": "$120M",
         "actual": "The budget for the AutoNav Logistics Sys",
         "files_retrieved": [
-          "innovation_portfolio_review.txt",
           "finances_doc_001.md",
-          "projects_doc_003.md"
+          "innovation_portfolio_review.txt",
+          "projects_doc_004.md"
         ]
       },
       {
@@ -759,9 +769,9 @@
         "expected": "Offshore wind farm",
         "actual": "Project Borealis is a wind farm initiati",
         "files_retrieved": [
+          "technology_radar_q2_2025.txt",
           "innovation_portfolio_review.txt",
-          "projects_doc_025.md",
-          "market_entry_strategy_india.md"
+          "projects_doc_019.md"
         ]
       },
       {
@@ -772,7 +782,7 @@
         "files_retrieved": [
           "finances_doc_020.md",
           "engineering_doc_015.md",
-          "projects_doc_008.md"
+          "engineering_doc_003.md"
         ]
       },
       {
@@ -789,8 +799,8 @@
         "actual": "The retrieved information does not expli",
         "files_retrieved": [
           "compliance_doc_017.md",
-          "sustainability_report_2024.md",
-          "meeting_notes_doc_017.md"
+          "legal_doc_021.md",
+          "projects_doc_015.md"
         ]
       },
       {
@@ -799,9 +809,9 @@
         "expected": "35%",
         "actual": "The budget allocation for Capital Expend",
         "files_retrieved": [
-          "supply_chain_optimization.txt",
+          "inventory_management_policy.txt",
           "financial_statements_2024_2027.xlsx",
-          "inventory_management_policy.txt"
+          "environmental_compliance_report.md"
         ]
       },
       {
@@ -810,9 +820,9 @@
         "expected": "$12M annually",
         "actual": "The compliance cost estimates for Falcon",
         "files_retrieved": [
-          "market_entry_strategy_india.md",
           "three_year_financial_plan.md",
-          "esg_strategy_framework.md"
+          "legal_doc_024.md",
+          "market_entry_strategy_india.md"
         ]
       },
       {
@@ -821,20 +831,9 @@
         "expected": "EcoSolutions Corp",
         "actual": "The supplier that handles component sour",
         "files_retrieved": [
+          "engineering_doc_022.md",
           "supplier_scorecard_2025.csv",
-          "projects_doc_017.md",
-          "customers_doc_017.md"
-        ]
-      },
-      {
-        "q_id": 88,
-        "question": "Who is SolarFuture Holdings?",
-        "expected": "A customer of Manus Orion Group",
-        "actual": "SolarFuture Holdings is an organization ",
-        "files_retrieved": [
-          "customers_doc_008.md",
-          "policies_doc_003.md",
-          "finances_doc_013.md"
+          "engineering_doc_021.md"
         ]
       },
       {
@@ -843,20 +842,20 @@
         "expected": "A customer of Manus Orion Group",
         "actual": "Global Defense Systems is an organizatio",
         "files_retrieved": [
-          "projects_doc_022.md",
           "finances_doc_016.md",
-          "meeting_notes_doc_024.md"
+          "finances_doc_011.md",
+          "meeting_notes_doc_012.md"
         ]
       },
       {
         "q_id": 94,
         "question": "Which customer requires workshops for Project Helios?",
         "expected": "Neo-City Development Authority",
-        "actual": "The customer that requires workshops for",
+        "actual": "The customers that require workshops for",
         "files_retrieved": [
-          "finances_doc_009.md",
-          "finances_doc_013.md",
-          "engineering_doc_014.md"
+          "meeting_notes_doc_001.md",
+          "engineering_doc_014.md",
+          "policies_doc_002.md"
         ]
       },
       {
@@ -865,9 +864,9 @@
         "expected": "241+",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "sustainability_report_2024.md",
-          "product_roadmap_2025_2027.md",
-          "scenario_planning_2026.md"
+          "engineering_doc_005.md",
+          "competitive_intelligence_aerospace.txt",
+          "talent_acquisition_strategy.txt"
         ]
       },
       {
@@ -889,25 +888,14 @@
         ]
       },
       {
-        "q_id": 107,
-        "question": "When is Project Borealis commissioning scheduled?",
-        "expected": "Q4 2025",
-        "actual": "Project Borealis commissioning is schedu",
-        "files_retrieved": [
-          "project_schedule_master.xlsx",
-          "projects_doc_025.md",
-          "vendor_management_procedures.txt"
-        ]
-      },
-      {
         "q_id": 108,
         "question": "What regions are targeted for regulatory engagement?",
         "expected": "EU, US, APAC",
         "actual": "The regions targeted for regulatory enga",
         "files_retrieved": [
-          "sustainability_report_2024.md",
-          "legal_doc_008.md",
-          "customers_doc_018.md"
+          "engineering_doc_008.md",
+          "engineering_doc_007.md",
+          "projects_doc_013.md"
         ]
       },
       {
@@ -916,9 +904,9 @@
         "expected": "90 days",
         "actual": "The retrieved information does not expli",
         "files_retrieved": [
-          "engineering_doc_009.md",
-          "policies_doc_008.md",
-          "financial_statements_2024_2027.xlsx"
+          "inventory_management_policy.txt",
+          "financial_statements_2024_2027.xlsx",
+          "policies_doc_008.md"
         ]
       },
       {
@@ -928,20 +916,16 @@
         "actual": "The CapEx approval threshold for individ",
         "files_retrieved": [
           "policies_doc_018.md",
-          "inventory_management_policy.txt",
-          "customers_doc_003.md"
+          "customers_doc_003.md",
+          "inventory_management_policy.txt"
         ]
       },
       {
-        "q_id": 117,
-        "question": "When was the corpus generated?",
-        "expected": "2025-01-21",
-        "actual": "The corpus was generated as a result of ",
-        "files_retrieved": [
-          "engineering_doc_015.md",
-          "engineering_doc_005.md",
-          "legal_doc_023.md"
-        ]
+        "q_id": 113,
+        "question": "Who oversees operational execution?",
+        "expected": "COO Alex Thorne",
+        "actual": "The operational execution is overseen by",
+        "files_retrieved": []
       },
       {
         "q_id": 118,
@@ -949,9 +933,9 @@
         "expected": "Context Foundry stress testing",
         "actual": "The purpose of the corpus, as indicated ",
         "files_retrieved": [
-          "finances_doc_013.md",
+          "board_presentation_q1_2025.md",
           "compliance_doc_007.md",
-          "board_presentation_q1_2025.md"
+          "projects_doc_001.md"
         ]
       },
       {
@@ -961,7 +945,7 @@
         "actual": "The document ID format appears to consis",
         "files_retrieved": [
           "finances_doc_006.md",
-          "ceo_memo_strategic_priorities.txt",
+          "market_analysis_2025.md",
           "esg_strategy_framework.md"
         ]
       },
@@ -971,9 +955,9 @@
         "expected": "POL-UNIT-NNN",
         "actual": "The policy ID format is structured as fo",
         "files_retrieved": [
+          "policies_doc_010.md",
           "policies_doc_014.md",
-          "policies_doc_004.md",
-          "policies_doc_006.md"
+          "policies_doc_004.md"
         ]
       }
     ],
@@ -986,21 +970,14 @@
         "files_retrieved": []
       },
       {
-        "q_id": 22,
-        "question": "What does Orion SmartCity focus on?",
-        "expected": "IoT platforms, urban infrastructure, sma",
-        "actual": "I was unable to find specific informatio",
-        "files_retrieved": []
-      },
-      {
         "q_id": 26,
         "question": "Which business unit owns the Falcon UAV Program?",
         "expected": "Aerospace",
         "actual": "The Falcon UAV Program is overseen by mu",
         "files_retrieved": [
-          "policies_doc_004.md",
+          "legal_doc_013.md",
           "projects_doc_012.md",
-          "engineering_doc_025.md"
+          "policies_doc_004.md"
         ]
       },
       {
@@ -1009,8 +986,19 @@
         "expected": "Energy",
         "actual": "Project Helios is managed by Dr. Evelyn ",
         "files_retrieved": [
-          "customers_doc_010.md",
-          "finances_doc_009.md",
+          "policies_doc_010.md",
+          "legal_doc_013.md",
+          "policies_doc_002.md"
+        ]
+      },
+      {
+        "q_id": 34,
+        "question": "Where is Project Helios located?",
+        "expected": "Morocco",
+        "actual": "Project Helios is associated with the In",
+        "files_retrieved": [
+          "legal_doc_001.md",
+          "finances_doc_013.md",
           "policies_doc_002.md"
         ]
       },
@@ -1020,9 +1008,9 @@
         "expected": "SmartCity",
         "actual": "The UrbanMesh IoT Platform is owned by t",
         "files_retrieved": [
-          "legal_doc_020.md",
-          "market_entry_strategy_india.md",
-          "strategic_plan_2025_2027.md"
+          "strategic_plan_2025_2027.md",
+          "warehouse_operations_manual.txt",
+          "engineering_doc_018.md"
         ]
       },
       {
@@ -1047,7 +1035,7 @@
         "files_retrieved": [
           "projects_doc_013.md",
           "projects_doc_010.md",
-          "customers_doc_001.md"
+          "meeting_notes_doc_011.md"
         ]
       },
       {
@@ -1056,9 +1044,20 @@
         "expected": "A customer of Manus Orion Group",
         "actual": "The Neo-City Development Authority is id",
         "files_retrieved": [
-          "innovation_portfolio_review.txt",
           "three_year_financial_plan.md",
+          "finances_doc_007.md",
           "finances_doc_022.md"
+        ]
+      },
+      {
+        "q_id": 88,
+        "question": "Who is SolarFuture Holdings?",
+        "expected": "A customer of Manus Orion Group",
+        "actual": "SolarFuture Holdings is an organization ",
+        "files_retrieved": [
+          "customers_doc_008.md",
+          "ops_digital_transformation.txt",
+          "policies_doc_003.md"
         ]
       },
       {
@@ -1067,9 +1066,9 @@
         "expected": "A customer of Manus Orion Group",
         "actual": "EuroGrid Energy is an organization that ",
         "files_retrieved": [
+          "ops_kpis_monthly_report.md",
           "pricing_strategy_review.md",
-          "customers_doc_021.md",
-          "brand_positioning_analysis.md"
+          "customers_doc_021.md"
         ]
       },
       {
@@ -1079,8 +1078,8 @@
         "actual": "Pacific Rim Airlines is identified as bo",
         "files_retrieved": [
           "policies_doc_010.md",
-          "finances_doc_021.md",
-          "esg_strategy_framework.md"
+          "compliance_doc_019.md",
+          "finances_doc_021.md"
         ]
       },
       {
@@ -1101,25 +1100,18 @@
         "q_id": 97,
         "question": "What is the total word count of the corpus?",
         "expected": "250,000+",
-        "actual": "The retrieved information does not provi",
+        "actual": "I was unable to determine the total word",
         "files_retrieved": [
-          "engineering_doc_005.md",
           "financial_statements_2024_2027.xlsx",
+          "engineering_doc_005.md",
           "system_logs_q1_2025.json"
         ]
-      },
-      {
-        "q_id": 113,
-        "question": "Who oversees operational execution?",
-        "expected": "COO Alex Thorne",
-        "actual": "The operational execution at Manus Orion",
-        "files_retrieved": []
       },
       {
         "q_id": 114,
         "question": "Who ensures regulatory compliance?",
         "expected": "General Counsel James Park",
-        "actual": "Based on the retrieved information, it a",
+        "actual": "The retrieved information does not expli",
         "files_retrieved": []
       },
       {
@@ -1128,9 +1120,9 @@
         "expected": "POL-SC-003",
         "actual": "The retrieved information does not expli",
         "files_retrieved": [
-          "policies_doc_006.md",
-          "policies_doc_021.md",
-          "policies_doc_007.md"
+          "legal_doc_017.md",
+          "policies_doc_007.md",
+          "policies_doc_021.md"
         ]
       }
     ]
