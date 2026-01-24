@@ -212,6 +212,7 @@ Extract all entities and relationships from the document above. Return valid JSO
         """Parse LLM response into ExtractionOutput."""
         entities = []
         relationships = []
+        used_partial_parse = False
         
         try:
             if "```json" in response_text:
@@ -270,6 +271,7 @@ Extract all entities and relationships from the document above. Return valid JSO
         except json.JSONDecodeError as e:
             print(f"[MultiExtractor] JSON parse error: {e}")
             entities, relationships = self._attempt_partial_parse(response_text)
+            used_partial_parse = True
             print(f"[MultiExtractor] Partial parse recovered: {len(entities)} entities, {len(relationships)} relationships")
         except Exception as e:
             print(f"[MultiExtractor] Parse error: {e}")
@@ -285,6 +287,8 @@ Extract all entities and relationships from the document above. Return valid JSO
                 "filename": document.metadata.get("filename", ""),
                 "raw_entity_count": len(entities),
                 "raw_relationship_count": len(relationships),
+                "used_partial_parse": used_partial_parse,
+                "truncated": len(document.content) > 15000,
             }
         )
 
