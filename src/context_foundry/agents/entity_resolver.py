@@ -125,7 +125,8 @@ class EntityResolver:
         self,
         query: str,
         entity_type_hint: Optional[str] = None,
-        top_k: int = 20
+        top_k: int = 20,
+        include_archived: bool = False
     ) -> ResolveResult:
         """
         Resolve a query string to the best matching entity.
@@ -134,6 +135,7 @@ class EntityResolver:
             query: The search query (entity name or description)
             entity_type_hint: Optional type filter (e.g., 'SERVICE', 'PERSON')
             top_k: Maximum candidates to consider in semantic search
+            include_archived: If True, search ARCHIVED entities as well as TRUSTED
             
         Returns:
             ResolveResult with matched entity or disambiguation candidates
@@ -143,7 +145,6 @@ class EntityResolver:
         
         query = query.strip()
         
-        # Re-set RLS context in case previous rollback cleared it
         if self.tenant_id:
             try:
                 from sqlalchemy import text
@@ -153,9 +154,9 @@ class EntityResolver:
                 )
             except Exception:
                 pass
-        logger.debug(f"Resolving entity: '{query}' (type_hint={entity_type_hint})")
+        logger.debug(f"Resolving entity: '{query}' (type_hint={entity_type_hint}, include_archived={include_archived})")
         
-        exact_result = self._exact_match(query, entity_type_hint)
+        exact_result = self._exact_match(query, entity_type_hint, include_archived=include_archived)
         if exact_result.entity and exact_result.confidence >= self.EXACT_MATCH_THRESHOLD:
             logger.info(f"Exact match found: {exact_result.entity.name}")
             return exact_result
@@ -163,7 +164,7 @@ class EntityResolver:
             logger.info(f"Exact match disambiguation: {len(exact_result.candidates)} candidates")
             return exact_result
         
-        alias_result = self._alias_match(query, entity_type_hint)
+        alias_result = self._alias_match(query, entity_type_hint, include_archived=include_archived)
         if alias_result.entity and alias_result.confidence >= self.EXACT_MATCH_THRESHOLD:
             logger.info(f"Alias match found: {alias_result.entity.name}")
             return alias_result
@@ -171,7 +172,7 @@ class EntityResolver:
             logger.info(f"Alias match disambiguation: {len(alias_result.candidates)} candidates")
             return alias_result
         
-        contains_result = self._contains_match(query, entity_type_hint)
+        contains_result = self._contains_match(query, entity_type_hint, include_archived=include_archived)
         if contains_result.entity and contains_result.confidence >= 0.80:
             logger.info(f"Contains match found: {contains_result.entity.name}")
             return contains_result
@@ -179,7 +180,7 @@ class EntityResolver:
             logger.info(f"Contains match disambiguation: {len(contains_result.candidates)} candidates")
             return contains_result
         
-        normalized_result = self._normalized_match(query, entity_type_hint)
+        normalized_result = self._normalized_match(query, entity_type_hint, include_archived=include_archived)
         if normalized_result.entity and normalized_result.confidence >= 0.90:
             logger.info(f"Normalized match found: {normalized_result.entity.name} (query: '{query}')")
             return normalized_result
@@ -187,7 +188,7 @@ class EntityResolver:
             logger.info(f"Normalized match disambiguation: {len(normalized_result.candidates)} candidates")
             return normalized_result
         
-        semantic_result = self._semantic_search(query, entity_type_hint, top_k)
+        semantic_result = self._semantic_search(query, entity_type_hint, top_k, include_archived=include_archived)
         if semantic_result.entity and semantic_result.confidence >= self.SEMANTIC_THRESHOLD:
             logger.info(f"Semantic match found: {semantic_result.entity.name}")
             return semantic_result
@@ -195,13 +196,17 @@ class EntityResolver:
             logger.info(f"Semantic disambiguation: {len(semantic_result.candidates)} candidates")
             return semantic_result
         
-        fuzzy_result = self._fuzzy_match(query, entity_type_hint)
+        fuzzy_result = self._fuzzy_match(query, entity_type_hint, include_archived=include_archived)
         if fuzzy_result.entity and fuzzy_result.confidence >= self.FUZZY_THRESHOLD:
             logger.info(f"Fuzzy match found: {fuzzy_result.entity.name}")
             return fuzzy_result
         if fuzzy_result.needs_disambiguation:
             logger.info(f"Fuzzy disambiguation: {len(fuzzy_result.candidates)} candidates")
             return fuzzy_result
+        
+        if not include_archived:
+            logger.info(f"No TRUSTED match for '{query}', trying ARCHIVED entities...")
+            return self.resolve(query, entity_type_hint, top_k, include_archived=True)
         
         logger.info(f"No match found for: '{query}'")
         return ResolveResult(match_stage="not_found")
@@ -232,7 +237,8 @@ class EntityResolver:
     def _normalized_match(
         self,
         query: str,
-        entity_type_hint: Optional[str] = None
+        entity_type_hint: Optional[str] = None,
+        include_archived: bool = False
     ) -> ResolveResult:
         """
         Stage 2: Normalized match using inflect for plural/singular normalization
@@ -243,6 +249,7 @@ class EntityResolver:
         - "Auth Service" → "Authentication Service"
         - "DB Service" → "Database Service"
         """
+        from sqlalchemy import or_
         normalized_query = normalize_for_matching(query)
         logger.debug(f"Normalized query: '{query}' → '{normalized_query}'")
         
@@ -255,9 +262,12 @@ class EntityResolver:
             except Exception:
                 pass
         
-        base_query = self.session.query(Entity).filter(
-            Entity.lifecycle_state == LifecycleState.TRUSTED
-        )
+        lifecycle_filter = or_(
+            Entity.lifecycle_state == LifecycleState.TRUSTED,
+            Entity.lifecycle_state == LifecycleState.ARCHIVED
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
+        
+        base_query = self.session.query(Entity).filter(lifecycle_filter)
         
         if entity_type_hint:
             base_query = base_query.filter(Entity.entity_type == entity_type_hint)
@@ -291,13 +301,20 @@ class EntityResolver:
     def _contains_match(
         self,
         query: str,
-        entity_type_hint: Optional[str] = None
+        entity_type_hint: Optional[str] = None,
+        include_archived: bool = False
     ) -> ResolveResult:
         """Stage 1.5: Contains match - query in entity name or entity name in query."""
+        from sqlalchemy import or_
         normalized_query = self._normalize_name(query)
         
-        base_query = self.session.query(Entity).filter(
+        lifecycle_filter = or_(
             Entity.lifecycle_state == LifecycleState.TRUSTED,
+            Entity.lifecycle_state == LifecycleState.ARCHIVED
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
+        
+        base_query = self.session.query(Entity).filter(
+            lifecycle_filter,
             Entity.name.ilike(f'%{query}%')
         )
         
@@ -343,11 +360,18 @@ class EntityResolver:
     def _exact_match(
         self,
         query: str,
-        entity_type_hint: Optional[str] = None
+        entity_type_hint: Optional[str] = None,
+        include_archived: bool = False
     ) -> ResolveResult:
         """Stage 1: Exact case-insensitive match."""
-        base_query = self.session.query(Entity).filter(
+        from sqlalchemy import or_
+        lifecycle_filter = or_(
             Entity.lifecycle_state == LifecycleState.TRUSTED,
+            Entity.lifecycle_state == LifecycleState.ARCHIVED
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
+        
+        base_query = self.session.query(Entity).filter(
+            lifecycle_filter,
             Entity.name.ilike(query)
         )
         
@@ -403,13 +427,20 @@ class EntityResolver:
     def _alias_match(
         self,
         query: str,
-        entity_type_hint: Optional[str] = None
+        entity_type_hint: Optional[str] = None,
+        include_archived: bool = False
     ) -> ResolveResult:
         """Stage 1.5: Alias match - check if query matches any entity alias."""
+        from sqlalchemy import or_
+        lifecycle_filter = or_(
+            Entity.lifecycle_state == LifecycleState.TRUSTED,
+            Entity.lifecycle_state == LifecycleState.ARCHIVED
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
+        
         base_query = self.session.query(Entity).join(
             EntityAlias, Entity.id == EntityAlias.entity_id
         ).filter(
-            Entity.lifecycle_state == LifecycleState.TRUSTED,
+            lifecycle_filter,
             EntityAlias.alias.ilike(query)
         )
         
@@ -470,7 +501,8 @@ class EntityResolver:
         self,
         query: str,
         entity_type_hint: Optional[str] = None,
-        top_k: int = 20
+        top_k: int = 20,
+        include_archived: bool = False
     ) -> ResolveResult:
         """Stage 2: Semantic search using OpenAI embeddings."""
         try:
@@ -491,6 +523,8 @@ class EntityResolver:
             tenant_filter = "AND tenant_id = :tenant_id"
             params["tenant_id"] = self.tenant_id
         
+        lifecycle_filter = "lifecycle_state IN ('TRUSTED', 'ARCHIVED')" if include_archived else "lifecycle_state = 'TRUSTED'"
+        
         embedding_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
         
         sql = text(f"""
@@ -498,7 +532,7 @@ class EntityResolver:
                 id, name, entity_type, description,
                 1 - (name_embedding <=> '{embedding_str}'::vector) as similarity
             FROM entities
-            WHERE lifecycle_state = 'TRUSTED'
+            WHERE {lifecycle_filter}
                 AND name_embedding IS NOT NULL
                 {type_filter}
                 {tenant_filter}
@@ -537,18 +571,23 @@ class EntityResolver:
     def _fuzzy_match(
         self,
         query: str,
-        entity_type_hint: Optional[str] = None
+        entity_type_hint: Optional[str] = None,
+        include_archived: bool = False
     ) -> ResolveResult:
         """Stage 3: Fuzzy string matching using Levenshtein ratio."""
+        from sqlalchemy import or_
         try:
             self.session.rollback()
         except Exception:
             pass
         
+        lifecycle_filter = or_(
+            Entity.lifecycle_state == LifecycleState.TRUSTED,
+            Entity.lifecycle_state == LifecycleState.ARCHIVED
+        ) if include_archived else Entity.lifecycle_state == LifecycleState.TRUSTED
+        
         try:
-            base_query = self.session.query(Entity).filter(
-                Entity.lifecycle_state == LifecycleState.TRUSTED
-            )
+            base_query = self.session.query(Entity).filter(lifecycle_filter)
             
             if entity_type_hint:
                 base_query = base_query.filter(Entity.entity_type == entity_type_hint)
