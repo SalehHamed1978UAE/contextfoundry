@@ -2,7 +2,7 @@
   "document_id": "bd138914ee47",
   "document_path": "test documents/Manus Orion/customers/customers_doc_013.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-24T17:28:21.637647",
+  "extracted_at": "2026-01-24T17:36:33.589175",
   "entities": [
     {
       "name": "Fatima Al-Mansoori",
@@ -93,7 +93,7 @@
       "name": "Dr. Elena Rostova",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Unknown",
+        "title": "N/A",
         "role": "Stakeholder"
       },
       "confidence": 0.8,
@@ -139,10 +139,9 @@
     },
     {
       "name": "TechFlow Industries",
-      "entity_type": "SUPPLIER",
+      "entity_type": "PARTNER",
       "properties": {
-        "capability": "Component sourcing",
-        "risk level": "Medium"
+        "partnership type": "Technology Partner"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
@@ -151,14 +150,13 @@
     },
     {
       "name": "SecureCode Systems",
-      "entity_type": "SUPPLIER",
+      "entity_type": "PARTNER",
       "properties": {
-        "capability": "Logistics support",
-        "risk level": "Medium"
+        "partnership type": "Technology Partner"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "coordinate with TechFlow Industries for component sourcing and GreenTech Materials for logistics support",
+      "source_excerpt": "The operations team coordinates with TechFlow Industries for component sourcing and SecureCode Systems for logistics support.",
       "aliases": []
     },
     {
@@ -166,70 +164,47 @@
       "entity_type": "CUSTOMER",
       "properties": {
         "industry": "Urban Development",
-        "region": "City"
+        "region": "N/A"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Customer requirements from Neo-City Development Authority",
-      "aliases": []
-    },
-    {
-      "name": "EuroGrid Energy",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Energy",
-        "region": "Europe"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "customer requirements from EuroGrid Energy",
-      "aliases": []
-    },
-    {
-      "name": "Metropolitan Transit Corp",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Transportation",
-        "region": "Urban"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "customer requirements from Metropolitan Transit Corp",
+      "source_excerpt": "Customer requirements from Neo-City Development Authority and Global Defense Systems",
       "aliases": []
     },
     {
       "name": "Admiral Michael Torres",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Unknown",
+        "title": "N/A",
         "role": "Reviewer"
       },
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Pending review by Admiral Michael Torres",
+      "source_excerpt": "Approval Status: Pending review by Admiral Michael Torres",
+      "aliases": []
+    },
+    {
+      "name": "SolarFuture Holdings",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "N/A"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "Conduct customer workshops with SolarFuture Holdings and Neo-City Development Authority",
       "aliases": []
     },
     {
       "name": "Quantum Dynamics Ltd",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Dual-sourcing",
+        "capability": "Supplier for components",
         "risk level": "Medium"
       },
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
       "source_excerpt": "Mitigation strategy includes dual-sourcing with Quantum Dynamics Ltd",
-      "aliases": []
-    },
-    {
-      "name": "EcoSolutions Corp",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership type": "Technology partnership"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "technology partnerships with EcoSolutions Corp",
       "aliases": []
     },
     {
@@ -241,7 +216,42 @@
       },
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Finalize supplier agreements with Atlas Freight Systems",
+      "source_excerpt": "Finalize supplier agreements with Atlas Freight Systems and SecureCode Systems",
+      "aliases": []
+    },
+    {
+      "name": "EcoSolutions Corp",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "Technology Partner"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "technology partnerships with EcoSolutions Corp",
+      "aliases": []
+    },
+    {
+      "name": "AeroTech Global",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "industry": "Aerospace",
+        "region": "N/A"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "Competitive products from AeroTech Global may erode market share.",
+      "aliases": []
+    },
+    {
+      "name": "UrbanTech Solutions",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "industry": "Technology",
+        "region": "N/A"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "Competitive products from UrbanTech Solutions may erode market share.",
       "aliases": []
     },
     {
@@ -253,6 +263,18 @@
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
       "source_excerpt": "design specifications for Falcon UAV Program",
+      "aliases": []
+    },
+    {
+      "name": "SmartCity Innovation Lab",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Seoul",
+        "type": "Innovation Lab"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "technology transfer from the SmartCity Innovation Lab - Seoul",
       "aliases": []
     },
     {
@@ -268,26 +290,36 @@
       "aliases": []
     },
     {
-      "name": "SmartCity Innovation Lab",
-      "entity_type": "FACILITY",
-      "properties": {
-        "location": "Seoul",
-        "type": "Innovation Lab"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "technology transfer from the SmartCity Innovation Lab - Seoul",
-      "aliases": []
-    },
-    {
       "name": "Project Helios",
       "entity_type": "PROJECT",
       "properties": {
-        "description": "Solar Energy Project"
+        "description": "N/A"
       },
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
       "source_excerpt": "Complete integration testing with Project Helios",
+      "aliases": []
+    },
+    {
+      "name": "NexGen Battery Storage",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Battery Storage Initiative"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "Complete integration with NexGen Battery Storage",
+      "aliases": []
+    },
+    {
+      "name": "Quantum-Secured Supply Chain",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Supply Chain Initiative"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "Complete integration with NexGen Battery Storage and Quantum-Secured Supply Chain",
       "aliases": []
     }
   ],
@@ -356,14 +388,14 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Budget allocation of $7,645,513 approved"
+      "evidence": "Budget allocation of $7,645,513 approved by Marcus Webb (CFO)"
     },
     {
       "source_entity": "Global Defense Systems",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "target_entity": "NexGen Battery Storage",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
@@ -382,8 +414,8 @@
     },
     {
       "source_entity": "TechFlow Industries",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
       "target_entity": "Manus Orion Group",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -393,108 +425,53 @@
     },
     {
       "source_entity": "SecureCode Systems",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "coordinate with TechFlow Industries for component sourcing and GreenTech Materials for logistics support"
-    },
-    {
-      "source_entity": "Neo-City Development Authority",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Customer requirements from Neo-City Development Authority"
-    },
-    {
-      "source_entity": "EuroGrid Energy",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "customer requirements from EuroGrid Energy"
-    },
-    {
-      "source_entity": "Metropolitan Transit Corp",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "customer requirements from Metropolitan Transit Corp"
-    },
-    {
-      "source_entity": "Quantum Dynamics Ltd",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Mitigation strategy includes dual-sourcing with Quantum Dynamics Ltd"
-    },
-    {
-      "source_entity": "Atlas Freight Systems",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Finalize supplier agreements with Atlas Freight Systems"
-    },
-    {
-      "source_entity": "EcoSolutions Corp",
       "source_type": "PARTNER",
       "relationship_type": "PARTNER_OF",
       "target_entity": "Manus Orion Group",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "technology partnerships with EcoSolutions Corp"
+      "evidence": "The operations team coordinates with TechFlow Industries for component sourcing and SecureCode Systems for logistics support."
     },
     {
-      "source_entity": "Falcon UAV Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
+      "source_entity": "Neo-City Development Authority",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
       "target_entity": "NexGen Battery Storage",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "integration with Falcon UAV Program"
+      "evidence": "Customer requirements from Neo-City Development Authority and Global Defense Systems"
     },
     {
-      "source_entity": "Project Helios",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "NexGen Battery Storage",
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "technology innovation and r&d roadmap initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Complete integration testing with Project Helios"
+      "evidence": "Successful execution requires continued executive sponsorship from Fatima Al-Mansoori"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "operational excellence and process optimization initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "evidence": "Successful execution requires continued executive sponsorship from Sarah Chen"
     }
   ],
   "metadata": {
     "filename": "customers_doc_013.md",
-    "raw_entity_count": 24,
-    "raw_relationship_count": 18,
+    "raw_entity_count": 27,
+    "raw_relationship_count": 13,
     "used_partial_parse": false,
     "truncated": true
   }
