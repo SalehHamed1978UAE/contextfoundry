@@ -456,22 +456,22 @@ Reply YES or NO only."""
             self.last_evaluation_details['match_type'] = 'boolean_match'
             return True, "boolean_match"
         
-        # All matching attempts failed - now check if it's a NO_DATA response
-        # This is checked LAST so that responses with both "does not specify" boilerplate
-        # AND actual matching data still pass the matching checks above
-        # 
-        # Additional safeguard: if actual contains numbers, don't classify as NO_DATA
-        # because the response DID provide data (even if it didn't match expected)
-        actual_has_numbers = bool(actual_numbers) or self._extract_numbers(actual)
-        if actual_no_data and not actual_has_numbers:
-            self.last_evaluation_details['failure_reason'] = 'no_data'
-            return False, "no_data"
-        
-        # Try LLM semantic equivalence as last resort
+        # ALWAYS try LLM semantic equivalence before returning any failure
+        # This catches cases where:
+        # - Responses have boilerplate like "does not specify" but contain the answer
+        # - Abbreviations or rephrasing that pattern matching missed
+        # - Numeric/textual variations that normalization didn't catch
         print(f"[SEMANTIC] ENTRY: Calling _check_semantic_equivalence for query='{query[:50]}...'", flush=True)
         if self._check_semantic_equivalence(expected, actual, query):
             self.last_evaluation_details['match_type'] = 'semantic_match'
             return True, "semantic_match"
+        
+        # All matching attempts failed (including semantic) - determine failure reason
+        # Check if actual indicates no data was found
+        actual_has_numbers = bool(actual_numbers) or self._extract_numbers(actual)
+        if actual_no_data and not actual_has_numbers:
+            self.last_evaluation_details['failure_reason'] = 'no_data'
+            return False, "no_data"
 
         # Determine specific failure reason for non-NO_DATA failures
         if expected_numbers or expected_num is not None:
