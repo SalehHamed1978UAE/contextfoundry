@@ -13,6 +13,25 @@ from .shadow_adapter import ShadowAdapter
 from .normalizer import CandidateNormalizer
 from .candidate_store import CandidateStore
 
+from .schema import (
+    EntityType,
+    RelationshipType,
+    ValueType,
+    ExtractedEntity,
+    ExtractedRelationship,
+    ExtractionOutput,
+    ENTITY_PROPERTY_MAP,
+    VALID_RELATIONSHIP_SOURCES,
+    VALID_RELATIONSHIP_TARGETS,
+)
+
+from .validator import (
+    OntologyValidator,
+    ValidationError,
+    normalize_entity_type,
+    normalize_relationship_type,
+)
+
 __all__ = [
     'OntologyRepository',
     'get_ontology_repository',
@@ -24,4 +43,17 @@ __all__ = [
     'ShadowAdapter',
     'CandidateNormalizer',
     'CandidateStore',
+    'EntityType',
+    'RelationshipType',
+    'ValueType',
+    'ExtractedEntity',
+    'ExtractedRelationship',
+    'ExtractionOutput',
+    'ENTITY_PROPERTY_MAP',
+    'VALID_RELATIONSHIP_SOURCES',
+    'VALID_RELATIONSHIP_TARGETS',
+    'OntologyValidator',
+    'ValidationError',
+    'normalize_entity_type',
+    'normalize_relationship_type',
 ]
