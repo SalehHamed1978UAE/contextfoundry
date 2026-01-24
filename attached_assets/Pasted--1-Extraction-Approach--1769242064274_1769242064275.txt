@@ -1,0 +1,42 @@
+ 1. Extraction Approach                                                                                 
+                                                                                                         
+  Recommendation: One-time re-extraction first, then integrate into ingestion pipeline                   
+                                                                                                         
+  - Run a targeted re-extraction on the existing Manus Orion corpus to quickly populate missing KG       
+  relationships                                                                                          
+  - Structure the extractor code so it can later be wired into the ingestion pipeline for new documents  
+  - This gets us to 90% faster without waiting for a full re-ingestion                                   
+                                                                                                         
+  2. Question Set                                                                                        
+                                                                                                         
+  Yes, use orion_verified_106q.json                                                                      
+                                                                                                         
+  The 106q set removed 14 metadata questions that relied on README/CORPUS_STATS (which aren't business   
+  knowledge). This is the canonical test set.                                                            
+                                                                                                         
+  3. Priority Order                                                                                      
+                                                                                                         
+  Start with Phase 1 Quick Wins before extraction work                                                   
+                                                                                                         
+  Replit listed 5 extraction/routing tasks but the plan has 8 tasks total. Tasks 6-8 are quick wins:     
+  Task: Task 6                                                                                           
+  Description: Fix evaluator semantic equivalence                                                        
+  Why First: Already implemented but may not be called for all cases. Verifying/fixing this costs nothing
+                                                                                                         
+    and could recover 5-10%                                                                              
+  ────────────────────────────────────────                                                               
+  Task: Task 8                                                                                           
+  Description: Add observability logging                                                                 
+  Why First: Needed to diagnose what's actually failing                                                  
+  ────────────────────────────────────────                                                               
+  Task: Task 7                                                                                           
+  Description: Corpus validation script                                                                  
+  Why First: Confirms expected answers exist before extraction work                                      
+  Suggested order:                                                                                       
+  1. Phase 1: Tasks 6, 8, 7 (1-2 days) → Baseline to 65%                                                 
+  2. Phase 2: Task 5 - Query routing optimization (1 day)                                                
+  3. Phase 3: Tasks 1 + 2 (BU + Project) → These cover Q18-36, highest impact                            
+  4. Phase 4: Tasks 3 + 4 (Financial + Customer/Supplier)                                                
+                                                                                                         
+  This way we get diagnostic data from observability before doing heavy extraction work, and we might    
+  find the semantic equivalence fix alone recovers significant accuracy
