@@ -54,6 +54,9 @@ Architectural features include:
   - **Phase 2 Entity Resolution** (`src/context_foundry/extraction/entity_resolver.py`): Multi-model consensus building with name normalization, fuzzy matching (Levenshtein), and confidence boosting (+0.15 for multi-model agreement). Achieved 35% entity reduction (77→50) in testing.
   - **Name Variant Matching**: Handles "CEO Sarah Chen" → "Sarah Chen", "Ms. Chen" → "Chen", strips titles/roles/org suffixes.
   - **Property Merging**: Union strategy with conflict detection (differing values collected into lists).
+  - **Phase 3 Validation** (`src/context_foundry/extraction/consensus_validator.py`): Validates consensus against ontology constraints, detects property conflicts, computes quality scores.
+  - **Conflict Resolution**: Auto-resolves conflicts using strategies: majority vote (case-insensitive), most_specific (longest value), average (for numbers). Reduced 21 conflicts to 0 in testing.
+  - **Quality Scoring**: Computes overall score (0-1) from completeness, confidence, consistency, and multi-model coverage metrics.
 - **Retrieval Robustness Improvements** (January 2026):
   - **Per-Question Trace Logging**: Captures retrieved files, semantic scores, query_type, and match_type to JSONL traces for debugging retrieval quality.
   - **Keyword+Semantic Fusion**: When semantic scores < 0.4, applies canonical term boosting for project names, business units, and executives using config-driven terms.
