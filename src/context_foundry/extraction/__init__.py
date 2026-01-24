@@ -44,6 +44,14 @@ from .gap_detector import (
     detect_gaps_for_document,
 )
 from .validator import GapValidator
+from .multi_extractor import (
+    MultiModelExtractor,
+    GPT4oMiniExtractor,
+    ClaudeSonnetExtractor,
+    BaseExtractor,
+    DocumentInfo,
+    EXTRACTION_SYSTEM_PROMPT,
+)
 
 __all__ = [
     "EntityExtractor", 
@@ -80,4 +88,10 @@ __all__ = [
     "get_gap_detector",
     "detect_gaps_for_document",
     "GapValidator",
+    "MultiModelExtractor",
+    "GPT4oMiniExtractor",
+    "ClaudeSonnetExtractor",
+    "BaseExtractor",
+    "DocumentInfo",
+    "EXTRACTION_SYSTEM_PROMPT",
 ]
