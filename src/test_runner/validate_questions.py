@@ -58,8 +58,11 @@ def _answer_exists_in_corpus(expected: str, corpus_lower: str) -> bool:
     """Check if expected answer exists in corpus."""
     if not expected:
         return True
-        
+    
     expected_lower = expected.lower()
+    
+    if "[not in documents]" in expected_lower or "can be inferred" in expected_lower:
+        return True
 
     if expected_lower in corpus_lower:
         return True
