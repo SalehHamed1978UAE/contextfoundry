@@ -45,6 +45,12 @@ Architectural features include:
 - **Symbolic Override Engine**: Rule-based system that can override, augment, constrain, or prohibit semantic answers (`SymbolicOverrideEngine`).
 - **Data Gates ("Refuse to Hallucinate")**: Three-level validation system detecting entity not found, no relevant chunks, and ungrounded answers. Uses hedging/fabrication pattern detection (`DataGates`).
 - **Test Runner Dashboard**: Provides a web UI (`/test-runner`) for monitoring and controlling automated tests. Features vault selection, a 5-stage pipeline visualization (Delete → Create → Upload → Extract → Q&A), question set management, history actions (resume, view results, retry), live progress monitoring, and mode selection (Auto/Fresh). Test runs are persistent and resumable with database-backed status tracking and heartbeat mechanisms.
+- **Multi-Model Extraction Pipeline** (January 2026):
+  - **Phase 0 Ontology Schema** (`src/context_foundry/ontology/`): Defines 16 entity types (PERSON, ORGANIZATION, BUSINESS_UNIT, PROJECT, PRODUCT, SERVICE, CUSTOMER, SUPPLIER, PARTNER, FINANCIAL_METRIC, LOCATION, FACILITY, POLICY, TECHNOLOGY, CONCEPT, DOCUMENT) and 20+ relationship types with validation.
+  - **Phase 1 Multi-Model Extraction** (`src/context_foundry/extraction/multi_extractor.py`): Dual-model extraction using GPT-4o-mini and Claude Sonnet for redundant entity/relationship extraction with consensus building.
+  - **Batch Extraction Runner** (`scripts/run_multi_extraction.py`): Processes entire corpora, stores outputs per model in `extraction_outputs/{vault_id}/{model}/`.
+  - **Partial Parse Recovery**: Fallback regex parsing for incomplete JSON responses with metadata flag for down-weighting.
+  - **Document Truncation**: Large documents (>15k chars) truncated to avoid token limits with metadata flag.
 - **Retrieval Robustness Improvements** (January 2026):
   - **Per-Question Trace Logging**: Captures retrieved files, semantic scores, query_type, and match_type to JSONL traces for debugging retrieval quality.
   - **Keyword+Semantic Fusion**: When semantic scores < 0.4, applies canonical term boosting for project names, business units, and executives using config-driven terms.
