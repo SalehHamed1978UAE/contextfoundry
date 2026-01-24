@@ -1,0 +1,19 @@
+Recommendation: Run Full Corpus Test First                                                             
+                                                                                                         
+  Before wiring into the existing pipeline, we should validate the approach works end-to-end:            
+                                                                                                         
+  1. Run the full pipeline on entire Manus Orion corpus (~50 documents)                                  
+  2. Run the 106q test to measure accuracy improvement                                                   
+  3. Then decide whether to proceed with Phase 5 (Gap Analysis) or integration                           
+                                                                                                         
+  This will answer the critical question: Does multi-model extraction actually improve accuracy?         
+                                                                                                         
+  Expected outcomes:                                                                                     
+  - Current baseline: 58.5% (62/106)                                                                     
+  - After multi-model extraction: Hoping for 70-75%+                                                     
+  - After gap analysis (Phase 5): Target 90%                                                             
+                                                                                                         
+  If we don't see improvement after the full corpus run, we'll know something needs adjustment before    
+  investing more in integration.                                                                         
+                                                                                                         
+  Suggested next step: Run run_full_pipeline() on all Manus Orion documents, then run 106q test.
