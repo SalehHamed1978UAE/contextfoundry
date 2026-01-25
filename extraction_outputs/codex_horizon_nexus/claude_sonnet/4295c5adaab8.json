@@ -1,0 +1,86 @@
+{
+  "document_id": "4295c5adaab8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/ceo_memo_strategic_priorities.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:06:55.307770",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Author: Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "FY26",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "FY26",
+        "status": "strategic priority"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Highlights FY26 plays",
+      "aliases": []
+    },
+    {
+      "name": "IPO readiness",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Initial Public Offering preparation",
+        "status": "strategic priority"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "IPO readiness",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "communication/update platform with streaming capability"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Provide updates via Horizon Prime streams",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "FY26",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/ceo_memo_strategic_priorities.md",
+      "evidence": "Maya Serrano as CEO highlighting FY26 plays as strategic priorities"
+    },
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "IPO readiness",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/ceo_memo_strategic_priorities.md",
+      "evidence": "Maya Serrano as CEO highlighting IPO readiness as strategic priority"
+    }
+  ],
+  "metadata": {
+    "filename": "ceo_memo_strategic_priorities.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

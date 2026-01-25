@@ -1,0 +1,124 @@
+{
+  "document_id": "6a035bc77557",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:58:30.128056",
+  "entities": [
+    {
+      "name": "TransitEdge Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "under review",
+        "timeline": "2026"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "TransitEdge Program Review Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "has milestones"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Titan Logistics milestones",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "rollout phase"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "MetroLink rollout",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "has milestones to be reinforced"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "task management platform"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "TransitEdge Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "evidence": "Titan Logistics milestones discussed in TransitEdge Program review"
+    },
+    {
+      "source_entity": "TransitEdge Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "MetroLink",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "evidence": "MetroLink rollout discussed in TransitEdge Program review"
+    },
+    {
+      "source_entity": "TransitEdge Program",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_program_review_2026_01_19.md",
+      "evidence": "Owners assigned in PulseOps for TransitEdge Program action items"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_program_review_2026_01_19.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

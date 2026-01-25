@@ -1,0 +1,74 @@
+{
+  "document_id": "eea5890168e6",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_vaultsec_connector.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:03:16.576547",
+  "entities": [
+    {
+      "name": "Aether Shield",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Data residency connectors"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_vaultsec_connector.md",
+      "source_excerpt": "Business Unit: Aether Shield",
+      "aliases": []
+    },
+    {
+      "name": "VaultSec",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Data residency connectors",
+        "category": "Software"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_vaultsec_connector.md",
+      "source_excerpt": "Product/Module: VaultSec",
+      "aliases": []
+    },
+    {
+      "name": "Leah Kade",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Owner of VaultSec design"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_vaultsec_connector.md",
+      "source_excerpt": "Design Owner: Leah Kade",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leah Kade",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Aether Shield",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_vaultsec_connector.md",
+      "evidence": "Leah Kade is the Design Owner of VaultSec under Aether Shield"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "VaultSec",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_vaultsec_connector.md",
+      "evidence": "Aether Shield is the business unit associated with VaultSec"
+    }
+  ],
+  "metadata": {
+    "filename": "citadel_vaultsec_connector.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

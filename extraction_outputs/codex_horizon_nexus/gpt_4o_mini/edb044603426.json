@@ -1,0 +1,119 @@
+{
+  "document_id": "edb044603426",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:02:15.152255",
+  "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Energy management and control systems"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Business Unit: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "Leona Varga",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Sponsor",
+        "role": "Project Sponsor"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Sponsor: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Primary Customer: Enceladus Energy",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield H2",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Hydrogen-ready controllers"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Technical Stack: ArcShield H2",
+      "aliases": []
+    },
+    {
+      "name": "Aurora EMEA Expansion",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$165M",
+        "timeline": "2025-2027",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Aurora EMEA Expansion Delivery Brief",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leona Varga",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Aurora EMEA Expansion",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "evidence": "Sponsor: Leona Varga"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Aurora EMEA Expansion",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "evidence": "Business Unit: GridWave"
+    },
+    {
+      "source_entity": "Enceladus Energy",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Aurora EMEA Expansion",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "evidence": "Primary Customer: Enceladus Energy"
+    },
+    {
+      "source_entity": "Aurora EMEA Expansion",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "ArcShield H2",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aurora_emea_expansion_brief.md",
+      "evidence": "Technical Stack: ArcShield H2"
+    }
+  ],
+  "metadata": {
+    "filename": "aurora_emea_expansion_brief.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
