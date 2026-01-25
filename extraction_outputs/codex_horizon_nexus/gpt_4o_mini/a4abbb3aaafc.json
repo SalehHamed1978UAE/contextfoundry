@@ -2,7 +2,7 @@
   "document_id": "a4abbb3aaafc",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T07:59:20.664457",
+  "extracted_at": "2026-01-25T08:27:31.223885",
   "entities": [
     {
       "name": "Marcus Nguyen",
@@ -21,7 +21,7 @@
       "entity_type": "CUSTOMER",
       "properties": {
         "industry": "Urban transit agency",
-        "region": ""
+        "region": "Not specified"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
@@ -43,8 +43,8 @@
       "name": "Control Tower",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Product for transit management",
-        "category": "Transit Solutions"
+        "description": "Not specified",
+        "category": "Transit management"
       },
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
@@ -55,8 +55,8 @@
       "name": "AutoRail",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Automated rail management product",
-        "category": "Transit Solutions"
+        "description": "Not specified",
+        "category": "Transit management"
       },
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
@@ -101,9 +101,9 @@
       "evidence": "Owning BU: TransitEdge"
     },
     {
-      "source_entity": "TransitEdge",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
+      "source_entity": "MetroLink",
+      "source_type": "CUSTOMER",
+      "relationship_type": "SUPPLIER_OF",
       "target_entity": "Control Tower",
       "target_type": "PRODUCT",
       "properties": {},
@@ -112,9 +112,9 @@
       "evidence": "Primary Products: Control Tower"
     },
     {
-      "source_entity": "TransitEdge",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
+      "source_entity": "MetroLink",
+      "source_type": "CUSTOMER",
+      "relationship_type": "SUPPLIER_OF",
       "target_entity": "AutoRail",
       "target_type": "PRODUCT",
       "properties": {},

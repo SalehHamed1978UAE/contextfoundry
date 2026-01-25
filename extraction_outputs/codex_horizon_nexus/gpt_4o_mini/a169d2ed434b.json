@@ -2,7 +2,7 @@
   "document_id": "a169d2ed434b",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T07:58:34.033298",
+  "extracted_at": "2026-01-25T08:26:47.127211",
   "entities": [
     {
       "name": "Victor Liao",
@@ -20,12 +20,24 @@
       "name": "BluePeak Data Centers",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Data Center",
-        "industry": "Infrastructure"
+        "type": "Infrastructure partner",
+        "industry": "Data Centers"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
       "source_excerpt": "BluePeak Data Centers Account Brief",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "services",
+        "category": "Data Hosting"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Primary Products: Horizon Prime services",
       "aliases": []
     },
     {
@@ -40,18 +52,6 @@
       "aliases": []
     },
     {
-      "name": "Horizon Prime",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "services offered by BluePeak",
-        "category": "Data Hosting"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
-      "source_excerpt": "Primary Products: Horizon Prime services",
-      "aliases": []
-    },
-    {
       "name": "Data hosting",
       "entity_type": "PROJECT",
       "properties": {
@@ -63,7 +63,7 @@
       "aliases": []
     },
     {
-      "name": "52M ARR",
+      "name": "ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric name": "Annual Recurring Revenue",
@@ -74,6 +74,48 @@
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
       "source_excerpt": "ARR: $52M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Deployment maturity",
+        "value": 78,
+        "period": "current",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Expansion opportunities",
+        "value": 3,
+        "period": "current",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "Risk indicators",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Risk indicators",
+        "value": "supplier dependencies",
+        "period": "current",
+        "type": "DESCRIPTION"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Risk indicators: supplier dependencies",
       "aliases": []
     }
   ],
@@ -93,10 +135,10 @@
       "source_entity": "Corporate",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "BluePeak Data Centers",
-      "target_type": "ORGANIZATION",
+      "target_entity": "Data hosting",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
       "evidence": "Owning BU: Corporate"
     },
@@ -110,23 +152,12 @@
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
       "evidence": "Primary Products: Horizon Prime services"
-    },
-    {
-      "source_entity": "BluePeak Data Centers",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "USES",
-      "target_entity": "Data hosting",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_bluepeak_data_centers.md",
-      "evidence": "Current Objective: Data hosting"
     }
   ],
   "metadata": {
     "filename": "customer_dossier_bluepeak_data_centers.md",
-    "raw_entity_count": 6,
-    "raw_relationship_count": 4,
+    "raw_entity_count": 9,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

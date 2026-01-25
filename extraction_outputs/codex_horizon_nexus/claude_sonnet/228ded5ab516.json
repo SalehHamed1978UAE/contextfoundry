@@ -2,7 +2,7 @@
   "document_id": "228ded5ab516",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T07:58:21.843117",
+  "extracted_at": "2026-01-25T08:26:30.418267",
   "entities": [
     {
       "name": "Priya Thakur",
@@ -10,7 +10,7 @@
       "properties": {
         "role": "Executive Sponsor"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
       "source_excerpt": "Executive Sponsor: Priya Thakur",
       "aliases": []
@@ -33,43 +33,42 @@
       "properties": {
         "focus_areas": "Customer management"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
       "source_excerpt": "Owning BU: GridWave",
       "aliases": []
     },
     {
       "name": "Joint R&D",
-      "entity_type": "PRODUCT",
+      "entity_type": "PROJECT",
       "properties": {
-        "category": "Research and Development",
-        "description": "Joint research and development initiative"
+        "status": "Active",
+        "focus": "Sensor innovation"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
-      "source_excerpt": "Primary Products: Joint R&D",
+      "source_excerpt": "Primary Products: Joint R&D, Current Objective: Sensor innovation",
       "aliases": []
     },
     {
       "name": "Horizon Prime",
-      "entity_type": "PROJECT",
+      "entity_type": "PRODUCT",
       "properties": {
-        "status": "Active",
-        "description": "Roadmap initiative with updates"
+        "category": "Platform",
+        "description": "Product with roadmap updates"
       },
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
       "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
     },
     {
-      "name": "$61M ARR",
+      "name": "ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Recurring Revenue",
         "value": "61000000",
         "type": "CURRENCY",
-        "currency": "USD"
+        "metric_name": "Annual Recurring Revenue"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
@@ -77,12 +76,12 @@
       "aliases": []
     },
     {
-      "name": "78% Deployment Maturity",
+      "name": "Deployment maturity",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Deployment maturity",
         "value": "78",
-        "type": "PERCENTAGE"
+        "type": "PERCENTAGE",
+        "metric_name": "Deployment maturity"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
@@ -90,12 +89,12 @@
       "aliases": []
     },
     {
-      "name": "3 Expansion Opportunities",
+      "name": "Expansion opportunities",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Expansion opportunities",
         "value": "3",
-        "type": "COUNT"
+        "type": "COUNT",
+        "metric_name": "Expansion opportunities"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
@@ -113,18 +112,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
-      "evidence": "Executive Sponsor: Priya Thakur"
-    },
-    {
-      "source_entity": "VectorTech Robotics",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "GridWave",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
-      "evidence": "Owning BU: GridWave"
+      "evidence": "Priya Thakur is the Executive Sponsor for VectorTech Robotics account"
     },
     {
       "source_entity": "GridWave",
@@ -133,20 +121,9 @@
       "target_entity": "VectorTech Robotics",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
       "evidence": "Owning BU: GridWave"
-    },
-    {
-      "source_entity": "VectorTech Robotics",
-      "source_type": "CUSTOMER",
-      "relationship_type": "USES",
-      "target_entity": "Joint R&D",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
-      "evidence": "Primary Products: Joint R&D"
     },
     {
       "source_entity": "VectorTech Robotics",
@@ -155,9 +132,31 @@
       "target_entity": "GridWave",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
       "evidence": "Customer Profile: Supplier partnership"
+    },
+    {
+      "source_entity": "Joint R&D",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "VectorTech Robotics",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "evidence": "Primary Products: Joint R&D indicates project relationship with customer"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Joint R&D",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "evidence": "GridWave owns the customer relationship that includes Joint R&D"
     }
   ],
   "metadata": {

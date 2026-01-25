@@ -1,0 +1,142 @@
+{
+  "document_id": "630787da596d",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:21:03.321825",
+  "entities": [
+    {
+      "name": "Aether Shield",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Managed services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "source_excerpt": "Business Unit: Aether Shield",
+      "aliases": []
+    },
+    {
+      "name": "Breck Collins",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Sponsor",
+        "role": "Project Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "source_excerpt": "Sponsor: Breck Collins",
+      "aliases": []
+    },
+    {
+      "name": "Federal Finance Network",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Finance",
+        "region": "Federal"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "source_excerpt": "Primary Customer: Federal Finance Network",
+      "aliases": []
+    },
+    {
+      "name": "Project Citadel",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$180M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "source_excerpt": "Project Citadel Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "SentinelShield",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Security technology"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "source_excerpt": "Technical Stack: SentinelShield",
+      "aliases": []
+    },
+    {
+      "name": "VaultSec",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Security technology"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "source_excerpt": "Technical Stack: VaultSec",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Breck Collins",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Project Citadel",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "evidence": "Sponsor: Breck Collins"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Project Citadel",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "evidence": "Business Unit: Aether Shield"
+    },
+    {
+      "source_entity": "Federal Finance Network",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Project Citadel",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "evidence": "Primary Customer: Federal Finance Network"
+    },
+    {
+      "source_entity": "Project Citadel",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SentinelShield",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "evidence": "Technical Stack: SentinelShield"
+    },
+    {
+      "source_entity": "Project Citadel",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "VaultSec",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "evidence": "Technical Stack: VaultSec"
+    }
+  ],
+  "metadata": {
+    "filename": "project_citadel_brief.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

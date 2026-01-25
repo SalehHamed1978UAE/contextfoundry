@@ -2,7 +2,7 @@
   "document_id": "364a2cdaded2",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T07:57:31.617540",
+  "extracted_at": "2026-01-25T08:25:42.225984",
   "entities": [
     {
       "name": "Victor Liao",
@@ -10,17 +10,17 @@
       "properties": {
         "role": "Executive Sponsor"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
       "source_excerpt": "Executive Sponsor: Victor Liao",
       "aliases": []
     },
     {
       "name": "CoreMatrix Semiconductors",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "type": "Customer",
-        "industry": "Semiconductors"
+        "industry": "Semiconductors",
+        "profile": "Supplier"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
@@ -31,22 +31,11 @@
       "name": "Corporate",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Business Unit"
+        "name": "Corporate"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
       "source_excerpt": "Owning BU: Corporate",
-      "aliases": []
-    },
-    {
-      "name": "Supply assurance",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Primary product offering"
-      },
-      "confidence": 1.0,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
-      "source_excerpt": "Primary Products: Supply assurance",
       "aliases": []
     },
     {
@@ -54,7 +43,7 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Annual Recurring Revenue",
-        "value": "48M",
+        "value": "$48M",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
@@ -63,11 +52,22 @@
       "aliases": []
     },
     {
+      "name": "Supply assurance",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Primary service provided"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Primary Products: Supply assurance",
+      "aliases": []
+    },
+    {
       "name": "Deployment maturity",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Deployment maturity",
-        "value": "78",
+        "value": "78%",
         "type": "PERCENTAGE"
       },
       "confidence": 1.0,
@@ -94,7 +94,7 @@
       "properties": {
         "description": "Product with roadmap updates"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
       "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
@@ -106,61 +106,50 @@
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
       "target_entity": "CoreMatrix Semiconductors",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
-      "evidence": "Victor Liao is the Executive Sponsor for CoreMatrix Semiconductors account"
-    },
-    {
-      "source_entity": "CoreMatrix Semiconductors",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Corporate",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
-      "evidence": "Customer Profile: Supplier and Owning BU: Corporate indicates customer relationship"
+      "evidence": "Victor Liao is listed as Executive Sponsor for CoreMatrix Semiconductors account"
     },
     {
       "source_entity": "Corporate",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
       "target_entity": "CoreMatrix Semiconductors",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
-      "evidence": "Owning BU: Corporate"
-    },
-    {
-      "source_entity": "Corporate",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Supply assurance",
-      "target_type": "SERVICE",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
-      "evidence": "Primary Products: Supply assurance for customer owned by Corporate BU"
+      "evidence": "Owning BU: Corporate indicates Corporate business unit owns this customer relationship"
     },
     {
       "source_entity": "CoreMatrix Semiconductors",
-      "source_type": "ORGANIZATION",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Supply assurance",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Primary Products: Supply assurance indicates customer uses this service"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "CUSTOMER",
       "relationship_type": "USES",
       "target_entity": "Horizon Prime",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
-      "evidence": "Align roadmap visibility with Horizon Prime updates suggests usage relationship"
+      "evidence": "QBR notes mention aligning roadmap visibility with Horizon Prime updates, suggesting customer uses this product"
     }
   ],
   "metadata": {
     "filename": "customer_dossier_corematrix_semiconductors.md",
     "raw_entity_count": 8,
-    "raw_relationship_count": 5,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "a4abbb3aaafc",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T07:59:34.509817",
+  "extracted_at": "2026-01-25T08:27:44.611569",
   "entities": [
     {
       "name": "Marcus Nguyen",
@@ -20,25 +20,11 @@
       "entity_type": "CUSTOMER",
       "properties": {
         "industry": "Urban transit agency",
-        "profile": "Urban transit agency"
+        "ARR": "$96M"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
-      "source_excerpt": "MetroLink Account Brief, Customer Profile: Urban transit agency",
-      "aliases": []
-    },
-    {
-      "name": "$96M ARR",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "ARR",
-        "value": "96000000",
-        "type": "CURRENCY",
-        "currency": "USD"
-      },
-      "confidence": 0.98,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
-      "source_excerpt": "ARR: $96M ARR",
+      "source_excerpt": "MetroLink Account Brief",
       "aliases": []
     },
     {
@@ -47,7 +33,7 @@
       "properties": {
         "category": "Primary Product"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
       "source_excerpt": "Primary Products: Control Tower, AutoRail",
       "aliases": []
@@ -58,7 +44,7 @@
       "properties": {
         "category": "Primary Product"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
       "source_excerpt": "Primary Products: Control Tower, AutoRail",
       "aliases": []
@@ -75,38 +61,51 @@
       "aliases": []
     },
     {
-      "name": "78%",
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "$96M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "source_excerpt": "ARR: $96M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Deployment maturity",
-        "value": "78",
+        "value": "78%",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
       "source_excerpt": "Deployment maturity: 78%",
       "aliases": []
     },
     {
-      "name": "3",
+      "name": "Expansion opportunities",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Expansion opportunities",
         "value": "3",
         "type": "COUNT"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
       "source_excerpt": "Expansion opportunities: 3",
       "aliases": []
     },
     {
       "name": "Horizon Prime",
-      "entity_type": "PROJECT",
+      "entity_type": "PRODUCT",
       "properties": {
-        "description": "Roadmap updates project"
+        "description": "Product with roadmap updates"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
       "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
@@ -127,13 +126,35 @@
     {
       "source_entity": "TransitEdge",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "CUSTOMER_OF",
+      "relationship_type": "OWNS",
       "target_entity": "MetroLink",
       "target_type": "CUSTOMER",
       "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "evidence": "Owning BU: TransitEdge"
+    },
+    {
+      "source_entity": "MetroLink",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Control Tower",
+      "target_type": "PRODUCT",
+      "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
-      "evidence": "Owning BU: TransitEdge indicates TransitEdge owns the MetroLink customer relationship"
+      "evidence": "Primary Products: Control Tower, AutoRail"
+    },
+    {
+      "source_entity": "MetroLink",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "AutoRail",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "evidence": "Primary Products: Control Tower, AutoRail"
     },
     {
       "source_entity": "TransitEdge",
@@ -144,7 +165,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
-      "evidence": "TransitEdge owns MetroLink account which uses Control Tower as primary product"
+      "evidence": "TransitEdge owns MetroLink account which uses Control Tower"
     },
     {
       "source_entity": "TransitEdge",
@@ -155,29 +176,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
-      "evidence": "TransitEdge owns MetroLink account which uses AutoRail as primary product"
-    },
-    {
-      "source_entity": "MetroLink",
-      "source_type": "CUSTOMER",
-      "relationship_type": "USES",
-      "target_entity": "Control Tower",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
-      "evidence": "Primary Products: Control Tower, AutoRail"
-    },
-    {
-      "source_entity": "MetroLink",
-      "source_type": "CUSTOMER",
-      "relationship_type": "USES",
-      "target_entity": "AutoRail",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
-      "evidence": "Primary Products: Control Tower, AutoRail"
+      "evidence": "TransitEdge owns MetroLink account which uses AutoRail"
     }
   ],
   "metadata": {

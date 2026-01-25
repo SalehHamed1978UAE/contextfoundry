@@ -1,0 +1,97 @@
+{
+  "document_id": "9f1ddf23e8ab",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:23:27.550903",
+  "entities": [
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Federal Overlay Delivery"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "source_excerpt": "Business Unit: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "Nia Carver",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Sponsor",
+        "role": "Project Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "source_excerpt": "Sponsor: Nia Carver",
+      "aliases": []
+    },
+    {
+      "name": "Helix Secure",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technical Stack for Helix Federal Overlay"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "source_excerpt": "Technical Stack: Helix Secure",
+      "aliases": []
+    },
+    {
+      "name": "Defense clients",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Defense"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "source_excerpt": "Primary Customer: Defense clients",
+      "aliases": []
+    },
+    {
+      "name": "Helix Federal Overlay",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$118M",
+        "timeline": "2025-2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "source_excerpt": "Helix Federal Overlay Delivery Brief",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nia Carver",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Helix Federal Overlay",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "evidence": "Sponsor: Nia Carver"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Helix Federal Overlay",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "evidence": "Business Unit: Synapse One"
+    }
+  ],
+  "metadata": {
+    "filename": "helix_federal_overlay_brief.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
