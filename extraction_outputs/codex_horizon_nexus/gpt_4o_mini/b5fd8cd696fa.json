@@ -2,7 +2,7 @@
   "document_id": "b5fd8cd696fa",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:08:33.605992",
+  "extracted_at": "2026-01-25T08:36:20.395356",
   "entities": [
     {
       "name": "GridWave",
@@ -57,12 +57,12 @@
     },
     {
       "name": "CoreMatrix",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "PRODUCT",
       "properties": {
-        "type": "Corporation",
-        "industry": "Technology"
+        "description": "components",
+        "category": "Technology"
       },
-      "confidence": 0.8,
+      "confidence": 0.75,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
       "source_excerpt": "Supply-chain timing for CoreMatrix components.",
       "aliases": []
@@ -80,59 +80,26 @@
       "aliases": []
     },
     {
-      "name": "Revenue",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "July",
+      "entity_type": "LOCATION",
       "properties": {
-        "metric name": "Revenue",
-        "value": 459000000,
-        "period": "Q4 2026",
-        "type": "CURRENCY"
+        "city": null,
+        "country": null
       },
-      "confidence": 0.95,
+      "confidence": 0.6,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
-      "source_excerpt": "Revenue: $459M",
+      "source_excerpt": "Update board deck for July review.",
       "aliases": []
     },
     {
-      "name": "EBITDA Margin",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Treasury",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "metric name": "EBITDA Margin",
-        "value": 25,
-        "period": "Q4 2026",
-        "type": "PERCENTAGE"
+        "focus areas": "cash planning"
       },
-      "confidence": 0.95,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
-      "source_excerpt": "EBITDA Margin: 25%",
-      "aliases": []
-    },
-    {
-      "name": "Total Bookings",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Total Bookings",
-        "value": 133000000,
-        "period": "Q4 2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
-      "source_excerpt": "Total Bookings: $133M",
-      "aliases": []
-    },
-    {
-      "name": "R&D Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "R&D Investment",
-        "value": 45000000,
-        "period": "Q4 2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
-      "source_excerpt": "R&D Investment: $45M",
+      "source_excerpt": "Refresh cash planning with Treasury.",
       "aliases": []
     }
   ],
@@ -140,7 +107,7 @@
     {
       "source_entity": "GridWave",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "LEADS",
       "target_entity": "Project Aurora",
       "target_type": "PROJECT",
       "properties": {},
@@ -151,19 +118,41 @@
     {
       "source_entity": "TransitEdge Titan Logistics Network",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "CoreMatrix",
+      "relationship_type": "PART_OF",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
+      "evidence": "TransitEdge Titan Logistics Network backlog grew double digits."
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "GridWave",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
+      "evidence": "Operating expenses tracked to Horizon Prime glidepath."
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "PRODUCT",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.75,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q4_2026.md",
       "evidence": "Supply-chain timing for CoreMatrix components."
     }
   ],
   "metadata": {
     "filename": "financial_results_q4_2026.md",
-    "raw_entity_count": 10,
-    "raw_relationship_count": 2,
+    "raw_entity_count": 8,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

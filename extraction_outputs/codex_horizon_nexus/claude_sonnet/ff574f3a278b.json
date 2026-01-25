@@ -2,7 +2,7 @@
   "document_id": "ff574f3a278b",
   "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:17:14.799511",
+  "extracted_at": "2026-01-25T08:44:19.270266",
   "entities": [
     {
       "name": "Jorge Rivas",
@@ -20,11 +20,7 @@
       "name": "TransitEdge LATAM",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": [
-          "Freight automation pilots",
-          "MetroLink expansion",
-          "Telematics compliance"
-        ],
+        "focus_areas": "Freight automation pilots, MetroLink expansion, Telematics compliance",
         "region": "LATAM"
       },
       "confidence": 0.95,
@@ -33,15 +29,50 @@
       "aliases": []
     },
     {
+      "name": "Freight automation pilots",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "pilot phase",
+        "category": "automation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Freight automation pilots",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink expansion",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "expansion",
+        "category": "transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "MetroLink expansion",
+      "aliases": []
+    },
+    {
+      "name": "Telematics compliance",
+      "entity_type": "PROJECT",
+      "properties": {
+        "category": "compliance"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Telematics compliance",
+      "aliases": []
+    },
+    {
       "name": "ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Annual Recurring Revenue",
-        "value": "134M",
-        "type": "CURRENCY",
-        "period": "FY26"
+        "value": "$134M",
+        "period": "FY26",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
       "source_excerpt": "ARR: $134M",
       "aliases": []
@@ -52,9 +83,10 @@
       "properties": {
         "metric_name": "Active Pilots",
         "value": "14",
+        "period": "current",
         "type": "COUNT"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
       "source_excerpt": "Active Pilots: 14",
       "aliases": []
@@ -65,57 +97,36 @@
       "properties": {
         "metric_name": "Fleet Contracts",
         "value": "22",
+        "period": "current",
         "type": "COUNT"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
       "source_excerpt": "Fleet Contracts: 22",
       "aliases": []
     },
     {
-      "name": "Freight automation pilots",
-      "entity_type": "PROJECT",
-      "properties": {
-        "name": "Freight automation pilots",
-        "status": "pilot phase"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "source_excerpt": "Freight automation pilots",
-      "aliases": []
-    },
-    {
-      "name": "MetroLink expansion",
-      "entity_type": "PROJECT",
-      "properties": {
-        "name": "MetroLink expansion"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "source_excerpt": "MetroLink expansion",
-      "aliases": []
-    },
-    {
-      "name": "Telematics compliance",
-      "entity_type": "PROJECT",
-      "properties": {
-        "name": "Telematics compliance"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "source_excerpt": "Telematics compliance",
-      "aliases": []
-    },
-    {
-      "name": "Horizon Prime",
+      "name": "Horizon Prime data lake",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "data lake",
+        "description": "data lake platform",
         "type": "data platform"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "source_excerpt": "Horizon Prime data lake",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "controls engineering",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "engineering department",
+        "specialization": "controls"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "source_excerpt": "Address hiring gaps in controls engineering",
       "aliases": []
     }
   ],
@@ -134,52 +145,63 @@
     {
       "source_entity": "TransitEdge LATAM",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "FOCUSES_ON",
+      "relationship_type": "OWNS",
       "target_entity": "Freight automation pilots",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "evidence": "Freight automation pilots listed as focus area"
+      "evidence": "Freight automation pilots listed as focus area for TransitEdge LATAM"
     },
     {
       "source_entity": "TransitEdge LATAM",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "FOCUSES_ON",
+      "relationship_type": "OWNS",
       "target_entity": "MetroLink expansion",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "evidence": "MetroLink expansion listed as focus area"
+      "evidence": "MetroLink expansion listed as focus area for TransitEdge LATAM"
     },
     {
       "source_entity": "TransitEdge LATAM",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "FOCUSES_ON",
+      "relationship_type": "OWNS",
       "target_entity": "Telematics compliance",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "evidence": "Telematics compliance listed as focus area"
+      "evidence": "Telematics compliance listed as focus area for TransitEdge LATAM"
     },
     {
       "source_entity": "TransitEdge LATAM",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "USES",
-      "target_entity": "Horizon Prime",
+      "target_entity": "Horizon Prime data lake",
       "target_type": "TECHNOLOGY",
       "properties": {},
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
-      "evidence": "Key workstream mentions deepening integration with Horizon Prime data lake"
+      "evidence": "Workstream mentions deepening integration with Horizon Prime data lake"
+    },
+    {
+      "source_entity": "controls engineering",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "TransitEdge LATAM",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_latam_roadmap.md",
+      "evidence": "Controls engineering hiring gaps mentioned in TransitEdge LATAM workstream"
     }
   ],
   "metadata": {
     "filename": "transitedge_latam_roadmap.md",
-    "raw_entity_count": 9,
-    "raw_relationship_count": 5,
+    "raw_entity_count": 10,
+    "raw_relationship_count": 6,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -1,0 +1,144 @@
+{
+  "document_id": "2faff01ba50a",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:32:39.807350",
+  "entities": [
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "AI model governance"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Business Unit: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "Synapse Insight",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "AI model governance",
+        "category": "AI"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Product/Module: Synapse Insight",
+      "aliases": []
+    },
+    {
+      "name": "Eden Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Design Owner: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Confluence",
+        "industry": "Documentation"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence.",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Firmware versions"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Dashboard for performance KPIs"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard.",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Logistics",
+        "region": "Not specified"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements.",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply readiness",
+        "risk level": "Not specified"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech.",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Security",
+        "industry": "Not specified"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "source_excerpt": "Validate encryption module with Security.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Synapse One",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "evidence": "Design Owner: Eden Park"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Synapse Insight",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/synapse_insight_model_card.md",
+      "evidence": "Business Unit: Synapse One"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_insight_model_card.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

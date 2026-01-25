@@ -2,7 +2,7 @@
   "document_id": "bc84075b2f37",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:08:02.663861",
+  "extracted_at": "2026-01-25T08:35:50.621284",
   "entities": [
     {
       "name": "GridWave",
@@ -24,7 +24,7 @@
         "timeline": null,
         "status": "milestone pull-ins"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins.",
       "aliases": []
@@ -37,7 +37,7 @@
         "timeline": null,
         "status": "backlog grew double digits"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits.",
       "aliases": []
@@ -50,17 +50,17 @@
         "timeline": null,
         "status": "glidepath"
       },
-      "confidence": 0.8,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "Operating expenses tracked to Horizon Prime glidepath.",
       "aliases": []
     },
     {
       "name": "CoreMatrix",
-      "entity_type": "PRODUCT",
+      "entity_type": "ORGANIZATION",
       "properties": {
-        "description": "components",
-        "category": "Technology"
+        "type": "Corporation",
+        "industry": "Technology"
       },
       "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
@@ -72,22 +72,11 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": null,
-        "country": "various"
+        "country": "Europe"
       },
-      "confidence": 0.75,
+      "confidence": 0.6,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "FX exposure tied to EMEA hydrogen pilots.",
-      "aliases": []
-    },
-    {
-      "name": "Treasury",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus areas": "cash planning"
-      },
-      "confidence": 0.7,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "source_excerpt": "Refresh cash planning with Treasury.",
       "aliases": []
     },
     {
@@ -155,70 +144,26 @@
       "target_entity": "Project Aurora",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "evidence": "GridWave outperformed plan led by Project Aurora milestone pull-ins."
     },
     {
       "source_entity": "TransitEdge Titan Logistics Network",
       "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "GridWave",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "evidence": "TransitEdge Titan Logistics Network backlog grew double digits."
-    },
-    {
-      "source_entity": "Horizon Prime",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "GridWave",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "evidence": "Operating expenses tracked to Horizon Prime glidepath."
-    },
-    {
-      "source_entity": "CoreMatrix",
-      "source_type": "PRODUCT",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GridWave",
+      "relationship_type": "OWNS",
+      "target_entity": "CoreMatrix",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "evidence": "Supply-chain timing for CoreMatrix components."
-    },
-    {
-      "source_entity": "EMEA",
-      "source_type": "LOCATION",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GridWave",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.75,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "evidence": "FX exposure tied to EMEA hydrogen pilots."
-    },
-    {
-      "source_entity": "Treasury",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "GridWave",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.7,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "evidence": "Refresh cash planning with Treasury."
     }
   ],
   "metadata": {
     "filename": "financial_results_q1_2025.md",
-    "raw_entity_count": 11,
-    "raw_relationship_count": 6,
+    "raw_entity_count": 10,
+    "raw_relationship_count": 2,
     "used_partial_parse": false,
     "truncated": false
   }

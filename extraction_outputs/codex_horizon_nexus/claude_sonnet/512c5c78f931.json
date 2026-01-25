@@ -2,7 +2,7 @@
   "document_id": "512c5c78f931",
   "document_path": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:18:58.900745",
+  "extracted_at": "2026-01-25T08:45:58.500273",
   "entities": [
     {
       "name": "GridWave",
@@ -10,7 +10,7 @@
       "properties": {
         "type": "company"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
       "source_excerpt": "GridWave Organization",
       "aliases": []
@@ -19,11 +19,9 @@
       "name": "engineering",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": [
-          "engineering"
-        ]
+        "focus_area": "engineering"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
       "source_excerpt": "Includes engineering, delivery, regulatory teams",
       "aliases": []
@@ -32,11 +30,9 @@
       "name": "delivery",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": [
-          "delivery"
-        ]
+        "focus_area": "delivery"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
       "source_excerpt": "Includes engineering, delivery, regulatory teams",
       "aliases": []
@@ -45,11 +41,9 @@
       "name": "regulatory teams",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": [
-          "regulatory compliance"
-        ]
+        "focus_area": "regulatory compliance"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
       "source_excerpt": "Includes engineering, delivery, regulatory teams",
       "aliases": []
@@ -60,7 +54,7 @@
       "properties": {
         "description": "organizational data management system"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
       "source_excerpt": "Org data maintained in Horizon Prime",
       "aliases": []
@@ -76,7 +70,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
-      "evidence": "GridWave Organization includes engineering, delivery, regulatory teams"
+      "evidence": "GridWave Organization Includes engineering, delivery, regulatory teams"
     },
     {
       "source_entity": "delivery",
@@ -87,7 +81,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
-      "evidence": "GridWave Organization includes engineering, delivery, regulatory teams"
+      "evidence": "GridWave Organization Includes engineering, delivery, regulatory teams"
     },
     {
       "source_entity": "regulatory teams",
@@ -98,7 +92,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
-      "evidence": "GridWave Organization includes engineering, delivery, regulatory teams"
+      "evidence": "GridWave Organization Includes engineering, delivery, regulatory teams"
     },
     {
       "source_entity": "GridWave",
@@ -107,7 +101,7 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/gridwave_organization.md",
       "evidence": "Org data maintained in Horizon Prime"
     }

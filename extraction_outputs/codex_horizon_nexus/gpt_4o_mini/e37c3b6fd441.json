@@ -1,0 +1,131 @@
+{
+  "document_id": "e37c3b6fd441",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:41:57.344489",
+  "entities": [
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Business Unit for Helix Secure Overlay"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Business Unit: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "Helix",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Helix Secure Overlay",
+        "category": "Security"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Product/Module: Helix",
+      "aliases": []
+    },
+    {
+      "name": "Nia Carver",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Owner of Helix design"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Design Owner: Nia Carver",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Confluence for documentation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence.",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Firmware versions"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Dashboard for performance KPIs"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard.",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Logistics",
+        "region": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements.",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply readiness",
+        "risk level": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nia Carver",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Synapse One",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "evidence": "Design Owner: Nia Carver"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Helix",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/helix_secure_overlay.md",
+      "evidence": "Business Unit: Synapse One"
+    }
+  ],
+  "metadata": {
+    "filename": "helix_secure_overlay.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

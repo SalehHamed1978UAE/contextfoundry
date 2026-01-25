@@ -2,13 +2,14 @@
   "document_id": "26e66a855a3e",
   "document_path": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:19:10.638181",
+  "extracted_at": "2026-01-25T08:46:10.024239",
   "entities": [
     {
       "name": "Aether Shield",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "industry": "Security and Compliance Services"
+        "type": "security organization",
+        "focus": "security operations, compliance, managed services"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
@@ -19,7 +20,7 @@
       "name": "Security Operations",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Security operations services"
+        "description": "security operations services"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
@@ -30,7 +31,7 @@
       "name": "Compliance",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Compliance services"
+        "description": "compliance services"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
@@ -41,7 +42,7 @@
       "name": "Managed Services",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Managed services offerings"
+        "description": "managed services"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
@@ -52,33 +53,11 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data maintenance platform"
+        "description": "system for maintaining organizational data"
       },
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
       "source_excerpt": "Org data maintained in Horizon Prime",
-      "aliases": []
-    },
-    {
-      "name": "Succession Planning",
-      "entity_type": "POLICY",
-      "properties": {
-        "category": "Organizational Planning"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
-      "source_excerpt": "Document succession plans",
-      "aliases": []
-    },
-    {
-      "name": "Responsibilities and Reporting Lines",
-      "entity_type": "POLICY",
-      "properties": {
-        "category": "Organizational Structure"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/org/aether_shield_organization.md",
-      "source_excerpt": "Define responsibilities and reporting lines",
       "aliases": []
     }
   ],
@@ -130,7 +109,7 @@
   ],
   "metadata": {
     "filename": "aether_shield_organization.md",
-    "raw_entity_count": 7,
+    "raw_entity_count": 5,
     "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false

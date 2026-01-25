@@ -2,7 +2,7 @@
   "document_id": "caeafbbcd833",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:09:04.321549",
+  "extracted_at": "2026-01-25T08:36:50.858073",
   "entities": [
     {
       "name": "GridWave",
@@ -57,12 +57,12 @@
     },
     {
       "name": "CoreMatrix",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "PRODUCT",
       "properties": {
-        "type": "Corporation",
-        "industry": "Technology"
+        "description": "components",
+        "category": "Technology"
       },
-      "confidence": 0.8,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "Supply-chain timing for CoreMatrix components.",
       "aliases": []
@@ -72,9 +72,9 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": null,
-        "country": "Europe"
+        "country": "various"
       },
-      "confidence": 0.7,
+      "confidence": 0.75,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "FX exposure tied to EMEA hydrogen pilots.",
       "aliases": []
@@ -138,11 +138,11 @@
   ],
   "relationships": [
     {
-      "source_entity": "GridWave",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Project Aurora",
-      "target_type": "PROJECT",
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
@@ -151,19 +151,30 @@
     {
       "source_entity": "TransitEdge Titan Logistics Network",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "CoreMatrix",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
+      "evidence": "TransitEdge Titan Logistics Network backlog grew double digits."
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "GridWave",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
-      "evidence": "Supply-chain timing for CoreMatrix components."
+      "evidence": "Operating expenses tracked to Horizon Prime glidepath."
     }
   ],
   "metadata": {
     "filename": "financial_results_q2_2025.md",
     "raw_entity_count": 10,
-    "raw_relationship_count": 2,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

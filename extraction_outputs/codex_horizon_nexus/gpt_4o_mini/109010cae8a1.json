@@ -1,0 +1,199 @@
+{
+  "document_id": "109010cae8a1",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:38:03.041937",
+  "entities": [
+    {
+      "name": "Lucian Cho",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "GM/VP: Lucian Cho",
+      "aliases": []
+    },
+    {
+      "name": "Aether Shield",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Financial Services",
+        "industry": "Finance"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Aether Shield Financial Services FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "VaultSec",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "data residency solution",
+        "category": "Data Security"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "VaultSec data residency",
+      "aliases": []
+    },
+    {
+      "name": "Basel IV",
+      "entity_type": "POLICY",
+      "properties": {
+        "description": "regulatory framework for banks",
+        "policy ID": "Basel IV",
+        "category": "Financial Regulation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Basel IV reporting",
+      "aliases": []
+    },
+    {
+      "name": "Citadel",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "managed services"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Citadel managed services",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake technology"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "FY26",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Aether Shield Financial Services FY26 Roadmap",
+        "budget": null,
+        "timeline": "FY26",
+        "status": "planned"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Aether Shield Financial Services FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": "$121M",
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "ARR: $121M",
+      "aliases": []
+    },
+    {
+      "name": "Active Banks",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Number of Active Banks",
+        "value": "28",
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Active Banks: 28",
+      "aliases": []
+    },
+    {
+      "name": "Average Seats",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Average Number of Seats",
+        "value": "4.7k",
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Average Seats: 4.7k",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Lucian Cho",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Aether Shield",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "evidence": "GM/VP: Lucian Cho"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services FY26 Roadmap",
+      "source_type": "PROJECT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "VaultSec",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "evidence": "Focus Areas: VaultSec data residency"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services FY26 Roadmap",
+      "source_type": "PROJECT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Basel IV",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "evidence": "Focus Areas: Basel IV reporting"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services FY26 Roadmap",
+      "source_type": "PROJECT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Citadel",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "evidence": "Focus Areas: Citadel managed services"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services FY26 Roadmap",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_financial_services_roadmap.md",
+      "evidence": "Deepen integration with Horizon Prime data lake"
+    }
+  ],
+  "metadata": {
+    "filename": "aether_shield_financial_services_roadmap.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

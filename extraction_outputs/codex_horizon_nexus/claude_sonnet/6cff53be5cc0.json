@@ -1,0 +1,74 @@
+{
+  "document_id": "6cff53be5cc0",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/cto_memo_engineering_excellence.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:38:51.339661",
+  "entities": [
+    {
+      "name": "Dr. Eliza Morrell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/cto_memo_engineering_excellence.md",
+      "source_excerpt": "Author: Dr. Eliza Morrell",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "streaming platform for updates"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/cto_memo_engineering_excellence.md",
+      "source_excerpt": "Provide updates via Horizon Prime streams",
+      "aliases": []
+    },
+    {
+      "name": "Engineering Excellence Initiative",
+      "entity_type": "PROJECT",
+      "properties": {
+        "focus": "quality metrics, security posture",
+        "status": "active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/cto_memo_engineering_excellence.md",
+      "source_excerpt": "CTO Memo - Engineering Excellence",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Eliza Morrell",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Engineering Excellence Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/cto_memo_engineering_excellence.md",
+      "evidence": "Dr. Eliza Morrell authored the CTO memo about Engineering Excellence"
+    },
+    {
+      "source_entity": "Engineering Excellence Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/cto_memo_engineering_excellence.md",
+      "evidence": "Provide updates via Horizon Prime streams"
+    }
+  ],
+  "metadata": {
+    "filename": "cto_memo_engineering_excellence.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

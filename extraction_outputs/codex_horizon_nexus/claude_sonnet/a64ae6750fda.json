@@ -2,27 +2,28 @@
   "document_id": "a64ae6750fda",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:26:19.091537",
+  "extracted_at": "2026-01-25T08:53:11.180638",
   "entities": [
     {
       "name": "Incident Response Playbook",
       "entity_type": "POLICY",
       "properties": {
         "policy_id": "incident_response_playbook.md",
-        "category": "Security"
+        "category": "security",
+        "description": "How to escalate and resolve security incidents"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
-      "source_excerpt": "# Incident Response Playbook",
+      "source_excerpt": "# Incident Response Playbook\n\n_How to escalate and resolve security incidents._",
       "aliases": []
     },
     {
       "name": "Horizon Nexus Systems",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Company"
+        "type": "company"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
       "source_excerpt": "Applies to all Horizon Nexus Systems employees",
       "aliases": []
@@ -31,9 +32,9 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Record keeping system"
+        "description": "system for maintaining auditable records"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
       "source_excerpt": "Maintain auditable records in Horizon Prime",
       "aliases": []
@@ -42,9 +43,9 @@
       "name": "People Operations",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Policy management"
+        "focus_areas": "policy ownership and review"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
       "source_excerpt": "Owner: People Operations",
       "aliases": []
@@ -53,9 +54,9 @@
       "name": "HR",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Human Resources"
+        "focus_areas": "human resources and exception escalation"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
       "source_excerpt": "Escalate exceptions through HR or Security",
       "aliases": []
@@ -64,9 +65,9 @@
       "name": "Security",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Security operations"
+        "focus_areas": "security operations and exception escalation"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
       "source_excerpt": "Escalate exceptions through HR or Security",
       "aliases": []
@@ -80,7 +81,7 @@
       "target_entity": "Incident Response Playbook",
       "target_type": "POLICY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
       "evidence": "Owner: People Operations"
     },
@@ -91,9 +92,9 @@
       "target_entity": "Horizon Nexus Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
-      "evidence": "People Operations is referenced as owner within Horizon Nexus Systems context"
+      "evidence": "People Operations is implied to be part of Horizon Nexus Systems organization structure"
     },
     {
       "source_entity": "HR",
@@ -102,9 +103,9 @@
       "target_entity": "Horizon Nexus Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
-      "evidence": "HR is referenced within Horizon Nexus Systems policy"
+      "evidence": "HR is implied to be part of Horizon Nexus Systems organization structure"
     },
     {
       "source_entity": "Security",
@@ -113,9 +114,9 @@
       "target_entity": "Horizon Nexus Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
-      "evidence": "Security is referenced within Horizon Nexus Systems policy"
+      "evidence": "Security is implied to be part of Horizon Nexus Systems organization structure"
     },
     {
       "source_entity": "Horizon Nexus Systems",
@@ -124,7 +125,7 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
       "evidence": "Maintain auditable records in Horizon Prime"
     }

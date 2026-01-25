@@ -2,7 +2,7 @@
   "document_id": "26f597c2dca1",
   "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_roadmap.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:16:33.467936",
+  "extracted_at": "2026-01-25T08:43:39.337501",
   "entities": [
     {
       "name": "Breck Collins",
@@ -40,9 +40,10 @@
     },
     {
       "name": "Horizon Prime",
-      "entity_type": "TECHNOLOGY",
+      "entity_type": "PRODUCT",
       "properties": {
-        "description": "Data lake technology"
+        "description": "Data lake product",
+        "category": "Data Management"
       },
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_roadmap.md",
@@ -108,40 +109,29 @@
       "source_entity": "Aether Shield",
       "source_type": "PROJECT",
       "relationship_type": "FOCUSES_ON",
-      "target_entity": "Zero-trust architectures",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_roadmap.md",
-      "evidence": "Focus Areas: Zero-trust architectures"
-    },
-    {
-      "source_entity": "Aether Shield",
-      "source_type": "PROJECT",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Compliance automation",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_roadmap.md",
-      "evidence": "Focus Areas: Compliance automation"
-    },
-    {
-      "source_entity": "Aether Shield",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
       "target_entity": "SentinelShield services",
       "target_type": "SERVICE",
       "properties": {},
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_roadmap.md",
-      "evidence": "SentinelShield services"
+      "evidence": "Focus Areas: SentinelShield services"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_roadmap.md",
+      "evidence": "Deepen integration with Horizon Prime data lake"
     }
   ],
   "metadata": {
     "filename": "aether_shield_roadmap.md",
     "raw_entity_count": 7,
-    "raw_relationship_count": 4,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

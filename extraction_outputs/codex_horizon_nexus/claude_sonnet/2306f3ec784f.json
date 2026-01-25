@@ -2,7 +2,7 @@
   "document_id": "2306f3ec784f",
   "document_path": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:07:31.899877",
+  "extracted_at": "2026-01-25T08:35:20.960373",
   "entities": [
     {
       "name": "Dylan Kaur",
@@ -20,8 +20,7 @@
       "name": "Aurora",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active",
-        "has_investment_envelope": true
+        "status": "investment allocation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
@@ -32,8 +31,7 @@
       "name": "Titan",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active",
-        "has_investment_envelope": true
+        "status": "investment allocation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
@@ -44,8 +42,7 @@
       "name": "Helix",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active",
-        "has_investment_envelope": true
+        "status": "investment allocation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
@@ -56,8 +53,7 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "streaming platform for updates",
-        "type": "communication_platform"
+        "description": "communication/reporting platform"
       },
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
@@ -75,7 +71,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
-      "evidence": "CFO Dylan Kaur providing capital allocation details for Aurora project"
+      "evidence": "CFO Dylan Kaur details investment envelope for Aurora"
     },
     {
       "source_entity": "Dylan Kaur",
@@ -86,7 +82,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
-      "evidence": "CFO Dylan Kaur providing capital allocation details for Titan project"
+      "evidence": "CFO Dylan Kaur details investment envelope for Titan"
     },
     {
       "source_entity": "Dylan Kaur",
@@ -97,7 +93,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
-      "evidence": "CFO Dylan Kaur providing capital allocation details for Helix project"
+      "evidence": "CFO Dylan Kaur details investment envelope for Helix"
     },
     {
       "source_entity": "Aurora",
@@ -106,9 +102,9 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.7,
+      "confidence": 0.75,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
-      "evidence": "Projects requested to provide updates via Horizon Prime streams"
+      "evidence": "Provide updates via Horizon Prime streams (applies to all projects mentioned)"
     },
     {
       "source_entity": "Titan",
@@ -117,9 +113,9 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.7,
+      "confidence": 0.75,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
-      "evidence": "Projects requested to provide updates via Horizon Prime streams"
+      "evidence": "Provide updates via Horizon Prime streams (applies to all projects mentioned)"
     },
     {
       "source_entity": "Helix",
@@ -128,9 +124,9 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.7,
+      "confidence": 0.75,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
-      "evidence": "Projects requested to provide updates via Horizon Prime streams"
+      "evidence": "Provide updates via Horizon Prime streams (applies to all projects mentioned)"
     }
   ],
   "metadata": {

@@ -1,0 +1,117 @@
+{
+  "document_id": "b10adc013052",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:46:12.197500",
+  "entities": [
+    {
+      "name": "VectorTech Robotics",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "category": "Sensors",
+        "tier": "Tier 1",
+        "engagement_model": "Dual-source",
+        "average_lead_time": "78 days",
+        "service_level": "99.1%"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Supplier Profile: VectorTech Robotics",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Executive Sponsor: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Logistics organization"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Procurement",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "escalation management",
+          "supplier relations"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Escalation path defined through Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "Documentation system"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "Service Level",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Service Level",
+        "value": "99.1%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Service Level: 99.1%",
+      "aliases": []
+    },
+    {
+      "name": "Average Lead Time",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Average Lead Time",
+        "value": "78",
+        "type": "COUNT",
+        "unit": "days"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Average Lead Time: 78 days",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "VectorTech Robotics",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_vectortech_robotics.md",
+      "evidence": "Priya Thakur is the Executive Sponsor for VectorTech Robotics"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_vectortech_robotics.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

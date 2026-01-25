@@ -2,7 +2,7 @@
   "document_id": "f0098dcd379e",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:25:04.555601",
+  "extracted_at": "2026-01-25T08:51:52.128402",
   "entities": [
     {
       "name": "Citadel Banking Wave",
@@ -10,8 +10,7 @@
       "properties": {
         "budget": "$126M",
         "timeline": "2025-2027",
-        "status": "in_planning",
-        "objective": "Zero-trust for banks"
+        "status": "in progress"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
@@ -22,7 +21,7 @@
       "name": "Aether Shield",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "banking security solutions"
+        "focus_areas": "banking security"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
@@ -33,7 +32,7 @@
       "name": "Lucian Cho",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Project Sponsor"
+        "role": "Sponsor"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
@@ -56,7 +55,7 @@
       "name": "SentinelShield FS",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Technical stack for banking zero-trust solution"
+        "description": "technical stack for banking wave project"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
@@ -67,9 +66,9 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data lake platform"
+        "description": "data lake"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
       "source_excerpt": "Horizon Prime data lake readiness",
       "aliases": []
@@ -78,10 +77,9 @@
       "name": "CoreMatrix",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "supply services",
-        "risk_level": "dependency"
+        "capability": "supply"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
       "source_excerpt": "CoreMatrix supply",
       "aliases": []
@@ -90,9 +88,9 @@
       "name": "SkyPath",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Integration platform"
+        "description": "integration platform"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
       "source_excerpt": "SkyPath integrations",
       "aliases": []
@@ -103,8 +101,7 @@
       "properties": {
         "metric_name": "Project Budget",
         "value": "126000000",
-        "type": "CURRENCY",
-        "period": "2025-2027"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
@@ -122,7 +119,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
-      "evidence": "Business Unit: Aether Shield is listed as the owner of the project"
+      "evidence": "Business Unit: Aether Shield owns the Citadel Banking Wave project"
     },
     {
       "source_entity": "Lucian Cho",
@@ -133,7 +130,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
-      "evidence": "Lucian Cho is listed as the project sponsor"
+      "evidence": "Lucian Cho is the sponsor of the project"
     },
     {
       "source_entity": "Global banks",
@@ -144,7 +141,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
-      "evidence": "Global banks are the primary customer for this Aether Shield project"
+      "evidence": "Global banks are the primary customer for the Citadel Banking Wave project"
     },
     {
       "source_entity": "Citadel Banking Wave",
@@ -155,7 +152,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
-      "evidence": "SentinelShield FS is listed as the technical stack for the project"
+      "evidence": "Technical Stack: SentinelShield FS"
     },
     {
       "source_entity": "Citadel Banking Wave",
@@ -164,7 +161,7 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
       "evidence": "Project depends on Horizon Prime data lake readiness"
     },
@@ -175,9 +172,9 @@
       "target_entity": "Citadel Banking Wave",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
-      "evidence": "CoreMatrix supply is listed as a project dependency"
+      "evidence": "CoreMatrix supply is listed as a dependency"
     },
     {
       "source_entity": "Citadel Banking Wave",
@@ -186,9 +183,9 @@
       "target_entity": "SkyPath",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
-      "evidence": "SkyPath integrations are listed as a project dependency"
+      "evidence": "SkyPath integrations is listed as a dependency"
     }
   ],
   "metadata": {

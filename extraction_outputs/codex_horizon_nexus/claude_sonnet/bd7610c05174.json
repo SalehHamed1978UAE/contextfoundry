@@ -2,13 +2,13 @@
   "document_id": "bd7610c05174",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:28:05.638803",
+  "extracted_at": "2026-01-25T08:54:51.130422",
   "entities": [
     {
       "name": "Ethics and Compliance Code",
       "entity_type": "POLICY",
       "properties": {
-        "policy_id": "ethics_and_compliance_code",
+        "policy_id": "ethics_and_compliance_code.md",
         "category": "Ethics and Compliance"
       },
       "confidence": 1.0,
@@ -31,7 +31,7 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Record keeping system"
+        "description": "Records management system"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
@@ -42,7 +42,10 @@
       "name": "People Operations",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "HR, Policy Management"
+        "focus_areas": [
+          "HR",
+          "Policy Management"
+        ]
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
@@ -53,7 +56,10 @@
       "name": "HR",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Human Resources"
+        "focus_areas": [
+          "Human Resources",
+          "Exception Escalation"
+        ]
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
@@ -64,7 +70,10 @@
       "name": "Security",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Security Operations"
+        "focus_areas": [
+          "Security",
+          "Exception Escalation"
+        ]
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
@@ -73,17 +82,6 @@
     }
   ],
   "relationships": [
-    {
-      "source_entity": "People Operations",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Ethics and Compliance Code",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
-      "evidence": "Owner: People Operations"
-    },
     {
       "source_entity": "People Operations",
       "source_type": "BUSINESS_UNIT",
@@ -104,7 +102,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
-      "evidence": "HR is referenced within Horizon Nexus Systems policy context"
+      "evidence": "HR is referenced as escalation path within Horizon Nexus Systems"
     },
     {
       "source_entity": "Security",
@@ -115,7 +113,18 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
-      "evidence": "Security is referenced within Horizon Nexus Systems policy context"
+      "evidence": "Security is referenced as escalation path within Horizon Nexus Systems"
+    },
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Ethics and Compliance Code",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
+      "evidence": "Owner: People Operations"
     },
     {
       "source_entity": "Horizon Nexus Systems",

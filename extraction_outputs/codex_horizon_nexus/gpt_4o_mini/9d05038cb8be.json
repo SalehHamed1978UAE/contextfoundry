@@ -2,7 +2,7 @@
   "document_id": "9d05038cb8be",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:19:56.983970",
+  "extracted_at": "2026-01-25T08:46:53.986720",
   "entities": [
     {
       "name": "Victor Liao",
@@ -63,27 +63,15 @@
       "aliases": []
     },
     {
-      "name": "CoreMatrix",
-      "entity_type": "SUPPLIER",
+      "name": "Internal",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "capability": "Data supply",
-        "risk level": "Medium"
+        "industry": "Corporate",
+        "region": "Internal"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
-      "source_excerpt": "CoreMatrix supply",
-      "aliases": []
-    },
-    {
-      "name": "SkyPath",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Integration services",
-        "risk level": "Medium"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
-      "source_excerpt": "SkyPath integrations",
+      "source_excerpt": "Primary Customer: Internal",
       "aliases": []
     }
   ],
@@ -91,7 +79,7 @@
     {
       "source_entity": "Victor Liao",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Horizon Prime",
       "target_type": "PROJECT",
       "properties": {},
@@ -133,32 +121,21 @@
       "evidence": "Technical Stack: PulseOps"
     },
     {
-      "source_entity": "Horizon Prime",
-      "source_type": "PROJECT",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "CoreMatrix",
-      "target_type": "SUPPLIER",
+      "source_entity": "Internal",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
-      "evidence": "CoreMatrix supply"
-    },
-    {
-      "source_entity": "Horizon Prime",
-      "source_type": "PROJECT",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "SkyPath",
-      "target_type": "SUPPLIER",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
-      "evidence": "SkyPath integrations"
+      "evidence": "Primary Customer: Internal"
     }
   ],
   "metadata": {
     "filename": "horizon_prime_brief.md",
-    "raw_entity_count": 7,
-    "raw_relationship_count": 6,
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
     "used_partial_parse": false,
     "truncated": false
   }

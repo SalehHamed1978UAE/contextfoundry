@@ -2,7 +2,7 @@
   "document_id": "6d6ae0a44ff7",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:21:58.664441",
+  "extracted_at": "2026-01-25T08:48:43.842145",
   "entities": [
     {
       "name": "TransitEdge",
@@ -96,12 +96,23 @@
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
       "evidence": "Primary Customer: MetroLink"
+    },
+    {
+      "source_entity": "TransitEdge Control Tower",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Control Tower",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_control_tower_brief.md",
+      "evidence": "Technical Stack: Control Tower"
     }
   ],
   "metadata": {
     "filename": "transitedge_control_tower_brief.md",
     "raw_entity_count": 5,
-    "raw_relationship_count": 3,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

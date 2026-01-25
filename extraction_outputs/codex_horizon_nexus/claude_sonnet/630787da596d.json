@@ -2,7 +2,7 @@
   "document_id": "630787da596d",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:21:20.992608",
+  "extracted_at": "2026-01-25T08:48:08.933493",
   "entities": [
     {
       "name": "Project Citadel",
@@ -15,18 +15,21 @@
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "# Project Citadel Delivery Brief",
+      "source_excerpt": "Project Citadel Delivery Brief",
       "aliases": []
     },
     {
       "name": "Aether Shield",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "security services"
+        "focus_areas": [
+          "zero-trust services",
+          "managed security"
+        ]
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "**Business Unit:** Aether Shield",
+      "source_excerpt": "Business Unit: Aether Shield",
       "aliases": []
     },
     {
@@ -37,99 +40,98 @@
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "**Sponsor:** Breck Collins",
+      "source_excerpt": "Sponsor: Breck Collins",
       "aliases": []
     },
     {
       "name": "Federal Finance Network",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "financial services"
+        "industry": "Financial Services"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "**Primary Customer:** Federal Finance Network",
+      "source_excerpt": "Primary Customer: Federal Finance Network",
       "aliases": []
     },
     {
       "name": "SentinelShield",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "security technology platform"
+        "description": "Security technology platform"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "**Technical Stack:** SentinelShield, VaultSec",
+      "source_excerpt": "Technical Stack: SentinelShield, VaultSec",
       "aliases": []
     },
     {
       "name": "VaultSec",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "security technology platform"
+        "description": "Security technology platform"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "**Technical Stack:** SentinelShield, VaultSec",
+      "source_excerpt": "Technical Stack: SentinelShield, VaultSec",
       "aliases": []
     },
     {
       "name": "Zero-trust managed service",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "security service with zero-trust architecture"
+        "description": "Managed security service with zero-trust architecture"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "## Objective\nZero-trust managed service",
-      "aliases": []
-    },
-    {
-      "name": "Project Budget",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Project Budget",
-        "value": "180000000",
-        "currency": "USD",
-        "type": "CURRENCY",
-        "period": "2024-2026"
-      },
-      "confidence": 1.0,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "**Budget:** $180M",
+      "source_excerpt": "Objective: Zero-trust managed service",
       "aliases": []
     },
     {
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "data lake platform"
+        "description": "Data lake platform"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "- Horizon Prime data lake readiness",
+      "source_excerpt": "Dependencies: Horizon Prime data lake readiness",
       "aliases": []
     },
     {
       "name": "CoreMatrix",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "supply services"
+        "capability": "Supply services"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "- CoreMatrix supply",
+      "source_excerpt": "Dependencies: CoreMatrix supply",
       "aliases": []
     },
     {
       "name": "SkyPath",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "integration platform"
+        "description": "Integration platform"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "source_excerpt": "- SkyPath integrations",
+      "source_excerpt": "Dependencies: SkyPath integrations",
+      "aliases": []
+    },
+    {
+      "name": "$180M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Project Budget",
+        "value": "180000000",
+        "period": "2024-2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
+      "source_excerpt": "Budget: $180M",
       "aliases": []
     }
   ],
@@ -143,7 +145,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "**Business Unit:** Aether Shield"
+      "evidence": "Business Unit: Aether Shield owns Project Citadel"
     },
     {
       "source_entity": "Breck Collins",
@@ -154,7 +156,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "**Sponsor:** Breck Collins"
+      "evidence": "Sponsor: Breck Collins leads Project Citadel"
     },
     {
       "source_entity": "Federal Finance Network",
@@ -165,7 +167,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "**Primary Customer:** Federal Finance Network"
+      "evidence": "Primary Customer: Federal Finance Network is customer of the project owned by Aether Shield"
     },
     {
       "source_entity": "Project Citadel",
@@ -176,7 +178,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "**Technical Stack:** SentinelShield, VaultSec"
+      "evidence": "Technical Stack: SentinelShield is used in Project Citadel"
     },
     {
       "source_entity": "Project Citadel",
@@ -187,18 +189,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "**Technical Stack:** SentinelShield, VaultSec"
+      "evidence": "Technical Stack: VaultSec is used in Project Citadel"
     },
     {
-      "source_entity": "Project Citadel",
-      "source_type": "PROJECT",
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
       "target_entity": "Zero-trust managed service",
       "target_type": "SERVICE",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "## Objective\nZero-trust managed service"
+      "evidence": "Aether Shield business unit produces zero-trust managed service through Project Citadel"
     },
     {
       "source_entity": "Project Citadel",
@@ -209,7 +211,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "- Horizon Prime data lake readiness"
+      "evidence": "Dependencies: Horizon Prime data lake readiness is required for Project Citadel"
     },
     {
       "source_entity": "CoreMatrix",
@@ -220,7 +222,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "- CoreMatrix supply"
+      "evidence": "Dependencies: CoreMatrix supply is needed for Project Citadel"
     },
     {
       "source_entity": "Project Citadel",
@@ -231,7 +233,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_citadel_brief.md",
-      "evidence": "- SkyPath integrations"
+      "evidence": "Dependencies: SkyPath integrations are required for Project Citadel"
     }
   ],
   "metadata": {

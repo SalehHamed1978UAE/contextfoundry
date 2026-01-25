@@ -2,7 +2,7 @@
   "document_id": "8a64877e156f",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:19:28.223485",
+  "extracted_at": "2026-01-25T08:46:27.724182",
   "entities": [
     {
       "name": "GridWave",
@@ -120,10 +120,10 @@
       "evidence": "Technical Stack: SensorForge"
     },
     {
-      "source_entity": "GridWave Sensor Modernization",
+      "source_entity": "Horizon Prime",
       "source_type": "PROJECT",
-      "relationship_type": "DEPENDS_ON",
-      "target_entity": "Horizon Prime",
+      "relationship_type": "PART_OF",
+      "target_entity": "GridWave Sensor Modernization",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.8,
@@ -131,22 +131,22 @@
       "evidence": "Horizon Prime data lake readiness"
     },
     {
-      "source_entity": "GridWave Sensor Modernization",
-      "source_type": "PROJECT",
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
       "relationship_type": "SUPPLIER_OF",
-      "target_entity": "CoreMatrix",
-      "target_type": "SUPPLIER",
+      "target_entity": "GridWave Sensor Modernization",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
       "evidence": "CoreMatrix supply"
     },
     {
-      "source_entity": "GridWave Sensor Modernization",
-      "source_type": "PROJECT",
+      "source_entity": "SkyPath",
+      "source_type": "PARTNER",
       "relationship_type": "PARTNER_OF",
-      "target_entity": "SkyPath",
-      "target_type": "PARTNER",
+      "target_entity": "GridWave Sensor Modernization",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",

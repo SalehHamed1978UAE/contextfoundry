@@ -1,0 +1,195 @@
+{
+  "document_id": "f31c449a68c2",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:31:27.784138",
+  "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "SensorForge product development"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Business Unit: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "SensorForge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Hardware",
+        "description": "Hardware components product"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Product/Module: SensorForge",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Design Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Design Owner: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime Confluence",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Interface documentation platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Firmware platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Dashboard for performance KPIs"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Internal organization",
+        "industry": "Logistics"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Security validation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Validate encryption module with Security",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply readiness"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "SensorForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "evidence": "GridWave business unit produces SensorForge product"
+    },
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "SensorForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "evidence": "Priya Thakur is the Design Owner of SensorForge"
+    },
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "evidence": "Priya Thakur is Design Owner for GridWave's SensorForge product"
+    },
+    {
+      "source_entity": "SensorForge",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime Confluence",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "evidence": "Interfaces documented via Horizon Prime Confluence"
+    },
+    {
+      "source_entity": "SensorForge",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "CoreMatrix",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "evidence": "Dependencies on CoreMatrix firmware versions"
+    },
+    {
+      "source_entity": "SensorForge",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "evidence": "Performance KPIs stored in PulseOps dashboard"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/gridwave_sensorforge_bom.md",
+      "evidence": "Confirm supply readiness with VectorTech"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_sensorforge_bom.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

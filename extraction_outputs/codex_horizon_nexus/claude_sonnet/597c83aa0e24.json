@@ -1,0 +1,135 @@
+{
+  "document_id": "597c83aa0e24",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:42:32.903937",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "BU leaders",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Business Unit leaders"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "source_excerpt": "BU leaders",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Transformation project involving data lake migration and tooling shutdowns"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "source_excerpt": "Horizon Prime Transformation Update Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System for assigning owners and tracking action items"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    },
+    {
+      "name": "data lake migration",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "migration",
+        "status": "in progress"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "source_excerpt": "Data lake migration, tooling shutdowns",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "evidence": "Maya Serrano attended Horizon Prime Transformation Update Meeting"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "evidence": "Dylan Kaur attended Horizon Prime Transformation Update Meeting"
+    },
+    {
+      "source_entity": "BU leaders",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "evidence": "BU leaders attended Horizon Prime Transformation Update Meeting"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "evidence": "Owners assigned in PulseOps for Horizon Prime action items"
+    },
+    {
+      "source_entity": "data lake migration",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/horizon_prime_transformation_update_2026_01_26.md",
+      "evidence": "Data lake migration is a topic in Horizon Prime Transformation Update"
+    }
+  ],
+  "metadata": {
+    "filename": "horizon_prime_transformation_update_2026_01_26.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

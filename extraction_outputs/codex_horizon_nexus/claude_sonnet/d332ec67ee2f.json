@@ -2,8 +2,23 @@
   "document_id": "d332ec67ee2f",
   "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:16:13.115643",
+  "extracted_at": "2026-01-25T08:43:26.032028",
   "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Advanced grid orchestration",
+          "ArcShield microgrid controllers",
+          "Regional regulatory compliance"
+        ]
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "source_excerpt": "GridWave FY26 Roadmap",
+      "aliases": []
+    },
     {
       "name": "Priya Thakur",
       "entity_type": "PERSON",
@@ -17,24 +32,12 @@
       "aliases": []
     },
     {
-      "name": "GridWave",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Advanced grid orchestration, ArcShield microgrid controllers, Regional regulatory compliance"
-      },
-      "confidence": 0.98,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
-      "source_excerpt": "GridWave FY26 Roadmap",
-      "aliases": []
-    },
-    {
       "name": "ArcShield microgrid controllers",
       "entity_type": "PRODUCT",
       "properties": {
-        "category": "microgrid controllers",
-        "description": "microgrid control systems"
+        "category": "microgrid controllers"
       },
-      "confidence": 0.92,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
       "source_excerpt": "ArcShield microgrid controllers",
       "aliases": []
@@ -56,10 +59,10 @@
       "properties": {
         "metric_name": "Annual Recurring Revenue",
         "value": "$420M",
-        "period": "FY26",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "period": "FY26"
       },
-      "confidence": 0.98,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
       "source_excerpt": "ARR: $420M",
       "aliases": []
@@ -70,8 +73,8 @@
       "properties": {
         "metric_name": "Pipeline Coverage",
         "value": "3.3x",
-        "period": "FY26",
-        "type": "COUNT"
+        "type": "COUNT",
+        "period": "FY26"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
@@ -84,8 +87,8 @@
       "properties": {
         "metric_name": "Gross Margin",
         "value": "57%",
-        "period": "FY26",
-        "type": "PERCENTAGE"
+        "type": "PERCENTAGE",
+        "period": "FY26"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
@@ -101,22 +104,9 @@
       "target_entity": "GridWave",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
-      "evidence": "Priya Thakur is listed as GM/VP for GridWave"
-    },
-    {
-      "source_entity": "Priya Thakur",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "GridWave",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {
-        "role": "GM/VP"
-      },
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
-      "evidence": "GM/VP: Priya Thakur"
+      "evidence": "GM/VP: Priya Thakur leading GridWave FY26 Roadmap"
     },
     {
       "source_entity": "GridWave",
@@ -125,7 +115,7 @@
       "target_entity": "ArcShield microgrid controllers",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.88,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
       "evidence": "ArcShield microgrid controllers listed as focus area for GridWave"
     },
@@ -136,7 +126,7 @@
       "target_entity": "Horizon Prime data lake",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
       "evidence": "Deepen integration with Horizon Prime data lake"
     }
@@ -144,7 +134,7 @@
   "metadata": {
     "filename": "gridwave_roadmap.md",
     "raw_entity_count": 7,
-    "raw_relationship_count": 4,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

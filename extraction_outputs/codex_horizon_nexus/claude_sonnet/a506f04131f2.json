@@ -2,7 +2,7 @@
   "document_id": "a506f04131f2",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:09:54.353402",
+  "extracted_at": "2026-01-25T08:37:35.734765",
   "entities": [
     {
       "name": "Revenue",
@@ -23,7 +23,7 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "EBITDA Margin",
-        "value": "22%",
+        "value": "22",
         "period": "Q3 2025",
         "type": "PERCENTAGE"
       },
@@ -62,13 +62,14 @@
     },
     {
       "name": "GridWave",
-      "entity_type": "BUSINESS_UNIT",
+      "entity_type": "PRODUCT",
       "properties": {
-        "name": "GridWave"
+        "name": "GridWave",
+        "description": "Product that outperformed plan"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
-      "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins",
+      "source_excerpt": "GridWave outperformed plan",
       "aliases": []
     },
     {
@@ -78,28 +79,29 @@
         "name": "Project Aurora",
         "status": "milestone pull-ins"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
-      "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins",
+      "source_excerpt": "Project Aurora milestone pull-ins",
       "aliases": []
     },
     {
       "name": "TransitEdge",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "TransitEdge"
+        "name": "TransitEdge",
+        "focus_areas": "logistics"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
-      "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
+      "source_excerpt": "TransitEdge Titan Logistics Network",
       "aliases": []
     },
     {
       "name": "Titan Logistics Network",
-      "entity_type": "PRODUCT",
+      "entity_type": "SERVICE",
       "properties": {
         "name": "Titan Logistics Network",
-        "description": "logistics network product"
+        "description": "logistics network with growing backlog"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
@@ -111,9 +113,9 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "Horizon Prime",
-        "description": "operational expense management initiative"
+        "status": "operating expenses tracked to glidepath"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
       "source_excerpt": "Operating expenses tracked to Horizon Prime glidepath",
       "aliases": []
@@ -123,9 +125,10 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "EMEA",
-        "region": "Europe, Middle East, Africa"
+        "city": "",
+        "country": ""
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
       "source_excerpt": "FX exposure tied to EMEA hydrogen pilots",
       "aliases": []
@@ -135,7 +138,7 @@
       "entity_type": "PRODUCT",
       "properties": {
         "name": "CoreMatrix",
-        "category": "components"
+        "description": "product with supply chain components"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
@@ -149,19 +152,19 @@
         "name": "Treasury",
         "focus_areas": "cash planning"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
       "source_excerpt": "Refresh cash planning with Treasury",
       "aliases": []
     },
     {
       "name": "Titan Freight",
-      "entity_type": "PRODUCT",
+      "entity_type": "SERVICE",
       "properties": {
         "name": "Titan Freight",
-        "description": "freight conversion system"
+        "description": "freight service with conversion schedule"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
       "source_excerpt": "Monitor Titan Freight conversion schedule",
       "aliases": []
@@ -169,43 +172,21 @@
   ],
   "relationships": [
     {
-      "source_entity": "GridWave",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Project Aurora",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
-      "evidence": "GridWave outperformed plan led by Project Aurora milestone pull-ins"
-    },
-    {
       "source_entity": "TransitEdge",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
       "target_entity": "Titan Logistics Network",
-      "target_type": "PRODUCT",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
-      "evidence": "TransitEdge Titan Logistics Network backlog grew double digits"
-    },
-    {
-      "source_entity": "TransitEdge",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Titan Freight",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.7,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q3_2025.md",
-      "evidence": "Monitor Titan Freight conversion schedule - inferred relationship with TransitEdge based on Titan product naming pattern"
+      "evidence": "TransitEdge Titan Logistics Network"
     }
   ],
   "metadata": {
     "filename": "financial_results_q3_2025.md",
     "raw_entity_count": 13,
-    "raw_relationship_count": 3,
+    "raw_relationship_count": 1,
     "used_partial_parse": false,
     "truncated": false
   }

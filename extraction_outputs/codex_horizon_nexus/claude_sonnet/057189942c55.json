@@ -1,0 +1,187 @@
+{
+  "document_id": "057189942c55",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:32:27.144256",
+  "entities": [
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "unified data model"
+        ]
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Business Unit: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "unified data model",
+        "category": "data lake schema"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Product/Module: Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Design Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Design Owner: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "firmware versions"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime Confluence",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "interface documentation platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "dashboard for performance KPIs"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "logistics organization"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "encryption validation"
+        ]
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Validate encryption module with Security",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply readiness"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Victor Liao is the Design Owner of Horizon Prime"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Corporate business unit owns the Horizon Prime product"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "CoreMatrix",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Dependencies on CoreMatrix firmware versions"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime Confluence",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Interfaces documented via Horizon Prime Confluence"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Performance KPIs stored in PulseOps dashboard"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Confirm supply readiness with VectorTech - implies supplier relationship"
+    }
+  ],
+  "metadata": {
+    "filename": "horizon_prime_data_lake_schema.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

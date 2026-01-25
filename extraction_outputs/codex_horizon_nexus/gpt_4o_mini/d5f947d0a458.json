@@ -1,0 +1,96 @@
+{
+  "document_id": "d5f947d0a458",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:35:53.076333",
+  "entities": [
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees.",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Human Resources"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System for maintaining auditable records"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+      "source_excerpt": "Maintain auditable records in Horizon Prime.",
+      "aliases": []
+    },
+    {
+      "name": "PTO Accrual Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "Leave Management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+      "source_excerpt": "PTO Accrual Policy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "PTO Accrual Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+      "evidence": "Applies to all Horizon Nexus Systems employees."
+    },
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "PTO Accrual Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/pto_accrual_policy.md",
+      "evidence": "Maintain auditable records in Horizon Prime."
+    }
+  ],
+  "metadata": {
+    "filename": "pto_accrual_policy.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

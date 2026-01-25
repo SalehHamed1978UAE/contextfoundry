@@ -2,12 +2,13 @@
   "document_id": "95b6a7ac6557",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:01:40.628652",
+  "extracted_at": "2026-01-25T08:29:51.035648",
   "entities": [
     {
       "name": "Eden Park",
       "entity_type": "PERSON",
       "properties": {
+        "title": "Executive Sponsor",
         "role": "Executive Sponsor"
       },
       "confidence": 0.95,
@@ -30,9 +31,9 @@
       "name": "PulseForge",
       "entity_type": "PRODUCT",
       "properties": {
-        "category": "Primary Product"
+        "description": "Primary product for Atlas Manufacturing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
       "source_excerpt": "Primary Products: PulseForge",
       "aliases": []
@@ -41,7 +42,7 @@
       "name": "Synapse One",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Customer management"
+        "focus_areas": "Atlas Manufacturing account management"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
@@ -49,7 +50,18 @@
       "aliases": []
     },
     {
-      "name": "ARR Value",
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Product with roadmap updates"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "ARR",
@@ -62,7 +74,7 @@
       "aliases": []
     },
     {
-      "name": "Deployment Maturity",
+      "name": "Deployment maturity",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Deployment maturity",
@@ -75,7 +87,7 @@
       "aliases": []
     },
     {
-      "name": "Expansion Opportunities",
+      "name": "Expansion opportunities",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Expansion opportunities",
@@ -85,17 +97,6 @@
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
       "source_excerpt": "Expansion opportunities: 3",
-      "aliases": []
-    },
-    {
-      "name": "Horizon Prime",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "category": "Platform/System"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
-      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
     }
   ],
@@ -112,17 +113,6 @@
       "evidence": "Eden Park is the Executive Sponsor for Atlas Manufacturing account"
     },
     {
-      "source_entity": "Synapse One",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Atlas Manufacturing",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
-      "evidence": "Owning BU: Synapse One"
-    },
-    {
       "source_entity": "Atlas Manufacturing",
       "source_type": "CUSTOMER",
       "relationship_type": "USES",
@@ -132,6 +122,17 @@
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
       "evidence": "Primary Products: PulseForge"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "MANAGES",
+      "target_entity": "Atlas Manufacturing",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_atlas_manufacturing.md",
+      "evidence": "Owning BU: Synapse One"
     },
     {
       "source_entity": "Atlas Manufacturing",

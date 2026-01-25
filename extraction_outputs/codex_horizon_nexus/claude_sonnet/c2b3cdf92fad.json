@@ -2,7 +2,7 @@
   "document_id": "c2b3cdf92fad",
   "document_path": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:07:12.863343",
+  "extracted_at": "2026-01-25T08:35:05.166805",
   "entities": [
     {
       "name": "Leah Kade",
@@ -20,10 +20,10 @@
       "name": "Citadel",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "readiness phase",
-        "description": "security initiative"
+        "status": "readiness assessment",
+        "focus": "security readiness"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
       "source_excerpt": "Summarizes Citadel readiness, incident drills",
       "aliases": []
@@ -32,9 +32,9 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "communication/streaming platform"
+        "description": "communication platform with streams"
       },
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
       "source_excerpt": "Provide updates via Horizon Prime streams",
       "aliases": []
@@ -51,23 +51,12 @@
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
       "evidence": "Leah Kade authored memo summarizing Citadel readiness"
-    },
-    {
-      "source_entity": "Citadel",
-      "source_type": "PROJECT",
-      "relationship_type": "USES",
-      "target_entity": "Horizon Prime",
-      "target_type": "TECHNOLOGY",
-      "properties": {},
-      "confidence": 0.75,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
-      "evidence": "Provide updates via Horizon Prime streams"
     }
   ],
   "metadata": {
     "filename": "chief_security_officer_memo.md",
     "raw_entity_count": 3,
-    "raw_relationship_count": 2,
+    "raw_relationship_count": 1,
     "used_partial_parse": false,
     "truncated": false
   }

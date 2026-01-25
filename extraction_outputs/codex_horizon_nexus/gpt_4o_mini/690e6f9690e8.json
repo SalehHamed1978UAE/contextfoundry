@@ -2,7 +2,7 @@
   "document_id": "690e6f9690e8",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:23:55.561019",
+  "extracted_at": "2026-01-25T08:50:41.152540",
   "entities": [
     {
       "name": "GridWave",
@@ -10,7 +10,7 @@
       "properties": {
         "focus areas": "Energy management and control systems"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "source_excerpt": "Business Unit: GridWave",
       "aliases": []
@@ -33,7 +33,7 @@
       "properties": {
         "industry": "Energy"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "source_excerpt": "Primary Customer: Enceladus Energy",
       "aliases": []
@@ -42,7 +42,7 @@
       "name": "ArcShield H2",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Hydrogen-ready controllers"
+        "description": "Technical stack for hydrogen-ready controllers"
       },
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
@@ -55,7 +55,7 @@
       "properties": {
         "budget": "$165M",
         "timeline": "2025-2027",
-        "status": "Active"
+        "status": "In progress"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
@@ -82,7 +82,7 @@
       "target_entity": "Aurora EMEA Expansion",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "evidence": "Business Unit: GridWave"
     },
@@ -93,9 +93,20 @@
       "target_entity": "Aurora EMEA Expansion",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "evidence": "Primary Customer: Enceladus Energy"
+    },
+    {
+      "source_entity": "Aurora EMEA Expansion",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "ArcShield H2",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Technical Stack: ArcShield H2"
     },
     {
       "source_entity": "Leona Varga",
@@ -112,7 +123,7 @@
   "metadata": {
     "filename": "aurora_emea_expansion_brief.md",
     "raw_entity_count": 5,
-    "raw_relationship_count": 4,
+    "raw_relationship_count": 5,
     "used_partial_parse": false,
     "truncated": false
   }

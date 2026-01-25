@@ -2,7 +2,7 @@
   "document_id": "36a042b13e69",
   "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:15:46.466855",
+  "extracted_at": "2026-01-25T08:42:57.485819",
   "entities": [
     {
       "name": "Nia Carver",
@@ -13,7 +13,7 @@
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "**GM/VP:** Nia Carver",
+      "source_excerpt": "GM/VP: Nia Carver",
       "aliases": []
     },
     {
@@ -28,18 +28,18 @@
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "# Synapse One Federal FY26 Roadmap",
+      "source_excerpt": "Synapse One Federal FY26 Roadmap",
       "aliases": []
     },
     {
       "name": "Defense-grade analytics",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Analytics service for defense sector"
+        "description": "Defense-focused analytical services"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "- Defense-grade analytics",
+      "source_excerpt": "Focus Areas - Defense-grade analytics",
       "aliases": []
     },
     {
@@ -50,18 +50,18 @@
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "- FedRAMP operations",
+      "source_excerpt": "Focus Areas - FedRAMP operations",
       "aliases": []
     },
     {
-      "name": "Project Helix overlays",
-      "entity_type": "SERVICE",
+      "name": "Project Helix",
+      "entity_type": "PROJECT",
       "properties": {
-        "description": "Overlay services for Project Helix"
+        "description": "Project with overlay components"
       },
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "- Project Helix overlays",
+      "source_excerpt": "Focus Areas - Project Helix overlays",
       "aliases": []
     },
     {
@@ -70,26 +70,24 @@
       "properties": {
         "metric_name": "Annual Recurring Revenue",
         "value": "$92M",
-        "type": "CURRENCY",
-        "period": "FY26"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "**ARR:** $92M",
+      "source_excerpt": "ARR: $92M",
       "aliases": []
     },
     {
       "name": "ATO Renewals",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Authorization to Operate Renewals",
+        "metric_name": "Authority to Operate Renewals",
         "value": "5/5",
-        "type": "COUNT",
-        "period": "FY26"
+        "type": "COUNT"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "**ATO Renewals:** 5/5",
+      "source_excerpt": "ATO Renewals: 5/5",
       "aliases": []
     },
     {
@@ -98,34 +96,22 @@
       "properties": {
         "metric_name": "Average Deal",
         "value": "$18M",
-        "type": "CURRENCY",
-        "period": "FY26"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "**Avg Deal:** $18M",
+      "source_excerpt": "Avg Deal: $18M",
       "aliases": []
     },
     {
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data lake technology platform"
+        "description": "Data lake platform"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
       "source_excerpt": "Deepen integration with Horizon Prime data lake",
-      "aliases": []
-    },
-    {
-      "name": "Project Helix",
-      "entity_type": "PROJECT",
-      "properties": {
-        "status": "active"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "Project Helix overlays",
       "aliases": []
     }
   ],
@@ -150,7 +136,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "evidence": "Defense-grade analytics is listed as a focus area"
+      "evidence": "Defense-grade analytics listed as focus area"
     },
     {
       "source_entity": "Synapse One Federal",
@@ -161,18 +147,18 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "evidence": "FedRAMP operations is listed as a focus area"
+      "evidence": "FedRAMP operations listed as focus area"
     },
     {
       "source_entity": "Synapse One Federal",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Project Helix overlays",
-      "target_type": "SERVICE",
+      "relationship_type": "OWNS",
+      "target_entity": "Project Helix",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "evidence": "Project Helix overlays is listed as a focus area"
+      "evidence": "Project Helix overlays mentioned as focus area"
     },
     {
       "source_entity": "Synapse One Federal",
@@ -181,26 +167,15 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "evidence": "Key workstream includes deepening integration with Horizon Prime data lake"
-    },
-    {
-      "source_entity": "Project Helix overlays",
-      "source_type": "SERVICE",
-      "relationship_type": "PART_OF",
-      "target_entity": "Project Helix",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "evidence": "Project Helix overlays implies relationship to Project Helix"
+      "evidence": "Deepen integration with Horizon Prime data lake mentioned in workstreams"
     }
   ],
   "metadata": {
     "filename": "synapse_one_federal_roadmap.md",
-    "raw_entity_count": 10,
-    "raw_relationship_count": 6,
+    "raw_entity_count": 9,
+    "raw_relationship_count": 5,
     "used_partial_parse": false,
     "truncated": false
   }

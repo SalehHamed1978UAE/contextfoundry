@@ -2,7 +2,7 @@
   "document_id": "591dae11b783",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:25:32.977074",
+  "extracted_at": "2026-01-25T08:52:21.677737",
   "entities": [
     {
       "name": "Horizon Nexus Systems",
@@ -41,32 +41,43 @@
   ],
   "relationships": [
     {
-      "source_entity": "Horizon Nexus Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "People Operations",
-      "target_type": "BUSINESS_UNIT",
+      "target_entity": "Training & Certification Policy",
+      "target_type": "POLICY",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
       "evidence": "Owner: People Operations"
     },
     {
-      "source_entity": "People Operations",
-      "source_type": "BUSINESS_UNIT",
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
       "relationship_type": "PART_OF",
-      "target_entity": "Horizon Nexus Systems",
-      "target_type": "ORGANIZATION",
+      "target_entity": "Training & Certification Policy",
+      "target_type": "POLICY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
-      "evidence": "Owner: People Operations"
+      "evidence": "Applies to all Horizon Nexus Systems employees."
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "People Operations",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/training_certification_policy.md",
+      "evidence": "Maintain auditable records in Horizon Prime."
     }
   ],
   "metadata": {
     "filename": "training_certification_policy.md",
     "raw_entity_count": 3,
-    "raw_relationship_count": 2,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

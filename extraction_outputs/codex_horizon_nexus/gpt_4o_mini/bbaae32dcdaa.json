@@ -2,7 +2,7 @@
   "document_id": "bbaae32dcdaa",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:21:33.085766",
+  "extracted_at": "2026-01-25T08:48:19.299272",
   "entities": [
     {
       "name": "TransitEdge",
@@ -10,7 +10,7 @@
       "properties": {
         "focus areas": "Freight automation pilots"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
       "source_excerpt": "Business Unit: TransitEdge",
       "aliases": []
@@ -22,7 +22,7 @@
         "title": "Sponsor",
         "role": "Project Sponsor"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
       "source_excerpt": "Sponsor: Jorge Rivas",
       "aliases": []
@@ -33,7 +33,7 @@
       "properties": {
         "industry": "Transportation"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
       "source_excerpt": "Primary Customer: MetroLink",
       "aliases": []
@@ -44,7 +44,7 @@
       "properties": {
         "description": "Technical stack for freight automation"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
       "source_excerpt": "Technical Stack: AutoRail LATAM",
       "aliases": []
@@ -57,13 +57,24 @@
         "timeline": "2025-2027",
         "status": "Active"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
       "source_excerpt": "TransitEdge LATAM Corridors Delivery Brief",
       "aliases": []
     }
   ],
   "relationships": [
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "TransitEdge LATAM Corridors",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
+      "evidence": "Business Unit: TransitEdge"
+    },
     {
       "source_entity": "Jorge Rivas",
       "source_type": "PERSON",
@@ -82,20 +93,9 @@
       "target_entity": "TransitEdge LATAM Corridors",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
       "evidence": "Primary Customer: MetroLink"
-    },
-    {
-      "source_entity": "TransitEdge",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "TransitEdge LATAM Corridors",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
-      "evidence": "Business Unit: TransitEdge"
     },
     {
       "source_entity": "TransitEdge LATAM Corridors",
@@ -104,7 +104,7 @@
       "target_entity": "AutoRail LATAM",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/transitedge_latam_corridors_brief.md",
       "evidence": "Technical Stack: AutoRail LATAM"
     }

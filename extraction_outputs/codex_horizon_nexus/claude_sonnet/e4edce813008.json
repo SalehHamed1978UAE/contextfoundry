@@ -2,16 +2,16 @@
   "document_id": "e4edce813008",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:05:21.661886",
+  "extracted_at": "2026-01-25T08:33:19.623487",
   "entities": [
     {
       "name": "TransitEdge Program",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "ongoing",
-        "review_date": "2026-01-19"
+        "status": "active",
+        "timeline": "ongoing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
       "source_excerpt": "TransitEdge Program Review Meeting Notes",
       "aliases": []
@@ -38,18 +38,18 @@
       "name": "BU leaders",
       "entity_type": "PERSON",
       "properties": {
-        "role": "business unit leaders"
+        "role": "Business Unit Leaders"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
       "source_excerpt": "BU leaders",
       "aliases": []
     },
     {
       "name": "Titan Logistics",
-      "entity_type": "PROJECT",
+      "entity_type": "ORGANIZATION",
       "properties": {
-        "status": "has milestones"
+        "type": "logistics company"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
@@ -71,9 +71,9 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "has milestones to reinforce"
+        "status": "milestone reinforcement needed"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
       "source_excerpt": "Reinforce Horizon Prime milestones",
       "aliases": []
@@ -82,7 +82,7 @@
       "name": "PulseOps",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "system for assigning task owners"
+        "description": "operations management platform"
       },
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
@@ -120,31 +120,9 @@
       "target_entity": "TransitEdge Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.75,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
       "evidence": "BU leaders attended TransitEdge Program Review Meeting"
-    },
-    {
-      "source_entity": "Titan Logistics",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "TransitEdge Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
-      "evidence": "Titan Logistics milestones discussed in TransitEdge Program Review"
-    },
-    {
-      "source_entity": "MetroLink",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "TransitEdge Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
-      "evidence": "MetroLink rollout discussed in TransitEdge Program Review"
     },
     {
       "source_entity": "TransitEdge Program",
@@ -153,15 +131,26 @@
       "target_entity": "PulseOps",
       "target_type": "TECHNOLOGY",
       "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "evidence": "Owners assigned in PulseOps"
+    },
+    {
+      "source_entity": "Titan Logistics",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "TransitEdge Program",
+      "target_type": "PROJECT",
+      "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
-      "evidence": "Owners assigned in PulseOps for TransitEdge Program action items"
+      "evidence": "Adjust supply plans with suppliers, Titan Logistics milestones discussed"
     }
   ],
   "metadata": {
     "filename": "transitedge_program_review_2026_01_19.md",
     "raw_entity_count": 8,
-    "raw_relationship_count": 6,
+    "raw_relationship_count": 5,
     "used_partial_parse": false,
     "truncated": false
   }
