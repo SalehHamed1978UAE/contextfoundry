@@ -15,6 +15,10 @@ from uuid import uuid4
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+MULTI_MODEL_EXTRACTION_ENABLED = os.environ.get(
+    'MULTI_MODEL_EXTRACTION_ENABLED', 'false'
+).lower() in ('true', '1', 'yes')
+
 try:
     from packages.interface_types.src import (
         ExtractionRequest,
@@ -180,7 +184,138 @@ class ExtractionWorker:
         """
         Run the Brain's extraction pipeline.
         
-        This is where we call the existing extraction logic.
+        Routes to either legacy single-model or multi-model extraction based on config.
+        Returns structured result with token counts.
+        """
+        if MULTI_MODEL_EXTRACTION_ENABLED:
+            logger.info(f"[{self.worker_id}] Using multi-model extraction pipeline")
+            return self._run_multi_model_extraction(
+                file_path=file_path,
+                file_name=file_name,
+                mime_type=mime_type,
+                tenant_id=tenant_id,
+                document_id=document_id,
+            )
+        
+        return self._run_legacy_extraction(
+            file_path=file_path,
+            file_name=file_name,
+            mime_type=mime_type,
+            tenant_id=tenant_id,
+            document_id=document_id,
+            ontology_hints=ontology_hints,
+            extraction_mode=extraction_mode,
+        )
+    
+    def _run_multi_model_extraction(
+        self,
+        file_path: str,
+        file_name: str,
+        mime_type: str,
+        tenant_id: str,
+        document_id: str,
+    ) -> Dict[str, Any]:
+        """
+        Run the multi-model extraction pipeline.
+        
+        Uses GPT-4o-mini and Claude Sonnet for redundant extraction,
+        then runs consensus building, validation, and KG ingestion.
+        """
+        from ..extraction.multi_extractor import MultiModelExtractor, DocumentInfo
+        from ..extraction.entity_resolver import run_consensus
+        from ..extraction.consensus_validator import validate_consensus, resolve_conflicts
+        from ..extraction.kg_ingestor import KGIngestor
+        from ..models.schema import get_session, LifecycleState
+        from sqlalchemy import text
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                text_content = f.read()
+        except UnicodeDecodeError:
+            with open(file_path, 'rb') as f:
+                text_content = f.read().decode('utf-8', errors='replace')
+        
+        document = DocumentInfo(
+            document_id=document_id,
+            path=file_path,
+            content=text_content,
+            metadata={'filename': file_name}
+        )
+        
+        extractor = MultiModelExtractor(
+            output_dir="extraction_outputs",
+            models=["gpt-4o-mini", "claude-sonnet"]
+        )
+        
+        vault_id = tenant_id
+        extractions = extractor.extract_document(document, vault_id)
+        
+        logger.info(f"[{self.worker_id}] Running consensus on {len(extractions)} model outputs")
+        consensus = run_consensus(extractions, file_path)
+        
+        validation_report = validate_consensus(consensus)
+        
+        if validation_report.conflicts:
+            consensus = resolve_conflicts(consensus, validation_report)
+            validation_report = validate_consensus(consensus)
+        
+        session = get_session(use_rls_role=False)
+        
+        try:
+            session.execute(text(f"SET app.tenant_id = '{tenant_id}'"))
+            
+            ingestor = KGIngestor(session, tenant_id)
+            ingestion_result = ingestor.ingest(
+                consensus=consensus,
+                validation_report=validation_report,
+                lifecycle_state=LifecycleState.STAGING,
+                source_document_id=document_id,
+            )
+            
+            session.commit()
+            
+            total_entities = ingestion_result.entities_created + ingestion_result.entities_updated
+            total_relationships = ingestion_result.relationships_created + ingestion_result.relationships_updated
+            
+            input_tokens = len(text_content) // 4 * len(extractions)
+            output_tokens = (len(consensus.entities) + len(consensus.relationships)) * 50
+            
+            logger.info(
+                f"[{self.worker_id}] Multi-model extraction complete: "
+                f"{total_entities} entities, {total_relationships} relationships"
+            )
+            
+            return {
+                'success': True,
+                'entities_count': total_entities,
+                'relationships_count': total_relationships,
+                'input_tokens': input_tokens,
+                'output_tokens': output_tokens,
+                'total_tokens': input_tokens + output_tokens,
+                'model_used': 'gpt-4o-mini+claude-sonnet'
+            }
+            
+        except Exception as e:
+            session.rollback()
+            logger.error(f"[{self.worker_id}] Multi-model extraction failed: {e}")
+            raise e
+        finally:
+            session.close()
+    
+    def _run_legacy_extraction(
+        self,
+        file_path: str,
+        file_name: str,
+        mime_type: str,
+        tenant_id: str,
+        document_id: str,
+        ontology_hints: Optional[list] = None,
+        extraction_mode: str = "full"
+    ) -> Dict[str, Any]:
+        """
+        Run the legacy single-model extraction pipeline.
+        
+        This is the original extraction logic using run_ontology_centric_extraction.
         Returns structured result with token counts.
         """
         from ..extraction.ontology_centric_pipeline import run_ontology_centric_extraction

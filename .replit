@@ -21,22 +21,6 @@ args = "Start All"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Re-extraction"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "RE Agent Batch"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "E2E Lifecycle Test"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "235Q Test"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Test: Manus Healthtec"
 
 [[workflows.workflow.tasks]]
@@ -66,51 +50,6 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
-
-[[workflows.workflow]]
-name = "Re-extraction"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python scripts/full_reextraction.py"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "RE Agent Batch"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python scripts/re_agent_batch.py"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "E2E Lifecycle Test"
-author = "agent"
-mode = "parallel"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python scripts/e2e_lifecycle_test.py 2>&1 | tee /tmp/e2e_run.log"
-
-[[workflows.workflow]]
-name = "235Q Test"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python -u scripts/run_200_question_test.py 2>&1"
 
 [[workflows.workflow]]
 name = "Test: Manus Healthtec"
