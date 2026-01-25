@@ -1,0 +1,504 @@
+{
+  "document_id": "52b7dd67-e95c-456d-a4e3-cdc721bb0b80",
+  "document_path": "06_solid_state_battery_design.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T10:21:44.150387",
+  "entities": [
+    {
+      "name": "Dr. Linda Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "BatteryTech Technical Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: Dr. Linda Chen, BatteryTech Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Robert Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "BatteryTech Program Director"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Approved By: Dr. Robert Martinez, BatteryTech Program Director",
+      "aliases": []
+    },
+    {
+      "name": "L. Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Author"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Author: L. Chen in document control table",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Technology organization"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "BatteryTech Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Toyota",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Automotive",
+        "type": "OEM"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "EV (Toyota) | Prismatic | 100 kWh | Q4 2027",
+      "aliases": []
+    },
+    {
+      "name": "BatteryTech Solid-State Battery",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Battery",
+        "description": "Solid-state battery with ceramic electrolyte"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "BatteryTech solid-state battery replaces the liquid electrolyte",
+      "aliases": []
+    },
+    {
+      "name": "Solid-State Battery Design Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2025-2030",
+        "status": "Pre-production"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Pre-production spec version 1.5",
+      "aliases": []
+    },
+    {
+      "name": "LLZO",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Li\u2087La\u2083Zr\u2082O\u2081\u2082 solid electrolyte ceramic"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Solid Electrolyte (LLZO) Composition: Li\u2087La\u2083Zr\u2082O\u2081\u2082",
+      "aliases": []
+    },
+    {
+      "name": "NMC811",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "LiNi\u2080.\u2088Mn\u2080.\u2081Co\u2080.\u2081O\u2082 cathode material"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Composition: LiNi\u2080.\u2088Mn\u2080.\u2081Co\u2080.\u2081O\u2082 (NMC811)",
+      "aliases": []
+    },
+    {
+      "name": "Lithium Metal Anode",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "99.9% lithium metal anode"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Composition: Lithium metal (99.9%)",
+      "aliases": []
+    },
+    {
+      "name": "Gen 1 Battery",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "generation": "1",
+        "timeline": "2027",
+        "energy_density": "400 Wh/kg"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Gen 1 (2027) Energy Density 400 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "Gen 2 Battery",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "generation": "2",
+        "timeline": "2029",
+        "energy_density": "500 Wh/kg"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Gen 2 (2029) Energy Density 500 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "400 Wh/kg",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Energy Density",
+        "value": "400",
+        "type": "PERFORMANCE"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Energy Density Gen 1 (2027) 400 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "500 Wh/kg",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Energy Density",
+        "value": "500",
+        "type": "PERFORMANCE"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Energy Density Gen 2 (2029) 500 Wh/kg",
+      "aliases": []
+    },
+    {
+      "name": "100 kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Capacity",
+        "value": "100",
+        "type": "PERFORMANCE"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "EV (Toyota) Prismatic 100 kWh Q4 2027",
+      "aliases": []
+    },
+    {
+      "name": "1,500 cycles",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cycle Life",
+        "value": "1500",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Cycle Life Gen 1 1,500",
+      "aliases": []
+    },
+    {
+      "name": "2,500 cycles",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cycle Life",
+        "value": "2500",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Cycle Life Gen 2 2,500",
+      "aliases": []
+    },
+    {
+      "name": "$150/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost",
+        "value": "150",
+        "period": "2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2027 $150 2 GWh",
+      "aliases": []
+    },
+    {
+      "name": "$120/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost",
+        "value": "120",
+        "period": "2028",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2028 $120 5 GWh",
+      "aliases": []
+    },
+    {
+      "name": "$100/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost",
+        "value": "100",
+        "period": "2029",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2029 $100 10 GWh",
+      "aliases": []
+    },
+    {
+      "name": "$80/kWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cost",
+        "value": "80",
+        "period": "2030",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2030 $80 20 GWh",
+      "aliases": []
+    },
+    {
+      "name": "2 GWh",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Production Volume",
+        "value": "2",
+        "period": "2027",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "2027 $150 2 GWh",
+      "aliases": []
+    },
+    {
+      "name": "Nexus",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Parent company"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: Nexus in patent table",
+      "aliases": []
+    },
+    {
+      "name": "JV",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Joint Venture"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Owner: JV in patent table",
+      "aliases": []
+    },
+    {
+      "name": "Manufacturing Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Production facility",
+        "capacity": "2 GWh"
+      },
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Full Capacity (2 GWh) Q4 2028",
+      "aliases": []
+    },
+    {
+      "name": "TEC-MAT-002",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "TEC-MAT-002",
+        "category": "Design Specification"
+      },
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "source_excerpt": "Document Number: TEC-MAT-002",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Linda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Linda Chen, BatteryTech Technical Lead"
+    },
+    {
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Robert Martinez, BatteryTech Program Director"
+    },
+    {
+      "source_entity": "Dr. Linda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Solid-State Battery Design Project",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Owner: Dr. Linda Chen, BatteryTech Technical Lead"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Solid-State Battery Design Project",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "BatteryTech solid-state battery design specification"
+    },
+    {
+      "source_entity": "BatteryTech",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "BatteryTech Solid-State Battery",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "BatteryTech solid-state battery"
+    },
+    {
+      "source_entity": "Toyota",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "EV (Toyota) application with 100 kWh capacity"
+    },
+    {
+      "source_entity": "BatteryTech Solid-State Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "LLZO",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Solid Electrolyte (LLZO) in cell architecture"
+    },
+    {
+      "source_entity": "BatteryTech Solid-State Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "NMC811",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Cathode (NMC811) in cell design"
+    },
+    {
+      "source_entity": "BatteryTech Solid-State Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Lithium Metal Anode",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Anode (Li Metal) in cell architecture"
+    },
+    {
+      "source_entity": "Gen 1 Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "BatteryTech Solid-State Battery",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Gen 1 (2027) specifications in target table"
+    },
+    {
+      "source_entity": "Gen 2 Battery",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "BatteryTech Solid-State Battery",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Gen 2 (2029) specifications in target table"
+    },
+    {
+      "source_entity": "Solid-State Battery Design Project",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Manufacturing Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Production timeline and facility requirements"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "JV",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Joint patent ownership between Nexus and JV"
+    },
+    {
+      "source_entity": "Dr. Linda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Linda Chen, BatteryTech Technical Lead"
+    },
+    {
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BatteryTech",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_solid_state_battery_design.md",
+      "evidence": "Dr. Robert Martinez, BatteryTech Program Director"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 26,
+    "raw_relationship_count": 15,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

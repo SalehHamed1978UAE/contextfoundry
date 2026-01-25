@@ -2,17 +2,15 @@
   "document_id": "4c686727-a471-4b91-b67f-b218097aeba2",
   "document_path": "03_press_release_fy2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:43:37.607245",
+  "extracted_at": "2026-01-25T10:23:29.075203",
   "entities": [
     {
       "name": "Nexus Industries, Inc.",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "ticker": "NEXS",
-        "exchange": "NYSE",
-        "type": "Public Company",
-        "industry": "Technology and Advanced Manufacturing",
-        "employees": "12,500"
+        "ticker": "NYSE: NEXS",
+        "industry": "technology and advanced manufacturing",
+        "employee_count": "12,500"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -48,7 +46,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Investor Relations",
-        "role": "Vice President of Investor Relations"
+        "role": "Vice President"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -60,7 +58,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Corporate Communications",
-        "role": "Vice President of Corporate Communications"
+        "role": "Vice President"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -68,68 +66,54 @@
       "aliases": []
     },
     {
-      "name": "Phoenix",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Phoenix",
-        "state": "Arizona",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "PHOENIX, AZ",
-      "aliases": []
-    },
-    {
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Aerospace, UAV programs, commercial satellites"
+        "focus_areas": "aerospace"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Aerospace reported revenue",
+      "source_excerpt": "Nexus Aerospace reported revenue of $2.78 billion",
       "aliases": []
     },
     {
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Solar energy, hydrogen projects"
+        "focus_areas": "energy systems"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Energy Systems achieved revenue",
+      "source_excerpt": "Nexus Energy Systems achieved revenue of $2.35 billion",
       "aliases": []
     },
     {
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "IoT, security platforms"
+        "focus_areas": "digital solutions"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Digital Solutions delivered revenue",
+      "source_excerpt": "Nexus Digital Solutions delivered revenue of $2.02 billion",
       "aliases": []
     },
     {
       "name": "Nexus Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Superconducting wire, advanced composites"
+        "focus_areas": "advanced materials"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Advanced Materials reported revenue",
+      "source_excerpt": "Nexus Advanced Materials reported revenue of $1.30 billion",
       "aliases": []
     },
     {
-      "name": "Falcon X UAV",
+      "name": "Falcon X UAV program",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "On track for first flight",
-        "category": "UAV Program"
+        "status": "on track for first flight"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -137,11 +121,10 @@
       "aliases": []
     },
     {
-      "name": "GreenHydrogen",
+      "name": "GreenHydrogen facility",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Nearing completion",
-        "category": "Hydrogen facility"
+        "status": "nearing completion"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -151,20 +134,26 @@
     {
       "name": "Desert Sun Solar Farm",
       "entity_type": "PROJECT",
-      "properties": {
-        "category": "Solar energy project"
-      },
+      "properties": {},
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "source_excerpt": "led by the Desert Sun Solar Farm",
       "aliases": []
     },
     {
+      "name": "GreenHydrogen project",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "GreenHydrogen project progress",
+      "aliases": []
+    },
+    {
       "name": "NexusConnect IoT",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "IoT platform",
-        "category": "Digital solutions"
+        "category": "IoT platform"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -175,8 +164,7 @@
       "name": "CyberShield",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Security platform",
-        "category": "Digital security"
+        "category": "security platform"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -187,11 +175,35 @@
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership_type": "Battery technology partnership"
+        "partnership_type": "battery technology"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "source_excerpt": "our partnership with Toyota will revolutionize battery technology",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Phoenix",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "PHOENIX, AZ",
+      "aliases": []
+    },
+    {
+      "name": "Arizona",
+      "entity_type": "LOCATION",
+      "properties": {
+        "state": "Arizona",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "Headquartered in Phoenix, Arizona",
       "aliases": []
     },
     {
@@ -201,12 +213,11 @@
         "metric_name": "Revenue",
         "value": "$8.45 billion",
         "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "13.9%"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Revenue up 13.9% to $8.45 Billion",
+      "source_excerpt": "Revenue | $8.45B",
       "aliases": []
     },
     {
@@ -214,14 +225,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Operating Income",
-        "value": "$945M",
+        "value": "$945 million",
         "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "16.0%"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Operating Income | $945M | $815M | +16.0%",
+      "source_excerpt": "Operating Income | $945M",
       "aliases": []
     },
     {
@@ -229,14 +239,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Net Income",
-        "value": "$755M",
+        "value": "$755 million",
         "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "17.6%"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Net Income | $755M | $642M | +17.6%",
+      "source_excerpt": "Net Income | $755M",
       "aliases": []
     },
     {
@@ -246,12 +255,11 @@
         "metric_name": "Diluted EPS",
         "value": "$5.82",
         "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "17.6%"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "EPS up 17.6% to $5.82",
+      "source_excerpt": "Diluted EPS | $5.82",
       "aliases": []
     },
     {
@@ -259,14 +267,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Free Cash Flow",
-        "value": "$1.12B",
+        "value": "$1.12 billion",
         "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "13.7%"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Free Cash Flow | $1.12B | $985M | +13.7%",
+      "source_excerpt": "Free Cash Flow | $1.12B",
       "aliases": []
     },
     {
@@ -274,81 +281,62 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Backlog",
-        "value": "$12.4B",
+        "value": "$12.4 billion",
         "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "14.8%"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Backlog | $12.4B | $10.8B | +14.8%",
+      "source_excerpt": "Backlog | $12.4B",
       "aliases": []
     },
     {
-      "name": "Nexus Aerospace Revenue",
+      "name": "Q4 2025 Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Division Revenue",
-        "value": "$2.78 billion",
-        "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "12.3%"
+        "metric_name": "Revenue",
+        "value": "$2.38 billion",
+        "period": "Q4 2025",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Aerospace reported revenue of $2.78 billion, up 12.3%",
+      "source_excerpt": "Revenue | $2.38B",
       "aliases": []
     },
     {
-      "name": "Nexus Energy Systems Revenue",
+      "name": "Q4 2025 Operating Income",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Division Revenue",
-        "value": "$2.35 billion",
-        "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "22.1%"
+        "metric_name": "Operating Income",
+        "value": "$295 million",
+        "period": "Q4 2025",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Energy Systems achieved revenue of $2.35 billion, up 22.1%",
+      "source_excerpt": "Operating Income | $295M",
       "aliases": []
     },
     {
-      "name": "Nexus Digital Solutions Revenue",
+      "name": "Q4 2025 Diluted EPS",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Division Revenue",
-        "value": "$2.02 billion",
-        "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "18.2%"
+        "metric_name": "Diluted EPS",
+        "value": "$1.82",
+        "period": "Q4 2025",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Digital Solutions delivered revenue of $2.02 billion, up 18.2%",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Advanced Materials Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Division Revenue",
-        "value": "$1.30 billion",
-        "period": "FY2025",
-        "type": "CURRENCY",
-        "growth": "8.3%"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Advanced Materials reported revenue of $1.30 billion, up 8.3%",
+      "source_excerpt": "Diluted EPS | $1.82",
       "aliases": []
     },
     {
       "name": "FY2026 Revenue Guidance",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Revenue Guidance",
+        "metric_name": "Revenue",
         "value": "$9.5 - $9.8 billion",
         "period": "FY2026",
         "type": "CURRENCY"
@@ -362,7 +350,7 @@
       "name": "FY2026 Operating Margin Guidance",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Operating Margin Guidance",
+        "metric_name": "Operating Margin",
         "value": "11.5% - 12.0%",
         "period": "FY2026",
         "type": "PERCENTAGE"
@@ -376,7 +364,7 @@
       "name": "FY2026 Diluted EPS Guidance",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Diluted EPS Guidance",
+        "metric_name": "Diluted EPS",
         "value": "$6.20 - $6.50",
         "period": "FY2026",
         "type": "CURRENCY"
@@ -387,47 +375,91 @@
       "aliases": []
     },
     {
-      "name": "Quarterly Dividend",
+      "name": "FY2026 Free Cash Flow Guidance",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Quarterly Dividend",
-        "value": "$0.45 per share",
-        "period": "Q1 2026",
-        "type": "CURRENCY",
-        "growth": "12%"
+        "metric_name": "Free Cash Flow",
+        "value": "$1.2 - $1.3 billion",
+        "period": "FY2026",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "quarterly dividend of $0.45 per share, a 12% increase",
+      "source_excerpt": "Free Cash Flow | $1.2 - $1.3 billion",
       "aliases": []
     },
     {
-      "name": "Capital Returns",
+      "name": "FY2026 Capital Expenditures Guidance",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Capital Returns",
-        "value": "$725 million",
+        "metric_name": "Capital Expenditures",
+        "value": "~$680 million",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "Capital Expenditures | ~$680 million",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Aerospace Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$2.78 billion",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "returned $725 million to shareholders",
+      "source_excerpt": "Nexus Aerospace reported revenue of $2.78 billion",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Energy Systems Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$2.35 billion",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "Nexus Energy Systems achieved revenue of $2.35 billion",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital Solutions Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$2.02 billion",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "Nexus Digital Solutions delivered revenue of $2.02 billion",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$1.30 billion",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "Nexus Advanced Materials reported revenue of $1.30 billion",
       "aliases": []
     }
   ],
   "relationships": [
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Industries, Inc.",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "evidence": "Dr. Victoria Chen, CEO"
-    },
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
@@ -440,9 +472,20 @@
       "evidence": "Dr. Victoria Chen, CEO"
     },
     {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries, Inc.",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
       "source_entity": "Michael Chang",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -471,17 +514,6 @@
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "Sarah Mitchell VP Corporate Communications"
-    },
-    {
-      "source_entity": "Nexus Industries, Inc.",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "evidence": "Headquartered in Phoenix, Arizona"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -531,23 +563,12 @@
       "source_entity": "Nexus Aerospace",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV",
+      "target_entity": "Falcon X UAV program",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "Falcon X UAV program and strong commercial satellite demand"
-    },
-    {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "GreenHydrogen",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_press_release_fy2025.md",
-      "evidence": "led by the Desert Sun Solar Farm and GreenHydrogen project progress"
+      "evidence": "driven by the Falcon X UAV program"
     },
     {
       "source_entity": "Nexus Energy Systems",
@@ -561,13 +582,24 @@
       "evidence": "led by the Desert Sun Solar Farm"
     },
     {
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "GreenHydrogen project",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_press_release_fy2025.md",
+      "evidence": "GreenHydrogen project progress"
+    },
+    {
       "source_entity": "Nexus Digital Solutions",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
       "target_entity": "NexusConnect IoT",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "NexusConnect IoT and CyberShield security platforms driving growth"
     },
@@ -578,7 +610,7 @@
       "target_entity": "CyberShield",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "NexusConnect IoT and CyberShield security platforms driving growth"
     },
@@ -592,11 +624,22 @@
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "our partnership with Toyota will revolutionize battery technology"
+    },
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "evidence": "Headquartered in Phoenix, Arizona"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 31,
+    "raw_entity_count": 36,
     "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
