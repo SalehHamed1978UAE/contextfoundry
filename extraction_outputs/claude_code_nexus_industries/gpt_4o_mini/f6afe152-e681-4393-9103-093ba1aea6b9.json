@@ -2,7 +2,7 @@
   "document_id": "f6afe152-e681-4393-9103-093ba1aea6b9",
   "document_path": "03_greenhydrogen_steering_committee.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:20:37.914443",
+  "extracted_at": "2026-01-25T15:40:58.736349",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -134,7 +134,7 @@
       },
       "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "GreenHydrogen Initiative Steering Committee",
+      "source_excerpt": "GreenHydrogen Initiative",
       "aliases": []
     },
     {
@@ -165,7 +165,7 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Regulatory Agency",
-        "industry": "Government"
+        "industry": "Regulatory"
       },
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
@@ -218,7 +218,7 @@
       "aliases": []
     },
     {
-      "name": "CFO",
+      "name": "Finance",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus areas": "Financial management"
@@ -226,17 +226,6 @@
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
       "source_excerpt": "Michael Chang, CFO",
-      "aliases": []
-    },
-    {
-      "name": "Project Director",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus areas": "Project management"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Jennifer Walsh, Project Director",
       "aliases": []
     }
   ],
@@ -343,7 +332,7 @@
     {
       "source_entity": "Maria Garcia",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
+      "relationship_type": "RELATED_TO",
       "target_entity": "Texas RRC",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -360,7 +349,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "GreenHydrogen Initiative Steering Committee"
+      "evidence": "GreenHydrogen Initiative"
     },
     {
       "source_entity": "GreenHydrogen Initiative",
@@ -376,7 +365,7 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 20,
+    "raw_entity_count": 19,
     "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
