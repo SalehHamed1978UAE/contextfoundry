@@ -2,31 +2,42 @@
   "document_id": "0cb1c340-7b2d-43fd-8024-acc6026cfaff",
   "document_path": "03_digital_transformation.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:17:44.706393",
+  "extracted_at": "2026-01-25T15:38:55.901952",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Enterprise",
-        "industry": "Manufacturing"
+        "industry": "Manufacturing",
+        "type": "Enterprise"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Transform Nexus Industries into an AI-first, data-driven enterprise",
+      "source_excerpt": "Nexus Industries Digital Transformation Strategy",
       "aliases": []
     },
     {
       "name": "Digital Transformation Strategy",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$450M",
         "timeline": "5 years",
-        "status": "Strategic Initiative"
+        "budget": "$450M",
+        "status": "Active"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
-      "source_excerpt": "The Digital Transformation Strategy outlines Nexus Industries' five-year journey",
+      "source_excerpt": "Digital Transformation Strategy outlines Nexus Industries' five-year journey",
+      "aliases": []
+    },
+    {
+      "name": "Digital Transformation Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_area": "Digital transformation leadership"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Digital Transformation Office",
       "aliases": []
     },
     {
@@ -36,7 +47,7 @@
         "title": "Chief Digital Officer",
         "role": "Overall leadership"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Chief Digital Officer | Thomas Wright | Overall leadership",
       "aliases": []
@@ -48,7 +59,7 @@
         "title": "VP Data & Analytics",
         "role": "Data strategy"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "VP Data & Analytics | Dr. Chen Wei | Data strategy",
       "aliases": []
@@ -60,7 +71,7 @@
         "title": "VP Engineering Systems",
         "role": "PLM, digital twin"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "VP Engineering Systems | Mark Johnson | PLM, digital twin",
       "aliases": []
@@ -72,20 +83,9 @@
         "title": "VP IT Infrastructure",
         "role": "Cloud, security"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "VP IT Infrastructure | Lisa Park | Cloud, security",
-      "aliases": []
-    },
-    {
-      "name": "Digital Transformation Office",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Digital transformation leadership"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Digital Transformation Office",
       "aliases": []
     },
     {
@@ -95,7 +95,7 @@
         "budget": "$85M",
         "benefit": "15% productivity gain"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Smart Factory | $85M | 15% productivity gain",
       "aliases": []
@@ -107,7 +107,7 @@
         "budget": "$35M",
         "benefit": "25% downtime reduction"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Predictive Maintenance | $35M | 25% downtime reduction",
       "aliases": []
@@ -119,7 +119,7 @@
         "budget": "$45M",
         "benefit": "10% cost reduction"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Supply Chain AI | $45M | 10% cost reduction",
       "aliases": []
@@ -131,7 +131,7 @@
         "budget": "$25M",
         "benefit": "50% defect reduction"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Quality Analytics | $25M | 50% defect reduction",
       "aliases": []
@@ -143,7 +143,7 @@
         "budget": "$45M",
         "outcome": "Single source of truth"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Enterprise Data Lake | $45M | Single source of truth",
       "aliases": []
@@ -155,7 +155,7 @@
         "budget": "$15M",
         "outcome": "Quality and compliance"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Data Governance | $15M | Quality and compliance",
       "aliases": []
@@ -167,7 +167,7 @@
         "budget": "$35M",
         "outcome": "Self-service insights"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Analytics Platform | $35M | Self-service insights",
       "aliases": []
@@ -179,7 +179,7 @@
         "budget": "$40M",
         "outcome": "Scalable model deployment"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "AI/ML Platform | $40M | Scalable model deployment",
       "aliases": []
@@ -191,7 +191,7 @@
         "budget": "$25M",
         "benefit": "Self-service"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Customer Portal | $25M | Self-service",
       "aliases": []
@@ -203,33 +203,9 @@
         "budget": "$18M",
         "benefit": "20% sales productivity"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Digital Sales Tools | $18M | 20% sales productivity",
-      "aliases": []
-    },
-    {
-      "name": "Support Automation",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$22M",
-        "benefit": "40% faster resolution"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Support Automation | $22M | 40% faster resolution",
-      "aliases": []
-    },
-    {
-      "name": "Partner Integration",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$15M",
-        "benefit": "Ecosystem connectivity"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Partner Integration | $15M | Ecosystem connectivity",
       "aliases": []
     },
     {
@@ -239,45 +215,9 @@
         "budget": "$55M",
         "benefit": "30% faster development"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Digital Twin Platform | $55M | 30% faster development",
-      "aliases": []
-    },
-    {
-      "name": "Generative Design",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$35M",
-        "benefit": "25% design optimization"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Generative Design | $35M | 25% design optimization",
-      "aliases": []
-    },
-    {
-      "name": "PLM Modernization",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$45M",
-        "benefit": "Single source of engineering data"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "PLM Modernization | $45M | Single source of engineering data",
-      "aliases": []
-    },
-    {
-      "name": "Simulation Cloud",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$25M",
-        "benefit": "Unlimited compute capacity"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Simulation Cloud | $25M | Unlimited compute capacity",
       "aliases": []
     },
     {
@@ -287,54 +227,19 @@
         "budget": "$20M",
         "outcome": "10,000 employees trained"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Digital Academy | $20M | 10,000 employees trained",
-      "aliases": []
-    },
-    {
-      "name": "Collaboration Platform",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$15M",
-        "outcome": "Unified communications"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Collaboration Platform | $15M | Unified communications",
-      "aliases": []
-    },
-    {
-      "name": "Knowledge Management",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$12M",
-        "outcome": "AI-powered expertise"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Knowledge Management | $12M | AI-powered expertise",
-      "aliases": []
-    },
-    {
-      "name": "Robotic Process Automation",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$18M",
-        "outcome": "1M hours automated"
-      },
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Robotic Process Automation | $18M | 1M hours automated",
       "aliases": []
     },
     {
       "name": "SAP",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "ERP system deployed all divisions"
+        "description": "ERP system",
+        "category": "Enterprise Resource Planning"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "ERP (SAP) | Deployed all divisions",
       "aliases": []
@@ -343,31 +248,34 @@
       "name": "AWS",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Primary cloud platform"
+        "description": "Cloud platform",
+        "category": "Cloud Infrastructure"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Infrastructure | AWS (primary), Azure (secondary)",
+      "source_excerpt": "AWS (primary), Azure (secondary)",
       "aliases": []
     },
     {
       "name": "Azure",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Secondary cloud platform"
+        "description": "Cloud platform",
+        "category": "Cloud Infrastructure"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Infrastructure | AWS (primary), Azure (secondary)",
+      "source_excerpt": "AWS (primary), Azure (secondary)",
       "aliases": []
     },
     {
       "name": "Snowflake",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data platform"
+        "description": "Data platform",
+        "category": "Data Management"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Data | Snowflake, Databricks | Deploying",
       "aliases": []
@@ -376,9 +284,10 @@
       "name": "Databricks",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data platform"
+        "description": "Analytics platform",
+        "category": "Data Analytics"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Data | Snowflake, Databricks | Deploying",
       "aliases": []
@@ -387,9 +296,10 @@
       "name": "AWS SageMaker",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "AI/ML platform"
+        "description": "ML platform",
+        "category": "Machine Learning"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "AI/ML | AWS SageMaker, Internal | Building",
       "aliases": []
@@ -398,67 +308,157 @@
       "name": "MuleSoft",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Integration platform"
+        "description": "Integration platform",
+        "category": "Integration"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Integration | MuleSoft, APIs | Established",
       "aliases": []
     },
     {
-      "name": "$300M Annual Efficiency Gains",
+      "name": "$300M annual efficiency gains",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Efficiency Gains",
+        "metric_name": "Efficiency gains",
         "value": "$300M",
-        "period": "2030",
-        "type": "CURRENCY"
+        "period": "Annual",
+        "type": "CURRENCY",
+        "target_year": "2030"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "$300M annual efficiency gains by 2030",
       "aliases": []
     },
     {
-      "name": "$450M Total Investment",
+      "name": "$450M total investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total Investment",
+        "metric_name": "Total investment",
         "value": "$450M",
         "period": "5 years",
         "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "Total Investment ($450M over 5 years)",
       "aliases": []
     },
     {
-      "name": "80% Process Digitization",
+      "name": "80% processes digitized",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Process Digitization",
-        "value": "80",
-        "period": "target",
-        "type": "PERCENTAGE"
+        "metric_name": "Process digitization",
+        "value": "80%",
+        "type": "PERCENTAGE",
+        "target_year": "2030"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "source_excerpt": "80% processes digitized",
       "aliases": []
     },
     {
-      "name": "Digital Maturity Score 2.6",
+      "name": "$95M 2026 investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Digital Maturity Score",
-        "value": "2.6",
-        "period": "current",
-        "type": "COUNT"
+        "metric_name": "Annual investment",
+        "value": "$95M",
+        "period": "2026",
+        "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "source_excerpt": "Overall | 2.6 | 4.2",
+      "source_excerpt": "2026 | $95M | Foundation, pilots",
+      "aliases": []
+    },
+    {
+      "name": "$105M 2027 investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual investment",
+        "value": "$105M",
+        "period": "2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "2027 | $105M | Scale successful pilots",
+      "aliases": []
+    },
+    {
+      "name": "$100M 2028 investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual investment",
+        "value": "$100M",
+        "period": "2028",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "2028 | $100M | Enterprise rollout",
+      "aliases": []
+    },
+    {
+      "name": "Intelligent Operations Pillar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$190M",
+        "objective": "Deploy AI-driven operations across manufacturing and supply chain"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Pillar 1: Intelligent Operations",
+      "aliases": []
+    },
+    {
+      "name": "Data Excellence Pillar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$135M",
+        "objective": "Build enterprise data platform enabling AI-at-scale"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Pillar 2: Data Excellence",
+      "aliases": []
+    },
+    {
+      "name": "Customer Experience Pillar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$80M",
+        "objective": "Deliver seamless digital experiences across all touchpoints"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Pillar 3: Customer Experience",
+      "aliases": []
+    },
+    {
+      "name": "Engineering Excellence Pillar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$160M",
+        "objective": "Transform engineering with digital tools and AI"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Pillar 4: Engineering Excellence",
+      "aliases": []
+    },
+    {
+      "name": "Workforce of the Future Pillar",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$65M",
+        "objective": "Empower employees with digital skills and tools"
+      },
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "source_excerpt": "Pillar 5: Workforce of the Future",
       "aliases": []
     }
   ],
@@ -469,10 +469,23 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
+      "properties": {
+        "role": "Chief Digital Officer"
+      },
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "evidence": "Chief Digital Officer | Thomas Wright | Overall leadership"
+    },
+    {
+      "source_entity": "Thomas Wright",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Digital Transformation Office",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "Digital Transformation Office leadership structure"
     },
     {
       "source_entity": "Dr. Chen Wei",
@@ -480,8 +493,10 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
+      "properties": {
+        "role": "VP Data & Analytics"
+      },
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "evidence": "VP Data & Analytics | Dr. Chen Wei | Data strategy"
     },
@@ -491,8 +506,10 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
+      "properties": {
+        "role": "VP Engineering Systems"
+      },
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "evidence": "VP Engineering Systems | Mark Johnson | PLM, digital twin"
     },
@@ -502,21 +519,12 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
+      "properties": {
+        "role": "VP IT Infrastructure"
+      },
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "evidence": "VP IT Infrastructure | Lisa Park | Cloud, security"
-    },
-    {
-      "source_entity": "Thomas Wright",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Digital Transformation Office",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_digital_transformation.md",
-      "evidence": "Chief Digital Officer | Thomas Wright | Overall leadership"
     },
     {
       "source_entity": "Digital Transformation Office",
@@ -525,240 +533,218 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Digital Transformation Office under Nexus Industries"
+      "evidence": "Digital Transformation Office within Nexus Industries"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "source_entity": "Digital Transformation Strategy",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "Nexus Industries Digital Transformation Strategy"
+    },
+    {
+      "source_entity": "Thomas Wright",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
       "target_entity": "Digital Transformation Strategy",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "The Digital Transformation Strategy outlines Nexus Industries' five-year journey"
+      "evidence": "Thomas Wright, Chief Digital Officer leads digital transformation"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Smart Factory",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Smart Factory",
+      "relationship_type": "PART_OF",
+      "target_entity": "Intelligent Operations Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Smart Factory is part of Pillar 1: Intelligent Operations"
+      "evidence": "Smart Factory listed under Pillar 1: Intelligent Operations"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Predictive Maintenance",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Predictive Maintenance",
+      "relationship_type": "PART_OF",
+      "target_entity": "Intelligent Operations Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Predictive Maintenance is part of Pillar 1: Intelligent Operations"
+      "evidence": "Predictive Maintenance listed under Pillar 1: Intelligent Operations"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Supply Chain AI",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Supply Chain AI",
+      "relationship_type": "PART_OF",
+      "target_entity": "Intelligent Operations Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Supply Chain AI is part of Pillar 1: Intelligent Operations"
+      "evidence": "Supply Chain AI listed under Pillar 1: Intelligent Operations"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Quality Analytics",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Quality Analytics",
+      "relationship_type": "PART_OF",
+      "target_entity": "Intelligent Operations Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Quality Analytics is part of Pillar 1: Intelligent Operations"
+      "evidence": "Quality Analytics listed under Pillar 1: Intelligent Operations"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Enterprise Data Lake",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Enterprise Data Lake",
+      "relationship_type": "PART_OF",
+      "target_entity": "Data Excellence Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Enterprise Data Lake is part of Pillar 2: Data Excellence"
+      "evidence": "Enterprise Data Lake listed under Pillar 2: Data Excellence"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Data Governance",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Data Governance",
+      "relationship_type": "PART_OF",
+      "target_entity": "Data Excellence Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Data Governance is part of Pillar 2: Data Excellence"
+      "evidence": "Data Governance listed under Pillar 2: Data Excellence"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Analytics Platform",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Analytics Platform",
+      "relationship_type": "PART_OF",
+      "target_entity": "Data Excellence Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Analytics Platform is part of Pillar 2: Data Excellence"
+      "evidence": "Analytics Platform listed under Pillar 2: Data Excellence"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "AI/ML Platform",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "AI/ML Platform",
+      "relationship_type": "PART_OF",
+      "target_entity": "Data Excellence Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "AI/ML Platform is part of Pillar 2: Data Excellence"
+      "evidence": "AI/ML Platform listed under Pillar 2: Data Excellence"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Customer Portal",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Customer Portal",
+      "relationship_type": "PART_OF",
+      "target_entity": "Customer Experience Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Customer Portal is part of Pillar 3: Customer Experience"
+      "evidence": "Customer Portal listed under Pillar 3: Customer Experience"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Digital Sales Tools",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Digital Sales Tools",
+      "relationship_type": "PART_OF",
+      "target_entity": "Customer Experience Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Digital Sales Tools is part of Pillar 3: Customer Experience"
+      "evidence": "Digital Sales Tools listed under Pillar 3: Customer Experience"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Digital Twin Platform",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Support Automation",
+      "relationship_type": "PART_OF",
+      "target_entity": "Engineering Excellence Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Support Automation is part of Pillar 3: Customer Experience"
+      "evidence": "Digital Twin Platform listed under Pillar 4: Engineering Excellence"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Digital Academy",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Partner Integration",
+      "relationship_type": "PART_OF",
+      "target_entity": "Workforce of the Future Pillar",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Partner Integration is part of Pillar 3: Customer Experience"
+      "evidence": "Digital Academy listed under Pillar 5: Workforce of the Future"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Intelligent Operations Pillar",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Digital Twin Platform",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Transformation Strategy",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Digital Twin Platform is part of Pillar 4: Engineering Excellence"
+      "evidence": "Pillar 1 is part of the overall digital transformation strategy"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Data Excellence Pillar",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Generative Design",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Transformation Strategy",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Generative Design is part of Pillar 4: Engineering Excellence"
+      "evidence": "Pillar 2 is part of the overall digital transformation strategy"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Customer Experience Pillar",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "PLM Modernization",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Transformation Strategy",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "PLM Modernization is part of Pillar 4: Engineering Excellence"
+      "evidence": "Pillar 3 is part of the overall digital transformation strategy"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Engineering Excellence Pillar",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Simulation Cloud",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Transformation Strategy",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Simulation Cloud is part of Pillar 4: Engineering Excellence"
+      "evidence": "Pillar 4 is part of the overall digital transformation strategy"
     },
     {
-      "source_entity": "Digital Transformation Strategy",
+      "source_entity": "Workforce of the Future Pillar",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Digital Academy",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Transformation Strategy",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Digital Academy is part of Pillar 5: Workforce of the Future"
-    },
-    {
-      "source_entity": "Digital Transformation Strategy",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Collaboration Platform",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_digital_transformation.md",
-      "evidence": "Collaboration Platform is part of Pillar 5: Workforce of the Future"
-    },
-    {
-      "source_entity": "Digital Transformation Strategy",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Knowledge Management",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_digital_transformation.md",
-      "evidence": "Knowledge Management is part of Pillar 5: Workforce of the Future"
-    },
-    {
-      "source_entity": "Digital Transformation Strategy",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Robotic Process Automation",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_digital_transformation.md",
-      "evidence": "Robotic Process Automation is part of Pillar 5: Workforce of the Future"
+      "evidence": "Pillar 5 is part of the overall digital transformation strategy"
     },
     {
       "source_entity": "Nexus Industries",
@@ -767,53 +753,53 @@
       "target_entity": "SAP",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "03_digital_transformation.md",
       "evidence": "ERP (SAP) | Deployed all divisions"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Digital Transformation Strategy",
+      "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "AWS",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Infrastructure | AWS (primary), Azure (secondary) | Migrating"
+      "evidence": "AWS (primary) platform for cloud strategy"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Digital Transformation Strategy",
+      "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "Azure",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.85,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Infrastructure | AWS (primary), Azure (secondary) | Migrating"
+      "evidence": "Azure (secondary) platform for cloud strategy"
     },
     {
-      "source_entity": "Enterprise Data Lake",
+      "source_entity": "Data Excellence Pillar",
       "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "Snowflake",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Data | Snowflake, Databricks | Deploying"
+      "evidence": "Snowflake for data platform"
     },
     {
-      "source_entity": "Enterprise Data Lake",
+      "source_entity": "Data Excellence Pillar",
       "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "Databricks",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Data | Snowflake, Databricks | Deploying"
+      "evidence": "Databricks for data platform"
     },
     {
       "source_entity": "AI/ML Platform",
@@ -822,26 +808,81 @@
       "target_entity": "AWS SageMaker",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "AI/ML | AWS SageMaker, Internal | Building"
+      "evidence": "AWS SageMaker for AI/ML capabilities"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Digital Transformation Strategy",
+      "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "MuleSoft",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_digital_transformation.md",
-      "evidence": "Integration | MuleSoft, APIs | Established"
+      "evidence": "MuleSoft for integration"
+    },
+    {
+      "source_entity": "Digital Transformation Strategy",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "$450M investment by Nexus Industries"
+    },
+    {
+      "source_entity": "Dr. Chen Wei",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Data Excellence Pillar",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "VP Data & Analytics responsible for data strategy"
+    },
+    {
+      "source_entity": "Mark Johnson",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Engineering Excellence Pillar",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "VP Engineering Systems responsible for PLM, digital twin"
+    },
+    {
+      "source_entity": "Lisa Park",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "AWS",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "VP IT Infrastructure responsible for cloud, security"
+    },
+    {
+      "source_entity": "Lisa Park",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Azure",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_digital_transformation.md",
+      "evidence": "VP IT Infrastructure responsible for cloud, security"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 38,
-    "raw_relationship_count": 34,
+    "raw_entity_count": 37,
+    "raw_relationship_count": 37,
     "used_partial_parse": false,
     "truncated": false
   }
