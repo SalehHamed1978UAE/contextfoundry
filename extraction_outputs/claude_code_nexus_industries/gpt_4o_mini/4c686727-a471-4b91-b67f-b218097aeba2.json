@@ -2,7 +2,7 @@
   "document_id": "4c686727-a471-4b91-b67f-b218097aeba2",
   "document_path": "03_press_release_fy2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:22:48.056073",
+  "extracted_at": "2026-01-25T15:43:07.643676",
   "entities": [
     {
       "name": "Nexus Industries, Inc.",
@@ -25,7 +25,7 @@
       },
       "confidence": 0.95,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "said Dr. Victoria Chen, CEO.",
+      "source_excerpt": "said Dr. Victoria Chen, CEO",
       "aliases": []
     },
     {
@@ -37,7 +37,7 @@
       },
       "confidence": 0.95,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "said Michael Chang, CFO.",
+      "source_excerpt": "said Michael Chang, CFO",
       "aliases": []
     },
     {
@@ -96,7 +96,7 @@
       "aliases": []
     },
     {
-      "name": "GreenHydrogen facility",
+      "name": "GreenHydrogen",
       "entity_type": "PROJECT",
       "properties": {
         "status": "Nearing completion"
@@ -143,9 +143,9 @@
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership type": "Strategic partnership"
+        "partnership type": "Strategic"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
       "source_excerpt": "our partnership with Toyota will revolutionize battery technology",
       "aliases": []
@@ -166,24 +166,22 @@
       "name": "Jennifer Walsh",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Investor Relations",
-        "role": "Vice President"
+        "title": "VP Investor Relations"
       },
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Jennifer Walsh VP Investor Relations",
+      "source_excerpt": "Jennifer Walsh, VP Investor Relations",
       "aliases": []
     },
     {
       "name": "Sarah Mitchell",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Corporate Communications",
-        "role": "Vice President"
+        "title": "VP Corporate Communications"
       },
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Sarah Mitchell VP Corporate Communications",
+      "source_excerpt": "Sarah Mitchell, VP Corporate Communications",
       "aliases": []
     }
   ],
@@ -197,7 +195,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "said Dr. Victoria Chen, CEO."
+      "evidence": "said Dr. Victoria Chen, CEO"
     },
     {
       "source_entity": "Michael Chang",
@@ -208,7 +206,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "said Michael Chang, CFO."
+      "evidence": "said Michael Chang, CFO"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -219,7 +217,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "Nexus Aerospace reported revenue of $2.78 billion"
+      "evidence": "Nexus Aerospace reported revenue"
     },
     {
       "source_entity": "Nexus Energy Systems",
@@ -230,7 +228,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "Nexus Energy Systems achieved revenue of $2.35 billion"
+      "evidence": "Nexus Energy Systems achieved revenue"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -241,7 +239,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "Nexus Digital Solutions delivered revenue of $2.02 billion"
+      "evidence": "Nexus Digital Solutions delivered revenue"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -252,7 +250,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "Nexus Advanced Materials reported revenue of $1.30 billion"
+      "evidence": "Nexus Advanced Materials reported revenue"
     },
     {
       "source_entity": "Falcon X UAV",
@@ -266,7 +264,7 @@
       "evidence": "driven by the Falcon X UAV program"
     },
     {
-      "source_entity": "Desert Sun Solar Farm",
+      "source_entity": "GreenHydrogen",
       "source_type": "PROJECT",
       "relationship_type": "OWNS",
       "target_entity": "Nexus Energy Systems",
@@ -274,18 +272,29 @@
       "properties": {},
       "confidence": 0.85,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "led by the Desert Sun Solar Farm"
+      "evidence": "led by the Desert Sun Solar Farm and GreenHydrogen project progress"
     },
     {
-      "source_entity": "GreenHydrogen facility",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Energy Systems",
+      "source_entity": "NexusConnect IoT",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "our GreenHydrogen facility is nearing completion"
+      "evidence": "with NexusConnect IoT and CyberShield security platforms driving growth"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_press_release_fy2025.md",
+      "evidence": "with NexusConnect IoT and CyberShield security platforms driving growth"
     },
     {
       "source_entity": "Nexus Industries, Inc.",
@@ -307,7 +316,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "Jennifer Walsh VP Investor Relations"
+      "evidence": "Jennifer Walsh, VP Investor Relations"
     },
     {
       "source_entity": "Sarah Mitchell",
@@ -318,13 +327,13 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "Sarah Mitchell VP Corporate Communications"
+      "evidence": "Sarah Mitchell, VP Corporate Communications"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 16,
-    "raw_relationship_count": 12,
+    "raw_relationship_count": 13,
     "used_partial_parse": false,
     "truncated": false
   }
