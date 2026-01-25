@@ -2,13 +2,13 @@
   "document_id": "1a90968f-f915-4f7f-92a9-13b0559008a3",
   "document_path": "01_annual_report_2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T15:03:38.141370",
+  "extracted_at": "2026-01-25T15:10:24.239152",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Public Company",
+        "type": "Corporation",
         "industry": "Industrial Technology",
         "ticker": "NXIS",
         "exchange": "NYSE"
@@ -58,7 +58,12 @@
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Commercial aviation, Defense, Space systems, UAV programs"
+        "focus_areas": [
+          "Commercial aviation",
+          "Defense",
+          "Space systems",
+          "UAV programs"
+        ]
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -69,7 +74,11 @@
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Renewable energy projects, Grid solutions, Energy storage"
+        "focus_areas": [
+          "Renewable energy",
+          "Grid solutions",
+          "Energy storage"
+        ]
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -80,7 +89,11 @@
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "IoT platform, Enterprise software, Professional services"
+        "focus_areas": [
+          "IoT platform",
+          "Enterprise software",
+          "Professional services"
+        ]
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -91,7 +104,11 @@
       "name": "Nexus Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Aerospace composites, Specialty alloys, Advanced conductors"
+        "focus_areas": [
+          "Aerospace composites",
+          "Specialty alloys",
+          "Advanced conductors"
+        ]
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -114,9 +131,8 @@
       "name": "CyberShield",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Cybersecurity solution",
-        "category": "Software",
-        "status": "Beta"
+        "description": "Beta security product",
+        "category": "Cybersecurity"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -127,25 +143,12 @@
       "name": "GreenHydrogen",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Hydrogen energy solution",
-        "category": "Energy Technology"
+        "description": "Hydrogen energy product",
+        "category": "Energy"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "GreenHydrogen contributed initial revenue",
-      "aliases": []
-    },
-    {
-      "name": "HTS wire",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "High-Temperature Superconductor wire",
-        "category": "Advanced Materials",
-        "status": "Pilot production"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "HTS wire pilot production began",
       "aliases": []
     },
     {
@@ -261,6 +264,20 @@
       "aliases": []
     },
     {
+      "name": "Shares Outstanding",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Shares Outstanding",
+        "value": "196.2M",
+        "period": "Current",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Shares Outstanding: 196.2M",
+      "aliases": []
+    },
+    {
       "name": "Total Employees FY2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
@@ -279,7 +296,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "North America",
-        "country": "Multiple"
+        "region": "North America"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -291,7 +308,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Europe",
-        "country": "Multiple"
+        "region": "Europe"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -303,7 +320,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Asia Pacific",
-        "country": "Multiple"
+        "region": "Asia Pacific"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -312,6 +329,17 @@
     }
   ],
   "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Approved by: Dr. Victoria Chen, Chief Executive Officer"
+    },
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
@@ -324,27 +352,12 @@
       "evidence": "Dr. Victoria Chen, Chief Executive Officer"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {
-        "role": "Chief Executive Officer"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Approved by: Dr. Victoria Chen, Chief Executive Officer"
-    },
-    {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {
-        "role": "Chief Financial Officer"
-      },
+      "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "evidence": "Certified by: Robert Kim, Chief Financial Officer"
@@ -355,9 +368,7 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {
-        "role": "VP Investor Relations"
-      },
+      "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "evidence": "Investor Relations: Jennifer Walsh, VP Investor Relations"
@@ -371,7 +382,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Division revenue breakdown showing Nexus Aerospace as part of Nexus Industries"
+      "evidence": "Nexus Aerospace division revenue reporting"
     },
     {
       "source_entity": "Nexus Energy Systems",
@@ -382,7 +393,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Division revenue breakdown showing Nexus Energy Systems as part of Nexus Industries"
+      "evidence": "Nexus Energy Systems division revenue reporting"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -393,7 +404,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Division revenue breakdown showing Nexus Digital Solutions as part of Nexus Industries"
+      "evidence": "Nexus Digital Solutions division revenue reporting"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -404,7 +415,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Division revenue breakdown showing Nexus Advanced Materials as part of Nexus Industries"
+      "evidence": "Nexus Advanced Materials division revenue reporting"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -440,21 +451,43 @@
       "evidence": "GreenHydrogen contributed initial revenue"
     },
     {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "HTS wire",
-      "target_type": "PRODUCT",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Total Revenue FY2025",
+      "target_type": "FINANCIAL_METRIC",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "HTS wire pilot production began"
+      "evidence": "Total Revenue financial metric for Nexus Industries"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Net Income FY2025",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Net Income financial metric for Nexus Industries"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "VP Investor Relations manages investor relations function"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 24,
-    "raw_relationship_count": 12,
+    "raw_relationship_count": 14,
     "used_partial_parse": false,
     "truncated": false
   }
