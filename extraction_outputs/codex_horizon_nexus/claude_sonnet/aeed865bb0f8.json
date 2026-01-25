@@ -1,0 +1,147 @@
+{
+  "document_id": "aeed865bb0f8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:28:26.193531",
+  "entities": [
+    {
+      "name": "Leah Kade",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Owner: Leah Kade",
+      "aliases": []
+    },
+    {
+      "name": "Security Incident Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Risk management project covering threat landscape and readiness",
+        "status": "Active",
+        "timeline": "Monthly cadence"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "# Security Incident Risk - Risk Types: Threat landscape, readiness - Cadence: Monthly",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk management system or organization"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Risk Likelihood Rating",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Likelihood",
+        "value": "Medium",
+        "type": "RATING"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Likelihood: Medium",
+      "aliases": []
+    },
+    {
+      "name": "Risk Impact Rating",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Impact",
+        "value": "High",
+        "type": "RATING"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Impact: High",
+      "aliases": []
+    },
+    {
+      "name": "Supplier Diversification Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "Diversify suppliers",
+        "category": "Risk Mitigation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Diversify suppliers",
+      "aliases": []
+    },
+    {
+      "name": "Compliance Automation Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "Strengthen compliance automation",
+        "category": "Risk Mitigation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Strengthen compliance automation",
+      "aliases": []
+    },
+    {
+      "name": "Scenario Testing Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "Increase scenario testing",
+        "category": "Risk Mitigation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Increase scenario testing",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leah Kade",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Security Incident Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Owner: Leah Kade"
+    },
+    {
+      "source_entity": "Leah Kade",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Security Incident Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Leah Kade is listed as the owner of the Security Incident Risk project"
+    },
+    {
+      "source_entity": "Security Incident Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "security_incident_risk.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

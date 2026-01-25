@@ -2,7 +2,7 @@
   "document_id": "a4a6af6b350d",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:00:54.011431",
+  "extracted_at": "2026-01-25T08:29:04.492352",
   "entities": [
     {
       "name": "Simone Ocampo",
@@ -19,12 +19,11 @@
       "name": "SkyPath Integrations",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Systems integration",
-        "profile": "Systems integrator"
+        "industry": "Systems integrator"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
-      "source_excerpt": "SkyPath Integrations Account Brief, Customer Profile: Systems integrator",
+      "source_excerpt": "SkyPath Integrations Account Brief",
       "aliases": []
     },
     {
@@ -32,9 +31,9 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "ARR",
-        "value": "44000000",
+        "value": "44",
         "type": "CURRENCY",
-        "currency": "USD"
+        "unit": "million USD"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
@@ -45,7 +44,7 @@
       "name": "Implementation services",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Primary service offering"
+        "description": "Primary product offering"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
@@ -64,7 +63,7 @@
       "aliases": []
     },
     {
-      "name": "78%",
+      "name": "Deployment maturity 78%",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Deployment maturity",
@@ -77,7 +76,7 @@
       "aliases": []
     },
     {
-      "name": "3",
+      "name": "3 Expansion opportunities",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Expansion opportunities",
@@ -95,7 +94,7 @@
       "properties": {
         "description": "Product with roadmap updates"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
       "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
@@ -111,24 +110,46 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
-      "evidence": "Simone Ocampo is listed as Executive Sponsor for SkyPath Integrations account"
+      "evidence": "Simone Ocampo is the Executive Sponsor for SkyPath Integrations account"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "SkyPath Integrations",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "evidence": "Owning BU: Corporate"
     },
     {
       "source_entity": "SkyPath Integrations",
       "source_type": "CUSTOMER",
-      "relationship_type": "PART_OF",
-      "target_entity": "Corporate",
-      "target_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Implementation services",
+      "target_type": "SERVICE",
       "properties": {},
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
-      "evidence": "Owning BU: Corporate indicates SkyPath Integrations account is managed by Corporate business unit"
+      "evidence": "Primary Products: Implementation services"
+    },
+    {
+      "source_entity": "SkyPath Integrations",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_skypath_integrations.md",
+      "evidence": "Align roadmap visibility with Horizon Prime updates"
     }
   ],
   "metadata": {
     "filename": "customer_dossier_skypath_integrations.md",
     "raw_entity_count": 8,
-    "raw_relationship_count": 2,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

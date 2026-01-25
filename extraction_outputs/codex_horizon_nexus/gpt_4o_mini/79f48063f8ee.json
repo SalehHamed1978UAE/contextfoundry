@@ -2,16 +2,16 @@
   "document_id": "79f48063f8ee",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T07:59:44.179037",
+  "extracted_at": "2026-01-25T08:27:59.619619",
   "entities": [
     {
       "name": "Eden Park",
       "entity_type": "PERSON",
       "properties": {
         "title": "Executive Sponsor",
-        "role": "Sponsor"
+        "role": "Executive Sponsor"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "Executive Sponsor: Eden Park",
       "aliases": []
@@ -23,7 +23,7 @@
         "industry": "Aerospace manufacturing",
         "region": ""
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "Customer Profile: Aerospace manufacturer",
       "aliases": []
@@ -35,7 +35,7 @@
         "description": "",
         "category": ""
       },
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "Primary Products: Synapse Insight",
       "aliases": []
@@ -47,7 +47,7 @@
         "description": "",
         "category": ""
       },
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "Primary Products: PulseForge",
       "aliases": []
@@ -58,7 +58,7 @@
       "properties": {
         "focus areas": ""
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "Owning BU: Synapse One",
       "aliases": []
@@ -72,9 +72,23 @@
         "period": "",
         "type": "CURRENCY"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "ARR: $124M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Horizon Prime",
+        "budget": "",
+        "timeline": "",
+        "status": ""
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
     }
   ],
@@ -97,15 +111,37 @@
       "target_entity": "Meridian Aerospace",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "evidence": "Owning BU: Synapse One"
+    },
+    {
+      "source_entity": "Meridian Aerospace",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Synapse Insight",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "evidence": "Primary Products: Synapse Insight"
+    },
+    {
+      "source_entity": "Meridian Aerospace",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "PulseForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "evidence": "Primary Products: PulseForge"
     }
   ],
   "metadata": {
     "filename": "customer_dossier_meridian_aerospace.md",
-    "raw_entity_count": 6,
-    "raw_relationship_count": 2,
+    "raw_entity_count": 7,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }
