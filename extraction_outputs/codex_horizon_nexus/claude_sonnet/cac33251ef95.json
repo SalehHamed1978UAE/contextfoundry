@@ -1,0 +1,78 @@
+{
+  "document_id": "cac33251ef95",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_compliance_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:58:45.570364",
+  "entities": [
+    {
+      "name": "Citadel Compliance Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "risk_types": [
+          "Banking regulators",
+          "data residency"
+        ],
+        "cadence": "Monthly",
+        "current_likelihood": "Medium",
+        "current_impact": "High"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_compliance_risk.md",
+      "source_excerpt": "# Citadel Compliance Risk",
+      "aliases": []
+    },
+    {
+      "name": "Breck Collins",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_compliance_risk.md",
+      "source_excerpt": "**Owner:** Breck Collins",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Risk register system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_compliance_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Breck Collins",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Citadel Compliance Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_compliance_risk.md",
+      "evidence": "**Owner:** Breck Collins"
+    },
+    {
+      "source_entity": "Citadel Compliance Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/citadel_compliance_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "citadel_compliance_risk.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

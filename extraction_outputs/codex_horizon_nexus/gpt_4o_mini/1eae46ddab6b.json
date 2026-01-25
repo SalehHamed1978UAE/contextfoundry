@@ -1,0 +1,144 @@
+{
+  "document_id": "1eae46ddab6b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:00:03.356470",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "source_excerpt": "CEO Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "COO",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "source_excerpt": "COO Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "source_excerpt": "CFO Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Eliza Morrell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "source_excerpt": "CTO Dr. Eliza Morrell",
+      "aliases": []
+    },
+    {
+      "name": "Jonah Keene",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CPO",
+        "role": "Chief Product Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "source_excerpt": "CPO Jonah Keene",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Software",
+        "industry": "Data Management"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "source_excerpt": "Org data maintained in Horizon Prime",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "evidence": "CEO Maya Serrano"
+    },
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "evidence": "COO Victor Liao"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "evidence": "CFO Dylan Kaur"
+    },
+    {
+      "source_entity": "Dr. Eliza Morrell",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "evidence": "CTO Dr. Eliza Morrell"
+    },
+    {
+      "source_entity": "Jonah Keene",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/executive_org_chart.md",
+      "evidence": "CPO Jonah Keene"
+    }
+  ],
+  "metadata": {
+    "filename": "executive_org_chart.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

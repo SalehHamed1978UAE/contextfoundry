@@ -1,0 +1,110 @@
+{
+  "document_id": "7e37cd9bcd17",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:01:53.160821",
+  "entities": [
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "BluePeak Data Centers",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Infrastructure partner",
+        "industry": "Data Centers"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Customer Profile: Infrastructure partner",
+      "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Corporate functions"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Owning BU: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Data hosting services",
+        "category": "Services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "Primary Products: Horizon Prime services",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": 52000000,
+        "period": "annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "source_excerpt": "ARR: $52M ARR",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "BluePeak Data Centers",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "evidence": "Executive Sponsor: Victor Liao"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "BluePeak Data Centers",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "evidence": "Owning BU: Corporate"
+    },
+    {
+      "source_entity": "BluePeak Data Centers",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_bluepeak_data_centers.md",
+      "evidence": "Primary Products: Horizon Prime services"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_bluepeak_data_centers.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

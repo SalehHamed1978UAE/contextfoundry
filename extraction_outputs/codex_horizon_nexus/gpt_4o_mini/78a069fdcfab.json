@@ -1,0 +1,55 @@
+{
+  "document_id": "78a069fdcfab",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:57:38.271912",
+  "entities": [
+    {
+      "name": "CoreMatrix Semiconductors",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Chipsets",
+        "risk level": "Tier 1",
+        "engagement model": "Long-term",
+        "average lead time": "102 days",
+        "service level": "98.4%"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Supplier Profile: CoreMatrix Semiconductors",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "CoreMatrix Semiconductors",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_corematrix_semiconductors.md",
+      "evidence": "Executive Sponsor: Victor Liao"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_corematrix_semiconductors.md",
+    "raw_entity_count": 2,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

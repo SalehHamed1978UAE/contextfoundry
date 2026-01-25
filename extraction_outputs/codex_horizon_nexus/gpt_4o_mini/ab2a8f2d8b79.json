@@ -1,0 +1,101 @@
+{
+  "document_id": "ab2a8f2d8b79",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:03:43.351864",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Attendees - Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Attendees - Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "PulseForge",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "PulseForge",
+        "status": "roadmap"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "PulseForge roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Horizon Prime",
+        "status": "milestones"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Attendees - Maya Serrano"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Attendees - Dylan Kaur"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "PulseOps",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Owners assigned in PulseOps"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_customer_council_2026_01_22.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

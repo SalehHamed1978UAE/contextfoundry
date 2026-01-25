@@ -1,0 +1,97 @@
+{
+  "document_id": "35ce300aedb8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:07:34.135217",
+  "entities": [
+    {
+      "name": "SkyPath Integrations",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Supplier",
+        "industry": "Implementation"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+      "source_excerpt": "Supplier Profile: SkyPath Integrations",
+      "aliases": []
+    },
+    {
+      "name": "Simone Ocampo",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Sponsor"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+      "source_excerpt": "Executive Sponsor: Simone Ocampo",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Logistics",
+        "industry": "Transportation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Horizon Prime"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Simone Ocampo",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "SkyPath Integrations",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+      "evidence": "Executive Sponsor: Simone Ocampo"
+    },
+    {
+      "source_entity": "SkyPath Integrations",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+      "evidence": "Preferred partner"
+    },
+    {
+      "source_entity": "SkyPath Integrations",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_skypath_integrations.md",
+      "evidence": "Document continuity plans in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_skypath_integrations.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
