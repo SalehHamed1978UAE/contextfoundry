@@ -65,6 +65,12 @@ Architectural features include:
   - **Evaluator Entity Aliases**: Supports abbreviation matching (e.g., "GDS" ↔ "Global Defense Systems") in answer evaluation.
   - **Detailed Failure Categories**: Evaluator classifies failures as `ALTERNATE_SOURCE`, `FORMAT_MISMATCH`, `NOT_FOUND` instead of generic mismatch.
   - **Person-Role/Org-Unit Query Routing Override**: QueryClassifier now detects person-role queries (e.g., "What is Sarah Chen's role?") and org-unit queries (e.g., "What are the business units?") with proper name validation (`_is_proper_name()`) to prioritize Knowledge Graph routing with HYBRID fallback. Prevents false positives on generic queries like "Who is the CEO?" which use existing role resolution.
+- **Systematic Failure Analysis Infrastructure** (January 2026):
+  - **FailureAnalyzer** (`src/context_foundry/analysis/failure_analyzer.py`): 7-layer failure tracing (CORPUS → EXTRACTION → INTEGRATION → KG_DATA → QUERY → SYNTHESIS → EVALUATION), pattern classification (ENTITY_RESOLUTION, CONFLICT_RESOLUTION, CORPUS_GAP, QUERY_ROUTING, etc.), and fix plan generation.
+  - **TargetedExtractor** (`src/context_foundry/analysis/targeted_extractor.py`): Specialized prompts for 9 failure categories (PERSON_RESPONSIBILITIES, PROJECT_OWNERSHIP, BU_FOCUS_AREAS, CUSTOMER_RELATIONSHIPS, PROJECT_BUDGETS, SUPPLIER_RELATIONSHIPS, PARTNER_RELATIONSHIPS, PROJECT_INFO, PERSON_INFO).
+  - **FixApplier** (`src/context_foundry/analysis/fix_applier.py`): Applies targeted extraction results to KG entities and relationships.
+  - **ImprovementLoop** (`src/context_foundry/analysis/improvement_loop.py`): Orchestrates analyze → extract → apply → test cycle for iterative accuracy improvement.
+  - **Current Status**: Manus Orion 106q test at 66.0% (70/106). Analysis identified 28 ENTITY_RESOLUTION, 8 CONFLICT_RESOLUTION, 7 CORPUS_GAP, 6 QUERY_ROUTING failures. Key finding: Many failures are corpus/test expectation mismatches (expected answers not explicitly in corpus) rather than pipeline defects. Reaching 90% requires test alignment or corpus augmentation.
 
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)
