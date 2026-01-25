@@ -1,0 +1,87 @@
+{
+  "document_id": "8153569eec7e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:13:44.302912",
+  "entities": [
+    {
+      "name": "QuantumForge Labs",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "category": "AI research",
+        "tier": "Strategic",
+        "engagement_model": "Co-innovation",
+        "capability": "AI research"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "source_excerpt": "Supplier Profile: QuantumForge Labs",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Eliza Morrell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "source_excerpt": "Executive Sponsor: Dr. Eliza Morrell",
+      "aliases": []
+    },
+    {
+      "name": "Procurement",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "escalation management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "source_excerpt": "Escalation path defined through Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "logistics and scheduling"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "continuity planning system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Eliza Morrell",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "QuantumForge Labs",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "evidence": "Dr. Eliza Morrell is listed as Executive Sponsor for QuantumForge Labs"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_quantumforge_labs.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

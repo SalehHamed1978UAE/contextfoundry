@@ -1,0 +1,40 @@
+{
+  "document_id": "76fb86f47238",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:07:35.027120",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Author: Maya Serrano",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Unknown Organization",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "evidence": "Maya Serrano is the CEO"
+    }
+  ],
+  "metadata": {
+    "filename": "ceo_memo_strategic_priorities.md",
+    "raw_entity_count": 1,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

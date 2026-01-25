@@ -1,0 +1,90 @@
+{
+  "document_id": "4a2d6328cc67",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:03:22.318207",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Attendees - Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Attendees - Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "milestones reinforced"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "platform for assigning owners"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Owners assigned in PulseOps.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "BU leaders",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "evidence": "Attendees - BU leaders"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "BU leaders",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "evidence": "Attendees - BU leaders"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "evidence": "Owners assigned in PulseOps."
+    }
+  ],
+  "metadata": {
+    "filename": "finance_strategy_review_2026_01_25.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

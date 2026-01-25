@@ -1,0 +1,111 @@
+{
+  "document_id": "4f4ff7ca578c",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:01:06.071395",
+  "entities": [
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "source_excerpt": "Executive Sponsor: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "Great Plains Utility",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Utility",
+        "region": "Regional"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "source_excerpt": "Customer Profile: Regional utility",
+      "aliases": []
+    },
+    {
+      "name": "GridWave Control Suite",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Primary product offered",
+        "category": "Utility Management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "source_excerpt": "Primary Products: GridWave Control Suite",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Utility Management"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "source_excerpt": "Owning BU: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 178000000,
+        "period": "Annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "source_excerpt": "ARR: $178M ARR",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Great Plains Utility",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "evidence": "Executive Sponsor: Priya Thakur"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Great Plains Utility",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "evidence": "Owning BU: GridWave"
+    },
+    {
+      "source_entity": "GridWave Control Suite",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_great_plains_utility.md",
+      "evidence": "Primary Products: GridWave Control Suite"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_great_plains_utility.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

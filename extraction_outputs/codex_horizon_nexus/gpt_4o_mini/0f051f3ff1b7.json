@@ -1,0 +1,63 @@
+{
+  "document_id": "0f051f3ff1b7",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:06:34.094664",
+  "entities": [
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "COO",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "source_excerpt": "Author: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Project related to tooling and data lake",
+        "status": "active"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "source_excerpt": "Horizon Prime streams",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Organization",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "evidence": "Victor Liao is the COO"
+    },
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "evidence": "Victor Liao provides updates via Horizon Prime streams"
+    }
+  ],
+  "metadata": {
+    "filename": "coo_memo_horizon_prime_update.md",
+    "raw_entity_count": 2,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

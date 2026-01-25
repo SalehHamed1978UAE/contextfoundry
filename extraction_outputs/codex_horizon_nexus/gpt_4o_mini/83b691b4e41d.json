@@ -1,0 +1,134 @@
+{
+  "document_id": "83b691b4e41d",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:01:54.632734",
+  "entities": [
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "Executive Sponsor: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "Titan Freight EMEA",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Freight",
+        "region": "EMEA"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "Titan Freight EMEA Account Brief",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Freight logistics"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "Owning BU: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Logistics services",
+        "category": "Freight"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "Primary Products: Titan Logistics",
+      "aliases": []
+    },
+    {
+      "name": "Corridor automation",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Objective for automation in freight corridors",
+        "status": "Current Objective"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "Current Objective: Corridor automation",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 84000000,
+        "period": "Annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "ARR: $84M ARR",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Titan Freight EMEA",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "evidence": "Executive Sponsor: Marcus Nguyen"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Titan Freight EMEA",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "evidence": "Owning BU: TransitEdge"
+    },
+    {
+      "source_entity": "Titan Freight EMEA",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "evidence": "Primary Products: Titan Logistics"
+    },
+    {
+      "source_entity": "Corridor automation",
+      "source_type": "PROJECT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Titan Freight EMEA",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "evidence": "Current Objective: Corridor automation"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_titan_freight_emea.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

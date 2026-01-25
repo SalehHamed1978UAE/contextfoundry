@@ -1,0 +1,182 @@
+{
+  "document_id": "6be3a8a20afa",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:02:28.736029",
+  "entities": [
+    {
+      "name": "Executive Steering Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "IPO readiness",
+          "supply chain",
+          "strategic projects"
+        ]
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Executive Steering Committee Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "BU leaders",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Business Unit Leaders"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "BU leaders",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active with milestones to reinforce"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "IPO readiness",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "strategic initiative"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Topics: IPO readiness, supply chain, Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "Supply chain management",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "operational initiative"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Adjust supply plans with suppliers",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "operational management platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Executive Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Maya Serrano listed as attendee of Executive Steering Committee meeting"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Executive Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Dylan Kaur listed as attendee of Executive Steering Committee meeting"
+    },
+    {
+      "source_entity": "BU leaders",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Executive Steering Committee",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "BU leaders listed as attendees of Executive Steering Committee meeting"
+    },
+    {
+      "source_entity": "Executive Steering Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Executive Steering Committee decided to reinforce Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Executive Steering Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "IPO readiness",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "IPO readiness listed as topic for Executive Steering Committee meeting"
+    },
+    {
+      "source_entity": "Executive Steering Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Supply chain management",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Executive Steering Committee decided to adjust supply plans with suppliers"
+    },
+    {
+      "source_entity": "Supply chain management",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
+      "evidence": "Owners assigned in PulseOps for action items related to supply chain decisions"
+    }
+  ],
+  "metadata": {
+    "filename": "executive_steering_committee_2026_01_12.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

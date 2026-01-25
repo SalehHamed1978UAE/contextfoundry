@@ -1,0 +1,199 @@
+{
+  "document_id": "9d05038cb8be",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:20:11.953628",
+  "entities": [
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$90M",
+        "timeline": "2024-2026",
+        "status": "active",
+        "objective": "Data stack unification"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "Horizon Prime Delivery Brief with Budget: $90M, Timeline: 2024-2026",
+      "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "corporate functions"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "Business Unit: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "$90M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Project Budget",
+        "value": "90000000",
+        "period": "2024-2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "Budget: $90M",
+      "aliases": []
+    },
+    {
+      "name": "SnowBridge Lake",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technical stack component"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "Technical Stack: SnowBridge Lake, PulseOps",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technical stack component"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "Technical Stack: SnowBridge Lake, PulseOps",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime data lake",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Data lake platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply provision"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Integration platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "source_excerpt": "SkyPath integrations",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "evidence": "Business Unit: Corporate listed as owner of Horizon Prime project"
+    },
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "evidence": "Victor Liao listed as Sponsor of Horizon Prime project"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SnowBridge Lake",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "evidence": "SnowBridge Lake listed in Technical Stack for Horizon Prime"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "evidence": "PulseOps listed in Technical Stack for Horizon Prime"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime data lake",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "evidence": "Horizon Prime data lake readiness listed as dependency"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "evidence": "CoreMatrix supply listed as dependency for Horizon Prime"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SkyPath",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/horizon_prime_brief.md",
+      "evidence": "SkyPath integrations listed as dependency for Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "horizon_prime_brief.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

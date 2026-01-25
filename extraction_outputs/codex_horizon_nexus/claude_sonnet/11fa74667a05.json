@@ -1,0 +1,165 @@
+{
+  "document_id": "11fa74667a05",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:15:18.066222",
+  "entities": [
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "GM/VP: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Autonomous rail logistics",
+          "Fleet digital twins",
+          "Urban mobility analytics"
+        ]
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "TransitEdge FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "$365M",
+        "period": "FY26",
+        "type": "CURRENCY",
+        "metric_name": "Annual Recurring Revenue"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "ARR: $365M",
+      "aliases": []
+    },
+    {
+      "name": "Active Corridors",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "118",
+        "period": "FY26",
+        "type": "COUNT",
+        "metric_name": "Active Corridors"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "Active Corridors: 118",
+      "aliases": []
+    },
+    {
+      "name": "Gross Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "54%",
+        "period": "FY26",
+        "type": "PERCENTAGE",
+        "metric_name": "Gross Margin"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "Gross Margin: 54%",
+      "aliases": []
+    },
+    {
+      "name": "Controls Engineering",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "controls engineering"
+        ]
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "source_excerpt": "Address hiring gaps in controls engineering",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "evidence": "Marcus Nguyen is listed as GM/VP of TransitEdge"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "evidence": "Deepen integration with Horizon Prime data lake"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Autonomous rail logistics",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "evidence": "Listed as focus area for TransitEdge"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Fleet digital twins",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "evidence": "Listed as focus area for TransitEdge"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Urban mobility analytics",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/transitedge_roadmap.md",
+      "evidence": "Listed as focus area for TransitEdge"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_roadmap.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
