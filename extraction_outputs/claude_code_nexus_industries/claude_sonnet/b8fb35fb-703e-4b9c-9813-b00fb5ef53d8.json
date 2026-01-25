@@ -2,7 +2,7 @@
   "document_id": "b8fb35fb-703e-4b9c-9813-b00fb5ef53d8",
   "document_path": "01_executive_team.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:29:39.884427",
+  "extracted_at": "2026-01-25T09:58:54.053719",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -11,7 +11,7 @@
         "type": "Corporation",
         "industry": "Manufacturing/Technology"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "01_executive_team.md",
       "source_excerpt": "Nexus Industries Executive Leadership Team",
       "aliases": []
@@ -22,7 +22,8 @@
       "properties": {
         "title": "Chief Executive Officer",
         "role": "CEO",
-        "education": "Ph.D. in Electrical Engineering from MIT, MBA from Harvard Business School"
+        "education": "Ph.D. in Electrical Engineering from MIT, MBA from Harvard Business School",
+        "start_date": "March 2018"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -35,7 +36,8 @@
       "properties": {
         "title": "Chief Financial Officer",
         "role": "CFO",
-        "credentials": "CPA with 20 years experience"
+        "certification": "CPA",
+        "start_date": "June 2019"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -48,7 +50,8 @@
       "properties": {
         "title": "Chief Technology Officer",
         "role": "CTO",
-        "education": "Ph.D. in Materials Science from Stanford"
+        "education": "Ph.D. in Materials Science from Stanford",
+        "start_date": "January 2020"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -61,7 +64,8 @@
       "properties": {
         "title": "Chief Operating Officer",
         "role": "COO",
-        "experience": "25 years operations experience"
+        "experience": "25 years operations",
+        "start_date": "September 2017"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -74,7 +78,8 @@
       "properties": {
         "title": "Chief Human Resources Officer",
         "role": "CHRO",
-        "experience": "18 years HR leadership"
+        "experience": "18 years HR leadership",
+        "start_date": "April 2021"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -87,7 +92,8 @@
       "properties": {
         "title": "General Counsel and Chief Legal Officer",
         "role": "General Counsel",
-        "background": "Former partner at Morrison & Foerster"
+        "background": "Former partner at Morrison & Foerster",
+        "start_date": "February 2019"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -100,7 +106,8 @@
       "properties": {
         "title": "Chief Information Officer",
         "role": "CIO",
-        "education": "Ph.D. in Computer Science from Carnegie Mellon"
+        "education": "Ph.D. in Computer Science from Carnegie Mellon",
+        "start_date": "August 2022"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -113,7 +120,8 @@
       "properties": {
         "title": "Chief Marketing Officer",
         "role": "CMO",
-        "experience": "15 years marketing leadership"
+        "experience": "15 years marketing leadership",
+        "start_date": "November 2020"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -122,12 +130,11 @@
     },
     {
       "name": "Board of Directors",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Governance Body",
-        "role": "Corporate oversight"
+        "focus_areas": "Corporate governance, strategic oversight"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_executive_team.md",
       "source_excerpt": "Reports To: Board of Directors",
       "aliases": []
@@ -138,7 +145,7 @@
       "properties": {
         "type": "Technology Company"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
       "source_excerpt": "she served as COO at Meridian Technologies for 8 years",
       "aliases": []
@@ -149,9 +156,9 @@
       "properties": {
         "type": "Manufacturing Company"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "previously served as VP of Finance at GlobalTech Manufacturing",
+      "source_excerpt": "VP of Finance at GlobalTech Manufacturing",
       "aliases": []
     },
     {
@@ -160,7 +167,7 @@
       "properties": {
         "type": "Materials Company"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
       "source_excerpt": "She led R&D at Quantum Materials Inc. before joining Nexus",
       "aliases": []
@@ -169,11 +176,12 @@
       "name": "Boeing",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Aerospace Manufacturing"
+        "type": "Aerospace Manufacturing",
+        "industry": "Aerospace"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "including 10 years at Boeing in manufacturing leadership roles",
+      "source_excerpt": "10 years at Boeing in manufacturing leadership roles",
       "aliases": []
     },
     {
@@ -182,9 +190,9 @@
       "properties": {
         "type": "Technology Corporation"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "from Fortune 500 companies including IBM and Microsoft",
+      "source_excerpt": "Fortune 500 companies including IBM and Microsoft",
       "aliases": []
     },
     {
@@ -193,9 +201,9 @@
       "properties": {
         "type": "Technology Corporation"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "from Fortune 500 companies including IBM and Microsoft",
+      "source_excerpt": "Fortune 500 companies including IBM and Microsoft",
       "aliases": []
     },
     {
@@ -204,7 +212,7 @@
       "properties": {
         "type": "Law Firm"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
       "source_excerpt": "former partner at Morrison & Foerster",
       "aliases": []
@@ -213,9 +221,9 @@
       "name": "Accenture",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Consulting Firm"
+        "type": "Consulting Company"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
       "source_excerpt": "previously led IT at Accenture's manufacturing practice",
       "aliases": []
@@ -226,9 +234,9 @@
       "properties": {
         "type": "Technology Corporation"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "spent 15 years in marketing leadership at Apple and Samsung",
+      "source_excerpt": "marketing leadership at Apple and Samsung",
       "aliases": []
     },
     {
@@ -237,9 +245,9 @@
       "properties": {
         "type": "Technology Corporation"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "spent 15 years in marketing leadership at Apple and Samsung",
+      "source_excerpt": "marketing leadership at Apple and Samsung",
       "aliases": []
     },
     {
@@ -285,24 +293,13 @@
       "source_document": "01_executive_team.md",
       "source_excerpt": "Ph.D. in Computer Science from Carnegie Mellon",
       "aliases": []
-    },
-    {
-      "name": "Office of the CEO",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_area": "Executive Support"
-      },
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "source_excerpt": "contact the Office of the CEO",
-      "aliases": []
     }
   ],
   "relationships": [
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "LEADS",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -313,20 +310,22 @@
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "CEO"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
-      "evidence": "Chief Executive Officer (CEO)"
+      "evidence": "Dr. Victoria Chen, Chief Executive Officer (CEO)"
     },
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Board of Directors",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -335,16 +334,29 @@
     {
       "source_entity": "Robert Martinez",
       "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Dr. Victoria Chen",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_executive_team.md",
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
+    },
+    {
+      "source_entity": "Robert Martinez",
+      "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "CFO"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "evidence": "Robert Martinez, Chief Financial Officer (CFO)"
     },
     {
-      "source_entity": "Robert Martinez",
+      "source_entity": "Dr. Aisha Patel",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Dr. Victoria Chen",
@@ -360,13 +372,15 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "CTO"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "evidence": "Dr. Aisha Patel, Chief Technology Officer (CTO)"
     },
     {
-      "source_entity": "Dr. Aisha Patel",
+      "source_entity": "James Wilson",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Dr. Victoria Chen",
@@ -382,13 +396,15 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "COO"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "evidence": "James Wilson, Chief Operating Officer (COO)"
     },
     {
-      "source_entity": "James Wilson",
+      "source_entity": "Maria Santos",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Dr. Victoria Chen",
@@ -404,13 +420,15 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "CHRO"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "evidence": "Maria Santos, Chief Human Resources Officer (CHRO)"
     },
     {
-      "source_entity": "Maria Santos",
+      "source_entity": "David Park",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Dr. Victoria Chen",
@@ -426,13 +444,15 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "General Counsel"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "evidence": "David Park, General Counsel and Chief Legal Officer"
     },
     {
-      "source_entity": "David Park",
+      "source_entity": "Dr. Samuel Okonkwo",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Dr. Victoria Chen",
@@ -448,13 +468,15 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "CIO"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "evidence": "Dr. Samuel Okonkwo, Chief Information Officer (CIO)"
     },
     {
-      "source_entity": "Dr. Samuel Okonkwo",
+      "source_entity": "Jennifer Lee",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Dr. Victoria Chen",
@@ -470,24 +492,15 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "CMO"
+      },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "evidence": "Jennifer Lee, Chief Marketing Officer (CMO)"
     },
     {
-      "source_entity": "Jennifer Lee",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_executive_team.md",
-      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
-    },
-    {
-      "source_entity": "Office of the CEO",
+      "source_entity": "Board of Directors",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
@@ -495,12 +508,12 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "contact the Office of the CEO"
+      "evidence": "Board of Directors relations and reporting"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 25,
+    "raw_entity_count": 24,
     "raw_relationship_count": 18,
     "used_partial_parse": false,
     "truncated": false

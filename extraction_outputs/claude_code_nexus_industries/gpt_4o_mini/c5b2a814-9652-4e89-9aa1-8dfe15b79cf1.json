@@ -2,7 +2,7 @@
   "document_id": "c5b2a814-9652-4e89-9aa1-8dfe15b79cf1",
   "document_path": "02_aerospace_division_strategy.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:33:47.466373",
+  "extracted_at": "2026-01-25T10:02:44.297846",
   "entities": [
     {
       "name": "Nexus Aerospace",
@@ -327,62 +327,6 @@
       "source_document": "02_aerospace_division_strategy.md",
       "source_excerpt": "Digital Lab | Phoenix",
       "aliases": []
-    },
-    {
-      "name": "Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Revenue",
-        "value": "$2.85B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "| Revenue | $2.85B |",
-      "aliases": []
-    },
-    {
-      "name": "Operating Margin",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Operating Margin",
-        "value": "12.0%",
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "| Operating Margin | 12.0% |",
-      "aliases": []
-    },
-    {
-      "name": "Employees",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Employees",
-        "value": "3,200",
-        "period": "FY2025",
-        "type": "COUNT"
-      },
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "| Employees | 3,200 |",
-      "aliases": []
-    },
-    {
-      "name": "Backlog",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Backlog",
-        "value": "$5.2B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "| Backlog | $5.2B |",
-      "aliases": []
     }
   ],
   "relationships": [
@@ -433,7 +377,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Falcon X UAV",
       "target_type": "PROJECT",
       "properties": {},
@@ -444,7 +388,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Autonomy Software",
       "target_type": "PROJECT",
       "properties": {},
@@ -455,7 +399,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Sensor Fusion",
       "target_type": "PROJECT",
       "properties": {},
@@ -466,7 +410,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "AI/ML Center",
       "target_type": "PROJECT",
       "properties": {},
@@ -477,7 +421,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Orbital Constellation",
       "target_type": "PROJECT",
       "properties": {},
@@ -488,7 +432,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "StarLiner Satellite Bus",
       "target_type": "PROJECT",
       "properties": {},
@@ -499,7 +443,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Launch Integration",
       "target_type": "PROJECT",
       "properties": {},
@@ -510,7 +454,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Ground Systems",
       "target_type": "PROJECT",
       "properties": {},
@@ -521,7 +465,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Hypersonic Technology",
       "target_type": "PROJECT",
       "properties": {},
@@ -532,7 +476,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "NGAD Positioning",
       "target_type": "PROJECT",
       "properties": {},
@@ -543,7 +487,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Electronic Warfare",
       "target_type": "PROJECT",
       "properties": {},
@@ -554,7 +498,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Classified Programs",
       "target_type": "PROJECT",
       "properties": {},
@@ -660,56 +604,12 @@
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "evidence": "Digital Lab | Phoenix"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Revenue",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "| Revenue | $2.85B |"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Operating Margin",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "| Operating Margin | 12.0% |"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Employees",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "| Employees | 3,200 |"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Backlog",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "| Backlog | $5.2B |"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 30,
-    "raw_relationship_count": 29,
+    "raw_entity_count": 26,
+    "raw_relationship_count": 25,
     "used_partial_parse": false,
     "truncated": false
   }

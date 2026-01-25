@@ -2,7 +2,7 @@
   "document_id": "90051eb0-91c5-460c-9fbd-4c383d3a3906",
   "document_path": "02_q4_2025_earnings.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:41:20.788565",
+  "extracted_at": "2026-01-25T10:10:07.040369",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -58,7 +58,7 @@
       "properties": {
         "focus areas": "Aerospace components, UAVs, satellites"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "source_excerpt": "Nexus Aerospace ($765M, +8.5%)",
       "aliases": []
@@ -69,7 +69,7 @@
       "properties": {
         "focus areas": "Renewable energy, solar, hydrogen"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "source_excerpt": "Nexus Energy Systems ($668M, +14.8%)",
       "aliases": []
@@ -80,7 +80,7 @@
       "properties": {
         "focus areas": "IoT, cybersecurity, computing"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "source_excerpt": "Nexus Digital Solutions ($512M, +20.5%)",
       "aliases": []
@@ -91,7 +91,7 @@
       "properties": {
         "focus areas": "Advanced materials, composites"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "source_excerpt": "Nexus Advanced Materials ($355M, -3.5%)",
       "aliases": []
@@ -115,7 +115,7 @@
         "industry": "Energy",
         "region": "North America"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "source_excerpt": "Grid Modernization | Pacific Power | $92M",
       "aliases": []
@@ -127,7 +127,7 @@
         "industry": "Conglomerate",
         "region": "Global"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "source_excerpt": "IoT Platform License | General Electric | $45M",
       "aliases": []
@@ -151,79 +151,93 @@
         "industry": "Energy",
         "region": "North America"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "source_excerpt": "Solar Panel Supply | First Solar | $52M",
       "aliases": []
     },
     {
       "name": "Q4 FY2025",
-      "entity_type": "FINANCIAL_METRIC",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric name": "Revenue",
-        "value": "$2.30B",
-        "period": "Q4 FY2025",
-        "type": "CURRENCY"
+        "budget": "$2.30B",
+        "timeline": "Q4 FY2025",
+        "status": "Completed"
       },
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "| **Revenue** | **$2.30B** |",
+      "source_excerpt": "Q4 FY2025 Highlights",
       "aliases": []
     },
     {
-      "name": "Q4 FY2025",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "CyberShield Security Platform",
+      "entity_type": "PRODUCT",
       "properties": {
-        "metric name": "Net Income",
-        "value": "$228M",
-        "period": "Q4 FY2025",
-        "type": "CURRENCY"
+        "description": "Cybersecurity platform",
+        "category": "Security"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "| Net Income | $228M |",
+      "source_excerpt": "CyberShield Security Platform completed successful beta program",
       "aliases": []
     },
     {
-      "name": "Q4 FY2025",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "NexusConnect IoT platform",
+      "entity_type": "PRODUCT",
       "properties": {
-        "metric name": "EPS (Diluted)",
-        "value": "$1.16",
-        "period": "Q4 FY2025",
-        "type": "CURRENCY"
+        "description": "IoT platform for enterprises",
+        "category": "IoT"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "| EPS (Diluted) | $1.16 |",
+      "source_excerpt": "NexusConnect IoT platform added 52 new enterprise customers",
       "aliases": []
     },
     {
-      "name": "Q4 FY2025",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "QuantumLeap Computing",
+      "entity_type": "PRODUCT",
       "properties": {
-        "metric name": "Operating Cash Flow",
-        "value": "$385M",
-        "period": "Q4 FY2025",
-        "type": "CURRENCY"
+        "description": "Computing platform",
+        "category": "Computing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "| Operating Cash Flow | $385M |",
+      "source_excerpt": "QuantumLeap Computing secured DARPA research grant",
       "aliases": []
     },
     {
-      "name": "Q4 FY2025",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "BatteryTech Solid State",
+      "entity_type": "PRODUCT",
       "properties": {
-        "metric name": "Free Cash Flow",
-        "value": "$267M",
-        "period": "Q4 FY2025",
-        "type": "CURRENCY"
+        "description": "Solid state battery technology",
+        "category": "Energy"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "| Free Cash Flow | $267M |",
+      "source_excerpt": "BatteryTech Solid State achieved lab cell demonstration",
+      "aliases": []
+    },
+    {
+      "name": "SmartGrid Controller",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Smart grid management tool",
+        "category": "Energy"
+      },
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "source_excerpt": "SmartGrid Controller secured two new utility pilots",
+      "aliases": []
+    },
+    {
+      "name": "Microsoft",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "Carbon credit agreement"
+      },
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "source_excerpt": "Microsoft carbon credit offtake agreement signed",
       "aliases": []
     }
   ],
@@ -268,7 +282,7 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Aerospace ($765M, +8.5%)"
     },
@@ -279,7 +293,7 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Energy Systems ($668M, +14.8%)"
     },
@@ -290,7 +304,7 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Digital Solutions ($512M, +20.5%)"
     },
@@ -301,9 +315,64 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Advanced Materials ($355M, -3.5%)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield Security Platform",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "evidence": "CyberShield Security Platform completed successful beta program"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "NexusConnect IoT platform",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "evidence": "NexusConnect IoT platform added 52 new enterprise customers"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "QuantumLeap Computing",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "evidence": "QuantumLeap Computing secured DARPA research grant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "BatteryTech Solid State",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "evidence": "BatteryTech Solid State achieved lab cell demonstration"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "SmartGrid Controller",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "evidence": "SmartGrid Controller secured two new utility pilots"
     },
     {
       "source_entity": "Boeing",
@@ -323,7 +392,7 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Grid Modernization | Pacific Power | $92M"
     },
@@ -334,7 +403,7 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "IoT Platform License | General Electric | $45M"
     },
@@ -356,15 +425,37 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Solar Panel Supply | First Solar | $52M"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Q4 FY2025",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_q4_2025_earnings.md",
+      "evidence": "Q4 FY2025 Highlights"
+    },
+    {
+      "source_entity": "Microsoft",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_q4_2025_earnings.md",
+      "evidence": "Microsoft carbon credit offtake agreement signed"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 18,
-    "raw_relationship_count": 12,
+    "raw_entity_count": 20,
+    "raw_relationship_count": 19,
     "used_partial_parse": false,
     "truncated": false
   }

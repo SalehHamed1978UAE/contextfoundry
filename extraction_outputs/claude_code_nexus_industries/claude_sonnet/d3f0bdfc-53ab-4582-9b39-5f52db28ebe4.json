@@ -2,7 +2,7 @@
   "document_id": "d3f0bdfc-53ab-4582-9b39-5f52db28ebe4",
   "document_path": "02_business_divisions.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:38:43.466483",
+  "extracted_at": "2026-01-25T10:07:21.837653",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -23,44 +23,8 @@
       "aliases": []
     },
     {
-      "name": "Michael Torres",
-      "entity_type": "PERSON",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
-      "name": "Seattle",
-      "entity_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
-      "name": "Dr. Elena Rodriguez",
-      "entity_type": "PERSON",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
-      "name": "Houston",
-      "entity_type": "LOCATION",
       "properties": {},
       "confidence": 0.5,
       "source_document": "",
@@ -77,7 +41,16 @@
       "aliases": []
     },
     {
-      "name": "Kevin Chang",
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Michael Torres",
       "entity_type": "PERSON",
       "properties": {},
       "confidence": 0.5,
@@ -86,8 +59,8 @@
       "aliases": []
     },
     {
-      "name": "San Francisco",
-      "entity_type": "LOCATION",
+      "name": "Dr. Elena Rodriguez",
+      "entity_type": "PERSON",
       "properties": {},
       "confidence": 0.5,
       "source_document": "",
@@ -95,8 +68,8 @@
       "aliases": []
     },
     {
-      "name": "Nexus Advanced Materials",
-      "entity_type": "BUSINESS_UNIT",
+      "name": "Kevin Chang",
+      "entity_type": "PERSON",
       "properties": {},
       "confidence": 0.5,
       "source_document": "",
@@ -113,8 +86,71 @@
       "aliases": []
     },
     {
-      "name": "Phoenix",
+      "name": "Seattle, Washington",
       "entity_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Houston, Texas",
+      "entity_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "San Francisco, California",
+      "entity_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix, Arizona",
+      "entity_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Aerospace Revenue 2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Energy Systems Revenue 2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Digital Solutions Revenue 2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Advanced Materials Revenue 2025",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {},
       "confidence": 0.5,
       "source_document": "",
@@ -471,51 +507,6 @@
       "source_document": "",
       "source_excerpt": "",
       "aliases": []
-    },
-    {
-      "name": "Aerospace Revenue 2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
-      "name": "Energy Systems Revenue 2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
-      "name": "Digital Solutions Revenue 2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
-      "name": "Advanced Materials Revenue 2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
-    },
-    {
-      "name": "Total Revenue 2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 0.5,
-      "source_document": "",
-      "source_excerpt": "",
-      "aliases": []
     }
   ],
   "relationships": [
@@ -611,7 +602,7 @@
       "source_entity": "Nexus Aerospace",
       "source_type": "CONCEPT",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Seattle",
+      "target_entity": "Seattle, Washington",
       "target_type": "CONCEPT",
       "properties": {},
       "confidence": 0.5,
@@ -622,7 +613,7 @@
       "source_entity": "Nexus Energy Systems",
       "source_type": "CONCEPT",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Houston",
+      "target_entity": "Houston, Texas",
       "target_type": "CONCEPT",
       "properties": {},
       "confidence": 0.5,
@@ -633,7 +624,7 @@
       "source_entity": "Nexus Digital Solutions",
       "source_type": "CONCEPT",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "San Francisco",
+      "target_entity": "San Francisco, California",
       "target_type": "CONCEPT",
       "properties": {},
       "confidence": 0.5,
@@ -644,7 +635,7 @@
       "source_entity": "Nexus Advanced Materials",
       "source_type": "CONCEPT",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix",
+      "target_entity": "Phoenix, Arizona",
       "target_type": "CONCEPT",
       "properties": {},
       "confidence": 0.5,
@@ -925,12 +916,34 @@
       "confidence": 0.5,
       "source_document": "",
       "evidence": ""
+    },
+    {
+      "source_entity": "NextEra Energy",
+      "source_type": "CONCEPT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "evidence": ""
+    },
+    {
+      "source_entity": "Siemens Gamesa",
+      "source_type": "CONCEPT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "evidence": ""
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 57,
-    "raw_relationship_count": 37,
+    "raw_entity_count": 56,
+    "raw_relationship_count": 39,
     "used_partial_parse": true,
     "truncated": false
   }
