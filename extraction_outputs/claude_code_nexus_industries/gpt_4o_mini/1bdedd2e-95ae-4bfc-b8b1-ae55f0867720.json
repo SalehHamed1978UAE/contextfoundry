@@ -1,0 +1,95 @@
+{
+  "document_id": "1bdedd2e-95ae-4bfc-b8b1-ae55f0867720",
+  "document_path": "08_cybersecurity_advisory.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T10:37:10.996605",
+  "entities": [
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Security Awareness training module",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Learning Portal",
+      "entity_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    },
+    {
+      "name": "Credential Harvesting Phishing",
+      "entity_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "source_excerpt": "",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "CONCEPT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "evidence": ""
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "CONCEPT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Security Awareness training module",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "evidence": ""
+    },
+    {
+      "source_entity": "Security Awareness training module",
+      "source_type": "CONCEPT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Nexus Learning Portal",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "",
+      "evidence": ""
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 3,
+    "used_partial_parse": true,
+    "truncated": false
+  }
+}

@@ -562,7 +562,7 @@ class DocumentService:
                     
                     cur.execute("""
                         UPDATE platform.documents
-                        SET status = %s, updated_at = NOW()
+                        SET status = %s, extraction_level = 'single', updated_at = NOW()
                         WHERE id = %s
                     """, (new_status, result['document_id']))
                     

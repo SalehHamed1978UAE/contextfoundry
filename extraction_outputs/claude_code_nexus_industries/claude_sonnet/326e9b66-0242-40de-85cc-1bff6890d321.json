@@ -2,14 +2,19 @@
   "document_id": "326e9b66-0242-40de-85cc-1bff6890d321",
   "document_path": "04_energy_division_structure.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:51:39.620889",
+  "extracted_at": "2026-01-25T10:30:26.067795",
   "entities": [
     {
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Division",
-        "focus_areas": "energy systems"
+        "focus_areas": [
+          "renewable energy",
+          "solar technology",
+          "wind energy",
+          "hydrogen fuel cells",
+          "energy storage"
+        ]
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -200,68 +205,88 @@
       "name": "Renewable Technology",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Department",
-        "focus_areas": "solar technology, wind energy, hydrogen fuel cells"
+        "focus_areas": [
+          "solar technology development",
+          "wind energy systems",
+          "hydrogen fuel cell R&D",
+          "technology roadmap"
+        ],
+        "employees": "680"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "VP of Renewable Technology",
+      "source_excerpt": "VP of Renewable Technology: Dr. Hassan Ahmed, Employees: 680",
       "aliases": []
     },
     {
       "name": "Project Delivery",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Department",
-        "focus_areas": "project execution, site development, installation"
+        "focus_areas": [
+          "project execution",
+          "site development",
+          "installation services",
+          "commissioning and startup"
+        ],
+        "employees": "920"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "VP of Project Delivery",
+      "source_excerpt": "VP of Project Delivery: Margaret Sullivan, Employees: 920",
       "aliases": []
     },
     {
       "name": "Operations and Maintenance",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Department",
-        "focus_areas": "asset operations, preventive maintenance"
+        "focus_areas": [
+          "asset operations",
+          "preventive maintenance",
+          "performance optimization",
+          "24/7 monitoring"
+        ],
+        "employees": "750"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "VP of Operations and Maintenance",
+      "source_excerpt": "VP of Operations: Derek Washington, Employees: 750",
       "aliases": []
     },
     {
       "name": "Sales and Marketing",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Department",
-        "focus_areas": "customer acquisition, solution selling"
+        "focus_areas": [
+          "customer acquisition",
+          "solution selling",
+          "market development",
+          "partner relationships"
+        ],
+        "employees": "180"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "VP of Sales",
+      "source_excerpt": "VP of Sales: Caroline Bennett, Employees: 180",
       "aliases": []
     },
     {
       "name": "Finance and Administration",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Department",
-        "focus_areas": "financial operations"
+        "employees": "70"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "Division CFO",
+      "source_excerpt": "Division CFO: Timothy Chang, Employees: 70",
       "aliases": []
     },
     {
       "name": "Solar Engineering",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Team",
-        "focus_areas": "solar technology"
+        "focus_areas": [
+          "solar engineering"
+        ]
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -272,8 +297,9 @@
       "name": "Wind Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Team",
-        "focus_areas": "wind energy systems"
+        "focus_areas": [
+          "wind systems"
+        ]
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -284,8 +310,9 @@
       "name": "Hydrogen Technology",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Team",
-        "focus_areas": "hydrogen fuel cell R&D"
+        "focus_areas": [
+          "hydrogen technology"
+        ]
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -296,8 +323,9 @@
       "name": "Energy Storage",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Team",
-        "focus_areas": "energy storage systems"
+        "focus_areas": [
+          "energy storage"
+        ]
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -308,8 +336,7 @@
       "name": "Desert Sun Solar Farm",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Active",
-        "type": "Solar Farm"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -320,8 +347,7 @@
       "name": "Atlantic Wind Corridor",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Active",
-        "type": "Wind Project"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -332,8 +358,7 @@
       "name": "GreenHydrogen Initiative",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Active",
-        "type": "Hydrogen Project"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -344,8 +369,7 @@
       "name": "GridScale Storage Network",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Active",
-        "type": "Storage Project"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -357,8 +381,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": "Houston",
-        "state": "Texas",
-        "country": "USA"
+        "country": "United States"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -366,51 +389,12 @@
       "aliases": []
     },
     {
-      "name": "El Paso, TX",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "El Paso",
-        "state": "Texas",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "El Paso Plant | El Paso, TX",
-      "aliases": []
-    },
-    {
-      "name": "Denver, CO",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Denver",
-        "state": "Colorado",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "Denver Operations | Denver, CO",
-      "aliases": []
-    },
-    {
-      "name": "Austin, TX",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Austin",
-        "state": "Texas",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "04_energy_division_structure.md",
-      "source_excerpt": "Austin R&D | Austin, TX",
-      "aliases": []
-    },
-    {
       "name": "Houston HQ",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "Headquarters",
+        "type": "headquarters",
         "function": "Corporate, Engineering",
-        "employee_count": "800"
+        "employees": "800"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -421,9 +405,9 @@
       "name": "El Paso Plant",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "Manufacturing Plant",
+        "type": "manufacturing",
         "function": "Manufacturing",
-        "employee_count": "650"
+        "employees": "650"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -434,9 +418,9 @@
       "name": "Denver Operations",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "Operations Center",
+        "type": "operations center",
         "function": "Operations Center",
-        "employee_count": "450"
+        "employees": "450"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
@@ -447,13 +431,49 @@
       "name": "Austin R&D",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "R&D Center",
+        "type": "research facility",
         "function": "Research & Development",
-        "employee_count": "350"
+        "employees": "350"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
       "source_excerpt": "Austin R&D | Austin, TX | Research & Development | 350",
+      "aliases": []
+    },
+    {
+      "name": "El Paso, Texas",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_structure.md",
+      "source_excerpt": "El Paso Plant | El Paso, TX",
+      "aliases": []
+    },
+    {
+      "name": "Denver, Colorado",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Denver",
+        "country": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_structure.md",
+      "source_excerpt": "Denver Operations | Denver, CO",
+      "aliases": []
+    },
+    {
+      "name": "Austin, Texas",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Austin",
+        "country": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_structure.md",
+      "source_excerpt": "Austin R&D | Austin, TX",
       "aliases": []
     }
   ],
@@ -479,6 +499,17 @@
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
       "evidence": "Reports To: CEO Dr. Victoria Chen"
+    },
+    {
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_AT",
+      "target_entity": "Houston, Texas",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_energy_division_structure.md",
+      "evidence": "Location: Houston, Texas"
     },
     {
       "source_entity": "Dr. Hassan Ahmed",
@@ -687,7 +718,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Department under Nexus Energy Systems Division"
+      "evidence": "Department within Nexus Energy Systems Division"
     },
     {
       "source_entity": "Project Delivery",
@@ -698,7 +729,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Department under Nexus Energy Systems Division"
+      "evidence": "Department within Nexus Energy Systems Division"
     },
     {
       "source_entity": "Operations and Maintenance",
@@ -709,7 +740,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Department under Nexus Energy Systems Division"
+      "evidence": "Department within Nexus Energy Systems Division"
     },
     {
       "source_entity": "Sales and Marketing",
@@ -720,7 +751,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Department under Nexus Energy Systems Division"
+      "evidence": "Department within Nexus Energy Systems Division"
     },
     {
       "source_entity": "Finance and Administration",
@@ -731,7 +762,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Department under Nexus Energy Systems Division"
+      "evidence": "Department within Nexus Energy Systems Division"
     },
     {
       "source_entity": "Solar Engineering",
@@ -742,7 +773,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Team under Renewable Technology department"
+      "evidence": "Team within Renewable Technology department"
     },
     {
       "source_entity": "Wind Systems",
@@ -753,7 +784,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Team under Renewable Technology department"
+      "evidence": "Team within Renewable Technology department"
     },
     {
       "source_entity": "Hydrogen Technology",
@@ -764,7 +795,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Team under Renewable Technology department"
+      "evidence": "Team within Renewable Technology department"
     },
     {
       "source_entity": "Energy Storage",
@@ -775,18 +806,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Team under Renewable Technology department"
-    },
-    {
-      "source_entity": "Dr. Elena Rodriguez",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_AT",
-      "target_entity": "Houston, Texas",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "Location: Houston, Texas"
+      "evidence": "Team within Renewable Technology department"
     },
     {
       "source_entity": "Houston HQ",
@@ -803,7 +823,7 @@
       "source_entity": "El Paso Plant",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "El Paso, TX",
+      "target_entity": "El Paso, Texas",
       "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
@@ -814,7 +834,7 @@
       "source_entity": "Denver Operations",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Denver, CO",
+      "target_entity": "Denver, Colorado",
       "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
@@ -825,7 +845,7 @@
       "source_entity": "Austin R&D",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Austin, TX",
+      "target_entity": "Austin, Texas",
       "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,

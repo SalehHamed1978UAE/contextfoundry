@@ -250,6 +250,7 @@ def run_consensus_and_ingest(
     
     stats = {
         "documents_processed": 0,
+        "document_ids": [],
         "total_entities_input": 0,
         "total_entities_consensus": 0,
         "total_entities_created": 0,
@@ -308,6 +309,7 @@ def run_consensus_and_ingest(
                 stats["errors"].extend(result.errors)
             
             stats["documents_processed"] += 1
+            stats["document_ids"].append(doc_id)
             
             if stats["documents_processed"] % 10 == 0:
                 log(f"  Processed {stats['documents_processed']}/{len(doc_files)} documents...")
@@ -433,6 +435,23 @@ def run_full_pipeline(
     if ingest_stats['errors']:
         log(f"Errors: {len(ingest_stats['errors'])}")
     log("=" * 70)
+    
+    session = get_db_session()
+    try:
+        doc_ids = ingest_stats.get('document_ids', [])
+        if doc_ids:
+            log(f"Updating extraction_level to 'multi' for {len(doc_ids)} documents...")
+            session.execute(text("""
+                UPDATE platform.documents
+                SET extraction_level = 'multi', updated_at = NOW()
+                WHERE id = ANY(:doc_ids)
+            """), {"doc_ids": doc_ids})
+            session.commit()
+            log("Extraction level updated successfully.")
+    except Exception as e:
+        log(f"Warning: Failed to update extraction_level: {e}")
+    finally:
+        session.close()
     
     vault_slug = vault_name.lower().replace(" ", "_")
     summary_dir = Path(output_dir) / vault_slug

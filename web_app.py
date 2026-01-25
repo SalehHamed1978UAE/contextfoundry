@@ -1532,7 +1532,7 @@ def api_documents():
                 
                 cur.execute(f"""
                     SELECT d.id, d.original_filename, d.mime_type, d.status, d.created_at,
-                           d.published, COALESCE(e.entity_count, 0) as entity_count
+                           d.published, d.extraction_level, COALESCE(e.entity_count, 0) as entity_count
                     FROM platform.documents d
                     LEFT JOIN (
                         SELECT source_document_id, COUNT(*) as entity_count
@@ -1560,6 +1560,7 @@ def api_documents():
                 'mime_type': doc['mime_type'],
                 'status': doc['status'] or 'pending',
                 'published': doc['published'] or False,
+                'extraction_level': doc.get('extraction_level'),
                 'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
                 'entity_count': doc['entity_count']
             } for doc in docs],
@@ -1593,7 +1594,7 @@ def api_document_details(doc_id):
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
                     SELECT id, original_filename, status, mime_type, created_at,
-                           extraction_method, extraction_metrics, published
+                           extraction_method, extraction_metrics, published, extraction_level
                     FROM platform.documents 
                     WHERE id = %s AND tenant_id = %s
                 """, [doc_id, tenant_id])
@@ -1630,6 +1631,7 @@ def api_document_details(doc_id):
             'id': str(doc['id']),
             'name': doc['original_filename'],
             'status': doc['status'],
+            'extraction_level': doc.get('extraction_level'),
             'file_type': file_type,
             'created_at': doc['created_at'].isoformat() if doc['created_at'] else None,
             'extraction_method': doc['extraction_method'] or 'text',
