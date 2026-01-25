@@ -97,11 +97,23 @@ class FailureAnalyzer:
     Analyzes failing questions to identify root cause and suggest fixes.
     """
 
-    def __init__(self, config: Dict):
-        self.config = config
-        self.corpus_dir = config.get("corpus_dir", "test documents/Manus Orion/documents/")
-        self.extraction_dir = config.get("extraction_dir", "extraction_outputs/manus_orion/")
-        self.tenant_id = config.get("tenant_id")
+    def __init__(self, config):
+        # Support both string (test results path) and dict config
+        if isinstance(config, str):
+            # String is treated as test results path
+            self.config = {
+                "test_results_path": config,
+                "corpus_dir": "test documents/Manus Orion/documents/",
+                "extraction_dir": "extraction_outputs/manus_orion/"
+            }
+        else:
+            self.config = config
+        
+        self.test_results_path = self.config.get("test_results_path")
+        self.corpus_dir = self.config.get("corpus_dir", "test documents/Manus Orion/documents/")
+        self.extraction_dir = self.config.get("extraction_dir", "extraction_outputs/manus_orion/")
+        self.tenant_id = self.config.get("tenant_id")
+        self.failures = []
 
         self._corpus_cache: Dict[str, str] = {}
         self._load_corpus()
