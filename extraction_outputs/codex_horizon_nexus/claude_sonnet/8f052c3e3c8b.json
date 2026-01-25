@@ -1,0 +1,183 @@
+{
+  "document_id": "8f052c3e3c8b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:12:53.992236",
+  "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "European grid codes, Enceladus Energy partnership, Hydrogen-ready controllers"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "GridWave - EMEA FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Leona Varga",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "GM/VP: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus Energy",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Energy sector partnership"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Enceladus Energy partnership",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "188M",
+        "type": "CURRENCY",
+        "period": "FY26"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "ARR: $188M",
+      "aliases": []
+    },
+    {
+      "name": "Backlog",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Backlog",
+        "value": "212M",
+        "type": "CURRENCY",
+        "period": "FY26"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Backlog: $212M",
+      "aliases": []
+    },
+    {
+      "name": "Gross Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Gross Margin",
+        "value": "55",
+        "type": "PERCENTAGE",
+        "period": "FY26"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Gross Margin: 55%",
+      "aliases": []
+    },
+    {
+      "name": "Hydrogen-ready controllers",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Controllers designed for hydrogen applications",
+        "category": "Energy control systems"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "Hydrogen-ready controllers",
+      "aliases": []
+    },
+    {
+      "name": "European grid codes",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Grid compliance regulations",
+        "name": "European grid codes"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "source_excerpt": "European grid codes",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leona Varga",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "evidence": "GM/VP: Leona Varga heading the GridWave EMEA roadmap"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Enceladus Energy",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "evidence": "Enceladus Energy partnership listed as focus area"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "evidence": "Deepen integration with Horizon Prime data lake"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Hydrogen-ready controllers",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "evidence": "Hydrogen-ready controllers listed as focus area"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "European grid codes",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/gridwave_emea_roadmap.md",
+      "evidence": "European grid codes listed as focus area"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_emea_roadmap.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

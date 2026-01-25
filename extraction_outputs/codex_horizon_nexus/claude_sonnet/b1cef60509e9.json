@@ -1,0 +1,121 @@
+{
+  "document_id": "b1cef60509e9",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:13:04.911854",
+  "entities": [
+    {
+      "name": "Aether Shield",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "organization",
+        "industry": "security"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "source_excerpt": "Aether Shield Organization",
+      "aliases": []
+    },
+    {
+      "name": "security operations",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "security operations",
+        "description": "security operations service"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "source_excerpt": "Security operations, compliance, managed services",
+      "aliases": []
+    },
+    {
+      "name": "compliance",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "compliance",
+        "description": "compliance service"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "source_excerpt": "Security operations, compliance, managed services",
+      "aliases": []
+    },
+    {
+      "name": "managed services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "managed services",
+        "description": "managed services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "source_excerpt": "Security operations, compliance, managed services",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "Horizon Prime",
+        "description": "system for maintaining organizational data"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "source_excerpt": "Org data maintained in Horizon Prime",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "security operations",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "evidence": "Aether Shield provides security operations service"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "compliance",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "evidence": "Aether Shield provides compliance service"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "managed services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "evidence": "Aether Shield provides managed services"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_organization.md",
+      "evidence": "Org data maintained in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "aether_shield_organization.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

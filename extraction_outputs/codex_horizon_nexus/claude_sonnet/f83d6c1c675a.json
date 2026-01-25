@@ -1,0 +1,138 @@
+{
+  "document_id": "f83d6c1c675a",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:10:34.894929",
+  "entities": [
+    {
+      "name": "TransitEdge",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "organization"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "source_excerpt": "TransitEdge Organization",
+      "aliases": []
+    },
+    {
+      "name": "Product",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_area": "product development"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "source_excerpt": "Product, delivery, corridor ops, data science",
+      "aliases": []
+    },
+    {
+      "name": "Delivery",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_area": "delivery operations"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "source_excerpt": "Product, delivery, corridor ops, data science",
+      "aliases": []
+    },
+    {
+      "name": "Corridor Ops",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_area": "corridor operations"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "source_excerpt": "Product, delivery, corridor ops, data science",
+      "aliases": []
+    },
+    {
+      "name": "Data Science",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_area": "data analytics and science"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "source_excerpt": "Product, delivery, corridor ops, data science",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "organizational data management system"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "source_excerpt": "Org data maintained in Horizon Prime",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Product",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "evidence": "Product is listed as part of TransitEdge Organization"
+    },
+    {
+      "source_entity": "Delivery",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "evidence": "Delivery is listed as part of TransitEdge Organization"
+    },
+    {
+      "source_entity": "Corridor Ops",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "evidence": "Corridor ops is listed as part of TransitEdge Organization"
+    },
+    {
+      "source_entity": "Data Science",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "evidence": "Data science is listed as part of TransitEdge Organization"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/transitedge_organization.md",
+      "evidence": "Org data maintained in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_organization.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
