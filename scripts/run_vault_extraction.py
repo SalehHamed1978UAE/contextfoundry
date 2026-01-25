@@ -76,6 +76,37 @@ def get_db_session():
     return Session()
 
 
+def log_extraction_event(
+    vault_id: str,
+    vault_name: Optional[str],
+    doc_id: Optional[str],
+    doc_name: Optional[str],
+    event_type: str,
+    level: str = 'multi',
+    details: Optional[str] = None
+):
+    """Log an extraction event to the database."""
+    try:
+        session = get_db_session()
+        session.execute(text("""
+            INSERT INTO platform.extraction_events
+            (vault_id, vault_name, document_id, document_name, event_type, extraction_level, details)
+            VALUES (:vault_id, :vault_name, :doc_id, :doc_name, :event_type, :level, :details)
+        """), {
+            "vault_id": vault_id,
+            "vault_name": vault_name,
+            "doc_id": doc_id,
+            "doc_name": doc_name,
+            "event_type": event_type,
+            "level": level,
+            "details": details
+        })
+        session.commit()
+        session.close()
+    except Exception as e:
+        log(f"Warning: Failed to log extraction event: {e}")
+
+
 def get_all_vaults() -> List[Dict]:
     """Get all vaults using TenantService."""
     if not HAS_TENANT_SERVICE:
@@ -352,10 +383,13 @@ def run_consensus_and_ingest(
             # IMMEDIATELY update extraction_level after each document (resume capability)
             try:
                 session.execute(
-                    text("UPDATE platform.documents SET extraction_level = 'multi', updated_at = NOW() WHERE id = :doc_id"),
+                    text("UPDATE platform.documents SET extraction_level = 'multi', multi_extracted_at = NOW(), updated_at = NOW() WHERE id = :doc_id"),
                     {"doc_id": doc_id}
                 )
                 session.commit()
+                
+                # Log per-document completion event
+                log_extraction_event(vault_id, vault_name, doc_id, None, 'completed')
             except Exception as update_err:
                 log(f"  Warning: Failed to update extraction_level for {doc_id}: {update_err}")
             
@@ -368,6 +402,12 @@ def run_consensus_and_ingest(
         except Exception as e:
             log(f"  Error processing {doc_id}: {e}")
             stats["errors"].append(f"{doc_id}: {str(e)}")
+            
+            # Log failure event
+            log_extraction_event(
+                vault_id, vault_name, doc_id, None, 'failed',
+                details=str(e)[:500]
+            )
     
     session.close()
     
@@ -457,6 +497,18 @@ def run_full_pipeline(
     if limit:
         log(f"Limit: {limit} documents")
     
+    # Log start/resume event
+    if multi_done > 0:
+        log_extraction_event(
+            vault_id, vault_name, None, None, 'resumed',
+            details=f"Resuming from {multi_done}/{total_docs} ({remaining} remaining)"
+        )
+    else:
+        log_extraction_event(
+            vault_id, vault_name, None, None, 'started',
+            details=f"Starting multi-model extraction for {doc_count} documents"
+        )
+    
     if not skip_extraction:
         log("")
         log("-" * 70)
@@ -504,6 +556,14 @@ def run_full_pipeline(
     if ingest_stats['errors']:
         log(f"Errors: {len(ingest_stats['errors'])}")
     log("=" * 70)
+    
+    # Log vault completion event
+    log_extraction_event(
+        vault_id, vault_name, None, None, 'vault_complete',
+        details=f"All {ingest_stats['documents_processed']} documents multi-model extracted. "
+                f"Entities: {ingest_stats['total_entities_created']}, "
+                f"Relationships: {ingest_stats['total_relationships_created']}"
+    )
     
     session = get_db_session()
     try:
