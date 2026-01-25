@@ -2,7 +2,7 @@
   "document_id": "fbf259f0-a603-42eb-8556-9a2db24f4b4c",
   "document_path": "02_airbus_customer_profile.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:04:27.043510",
+  "extracted_at": "2026-01-25T14:25:08.353328",
   "entities": [
     {
       "name": "Airbus SE",
@@ -70,7 +70,7 @@
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Airbus Contact: Guillaume Faury",
+      "source_excerpt": "Airbus Contact: Guillaume Faury | Title: CEO",
       "aliases": []
     },
     {
@@ -125,7 +125,7 @@
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Nexus Contact: Dr. Jennifer Liu",
+      "source_excerpt": "Owner: Dr. Jennifer Liu",
       "aliases": []
     },
     {
@@ -134,12 +134,11 @@
       "properties": {
         "value": "$145M",
         "term": "2023-2027",
-        "division": "Aerospace",
         "status": "Active"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Contract: A350 Wing Components",
+      "source_excerpt": "Contract: A350 Wing Components | Value: $145M | Term: 2023-2027 | Status: Active",
       "aliases": []
     },
     {
@@ -148,12 +147,11 @@
       "properties": {
         "value": "$95M",
         "term": "2024-2027",
-        "division": "Aerospace",
         "status": "Active"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Contract: A320neo Structures",
+      "source_excerpt": "Contract: A320neo Structures | Value: $95M | Term: 2024-2027 | Status: Active",
       "aliases": []
     },
     {
@@ -162,12 +160,11 @@
       "properties": {
         "value": "$85M",
         "term": "2024-2028",
-        "division": "Materials",
         "status": "Active"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Contract: Carbon Fiber Panels",
+      "source_excerpt": "Contract: Carbon Fiber Panels | Value: $85M | Term: 2024-2028 | Status: Active",
       "aliases": []
     },
     {
@@ -176,12 +173,11 @@
       "properties": {
         "value": "$62M",
         "term": "2023-2026",
-        "division": "Aerospace",
         "status": "Active"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Contract: A330neo Parts",
+      "source_excerpt": "Contract: A330neo Parts | Value: $62M | Term: 2023-2026 | Status: Active",
       "aliases": []
     },
     {
@@ -190,12 +186,50 @@
       "properties": {
         "value": "$55M",
         "term": "2024-2027",
-        "division": "Materials",
         "status": "Active"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Contract: Titanium Supply",
+      "source_excerpt": "Contract: Titanium Supply | Value: $55M | Term: 2024-2027 | Status: Active",
+      "aliases": []
+    },
+    {
+      "name": "A350 Freighter",
+      "entity_type": "PROJECT",
+      "properties": {
+        "value": "$125M",
+        "expected_close": "Q3 2026",
+        "probability": "55%"
+      },
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "source_excerpt": "Opportunity: A350 Freighter | Value: $125M | Expected Close: Q3 2026",
+      "aliases": []
+    },
+    {
+      "name": "Next-Gen Single Aisle",
+      "entity_type": "PROJECT",
+      "properties": {
+        "value": "$280M",
+        "expected_close": "2028",
+        "probability": "30%"
+      },
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "source_excerpt": "Opportunity: Next-Gen Single Aisle | Value: $280M | Expected Close: 2028",
+      "aliases": []
+    },
+    {
+      "name": "Wing of Tomorrow",
+      "entity_type": "PROJECT",
+      "properties": {
+        "value": "$65M",
+        "expected_close": "Q2 2026",
+        "probability": "70%"
+      },
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "source_excerpt": "Opportunity: Wing of Tomorrow | Value: $65M | Expected Close: Q2 2026",
       "aliases": []
     },
     {
@@ -207,7 +241,7 @@
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Joint Initiatives: Wing of Tomorrow R&D",
+      "source_excerpt": "Joint Initiatives: Wing of Tomorrow R&D | Status: Active | Investment: \u20ac8M joint",
       "aliases": []
     },
     {
@@ -218,7 +252,7 @@
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Joint Initiatives: Sustainable Aviation Materials",
+      "source_excerpt": "Joint Initiatives: Sustainable Aviation Materials | Status: Planning",
       "aliases": []
     },
     {
@@ -230,7 +264,55 @@
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Joint Initiatives: Digital Twin Integration",
+      "source_excerpt": "Joint Initiatives: Digital Twin Integration | Status: Pilot | Investment: \u20ac2M",
+      "aliases": []
+    },
+    {
+      "name": "EUR/USD volatility",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "severity": "Medium",
+        "mitigation": "Currency hedging"
+      },
+      "confidence": 0.85,
+      "source_document": "02_airbus_customer_profile.md",
+      "source_excerpt": "Risk/Issue: EUR/USD volatility | Severity: Medium | Mitigation: Currency hedging",
+      "aliases": []
+    },
+    {
+      "name": "Brexit supply chain",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "severity": "Low",
+        "mitigation": "UK facility planning"
+      },
+      "confidence": 0.85,
+      "source_document": "02_airbus_customer_profile.md",
+      "source_excerpt": "Risk/Issue: Brexit supply chain | Severity: Low | Mitigation: UK facility planning",
+      "aliases": []
+    },
+    {
+      "name": "Long payment terms",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "severity": "Medium",
+        "mitigation": "Finance structure"
+      },
+      "confidence": 0.85,
+      "source_document": "02_airbus_customer_profile.md",
+      "source_excerpt": "Risk/Issue: Long payment terms | Severity: Medium | Mitigation: Finance structure",
+      "aliases": []
+    },
+    {
+      "name": "Single-source risk",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "severity": "Low",
+        "mitigation": "Diversification"
+      },
+      "confidence": 0.85,
+      "source_document": "02_airbus_customer_profile.md",
+      "source_excerpt": "Risk/Issue: Single-source risk | Severity: Low | Mitigation: Diversification",
       "aliases": []
     }
   ],
@@ -244,14 +326,25 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Customer Name: Airbus SE"
+    },
+    {
+      "source_entity": "Nexus Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
       "evidence": "Primary Division: Nexus Aerospace"
     },
     {
-      "source_entity": "Airbus SE",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
@@ -288,7 +381,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Airbus Contact: Guillaume Faury"
+      "evidence": "Airbus Contact: Guillaume Faury | Title: CEO"
     },
     {
       "source_entity": "Victoria Chen",
@@ -310,7 +403,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Contract: A350 Wing Components"
+      "evidence": "Contract: A350 Wing Components | Value: $145M"
     },
     {
       "source_entity": "A320neo Structures",
@@ -321,7 +414,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Contract: A320neo Structures"
+      "evidence": "Contract: A320neo Structures | Value: $95M"
     },
     {
       "source_entity": "Carbon Fiber Panels",
@@ -332,7 +425,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Contract: Carbon Fiber Panels"
+      "evidence": "Contract: Carbon Fiber Panels | Value: $85M"
     },
     {
       "source_entity": "A330neo Parts",
@@ -343,7 +436,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Contract: A330neo Parts"
+      "evidence": "Contract: A330neo Parts | Value: $62M"
     },
     {
       "source_entity": "Titanium Supply",
@@ -354,7 +447,40 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Contract: Titanium Supply"
+      "evidence": "Contract: Titanium Supply | Value: $55M"
+    },
+    {
+      "source_entity": "A350 Freighter",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Opportunity: A350 Freighter | Value: $125M"
+    },
+    {
+      "source_entity": "Next-Gen Single Aisle",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Opportunity: Next-Gen Single Aisle | Value: $280M"
+    },
+    {
+      "source_entity": "Wing of Tomorrow",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Opportunity: Wing of Tomorrow | Value: $65M"
     },
     {
       "source_entity": "Wing of Tomorrow R&D",
@@ -365,18 +491,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Joint Initiatives: Wing of Tomorrow R&D"
-    },
-    {
-      "source_entity": "Sustainable Aviation Materials",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Airbus SE",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Joint Initiatives: Sustainable Aviation Materials"
+      "evidence": "Joint Initiatives: Wing of Tomorrow R&D | Status: Active | Investment: \u20ac8M joint"
     },
     {
       "source_entity": "Digital Twin Integration",
@@ -387,13 +502,13 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Joint Initiatives: Digital Twin Integration"
+      "evidence": "Joint Initiatives: Digital Twin Integration | Status: Pilot | Investment: \u20ac2M"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 19,
-    "raw_relationship_count": 14,
+    "raw_entity_count": 26,
+    "raw_relationship_count": 17,
     "used_partial_parse": false,
     "truncated": false
   }

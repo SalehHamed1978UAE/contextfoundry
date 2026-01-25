@@ -2,7 +2,7 @@
   "document_id": "1ed88173-d9c1-43a2-85a0-d196c5399089",
   "document_path": "01_corporate_strategy_2026_2030.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T11:47:32.306561",
+  "extracted_at": "2026-01-25T14:16:42.923361",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -122,6 +122,54 @@
       "aliases": []
     },
     {
+      "name": "Carbon Neutral Operations",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2030",
+        "status": "On Track"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Carbon Neutral Operations | 2030 | On Track",
+      "aliases": []
+    },
+    {
+      "name": "100% Renewable Energy",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2028",
+        "status": "65% achieved"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "100% Renewable Energy | 2028 | 65% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Zero Waste to Landfill",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "2028",
+        "status": "40% achieved"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Zero Waste to Landfill | 2028 | 40% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Sustainable Products",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "Tracking",
+        "status": "Ongoing"
+      },
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Sustainable Products | 50% revenue | Tracking",
+      "aliases": []
+    },
+    {
       "name": "Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
@@ -130,7 +178,7 @@
         "period": "FY2030",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "source_excerpt": "| Revenue | $8.45B | $15.0B |",
       "aliases": []
@@ -144,7 +192,7 @@
         "period": "FY2030",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "source_excerpt": "| Operating Margin | 12.3% | 16.0% |",
       "aliases": []
@@ -158,7 +206,7 @@
         "period": "FY2030",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "source_excerpt": "| Net Income | $0.84B | $1.8B |",
       "aliases": []
@@ -172,7 +220,7 @@
         "period": "FY2030",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "source_excerpt": "| EPS | $4.28 | $10.50 |",
       "aliases": []
@@ -186,7 +234,7 @@
         "period": "FY2030",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "source_excerpt": "| Free Cash Flow | $0.92B | $2.0B |",
       "aliases": []
@@ -200,7 +248,7 @@
         "period": "FY2030",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "source_excerpt": "| ROIC | 14% | 20%+ |",
       "aliases": []
@@ -305,12 +353,56 @@
       "confidence": 0.9,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "evidence": "This document outlines Nexus Industries' five-year strategic plan"
+    },
+    {
+      "source_entity": "Carbon Neutral Operations",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Carbon Neutral Operations | 2030 | On Track"
+    },
+    {
+      "source_entity": "100% Renewable Energy",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "100% Renewable Energy | 2028 | 65% achieved"
+    },
+    {
+      "source_entity": "Zero Waste to Landfill",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Zero Waste to Landfill | 2028 | 40% achieved"
+    },
+    {
+      "source_entity": "Sustainable Products",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Sustainable Products | 50% revenue | Tracking"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 16,
-    "raw_relationship_count": 9,
+    "raw_entity_count": 20,
+    "raw_relationship_count": 13,
     "used_partial_parse": false,
     "truncated": false
   }

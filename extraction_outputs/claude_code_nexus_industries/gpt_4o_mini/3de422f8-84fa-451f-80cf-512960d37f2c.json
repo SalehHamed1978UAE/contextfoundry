@@ -1,0 +1,249 @@
+{
+  "document_id": "3de422f8-84fa-451f-80cf-512960d37f2c",
+  "document_path": "02_greenhydrogen_process_specification.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T14:30:14.114410",
+  "entities": [
+    {
+      "name": "Dr. Marcus Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technical Lead",
+        "role": "Lead Author"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Owner: Dr. Marcus Thompson, Technical Lead",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Project Director",
+        "role": "Approver"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Approved By: Jennifer Walsh, Project Director",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Production Process Specification",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "Effective Date: January 1, 2026",
+        "status": "Internal"
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "GreenHydrogen Production Process Specification",
+      "aliases": []
+    },
+    {
+      "name": "El Paso, Texas",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Location | El Paso, Texas",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Electrolyzer Manufacturer",
+        "risk level": null
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Nel Hydrogen",
+      "aliases": []
+    },
+    {
+      "name": "Atlas Copco",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Compressor Manufacturer",
+        "risk level": null
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Atlas Copco",
+      "aliases": []
+    },
+    {
+      "name": "Chart Industries",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Storage Vessel Manufacturer",
+        "risk level": null
+      },
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Manufacturer | Chart Industries",
+      "aliases": []
+    },
+    {
+      "name": "Shell",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": null
+      },
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Product Delivery | Pipeline to Shell facility",
+      "aliases": []
+    },
+    {
+      "name": "Rio Grande",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": null,
+        "country": null
+      },
+      "confidence": 0.8,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Water Source | Rio Grande (treated)",
+      "aliases": []
+    },
+    {
+      "name": "TCEQ",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Regulatory Agency",
+        "industry": "Environmental"
+      },
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Permit | TCEQ",
+      "aliases": []
+    },
+    {
+      "name": "Texas RRC",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Regulatory Agency",
+        "industry": "Energy"
+      },
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "source_excerpt": "Permit | Texas RRC",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Marcus Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Prepared By: Dr. Marcus Thompson, Technical Lead"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Approved By: Jennifer Walsh, Project Director"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Process Specification",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "El Paso, Texas",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Location | El Paso, Texas"
+    },
+    {
+      "source_entity": "GreenHydrogen Production Process Specification",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Shell",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Product Delivery | Pipeline to Shell facility"
+    },
+    {
+      "source_entity": "Nel Hydrogen",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Nel Hydrogen"
+    },
+    {
+      "source_entity": "Atlas Copco",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Atlas Copco"
+    },
+    {
+      "source_entity": "Chart Industries",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Manufacturer | Chart Industries"
+    },
+    {
+      "source_entity": "TCEQ",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Permit | TCEQ"
+    },
+    {
+      "source_entity": "Texas RRC",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "GreenHydrogen Production Process Specification",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_greenhydrogen_process_specification.md",
+      "evidence": "Permit | Texas RRC"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -2,7 +2,7 @@
   "document_id": "82829c9d-98c4-43a2-8e09-48995b8cb7b9",
   "document_path": "01_falcon_x_system_architecture.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:59:57.587126",
+  "extracted_at": "2026-01-25T14:19:30.342337",
   "entities": [
     {
       "name": "Dr. Elena Rodriguez",
@@ -32,7 +32,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Program Director",
-        "role": "Approver"
+        "role": "Document Approver"
       },
       "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
@@ -43,48 +43,72 @@
       "name": "Falcon X UAV System",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Medium-altitude, long-endurance (MALE) unmanned aerial vehicle",
+        "description": "Medium-altitude, long-endurance unmanned aerial vehicle",
         "category": "UAV"
       },
-      "confidence": 0.98,
+      "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
       "source_excerpt": "The Falcon X is a medium-altitude, long-endurance (MALE) unmanned aerial vehicle",
       "aliases": []
     },
     {
-      "name": "Falcon X",
+      "name": "Primus Epic",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "MALE UAV for ISR missions",
-        "category": "UAV"
+        "description": "Flight Computer",
+        "category": "Avionics"
       },
-      "confidence": 0.98,
+      "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "The Falcon X is a medium-altitude, long-endurance (MALE) unmanned aerial vehicle designed for intelligence, surveillance, and reconnaissance (ISR) missions",
-      "aliases": []
-    },
-    {
-      "name": "Pratt & Whitney",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Manufacturer",
-        "industry": "Aerospace"
-      },
-      "confidence": 0.95,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Manufacturer | Pratt & Whitney",
+      "source_excerpt": "Model | Primus Epic",
       "aliases": []
     },
     {
       "name": "PW545D-X",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Turbofan engine",
-        "category": "Engine"
+        "description": "Turbofan Engine",
+        "category": "Propulsion"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Model | PW545D-X | Type | Turbofan",
+      "source_excerpt": "Model | PW545D-X",
+      "aliases": []
+    },
+    {
+      "name": "MTS-B",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Electro-Optical/Infrared Sensor",
+        "category": "Sensor"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Model | MTS-B",
+      "aliases": []
+    },
+    {
+      "name": "APY-8",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Synthetic Aperture Radar",
+        "category": "Sensor"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Model | APY-8",
+      "aliases": []
+    },
+    {
+      "name": "MC-500",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Mission Computer",
+        "category": "Avionics"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Model | MC-500",
       "aliases": []
     },
     {
@@ -100,39 +124,15 @@
       "aliases": []
     },
     {
-      "name": "Primus Epic",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Flight Computer",
-        "category": "Avionics"
-      },
-      "confidence": 0.95,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Model | Primus Epic",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Digital",
+      "name": "Pratt & Whitney",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Manufacturer",
-        "industry": "Technology"
+        "industry": "Aerospace"
       },
       "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Manufacturer | Nexus Digital",
-      "aliases": []
-    },
-    {
-      "name": "MC-500",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Mission Computer",
-        "category": "Avionics"
-      },
-      "confidence": 0.95,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Model | MC-500",
+      "source_excerpt": "Manufacturer | Pratt & Whitney",
       "aliases": []
     },
     {
@@ -148,18 +148,6 @@
       "aliases": []
     },
     {
-      "name": "MTS-B",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Electro-Optical/Infrared sensor",
-        "category": "Sensor"
-      },
-      "confidence": 0.95,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Model | MTS-B",
-      "aliases": []
-    },
-    {
       "name": "Raytheon",
       "entity_type": "ORGANIZATION",
       "properties": {
@@ -172,22 +160,22 @@
       "aliases": []
     },
     {
-      "name": "APY-8",
-      "entity_type": "PRODUCT",
+      "name": "Nexus Digital",
+      "entity_type": "ORGANIZATION",
       "properties": {
-        "description": "Synthetic Aperture Radar",
-        "category": "Sensor"
+        "type": "Manufacturer",
+        "industry": "Technology"
       },
       "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Model | APY-8",
+      "source_excerpt": "Manufacturer | Nexus Digital",
       "aliases": []
     },
     {
       "name": "USAF",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Military Service",
+        "type": "Military Authority",
         "industry": "Defense"
       },
       "confidence": 0.95,
@@ -199,7 +187,7 @@
       "name": "USN",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Military Service",
+        "type": "Military Authority",
         "industry": "Defense"
       },
       "confidence": 0.95,
@@ -211,7 +199,7 @@
       "name": "FAA",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Regulatory Agency",
+        "type": "Regulatory Authority",
         "industry": "Aviation"
       },
       "confidence": 0.95,
@@ -220,37 +208,116 @@
       "aliases": []
     },
     {
-      "name": "7,500 lbs",
+      "name": "Ground Control Station",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Control system for UAV operations",
+        "category": "Control System"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Ground Control Station (GCS)",
+      "aliases": []
+    },
+    {
+      "name": "TEC-AER-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "TEC-AER-001",
+        "category": "Technical Specification"
+      },
+      "confidence": 0.95,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Document Number: TEC-AER-001",
+      "aliases": []
+    },
+    {
+      "name": "DO-178C",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Software Certification Standard"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "DO-178C Level A",
+      "aliases": []
+    },
+    {
+      "name": "MIL-STD-1553",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Military data bus standard"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "MIL-STD-1553 | 1553B",
+      "aliases": []
+    },
+    {
+      "name": "Ring Laser Gyro",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Navigation technology"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "INS | Ring Laser Gyro",
+      "aliases": []
+    },
+    {
+      "name": "PowerPC",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Processor architecture"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Processor | PowerPC (3x)",
+      "aliases": []
+    },
+    {
+      "name": "Intel Xeon",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Processor"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Processor | Intel Xeon (dual)",
+      "aliases": []
+    },
+    {
+      "name": "Maximum Takeoff Weight",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Maximum Takeoff Weight",
-        "value": "7,500 lbs",
+        "value": "6800",
         "type": "COUNT"
       },
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Maximum Takeoff Weight | 7,500 lbs",
+      "source_excerpt": "Maximum Takeoff Weight | 7,500 lbs | 6,800 lbs",
       "aliases": []
     },
     {
-      "name": "24 hours",
+      "name": "Payload Capacity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Payload Capacity",
+        "value": "1350",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "source_excerpt": "Payload Capacity | 1,200 lbs | 1,350 lbs",
+      "aliases": []
+    },
+    {
+      "name": "Endurance",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Endurance",
-        "value": "24 hours",
-        "type": "COUNT"
-      },
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Endurance | 24 hours",
-      "aliases": []
-    },
-    {
-      "name": "28 hours",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Design Endurance",
-        "value": "28 hours",
+        "value": "28",
         "type": "COUNT"
       },
       "confidence": 0.9,
@@ -259,76 +326,42 @@
       "aliases": []
     },
     {
-      "name": "40,000 ft",
+      "name": "Service Ceiling",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Service Ceiling",
-        "value": "40,000 ft",
+        "value": "45000",
         "type": "COUNT"
       },
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Service Ceiling | 40,000 ft",
+      "source_excerpt": "Service Ceiling | 40,000 ft | 45,000 ft",
       "aliases": []
     },
     {
-      "name": "Falcon X UAV System Architecture Document",
-      "entity_type": "PROJECT",
+      "name": "Maximum Speed",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "name": "Falcon X UAV System Architecture Document",
-        "status": "Version 3.2"
-      },
-      "confidence": 0.95,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Falcon X UAV System Architecture Document",
-      "aliases": []
-    },
-    {
-      "name": "CDL",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Common Data Link",
-        "category": "Communication"
+        "metric_name": "Maximum Speed",
+        "value": "265",
+        "type": "COUNT"
       },
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "CDL | 274 Mbps",
+      "source_excerpt": "Maximum Speed | 250 KTAS | 265 KTAS",
       "aliases": []
     },
     {
-      "name": "SATCOM",
-      "entity_type": "TECHNOLOGY",
+      "name": "Range",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "Satellite Communication",
-        "category": "Communication"
+        "metric_name": "Range",
+        "value": "3200",
+        "type": "COUNT"
       },
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "SATCOM | Ku-band | 50 Mbps",
-      "aliases": []
-    },
-    {
-      "name": "MIL-STD-1553",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Military data bus standard",
-        "category": "Standard"
-      },
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "MIL-STD-1553 | 1553B | 1 Mbps",
-      "aliases": []
-    },
-    {
-      "name": "Ground Control Station",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "GCS for UAV control",
-        "category": "Ground System"
-      },
-      "confidence": 0.95,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "source_excerpt": "Ground Control Station (GCS)",
+      "source_excerpt": "Range | 2,500 nm | 3,200 nm",
       "aliases": []
     }
   ],
@@ -336,35 +369,24 @@
     {
       "source_entity": "Dr. Elena Rodriguez",
       "source_type": "PERSON",
-      "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV System Architecture Document",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Falcon X UAV System",
+      "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
       "evidence": "Owner: Dr. Elena Rodriguez, Chief Engineer"
     },
     {
       "source_entity": "Thomas Mueller",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Falcon X UAV System Architecture Document",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Falcon X UAV System",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
       "evidence": "Approved By: Thomas Mueller, Program Director"
-    },
-    {
-      "source_entity": "Pratt & Whitney",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "PW545D-X",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "Manufacturer | Pratt & Whitney | Model | PW545D-X"
     },
     {
       "source_entity": "Honeywell",
@@ -378,15 +400,15 @@
       "evidence": "Manufacturer | Honeywell | Model | Primus Epic"
     },
     {
-      "source_entity": "Nexus Digital",
+      "source_entity": "Pratt & Whitney",
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
-      "target_entity": "MC-500",
+      "target_entity": "PW545D-X",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "Manufacturer | Nexus Digital | Model | MC-500"
+      "evidence": "Manufacturer | Pratt & Whitney | Model | PW545D-X"
     },
     {
       "source_entity": "General Atomics",
@@ -411,15 +433,15 @@
       "evidence": "Manufacturer | Raytheon | Model | APY-8"
     },
     {
-      "source_entity": "Falcon X UAV System",
-      "source_type": "PRODUCT",
-      "relationship_type": "USES",
-      "target_entity": "PW545D-X",
+      "source_entity": "Nexus Digital",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "MC-500",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "Engine subsystem with PW545D-X turbofan"
+      "evidence": "Manufacturer | Nexus Digital | Model | MC-500"
     },
     {
       "source_entity": "Falcon X UAV System",
@@ -430,18 +452,18 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "Flight Computer section with Primus Epic"
+      "evidence": "Flight Computer section references Primus Epic"
     },
     {
       "source_entity": "Falcon X UAV System",
       "source_type": "PRODUCT",
       "relationship_type": "USES",
-      "target_entity": "MC-500",
+      "target_entity": "PW545D-X",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "Mission Computer section with MC-500"
+      "evidence": "Engine section references PW545D-X"
     },
     {
       "source_entity": "Falcon X UAV System",
@@ -452,7 +474,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "EO/IR sensor system with MTS-B"
+      "evidence": "EO/IR sensor section references MTS-B"
     },
     {
       "source_entity": "Falcon X UAV System",
@@ -463,29 +485,18 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "SAR radar system with APY-8"
+      "evidence": "SAR section references APY-8"
     },
     {
       "source_entity": "Falcon X UAV System",
       "source_type": "PRODUCT",
       "relationship_type": "USES",
-      "target_entity": "CDL",
-      "target_type": "TECHNOLOGY",
+      "target_entity": "MC-500",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "CDL data link for primary communications"
-    },
-    {
-      "source_entity": "Falcon X UAV System",
-      "source_type": "PRODUCT",
-      "relationship_type": "USES",
-      "target_entity": "SATCOM",
-      "target_type": "TECHNOLOGY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "SATCOM for beyond line-of-sight communications"
+      "evidence": "Mission Computer section references MC-500"
     },
     {
       "source_entity": "Falcon X UAV System",
@@ -496,57 +507,101 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "MIL-STD-1553 for control interfaces"
+      "evidence": "System Interfaces section references MIL-STD-1553"
     },
     {
-      "source_entity": "USAF",
+      "source_entity": "Falcon X UAV System",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Ring Laser Gyro",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Navigation section references Ring Laser Gyro"
+    },
+    {
+      "source_entity": "Primus Epic",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "PowerPC",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Processor | PowerPC (3x)"
+    },
+    {
+      "source_entity": "MC-500",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Intel Xeon",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Processor | Intel Xeon (dual)"
+    },
+    {
+      "source_entity": "Honeywell",
       "source_type": "ORGANIZATION",
-      "relationship_type": "CUSTOMER_OF",
+      "relationship_type": "SUPPLIER_OF",
       "target_entity": "Falcon X UAV System",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "USAF certification application submitted"
+      "evidence": "Honeywell supplies flight computer for Falcon X"
     },
     {
-      "source_entity": "USN",
+      "source_entity": "Pratt & Whitney",
       "source_type": "ORGANIZATION",
-      "relationship_type": "CUSTOMER_OF",
+      "relationship_type": "SUPPLIER_OF",
       "target_entity": "Falcon X UAV System",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "USN planned certification"
+      "evidence": "Pratt & Whitney supplies engine for Falcon X"
     },
     {
-      "source_entity": "Ground Control Station",
-      "source_type": "PRODUCT",
-      "relationship_type": "USES",
-      "target_entity": "CDL",
-      "target_type": "TECHNOLOGY",
+      "source_entity": "General Atomics",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV System",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "GCS connectivity includes CDL antenna"
+      "evidence": "General Atomics supplies EO/IR sensor for Falcon X"
     },
     {
-      "source_entity": "Ground Control Station",
-      "source_type": "PRODUCT",
-      "relationship_type": "USES",
-      "target_entity": "SATCOM",
-      "target_type": "TECHNOLOGY",
+      "source_entity": "Raytheon",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV System",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "GCS connectivity includes SATCOM"
+      "evidence": "Raytheon supplies SAR radar for Falcon X"
+    },
+    {
+      "source_entity": "Nexus Digital",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV System",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "Nexus Digital supplies mission computer for Falcon X"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 27,
-    "raw_relationship_count": 19,
+    "raw_entity_count": 30,
+    "raw_relationship_count": 21,
     "used_partial_parse": false,
     "truncated": false
   }

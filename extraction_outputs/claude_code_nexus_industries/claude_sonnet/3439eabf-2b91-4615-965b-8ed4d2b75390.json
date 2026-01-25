@@ -2,7 +2,7 @@
   "document_id": "3439eabf-2b91-4615-965b-8ed4d2b75390",
   "document_path": "01_ceo_all_hands_memo.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T11:46:06.934660",
+  "extracted_at": "2026-01-25T14:15:00.533834",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -21,7 +21,7 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Corporation",
-        "industry": "Technology/Aerospace/Energy"
+        "industry": "Technology/Industrial"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -32,66 +32,55 @@
       "name": "Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Cybersecurity, Digital transformation"
+        "focus_areas": "Cybersecurity, Digital Solutions"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Our Digital Solutions division achieved FedRAMP High authorization",
+      "source_excerpt": "Our Digital Solutions division",
       "aliases": []
     },
     {
       "name": "Falcon X UAV Program",
       "entity_type": "PROJECT",
       "properties": {
-        "timeline": "First flight May 2026, FAA certification by year-end",
         "status": "On schedule and under budget",
-        "category": "Aerospace"
+        "timeline": "First flight May 2026, FAA certification by year-end"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget",
+      "source_excerpt": "Our largest aerospace program remains on schedule and under budget",
       "aliases": []
     },
     {
       "name": "GreenHydrogen Initiative",
       "entity_type": "PROJECT",
       "properties": {
-        "timeline": "First hydrogen production March 2026",
         "status": "68% complete",
-        "budget": "$450 million offtake agreement"
+        "timeline": "First hydrogen production March"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility",
+      "source_excerpt": "Construction is 68% complete at our El Paso facility",
       "aliases": []
     },
     {
-      "name": "BatteryTech",
+      "name": "Toyota Partnership",
       "entity_type": "PROJECT",
       "properties": {
-        "category": "Solid-state battery development"
+        "type": "Joint venture",
+        "focus": "Solid-state battery",
+        "timeline": "First commercial cells Q4 2027"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Deliver on our major programs\u2014Falcon X, GreenHydrogen, BatteryTech",
-      "aliases": []
-    },
-    {
-      "name": "Orbital Constellation",
-      "entity_type": "PROJECT",
-      "properties": {
-        "category": "Space technology"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Deliver on our major programs\u2014Falcon X, GreenHydrogen, BatteryTech, and Orbital Constellation",
+      "source_excerpt": "We finalized our solid-state battery joint venture with Toyota",
       "aliases": []
     },
     {
       "name": "CyberShield",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Cybersecurity product protecting endpoints",
+        "description": "Cybersecurity product",
         "category": "Security software"
       },
       "confidence": 1.0,
@@ -103,8 +92,8 @@
       "name": "NexusConnect",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "AI processing capabilities",
-        "category": "IoT/AI platform"
+        "description": "Edge AI processing capabilities",
+        "category": "AI/IoT platform"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -112,10 +101,32 @@
       "aliases": []
     },
     {
-      "name": "Leadership Academy",
-      "entity_type": "SERVICE",
+      "name": "BatteryTech",
+      "entity_type": "PROJECT",
       "properties": {
-        "description": "Leadership development program"
+        "type": "Battery technology development"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Deliver on our major programs\u2014Falcon X, GreenHydrogen, BatteryTech",
+      "aliases": []
+    },
+    {
+      "name": "Orbital Constellation",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "Satellite/space program"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Deliver on our major programs\u2014Falcon X, GreenHydrogen, BatteryTech, and Orbital Constellation",
+      "aliases": []
+    },
+    {
+      "name": "Leadership Academy",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "Training and development program"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -126,18 +137,20 @@
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership_type": "Joint venture"
+        "partnership_type": "Joint venture",
+        "industry": "Automotive"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "We finalized our solid-state battery joint venture with Toyota",
+      "source_excerpt": "our solid-state battery joint venture with Toyota",
       "aliases": []
     },
     {
       "name": "Shell",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Energy"
+        "industry": "Energy",
+        "contract_value": "$450 million"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -145,14 +158,62 @@
       "aliases": []
     },
     {
-      "name": "Revenue",
+      "name": "El Paso facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Hydrogen production facility",
+        "status": "Under construction"
+      },
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Construction is 68% complete at our El Paso facility",
+      "aliases": []
+    },
+    {
+      "name": "El Paso",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "El Paso",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "at our El Paso facility",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix HQ",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Headquarters",
+        "location": "Phoenix"
+      },
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "virtual and in-person at Phoenix HQ",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Phoenix",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "at Phoenix HQ",
+      "aliases": []
+    },
+    {
+      "name": "FY2025 Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Revenue",
         "value": "$8.45 billion",
         "period": "FY2025",
         "type": "CURRENCY",
-        "growth": "13.9% year-over-year"
+        "growth": "13.9% YoY"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -160,14 +221,14 @@
       "aliases": []
     },
     {
-      "name": "Operating Income",
+      "name": "FY2025 Operating Income",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Operating Income",
         "value": "$945 million",
         "period": "FY2025",
         "type": "CURRENCY",
-        "growth": "16% increase"
+        "growth": "16%"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -175,7 +236,7 @@
       "aliases": []
     },
     {
-      "name": "Free Cash Flow",
+      "name": "FY2025 Free Cash Flow",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Free Cash Flow",
@@ -189,13 +250,14 @@
       "aliases": []
     },
     {
-      "name": "Backlog",
+      "name": "FY2025 Backlog",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Backlog",
         "value": "$12.4 billion",
         "period": "FY2025",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "status": "Record"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -203,28 +265,14 @@
       "aliases": []
     },
     {
-      "name": "R&D Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "R&D Investment",
-        "value": "$845 million",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Our R&D investment of $845 million",
-      "aliases": []
-    },
-    {
       "name": "FY2026 Revenue Target",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Revenue Target",
+        "metric_name": "Revenue",
         "value": "$9.5-9.8 billion",
         "period": "FY2026",
         "type": "CURRENCY",
-        "growth": "13-16% growth"
+        "growth": "13-16%"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -232,7 +280,7 @@
       "aliases": []
     },
     {
-      "name": "FY2026 R&D Investment Target",
+      "name": "FY2026 R&D Investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "R&D Investment",
@@ -247,7 +295,7 @@
       "aliases": []
     },
     {
-      "name": "Capital Expenditure",
+      "name": "FY2026 Capital Expenditure",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Capital Expenditure",
@@ -258,6 +306,34 @@
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
       "source_excerpt": "Capital Expenditure: $680 million",
+      "aliases": []
+    },
+    {
+      "name": "FY2025 R&D Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "R&D Investment",
+        "value": "$845 million",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Our R&D investment of $845 million",
+      "aliases": []
+    },
+    {
+      "name": "Learning Development Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Learning and Development",
+        "value": "$23 million",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Invest $23 million in learning and development",
       "aliases": []
     },
     {
@@ -278,10 +354,10 @@
       "name": "Dividend",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Dividend",
-        "value": "$1.80 per share",
+        "metric_name": "Dividend",
+        "value": "$1.80 per share annually",
         "type": "CURRENCY",
-        "growth": "12% increase"
+        "growth": "12%"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -289,108 +365,31 @@
       "aliases": []
     },
     {
-      "name": "El Paso",
-      "entity_type": "LOCATION",
+      "name": "Patent Filings",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "city": "El Paso",
-        "country": "USA"
+        "metric_name": "Patents Filed",
+        "value": "185",
+        "period": "FY2025",
+        "type": "COUNT"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Construction is 68% complete at our El Paso facility",
+      "source_excerpt": "185 patents filed",
       "aliases": []
     },
     {
-      "name": "Phoenix HQ",
-      "entity_type": "FACILITY",
+      "name": "New Hiring Target",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "name": "Phoenix HQ",
-        "location": "Phoenix",
-        "type": "Headquarters"
+        "metric_name": "Net New Positions",
+        "value": "1,200",
+        "period": "FY2026",
+        "type": "COUNT"
       },
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "virtual and in-person at Phoenix HQ",
-      "aliases": []
-    },
-    {
-      "name": "El Paso Facility",
-      "entity_type": "FACILITY",
-      "properties": {
-        "name": "El Paso facility",
-        "location": "El Paso",
-        "type": "Production facility"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Construction is 68% complete at our El Paso facility",
-      "aliases": []
-    },
-    {
-      "name": "FedRAMP High",
-      "entity_type": "POLICY",
-      "properties": {
-        "policy_id": "FedRAMP High",
-        "category": "Security certification"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Our Digital Solutions division achieved FedRAMP High authorization",
-      "aliases": []
-    },
-    {
-      "name": "Quantum Computing System",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "127-qubit quantum computing system"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "127-qubit quantum computing system operational",
-      "aliases": []
-    },
-    {
-      "name": "Solid-state Battery Technology",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Battery prototype achieving 400 Wh/kg"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Solid-state battery prototype achieving 400 Wh/kg",
-      "aliases": []
-    },
-    {
-      "name": "Japan",
-      "entity_type": "LOCATION",
-      "properties": {
-        "country": "Japan"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "targeted investments in Japan, Korea, and Southeast Asia",
-      "aliases": []
-    },
-    {
-      "name": "Korea",
-      "entity_type": "LOCATION",
-      "properties": {
-        "country": "Korea"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "targeted investments in Japan, Korea, and Southeast Asia",
-      "aliases": []
-    },
-    {
-      "name": "Southeast Asia",
-      "entity_type": "LOCATION",
-      "properties": {
-        "region": "Southeast Asia"
-      },
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "targeted investments in Japan, Korea, and Southeast Asia",
+      "source_excerpt": "Hiring: 1,200 net new positions",
       "aliases": []
     }
   ],
@@ -448,51 +447,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "BatteryTech",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Deliver on our major programs\u2014BatteryTech"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Orbital Constellation",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Deliver on our major programs\u2014Orbital Constellation"
-    },
-    {
-      "source_entity": "Digital Solutions",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "CyberShield",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Our Digital Solutions division achieved FedRAMP High authorization... CyberShield"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "NexusConnect",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Edge AI processing capabilities for NexusConnect"
+      "evidence": "our El Paso facility"
     },
     {
       "source_entity": "Nexus Industries",
@@ -503,7 +458,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "We finalized our solid-state battery joint venture with Toyota"
+      "evidence": "our solid-state battery joint venture with Toyota"
     },
     {
       "source_entity": "Shell",
@@ -517,18 +472,18 @@
       "evidence": "Our $450 million offtake agreement with Shell"
     },
     {
-      "source_entity": "GreenHydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "El Paso Facility",
-      "target_type": "FACILITY",
+      "source_entity": "Digital Solutions",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Construction is 68% complete at our El Paso facility"
+      "evidence": "Our Digital Solutions division achieved FedRAMP High authorization"
     },
     {
-      "source_entity": "El Paso Facility",
+      "source_entity": "El Paso facility",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
       "target_entity": "El Paso",
@@ -541,41 +496,74 @@
     {
       "source_entity": "Phoenix HQ",
       "source_type": "FACILITY",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix",
+      "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "in-person at Phoenix HQ"
+      "evidence": "at Phoenix HQ"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "USES",
-      "target_entity": "Quantum Computing System",
-      "target_type": "TECHNOLOGY",
+      "relationship_type": "OWNS",
+      "target_entity": "BatteryTech",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "127-qubit quantum computing system operational"
+      "evidence": "Deliver on our major programs\u2014Falcon X, GreenHydrogen, BatteryTech"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "USES",
-      "target_entity": "Solid-state Battery Technology",
-      "target_type": "TECHNOLOGY",
+      "relationship_type": "OWNS",
+      "target_entity": "Orbital Constellation",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Deliver on our major programs\u2014Falcon X, GreenHydrogen, BatteryTech, and Orbital Constellation"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Leadership Academy",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Solid-state battery prototype achieving 400 Wh/kg"
+      "evidence": "launch our new Leadership Academy"
+    },
+    {
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "El Paso facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Construction is 68% complete at our El Paso facility"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "NexusConnect",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Edge AI processing capabilities for NexusConnect"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 31,
-    "raw_relationship_count": 16,
+    "raw_entity_count": 30,
+    "raw_relationship_count": 15,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "30ccb3ef-944f-42be-8a33-18bfb0479f9c",
   "document_path": "11_microsoft_customer.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:08:01.113643",
+  "extracted_at": "2026-01-25T15:01:55.864094",
   "entities": [
     {
       "name": "Microsoft Corporation",
@@ -88,30 +88,18 @@
       "name": "Dr. Elena Rodriguez",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Sustainability Contact"
+        "title": "Sustainability Consultant"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "11_microsoft_customer.md",
       "source_excerpt": "Melanie Nakagawa | Chief Sustainability | Dr. Elena Rodriguez",
-      "aliases": []
-    },
-    {
-      "name": "Redmond, WA",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Redmond",
-        "country": "USA"
-      },
-      "confidence": 0.95,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Headquarters: Redmond, WA",
       "aliases": []
     },
     {
       "name": "NexusConnect IoT",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "IoT platform",
+        "description": "IoT platform for connectivity",
         "category": "Technology"
       },
       "confidence": 0.9,
@@ -120,50 +108,14 @@
       "aliases": []
     },
     {
-      "name": "Cloud",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Cloud services",
-        "category": "Technology"
-      },
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Products/Services: Cloud",
-      "aliases": []
-    },
-    {
       "name": "Carbon credits",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Carbon offset credits"
+        "description": "Credits for carbon offsetting"
       },
       "confidence": 0.85,
       "source_document": "11_microsoft_customer.md",
       "source_excerpt": "Products/Services: Carbon credits",
-      "aliases": []
-    },
-    {
-      "name": "consulting",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Consulting services"
-      },
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Products/Services: consulting",
-      "aliases": []
-    },
-    {
-      "name": "CarbonZero Credit Offtake",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$52.5M",
-        "timeline": "2028-2038",
-        "status": "Signed"
-      },
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "CarbonZero Credit Offtake | $52.5M | 2028-2038 | Signed",
       "aliases": []
     },
     {
@@ -180,107 +132,40 @@
       "aliases": []
     },
     {
-      "name": "NexusConnect Enterprise License",
+      "name": "CarbonZero Credit Offtake",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$18M",
-        "timeline": "2024-2027",
-        "status": "Active"
+        "budget": "$52.5M",
+        "timeline": "2028-2038",
+        "status": "Signed"
       },
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "NexusConnect Enterprise License | $18M | 2024-2027 | Active",
+      "source_excerpt": "CarbonZero Credit Offtake | $52.5M | 2028-2038 | Signed",
       "aliases": []
     },
     {
-      "name": "Professional Services",
-      "entity_type": "PROJECT",
+      "name": "Redmond, WA",
+      "entity_type": "LOCATION",
       "properties": {
-        "budget": "$2M",
-        "timeline": "Annual",
-        "status": "Active"
+        "city": "Redmond",
+        "country": "USA"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Professional Services | $2M | Annual | Active",
+      "source_excerpt": "Headquarters: Redmond, WA",
       "aliases": []
     },
     {
-      "name": "Carbon Consulting",
-      "entity_type": "PROJECT",
+      "name": "NexusConnect",
+      "entity_type": "ORGANIZATION",
       "properties": {
-        "budget": "$3M",
-        "timeline": "2025",
-        "status": "Active"
-      },
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Carbon Consulting | $3M | 2025 | Active",
-      "aliases": []
-    },
-    {
-      "name": "Renewable Energy Advisory",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$2M",
-        "timeline": "2025",
-        "status": "Active"
-      },
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Renewable Energy Advisory | $2M | 2025 | Active",
-      "aliases": []
-    },
-    {
-      "name": "CyberShield Security",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$8M",
-        "timeline": "Q3 2026",
-        "status": "Expected"
+        "type": "Business Unit",
+        "industry": "Technology"
       },
       "confidence": 0.85,
       "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "CyberShield Security | $8M | 65% | Q3 2026",
-      "aliases": []
-    },
-    {
-      "name": "Additional IoT Expansion",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$12M",
-        "timeline": "Q2 2026",
-        "status": "Expected"
-      },
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Additional IoT Expansion | $12M | 75% | Q2 2026",
-      "aliases": []
-    },
-    {
-      "name": "Carbon Credit Expansion",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$15M",
-        "timeline": "2027",
-        "status": "Expected"
-      },
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Carbon Credit Expansion | $15M | 55% | 2027",
-      "aliases": []
-    },
-    {
-      "name": "QuantumLeap Research",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$3M",
-        "timeline": "Q4 2026",
-        "status": "Expected"
-      },
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "QuantumLeap Research | $3M | 40% | Q4 2026",
+      "source_excerpt": "NexusConnect",
       "aliases": []
     }
   ],
@@ -289,12 +174,12 @@
       "source_entity": "Microsoft Corporation",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Digital",
+      "target_entity": "NexusConnect",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "Account Type: Strategic - Multi-Division"
+      "evidence": "Microsoft Corporation is a customer of NexusConnect"
     },
     {
       "source_entity": "Amanda Torres",
@@ -363,6 +248,17 @@
       "evidence": "Melanie Nakagawa | Chief Sustainability"
     },
     {
+      "source_entity": "NexusConnect IoT",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "NexusConnect",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "NexusConnect IoT"
+    },
+    {
       "source_entity": "CarbonZero Credit Offtake",
       "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
@@ -371,7 +267,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "Total Contract Value: $52.5M"
+      "evidence": "CarbonZero Credit Offtake | $52.5M | 2028-2038 | Signed"
     },
     {
       "source_entity": "Azure IoT Integration",
@@ -382,101 +278,24 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "Total Contract Value: $8M"
+      "evidence": "Azure IoT Integration | $8M | 2025-2026 | Active"
     },
     {
-      "source_entity": "NexusConnect Enterprise License",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
+      "source_entity": "Redmond, WA",
+      "source_type": "LOCATION",
+      "relationship_type": "LOCATED_AT",
       "target_entity": "Microsoft Corporation",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "Total Contract Value: $18M"
-    },
-    {
-      "source_entity": "Professional Services",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Total Contract Value: $2M"
-    },
-    {
-      "source_entity": "Carbon Consulting",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Total Contract Value: $3M"
-    },
-    {
-      "source_entity": "Renewable Energy Advisory",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Total Contract Value: $2M"
-    },
-    {
-      "source_entity": "CyberShield Security",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Expected Close: Q3 2026"
-    },
-    {
-      "source_entity": "Additional IoT Expansion",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Expected Close: Q2 2026"
-    },
-    {
-      "source_entity": "Carbon Credit Expansion",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Expected Close: 2027"
-    },
-    {
-      "source_entity": "QuantumLeap Research",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Expected Close: Q4 2026"
+      "evidence": "Headquarters: Redmond, WA"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 23,
-    "raw_relationship_count": 17,
+    "raw_entity_count": 14,
+    "raw_relationship_count": 11,
     "used_partial_parse": false,
     "truncated": false
   }

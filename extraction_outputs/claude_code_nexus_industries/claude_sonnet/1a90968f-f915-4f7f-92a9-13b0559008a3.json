@@ -2,14 +2,16 @@
   "document_id": "1a90968f-f915-4f7f-92a9-13b0559008a3",
   "document_path": "01_annual_report_2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T11:41:06.642580",
+  "extracted_at": "2026-01-25T15:03:38.141370",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Corporation",
-        "industry": "Diversified Technology"
+        "type": "Public Company",
+        "industry": "Industrial Technology",
+        "ticker": "NXIS",
+        "exchange": "NYSE"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -112,10 +114,11 @@
       "name": "CyberShield",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Cybersecurity product",
-        "category": "Security Software"
+        "description": "Cybersecurity solution",
+        "category": "Software",
+        "status": "Beta"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "CyberShield beta customers: $12M",
       "aliases": []
@@ -127,7 +130,7 @@
         "description": "Hydrogen energy solution",
         "category": "Energy Technology"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "GreenHydrogen contributed initial revenue",
       "aliases": []
@@ -136,10 +139,11 @@
       "name": "HTS wire",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "High-temperature superconducting wire",
-        "category": "Advanced Materials"
+        "description": "High-Temperature Superconductor wire",
+        "category": "Advanced Materials",
+        "status": "Pilot production"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "HTS wire pilot production began",
       "aliases": []
@@ -156,6 +160,34 @@
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "Total Revenue | $8.45B | $7.62B | +10.9%",
+      "aliases": []
+    },
+    {
+      "name": "Gross Profit FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Gross Profit",
+        "value": "$2.87B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Gross Profit | $2.87B | $2.51B | +14.3%",
+      "aliases": []
+    },
+    {
+      "name": "Operating Income FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Operating Income",
+        "value": "$1.12B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Operating Income | $1.12B | $0.95B | +17.9%",
       "aliases": []
     },
     {
@@ -201,20 +233,6 @@
       "aliases": []
     },
     {
-      "name": "Operating Income FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Operating Income",
-        "value": "$1.12B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Operating Income | $1.12B | $0.95B | +17.9%",
-      "aliases": []
-    },
-    {
       "name": "R&D Investment FY2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
@@ -226,6 +244,20 @@
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "Total | $966M | 11.4%",
+      "aliases": []
+    },
+    {
+      "name": "Market Cap",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Market Cap",
+        "value": "$28.5B",
+        "period": "Dec 31, 2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Market Cap (Dec 31): $28.5B",
       "aliases": []
     },
     {
@@ -243,36 +275,11 @@
       "aliases": []
     },
     {
-      "name": "Market Cap",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Market Cap",
-        "value": "$28.5B",
-        "period": "Dec 31",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Market Cap (Dec 31): $28.5B",
-      "aliases": []
-    },
-    {
-      "name": "NYSE",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Stock Exchange"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Exchange: NYSE",
-      "aliases": []
-    },
-    {
       "name": "North America",
       "entity_type": "LOCATION",
       "properties": {
         "name": "North America",
-        "region": "North America"
+        "country": "Multiple"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -284,7 +291,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Europe",
-        "region": "Europe"
+        "country": "Multiple"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -296,7 +303,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Asia Pacific",
-        "region": "Asia Pacific"
+        "country": "Multiple"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -305,17 +312,6 @@
     }
   ],
   "relationships": [
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Approved by: Dr. Victoria Chen, Chief Executive Officer"
-    },
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
@@ -328,12 +324,27 @@
       "evidence": "Dr. Victoria Chen, Chief Executive Officer"
     },
     {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Approved by: Dr. Victoria Chen, Chief Executive Officer"
+    },
+    {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "Chief Financial Officer"
+      },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "evidence": "Certified by: Robert Kim, Chief Financial Officer"
@@ -344,7 +355,9 @@
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
-      "properties": {},
+      "properties": {
+        "role": "VP Investor Relations"
+      },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "evidence": "Investor Relations: Jennifer Walsh, VP Investor Relations"
@@ -358,7 +371,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Aerospace division revenue breakdown"
+      "evidence": "Division revenue breakdown showing Nexus Aerospace as part of Nexus Industries"
     },
     {
       "source_entity": "Nexus Energy Systems",
@@ -369,7 +382,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Energy Systems division revenue breakdown"
+      "evidence": "Division revenue breakdown showing Nexus Energy Systems as part of Nexus Industries"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -380,7 +393,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Digital Solutions division revenue breakdown"
+      "evidence": "Division revenue breakdown showing Nexus Digital Solutions as part of Nexus Industries"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -391,7 +404,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Advanced Materials division revenue breakdown"
+      "evidence": "Division revenue breakdown showing Nexus Advanced Materials as part of Nexus Industries"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -411,7 +424,7 @@
       "target_entity": "CyberShield",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "evidence": "CyberShield beta customers: $12M"
     },
@@ -422,7 +435,7 @@
       "target_entity": "GreenHydrogen",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "evidence": "GreenHydrogen contributed initial revenue"
     },
@@ -433,48 +446,15 @@
       "target_entity": "HTS wire",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "evidence": "HTS wire pilot production began"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Total Revenue FY2025",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Total Revenue | $8.45B"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Net Income FY2025",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Net Income | $0.84B"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Market Cap",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Market Cap (Dec 31): $28.5B"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 24,
-    "raw_relationship_count": 15,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }
