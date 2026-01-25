@@ -2,22 +2,32 @@
   "document_id": "29e61182-8174-46a3-a0e0-2c659f3bcde1",
   "document_path": "05_siemens_healthineers_customer.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:09:39.004942",
+  "extracted_at": "2026-01-25T10:47:43.788417",
   "entities": [
     {
       "name": "Siemens Healthineers AG",
       "entity_type": "CUSTOMER",
       "properties": {
         "customer_id": "CUST-005",
+        "industry": "Medical Technology",
         "account_type": "Strategic",
         "relationship_since": "2018",
-        "industry": "Medical Technology",
-        "stock_ticker": "SHL (Frankfurt)",
-        "employees": "71,000"
+        "stock_ticker": "SHL (Frankfurt)"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
       "source_excerpt": "Customer Name: Siemens Healthineers AG, Customer ID: CUST-005",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Advanced materials, HTS wire production"
+      },
+      "confidence": 0.95,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Primary Division: Nexus Advanced Materials",
       "aliases": []
     },
     {
@@ -36,23 +46,13 @@
       "name": "Dr. Christopher Lee",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Project Manager, HTS",
-        "role": "Executive Sponsor"
+        "title": "Project Manager",
+        "role": "Project Manager",
+        "department": "HTS"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
       "source_excerpt": "Executive Sponsor: Dr. Christopher Lee (Project Manager, HTS)",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Advanced Materials",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Advanced Materials"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Primary Division: Nexus Advanced Materials",
       "aliases": []
     },
     {
@@ -68,26 +68,11 @@
       "aliases": []
     },
     {
-      "name": "\u20ac22B (2024)",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Annual Revenue",
-        "value": "22B",
-        "period": "2024",
-        "type": "CURRENCY",
-        "currency": "EUR"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Annual Revenue: \u20ac22B (2024)",
-      "aliases": []
-    },
-    {
       "name": "HTS Wire",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "High Temperature Superconductor Wire for MRI magnets",
-        "category": "Superconductor"
+        "description": "High-temperature superconducting wire for MRI magnets",
+        "category": "Superconducting materials"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -98,54 +83,12 @@
       "name": "Specialty Conductors",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Conductors for medical imaging",
-        "category": "Conductor"
+        "description": "Specialized conductive materials for medical imaging",
+        "category": "Conductive materials"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
       "source_excerpt": "Specialty Conductors: $13M, Medical imaging",
-      "aliases": []
-    },
-    {
-      "name": "$52M",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "HTS Wire Revenue",
-        "value": "52M",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "HTS Wire: $52M",
-      "aliases": []
-    },
-    {
-      "name": "$13M",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Specialty Conductors Revenue",
-        "value": "13M",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Specialty Conductors: $13M",
-      "aliases": []
-    },
-    {
-      "name": "$65M",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Total FY2025 Business",
-        "value": "65M",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Total: $65M",
       "aliases": []
     },
     {
@@ -188,11 +131,24 @@
       "aliases": []
     },
     {
+      "name": "Next-Gen MRI Wire",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$85M",
+        "timeline": "Q2 2026",
+        "status": "Pipeline"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Next-Gen MRI Wire: $85M, 75%, Q2 2026",
+      "aliases": []
+    },
+    {
       "name": "Bernd Montag",
       "entity_type": "PERSON",
       "properties": {
         "title": "CEO",
-        "role": "CEO"
+        "role": "Chief Executive Officer"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -200,15 +156,37 @@
       "aliases": []
     },
     {
+      "name": "Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Nexus Contact: Victoria Chen, Relationship: Executive",
+      "aliases": []
+    },
+    {
       "name": "Jochen Schmitz",
       "entity_type": "PERSON",
       "properties": {
         "title": "CFO",
-        "role": "CFO"
+        "role": "Chief Financial Officer"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
       "source_excerpt": "Jochen Schmitz: CFO",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Finance"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Nexus Contact: Robert Kim, Relationship: Finance",
       "aliases": []
     },
     {
@@ -224,48 +202,26 @@
       "aliases": []
     },
     {
-      "name": "Dr. Peter Winkelmann",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "CTO",
-        "role": "CTO"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Dr. Peter Winkelmann: CTO",
-      "aliases": []
-    },
-    {
-      "name": "Victoria Chen",
-      "entity_type": "PERSON",
-      "properties": {
-        "role": "Executive"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Bernd Montag: CEO, Victoria Chen: Executive",
-      "aliases": []
-    },
-    {
-      "name": "Robert Kim",
-      "entity_type": "PERSON",
-      "properties": {
-        "role": "Finance"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Jochen Schmitz: CFO, Robert Kim: Finance",
-      "aliases": []
-    },
-    {
       "name": "Dr. William Foster",
       "entity_type": "PERSON",
       "properties": {
         "role": "Technology"
       },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Nexus Contact: Dr. William Foster, Relationship: Technology",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Peter Winkelmann",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Christoph Zindel: President, DI, Dr. William Foster: Technology",
+      "source_excerpt": "Dr. Peter Winkelmann: CTO",
       "aliases": []
     },
     {
@@ -274,9 +230,9 @@
       "properties": {
         "role": "R&D"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Dr. Peter Winkelmann: CTO, Dr. Jennifer Liu: R&D",
+      "source_excerpt": "Nexus Contact: Dr. Jennifer Liu, Relationship: R&D",
       "aliases": []
     },
     {
@@ -284,7 +240,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Magnet Technology",
-        "role": "VP Magnet Technology"
+        "role": "Vice President"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -301,6 +257,17 @@
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
       "source_excerpt": "Maria Schmidt: Procurement Director",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Quality"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Nexus Contact: Dr. Maria Santos",
       "aliases": []
     },
     {
@@ -328,25 +295,25 @@
       "aliases": []
     },
     {
-      "name": "Dr. Maria Santos",
-      "entity_type": "PERSON",
-      "properties": {
-        "role": "Quality Contact"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Thomas Wagner: Quality Manager, Dr. Maria Santos",
-      "aliases": []
-    },
-    {
       "name": "Dr. Takeshi Yamamoto",
       "entity_type": "PERSON",
       "properties": {
-        "role": "R&D Contact"
+        "role": "R&D"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Dr. Klaus Fischer: R&D Director, Dr. Takeshi Yamamoto",
+      "source_excerpt": "Nexus Contact: Dr. Takeshi Yamamoto",
+      "aliases": []
+    },
+    {
+      "name": "Robert Stevens",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Operations"
+      },
+      "confidence": 0.9,
+      "source_document": "05_siemens_healthineers_customer.md",
+      "source_excerpt": "Owner: Robert Stevens",
       "aliases": []
     },
     {
@@ -390,11 +357,11 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Competitor",
-        "capability": "HTS wire"
+        "industry": "Superconducting materials"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "SuperPower: HTS wire",
+      "source_excerpt": "Competitor: SuperPower, Capability: HTS wire",
       "aliases": []
     },
     {
@@ -402,11 +369,11 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Competitor",
-        "capability": "In-house LTS"
+        "industry": "Scientific instruments"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Bruker: In-house LTS",
+      "source_excerpt": "Competitor: Bruker, Capability: In-house LTS",
       "aliases": []
     },
     {
@@ -414,61 +381,53 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Competitor",
-        "capability": "HTS wire"
+        "industry": "Superconducting materials"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "AMSC: HTS wire",
+      "source_excerpt": "Competitor: AMSC, Capability: HTS wire",
       "aliases": []
     },
     {
-      "name": "Robert Stevens",
-      "entity_type": "PERSON",
+      "name": "FY2025 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "role": "Production Lead"
+        "metric_name": "Revenue",
+        "value": "$65M",
+        "period": "FY2025",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Production expansion approval: Robert Stevens",
+      "source_excerpt": "FY2025: $65M",
       "aliases": []
     },
     {
-      "name": "Next-Gen MRI Wire",
-      "entity_type": "PROJECT",
+      "name": "FY2026 Projected Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "budget": "$85M",
-        "status": "Pipeline",
-        "timeline": "Q2 2026"
+        "metric_name": "Revenue",
+        "value": "$92M",
+        "period": "FY2026",
+        "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Next-Gen MRI Wire: $85M, 75%, Q2 2026",
+      "source_excerpt": "FY2026 (Est): $92M",
       "aliases": []
     },
     {
-      "name": "Volume Expansion",
-      "entity_type": "PROJECT",
+      "name": "Annual Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "budget": "$45M",
-        "status": "Pipeline",
-        "timeline": "Q4 2026"
+        "metric_name": "Annual Revenue",
+        "value": "\u20ac22B",
+        "period": "2024",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Volume Expansion: $45M, 85%, Q4 2026",
-      "aliases": []
-    },
-    {
-      "name": "New Applications",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$25M",
-        "status": "Pipeline",
-        "timeline": "2027"
-      },
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "New Applications: $25M, 50%, 2027",
+      "source_excerpt": "Annual Revenue: \u20ac22B (2024)",
       "aliases": []
     }
   ],
@@ -476,13 +435,13 @@
     {
       "source_entity": "Siemens Healthineers AG",
       "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Erlangen, Germany",
+      "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Primary Division: Nexus Advanced Materials"
+      "evidence": "Headquarters: Erlangen, Germany"
     },
     {
       "source_entity": "Dr. Elena Petrova",
@@ -496,31 +455,9 @@
       "evidence": "Account Manager: Dr. Elena Petrova"
     },
     {
-      "source_entity": "Dr. Christopher Lee",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Executive Sponsor: Dr. Christopher Lee (Project Manager, HTS)"
-    },
-    {
-      "source_entity": "Siemens Healthineers AG",
-      "source_type": "CUSTOMER",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Erlangen, Germany",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Headquarters: Erlangen, Germany"
-    },
-    {
       "source_entity": "Bernd Montag",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "LEADS",
       "target_entity": "Siemens Healthineers AG",
       "target_type": "CUSTOMER",
       "properties": {},
@@ -531,7 +468,7 @@
     {
       "source_entity": "Jochen Schmitz",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Siemens Healthineers AG",
       "target_type": "CUSTOMER",
       "properties": {},
@@ -542,7 +479,7 @@
     {
       "source_entity": "Christoph Zindel",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Siemens Healthineers AG",
       "target_type": "CUSTOMER",
       "properties": {},
@@ -553,7 +490,7 @@
     {
       "source_entity": "Dr. Peter Winkelmann",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Siemens Healthineers AG",
       "target_type": "CUSTOMER",
       "properties": {},
@@ -612,9 +549,9 @@
       "target_entity": "HTS Wire",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "HTS Wire: $52M, MRI magnets"
+      "evidence": "Primary Division: Nexus Advanced Materials supplies HTS Wire"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -623,75 +560,31 @@
       "target_entity": "Specialty Conductors",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Specialty Conductors: $13M, Medical imaging"
+      "evidence": "Nexus supplies Specialty Conductors for medical imaging"
     },
     {
-      "source_entity": "HTS Wire Supply Agreement",
-      "source_type": "PROJECT",
+      "source_entity": "Siemens Healthineers AG",
+      "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "HTS Wire Supply Agreement with Siemens"
+      "evidence": "Primary Division: Nexus Advanced Materials serves Siemens Healthineers"
     },
     {
-      "source_entity": "Joint Development Agreement",
-      "source_type": "PROJECT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
+      "source_entity": "Dr. Christopher Lee",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "HTS Wire Supply Agreement",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Joint Development Agreement with Siemens"
-    },
-    {
-      "source_entity": "Qualification Program",
-      "source_type": "PROJECT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Qualification Program for Siemens"
-    },
-    {
-      "source_entity": "Ultra-High Field MRI",
-      "source_type": "PROJECT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Ultra-High Field MRI joint program"
-    },
-    {
-      "source_entity": "Room-Temp MRI Research",
-      "source_type": "PROJECT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Room-Temp MRI Research joint program"
-    },
-    {
-      "source_entity": "Manufacturing Process",
-      "source_type": "PROJECT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Manufacturing Process joint program"
+      "evidence": "Executive Sponsor: Dr. Christopher Lee (Project Manager, HTS)"
     },
     {
       "source_entity": "Dr. Takeshi Yamamoto",
@@ -700,7 +593,7 @@
       "target_entity": "Next-Gen MRI Wire",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
       "evidence": "Next-gen wire qualification: Dr. Takeshi Yamamoto"
     },
@@ -708,7 +601,7 @@
       "source_entity": "Robert Stevens",
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
-      "target_entity": "Volume Expansion",
+      "target_entity": "Manufacturing Process",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.8,
@@ -718,8 +611,8 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 38,
-    "raw_relationship_count": 22,
+    "raw_entity_count": 35,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }

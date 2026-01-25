@@ -2,14 +2,14 @@
   "document_id": "1a90968f-f915-4f7f-92a9-13b0559008a3",
   "document_path": "01_annual_report_2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:50:18.353704",
+  "extracted_at": "2026-01-25T11:40:33.644289",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Public Company",
-        "industry": "Various"
+        "industry": "Manufacturing"
       },
       "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
@@ -101,7 +101,7 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "IoT platform",
-        "category": "Digital Solutions"
+        "category": "Software"
       },
       "confidence": 0.9,
       "source_document": "01_annual_report_2025.md",
@@ -113,7 +113,7 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "Cybersecurity solution",
-        "category": "Digital Solutions"
+        "category": "Software"
       },
       "confidence": 0.85,
       "source_document": "01_annual_report_2025.md",
@@ -121,57 +121,99 @@
       "aliases": []
     },
     {
-      "name": "Free Cash Flow",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "North America",
+      "entity_type": "LOCATION",
       "properties": {
-        "metric name": "Free Cash Flow",
-        "value": "$0.92B",
-        "period": "FY2025",
-        "type": "CURRENCY"
+        "region": "North America"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Free Cash Flow | $0.92B | $0.78B",
+      "source_excerpt": "North America | $4.65B | 55% | +9%",
+      "aliases": []
+    },
+    {
+      "name": "Europe",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Europe"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Europe | $1.86B | 22% | +12%",
+      "aliases": []
+    },
+    {
+      "name": "Asia Pacific",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Asia Pacific"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Asia Pacific | $1.52B | 18% | +15%",
+      "aliases": []
+    },
+    {
+      "name": "Rest of World",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Rest of World"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Rest of World | $0.42B | 5% | +8%",
       "aliases": []
     },
     {
       "name": "Total Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric name": "Total Revenue",
         "value": "$8.45B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total Revenue | $8.45B | $7.62B",
+      "source_excerpt": "| **Total Revenue** | **$8.45B** |",
       "aliases": []
     },
     {
-      "name": "EPS (Diluted)",
+      "name": "Operating Income",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric name": "EPS (Diluted)",
-        "value": "$4.28",
+        "value": "$1.12B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "EPS (Diluted) | $4.28 | $3.62",
+      "source_excerpt": "| Operating Income | $1.12B |",
       "aliases": []
     },
     {
-      "name": "NYSE",
-      "entity_type": "LOCATION",
+      "name": "Net Income",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "city": "New York",
-        "country": "USA"
+        "value": "$0.84B",
+        "period": "FY2025",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Exchange: NYSE",
+      "source_excerpt": "| Net Income | $0.84B |",
+      "aliases": []
+    },
+    {
+      "name": "Free Cash Flow",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "$0.92B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "| Free Cash Flow | $0.92B |",
       "aliases": []
     }
   ],
@@ -183,9 +225,9 @@
       "target_entity": "Nexus Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Aerospace revenue"
+      "evidence": "Nexus Aerospace"
     },
     {
       "source_entity": "Nexus Industries",
@@ -194,9 +236,9 @@
       "target_entity": "Nexus Energy Systems",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Energy Systems revenue"
+      "evidence": "Nexus Energy Systems"
     },
     {
       "source_entity": "Nexus Industries",
@@ -205,9 +247,9 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Digital Solutions revenue"
+      "evidence": "Nexus Digital Solutions"
     },
     {
       "source_entity": "Nexus Industries",
@@ -216,31 +258,9 @@
       "target_entity": "Nexus Advanced Materials",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Advanced Materials revenue"
-    },
-    {
-      "source_entity": "Jennifer Walsh",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Investor Relations: Jennifer Walsh, VP Investor Relations"
-    },
-    {
-      "source_entity": "Robert Kim",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Certified by: Robert Kim, Chief Financial Officer"
+      "evidence": "Nexus Advanced Materials"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -254,21 +274,32 @@
       "evidence": "Approved by: Dr. Victoria Chen, Chief Executive Officer"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "NYSE",
-      "target_type": "LOCATION",
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Exchange: NYSE"
+      "evidence": "Certified by: Robert Kim, Chief Financial Officer"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Investor Relations: Jennifer Walsh, VP Investor Relations"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 14,
-    "raw_relationship_count": 8,
+    "raw_entity_count": 18,
+    "raw_relationship_count": 7,
     "used_partial_parse": false,
     "truncated": false
   }

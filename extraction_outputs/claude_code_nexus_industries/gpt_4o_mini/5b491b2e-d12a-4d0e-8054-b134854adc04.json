@@ -2,7 +2,7 @@
   "document_id": "5b491b2e-d12a-4d0e-8054-b134854adc04",
   "document_path": "06_materials_division_structure.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:17:08.067707",
+  "extracted_at": "2026-01-25T10:54:10.280649",
   "entities": [
     {
       "name": "Dr. Yuki Tanaka",
@@ -44,7 +44,8 @@
       "name": "Dr. Michael Andersen",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Composites R&D"
+        "title": "Lead",
+        "role": "Lead of Composites R&D"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -55,7 +56,8 @@
       "name": "Dr. Sophia Chen",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Ceramics Lab"
+        "title": "Lead",
+        "role": "Lead of Ceramics Lab"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -66,7 +68,8 @@
       "name": "Dr. Ibrahim Osman",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Metals Research"
+        "title": "Lead",
+        "role": "Lead of Metals Research"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -77,7 +80,8 @@
       "name": "Dr. Emily Park",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Nanomaterials"
+        "title": "Lead",
+        "role": "Lead of Nanomaterials"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -100,7 +104,8 @@
       "name": "Mark Reynolds",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Carbon Fiber Production"
+        "title": "Lead",
+        "role": "Lead of Carbon Fiber Production"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -111,7 +116,8 @@
       "name": "Janet Liu",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Ceramics Manufacturing"
+        "title": "Lead",
+        "role": "Lead of Ceramics Manufacturing"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -122,7 +128,8 @@
       "name": "Carlos Vega",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Specialty Metals"
+        "title": "Lead",
+        "role": "Lead of Specialty Metals"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -133,7 +140,8 @@
       "name": "Amanda Foster",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lead of Surface Treatments"
+        "title": "Lead",
+        "role": "Lead of Surface Treatments"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
@@ -169,7 +177,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division CFO",
-        "role": "Chief Financial Officer"
+        "role": "Chief Financial Officer of Division"
       },
       "confidence": 0.95,
       "source_document": "06_materials_division_structure.md",
@@ -240,36 +248,9 @@
       "name": "Phoenix, Arizona",
       "entity_type": "LOCATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
       "source_excerpt": "Location: Phoenix, Arizona",
-      "aliases": []
-    },
-    {
-      "name": "Mesa, Arizona",
-      "entity_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_materials_division_structure.md",
-      "source_excerpt": "Location: Mesa, AZ",
-      "aliases": []
-    },
-    {
-      "name": "Tucson, Arizona",
-      "entity_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_materials_division_structure.md",
-      "source_excerpt": "Location: Tucson, AZ",
-      "aliases": []
-    },
-    {
-      "name": "Detroit, Michigan",
-      "entity_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_materials_division_structure.md",
-      "source_excerpt": "Location: Detroit, MI",
       "aliases": []
     }
   ],
@@ -283,7 +264,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Dr. Yuki Tanaka leads the division"
+      "evidence": "Dr. Yuki Tanaka (Division President)"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -294,211 +275,145 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Dr. Victoria Chen is the CEO"
+      "evidence": "Reports To: CEO Dr. Victoria Chen"
     },
     {
       "source_entity": "Dr. Yuki Tanaka",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
+      "relationship_type": "MANAGES",
+      "target_entity": "Dr. Katherine Morrison",
       "target_type": "PERSON",
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Reports To: CEO Dr. Victoria Chen"
+      "evidence": "Reports To: Dr. Yuki Tanaka"
+    },
+    {
+      "source_entity": "Dr. Yuki Tanaka",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Gregory Thompson",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_structure.md",
+      "evidence": "Reports To: Dr. Yuki Tanaka"
+    },
+    {
+      "source_entity": "Dr. Yuki Tanaka",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Helen Zhang",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_structure.md",
+      "evidence": "Reports To: Dr. Yuki Tanaka"
+    },
+    {
+      "source_entity": "Dr. Yuki Tanaka",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Robert Kim",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_structure.md",
+      "evidence": "Reports To: Dr. Yuki Tanaka"
+    },
+    {
+      "source_entity": "Dr. Yuki Tanaka",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Nicole Brown",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_structure.md",
+      "evidence": "Reports To: Dr. Yuki Tanaka"
     },
     {
       "source_entity": "Dr. Katherine Morrison",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Yuki Tanaka",
-      "target_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Reports To: Dr. Yuki Tanaka"
+      "evidence": "VP of R&D: Dr. Katherine Morrison"
     },
     {
       "source_entity": "Gregory Thompson",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Yuki Tanaka",
-      "target_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Reports To: Dr. Yuki Tanaka"
+      "evidence": "VP of Manufacturing: Gregory Thompson"
     },
     {
       "source_entity": "Helen Zhang",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Yuki Tanaka",
-      "target_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Reports To: Dr. Yuki Tanaka"
+      "evidence": "VP of Commercial Operations: Helen Zhang"
     },
     {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Yuki Tanaka",
-      "target_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Reports To: Dr. Yuki Tanaka"
+      "evidence": "VP of Supply Chain: Robert Kim"
     },
     {
       "source_entity": "Nicole Brown",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Yuki Tanaka",
-      "target_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Reports To: Dr. Yuki Tanaka (dotted line to Corporate CFO)"
+      "evidence": "Division CFO: Nicole Brown"
     },
     {
-      "source_entity": "Dr. Michael Andersen",
+      "source_entity": "Dr. Yuki Tanaka",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Katherine Morrison",
-      "target_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Dr. Michael Andersen"
+      "evidence": "Division President: Dr. Yuki Tanaka"
     },
     {
-      "source_entity": "Dr. Sophia Chen",
+      "source_entity": "Nicole Brown",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Katherine Morrison",
-      "target_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Dr. Sophia Chen"
-    },
-    {
-      "source_entity": "Dr. Ibrahim Osman",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Katherine Morrison",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Dr. Ibrahim Osman"
-    },
-    {
-      "source_entity": "Dr. Emily Park",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Katherine Morrison",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Dr. Emily Park"
-    },
-    {
-      "source_entity": "Mark Reynolds",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Gregory Thompson",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Mark Reynolds"
-    },
-    {
-      "source_entity": "Janet Liu",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Gregory Thompson",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Janet Liu"
-    },
-    {
-      "source_entity": "Carlos Vega",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Gregory Thompson",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Carlos Vega"
-    },
-    {
-      "source_entity": "Amanda Foster",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Gregory Thompson",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Lead: Amanda Foster"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix HQ",
-      "target_type": "FACILITY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Facility: Phoenix HQ"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Mesa Plant",
-      "target_type": "FACILITY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Facility: Mesa Plant"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Tucson Lab",
-      "target_type": "FACILITY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Facility: Tucson Lab"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Detroit Center",
-      "target_type": "FACILITY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_materials_division_structure.md",
-      "evidence": "Facility: Detroit Center"
+      "evidence": "Division CFO: Nicole Brown"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 24,
-    "raw_relationship_count": 20,
+    "raw_entity_count": 21,
+    "raw_relationship_count": 14,
     "used_partial_parse": false,
     "truncated": false
   }

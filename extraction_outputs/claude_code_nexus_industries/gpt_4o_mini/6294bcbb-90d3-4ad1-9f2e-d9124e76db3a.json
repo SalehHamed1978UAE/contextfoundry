@@ -2,7 +2,7 @@
   "document_id": "6294bcbb-90d3-4ad1-9f2e-d9124e76db3a",
   "document_path": "05_talent_strategy.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:10:34.388630",
+  "extracted_at": "2026-01-25T10:48:12.547533",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -33,7 +33,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Talent Acquisition",
-        "role": "HR Leadership"
+        "role": "Talent Acquisition"
       },
       "confidence": 0.9,
       "source_document": "05_talent_strategy.md",
@@ -45,7 +45,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Learning & Development",
-        "role": "HR Leadership"
+        "role": "Learning and Development"
       },
       "confidence": 0.9,
       "source_document": "05_talent_strategy.md",
@@ -57,7 +57,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Total Rewards",
-        "role": "HR Leadership"
+        "role": "Total Rewards"
       },
       "confidence": 0.9,
       "source_document": "05_talent_strategy.md",
@@ -69,7 +69,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP HR Operations",
-        "role": "HR Leadership"
+        "role": "HR Operations"
       },
       "confidence": 0.9,
       "source_document": "05_talent_strategy.md",
@@ -81,9 +81,9 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "CEO",
-        "role": "Steering Committee Sponsor"
+        "role": "Chief Executive Officer"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_talent_strategy.md",
       "source_excerpt": "Dr. Victoria Chen | CEO (Sponsor)",
       "aliases": []
@@ -107,7 +107,7 @@
       "properties": {
         "description": "Learning platform"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_talent_strategy.md",
       "source_excerpt": "Nexus Academy | $25M | Learning platform",
       "aliases": []
@@ -117,8 +117,7 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$8M",
-        "timeline": "2026-2030",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.85,
       "source_document": "05_talent_strategy.md",
@@ -130,8 +129,7 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$15M",
-        "timeline": "2026-2030",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.85,
       "source_document": "05_talent_strategy.md",
@@ -143,8 +141,7 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$6M",
-        "timeline": "2026-2030",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.85,
       "source_document": "05_talent_strategy.md",
@@ -152,12 +149,23 @@
       "aliases": []
     },
     {
+      "name": "Performance Management Redesign",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$4M",
+        "status": "Planned"
+      },
+      "confidence": 0.85,
+      "source_document": "05_talent_strategy.md",
+      "source_excerpt": "Performance Management Redesign | $4M | Continuous feedback",
+      "aliases": []
+    },
+    {
       "name": "D&I Council",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$2M",
-        "timeline": "2026-2030",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.85,
       "source_document": "05_talent_strategy.md",
@@ -165,86 +173,15 @@
       "aliases": []
     },
     {
-      "name": "Supplier Diversity",
-      "entity_type": "PROJECT",
+      "name": "Nexus Industries Talent Strategy",
+      "entity_type": "POLICY",
       "properties": {
-        "budget": "$5M",
-        "timeline": "2026-2030",
-        "status": "Active"
+        "policy ID": "Talent Strategy 2026-2030",
+        "category": "Strategic Plan"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_talent_strategy.md",
-      "source_excerpt": "Supplier Diversity | $5M | 25% diverse suppliers",
-      "aliases": []
-    },
-    {
-      "name": "Total Employees",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Total Employees",
-        "value": 12500,
-        "period": "FY2025",
-        "type": "COUNT"
-      },
-      "confidence": 0.95,
-      "source_document": "05_talent_strategy.md",
-      "source_excerpt": "| Total Employees | 12,500 |",
-      "aliases": []
-    },
-    {
-      "name": "Employee Engagement",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Employee Engagement",
-        "value": 72,
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "05_talent_strategy.md",
-      "source_excerpt": "| Employee Engagement | 72% favorable |",
-      "aliases": []
-    },
-    {
-      "name": "Voluntary Turnover",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Voluntary Turnover",
-        "value": 8.5,
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "05_talent_strategy.md",
-      "source_excerpt": "| Voluntary Turnover | 8.5% |",
-      "aliases": []
-    },
-    {
-      "name": "Women in Workforce",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Women in Workforce",
-        "value": 32,
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "05_talent_strategy.md",
-      "source_excerpt": "| Women in Workforce | 32% |",
-      "aliases": []
-    },
-    {
-      "name": "Underrepresented Groups",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Underrepresented Groups",
-        "value": 28,
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "05_talent_strategy.md",
-      "source_excerpt": "| Underrepresented Groups | 28% |",
+      "source_excerpt": "Nexus Industries Talent Strategy defines our five-year roadmap",
       "aliases": []
     }
   ],
@@ -261,9 +198,20 @@
       "evidence": "Document Owner: Maria Santos, CHRO"
     },
     {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_talent_strategy.md",
+      "evidence": "Dr. Victoria Chen | CEO (Sponsor)"
+    },
+    {
       "source_entity": "Jennifer Mitchell",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -274,7 +222,7 @@
     {
       "source_entity": "David Chen",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -285,7 +233,7 @@
     {
       "source_entity": "Sarah Thompson",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -296,24 +244,13 @@
     {
       "source_entity": "Robert Lee",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_talent_strategy.md",
       "evidence": "VP HR Operations | Robert Lee"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Talent Strategy 2026-2030",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_talent_strategy.md",
-      "evidence": "Dr. Victoria Chen | CEO (Sponsor)"
     },
     {
       "source_entity": "Talent Strategy 2026-2030",
@@ -329,7 +266,7 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 19,
+    "raw_entity_count": 15,
     "raw_relationship_count": 7,
     "used_partial_parse": false,
     "truncated": false

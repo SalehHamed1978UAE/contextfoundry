@@ -1,0 +1,131 @@
+{
+  "document_id": "59696eaf-8b60-4e4b-abda-a9c010cd98ce",
+  "document_path": "09_export_control.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T10:53:42.983710",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Nexus Industries' commitment and procedures for complying with U.S. export control laws",
+      "aliases": []
+    },
+    {
+      "name": "Col. (Ret.) James Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Government Programs",
+        "role": "Empowered Official"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Col. (Ret.) James Foster, VP Government Programs",
+      "aliases": []
+    },
+    {
+      "name": "VP Trade Compliance",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Program oversight"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "VP Trade Compliance | Program oversight",
+      "aliases": []
+    },
+    {
+      "name": "Lisa Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal Advisor"
+      },
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Approved by: Lisa Thompson, General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Export Control and ITAR Compliance Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-009",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Export Control and ITAR Compliance Policy",
+      "aliases": []
+    },
+    {
+      "name": "Trade Compliance",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Compliance with export control laws"
+      },
+      "confidence": 0.85,
+      "source_document": "09_export_control.md",
+      "source_excerpt": "Contact Trade Compliance: tradecomp@nexus-industries.com",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Col. (Ret.) James Foster",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Approved by: Col. (Ret.) James Foster, Empowered Official"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "Approved by: Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Export Control and ITAR Compliance Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_export_control.md",
+      "evidence": "This policy establishes Nexus Industries' commitment and procedures"
+    },
+    {
+      "source_entity": "VP Trade Compliance",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_export_control.md",
+      "evidence": "VP Trade Compliance | Program oversight"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

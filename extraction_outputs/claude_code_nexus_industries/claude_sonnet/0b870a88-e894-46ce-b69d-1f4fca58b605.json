@@ -2,20 +2,21 @@
   "document_id": "0b870a88-e894-46ce-b69d-1f4fca58b605",
   "document_path": "06_quantumleap_computing.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:19:50.397776",
+  "extracted_at": "2026-01-25T10:56:35.921499",
   "entities": [
     {
       "name": "QuantumLeap Computing Initiative",
       "entity_type": "PROJECT",
       "properties": {
         "project_code": "NX-DIGITAL-2025-002",
-        "budget": "$42 million",
-        "timeline": "April 2025 - December 2027",
-        "status": "Research and Development"
+        "start_date": "April 2025",
+        "target_launch": "December 2027",
+        "status": "Research and Development",
+        "classification": "Confidential"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "QuantumLeap Computing Initiative, Project Code: NX-DIGITAL-2025-002, Total Project Budget: $42 million",
+      "source_excerpt": "Project Name: QuantumLeap Computing Initiative, Project Code: NX-DIGITAL-2025-002",
       "aliases": []
     },
     {
@@ -23,7 +24,6 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Project Manager",
-        "role": "Project Manager",
         "allocation": "100%"
       },
       "confidence": 1.0,
@@ -35,8 +35,7 @@
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Division",
-        "focus_areas": "Digital computing solutions"
+        "type": "Division"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
@@ -47,8 +46,7 @@
       "name": "Advanced Computing",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Business Unit",
-        "focus_areas": "Advanced computing technologies"
+        "type": "Business Unit"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
@@ -56,16 +54,82 @@
       "aliases": []
     },
     {
+      "name": "$42 million",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Project Budget",
+        "value": "42000000",
+        "type": "CURRENCY",
+        "status": "Approved"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "Total Project Budget: $42 million, Status: Approved",
+      "aliases": []
+    },
+    {
+      "name": "$18 million",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Quantum Hardware Access",
+        "value": "18000000",
+        "type": "CURRENCY",
+        "status": "In Progress"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "Quantum Hardware Access: $18 million, In Progress",
+      "aliases": []
+    },
+    {
+      "name": "$12 million",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Software Development",
+        "value": "12000000",
+        "type": "CURRENCY",
+        "status": "In Progress"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "Software Development: $12 million, In Progress",
+      "aliases": []
+    },
+    {
+      "name": "DARPA",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency",
+        "contribution": "$8M",
+        "relationship": "Research agreement"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "DARPA Grant: $8M, Research agreement",
+      "aliases": []
+    },
+    {
+      "name": "IBM Q Network",
+      "entity_type": "PARTNER",
+      "properties": {
+        "contribution": "$5M",
+        "type": "In-kind hardware access"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "IBM Q Network: $5M, In-kind hardware access",
+      "aliases": []
+    },
+    {
       "name": "Dr. Quantum Wei",
       "entity_type": "PERSON",
       "properties": {
         "title": "Chief Scientist",
-        "role": "Chief Scientist",
         "allocation": "100%"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Chief Scientist: Dr. Quantum Wei",
+      "source_excerpt": "Chief Scientist: Dr. Quantum Wei, 100%",
       "aliases": []
     },
     {
@@ -73,12 +137,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Platform Architect",
-        "role": "Platform Architect",
         "allocation": "80%"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Platform Architect: Daniel Morrison",
+      "source_excerpt": "Platform Architect: Daniel Morrison, 80%",
       "aliases": []
     },
     {
@@ -86,12 +149,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Algorithm Lead",
-        "role": "Algorithm Lead",
         "allocation": "100%"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Algorithm Lead: Dr. Nina Patel",
+      "source_excerpt": "Algorithm Lead: Dr. Nina Patel, 100%",
       "aliases": []
     },
     {
@@ -99,12 +161,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Integration Lead",
-        "role": "Integration Lead",
         "allocation": "70%"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Integration Lead: Robert Chen",
+      "source_excerpt": "Integration Lead: Robert Chen, 70%",
       "aliases": []
     },
     {
@@ -112,20 +173,66 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Business Development",
-        "role": "Business Development",
         "allocation": "60%"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Business Development: Amanda Torres",
+      "source_excerpt": "Business Development: Amanda Torres, 60%",
+      "aliases": []
+    },
+    {
+      "name": "IBM Quantum",
+      "entity_type": "PARTNER",
+      "properties": {
+        "role": "Hardware provider",
+        "access_level": "127-qubit systems"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "IBM Quantum: Hardware provider, 127-qubit systems",
+      "aliases": []
+    },
+    {
+      "name": "IonQ",
+      "entity_type": "PARTNER",
+      "properties": {
+        "role": "Alternative hardware",
+        "access_level": "Trapped ion systems"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "IonQ: Alternative hardware, Trapped ion systems",
+      "aliases": []
+    },
+    {
+      "name": "AWS Braket",
+      "entity_type": "PARTNER",
+      "properties": {
+        "role": "Cloud platform",
+        "access_level": "Multi-backend access"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "AWS Braket: Cloud platform, Multi-backend access",
+      "aliases": []
+    },
+    {
+      "name": "Qiskit Community",
+      "entity_type": "PARTNER",
+      "properties": {
+        "role": "Open source tools",
+        "access_level": "Full contribution"
+      },
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "source_excerpt": "Qiskit Community: Open source tools, Full contribution",
       "aliases": []
     },
     {
       "name": "Kevin Chang",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Division President",
-        "role": "Division President"
+        "title": "Division President"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
@@ -136,8 +243,7 @@
       "name": "Dr. Amanda Foster",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Product Development",
-        "role": "VP Product Development"
+        "title": "VP Product Development"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
@@ -148,8 +254,7 @@
       "name": "Dr. James Wilson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Chief Technology Officer",
-        "role": "Chief Technology Officer"
+        "title": "Chief Technology Officer"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
@@ -161,8 +266,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "External Advisor",
-        "role": "External Advisor",
-        "organization": "Caltech"
+        "affiliation": "Caltech"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
@@ -170,227 +274,49 @@
       "aliases": []
     },
     {
-      "name": "DARPA",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Government Agency",
-        "industry": "Defense Research"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "DARPA Grant: $8M",
-      "aliases": []
-    },
-    {
-      "name": "IBM Q Network",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Technology Partner",
-        "industry": "Quantum Computing"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "IBM Q Network: $5M In-kind hardware access",
-      "aliases": []
-    },
-    {
-      "name": "IBM Quantum",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership_type": "Hardware provider",
-        "capability": "127-qubit systems"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "IBM Quantum: Hardware provider, 127-qubit systems",
-      "aliases": []
-    },
-    {
-      "name": "IonQ",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership_type": "Alternative hardware",
-        "capability": "Trapped ion systems"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "IonQ: Alternative hardware, Trapped ion systems",
-      "aliases": []
-    },
-    {
-      "name": "AWS Braket",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership_type": "Cloud platform",
-        "capability": "Multi-backend access"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "AWS Braket: Cloud platform, Multi-backend access",
-      "aliases": []
-    },
-    {
-      "name": "Qiskit Community",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership_type": "Open source tools",
-        "capability": "Full contribution"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Qiskit Community: Open source tools, Full contribution",
-      "aliases": []
-    },
-    {
-      "name": "Caltech",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "University",
-        "industry": "Education and Research"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Dr. John Preskill (Caltech)",
-      "aliases": []
-    },
-    {
       "name": "Quantum computing access platform",
       "entity_type": "PRODUCT",
       "properties": {
-        "category": "Software Platform",
-        "description": "Platform for quantum computing access"
+        "description": "Platform for quantum computing access",
+        "category": "Computing Platform"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Key Deliverables: 1. Quantum computing access platform",
+      "source_excerpt": "Quantum computing access platform",
       "aliases": []
     },
     {
       "name": "Hybrid algorithm library",
       "entity_type": "PRODUCT",
       "properties": {
-        "category": "Software Library",
-        "description": "Library of hybrid quantum-classical algorithms"
+        "description": "Library of hybrid quantum-classical algorithms",
+        "category": "Software Library"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Key Deliverables: 2. Hybrid algorithm library",
+      "source_excerpt": "Hybrid algorithm library",
       "aliases": []
     },
     {
       "name": "Enterprise integration SDK",
       "entity_type": "PRODUCT",
       "properties": {
-        "category": "Software Development Kit",
-        "description": "SDK for enterprise integration"
+        "description": "SDK for enterprise integration",
+        "category": "Development Kit"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Key Deliverables: 3. Enterprise integration SDK",
+      "source_excerpt": "Enterprise integration SDK",
       "aliases": []
     },
     {
-      "name": "Total Project Budget",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Total Project Budget",
-        "value": "$42 million",
-        "type": "CURRENCY",
-        "status": "Approved"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Total Project Budget: $42 million, Approved",
-      "aliases": []
-    },
-    {
-      "name": "DARPA Grant Funding",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "DARPA Grant",
-        "value": "$8 million",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "DARPA Grant: $8M",
-      "aliases": []
-    },
-    {
-      "name": "IBM Q Network Contribution",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "IBM Q Network",
-        "value": "$5 million",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "IBM Q Network: $5M",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Corporate Funding",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Nexus Corporate",
-        "value": "$29 million",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "Nexus Corporate: $29M Internal funding",
-      "aliases": []
-    },
-    {
-      "name": "2028 Revenue Target",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$8 million",
-        "period": "2028",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "2028: $8M",
-      "aliases": []
-    },
-    {
-      "name": "2029 Revenue Target",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$25 million",
-        "period": "2029",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "2029: $25M",
-      "aliases": []
-    },
-    {
-      "name": "2030 Revenue Target",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$65 million",
-        "period": "2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "source_excerpt": "2030: $65M",
-      "aliases": []
-    },
-    {
-      "name": "5-Year Revenue Target",
+      "name": "$150M",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "5-Year Revenue Target",
-        "value": "$150 million",
-        "type": "CURRENCY"
+        "value": "150000000",
+        "type": "CURRENCY",
+        "period": "5-year"
       },
       "confidence": 1.0,
       "source_document": "06_quantumleap_computing.md",
@@ -398,10 +324,10 @@
       "aliases": []
     },
     {
-      "name": "Total Team Headcount",
+      "name": "70",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total Headcount",
+        "metric_name": "Total Research Headcount",
         "value": "70",
         "type": "COUNT"
       },
@@ -444,6 +370,17 @@
       "confidence": 0.9,
       "source_document": "06_quantumleap_computing.md",
       "evidence": "Division: Nexus Digital Solutions, Business Unit: Advanced Computing"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "DARPA",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "06_quantumleap_computing.md",
+      "evidence": "DARPA Grant: $8M, Research agreement"
     },
     {
       "source_entity": "Dr. Quantum Wei",
@@ -501,39 +438,6 @@
       "evidence": "Business Development: Amanda Torres"
     },
     {
-      "source_entity": "Kevin Chang",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "evidence": "Kevin Chang (Division President)"
-    },
-    {
-      "source_entity": "DARPA",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "QuantumLeap Computing Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "evidence": "DARPA Grant: $8M Research agreement"
-    },
-    {
-      "source_entity": "IBM Q Network",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "QuantumLeap Computing Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "06_quantumleap_computing.md",
-      "evidence": "IBM Q Network: $5M In-kind hardware access"
-    },
-    {
       "source_entity": "IBM Quantum",
       "source_type": "PARTNER",
       "relationship_type": "PARTNER_OF",
@@ -578,15 +482,15 @@
       "evidence": "Qiskit Community: Open source tools"
     },
     {
-      "source_entity": "Dr. John Preskill",
+      "source_entity": "Kevin Chang",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Caltech",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "06_quantumleap_computing.md",
-      "evidence": "Dr. John Preskill (Caltech)"
+      "evidence": "Kevin Chang (Division President)"
     },
     {
       "source_entity": "QuantumLeap Computing Initiative",
@@ -624,8 +528,8 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 32,
-    "raw_relationship_count": 19,
+    "raw_entity_count": 27,
+    "raw_relationship_count": 17,
     "used_partial_parse": false,
     "truncated": false
   }

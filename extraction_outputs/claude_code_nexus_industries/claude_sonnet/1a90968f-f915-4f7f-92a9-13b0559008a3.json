@@ -2,64 +2,18 @@
   "document_id": "1a90968f-f915-4f7f-92a9-13b0559008a3",
   "document_path": "01_annual_report_2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:51:02.835808",
+  "extracted_at": "2026-01-25T11:41:06.642580",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Corporation",
-        "industry": "Multi-industry technology",
-        "ticker": "NXIS",
-        "exchange": "NYSE"
+        "industry": "Diversified Technology"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "Nexus Industries Annual Report FY2025",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Aerospace",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Commercial aviation, Defense, Space systems, UAV programs"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Aerospace division with Commercial aviation revenue: $1.42B (+12%), Defense revenue: $1.08B (+5%), Space systems revenue: $0.35B (+18%), UAV programs contributed $185M",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Energy Systems",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Renewable energy projects, Grid solutions, Energy storage"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Energy Systems - Renewable energy projects: $1.45B (+18%), Grid solutions: $0.62B (+8%), Energy storage: $0.35B (+22%)",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Digital Solutions",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "IoT platform, Enterprise software, Professional services"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Digital Solutions - IoT platform (NexusConnect): $0.48B (+25%), Enterprise software: $0.72B (+12%), Professional services: $0.62B (+15%)",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Advanced Materials",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Aerospace composites, Specialty alloys, Advanced conductors"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Advanced Materials - Aerospace composites: $0.58B (+6%), Specialty alloys: $0.45B (+3%), Advanced conductors: $0.33B (+5%)",
       "aliases": []
     },
     {
@@ -99,11 +53,55 @@
       "aliases": []
     },
     {
+      "name": "Nexus Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Commercial aviation, Defense, Space systems, UAV programs"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Aerospace | $2.85B | $2.62B | +8.8% | 33.7%",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Energy Systems",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Renewable energy projects, Grid solutions, Energy storage"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Energy Systems | $2.42B | $2.15B | +12.6% | 28.6%",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "IoT platform, Enterprise software, Professional services"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Digital Solutions | $1.82B | $1.55B | +17.4% | 21.5%",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Aerospace composites, Specialty alloys, Advanced conductors"
+      },
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Advanced Materials | $1.36B | $1.30B | +4.6% | 16.1%",
+      "aliases": []
+    },
+    {
       "name": "NexusConnect",
       "entity_type": "PRODUCT",
       "properties": {
         "description": "IoT platform",
-        "category": "Software platform"
+        "category": "Software Platform"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
@@ -114,10 +112,10 @@
       "name": "CyberShield",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Beta cybersecurity product",
-        "category": "Software"
+        "description": "Cybersecurity product",
+        "category": "Security Software"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "CyberShield beta customers: $12M",
       "aliases": []
@@ -126,10 +124,10 @@
       "name": "GreenHydrogen",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Green hydrogen solution",
-        "category": "Energy product"
+        "description": "Hydrogen energy solution",
+        "category": "Energy Technology"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "GreenHydrogen contributed initial revenue",
       "aliases": []
@@ -139,9 +137,9 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "High-temperature superconducting wire",
-        "category": "Advanced materials"
+        "category": "Advanced Materials"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
       "source_excerpt": "HTS wire pilot production began",
       "aliases": []
@@ -157,35 +155,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total Revenue $8.45B",
-      "aliases": []
-    },
-    {
-      "name": "Total Revenue FY2024",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Total Revenue",
-        "value": "$7.62B",
-        "period": "FY2024",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total Revenue $7.62B",
-      "aliases": []
-    },
-    {
-      "name": "Revenue Growth FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue Growth",
-        "value": "+10.9%",
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total Revenue Change +10.9%",
+      "source_excerpt": "Total Revenue | $8.45B | $7.62B | +10.9%",
       "aliases": []
     },
     {
@@ -199,35 +169,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Net Income $0.84B",
-      "aliases": []
-    },
-    {
-      "name": "Operating Income FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Operating Income",
-        "value": "$1.12B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Operating Income $1.12B",
-      "aliases": []
-    },
-    {
-      "name": "Free Cash Flow FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Free Cash Flow",
-        "value": "$0.92B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Free Cash Flow $0.92B",
+      "source_excerpt": "Net Income | $0.84B | $0.71B | +18.3%",
       "aliases": []
     },
     {
@@ -241,63 +183,35 @@
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "EPS (Diluted) $4.28",
+      "source_excerpt": "EPS (Diluted) | $4.28 | $3.62 | +18.2%",
       "aliases": []
     },
     {
-      "name": "Aerospace Revenue FY2025",
+      "name": "Free Cash Flow FY2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Nexus Aerospace Revenue",
-        "value": "$2.85B",
+        "metric_name": "Free Cash Flow",
+        "value": "$0.92B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Aerospace $2.85B",
+      "source_excerpt": "Free Cash Flow | $0.92B | $0.78B | +17.9%",
       "aliases": []
     },
     {
-      "name": "Energy Systems Revenue FY2025",
+      "name": "Operating Income FY2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Nexus Energy Systems Revenue",
-        "value": "$2.42B",
+        "metric_name": "Operating Income",
+        "value": "$1.12B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Energy Systems $2.42B",
-      "aliases": []
-    },
-    {
-      "name": "Digital Solutions Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Nexus Digital Solutions Revenue",
-        "value": "$1.82B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Digital Solutions $1.82B",
-      "aliases": []
-    },
-    {
-      "name": "Advanced Materials Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Nexus Advanced Materials Revenue",
-        "value": "$1.36B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Nexus Advanced Materials $1.36B",
+      "source_excerpt": "Operating Income | $1.12B | $0.95B | +17.9%",
       "aliases": []
     },
     {
@@ -311,7 +225,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total R&D Spend $966M",
+      "source_excerpt": "Total | $966M | 11.4%",
       "aliases": []
     },
     {
@@ -325,7 +239,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total Employees 12,500",
+      "source_excerpt": "Total Employees | 12,500 | 11,800",
       "aliases": []
     },
     {
@@ -334,7 +248,7 @@
       "properties": {
         "metric_name": "Market Cap",
         "value": "$28.5B",
-        "period": "Dec 31, 2025",
+        "period": "Dec 31",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
@@ -343,17 +257,14 @@
       "aliases": []
     },
     {
-      "name": "Total Backlog",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "NYSE",
+      "entity_type": "ORGANIZATION",
       "properties": {
-        "metric_name": "Total Backlog",
-        "value": "$11.5B",
-        "period": "FY2025",
-        "type": "CURRENCY"
+        "type": "Stock Exchange"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total Backlog $11.5B",
+      "source_excerpt": "Exchange: NYSE",
       "aliases": []
     },
     {
@@ -361,11 +272,11 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "North America",
-        "type": "Region"
+        "region": "North America"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "North America $4.65B 55%",
+      "source_excerpt": "North America | $4.65B | 55% | +9%",
       "aliases": []
     },
     {
@@ -373,11 +284,11 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Europe",
-        "type": "Region"
+        "region": "Europe"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Europe $1.86B 22%",
+      "source_excerpt": "Europe | $1.86B | 22% | +12%",
       "aliases": []
     },
     {
@@ -385,15 +296,26 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Asia Pacific",
-        "type": "Region"
+        "region": "Asia Pacific"
       },
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Asia Pacific $1.52B 18%",
+      "source_excerpt": "Asia Pacific | $1.52B | 18% | +15%",
       "aliases": []
     }
   ],
   "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Approved by: Dr. Victoria Chen, Chief Executive Officer"
+    },
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
@@ -406,28 +328,6 @@
       "evidence": "Dr. Victoria Chen, Chief Executive Officer"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Dr. Victoria Chen, Chief Executive Officer"
-    },
-    {
-      "source_entity": "Robert Kim",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Robert Kim, Chief Financial Officer"
-    },
-    {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
@@ -436,18 +336,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Robert Kim, Chief Financial Officer"
-    },
-    {
-      "source_entity": "Jennifer Walsh",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Jennifer Walsh, VP Investor Relations"
+      "evidence": "Certified by: Robert Kim, Chief Financial Officer"
     },
     {
       "source_entity": "Jennifer Walsh",
@@ -458,7 +347,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Jennifer Walsh, VP Investor Relations"
+      "evidence": "Investor Relations: Jennifer Walsh, VP Investor Relations"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -469,7 +358,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Aerospace division with revenue $2.85B"
+      "evidence": "Nexus Aerospace division revenue breakdown"
     },
     {
       "source_entity": "Nexus Energy Systems",
@@ -480,7 +369,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Energy Systems division with revenue $2.42B"
+      "evidence": "Nexus Energy Systems division revenue breakdown"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -491,7 +380,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Digital Solutions division with revenue $1.82B"
+      "evidence": "Nexus Digital Solutions division revenue breakdown"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -502,7 +391,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Advanced Materials division with revenue $1.36B"
+      "evidence": "Nexus Advanced Materials division revenue breakdown"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -522,7 +411,7 @@
       "target_entity": "CyberShield",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
       "evidence": "CyberShield beta customers: $12M"
     },
@@ -533,7 +422,7 @@
       "target_entity": "GreenHydrogen",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
       "evidence": "GreenHydrogen contributed initial revenue"
     },
@@ -544,7 +433,7 @@
       "target_entity": "HTS wire",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_annual_report_2025.md",
       "evidence": "HTS wire pilot production began"
     },
@@ -557,7 +446,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Industries Total Revenue $8.45B FY2025"
+      "evidence": "Total Revenue | $8.45B"
     },
     {
       "source_entity": "Nexus Industries",
@@ -568,57 +457,24 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Net Income $0.84B FY2025"
+      "evidence": "Net Income | $0.84B"
     },
     {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
-      "target_entity": "Aerospace Revenue FY2025",
+      "target_entity": "Market Cap",
       "target_type": "FINANCIAL_METRIC",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Aerospace $2.85B FY2025"
-    },
-    {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Energy Systems Revenue FY2025",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Energy Systems $2.42B FY2025"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Digital Solutions Revenue FY2025",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Digital Solutions $1.82B FY2025"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Advanced Materials Revenue FY2025",
-      "target_type": "FINANCIAL_METRIC",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Advanced Materials $1.36B FY2025"
+      "evidence": "Market Cap (Dec 31): $28.5B"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 30,
-    "raw_relationship_count": 20,
+    "raw_entity_count": 24,
+    "raw_relationship_count": 15,
     "used_partial_parse": false,
     "truncated": false
   }

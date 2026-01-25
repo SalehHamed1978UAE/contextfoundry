@@ -2,7 +2,7 @@
   "document_id": "28b5a03b-c1c1-46be-a47c-54ee02919af9",
   "document_path": "06_materials_division_budget.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:15:25.917076",
+  "extracted_at": "2026-01-25T10:52:44.882345",
   "entities": [
     {
       "name": "Nexus Advanced Materials",
@@ -170,51 +170,15 @@
       "aliases": []
     },
     {
-      "name": "Boeing",
-      "entity_type": "CUSTOMER",
+      "name": "BatteryTech Materials",
+      "entity_type": "PRODUCT",
       "properties": {
-        "industry": "Aerospace",
-        "region": "North America"
+        "description": "Materials for battery technology",
+        "category": "Advanced Conductors"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Key Customers",
-      "aliases": []
-    },
-    {
-      "name": "Airbus",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Aerospace",
-        "region": "Europe"
-      },
-      "confidence": 0.9,
-      "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Key Customers",
-      "aliases": []
-    },
-    {
-      "name": "GE Aerospace",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Aerospace",
-        "region": "North America"
-      },
-      "confidence": 0.9,
-      "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Key Customers",
-      "aliases": []
-    },
-    {
-      "name": "Siemens Healthineers",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Healthcare",
-        "region": "Global"
-      },
-      "confidence": 0.9,
-      "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Key Customers",
+      "source_excerpt": "Advanced Conductors ($0.35B)",
       "aliases": []
     },
     {
@@ -254,50 +218,95 @@
       "aliases": []
     },
     {
-      "name": "Manufacturing Equipment",
-      "entity_type": "PRODUCT",
+      "name": "Boeing",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "description": "Equipment for manufacturing processes",
-        "category": "Capital Expenditure"
+        "industry": "Aerospace",
+        "region": "North America"
       },
-      "confidence": 0.8,
+      "confidence": 0.95,
       "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Capital Expenditure Budget",
+      "source_excerpt": "Customer Concentration",
       "aliases": []
     },
     {
-      "name": "HTS Wire Production Line",
-      "entity_type": "PRODUCT",
+      "name": "Airbus",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "description": "Production line for HTS wire",
-        "category": "Capital Expenditure"
+        "industry": "Aerospace",
+        "region": "North America"
       },
-      "confidence": 0.8,
+      "confidence": 0.95,
       "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Capital Expenditure Budget",
+      "source_excerpt": "Customer Concentration",
       "aliases": []
     },
     {
-      "name": "BatteryTech Pilot Line",
-      "entity_type": "PRODUCT",
+      "name": "GE Aerospace",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "description": "Pilot line for BatteryTech production",
-        "category": "Capital Expenditure"
+        "industry": "Aerospace",
+        "region": "North America"
       },
-      "confidence": 0.8,
+      "confidence": 0.95,
       "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Capital Expenditure Budget",
+      "source_excerpt": "Customer Concentration",
       "aliases": []
     },
     {
-      "name": "R&D",
-      "entity_type": "BUSINESS_UNIT",
+      "name": "Siemens Healthineers",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "focus areas": "Research and Development"
+        "industry": "Healthcare",
+        "region": "North America"
+      },
+      "confidence": 0.95,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Customer Concentration",
+      "aliases": []
+    },
+    {
+      "name": "Raw Material Prices",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "contingency_allocated": "$12M"
       },
       "confidence": 0.9,
       "source_document": "06_materials_division_budget.md",
-      "source_excerpt": "Headcount Budget",
+      "source_excerpt": "Risk and Contingency",
+      "aliases": []
+    },
+    {
+      "name": "Production Yield",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "contingency_allocated": "$8M"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Risk and Contingency",
+      "aliases": []
+    },
+    {
+      "name": "Customer Demand",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "contingency_allocated": "$6M"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Risk and Contingency",
+      "aliases": []
+    },
+    {
+      "name": "Equipment Issues",
+      "entity_type": "CONCEPT",
+      "properties": {
+        "contingency_allocated": "$5M"
+      },
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "source_excerpt": "Risk and Contingency",
       "aliases": []
     }
   ],
@@ -446,6 +455,61 @@
       "evidence": "Advanced Conductors ($0.35B)"
     },
     {
+      "source_entity": "Advanced Conductors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "BatteryTech Materials",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Advanced Conductors ($0.35B)"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Seattle, WA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Composite Center | Seattle, WA"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Pittsburgh, PA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Alloy Plant | Pittsburgh, PA"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Austin, TX",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Wire Facility | Austin, TX"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Austin, TX",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_materials_division_budget.md",
+      "evidence": "Battery Lab | Austin, TX"
+    },
+    {
       "source_entity": "Boeing",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
@@ -454,7 +518,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_budget.md",
-      "evidence": "Key Customers"
+      "evidence": "Customer Concentration"
     },
     {
       "source_entity": "Airbus",
@@ -465,7 +529,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_budget.md",
-      "evidence": "Key Customers"
+      "evidence": "Customer Concentration"
     },
     {
       "source_entity": "GE Aerospace",
@@ -476,7 +540,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_budget.md",
-      "evidence": "Key Customers"
+      "evidence": "Customer Concentration"
     },
     {
       "source_entity": "Siemens Healthineers",
@@ -487,57 +551,13 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_materials_division_budget.md",
-      "evidence": "Key Customers"
-    },
-    {
-      "source_entity": "Composite Center",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Seattle, WA",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_materials_division_budget.md",
-      "evidence": "Composite Center | Seattle, WA"
-    },
-    {
-      "source_entity": "Alloy Plant",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Pittsburgh, PA",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_materials_division_budget.md",
-      "evidence": "Alloy Plant | Pittsburgh, PA"
-    },
-    {
-      "source_entity": "Wire Facility",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Austin, TX",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_materials_division_budget.md",
-      "evidence": "Wire Facility | Austin, TX"
-    },
-    {
-      "source_entity": "Battery Lab",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Austin, TX",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_materials_division_budget.md",
-      "evidence": "Battery Lab | Austin, TX"
+      "evidence": "Customer Concentration"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 26,
-    "raw_relationship_count": 21,
+    "raw_entity_count": 27,
+    "raw_relationship_count": 22,
     "used_partial_parse": false,
     "truncated": false
   }
