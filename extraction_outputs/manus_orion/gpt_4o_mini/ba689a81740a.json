@@ -2,7 +2,7 @@
   "document_id": "ba689a81740a",
   "document_path": "test documents/Manus Orion/customers/customers_doc_007.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-24T17:38:12.505933",
+  "extracted_at": "2026-01-25T07:53:49.758771",
   "entities": [
     {
       "name": "Dr. Elena Rostova",
@@ -20,8 +20,7 @@
       "name": "AutoNav Logistics System",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Under Review",
-        "timeline": "Target completion date is 2026-04-09"
+        "status": "Under Review"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
@@ -59,7 +58,7 @@
         "industry": "Transportation",
         "region": "USA"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
       "source_excerpt": "Metropolitan Transit Corp has expressed interest in this capability.",
       "aliases": []
@@ -85,7 +84,7 @@
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "involving key stakeholders including Marcus Webb, Alex Thorne, and James Park.",
+      "source_excerpt": "General Counsel James Park ensures regulatory compliance",
       "aliases": []
     },
     {
@@ -93,9 +92,9 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Executive Sponsor",
-        "role": "Executive"
+        "role": "Strategic Oversight"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
       "source_excerpt": "continued executive sponsorship from Fatima Al-Mansoori",
       "aliases": []
@@ -107,68 +106,21 @@
         "title": "COO",
         "role": "Chief Operating Officer"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
       "source_excerpt": "COO Alex Thorne oversees operational execution",
       "aliases": []
     },
     {
-      "name": "SecureCode Systems",
-      "entity_type": "PARTNER",
+      "name": "Dr. Evelyn Reed",
+      "entity_type": "PERSON",
       "properties": {
-        "partnership type": "Technology Partner"
+        "title": "CTO",
+        "role": "Chief Technology Officer"
       },
-      "confidence": 0.85,
+      "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "technology partners: SecureCode Systems, AutoNav Systems",
-      "aliases": []
-    },
-    {
-      "name": "Pacific Rim Airlines",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Aviation",
-        "region": "Global"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "Customer requirements from SolarFuture Holdings and Pacific Rim Airlines",
-      "aliases": []
-    },
-    {
-      "name": "SolarFuture Holdings",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Energy",
-        "region": "Global"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "Customer requirements from SolarFuture Holdings and Pacific Rim Airlines",
-      "aliases": []
-    },
-    {
-      "name": "Quantum Dynamics Ltd",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Component sourcing",
-        "risk level": "Medium"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "The operations team coordinates with Quantum Dynamics Ltd for component sourcing",
-      "aliases": []
-    },
-    {
-      "name": "PrecisionParts Manufacturing",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Logistics support",
-        "risk level": "Medium"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "coordinate with PrecisionParts Manufacturing for logistics support",
+      "source_excerpt": "The engineering team led by CTO Dr. Evelyn Reed",
       "aliases": []
     },
     {
@@ -184,27 +136,62 @@
       "aliases": []
     },
     {
-      "name": "Bangalore",
-      "entity_type": "LOCATION",
+      "name": "SecureCode Systems",
+      "entity_type": "PARTNER",
       "properties": {
-        "city": "Bangalore",
-        "country": "India"
+        "partnership type": "Technology Partner"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "Key facilities: Manufacturing Facility - Bangalore",
+      "source_excerpt": "technology partners: SecureCode Systems, AutoNav Systems",
       "aliases": []
     },
     {
-      "name": "Toulouse",
-      "entity_type": "LOCATION",
+      "name": "PrecisionParts Manufacturing",
+      "entity_type": "SUPPLIER",
       "properties": {
-        "city": "Toulouse",
-        "country": "France"
+        "capability": "Logistics support",
+        "risk level": "Medium"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "Orion Aerospace Plant - Toulouse",
+      "source_excerpt": "coordinate with PrecisionParts Manufacturing for logistics support",
+      "aliases": []
+    },
+    {
+      "name": "SolarFuture Holdings",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "USA"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "source_excerpt": "Customer requirements from SolarFuture Holdings",
+      "aliases": []
+    },
+    {
+      "name": "Pacific Rim Airlines",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Aviation",
+        "region": "Global"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "source_excerpt": "Customer requirements from Pacific Rim Airlines",
+      "aliases": []
+    },
+    {
+      "name": "Global Defense Systems",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Defense",
+        "region": "Global"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "source_excerpt": "Secure first commercial order from Global Defense Systems",
       "aliases": []
     },
     {
@@ -215,7 +202,7 @@
       },
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "Complete integration testing with UrbanMesh IoT Platform",
+      "source_excerpt": "integration testing with UrbanMesh IoT Platform",
       "aliases": []
     },
     {
@@ -237,29 +224,31 @@
       },
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "Complete integration with GreenStream Hydrogen Initiative",
+      "source_excerpt": "integration with GreenStream Hydrogen Initiative",
       "aliases": []
     },
     {
-      "name": "SkyLink Satellite Network",
-      "entity_type": "PROJECT",
+      "name": "SmartCity Innovation Lab",
+      "entity_type": "FACILITY",
       "properties": {
-        "description": "Satellite communication project"
+        "location": "Seoul",
+        "type": "Innovation Lab"
       },
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "design specifications for SkyLink Satellite Network",
+      "source_excerpt": "SmartCity Innovation Lab - Seoul",
       "aliases": []
     },
     {
-      "name": "TechFlow Industries",
-      "entity_type": "PARTNER",
+      "name": "Orion Aerospace Plant",
+      "entity_type": "FACILITY",
       "properties": {
-        "partnership type": "Technology Partner"
+        "location": "Toulouse",
+        "type": "Manufacturing"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "source_excerpt": "technology partners: SecureCode Systems, TechFlow Industries",
+      "source_excerpt": "Orion Aerospace Plant - Toulouse",
       "aliases": []
     }
   ],
@@ -298,7 +287,7 @@
       "evidence": "General Counsel James Park ensures regulatory compliance"
     },
     {
-      "source_entity": "Alex Thorne",
+      "source_entity": "Fatima Al-Mansoori",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Manus Orion Group",
@@ -306,18 +295,29 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "COO Alex Thorne oversees operational execution"
+      "evidence": "continued executive sponsorship from Fatima Al-Mansoori"
     },
     {
-      "source_entity": "Fatima Al-Mansoori",
+      "source_entity": "Alex Thorne",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Manus Orion Group",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "continued executive sponsorship from Fatima Al-Mansoori"
+      "evidence": "COO Alex Thorne oversees operational execution"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "evidence": "The engineering team led by CTO Dr. Evelyn Reed"
     },
     {
       "source_entity": "AutoNav Logistics System",
@@ -331,17 +331,6 @@
       "evidence": "This document relates to AutoNav Logistics System"
     },
     {
-      "source_entity": "Metropolitan Transit Corp",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "Metropolitan Transit Corp has expressed interest in this capability."
-    },
-    {
       "source_entity": "Atlas Freight Systems",
       "source_type": "SUPPLIER",
       "relationship_type": "SUPPLIER_OF",
@@ -353,13 +342,57 @@
       "evidence": "Atlas Freight Systems is the primary supplier for this initiative."
     },
     {
+      "source_entity": "Metropolitan Transit Corp",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "evidence": "Metropolitan Transit Corp has expressed interest in this capability."
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "evidence": "approved by Marcus Webb (CFO)"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "evidence": "General Counsel James Park ensures regulatory compliance"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "evidence": "continued executive sponsorship from Fatima Al-Mansoori"
+    },
+    {
       "source_entity": "SecureCode Systems",
       "source_type": "PARTNER",
       "relationship_type": "PARTNER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
       "evidence": "technology partners: SecureCode Systems, AutoNav Systems"
     },
@@ -367,84 +400,84 @@
       "source_entity": "PrecisionParts Manufacturing",
       "source_type": "SUPPLIER",
       "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
       "evidence": "coordinate with PrecisionParts Manufacturing for logistics support"
-    },
-    {
-      "source_entity": "Quantum Dynamics Ltd",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "The operations team coordinates with Quantum Dynamics Ltd for component sourcing"
     },
     {
       "source_entity": "SolarFuture Holdings",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "Customer requirements from SolarFuture Holdings and Pacific Rim Airlines"
+      "evidence": "Customer requirements from SolarFuture Holdings"
     },
     {
       "source_entity": "Pacific Rim Airlines",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "Customer requirements from SolarFuture Holdings and Pacific Rim Airlines"
+      "evidence": "Customer requirements from Pacific Rim Airlines"
     },
     {
-      "source_entity": "NexGen Battery Storage",
-      "source_type": "TECHNOLOGY",
-      "relationship_type": "USES",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Global Defense Systems",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "AutoNav Logistics System",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "evidence": "Secure first commercial order from Global Defense Systems"
+    },
+    {
+      "source_entity": "Orion R&D Campus",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Boulder, Colorado, USA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
+      "evidence": "involves Orion R&D Campus - Boulder, Colorado, USA"
+    },
+    {
+      "source_entity": "Orion Aerospace Plant",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Toulouse",
+      "target_type": "LOCATION",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "integration with NexGen Battery Storage"
+      "evidence": "Orion Aerospace Plant - Toulouse"
     },
     {
-      "source_entity": "SkyLink Satellite Network",
-      "source_type": "PROJECT",
-      "relationship_type": "USES",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "source_entity": "SmartCity Innovation Lab",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Seoul",
+      "target_type": "LOCATION",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "design specifications for SkyLink Satellite Network"
-    },
-    {
-      "source_entity": "GreenStream Hydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_007.md",
-      "evidence": "Complete integration with GreenStream Hydrogen Initiative"
+      "evidence": "SmartCity Innovation Lab - Seoul"
     }
   ],
   "metadata": {
     "filename": "customers_doc_007.md",
-    "raw_entity_count": 22,
-    "raw_relationship_count": 16,
+    "raw_entity_count": 21,
+    "raw_relationship_count": 20,
     "used_partial_parse": false,
     "truncated": true
   }

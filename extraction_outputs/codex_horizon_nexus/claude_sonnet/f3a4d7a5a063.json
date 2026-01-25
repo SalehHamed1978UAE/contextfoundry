@@ -1,0 +1,159 @@
+{
+  "document_id": "f3a4d7a5a063",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T07:57:53.151871",
+  "entities": [
+    {
+      "name": "Leona Varga",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Executive Sponsor: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Hydrogen operator",
+        "profile": "Hydrogen operator"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Enceladus Energy Account Brief",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield H2",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Primary Product"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Primary Products: ArcShield H2",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Grid operations",
+          "Energy solutions"
+        ]
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Owning BU: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "ARR",
+        "value": "$132M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "ARR: $132M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Deployment maturity",
+        "value": "78%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Expansion opportunities",
+        "value": "3",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Product roadmap updates"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leona Varga",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Enceladus Energy",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "evidence": "Leona Varga is listed as Executive Sponsor for Enceladus Energy account"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Enceladus Energy",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "evidence": "GridWave is listed as the Owning BU for Enceladus Energy account"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "ArcShield H2",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "evidence": "GridWave owns the Enceladus Energy account which uses ArcShield H2 as primary product"
+    },
+    {
+      "source_entity": "Enceladus Energy",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "ArcShield H2",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "evidence": "ArcShield H2 is listed as Primary Products for Enceladus Energy"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_enceladus_energy.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

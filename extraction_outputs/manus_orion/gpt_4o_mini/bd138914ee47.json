@@ -2,7 +2,7 @@
   "document_id": "bd138914ee47",
   "document_path": "test documents/Manus Orion/customers/customers_doc_013.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-24T17:36:33.589175",
+  "extracted_at": "2026-01-25T07:52:02.977125",
   "entities": [
     {
       "name": "Fatima Al-Mansoori",
@@ -46,7 +46,7 @@
       "entity_type": "SUPPLIER",
       "properties": {
         "capability": "Primary supplier for initiative",
-        "risk level": "Low"
+        "risk level": "Medium"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
@@ -168,7 +168,31 @@
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Customer requirements from Neo-City Development Authority and Global Defense Systems",
+      "source_excerpt": "Customer requirements from Neo-City Development Authority",
+      "aliases": []
+    },
+    {
+      "name": "EuroGrid Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "N/A"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "Customer requirements from EuroGrid Energy",
+      "aliases": []
+    },
+    {
+      "name": "Metropolitan Transit Corp",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Transportation",
+        "region": "N/A"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "source_excerpt": "Customer requirements from Metropolitan Transit Corp",
       "aliases": []
     },
     {
@@ -184,142 +208,15 @@
       "aliases": []
     },
     {
-      "name": "SolarFuture Holdings",
-      "entity_type": "CUSTOMER",
+      "name": "Sarah Chen",
+      "entity_type": "PERSON",
       "properties": {
-        "industry": "Energy",
-        "region": "N/A"
+        "title": "CEO",
+        "role": "Chief Executive Officer"
       },
-      "confidence": 0.8,
+      "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Conduct customer workshops with SolarFuture Holdings and Neo-City Development Authority",
-      "aliases": []
-    },
-    {
-      "name": "Quantum Dynamics Ltd",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Supplier for components",
-        "risk level": "Medium"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Mitigation strategy includes dual-sourcing with Quantum Dynamics Ltd",
-      "aliases": []
-    },
-    {
-      "name": "Atlas Freight Systems",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Logistics support",
-        "risk level": "Medium"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Finalize supplier agreements with Atlas Freight Systems and SecureCode Systems",
-      "aliases": []
-    },
-    {
-      "name": "EcoSolutions Corp",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership type": "Technology Partner"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "technology partnerships with EcoSolutions Corp",
-      "aliases": []
-    },
-    {
-      "name": "AeroTech Global",
-      "entity_type": "CONCEPT",
-      "properties": {
-        "industry": "Aerospace",
-        "region": "N/A"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Competitive products from AeroTech Global may erode market share.",
-      "aliases": []
-    },
-    {
-      "name": "UrbanTech Solutions",
-      "entity_type": "CONCEPT",
-      "properties": {
-        "industry": "Technology",
-        "region": "N/A"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Competitive products from UrbanTech Solutions may erode market share.",
-      "aliases": []
-    },
-    {
-      "name": "Falcon UAV Program",
-      "entity_type": "PROJECT",
-      "properties": {
-        "description": "Unmanned Aerial Vehicle Program"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "design specifications for Falcon UAV Program",
-      "aliases": []
-    },
-    {
-      "name": "SmartCity Innovation Lab",
-      "entity_type": "FACILITY",
-      "properties": {
-        "location": "Seoul",
-        "type": "Innovation Lab"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "technology transfer from the SmartCity Innovation Lab - Seoul",
-      "aliases": []
-    },
-    {
-      "name": "Orion Energy Hub",
-      "entity_type": "FACILITY",
-      "properties": {
-        "location": "Copenhagen",
-        "type": "Energy Hub"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Key facilities: Orion Energy Hub - Copenhagen",
-      "aliases": []
-    },
-    {
-      "name": "Project Helios",
-      "entity_type": "PROJECT",
-      "properties": {
-        "description": "N/A"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Complete integration testing with Project Helios",
-      "aliases": []
-    },
-    {
-      "name": "NexGen Battery Storage",
-      "entity_type": "PROJECT",
-      "properties": {
-        "description": "Battery Storage Initiative"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Complete integration with NexGen Battery Storage",
-      "aliases": []
-    },
-    {
-      "name": "Quantum-Secured Supply Chain",
-      "entity_type": "PROJECT",
-      "properties": {
-        "description": "Supply Chain Initiative"
-      },
-      "confidence": 0.8,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "source_excerpt": "Complete integration with NexGen Battery Storage and Quantum-Secured Supply Chain",
+      "source_excerpt": "Successful execution requires continued executive sponsorship from Sarah Chen",
       "aliases": []
     }
   ],
@@ -378,6 +275,17 @@
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
       "evidence": "General Counsel James Park ensures regulatory compliance"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
+      "evidence": "Successful execution requires continued executive sponsorship from Sarah Chen"
     },
     {
       "source_entity": "NexGen Battery Storage",
@@ -443,35 +351,35 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Customer requirements from Neo-City Development Authority and Global Defense Systems"
+      "evidence": "Customer requirements from Neo-City Development Authority"
     },
     {
-      "source_entity": "Fatima Al-Mansoori",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "technology innovation and r&d roadmap initiative",
+      "source_entity": "EuroGrid Energy",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "NexGen Battery Storage",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Successful execution requires continued executive sponsorship from Fatima Al-Mansoori"
+      "evidence": "Customer requirements from EuroGrid Energy"
     },
     {
-      "source_entity": "Sarah Chen",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "operational excellence and process optimization initiative",
+      "source_entity": "Metropolitan Transit Corp",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "NexGen Battery Storage",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_013.md",
-      "evidence": "Successful execution requires continued executive sponsorship from Sarah Chen"
+      "evidence": "Customer requirements from Metropolitan Transit Corp"
     }
   ],
   "metadata": {
     "filename": "customers_doc_013.md",
-    "raw_entity_count": 27,
-    "raw_relationship_count": 13,
+    "raw_entity_count": 18,
+    "raw_relationship_count": 14,
     "used_partial_parse": false,
     "truncated": true
   }

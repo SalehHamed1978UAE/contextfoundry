@@ -1,0 +1,167 @@
+{
+  "document_id": "364a2cdaded2",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T07:57:31.617540",
+  "entities": [
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix Semiconductors",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Customer",
+        "industry": "Semiconductors"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "CoreMatrix Semiconductors Account Brief",
+      "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "Business Unit"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Owning BU: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Supply assurance",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Primary product offering"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Primary Products: Supply assurance",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "48M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "ARR: $48M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Deployment maturity",
+        "value": "78",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Expansion opportunities",
+        "value": "3",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Product with roadmap updates"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "CoreMatrix Semiconductors",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Victor Liao is the Executive Sponsor for CoreMatrix Semiconductors account"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Customer Profile: Supplier and Owning BU: Corporate indicates customer relationship"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "CoreMatrix Semiconductors",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Owning BU: Corporate"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Supply assurance",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Primary Products: Supply assurance for customer owned by Corporate BU"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_corematrix_semiconductors.md",
+      "evidence": "Align roadmap visibility with Horizon Prime updates suggests usage relationship"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_corematrix_semiconductors.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

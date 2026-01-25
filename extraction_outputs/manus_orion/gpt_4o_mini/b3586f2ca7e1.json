@@ -2,7 +2,7 @@
   "document_id": "b3586f2ca7e1",
   "document_path": "test documents/Manus Orion/customers/customers_doc_006.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-24T17:41:38.855792",
+  "extracted_at": "2026-01-25T07:57:11.064395",
   "entities": [
     {
       "name": "Alex Thorne",
@@ -37,7 +37,19 @@
       },
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "engineering team led by CTO Dr. Evelyn Reed",
+      "source_excerpt": "involving key stakeholders including Marcus Webb, Sarah Chen, and Dr. Evelyn Reed",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "involving key stakeholders including Marcus Webb, Sarah Chen, and Dr. Evelyn Reed",
       "aliases": []
     },
     {
@@ -45,7 +57,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "General Counsel",
-        "role": "Legal Oversight"
+        "role": "Legal"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
@@ -56,11 +68,12 @@
       "name": "Fatima Al-Mansoori",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Executive Sponsor"
+        "title": "Executive Sponsor",
+        "role": "Executive"
       },
       "confidence": 0.85,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "continued executive sponsorship from Fatima Al-Mansoori",
+      "source_excerpt": "requires continued executive sponsorship from Fatima Al-Mansoori",
       "aliases": []
     },
     {
@@ -79,12 +92,12 @@
       "name": "Atlas Freight Systems",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Supply Chain Services",
+        "capability": "Logistics and Supply Chain",
         "risk level": "Medium"
       },
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "Atlas Freight Systems is the primary supplier",
+      "source_excerpt": "Atlas Freight Systems is the primary supplier for this initiative",
       "aliases": []
     },
     {
@@ -96,7 +109,7 @@
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "Metropolitan Transit Corp has expressed interest",
+      "source_excerpt": "Metropolitan Transit Corp has expressed interest in this capability",
       "aliases": []
     },
     {
@@ -110,30 +123,6 @@
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
       "source_excerpt": "This document relates to Project Helios",
-      "aliases": []
-    },
-    {
-      "name": "EuroGrid Energy",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Energy",
-        "region": "Europe"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "Customer requirements from EuroGrid Energy",
-      "aliases": []
-    },
-    {
-      "name": "Global Defense Systems",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Defense",
-        "region": "Global"
-      },
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "Customer requirements from Global Defense Systems",
       "aliases": []
     },
     {
@@ -156,6 +145,66 @@
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
       "source_excerpt": "Technology partners: GreenTech Materials",
+      "aliases": []
+    },
+    {
+      "name": "EuroGrid Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy",
+        "region": "Europe"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "Customer requirements from EuroGrid Energy",
+      "aliases": []
+    },
+    {
+      "name": "Global Defense Systems",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Defense",
+        "region": "Global"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "Customer requirements from Global Defense Systems",
+      "aliases": []
+    },
+    {
+      "name": "EcoSolutions Corp",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Component Supply",
+        "risk level": "High"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "Dependency on EcoSolutions Corp for critical components",
+      "aliases": []
+    },
+    {
+      "name": "SecureCode Systems",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Logistics Support",
+        "risk level": "Medium"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "coordinate with SecureCode Systems for logistics support",
+      "aliases": []
+    },
+    {
+      "name": "TechFlow Industries",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Logistics Support",
+        "risk level": "Medium"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "coordinate with TechFlow Industries for logistics support",
       "aliases": []
     },
     {
@@ -183,29 +232,73 @@
       "aliases": []
     },
     {
-      "name": "Sustainability and ESG Initiatives",
-      "entity_type": "PROJECT",
+      "name": "Orion Energy Hub",
+      "entity_type": "FACILITY",
       "properties": {
-        "budget": 21000000,
-        "timeline": "2027",
-        "status": "Active"
+        "location": "Copenhagen",
+        "type": "Energy Hub"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "The sustainability and esg initiatives initiative",
+      "source_excerpt": "Key facilities: Orion Energy Hub - Copenhagen",
       "aliases": []
     },
     {
-      "name": "Supply Chain Resilience and Vendor Management",
-      "entity_type": "PROJECT",
+      "name": "SmartCity Innovation Lab",
+      "entity_type": "FACILITY",
       "properties": {
-        "budget": 15000000,
-        "timeline": "2027",
-        "status": "Active"
+        "location": "Seoul",
+        "type": "Innovation Lab"
       },
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "source_excerpt": "The supply chain resilience and vendor management initiative",
+      "source_excerpt": "Begin pilot production at SmartCity Innovation Lab - Seoul",
+      "aliases": []
+    },
+    {
+      "name": "Falcon UAV Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": null,
+        "status": "Pending"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "Complete integration with Quantum-Secured Supply Chain and Falcon UAV Program",
+      "aliases": []
+    },
+    {
+      "name": "UrbanMesh IoT Platform",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "IoT platform for urban applications"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "integration with UrbanMesh IoT Platform",
+      "aliases": []
+    },
+    {
+      "name": "AutoNav Logistics System",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Logistics management system"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "design specifications for AutoNav Logistics System",
+      "aliases": []
+    },
+    {
+      "name": "Quantum-Secured Supply Chain",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Supply chain management with quantum security"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "source_excerpt": "integration with Quantum-Secured Supply Chain",
       "aliases": []
     }
   ],
@@ -219,7 +312,7 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "Alex Thorne oversees operational execution"
+      "evidence": "Author: Alex Thorne (COO)"
     },
     {
       "source_entity": "Marcus Webb",
@@ -230,7 +323,7 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "Marcus Webb maintains budget oversight"
+      "evidence": "approved by Marcus Webb (CFO)"
     },
     {
       "source_entity": "Dr. Evelyn Reed",
@@ -241,7 +334,18 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "engineering team led by CTO Dr. Evelyn Reed"
+      "evidence": "involving key stakeholders including Marcus Webb, Sarah Chen, and Dr. Evelyn Reed"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "involving key stakeholders including Marcus Webb, Sarah Chen, and Dr. Evelyn Reed"
     },
     {
       "source_entity": "James Park",
@@ -255,17 +359,6 @@
       "evidence": "General Counsel James Park ensures regulatory compliance"
     },
     {
-      "source_entity": "Fatima Al-Mansoori",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "continued executive sponsorship from Fatima Al-Mansoori"
-    },
-    {
       "source_entity": "Project Helios",
       "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
@@ -274,29 +367,18 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "Budget allocation of $10,316,336 approved"
+      "evidence": "Budget allocation of $10,316,336 approved by Marcus Webb (CFO)"
     },
     {
-      "source_entity": "Sustainability and ESG Initiatives",
+      "source_entity": "Project Helios",
       "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Orion Aerospace Plant",
+      "target_type": "FACILITY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "The sustainability and esg initiatives initiative"
-    },
-    {
-      "source_entity": "Supply Chain Resilience and Vendor Management",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Manus Orion Group",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "The supply chain resilience and vendor management initiative"
+      "evidence": "involves Orion Aerospace Plant - Toulouse, France"
     },
     {
       "source_entity": "Atlas Freight Systems",
@@ -307,7 +389,7 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "The operations team coordinates with Atlas Freight Systems"
+      "evidence": "Atlas Freight Systems is the primary supplier for this initiative"
     },
     {
       "source_entity": "Metropolitan Transit Corp",
@@ -318,16 +400,16 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "Metropolitan Transit Corp has expressed interest"
+      "evidence": "Metropolitan Transit Corp has expressed interest in this capability"
     },
     {
       "source_entity": "EuroGrid Energy",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Sustainability and ESG Initiatives",
+      "target_entity": "sustainability and esg initiatives",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
       "evidence": "Customer requirements from EuroGrid Energy"
     },
@@ -335,40 +417,95 @@
       "source_entity": "Global Defense Systems",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Sustainability and ESG Initiatives",
+      "target_entity": "sustainability and esg initiatives",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
       "evidence": "Customer requirements from Global Defense Systems"
     },
     {
-      "source_entity": "SecureCode Systems",
-      "source_type": "PARTNER",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Supply Chain Resilience and Vendor Management",
+      "source_entity": "EcoSolutions Corp",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "supply chain resilience and vendor management initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "The operations team coordinates with SecureCode Systems"
+      "evidence": "Dependency on EcoSolutions Corp for critical components"
+    },
+    {
+      "source_entity": "SecureCode Systems",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "supply chain resilience and vendor management initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "coordinate with SecureCode Systems for logistics support"
     },
     {
       "source_entity": "TechFlow Industries",
-      "source_type": "PARTNER",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Supply Chain Resilience and Vendor Management",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "supply chain resilience and vendor management initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "coordinate with TechFlow Industries for logistics support"
+    },
+    {
+      "source_entity": "Orion Logistics Center",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "supply chain resilience and vendor management initiative",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
-      "evidence": "The operations team coordinates with TechFlow Industries"
+      "evidence": "Key facilities: Orion Logistics Center - Singapore"
+    },
+    {
+      "source_entity": "Orion R&D Campus",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "supply chain resilience and vendor management initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "Key facilities: Orion R&D Campus - Boulder"
+    },
+    {
+      "source_entity": "Orion Energy Hub",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "supply chain resilience and vendor management initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "Key facilities: Orion Energy Hub - Copenhagen"
+    },
+    {
+      "source_entity": "SmartCity Innovation Lab",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "supply chain resilience and vendor management initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "Begin pilot production at SmartCity Innovation Lab - Seoul"
     },
     {
       "source_entity": "Quantum Dynamics Ltd",
       "source_type": "PARTNER",
       "relationship_type": "PARTNER_OF",
-      "target_entity": "Sustainability and ESG Initiatives",
+      "target_entity": "sustainability and esg initiatives",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
@@ -379,18 +516,51 @@
       "source_entity": "GreenTech Materials",
       "source_type": "PARTNER",
       "relationship_type": "PARTNER_OF",
-      "target_entity": "Sustainability and ESG Initiatives",
+      "target_entity": "sustainability and esg initiatives",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
       "evidence": "Technology partners: GreenTech Materials"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "sustainability and esg initiatives",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "The engineering team led by CTO Dr. Evelyn Reed provides technical oversight"
+    },
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "supply chain resilience and vendor management initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "COO Alex Thorne oversees operational execution"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "supply chain resilience and vendor management initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/customers/customers_doc_006.md",
+      "evidence": "CFO Marcus Webb maintains budget oversight"
     }
   ],
   "metadata": {
     "filename": "customers_doc_006.md",
-    "raw_entity_count": 17,
-    "raw_relationship_count": 16,
+    "raw_entity_count": 25,
+    "raw_relationship_count": 23,
     "used_partial_parse": false,
     "truncated": false
   }
