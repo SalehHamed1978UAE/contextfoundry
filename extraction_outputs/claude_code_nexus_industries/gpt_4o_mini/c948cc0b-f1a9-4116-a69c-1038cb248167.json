@@ -2,7 +2,7 @@
   "document_id": "c948cc0b-f1a9-4116-a69c-1038cb248167",
   "document_path": "01_board_meeting_q4_2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:04:45.321916",
+  "extracted_at": "2026-01-25T15:11:04.671411",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -35,7 +35,7 @@
         "title": "Director",
         "role": "former HP CTO"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Dr. Sarah Kim, Director (former HP CTO)",
       "aliases": []
@@ -47,7 +47,7 @@
         "title": "Director",
         "role": "former GE CEO"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "James Harrison, Director (former GE CEO)",
       "aliases": []
@@ -59,7 +59,7 @@
         "title": "Director",
         "role": "Goldman Sachs Partner"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Maria Gonzalez, Director (Goldman Sachs Partner)",
       "aliases": []
@@ -71,7 +71,7 @@
         "title": "Director",
         "role": "MIT Professor"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Dr. Michael Foster, Director (MIT Professor)",
       "aliases": []
@@ -83,7 +83,7 @@
         "title": "Director",
         "role": "Sustainability Expert"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Patricia Wong, Director (Sustainability Expert)",
       "aliases": []
@@ -107,7 +107,7 @@
         "title": "CFO",
         "role": "Chief Financial Officer"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Michael Chang, CFO",
       "aliases": []
@@ -119,7 +119,7 @@
         "title": "CTO",
         "role": "Chief Technology Officer"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Dr. James Wilson, CTO",
       "aliases": []
@@ -131,7 +131,7 @@
         "title": "General Counsel",
         "role": "General Counsel"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Lisa Thompson, General Counsel",
       "aliases": []
@@ -143,7 +143,7 @@
         "title": "CHRO",
         "role": "Chief Human Resources Officer"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "Maria Santos, CHRO",
       "aliases": []
@@ -153,7 +153,7 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Corporation",
-        "industry": "Manufacturing"
+        "industry": "Various"
       },
       "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -248,7 +248,7 @@
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "CEO total compensation: $4.2M",
+      "source_excerpt": "CEO total compensation: $4.2M (base + bonus + equity)",
       "aliases": []
     },
     {
@@ -270,7 +270,7 @@
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Updated risk framework",
+      "source_excerpt": "Top 10 enterprise risks reviewed",
       "aliases": []
     },
     {
@@ -352,20 +352,6 @@
       "name": "FY2026",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Capital Expenditure",
-        "value": "$680M",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Capital expenditure plan: $680M",
-      "aliases": []
-    },
-    {
-      "name": "FY2026",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
         "metric_name": "R&D Investment",
         "value": "$966M",
         "period": "FY2026",
@@ -377,17 +363,17 @@
       "aliases": []
     },
     {
-      "name": "112%",
+      "name": "FY2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Executive Team Bonus Achievement",
-        "value": "112%",
+        "metric_name": "Executive Compensation",
+        "value": "$4.2M",
         "period": "FY2025",
-        "type": "PERCENTAGE"
+        "type": "CURRENCY"
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Executive team achieved 112% of target bonus metrics",
+      "source_excerpt": "CEO total compensation: $4.2M (base + bonus + equity)",
       "aliases": []
     }
   ],
@@ -401,7 +387,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Meeting called to order at 9:00 AM PT by Dr. Victoria Chen."
+      "evidence": "Dr. Victoria Chen leads the executive team"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -415,6 +401,50 @@
       "evidence": "Dr. Victoria Chen, CEO & Chair"
     },
     {
+      "source_entity": "Michael Chang",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Michael Chang, CFO"
+    },
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Dr. James Wilson, CTO"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Maria Santos, CHRO"
+    },
+    {
       "source_entity": "Robert Mitchell",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
@@ -426,125 +456,59 @@
       "evidence": "Robert Mitchell, Lead Independent Director"
     },
     {
-      "source_entity": "Michael Chang",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Michael Chang, CFO"
-    },
-    {
-      "source_entity": "Dr. James Wilson",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Dr. James Wilson, CTO"
-    },
-    {
-      "source_entity": "Lisa Thompson",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Lisa Thompson, General Counsel"
-    },
-    {
-      "source_entity": "Maria Santos",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Maria Santos, CHRO"
-    },
-    {
       "source_entity": "Dr. Sarah Kim",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "Dr. Sarah Kim, Director (former HP CTO)"
     },
     {
       "source_entity": "James Harrison",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "James Harrison, Director (former GE CEO)"
     },
     {
       "source_entity": "Maria Gonzalez",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "Maria Gonzalez, Director (Goldman Sachs Partner)"
     },
     {
       "source_entity": "Dr. Michael Foster",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "Dr. Michael Foster, Director (MIT Professor)"
     },
     {
       "source_entity": "Patricia Wong",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "Patricia Wong, Director (Sustainability Expert)"
-    },
-    {
-      "source_entity": "Thomas Anderson",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Thomas Anderson (Director) - Medical leave"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "FY2026 Operating Plan and Budget",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Dr. Victoria Chen, CEO"
     },
     {
       "source_entity": "Michael Chang",
@@ -558,6 +522,50 @@
       "evidence": "Presenter: Michael Chang, CFO"
     },
     {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "FY2026 Operating Plan and Budget",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Presenter: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Presenter: Dr. Victoria Chen"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Presenter: Dr. Victoria Chen"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "BatteryTech Solid-State",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Presenter: Dr. Victoria Chen"
+    },
+    {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
@@ -569,7 +577,7 @@
       "evidence": "Presenter: Robert Kim, CISO (via video)"
     },
     {
-      "source_entity": "Maria Gonzalez",
+      "source_entity": "Compensation Committee",
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
       "target_entity": "Executive Compensation Review",
@@ -600,122 +608,12 @@
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "Presenter: Risk Committee (James Harrison, Chair)"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "USES",
-      "target_entity": "Cybersecurity Update",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Dr. Victoria Chen presented the Cybersecurity Update"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Q4 2025 Financial Review",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Q4 revenue of $2.38B, up 14.2% YoY"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "FY2026 Operating Plan and Budget",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "FY2026 revenue target: $9.5-9.8B (13-16% growth)"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Falcon X UAV Program - On track for Q2 2026 first flight"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "First hydrogen production expected March 2026"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "BatteryTech Solid-State",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Commercial production target: Q4 2027"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Cybersecurity Update",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "$18M cybersecurity budget for FY2026"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Executive Compensation Review",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "CEO total compensation: $4.2M"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Governance Matters",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Governance policy updates"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Risk Review",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Updated risk framework"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 31,
-    "raw_relationship_count": 29,
+    "raw_entity_count": 30,
+    "raw_relationship_count": 21,
     "used_partial_parse": false,
     "truncated": false
   }
