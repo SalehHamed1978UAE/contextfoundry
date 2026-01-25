@@ -2,17 +2,18 @@
   "document_id": "29b8f286-111d-4c42-918c-185d942dcf36",
   "document_path": "03_aerospace_division_structure.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:14:18.735531",
+  "extracted_at": "2026-01-25T15:35:46.568931",
   "entities": [
     {
-      "name": "Nexus Aerospace Division",
+      "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "aerospace, UAV, satellite systems, avionics"
+        "type": "Division",
+        "focus_areas": "aerospace"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "# Nexus Aerospace Division Structure",
+      "source_excerpt": "Nexus Aerospace Division Structure",
       "aliases": []
     },
     {
@@ -24,7 +25,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**Division President:** Michael Torres",
+      "source_excerpt": "Division President: Michael Torres",
       "aliases": []
     },
     {
@@ -36,7 +37,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**Reports To:** CEO Dr. Victoria Chen",
+      "source_excerpt": "Reports To: CEO Dr. Victoria Chen",
       "aliases": []
     },
     {
@@ -48,19 +49,20 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**VP of Engineering:** Dr. Rachel Kim",
+      "source_excerpt": "VP of Engineering: Dr. Rachel Kim",
       "aliases": []
     },
     {
       "name": "Engineering Department",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "product design, systems engineering, test and validation",
-        "employees": "850"
+        "type": "Department",
+        "employees": "850",
+        "focus_areas": "product design, systems engineering, test and validation"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "### Engineering Department **VP of Engineering:** Dr. Rachel Kim **Employees:** 850",
+      "source_excerpt": "Engineering Department... VP of Engineering: Dr. Rachel Kim... Employees: 850",
       "aliases": []
     },
     {
@@ -72,7 +74,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- UAV Engineering (Lead: Thomas Wright)",
+      "source_excerpt": "UAV Engineering (Lead: Thomas Wright)",
       "aliases": []
     },
     {
@@ -84,7 +86,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Satellite Systems (Lead: Dr. Priya Sharma)",
+      "source_excerpt": "Satellite Systems (Lead: Dr. Priya Sharma)",
       "aliases": []
     },
     {
@@ -96,7 +98,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Avionics Development (Lead: Marcus Johnson)",
+      "source_excerpt": "Avionics Development (Lead: Marcus Johnson)",
       "aliases": []
     },
     {
@@ -108,7 +110,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Structural Engineering (Lead: Lisa Chen)",
+      "source_excerpt": "Structural Engineering (Lead: Lisa Chen)",
       "aliases": []
     },
     {
@@ -120,19 +122,20 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**VP of Manufacturing:** Antonio Reyes",
+      "source_excerpt": "VP of Manufacturing: Antonio Reyes",
       "aliases": []
     },
     {
       "name": "Manufacturing Operations",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "production planning, quality control, lean manufacturing",
-        "employees": "1,200"
+        "type": "Department",
+        "employees": "1200",
+        "focus_areas": "production planning, quality control, lean manufacturing"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "### Manufacturing Operations **VP of Manufacturing:** Antonio Reyes **Employees:** 1,200",
+      "source_excerpt": "Manufacturing Operations... VP of Manufacturing: Antonio Reyes... Employees: 1,200",
       "aliases": []
     },
     {
@@ -144,7 +147,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Component Manufacturing (Lead: Sarah Mitchell)",
+      "source_excerpt": "Component Manufacturing (Lead: Sarah Mitchell)",
       "aliases": []
     },
     {
@@ -156,7 +159,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Assembly Operations (Lead: David Kowalski)",
+      "source_excerpt": "Assembly Operations (Lead: David Kowalski)",
       "aliases": []
     },
     {
@@ -168,7 +171,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Quality Assurance (Lead: Jennifer Wu)",
+      "source_excerpt": "Quality Assurance (Lead: Jennifer Wu)",
       "aliases": []
     },
     {
@@ -180,7 +183,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Supply Chain (Lead: Robert Hernandez)",
+      "source_excerpt": "Supply Chain (Lead: Robert Hernandez)",
       "aliases": []
     },
     {
@@ -192,19 +195,20 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**VP of Programs:** Catherine O'Brien",
+      "source_excerpt": "VP of Programs: Catherine O'Brien",
       "aliases": []
     },
     {
       "name": "Program Management",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "program planning, customer relationship management, contract management",
-        "employees": "320"
+        "type": "Department",
+        "employees": "320",
+        "focus_areas": "program planning, customer relationship management, contract management"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "### Program Management **VP of Programs:** Catherine O'Brien **Employees:** 320",
+      "source_excerpt": "Program Management... VP of Programs: Catherine O'Brien... Employees: 320",
       "aliases": []
     },
     {
@@ -216,7 +220,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Falcon X UAV Program (PM: Steven Park)",
+      "source_excerpt": "Falcon X UAV Program (PM: Steven Park)",
       "aliases": []
     },
     {
@@ -228,7 +232,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Orbital Satellite Constellation (PM: Dr. Amara Osei)",
+      "source_excerpt": "Orbital Satellite Constellation (PM: Dr. Amara Osei)",
       "aliases": []
     },
     {
@@ -240,7 +244,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- AeroCore Defense Initiative (PM: William Chen)",
+      "source_excerpt": "AeroCore Defense Initiative (PM: William Chen)",
       "aliases": []
     },
     {
@@ -252,7 +256,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- NextGen Avionics Platform (PM: Patricia Gonzalez)",
+      "source_excerpt": "NextGen Avionics Platform (PM: Patricia Gonzalez)",
       "aliases": []
     },
     {
@@ -260,11 +264,11 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "Falcon X UAV Program",
-        "status": "Active"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Falcon X UAV Program (PM: Steven Park)",
+      "source_excerpt": "Falcon X UAV Program (PM: Steven Park)",
       "aliases": []
     },
     {
@@ -272,11 +276,11 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "Orbital Satellite Constellation",
-        "status": "Active"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- Orbital Satellite Constellation (PM: Dr. Amara Osei)",
+      "source_excerpt": "Orbital Satellite Constellation (PM: Dr. Amara Osei)",
       "aliases": []
     },
     {
@@ -284,11 +288,11 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "AeroCore Defense Initiative",
-        "status": "Active"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- AeroCore Defense Initiative (PM: William Chen)",
+      "source_excerpt": "AeroCore Defense Initiative (PM: William Chen)",
       "aliases": []
     },
     {
@@ -296,11 +300,11 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "NextGen Avionics Platform",
-        "status": "Active"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "- NextGen Avionics Platform (PM: Patricia Gonzalez)",
+      "source_excerpt": "NextGen Avionics Platform (PM: Patricia Gonzalez)",
       "aliases": []
     },
     {
@@ -312,19 +316,20 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**VP of Business Development:** Richard Foster",
+      "source_excerpt": "VP of Business Development: Richard Foster",
       "aliases": []
     },
     {
       "name": "Business Development",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "new business capture, proposal development, strategic partnerships",
-        "employees": "120"
+        "type": "Department",
+        "employees": "120",
+        "focus_areas": "new business capture, proposal development, strategic partnerships"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "### Business Development **VP of Business Development:** Richard Foster **Employees:** 120",
+      "source_excerpt": "Business Development... VP of Business Development: Richard Foster... Employees: 120",
       "aliases": []
     },
     {
@@ -336,43 +341,20 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**Division CFO:** Angela Thompson",
+      "source_excerpt": "Division CFO: Angela Thompson",
       "aliases": []
     },
     {
       "name": "Finance and Administration",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "financial planning, budget management, contract pricing",
-        "employees": "85"
+        "type": "Department",
+        "employees": "85",
+        "focus_areas": "financial planning, budget management, contract pricing"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "### Finance and Administration **Division CFO:** Angela Thompson **Employees:** 85",
-      "aliases": []
-    },
-    {
-      "name": "Mark Stevens",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "HR Business Partner",
-        "role": "HR Business Partner"
-      },
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "contact HR Business Partner: Mark Stevens",
-      "aliases": []
-    },
-    {
-      "name": "Seattle, Washington",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Seattle",
-        "country": "United States"
-      },
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "**Location:** Seattle, Washington",
+      "source_excerpt": "Finance and Administration... Division CFO: Angela Thompson... Employees: 85",
       "aliases": []
     },
     {
@@ -381,24 +363,24 @@
       "properties": {
         "type": "Headquarters",
         "function": "Engineering, Programs",
-        "employees": "1,100"
+        "employees": "1100"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Seattle HQ | Seattle, WA | Engineering, Programs | 1,100 |",
+      "source_excerpt": "Seattle HQ | Seattle, WA | Engineering, Programs | 1,100",
       "aliases": []
     },
     {
       "name": "Everett Plant",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "Manufacturing Plant",
+        "type": "Plant",
         "function": "Manufacturing",
-        "employees": "1,400"
+        "employees": "1400"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Everett Plant | Everett, WA | Manufacturing | 1,400 |",
+      "source_excerpt": "Everett Plant | Everett, WA | Manufacturing | 1,400",
       "aliases": []
     },
     {
@@ -411,7 +393,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Huntsville Center | Huntsville, AL | Defense Programs | 450 |",
+      "source_excerpt": "Huntsville Center | Huntsville, AL | Defense Programs | 450",
       "aliases": []
     },
     {
@@ -424,7 +406,20 @@
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Denver Lab | Denver, CO | R&D, Testing | 250 |",
+      "source_excerpt": "Denver Lab | Denver, CO | R&D, Testing | 250",
+      "aliases": []
+    },
+    {
+      "name": "Seattle, Washington",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Seattle",
+        "state": "Washington",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_structure.md",
+      "source_excerpt": "Location: Seattle, Washington",
       "aliases": []
     },
     {
@@ -432,11 +427,12 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": "Seattle",
-        "country": "United States"
+        "state": "WA",
+        "country": "USA"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Seattle HQ | Seattle, WA |",
+      "source_excerpt": "Seattle HQ | Seattle, WA",
       "aliases": []
     },
     {
@@ -444,11 +440,12 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": "Everett",
-        "country": "United States"
+        "state": "WA",
+        "country": "USA"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Everett Plant | Everett, WA |",
+      "source_excerpt": "Everett Plant | Everett, WA",
       "aliases": []
     },
     {
@@ -456,11 +453,12 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": "Huntsville",
-        "country": "United States"
+        "state": "AL",
+        "country": "USA"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Huntsville Center | Huntsville, AL |",
+      "source_excerpt": "Huntsville Center | Huntsville, AL",
       "aliases": []
     },
     {
@@ -468,26 +466,29 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": "Denver",
-        "country": "United States"
+        "state": "CO",
+        "country": "USA"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "source_excerpt": "| Denver Lab | Denver, CO |",
+      "source_excerpt": "Denver Lab | Denver, CO",
+      "aliases": []
+    },
+    {
+      "name": "Mark Stevens",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "HR Business Partner",
+        "role": "HR Business Partner",
+        "email": "mark.stevens@nexus-aerospace.com"
+      },
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_structure.md",
+      "source_excerpt": "contact HR Business Partner: Mark Stevens (mark.stevens@nexus-aerospace.com)",
       "aliases": []
     }
   ],
   "relationships": [
-    {
-      "source_entity": "Michael Torres",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Aerospace Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Division President:** Michael Torres"
-    },
     {
       "source_entity": "Michael Torres",
       "source_type": "PERSON",
@@ -497,29 +498,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Reports To:** CEO Dr. Victoria Chen"
+      "evidence": "Reports To: CEO Dr. Victoria Chen"
     },
     {
       "source_entity": "Michael Torres",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_AT",
-      "target_entity": "Seattle, Washington",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Location:** Seattle, Washington"
-    },
-    {
-      "source_entity": "Dr. Rachel Kim",
-      "source_type": "PERSON",
       "relationship_type": "LEADS",
-      "target_entity": "Engineering Department",
+      "target_entity": "Nexus Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**VP of Engineering:** Dr. Rachel Kim"
+      "evidence": "Division President: Michael Torres"
     },
     {
       "source_entity": "Dr. Rachel Kim",
@@ -530,18 +520,29 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Reports To:** Michael Torres"
+      "evidence": "Reports To: Michael Torres"
+    },
+    {
+      "source_entity": "Dr. Rachel Kim",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Engineering Department",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_structure.md",
+      "evidence": "VP of Engineering: Dr. Rachel Kim"
     },
     {
       "source_entity": "Engineering Department",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
-      "target_entity": "Nexus Aerospace Division",
+      "target_entity": "Nexus Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "### Engineering Department under Nexus Aerospace Division Structure"
+      "evidence": "Engineering Department... Division: Nexus Aerospace"
     },
     {
       "source_entity": "Thomas Wright",
@@ -552,7 +553,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- UAV Engineering (Lead: Thomas Wright)"
+      "evidence": "UAV Engineering (Lead: Thomas Wright)"
     },
     {
       "source_entity": "Dr. Priya Sharma",
@@ -563,7 +564,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Satellite Systems (Lead: Dr. Priya Sharma)"
+      "evidence": "Satellite Systems (Lead: Dr. Priya Sharma)"
     },
     {
       "source_entity": "Marcus Johnson",
@@ -574,7 +575,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Avionics Development (Lead: Marcus Johnson)"
+      "evidence": "Avionics Development (Lead: Marcus Johnson)"
     },
     {
       "source_entity": "Lisa Chen",
@@ -585,18 +586,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Structural Engineering (Lead: Lisa Chen)"
-    },
-    {
-      "source_entity": "Antonio Reyes",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Manufacturing Operations",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**VP of Manufacturing:** Antonio Reyes"
+      "evidence": "Structural Engineering (Lead: Lisa Chen)"
     },
     {
       "source_entity": "Antonio Reyes",
@@ -607,18 +597,29 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Reports To:** Michael Torres"
+      "evidence": "Reports To: Michael Torres"
+    },
+    {
+      "source_entity": "Antonio Reyes",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Manufacturing Operations",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_structure.md",
+      "evidence": "VP of Manufacturing: Antonio Reyes"
     },
     {
       "source_entity": "Manufacturing Operations",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
-      "target_entity": "Nexus Aerospace Division",
+      "target_entity": "Nexus Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "### Manufacturing Operations under Nexus Aerospace Division Structure"
+      "evidence": "Manufacturing Operations... Division: Nexus Aerospace"
     },
     {
       "source_entity": "Sarah Mitchell",
@@ -629,7 +630,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Component Manufacturing (Lead: Sarah Mitchell)"
+      "evidence": "Component Manufacturing (Lead: Sarah Mitchell)"
     },
     {
       "source_entity": "David Kowalski",
@@ -640,7 +641,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Assembly Operations (Lead: David Kowalski)"
+      "evidence": "Assembly Operations (Lead: David Kowalski)"
     },
     {
       "source_entity": "Jennifer Wu",
@@ -651,7 +652,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Quality Assurance (Lead: Jennifer Wu)"
+      "evidence": "Quality Assurance (Lead: Jennifer Wu)"
     },
     {
       "source_entity": "Robert Hernandez",
@@ -662,18 +663,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Supply Chain (Lead: Robert Hernandez)"
-    },
-    {
-      "source_entity": "Catherine O'Brien",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Program Management",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**VP of Programs:** Catherine O'Brien"
+      "evidence": "Supply Chain (Lead: Robert Hernandez)"
     },
     {
       "source_entity": "Catherine O'Brien",
@@ -684,18 +674,29 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Reports To:** Michael Torres"
+      "evidence": "Reports To: Michael Torres"
+    },
+    {
+      "source_entity": "Catherine O'Brien",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Program Management",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_structure.md",
+      "evidence": "VP of Programs: Catherine O'Brien"
     },
     {
       "source_entity": "Program Management",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
-      "target_entity": "Nexus Aerospace Division",
+      "target_entity": "Nexus Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "### Program Management under Nexus Aerospace Division Structure"
+      "evidence": "Program Management... Division: Nexus Aerospace"
     },
     {
       "source_entity": "Steven Park",
@@ -706,7 +707,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Falcon X UAV Program (PM: Steven Park)"
+      "evidence": "Falcon X UAV Program (PM: Steven Park)"
     },
     {
       "source_entity": "Dr. Amara Osei",
@@ -717,7 +718,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- Orbital Satellite Constellation (PM: Dr. Amara Osei)"
+      "evidence": "Orbital Satellite Constellation (PM: Dr. Amara Osei)"
     },
     {
       "source_entity": "William Chen",
@@ -728,7 +729,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- AeroCore Defense Initiative (PM: William Chen)"
+      "evidence": "AeroCore Defense Initiative (PM: William Chen)"
     },
     {
       "source_entity": "Patricia Gonzalez",
@@ -739,51 +740,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "- NextGen Avionics Platform (PM: Patricia Gonzalez)"
+      "evidence": "NextGen Avionics Platform (PM: Patricia Gonzalez)"
     },
     {
-      "source_entity": "Steven Park",
+      "source_entity": "Richard Foster",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Program Management",
-      "target_type": "BUSINESS_UNIT",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Michael Torres",
+      "target_type": "PERSON",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Steven Park manages program under Program Management department"
-    },
-    {
-      "source_entity": "Dr. Amara Osei",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Program Management",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Dr. Amara Osei manages program under Program Management department"
-    },
-    {
-      "source_entity": "William Chen",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Program Management",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "William Chen manages program under Program Management department"
-    },
-    {
-      "source_entity": "Patricia Gonzalez",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Program Management",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Patricia Gonzalez manages program under Program Management department"
+      "evidence": "Reports To: Michael Torres"
     },
     {
       "source_entity": "Richard Foster",
@@ -794,10 +762,21 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**VP of Business Development:** Richard Foster"
+      "evidence": "VP of Business Development: Richard Foster"
     },
     {
-      "source_entity": "Richard Foster",
+      "source_entity": "Business Development",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_structure.md",
+      "evidence": "Business Development... Division: Nexus Aerospace"
+    },
+    {
+      "source_entity": "Angela Thompson",
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Michael Torres",
@@ -805,18 +784,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Reports To:** Michael Torres"
-    },
-    {
-      "source_entity": "Business Development",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Aerospace Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "### Business Development under Nexus Aerospace Division Structure"
+      "evidence": "Reports To: Michael Torres"
     },
     {
       "source_entity": "Angela Thompson",
@@ -827,29 +795,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Division CFO:** Angela Thompson"
-    },
-    {
-      "source_entity": "Angela Thompson",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Michael Torres",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "**Reports To:** Michael Torres (dotted line to Corporate CFO)"
+      "evidence": "Division CFO: Angela Thompson"
     },
     {
       "source_entity": "Finance and Administration",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
-      "target_entity": "Nexus Aerospace Division",
+      "target_entity": "Nexus Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "### Finance and Administration under Nexus Aerospace Division Structure"
+      "evidence": "Finance and Administration... Division: Nexus Aerospace"
     },
     {
       "source_entity": "Seattle HQ",
@@ -860,7 +817,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "| Seattle HQ | Seattle, WA |"
+      "evidence": "Seattle HQ | Seattle, WA"
     },
     {
       "source_entity": "Everett Plant",
@@ -871,7 +828,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "| Everett Plant | Everett, WA |"
+      "evidence": "Everett Plant | Everett, WA"
     },
     {
       "source_entity": "Huntsville Center",
@@ -882,7 +839,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "| Huntsville Center | Huntsville, AL |"
+      "evidence": "Huntsville Center | Huntsville, AL"
     },
     {
       "source_entity": "Denver Lab",
@@ -893,13 +850,24 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "| Denver Lab | Denver, CO |"
+      "evidence": "Denver Lab | Denver, CO"
+    },
+    {
+      "source_entity": "Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_AT",
+      "target_entity": "Seattle, Washington",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_structure.md",
+      "evidence": "Location: Seattle, Washington"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 39,
-    "raw_relationship_count": 38,
+    "raw_relationship_count": 34,
     "used_partial_parse": false,
     "truncated": false
   }

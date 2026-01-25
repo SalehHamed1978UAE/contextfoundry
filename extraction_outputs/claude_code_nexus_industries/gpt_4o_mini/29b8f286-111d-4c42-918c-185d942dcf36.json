@@ -2,7 +2,7 @@
   "document_id": "29b8f286-111d-4c42-918c-185d942dcf36",
   "document_path": "03_aerospace_division_structure.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:13:20.830053",
+  "extracted_at": "2026-01-25T15:34:54.146384",
   "entities": [
     {
       "name": "Michael Torres",
@@ -303,24 +303,13 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Michael Torres leads the division"
+      "evidence": "Michael Torres (Division President)"
     },
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Dr. Victoria Chen is the CEO"
-    },
-    {
-      "source_entity": "Michael Torres",
-      "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
+      "target_entity": "Michael Torres",
       "target_type": "PERSON",
       "properties": {},
       "confidence": 0.9,
@@ -385,63 +374,19 @@
     {
       "source_entity": "Michael Torres",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Engineering Department",
-      "target_type": "BUSINESS_UNIT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Michael Torres manages the Engineering Department"
-    },
-    {
-      "source_entity": "Michael Torres",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Manufacturing Operations",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Michael Torres manages the Manufacturing Operations"
-    },
-    {
-      "source_entity": "Michael Torres",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Program Management",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Michael Torres manages the Program Management"
-    },
-    {
-      "source_entity": "Michael Torres",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Business Development",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Michael Torres manages the Business Development"
-    },
-    {
-      "source_entity": "Michael Torres",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Finance and Administration",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_aerospace_division_structure.md",
-      "evidence": "Michael Torres manages the Finance and Administration"
+      "evidence": "Michael Torres (Division President)"
     },
     {
       "source_entity": "Seattle HQ",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Seattle, Washington",
+      "target_entity": "Seattle, WA",
       "target_type": "LOCATION",
       "properties": {},
       "confidence": 0.95,
@@ -485,7 +430,7 @@
   "metadata": {
     "filename": "",
     "raw_entity_count": 24,
-    "raw_relationship_count": 17,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -1,0 +1,486 @@
+{% extends "base.html" %}
+
+{% block title %}Extraction Monitoring - Context Foundry{% endblock %}
+
+{% block page_title %}Extraction Monitoring{% endblock %}
+
+{% block head %}
+<style>
+.metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.metric-card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.metric-value.pending { color: #f97316; }
+.metric-value.in-progress { color: #3b82f6; }
+.metric-value.complete { color: #22c55e; }
+.metric-value.multi-pending { color: #a855f7; }
+
+.metric-label {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.section {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #334155;
+}
+
+th {
+    color: #9ca3af;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+td {
+    color: #f1f5f9;
+    font-size: 0.9rem;
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-badge.pending { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+.status-badge.in_progress { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.status-badge.complete { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.status-badge.empty { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
+
+.progress-bar {
+    width: 100px;
+    height: 8px;
+    background: #334155;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-fill.low { background: #f97316; }
+.progress-fill.medium { background: #3b82f6; }
+.progress-fill.high { background: #22c55e; }
+
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: #fff;
+}
+
+.btn-primary:hover { background: #2563eb; }
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #334155;
+    color: #9ca3af;
+}
+
+.btn-secondary:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+}
+
+.action-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-btn {
+    padding: 6px 14px;
+    border: 1px solid #334155;
+    background: transparent;
+    color: #9ca3af;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.filter-btn.active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+.event-log {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.event-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-bottom: 1px solid #334155;
+}
+
+.event-item:last-child {
+    border-bottom: none;
+}
+
+.event-info {
+    flex: 1;
+}
+
+.event-type {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.event-type.failure { color: #ef4444; }
+.event-type.resume { color: #3b82f6; }
+.event-type.complete { color: #22c55e; }
+.event-type.start { color: #f97316; }
+.event-type.cancel { color: #9ca3af; }
+
+.event-details {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}
+
+.event-time {
+    font-size: 0.8rem;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+.refresh-info {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.stat-num {
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 768px) {
+    .metrics-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="metrics-bar" id="metricsBar">
+    <div class="metric-card">
+        <div class="metric-value pending stat-num" id="metricPending">-</div>
+        <div class="metric-label">Vaults Pending</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value in-progress stat-num" id="metricInProgress">-</div>
+        <div class="metric-label">In Progress</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value complete stat-num" id="metricComplete">-</div>
+        <div class="metric-label">Complete</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value multi-pending stat-num" id="metricMultiPending">-</div>
+        <div class="metric-label">Docs Pending Multi</div>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">Vault Queue</h2>
+        <span class="refresh-info">Auto-refresh: <span id="refreshCountdown">10</span>s</span>
+    </div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vault</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Single</th>
+                    <th>Multi</th>
+                    <th>Pending</th>
+                    <th>Failed</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="vaultQueueBody">
+                <tr><td colspan="9" style="text-align: center; color: #6b7280;">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="section">
+    <div class="section-header">
+        <h2 class="section-title">Event Log</h2>
+        <div class="filter-btns">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="failure">Failures</button>
+            <button class="filter-btn" data-filter="resume">Resumes</button>
+            <button class="filter-btn" data-filter="complete">Completions</button>
+        </div>
+    </div>
+    <div class="event-log" id="eventLog">
+        <div style="text-align: center; color: #6b7280; padding: 20px;">Loading events...</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentFilter = 'all';
+let refreshInterval;
+let countdownInterval;
+let countdown = 10;
+
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return '-';
+    const now = new Date();
+    const date = new Date(timestamp);
+    const diffMs = now - date;
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffSecs < 60) return 'just now';
+    if (diffMins < 60) return diffMins + 'm ago';
+    if (diffHours < 24) return diffHours + 'h ago';
+    return diffDays + 'd ago';
+}
+
+function getProgressClass(pct) {
+    if (pct < 33) return 'low';
+    if (pct < 66) return 'medium';
+    return 'high';
+}
+
+function getStatusClass(status) {
+    if (!status) return 'empty';
+    return status.toLowerCase().replace(' ', '_');
+}
+
+async function fetchOverview() {
+    try {
+        const resp = await fetch('/api/extraction/overview');
+        const data = await resp.json();
+        
+        document.getElementById('metricPending').textContent = data.vaults_pending || 0;
+        document.getElementById('metricInProgress').textContent = data.vaults_in_progress || 0;
+        document.getElementById('metricComplete').textContent = data.vaults_complete || 0;
+        document.getElementById('metricMultiPending').textContent = data.docs_pending_multi || 0;
+        
+        renderVaultQueue(data.vaults || []);
+    } catch (e) {
+        console.error('Failed to fetch overview:', e);
+    }
+}
+
+function renderVaultQueue(vaults) {
+    const tbody = document.getElementById('vaultQueueBody');
+    
+    if (!vaults.length) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #6b7280;">No vaults found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = vaults.map(v => {
+        const total = (v.single_done || 0) + (v.multi_done || 0) + (v.pending || 0) + (v.failed || 0);
+        const done = (v.single_done || 0) + (v.multi_done || 0);
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        const progressClass = getProgressClass(pct);
+        const statusClass = getStatusClass(v.status);
+        
+        return `
+            <tr>
+                <td>${v.name || v.vault_id}</td>
+                <td><span class="status-badge ${statusClass}">${v.status || 'empty'}</span></td>
+                <td>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${progressClass}" style="width: ${pct}%"></div>
+                    </div>
+                </td>
+                <td class="stat-num">${v.single_done || 0}</td>
+                <td class="stat-num">${v.multi_done || 0}</td>
+                <td class="stat-num">${v.pending || 0}</td>
+                <td class="stat-num">${v.failed || 0}</td>
+                <td>${formatTimeAgo(v.last_updated)}</td>
+                <td class="action-btns">
+                    <button class="btn btn-primary btn-sm" onclick="resumeVault('${v.vault_id}')">Resume</button>
+                    <a href="/vault/${v.vault_id}" class="btn btn-secondary btn-sm">View</a>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function fetchEvents() {
+    try {
+        const url = currentFilter === 'all' 
+            ? '/api/extraction/events' 
+            : `/api/extraction/events?type=${currentFilter}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        renderEvents(data.events || []);
+    } catch (e) {
+        console.error('Failed to fetch events:', e);
+    }
+}
+
+function renderEvents(events) {
+    const container = document.getElementById('eventLog');
+    
+    if (!events.length) {
+        container.innerHTML = '<div style="text-align: center; color: #6b7280; padding: 20px;">No events found</div>';
+        return;
+    }
+    
+    container.innerHTML = events.map(ev => {
+        const typeClass = (ev.event_type || '').toLowerCase();
+        return `
+            <div class="event-item">
+                <div class="event-info">
+                    <div class="event-type ${typeClass}">${ev.event_type}</div>
+                    <div class="event-details">
+                        ${ev.vault_name || ev.vault_id || 'Unknown vault'}
+                        ${ev.document_name ? ' - ' + ev.document_name : ''}
+                        ${ev.details ? ' - ' + ev.details : ''}
+                    </div>
+                </div>
+                <div class="event-time">${formatTimeAgo(ev.created_at)}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+async function resumeVault(vaultId) {
+    try {
+        const resp = await fetch(`/api/extraction/resume/${vaultId}`, { method: 'POST' });
+        if (resp.ok) {
+            fetchOverview();
+            fetchEvents();
+        }
+    } catch (e) {
+        console.error('Failed to resume vault:', e);
+    }
+}
+
+function startRefresh() {
+    countdown = 10;
+    document.getElementById('refreshCountdown').textContent = countdown;
+    
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(() => {
+        countdown--;
+        document.getElementById('refreshCountdown').textContent = countdown;
+        if (countdown <= 0) {
+            countdown = 10;
+            fetchOverview();
+            fetchEvents();
+        }
+    }, 1000);
+}
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        fetchEvents();
+    });
+});
+
+fetchOverview();
+fetchEvents();
+startRefresh();
+</script>
+{% endblock %}

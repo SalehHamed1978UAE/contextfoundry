@@ -2,7 +2,7 @@
   "document_id": "90051eb0-91c5-460c-9fbd-4c383d3a3906",
   "document_path": "02_q4_2025_earnings.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:36:49.600645",
+  "extracted_at": "2026-01-25T15:32:14.719799",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -124,7 +124,7 @@
       "name": "General Electric",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Conglomerate",
+        "industry": "Manufacturing",
         "region": "Global"
       },
       "confidence": 0.9,
@@ -157,111 +157,45 @@
       "aliases": []
     },
     {
-      "name": "CyberShield Security Platform",
-      "entity_type": "PRODUCT",
+      "name": "Q4 FY2025",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "Cybersecurity platform",
-        "category": "Security"
+        "metric name": "Revenue",
+        "value": "$2.30B",
+        "period": "Q4 FY2025",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "CyberShield Security Platform completed successful beta program",
+      "source_excerpt": "| **Revenue** | **$2.30B** |",
       "aliases": []
     },
     {
-      "name": "NexusConnect IoT platform",
-      "entity_type": "PRODUCT",
+      "name": "Q4 FY2025",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "IoT platform for enterprises",
-        "category": "IoT"
+        "metric name": "Net Income",
+        "value": "$228M",
+        "period": "Q4 FY2025",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "NexusConnect IoT platform added 52 new enterprise customers",
+      "source_excerpt": "| Net Income | $228M |",
       "aliases": []
     },
     {
-      "name": "QuantumLeap Computing",
-      "entity_type": "PRODUCT",
+      "name": "Q4 FY2025",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "Computing technology",
-        "category": "Computing"
+        "metric name": "EPS (Diluted)",
+        "value": "$1.16",
+        "period": "Q4 FY2025",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "QuantumLeap Computing secured DARPA research grant",
-      "aliases": []
-    },
-    {
-      "name": "BatteryTech Solid State",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Solid state battery technology",
-        "category": "Energy"
-      },
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "BatteryTech Solid State achieved lab cell demonstration",
-      "aliases": []
-    },
-    {
-      "name": "SmartGrid Controller",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Smart grid management tool",
-        "category": "Energy"
-      },
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "SmartGrid Controller secured two new utility pilots",
-      "aliases": []
-    },
-    {
-      "name": "Falcon X UAV",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Unmanned aerial vehicle",
-        "category": "Aerospace"
-      },
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "Falcon X UAV program hit Critical Design Review milestone",
-      "aliases": []
-    },
-    {
-      "name": "Orbital Satellite Constellation",
-      "entity_type": "PROJECT",
-      "properties": {
-        "description": "Satellite launch project",
-        "timeline": "First launch in Q3 2026",
-        "status": "On track"
-      },
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "Orbital Satellite Constellation on track for first launch in Q3 2026",
-      "aliases": []
-    },
-    {
-      "name": "GreenHydrogen Initiative",
-      "entity_type": "PROJECT",
-      "properties": {
-        "description": "Hydrogen energy project",
-        "status": "Completed Front-End Engineering"
-      },
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "GreenHydrogen Initiative completed Front-End Engineering",
-      "aliases": []
-    },
-    {
-      "name": "Microsoft",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership type": "Carbon credit agreement"
-      },
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "source_excerpt": "Microsoft carbon credit offtake agreement signed",
+      "source_excerpt": "| EPS (Diluted) | $1.16 |",
       "aliases": []
     }
   ],
@@ -300,120 +234,109 @@
       "evidence": "Jennifer Walsh, VP Investor Relations"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Nexus Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Aerospace ($765M, +8.5%)"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Nexus Energy Systems",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Nexus Energy Systems",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Energy Systems ($668M, +14.8%)"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Nexus Digital Solutions",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Digital Solutions ($512M, +20.5%)"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Nexus Advanced Materials ($355M, -3.5%)"
     },
     {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
+      "source_entity": "Boeing",
+      "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Boeing",
-      "target_type": "CUSTOMER",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "787 Floor Beams Extension | Boeing | $185M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "BUSINESS_UNIT",
+      "source_entity": "Pacific Power",
+      "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Pacific Power",
-      "target_type": "CUSTOMER",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Grid Modernization | Pacific Power | $92M"
     },
     {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "BUSINESS_UNIT",
+      "source_entity": "General Electric",
+      "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "General Electric",
-      "target_type": "CUSTOMER",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "IoT Platform License | General Electric | $45M"
     },
     {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
+      "source_entity": "US DoD",
+      "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "US DoD",
-      "target_type": "CUSTOMER",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Defense UAV Sensors | US DoD | $68M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "BUSINESS_UNIT",
+      "source_entity": "First Solar",
+      "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "First Solar",
-      "target_type": "CUSTOMER",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_q4_2025_earnings.md",
       "evidence": "Solar Panel Supply | First Solar | $52M"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Microsoft",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "evidence": "Microsoft carbon credit offtake agreement signed"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 22,
-    "raw_relationship_count": 13,
+    "raw_entity_count": 16,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

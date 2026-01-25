@@ -1,0 +1,773 @@
+Instructions for Replit: Extraction Monitoring Dashboard                                               
+                                                                                                         
+  Overview                                                                                               
+                                                                                                         
+  Add an "Extraction" section to the admin dashboard that shows:                                         
+  - Queue status across all vaults                                                                       
+  - Per-vault progress with document-level detail                                                        
+  - Event log with restart/failure history                                                               
+  - Action buttons for control                                                                           
+                                                                                                         
+  ---                                                                                                    
+  Part 1: Database Schema                                                                                
+                                                                                                         
+  1.1 Add Extraction Timestamps to Documents                                                             
+                                                                                                         
+  -- Add columns to track extraction completion times                                                    
+  ALTER TABLE platform.documents                                                                         
+  ADD COLUMN IF NOT EXISTS extraction_level VARCHAR(20) DEFAULT NULL,                                    
+  ADD COLUMN IF NOT EXISTS single_extracted_at TIMESTAMP,                                                
+  ADD COLUMN IF NOT EXISTS multi_extracted_at TIMESTAMP;                                                 
+                                                                                                         
+  1.2 Create Extraction Events Log Table                                                                 
+                                                                                                         
+  CREATE TABLE IF NOT EXISTS platform.extraction_events (                                                
+      id SERIAL PRIMARY KEY,                                                                             
+      vault_id UUID NOT NULL,                                                                            
+      vault_name VARCHAR(255),                                                                           
+      document_id UUID,                                                                                  
+      document_name VARCHAR(255),                                                                        
+      event_type VARCHAR(50) NOT NULL,  -- 'started', 'resumed', 'completed', 'failed', 'cancelled'      
+      extraction_level VARCHAR(20),      -- 'single', 'multi'                                            
+      details TEXT,                       -- Additional context or error message                         
+      created_at TIMESTAMP DEFAULT NOW()                                                                 
+  );                                                                                                     
+                                                                                                         
+  CREATE INDEX idx_extraction_events_vault ON platform.extraction_events(vault_id);                      
+  CREATE INDEX idx_extraction_events_created ON platform.extraction_events(created_at DESC);             
+  CREATE INDEX idx_extraction_events_type ON platform.extraction_events(event_type);                     
+                                                                                                         
+  ---                                                                                                    
+  Part 2: API Endpoints                                                                                  
+                                                                                                         
+  2.1 Extraction Queue Overview (All Vaults)                                                             
+                                                                                                         
+  Endpoint: GET /api/extraction/overview                                                                 
+                                                                                                         
+  @app.route('/api/extraction/overview')                                                                 
+  def get_extraction_overview():                                                                         
+      """Get extraction status across all vaults with aggregate metrics."""                              
+      with get_db_session() as session:                                                                  
+          vaults = TenantService().list_tenants()                                                        
+                                                                                                         
+          vault_stats = []                                                                               
+          totals = {                                                                                     
+              "total_vaults": 0,                                                                         
+              "vaults_pending": 0,                                                                       
+              "vaults_in_progress": 0,                                                                   
+              "vaults_complete": 0,                                                                      
+              "total_docs": 0,                                                                           
+              "docs_pending_multi": 0                                                                    
+          }                                                                                              
+                                                                                                         
+          for vault in vaults:                                                                           
+              stats = session.execute(text("""                                                           
+                  SELECT                                                                                 
+                      COUNT(*) as total,                                                                 
+                      COUNT(*) FILTER (WHERE extraction_level = 'multi') as multi_done,                  
+                      COUNT(*) FILTER (WHERE extraction_level = 'single') as single_done,                
+                      COUNT(*) FILTER (WHERE extraction_level IS NULL OR extraction_level != 'multi') as 
+  pending_multi,                                                                                         
+                      COUNT(*) FILTER (WHERE status = 'failed') as failed,                               
+                      COUNT(*) FILTER (WHERE status = 'processing') as in_progress,                      
+                      MAX(multi_extracted_at) as last_multi_at,                                          
+                      MAX(single_extracted_at) as last_single_at                                         
+                  FROM platform.documents                                                                
+                  WHERE tenant_id = :vault_id                                                            
+              """), {"vault_id": vault.id}).fetchone()                                                   
+                                                                                                         
+              # Determine vault status                                                                   
+              if stats.in_progress > 0:                                                                  
+                  vault_status = "in_progress"                                                           
+                  totals["vaults_in_progress"] += 1                                                      
+              elif stats.multi_done == stats.total and stats.total > 0:                                  
+                  vault_status = "complete"                                                              
+                  totals["vaults_complete"] += 1                                                         
+              elif stats.total == 0:                                                                     
+                  vault_status = "empty"                                                                 
+              else:                                                                                      
+                  vault_status = "pending"                                                               
+                  totals["vaults_pending"] += 1                                                          
+                                                                                                         
+              totals["total_vaults"] += 1                                                                
+              totals["total_docs"] += stats.total                                                        
+              totals["docs_pending_multi"] += stats.pending_multi                                        
+                                                                                                         
+              vault_stats.append({                                                                       
+                  "vault_id": str(vault.id),                                                             
+                  "vault_name": vault.name,                                                              
+                  "status": vault_status,                                                                
+                  "total_docs": stats.total,                                                             
+                  "single_done": stats.single_done,                                                      
+                  "multi_done": stats.multi_done,                                                        
+                  "pending_multi": stats.pending_multi,                                                  
+                  "failed": stats.failed,                                                                
+                  "in_progress": stats.in_progress,                                                      
+                  "progress_pct": round((stats.multi_done / stats.total * 100), 1) if stats.total > 0    
+  else 0,                                                                                                
+                  "last_updated": (stats.last_multi_at or stats.last_single_at or "").isoformat() if     
+  (stats.last_multi_at or stats.last_single_at) else None                                                
+              })                                                                                         
+                                                                                                         
+          return jsonify({                                                                               
+              "totals": totals,                                                                          
+              "vaults": sorted(vault_stats, key=lambda x: x["pending_multi"], reverse=True)              
+          })                                                                                             
+                                                                                                         
+  ---                                                                                                    
+  2.2 Per-Vault Document Detail                                                                          
+                                                                                                         
+  Endpoint: GET /api/extraction/vault/<vault_id>                                                         
+                                                                                                         
+  @app.route('/api/extraction/vault/<vault_id>')                                                         
+  def get_vault_extraction_detail(vault_id):                                                             
+      """Get detailed extraction status for each document in a vault."""                                 
+      with get_db_session() as session:                                                                  
+          docs = session.execute(text("""                                                                
+              SELECT                                                                                     
+                  id,                                                                                    
+                  name,                                                                                  
+                  status,                                                                                
+                  extraction_level,                                                                      
+                  single_extracted_at,                                                                   
+                  multi_extracted_at,                                                                    
+                  created_at                                                                             
+              FROM platform.documents                                                                    
+              WHERE tenant_id = :vault_id                                                                
+              ORDER BY                                                                                   
+                  CASE                                                                                   
+                      WHEN status = 'failed' THEN 0                                                      
+                      WHEN status = 'processing' THEN 1                                                  
+                      WHEN extraction_level IS NULL THEN 2                                               
+                      WHEN extraction_level = 'single' THEN 3                                            
+                      ELSE 4                                                                             
+                  END,                                                                                   
+                  name                                                                                   
+          """), {"vault_id": vault_id}).fetchall()                                                       
+                                                                                                         
+          vault = TenantService().get_tenant(vault_id)                                                   
+                                                                                                         
+          return jsonify({                                                                               
+              "vault_id": vault_id,                                                                      
+              "vault_name": vault.name if vault else "Unknown",                                          
+              "documents": [{                                                                            
+                  "id": str(d.id),                                                                       
+                  "name": d.name,                                                                        
+                  "status": d.status,                                                                    
+                  "extraction_level": d.extraction_level or "pending",                                   
+                  "single_completed_at": d.single_extracted_at.isoformat() if d.single_extracted_at else 
+  None,                                                                                                  
+                  "multi_completed_at": d.multi_extracted_at.isoformat() if d.multi_extracted_at else    
+  None,                                                                                                  
+                  "uploaded_at": d.created_at.isoformat() if d.created_at else None                      
+              } for d in docs]                                                                           
+          })                                                                                             
+                                                                                                         
+  ---                                                                                                    
+  2.3 Event History Log                                                                                  
+                                                                                                         
+  Endpoint: GET /api/extraction/events                                                                   
+                                                                                                         
+  @app.route('/api/extraction/events')                                                                   
+  @app.route('/api/extraction/events/<vault_id>')                                                        
+  def get_extraction_events(vault_id=None):                                                              
+      """Get extraction event history with filtering."""                                                 
+      limit = request.args.get('limit', 100, type=int)                                                   
+      event_type = request.args.get('type')  # Optional filter: 'failed', 'resumed', etc.                
+                                                                                                         
+      with get_db_session() as session:                                                                  
+          query = """                                                                                    
+              SELECT vault_id, vault_name, document_id, document_name,                                   
+                     event_type, extraction_level, details, created_at                                   
+              FROM platform.extraction_events                                                            
+              WHERE 1=1                                                                                  
+          """                                                                                            
+          params = {"limit": limit}                                                                      
+                                                                                                         
+          if vault_id:                                                                                   
+              query += " AND vault_id = :vault_id"                                                       
+              params["vault_id"] = vault_id                                                              
+                                                                                                         
+          if event_type:                                                                                 
+              query += " AND event_type = :event_type"                                                   
+              params["event_type"] = event_type                                                          
+                                                                                                         
+          query += " ORDER BY created_at DESC LIMIT :limit"                                              
+                                                                                                         
+          rows = session.execute(text(query), params).fetchall()                                         
+                                                                                                         
+          return jsonify([{                                                                              
+              "vault_id": str(r.vault_id),                                                               
+              "vault_name": r.vault_name,                                                                
+              "document_id": str(r.document_id) if r.document_id else None,                              
+              "document_name": r.document_name,                                                          
+              "event_type": r.event_type,                                                                
+              "extraction_level": r.extraction_level,                                                    
+              "details": r.details,                                                                      
+              "timestamp": r.created_at.isoformat(),                                                     
+              "time_ago": format_time_ago(r.created_at)                                                  
+          } for r in rows])                                                                              
+                                                                                                         
+                                                                                                         
+  def format_time_ago(dt):                                                                               
+      """Format timestamp as relative time."""                                                           
+      from datetime import datetime, timezone                                                            
+      now = datetime.now(timezone.utc)                                                                   
+      diff = now - dt.replace(tzinfo=timezone.utc)                                                       
+                                                                                                         
+      if diff.seconds < 60:                                                                              
+          return "just now"                                                                              
+      elif diff.seconds < 3600:                                                                          
+          return f"{diff.seconds // 60}m ago"                                                            
+      elif diff.seconds < 86400:                                                                         
+          return f"{diff.seconds // 3600}h ago"                                                          
+      else:                                                                                              
+          return f"{diff.days}d ago"                                                                     
+                                                                                                         
+  ---                                                                                                    
+  2.4 Action Endpoints                                                                                   
+                                                                                                         
+  Resume Extraction:                                                                                     
+  @app.route('/api/extraction/resume/<vault_id>', methods=['POST'])                                      
+  def resume_extraction(vault_id):                                                                       
+      """Trigger multi-model extraction for a vault."""                                                  
+      # Log the event                                                                                    
+      log_extraction_event(vault_id, None, None, 'manual_resume', details='Manually triggered')          
+                                                                                                         
+      # Trigger the extraction (implementation depends on how you start the workflow)                    
+      # Option 1: Set environment variable and let workflow pick it up                                   
+      # Option 2: Call extraction function directly                                                      
+      # Option 3: Add to a queue table                                                                   
+                                                                                                         
+      return jsonify({"status": "queued", "vault_id": vault_id})                                         
+                                                                                                         
+  Cancel Extraction:                                                                                     
+  @app.route('/api/extraction/cancel/<vault_id>', methods=['POST'])                                      
+  def cancel_extraction(vault_id):                                                                       
+      """Cancel running extraction for a vault."""                                                       
+      # Log the event                                                                                    
+      log_extraction_event(vault_id, None, None, 'cancelled', details='Manually cancelled')              
+                                                                                                         
+      # Set a flag that the extraction loop checks                                                       
+      with get_db_session() as session:                                                                  
+          session.execute(text("""                                                                       
+              INSERT INTO platform.extraction_events                                                     
+              (vault_id, event_type, details)                                                            
+              VALUES (:vault_id, 'cancel_requested', 'User requested cancellation')                      
+          """), {"vault_id": vault_id})                                                                  
+          session.commit()                                                                               
+                                                                                                         
+      return jsonify({"status": "cancel_requested", "vault_id": vault_id})                               
+                                                                                                         
+  ---                                                                                                    
+  Part 3: Event Logging Helper                                                                           
+                                                                                                         
+  Add to run_vault_extraction.py:                                                                        
+                                                                                                         
+  def log_extraction_event(vault_id, vault_name, doc_id, doc_name, event_type, level='multi',            
+  details=None):                                                                                         
+      """Log an extraction event to the database."""                                                     
+      with get_db_session() as session:                                                                  
+          session.execute(text("""                                                                       
+              INSERT INTO platform.extraction_events                                                     
+              (vault_id, vault_name, document_id, document_name, event_type, extraction_level, details)  
+              VALUES (:vault_id, :vault_name, :doc_id, :doc_name, :event_type, :level, :details)         
+          """), {                                                                                        
+              "vault_id": vault_id,                                                                      
+              "vault_name": vault_name,                                                                  
+              "doc_id": doc_id,                                                                          
+              "doc_name": doc_name,                                                                      
+              "event_type": event_type,                                                                  
+              "level": level,                                                                            
+              "details": details                                                                         
+          })                                                                                             
+          session.commit()                                                                               
+                                                                                                         
+  Use it throughout the extraction script:                                                               
+                                                                                                         
+  # At extraction start                                                                                  
+  log_extraction_event(vault_id, vault_name, None, None, 'started',                                      
+      details=f"Starting multi-model extraction for {total_docs} documents")                             
+                                                                                                         
+  # On resume detection                                                                                  
+  if already_done > 0:                                                                                   
+      log_extraction_event(vault_id, vault_name, None, None, 'resumed',                                  
+          details=f"Resuming from {already_done}/{total_docs} ({remaining} remaining)")                  
+                                                                                                         
+  # After each successful document                                                                       
+  log_extraction_event(vault_id, vault_name, doc_id, doc_name, 'completed')                              
+                                                                                                         
+  # Update timestamp too                                                                                 
+  session.execute(text("""                                                                               
+      UPDATE platform.documents                                                                          
+      SET extraction_level = 'multi', multi_extracted_at = NOW()                                         
+      WHERE id = :doc_id                                                                                 
+  """), {"doc_id": doc_id})                                                                              
+  session.commit()                                                                                       
+                                                                                                         
+  # On failure                                                                                           
+  log_extraction_event(vault_id, vault_name, doc_id, doc_name, 'failed',                                 
+      details=str(e)[:500])  # Truncate long errors                                                      
+                                                                                                         
+  # On completion                                                                                        
+  log_extraction_event(vault_id, vault_name, None, None, 'vault_complete',                               
+      details=f"All {total_docs} documents multi-model extracted")                                       
+                                                                                                         
+  ---                                                                                                    
+  Part 4: Frontend UI                                                                                    
+                                                                                                         
+  4.1 Extraction Dashboard Page                                                                          
+                                                                                                         
+  Create templates/extraction_dashboard.html:                                                            
+                                                                                                         
+  {% extends "base.html" %}                                                                              
+  {% block content %}                                                                                    
+  <div class="extraction-dashboard">                                                                     
+                                                                                                         
+      <!-- Top-Level Metrics -->                                                                         
+      <div class="metrics-bar">                                                                          
+          <div class="metric">                                                                           
+              <span class="value" id="metric-vaults-pending">-</span>                                    
+              <span class="label">Vaults Pending</span>                                                  
+          </div>                                                                                         
+          <div class="metric">                                                                           
+              <span class="value" id="metric-vaults-progress">-</span>                                   
+              <span class="label">In Progress</span>                                                     
+          </div>                                                                                         
+          <div class="metric">                                                                           
+              <span class="value" id="metric-vaults-complete">-</span>                                   
+              <span class="label">Complete</span>                                                        
+          </div>                                                                                         
+          <div class="metric highlight">                                                                 
+              <span class="value" id="metric-docs-pending">-</span>                                      
+              <span class="label">Docs Pending Multi-Model</span>                                        
+          </div>                                                                                         
+      </div>                                                                                             
+                                                                                                         
+      <!-- Vault Queue Table -->                                                                         
+      <div class="section">                                                                              
+          <h2>Extraction Queue</h2>                                                                      
+          <table class="vault-table">                                                                    
+              <thead>                                                                                    
+                  <tr>                                                                                   
+                      <th>Vault</th>                                                                     
+                      <th>Status</th>                                                                    
+                      <th>Progress</th>                                                                  
+                      <th>Single</th>                                                                    
+                      <th>Multi</th>                                                                     
+                      <th>Pending</th>                                                                   
+                      <th>Failed</th>                                                                    
+                      <th>Last Updated</th>                                                              
+                      <th>Actions</th>                                                                   
+                  </tr>                                                                                  
+              </thead>                                                                                   
+              <tbody id="vault-table-body">                                                              
+                  <!-- Populated by JS -->                                                               
+              </tbody>                                                                                   
+          </table>                                                                                       
+      </div>                                                                                             
+                                                                                                         
+      <!-- Event Log -->                                                                                 
+      <div class="section">                                                                              
+          <h2>Recent Activity</h2>                                                                       
+          <div class="event-filters">                                                                    
+              <button class="filter-btn active" data-filter="all">All</button>                           
+              <button class="filter-btn" data-filter="failed">Failures</button>                          
+              <button class="filter-btn" data-filter="resumed">Resumes</button>                          
+              <button class="filter-btn" data-filter="completed">Completions</button>                    
+          </div>                                                                                         
+          <div class="event-log" id="event-log">                                                         
+              <!-- Populated by JS -->                                                                   
+          </div>                                                                                         
+      </div>                                                                                             
+                                                                                                         
+  </div>                                                                                                 
+                                                                                                         
+  <style>                                                                                                
+  .extraction-dashboard {                                                                                
+      padding: 24px;                                                                                     
+      max-width: 1400px;                                                                                 
+      margin: 0 auto;                                                                                    
+  }                                                                                                      
+                                                                                                         
+  /* Metrics Bar */                                                                                      
+  .metrics-bar {                                                                                         
+      display: flex;                                                                                     
+      gap: 24px;                                                                                         
+      margin-bottom: 32px;                                                                               
+      padding: 20px;                                                                                     
+      background: #f8f9fa;                                                                               
+      border-radius: 12px;                                                                               
+  }                                                                                                      
+  .metric {                                                                                              
+      text-align: center;                                                                                
+      padding: 16px 32px;                                                                                
+      background: white;                                                                                 
+      border-radius: 8px;                                                                                
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);                                                             
+  }                                                                                                      
+  .metric.highlight {                                                                                    
+      background: #e3f2fd;                                                                               
+      border: 2px solid #2196F3;                                                                         
+  }                                                                                                      
+  .metric .value {                                                                                       
+      font-size: 36px;                                                                                   
+      font-weight: bold;                                                                                 
+      display: block;                                                                                    
+      color: #333;                                                                                       
+  }                                                                                                      
+  .metric .label {                                                                                       
+      font-size: 12px;                                                                                   
+      color: #666;                                                                                       
+      text-transform: uppercase;                                                                         
+      letter-spacing: 0.5px;                                                                             
+  }                                                                                                      
+                                                                                                         
+  /* Section */                                                                                          
+  .section {                                                                                             
+      margin-bottom: 32px;                                                                               
+  }                                                                                                      
+  .section h2 {                                                                                          
+      margin-bottom: 16px;                                                                               
+      font-size: 18px;                                                                                   
+      font-weight: 600;                                                                                  
+  }                                                                                                      
+                                                                                                         
+  /* Vault Table */                                                                                      
+  .vault-table {                                                                                         
+      width: 100%;                                                                                       
+      border-collapse: collapse;                                                                         
+      background: white;                                                                                 
+      border-radius: 8px;                                                                                
+      overflow: hidden;                                                                                  
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);                                                             
+  }                                                                                                      
+  .vault-table th,                                                                                       
+  .vault-table td {                                                                                      
+      padding: 12px 16px;                                                                                
+      text-align: left;                                                                                  
+      border-bottom: 1px solid #eee;                                                                     
+  }                                                                                                      
+  .vault-table th {                                                                                      
+      background: #f8f9fa;                                                                               
+      font-weight: 600;                                                                                  
+      font-size: 12px;                                                                                   
+      text-transform: uppercase;                                                                         
+      color: #666;                                                                                       
+  }                                                                                                      
+  .vault-table tr:hover {                                                                                
+      background: #f8f9fa;                                                                               
+  }                                                                                                      
+                                                                                                         
+  /* Status Badges */                                                                                    
+  .status-badge {                                                                                        
+      padding: 4px 12px;                                                                                 
+      border-radius: 12px;                                                                               
+      font-size: 12px;                                                                                   
+      font-weight: 500;                                                                                  
+  }                                                                                                      
+  .status-badge.pending { background: #fff3e0; color: #e65100; }                                         
+  .status-badge.in_progress { background: #e3f2fd; color: #1565c0; }                                     
+  .status-badge.complete { background: #e8f5e9; color: #2e7d32; }                                        
+  .status-badge.empty { background: #f5f5f5; color: #666; }                                              
+                                                                                                         
+  /* Progress Bar */                                                                                     
+  .progress-cell {                                                                                       
+      width: 150px;                                                                                      
+  }                                                                                                      
+  .progress-bar-container {                                                                              
+      background: #e0e0e0;                                                                               
+      border-radius: 4px;                                                                                
+      height: 8px;                                                                                       
+      overflow: hidden;                                                                                  
+  }                                                                                                      
+  .progress-bar-fill {                                                                                   
+      height: 100%;                                                                                      
+      border-radius: 4px;                                                                                
+      transition: width 0.3s;                                                                            
+  }                                                                                                      
+  .progress-bar-fill.low { background: #ff9800; }                                                        
+  .progress-bar-fill.medium { background: #2196F3; }                                                     
+  .progress-bar-fill.high { background: #4CAF50; }                                                       
+  .progress-text {                                                                                       
+      font-size: 11px;                                                                                   
+      color: #666;                                                                                       
+      margin-top: 4px;                                                                                   
+  }                                                                                                      
+                                                                                                         
+  /* Action Buttons */                                                                                   
+  .action-btn {                                                                                          
+      padding: 6px 12px;                                                                                 
+      border: none;                                                                                      
+      border-radius: 4px;                                                                                
+      cursor: pointer;                                                                                   
+      font-size: 12px;                                                                                   
+      margin-right: 4px;                                                                                 
+  }                                                                                                      
+  .action-btn.resume { background: #4CAF50; color: white; }                                              
+  .action-btn.cancel { background: #f44336; color: white; }                                              
+  .action-btn.view { background: #2196F3; color: white; }                                                
+  .action-btn:disabled { background: #ccc; cursor: not-allowed; }                                        
+                                                                                                         
+  /* Event Filters */                                                                                    
+  .event-filters {                                                                                       
+      margin-bottom: 12px;                                                                               
+  }                                                                                                      
+  .filter-btn {                                                                                          
+      padding: 8px 16px;                                                                                 
+      border: 1px solid #ddd;                                                                            
+      background: white;                                                                                 
+      cursor: pointer;                                                                                   
+      margin-right: 8px;                                                                                 
+      border-radius: 4px;                                                                                
+  }                                                                                                      
+  .filter-btn.active {                                                                                   
+      background: #2196F3;                                                                               
+      color: white;                                                                                      
+      border-color: #2196F3;                                                                             
+  }                                                                                                      
+                                                                                                         
+  /* Event Log */                                                                                        
+  .event-log {                                                                                           
+      background: white;                                                                                 
+      border-radius: 8px;                                                                                
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);                                                             
+      max-height: 400px;                                                                                 
+      overflow-y: auto;                                                                                  
+  }                                                                                                      
+  .event-item {                                                                                          
+      display: flex;                                                                                     
+      align-items: center;                                                                               
+      padding: 12px 16px;                                                                                
+      border-bottom: 1px solid #eee;                                                                     
+      gap: 16px;                                                                                         
+  }                                                                                                      
+  .event-item:last-child { border-bottom: none; }                                                        
+  .event-item.failed { background: #ffebee; }                                                            
+  .event-item.resumed { background: #fff8e1; }                                                           
+  .event-item.started { background: #e3f2fd; }                                                           
+  .event-item.vault_complete { background: #e8f5e9; }                                                    
+                                                                                                         
+  .event-time {                                                                                          
+      font-size: 12px;                                                                                   
+      color: #999;                                                                                       
+      min-width: 80px;                                                                                   
+  }                                                                                                      
+  .event-type {                                                                                          
+      font-weight: 600;                                                                                  
+      min-width: 100px;                                                                                  
+      font-size: 12px;                                                                                   
+      text-transform: uppercase;                                                                         
+  }                                                                                                      
+  .event-type.failed { color: #f44336; }                                                                 
+  .event-type.resumed { color: #ff9800; }                                                                
+  .event-type.completed { color: #4CAF50; }                                                              
+  .event-type.started { color: #2196F3; }                                                                
+                                                                                                         
+  .event-vault {                                                                                         
+      color: #666;                                                                                       
+      font-size: 13px;                                                                                   
+  }                                                                                                      
+  .event-doc {                                                                                           
+      color: #333;                                                                                       
+      flex: 1;                                                                                           
+  }                                                                                                      
+  .event-details {                                                                                       
+      font-size: 12px;                                                                                   
+      color: #666;                                                                                       
+      max-width: 300px;                                                                                  
+      overflow: hidden;                                                                                  
+      text-overflow: ellipsis;                                                                           
+      white-space: nowrap;                                                                               
+  }                                                                                                      
+  </style>                                                                                               
+                                                                                                         
+  <script>                                                                                               
+  let currentFilter = 'all';                                                                             
+                                                                                                         
+  async function loadDashboard() {                                                                       
+      // Load overview                                                                                   
+      const overviewRes = await fetch('/api/extraction/overview');                                       
+      const overview = await overviewRes.json();                                                         
+                                                                                                         
+      // Update metrics                                                                                  
+      document.getElementById('metric-vaults-pending').textContent = overview.totals.vaults_pending;     
+      document.getElementById('metric-vaults-progress').textContent = overview.totals.vaults_in_progress;
+      document.getElementById('metric-vaults-complete').textContent = overview.totals.vaults_complete;   
+      document.getElementById('metric-docs-pending').textContent = overview.totals.docs_pending_multi;   
+                                                                                                         
+      // Update vault table                                                                              
+      const tbody = document.getElementById('vault-table-body');                                         
+      tbody.innerHTML = overview.vaults.map(v => `                                                       
+          <tr>                                                                                           
+              <td>                                                                                       
+                  <a href="/vault/${v.vault_id}">${v.vault_name}</a>                                     
+              </td>                                                                                      
+              <td>                                                                                       
+                  <span class="status-badge ${v.status}">${v.status.replace('_', ' ')}</span>            
+              </td>                                                                                      
+              <td class="progress-cell">                                                                 
+                  <div class="progress-bar-container">                                                   
+                      <div class="progress-bar-fill ${v.progress_pct < 33 ? 'low' : v.progress_pct < 66 ?
+   'medium' : 'high'}"                                                                                   
+                           style="width: ${v.progress_pct}%"></div>                                      
+                  </div>                                                                                 
+                  <div class="progress-text">${v.progress_pct}%</div>                                    
+              </td>                                                                                      
+              <td>${v.single_done}</td>                                                                  
+              <td>${v.multi_done}</td>                                                                   
+              <td>${v.pending_multi}</td>                                                                
+              <td>${v.failed > 0 ? '<span style="color:red">' + v.failed + '</span>' : v.failed}</td>    
+              <td>${v.last_updated ? new Date(v.last_updated).toLocaleString() : '-'}</td>               
+              <td>                                                                                       
+                  <button class="action-btn resume" onclick="resumeExtraction('${v.vault_id}')"          
+                          ${v.status === 'complete' ? 'disabled' : ''}>Resume</button>                   
+                  <button class="action-btn view" onclick="viewVault('${v.vault_id}')">View</button>     
+              </td>                                                                                      
+          </tr>                                                                                          
+      `).join('');                                                                                       
+                                                                                                         
+      // Load events                                                                                     
+      await loadEvents();                                                                                
+  }                                                                                                      
+                                                                                                         
+  async function loadEvents() {                                                                          
+      const url = currentFilter === 'all'                                                                
+          ? '/api/extraction/events?limit=50'                                                            
+          : `/api/extraction/events?limit=50&type=${currentFilter}`;                                     
+                                                                                                         
+      const eventsRes = await fetch(url);                                                                
+      const events = await eventsRes.json();                                                             
+                                                                                                         
+      const eventLog = document.getElementById('event-log');                                             
+      eventLog.innerHTML = events.map(e => `                                                             
+          <div class="event-item ${e.event_type}">                                                       
+              <span class="event-time">${e.time_ago}</span>                                              
+              <span class="event-type ${e.event_type}">${e.event_type}</span>                            
+              <span class="event-vault">${e.vault_name || ''}</span>                                     
+              <span class="event-doc">${e.document_name || ''}</span>                                    
+              <span class="event-details" title="${e.details || ''}">${e.details || ''}</span>           
+          </div>                                                                                         
+      `).join('') || '<div class="event-item">No events found</div>';                                    
+  }                                                                                                      
+                                                                                                         
+  async function resumeExtraction(vaultId) {                                                             
+      if (!confirm('Resume multi-model extraction for this vault?')) return;                             
+                                                                                                         
+      const res = await fetch(`/api/extraction/resume/${vaultId}`, { method: 'POST' });                  
+      const result = await res.json();                                                                   
+      alert(`Extraction ${result.status} for vault`);                                                    
+      loadDashboard();                                                                                   
+  }                                                                                                      
+                                                                                                         
+  function viewVault(vaultId) {                                                                          
+      window.location.href = `/vault/${vaultId}`;                                                        
+  }                                                                                                      
+                                                                                                         
+  // Filter buttons                                                                                      
+  document.querySelectorAll('.filter-btn').forEach(btn => {                                              
+      btn.addEventListener('click', () => {                                                              
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));           
+          btn.classList.add('active');                                                                   
+          currentFilter = btn.dataset.filter;                                                            
+          loadEvents();                                                                                  
+      });                                                                                                
+  });                                                                                                    
+                                                                                                         
+  // Initial load and auto-refresh                                                                       
+  loadDashboard();                                                                                       
+  setInterval(loadDashboard, 10000);  // Refresh every 10 seconds                                        
+  </script>                                                                                              
+  {% endblock %}                                                                                         
+                                                                                                         
+  ---                                                                                                    
+  4.2 Add Route for Dashboard                                                                            
+                                                                                                         
+  In web_app.py:                                                                                         
+                                                                                                         
+  @app.route('/extraction')                                                                              
+  def extraction_dashboard():                                                                            
+      """Extraction monitoring dashboard."""                                                             
+      return render_template('extraction_dashboard.html')                                                
+                                                                                                         
+  ---                                                                                                    
+  4.3 Update Document Status Colors in Existing Views                                                    
+                                                                                                         
+  Wherever documents are displayed, use this color logic:                                                
+                                                                                                         
+  function getDocumentStatusColor(doc) {                                                                 
+      if (doc.status === 'failed') return 'red';                                                         
+      if (doc.status === 'processing') return 'yellow';                                                  
+      if (doc.extraction_level === 'multi') return 'blue';                                               
+      if (doc.extraction_level === 'single') return 'green';                                             
+      if (doc.status === 'extracted') return 'green';                                                    
+      return 'gray';                                                                                     
+  }                                                                                                      
+                                                                                                         
+  function getDocumentStatusLabel(doc) {                                                                 
+      if (doc.status === 'failed') return 'Failed';                                                      
+      if (doc.status === 'processing') return 'Processing';                                              
+      if (doc.extraction_level === 'multi') return 'Multi-Model Done';                                   
+      if (doc.extraction_level === 'single') return 'Single-Model Done';                                 
+      if (doc.status === 'extracted') return 'Extracted';                                                
+      return 'Pending';                                                                                  
+  }                                                                                                      
+                                                                                                         
+  ---                                                                                                    
+  Part 5: Update Single-Model Extraction                                                                 
+                                                                                                         
+  In the single-model extraction worker, when marking a document as extracted:                           
+                                                                                                         
+  # Set extraction_level and timestamp for single-model                                                  
+  session.execute(text("""                                                                               
+      UPDATE platform.documents                                                                          
+      SET status = 'extracted',                                                                          
+          extraction_level = 'single',                                                                   
+          single_extracted_at = NOW()                                                                    
+      WHERE id = :doc_id                                                                                 
+  """), {"doc_id": doc_id})                                                                              
+  session.commit()                                                                                       
+                                                                                                         
+  # Log the event                                                                                        
+  log_extraction_event(vault_id, vault_name, doc_id, doc_name, 'completed', level='single')              
+                                                                                                         
+  ---                                                                                                    
+  Summary                                                                                                
+  ┌──────────────────────────────────┬──────────────────────────────────┐                                
+  │            Component             │             Purpose              │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ GET /api/extraction/overview     │ All vaults + aggregate metrics   │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ GET /api/extraction/vault/<id>   │ Per-document detail for a vault  │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ GET /api/extraction/events       │ Event history with filtering     │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ POST /api/extraction/resume/<id> │ Trigger extraction for a vault   │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ POST /api/extraction/cancel/<id> │ Cancel running extraction        │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ /extraction                      │ Dashboard UI page                │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ platform.extraction_events       │ Event log table                  │                                
+  ├──────────────────────────────────┼──────────────────────────────────┤                                
+  │ extraction_level + timestamps    │ Track single vs multi completion │                                
+  └──────────────────────────────────┴──────────────────────────────────┘                                
+  ---                                                                                                    
+  Color Reference                                                                                        
+  ┌────────┬───────────────────┐                                                                         
+  │ Color  │      Meaning      │                                                                         
+  ├────────┼───────────────────┤                                                                         
+  │ Gray   │ Not started       │                                                                         
+  ├────────┼───────────────────┤                                                                         
+  │ Yellow │ In progress       │                                                                         
+  ├────────┼───────────────────┤                                                                         
+  │ Green  │ Single-model done │                                                                         
+  ├────────┼───────────────────┤                                                                         
+  │ Blue   │ Multi-model done  │                                                                         
+  ├────────┼───────────────────┤                                                                         
+  │ Red    │ Failed            │                                                                         
+  └────────┴───────────────────┘                                                                         
+  ---                                                                                                    
+  Auto-Refresh                                                                                           
+                                                                                                         
+  Dashboard refreshes every 10 seconds to show live progress. 

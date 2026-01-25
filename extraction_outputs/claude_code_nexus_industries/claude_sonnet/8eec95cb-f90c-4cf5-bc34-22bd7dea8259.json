@@ -2,13 +2,13 @@
   "document_id": "8eec95cb-f90c-4cf5-bc34-22bd7dea8259",
   "document_path": "01_falcon_x_uav_program.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T14:21:19.152918",
+  "extracted_at": "2026-01-25T15:20:33.494607",
   "entities": [
     {
       "name": "Falcon X UAV Program",
       "entity_type": "PROJECT",
       "properties": {
-        "code": "NX-AERO-2024-001",
+        "program_code": "NX-AERO-2024-001",
         "budget": "$145 million",
         "timeline": "January 2024 - December 2027",
         "status": "Development Phase 2"
@@ -23,7 +23,6 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Program Manager",
-        "role": "Program Manager",
         "allocation": "100%"
       },
       "confidence": 1.0,
@@ -33,10 +32,10 @@
     },
     {
       "name": "Nexus Aerospace",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
         "type": "Division",
-        "industry": "Aerospace"
+        "focus_areas": "aerospace"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
@@ -47,7 +46,8 @@
       "name": "UAV Engineering",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Unmanned aerial vehicle engineering"
+        "type": "Business Unit",
+        "focus_areas": "UAV engineering"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
@@ -58,48 +58,48 @@
       "name": "Falcon X-100 Commercial Variant",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Commercial variant of Falcon X UAV",
-        "category": "Unmanned aerial vehicle"
+        "description": "Commercial unmanned aerial vehicle",
+        "category": "UAV"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Falcon X-100 Commercial Variant",
+      "source_excerpt": "1. Falcon X-100 Commercial Variant",
       "aliases": []
     },
     {
       "name": "Falcon X-200 Defense Variant",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Defense variant of Falcon X UAV",
-        "category": "Unmanned aerial vehicle"
+        "description": "Defense unmanned aerial vehicle",
+        "category": "UAV"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Falcon X-200 Defense Variant",
+      "source_excerpt": "2. Falcon X-200 Defense Variant",
       "aliases": []
     },
     {
       "name": "Ground Control Station",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Control system for UAV operations",
-        "category": "Ground control system"
+        "description": "Ground control system for UAV",
+        "category": "Control System"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Ground Control Station",
+      "source_excerpt": "3. Ground Control Station",
       "aliases": []
     },
     {
       "name": "Autonomous Navigation System",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Navigation system for autonomous UAV operations",
-        "category": "Navigation system"
+        "description": "Navigation system for autonomous flight",
+        "category": "Navigation"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Autonomous Navigation System",
+      "source_excerpt": "4. Autonomous Navigation System",
       "aliases": []
     },
     {
@@ -107,11 +107,11 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "Platform for integrating various payloads",
-        "category": "Integration platform"
+        "category": "Integration Platform"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Payload Integration Platform",
+      "source_excerpt": "5. Payload Integration Platform",
       "aliases": []
     },
     {
@@ -124,7 +124,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Total Program Budget: $145 million - Approved",
+      "source_excerpt": "Total Program Budget: $145 million: Approved",
       "aliases": []
     },
     {
@@ -137,7 +137,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Development Phase: $62 million - In Progress",
+      "source_excerpt": "Development Phase: $62 million: In Progress",
       "aliases": []
     },
     {
@@ -145,12 +145,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Chief Engineer",
-        "role": "Chief Engineer",
         "allocation": "80%"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Chief Engineer: Thomas Wright - 80%",
+      "source_excerpt": "Chief Engineer: Thomas Wright: 80%",
       "aliases": []
     },
     {
@@ -158,12 +157,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Systems Lead",
-        "role": "Systems Lead",
         "allocation": "60%"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Systems Lead: Dr. Priya Sharma - 60%",
+      "source_excerpt": "Systems Lead: Dr. Priya Sharma: 60%",
       "aliases": []
     },
     {
@@ -171,12 +169,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Software Lead",
-        "role": "Software Lead",
         "allocation": "70%"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Software Lead: Marcus Johnson - 70%",
+      "source_excerpt": "Software Lead: Marcus Johnson: 70%",
       "aliases": []
     },
     {
@@ -184,12 +181,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Manufacturing Lead",
-        "role": "Manufacturing Lead",
         "allocation": "40%"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Manufacturing Lead: Antonio Reyes - 40%",
+      "source_excerpt": "Manufacturing Lead: Antonio Reyes: 40%",
       "aliases": []
     },
     {
@@ -197,12 +193,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Quality Lead",
-        "role": "Quality Lead",
         "allocation": "50%"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Quality Lead: Jennifer Wu - 50%",
+      "source_excerpt": "Quality Lead: Jennifer Wu: 50%",
       "aliases": []
     },
     {
@@ -214,7 +209,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "AeroTech Components - Airframe structures - $18.5M",
+      "source_excerpt": "AeroTech Components: Airframe structures: $18.5M",
       "aliases": []
     },
     {
@@ -226,7 +221,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Precision Avionics Inc - Navigation systems - $12.3M",
+      "source_excerpt": "Precision Avionics Inc: Navigation systems: $12.3M",
       "aliases": []
     },
     {
@@ -238,7 +233,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "PowerDrive Systems - Propulsion - $9.8M",
+      "source_excerpt": "PowerDrive Systems: Propulsion: $9.8M",
       "aliases": []
     },
     {
@@ -250,7 +245,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Composite Solutions Ltd - Carbon fiber wings - $7.2M",
+      "source_excerpt": "Composite Solutions Ltd: Carbon fiber wings: $7.2M",
       "aliases": []
     },
     {
@@ -262,63 +257,63 @@
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "DataLink Technologies - Communication systems - $5.5M",
+      "source_excerpt": "DataLink Technologies: Communication systems: $5.5M",
       "aliases": []
     },
     {
       "name": "US Department of Defense",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Government/Defense",
         "units": "50",
         "value": "$125M",
-        "delivery": "2027-2028"
+        "delivery": "2027-2028",
+        "industry": "defense"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "US Department of Defense - 50 units - $125M - 2027-2028",
+      "source_excerpt": "US Department of Defense: 50: $125M: 2027-2028",
       "aliases": []
     },
     {
       "name": "Border Security Agency",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Government/Security",
         "units": "20",
         "value": "$48M",
-        "delivery": "2028"
+        "delivery": "2028",
+        "industry": "security"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Border Security Agency - 20 units - $48M - 2028",
+      "source_excerpt": "Border Security Agency: 20: $48M: 2028",
       "aliases": []
     },
     {
       "name": "National Weather Service",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Government/Weather",
         "units": "12",
         "value": "$28M",
-        "delivery": "2027"
+        "delivery": "2027",
+        "industry": "weather"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "National Weather Service - 12 units - $28M - 2027",
+      "source_excerpt": "National Weather Service: 12: $28M: 2027",
       "aliases": []
     },
     {
       "name": "AgriTech Partners",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Agriculture Technology",
         "units": "30",
         "value": "$65M",
-        "delivery": "2028"
+        "delivery": "2028",
+        "industry": "agriculture"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "AgriTech Partners - 30 units - $65M - 2028",
+      "source_excerpt": "AgriTech Partners: 30: $65M: 2028",
       "aliases": []
     },
     {
@@ -326,7 +321,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division President",
-        "role": "Division President"
+        "role": "Steering Committee Chair"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
@@ -337,8 +332,7 @@
       "name": "Dr. Rachel Kim",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Engineering",
-        "role": "Vice President of Engineering"
+        "title": "VP Engineering"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
@@ -349,8 +343,7 @@
       "name": "Catherine O'Brien",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Programs",
-        "role": "Vice President of Programs"
+        "title": "VP Programs"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
@@ -361,8 +354,7 @@
       "name": "Angela Thompson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Division CFO",
-        "role": "Chief Financial Officer"
+        "title": "Division CFO"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
@@ -373,12 +365,11 @@
       "name": "Dr. Victoria Chen",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CEO",
-        "role": "Chief Executive Officer"
+        "title": "CEO"
       },
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "CEO: Dr. Victoria Chen - Jan 22, 2024",
+      "source_excerpt": "CEO: Dr. Victoria Chen: Jan 22, 2024",
       "aliases": []
     }
   ],
@@ -396,7 +387,7 @@
     },
     {
       "source_entity": "Nexus Aerospace",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
       "target_entity": "Falcon X UAV Program",
       "target_type": "PROJECT",
@@ -410,22 +401,11 @@
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
       "evidence": "Division: Nexus Aerospace, Business Unit: UAV Engineering"
-    },
-    {
-      "source_entity": "UAV Engineering",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Business Unit: UAV Engineering owns the program"
     },
     {
       "source_entity": "Falcon X UAV Program",
@@ -461,37 +441,15 @@
       "evidence": "Key Deliverables: 3. Ground Control Station"
     },
     {
-      "source_entity": "Falcon X UAV Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Autonomous Navigation System",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Key Deliverables: 4. Autonomous Navigation System"
-    },
-    {
-      "source_entity": "Falcon X UAV Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Payload Integration Platform",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Key Deliverables: 5. Payload Integration Platform"
-    },
-    {
       "source_entity": "Thomas Wright",
       "source_type": "PERSON",
       "relationship_type": "WORKS_FOR",
       "target_entity": "Falcon X UAV Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Core Team - Chief Engineer: Thomas Wright"
+      "evidence": "Chief Engineer: Thomas Wright in Core Team"
     },
     {
       "source_entity": "Dr. Priya Sharma",
@@ -500,9 +458,9 @@
       "target_entity": "Falcon X UAV Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Core Team - Systems Lead: Dr. Priya Sharma"
+      "evidence": "Systems Lead: Dr. Priya Sharma in Core Team"
     },
     {
       "source_entity": "Marcus Johnson",
@@ -511,31 +469,9 @@
       "target_entity": "Falcon X UAV Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Core Team - Software Lead: Marcus Johnson"
-    },
-    {
-      "source_entity": "Antonio Reyes",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Core Team - Manufacturing Lead: Antonio Reyes"
-    },
-    {
-      "source_entity": "Jennifer Wu",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Core Team - Quality Lead: Jennifer Wu"
+      "evidence": "Software Lead: Marcus Johnson in Core Team"
     },
     {
       "source_entity": "AeroTech Components",
@@ -546,7 +482,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Key Suppliers - AeroTech Components: Airframe structures"
+      "evidence": "AeroTech Components: Airframe structures: $18.5M"
     },
     {
       "source_entity": "Precision Avionics Inc",
@@ -557,7 +493,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Key Suppliers - Precision Avionics Inc: Navigation systems"
+      "evidence": "Precision Avionics Inc: Navigation systems: $12.3M"
     },
     {
       "source_entity": "PowerDrive Systems",
@@ -568,29 +504,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Key Suppliers - PowerDrive Systems: Propulsion"
-    },
-    {
-      "source_entity": "Composite Solutions Ltd",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Key Suppliers - Composite Solutions Ltd: Carbon fiber wings"
-    },
-    {
-      "source_entity": "DataLink Technologies",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Key Suppliers - DataLink Technologies: Communication systems"
+      "evidence": "PowerDrive Systems: Propulsion: $9.8M"
     },
     {
       "source_entity": "US Department of Defense",
@@ -601,7 +515,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Customer Commitments - US Department of Defense: 50 units"
+      "evidence": "US Department of Defense: 50: $125M: 2027-2028"
     },
     {
       "source_entity": "Border Security Agency",
@@ -612,7 +526,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Customer Commitments - Border Security Agency: 20 units"
+      "evidence": "Border Security Agency: 20: $48M: 2028"
     },
     {
       "source_entity": "National Weather Service",
@@ -623,7 +537,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Customer Commitments - National Weather Service: 12 units"
+      "evidence": "National Weather Service: 12: $28M: 2027"
     },
     {
       "source_entity": "AgriTech Partners",
@@ -634,68 +548,24 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Customer Commitments - AgriTech Partners: 30 units"
+      "evidence": "AgriTech Partners: 30: $65M: 2028"
     },
     {
       "source_entity": "Michael Torres",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "LEADS",
       "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_falcon_x_uav_program.md",
       "evidence": "Michael Torres (Division President)"
-    },
-    {
-      "source_entity": "Dr. Rachel Kim",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Dr. Rachel Kim (VP Engineering)"
-    },
-    {
-      "source_entity": "Catherine O'Brien",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Catherine O'Brien (VP Programs)"
-    },
-    {
-      "source_entity": "Angela Thompson",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Angela Thompson (Division CFO)"
-    },
-    {
-      "source_entity": "Steven Park",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Program Manager Steven Park works for Nexus Aerospace division"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 30,
-    "raw_relationship_count": 28,
+    "raw_relationship_count": 17,
     "used_partial_parse": false,
     "truncated": false
   }
