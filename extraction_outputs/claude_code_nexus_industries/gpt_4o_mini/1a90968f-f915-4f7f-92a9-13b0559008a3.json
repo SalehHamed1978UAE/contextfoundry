@@ -2,7 +2,7 @@
   "document_id": "1a90968f-f915-4f7f-92a9-13b0559008a3",
   "document_path": "01_annual_report_2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:03:04.872123",
+  "extracted_at": "2026-01-25T15:09:51.277209",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -149,20 +149,6 @@
       "aliases": []
     },
     {
-      "name": "Total Assets",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Total Assets",
-        "value": "$12.45B",
-        "period": "Dec 31, 2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Total Assets | $12.45B | $11.28B",
-      "aliases": []
-    },
-    {
       "name": "Market Cap",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
@@ -177,47 +163,15 @@
       "aliases": []
     },
     {
-      "name": "North America",
+      "name": "NYSE",
       "entity_type": "LOCATION",
       "properties": {
-        "region": "North America"
+        "city": "New York",
+        "country": "USA"
       },
       "confidence": 0.9,
       "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "North America | $4.65B | 55% | +9%",
-      "aliases": []
-    },
-    {
-      "name": "Europe",
-      "entity_type": "LOCATION",
-      "properties": {
-        "region": "Europe"
-      },
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Europe | $1.86B | 22% | +12%",
-      "aliases": []
-    },
-    {
-      "name": "Asia Pacific",
-      "entity_type": "LOCATION",
-      "properties": {
-        "region": "Asia Pacific"
-      },
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Asia Pacific | $1.52B | 18% | +15%",
-      "aliases": []
-    },
-    {
-      "name": "Rest of World",
-      "entity_type": "LOCATION",
-      "properties": {
-        "region": "Rest of World"
-      },
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "source_excerpt": "Rest of World | $0.42B | 5% | +8%",
+      "source_excerpt": "Exchange: NYSE",
       "aliases": []
     }
   ],
@@ -320,100 +274,12 @@
       "confidence": 0.85,
       "source_document": "01_annual_report_2025.md",
       "evidence": "CyberShield beta customers: $12M"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Aerospace"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Energy Systems",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Energy Systems"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Digital Solutions"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Nexus Advanced Materials"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "North America",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "North America | $4.65B | 55% | +9%"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Europe",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Europe | $1.86B | 22% | +12%"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Asia Pacific",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Asia Pacific | $1.52B | 18% | +15%"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Rest of World",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_annual_report_2025.md",
-      "evidence": "Rest of World | $0.42B | 5% | +8%"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 18,
-    "raw_relationship_count": 17,
+    "raw_entity_count": 14,
+    "raw_relationship_count": 9,
     "used_partial_parse": false,
     "truncated": false
   }
