@@ -1,0 +1,160 @@
+{
+  "document_id": "5c791d58-ff20-4613-9f7f-9d4c542d9256",
+  "document_path": "07_safety_alert_bulletin.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T10:34:06.638305",
+  "entities": [
+    {
+      "name": "Dr. Patricia Martinez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Environmental, Health & Safety",
+        "role": "Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Dr. Patricia Martinez, VP Environmental, Health & Safety",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "ehs@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "Materials Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Composite materials"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "All Employees - Materials Division",
+      "aliases": []
+    },
+    {
+      "name": "Albuquerque Manufacturing Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Albuquerque, New Mexico",
+        "type": "Manufacturing Plant"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Albuquerque Manufacturing Facility",
+      "aliases": []
+    },
+    {
+      "name": "Curing Oven #7",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Oven used for curing composite materials",
+        "category": "Manufacturing Equipment"
+      },
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Curing Oven #7",
+      "aliases": []
+    },
+    {
+      "name": "SAB-2025-042",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "SAB-2025-042",
+        "category": "Safety Communication"
+      },
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "Bulletin Number: SAB-2025-042",
+      "aliases": []
+    },
+    {
+      "name": "January 5, 2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Acknowledgment Deadline",
+        "value": "1",
+        "period": "2026",
+        "type": "COUNT"
+      },
+      "confidence": 0.8,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "must acknowledge receipt of this bulletin by January 5, 2026",
+      "aliases": []
+    },
+    {
+      "name": "January 9, 2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Safety Committee Meeting",
+        "value": "1",
+        "period": "2026",
+        "type": "COUNT"
+      },
+      "confidence": 0.8,
+      "source_document": "07_safety_alert_bulletin.md",
+      "source_excerpt": "discussed at the next Safety Committee meeting on January 9, 2026",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Patricia Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Dr. Patricia Martinez, VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "Dr. Patricia Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Dr. Patricia Martinez, VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "All Employees - Materials Division"
+    },
+    {
+      "source_entity": "Curing Oven #7",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Albuquerque Manufacturing Facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "07_safety_alert_bulletin.md",
+      "evidence": "Curing Oven #7"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -2,16 +2,16 @@
   "document_id": "17e14e75-748a-4990-b11b-a84040e37109",
   "document_path": "05_fedramp_announcement.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:01:57.017502",
+  "extracted_at": "2026-01-25T10:40:30.851369",
   "entities": [
     {
-      "name": "CyberShield",
+      "name": "CyberShield Security Platform",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Security Platform for federal government deployment",
-        "category": "cybersecurity"
+        "category": "enterprise security platform",
+        "description": "combines endpoint protection, SIEM, and threat intelligence"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "CyberShield Security Platform has achieved Federal Risk and Authorization Management Program (FedRAMP) High authorization",
       "aliases": []
@@ -20,13 +20,24 @@
       "name": "Nexus Industries, Inc.",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Corporation",
-        "industry": "technology and advanced manufacturing",
-        "ticker": "NYSE: NEXS"
+        "ticker": "NYSE: NEXS",
+        "type": "corporation",
+        "industry": "technology and advanced manufacturing"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Nexus Industries, Inc. (NYSE: NEXS)",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "digital solutions"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Robert Kim, President of Nexus Digital Solutions",
       "aliases": []
     },
     {
@@ -37,18 +48,7 @@
         "role": "President",
         "department": "Nexus Digital Solutions"
       },
-      "confidence": 0.95,
-      "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Robert Kim, President of Nexus Digital Solutions",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Digital Solutions",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "digital solutions"
-      },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Robert Kim, President of Nexus Digital Solutions",
       "aliases": []
@@ -58,9 +58,9 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Investor Relations",
-        "role": "VP Investor Relations"
+        "role": "Vice President"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Jennifer Walsh VP Investor Relations",
       "aliases": []
@@ -70,71 +70,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Corporate Communications",
-        "role": "VP Corporate Communications"
+        "role": "Vice President"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Sarah Mitchell VP Corporate Communications",
-      "aliases": []
-    },
-    {
-      "name": "Department of Defense",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Government Agency",
-        "industry": "Defense"
-      },
-      "confidence": 0.9,
-      "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Authorizing Agency Department of Defense",
-      "aliases": []
-    },
-    {
-      "name": "Intelligence Community",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Government Organization",
-        "industry": "Intelligence"
-      },
-      "confidence": 0.85,
-      "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "FedRAMP High authorization allows CyberShield to be deployed across: Department of Defense Intelligence Community",
-      "aliases": []
-    },
-    {
-      "name": "Federal Civilian Agencies",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Government Organization",
-        "industry": "Civilian Government"
-      },
-      "confidence": 0.85,
-      "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Federal Civilian Agencies",
-      "aliases": []
-    },
-    {
-      "name": "Defense Industrial Base",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Industry Sector",
-        "industry": "Defense"
-      },
-      "confidence": 0.85,
-      "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Defense Industrial Base",
-      "aliases": []
-    },
-    {
-      "name": "FedRAMP High",
-      "entity_type": "POLICY",
-      "properties": {
-        "category": "Security Certification",
-        "policy_ID": "FedRAMP High"
-      },
-      "confidence": 0.9,
-      "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "achieved Federal Risk and Authorization Management Program (FedRAMP) High authorization",
       "aliases": []
     },
     {
@@ -144,84 +84,214 @@
         "city": "Phoenix",
         "country": "USA"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "PHOENIX, AZ",
+      "source_excerpt": "PHOENIX, AZ \u2013 January 15, 2026",
       "aliases": []
     },
     {
       "name": "Arizona",
       "entity_type": "LOCATION",
       "properties": {
+        "city": "Phoenix",
         "country": "USA"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Headquartered in Phoenix, Arizona",
       "aliases": []
     },
     {
-      "name": "$15+ billion market opportunity",
+      "name": "Department of Defense",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "government agency"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Authorizing Agency | Department of Defense",
+      "aliases": []
+    },
+    {
+      "name": "Intelligence Community",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "government sector"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Intelligence Community",
+      "aliases": []
+    },
+    {
+      "name": "Federal Civilian Agencies",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "government agencies"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Federal Civilian Agencies",
+      "aliases": []
+    },
+    {
+      "name": "Defense Industrial Base",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "industry sector"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "Defense Industrial Base",
+      "aliases": []
+    },
+    {
+      "name": "FedRAMP High Certification",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "security certification",
+        "policy_ID": "FedRAMP High"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "FedRAMP High authorization, the highest level of cloud security certification",
+      "aliases": []
+    },
+    {
+      "name": "DoD IL5",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "security certification",
+        "policy_ID": "DoD IL5"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "DoD IL5 | Authorized (June 2025)",
+      "aliases": []
+    },
+    {
+      "name": "SOC 2 Type II",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "security certification",
+        "policy_ID": "SOC 2 Type II"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "SOC 2 Type II | Certified",
+      "aliases": []
+    },
+    {
+      "name": "ISO 27001",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "security certification",
+        "policy_ID": "ISO 27001"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "ISO 27001 | Certified",
+      "aliases": []
+    },
+    {
+      "name": "HIPAA",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "compliance",
+        "policy_ID": "HIPAA"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "HIPAA | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "PCI DSS",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "compliance",
+        "policy_ID": "PCI DSS"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "PCI DSS | Compliant",
+      "aliases": []
+    },
+    {
+      "name": "Federal cybersecurity market value",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "federal cybersecurity market",
+        "metric_name": "market opportunity",
         "value": "15+ billion",
         "period": "annual",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "The federal cybersecurity market represents a $15+ billion annual opportunity",
       "aliases": []
     },
     {
-      "name": "2 million endpoints",
+      "name": "Endpoint protection coverage",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "endpoints protected",
         "value": "2000000",
         "type": "COUNT"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "CyberShield protects over 2 million endpoints",
+      "source_excerpt": "Real-time threat detection on 2M+ endpoints",
       "aliases": []
     },
     {
-      "name": "342 enterprise customers",
+      "name": "Customer count",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "enterprise customers",
         "value": "342",
         "type": "COUNT"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "across 342 enterprise customers",
+      "source_excerpt": "342 enterprise customers",
       "aliases": []
     },
     {
-      "name": "12,500 employees",
+      "name": "Employee count",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "total employees",
+        "metric_name": "employees",
         "value": "12500",
         "type": "COUNT"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Nexus employs over 12,500 people worldwide",
+      "aliases": []
+    },
+    {
+      "name": "Security controls count",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "security controls",
+        "value": "421",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "source_excerpt": "421 controls implemented",
       "aliases": []
     },
     {
       "name": "Endpoint Detection & Response",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Real-time threat detection on 2M+ endpoints"
+        "description": "Real-time threat detection"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Endpoint Detection & Response Real-time threat detection on 2M+ endpoints",
+      "source_excerpt": "Endpoint Detection & Response | Real-time threat detection on 2M+ endpoints",
       "aliases": []
     },
     {
@@ -230,9 +300,9 @@
       "properties": {
         "description": "Security information and event management"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "SIEM Security information and event management",
+      "source_excerpt": "SIEM | Security information and event management",
       "aliases": []
     },
     {
@@ -241,9 +311,9 @@
       "properties": {
         "description": "AI-powered threat analysis"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Threat Intelligence AI-powered threat analysis",
+      "source_excerpt": "Threat Intelligence | AI-powered threat analysis",
       "aliases": []
     },
     {
@@ -252,9 +322,9 @@
       "properties": {
         "description": "Automated response and remediation"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Incident Response Automated response and remediation",
+      "source_excerpt": "Incident Response | Automated response and remediation",
       "aliases": []
     },
     {
@@ -263,24 +333,13 @@
       "properties": {
         "description": "24/7 security operations center"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Managed SOC 24/7 security operations center",
+      "source_excerpt": "Managed SOC | 24/7 security operations center",
       "aliases": []
     }
   ],
   "relationships": [
-    {
-      "source_entity": "Nexus Industries, Inc.",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "CyberShield",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_fedramp_announcement.md",
-      "evidence": "Nexus Industries announced that its CyberShield Security Platform has achieved FedRAMP High authorization"
-    },
     {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
@@ -288,7 +347,7 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "evidence": "Robert Kim, President of Nexus Digital Solutions"
     },
@@ -299,9 +358,31 @@
       "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "evidence": "Robert Kim, President of Nexus Digital Solutions"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries, Inc.",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "evidence": "Jennifer Walsh VP Investor Relations"
+    },
+    {
+      "source_entity": "Sarah Mitchell",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries, Inc.",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "05_fedramp_announcement.md",
+      "evidence": "Sarah Mitchell VP Corporate Communications"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -310,31 +391,20 @@
       "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "evidence": "Robert Kim, President of Nexus Digital Solutions"
     },
     {
-      "source_entity": "Jennifer Walsh",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries, Inc.",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield Security Platform",
+      "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "Jennifer Walsh VP Investor Relations"
-    },
-    {
-      "source_entity": "Sarah Mitchell",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries, Inc.",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_fedramp_announcement.md",
-      "evidence": "Sarah Mitchell VP Corporate Communications"
+      "evidence": "Nexus Industries announced that its CyberShield Security Platform has achieved FedRAMP High authorization"
     },
     {
       "source_entity": "Nexus Industries, Inc.",
@@ -343,81 +413,70 @@
       "target_entity": "Phoenix",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
       "evidence": "Headquartered in Phoenix, Arizona"
     },
     {
-      "source_entity": "CyberShield",
+      "source_entity": "CyberShield Security Platform",
       "source_type": "PRODUCT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Department of Defense",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Endpoint Detection & Response",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "FedRAMP High authorization allows CyberShield to be deployed across Department of Defense"
+      "evidence": "CyberShield provides comprehensive security capabilities including Endpoint Detection & Response"
     },
     {
-      "source_entity": "CyberShield",
+      "source_entity": "CyberShield Security Platform",
       "source_type": "PRODUCT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Intelligence Community",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "SIEM",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "FedRAMP High authorization allows CyberShield to be deployed across Intelligence Community"
+      "evidence": "CyberShield provides comprehensive security capabilities including SIEM"
     },
     {
-      "source_entity": "CyberShield",
+      "source_entity": "CyberShield Security Platform",
       "source_type": "PRODUCT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Federal Civilian Agencies",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Threat Intelligence",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "FedRAMP High authorization allows CyberShield to be deployed across Federal Civilian Agencies"
+      "evidence": "CyberShield provides comprehensive security capabilities including Threat Intelligence"
     },
     {
-      "source_entity": "Jennifer Walsh",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries, Inc.",
-      "target_type": "ORGANIZATION",
+      "source_entity": "CyberShield Security Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Incident Response",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "Jennifer Walsh VP Investor Relations"
+      "evidence": "CyberShield provides comprehensive security capabilities including Incident Response"
     },
     {
-      "source_entity": "Sarah Mitchell",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries, Inc.",
-      "target_type": "ORGANIZATION",
+      "source_entity": "CyberShield Security Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Managed SOC",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "Sarah Mitchell VP Corporate Communications"
-    },
-    {
-      "source_entity": "Robert Kim",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_fedramp_announcement.md",
-      "evidence": "Robert Kim, President of Nexus Digital Solutions"
+      "evidence": "CyberShield provides comprehensive security capabilities including Managed SOC"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 22,
-    "raw_relationship_count": 13,
+    "raw_entity_count": 28,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

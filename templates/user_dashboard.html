@@ -232,6 +232,11 @@
     color: #f59e0b;
 }
 
+.status-multi {
+    background: rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+}
+
 .status-rejected {
     background: rgba(107, 114, 128, 0.2);
     color: #6b7280;
@@ -1194,8 +1199,8 @@ function renderDocumentsTable(docs) {
     
     tbody.innerHTML = docs.map(doc => {
         const type = getFileType(doc.mime_type, doc.name);
-        const statusClass = getStatusClass(doc.status, doc.published);
-        const statusText = formatStatus(doc.status, doc.published);
+        const statusClass = getStatusClass(doc.status, doc.published, doc.extraction_level);
+        const statusText = formatStatus(doc.status, doc.published, doc.extraction_level);
         const date = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '-';
         
         return `
@@ -1270,9 +1275,10 @@ function getFileType(mimeType, name) {
     return 'FILE';
 }
 
-function getStatusClass(status, published) {
+function getStatusClass(status, published, extractionLevel) {
     if (status === 'rejected') return 'status-rejected';
     if ((status === 'extracted' || status === 'completed') && published) return 'status-published';
+    if ((status === 'extracted' || status === 'completed') && extractionLevel === 'multi') return 'status-multi';
     if (status === 'extracted' || status === 'completed') return 'status-review';
     const map = {
         'processing': 'status-processing',
@@ -1283,10 +1289,11 @@ function getStatusClass(status, published) {
     return map[status] || 'status-pending';
 }
 
-function formatStatus(status, published) {
+function formatStatus(status, published, extractionLevel) {
     if (status === 'rejected') return 'Rejected';
     if ((status === 'extracted' || status === 'completed') && published) return 'Published';
-    if (status === 'extracted' || status === 'completed') return 'Review';
+    if ((status === 'extracted' || status === 'completed') && extractionLevel === 'multi') return 'Multi-Model';
+    if (status === 'extracted' || status === 'completed') return 'Single-Model';
     const map = {
         'processing': 'Processing',
         'queued': 'Queued',
@@ -1311,9 +1318,9 @@ function openDetailPanel(docId) {
             document.getElementById('panel-doc-method').textContent = data.extraction_method || 'text';
             
             const statusEl = document.getElementById('panel-doc-status');
-            const statusText = formatStatus(data.status, data.published);
+            const statusText = formatStatus(data.status, data.published, data.extraction_level);
             statusEl.textContent = statusText;
-            statusEl.className = 'meta-value badge ' + getStatusClass(data.status, data.published);
+            statusEl.className = 'meta-value badge ' + getStatusClass(data.status, data.published, data.extraction_level);
             
             document.getElementById('panel-entity-count').textContent = data.entity_count || 0;
             

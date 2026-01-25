@@ -2,13 +2,13 @@
   "document_id": "a17e0d05-df96-4714-a7a1-30246c240f6a",
   "document_path": "05_digital_division_budget.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:59:52.697715",
+  "extracted_at": "2026-01-25T10:38:30.585584",
   "entities": [
     {
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "IoT, Enterprise Software, Professional Services"
+        "focus_areas": "Digital solutions, IoT, Enterprise Software, Professional Services"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -44,7 +44,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Product Development",
-        "role": "Vice President Product Development"
+        "role": "Vice President of Product Development"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -67,22 +67,22 @@
       "name": "IoT Platform",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "NexusConnect platform, device management, analytics"
+        "focus_areas": "NexusConnect platform, device management, analytics, edge computing"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "IoT Platform (NexusConnect)",
+      "source_excerpt": "IoT Platform (NexusConnect) | $0.62B",
       "aliases": []
     },
     {
       "name": "Enterprise Software",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "CyberShield, Industrial Automation, Data Analytics"
+        "focus_areas": "CyberShield Security, Industrial Automation, Data Analytics"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Enterprise Software | $0.82B | $0.72B | +13.9%",
+      "source_excerpt": "Enterprise Software | $0.82B",
       "aliases": []
     },
     {
@@ -91,29 +91,29 @@
       "properties": {
         "focus_areas": "Implementation, Consulting, Training, Support"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Professional Services | $0.74B | $0.62B | +19.4%",
+      "source_excerpt": "Professional Services | $0.74B",
       "aliases": []
     },
     {
       "name": "NexusConnect",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "IoT Platform with subscriptions, device management, analytics",
-        "category": "IoT Platform"
+        "category": "IoT Platform",
+        "description": "IoT connectivity and management platform"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "IoT Platform (NexusConnect) | $0.62B",
+      "source_excerpt": "IoT Platform (NexusConnect)",
       "aliases": []
     },
     {
       "name": "CyberShield Security",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Security platform with threat detection",
-        "category": "Enterprise Software"
+        "category": "Security Platform",
+        "description": "Cybersecurity platform"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -121,33 +121,11 @@
       "aliases": []
     },
     {
-      "name": "Industrial Automation",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "category": "Enterprise Software"
-      },
-      "confidence": 1.0,
-      "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Industrial Automation | $285M | +8%",
-      "aliases": []
-    },
-    {
-      "name": "Data Analytics",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "category": "Enterprise Software"
-      },
-      "confidence": 1.0,
-      "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Data Analytics | $225M | +12%",
-      "aliases": []
-    },
-    {
       "name": "QuantumLeap Computing",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Quantum computing platform",
-        "category": "Enterprise Software"
+        "category": "Quantum Computing",
+        "description": "Quantum computing platform"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -158,11 +136,24 @@
       "name": "Autonomous Mining",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Fleet optimization for mining operations"
+        "category": "Mining Technology",
+        "description": "Autonomous mining solution"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Autonomous Mining | $42M | Fleet optimization",
+      "source_excerpt": "Autonomous Mining fleet optimization",
+      "aliases": []
+    },
+    {
+      "name": "Industrial Automation",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Automation Software",
+        "description": "Industrial automation solutions"
+      },
+      "confidence": 1.0,
+      "source_document": "05_digital_division_budget.md",
+      "source_excerpt": "Industrial Automation | $285M | +8%",
       "aliases": []
     },
     {
@@ -202,7 +193,7 @@
       "name": "Support",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Support services"
+        "description": "Technical support services"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -214,27 +205,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Total Revenue",
-        "value": "$2.18B",
+        "value": "2.18B",
         "period": "FY2026",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Total Revenue | $2.18B | $1.82B | +19.8%",
-      "aliases": []
-    },
-    {
-      "name": "Gross Profit FY2026",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Gross Profit",
-        "value": "$980M",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Gross Profit | $980M | $800M | +22.5%",
+      "source_excerpt": "Total Revenue | $2.18B",
       "aliases": []
     },
     {
@@ -242,35 +219,35 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Operating Income",
-        "value": "$457M",
+        "value": "457M",
         "period": "FY2026",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Operating Income | $457M | $364M | +25.5%",
+      "source_excerpt": "Operating Income | $457M",
       "aliases": []
     },
     {
-      "name": "R&D Budget FY2026",
+      "name": "Operating Margin FY2026",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "R&D",
-        "value": "$262M",
+        "metric_name": "Operating Margin",
+        "value": "21.0",
         "period": "FY2026",
-        "type": "CURRENCY"
+        "type": "PERCENTAGE"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "R&D | $262M | $218M | +20.2%",
+      "source_excerpt": "Operating Margin | 21.0%",
       "aliases": []
     },
     {
       "name": "Annual Recurring Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "ARR",
-        "value": "$1.05B",
+        "metric_name": "Annual Recurring Revenue",
+        "value": "1.05B",
         "period": "FY2026",
         "type": "CURRENCY"
       },
@@ -280,10 +257,39 @@
       "aliases": []
     },
     {
+      "name": "R&D Budget FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "R&D Budget",
+        "value": "262M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "05_digital_division_budget.md",
+      "source_excerpt": "R&D | $262M",
+      "aliases": []
+    },
+    {
+      "name": "Total Headcount FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Headcount",
+        "value": "3600",
+        "period": "FY2026",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "05_digital_division_budget.md",
+      "source_excerpt": "Total | 3,600",
+      "aliases": []
+    },
+    {
       "name": "North America",
       "entity_type": "LOCATION",
       "properties": {
-        "name": "North America"
+        "name": "North America",
+        "country": "North America"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -294,7 +300,8 @@
       "name": "Europe",
       "entity_type": "LOCATION",
       "properties": {
-        "name": "Europe"
+        "name": "Europe",
+        "country": "Europe"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -305,7 +312,8 @@
       "name": "Asia Pacific",
       "entity_type": "LOCATION",
       "properties": {
-        "name": "Asia Pacific"
+        "name": "Asia Pacific",
+        "country": "Asia Pacific"
       },
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
@@ -316,9 +324,9 @@
       "name": "Engineering Department",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Product development and engineering"
+        "focus_areas": "Product development, R&D"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
       "source_excerpt": "Engineering | 1,450 | 1,280 | +170",
       "aliases": []
@@ -327,22 +335,11 @@
       "name": "Sales & Marketing Department",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Sales and marketing operations"
+        "focus_areas": "Sales, marketing, demand generation"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
       "source_excerpt": "Sales & Marketing | 520 | 450 | +70",
-      "aliases": []
-    },
-    {
-      "name": "Customer Success Department",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Customer retention and success"
-      },
-      "confidence": 0.9,
-      "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Customer Success | 280 | 240 | +40",
       "aliases": []
     }
   ],
@@ -356,7 +353,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "Division President Kevin Chang leads Nexus Digital Solutions"
+      "evidence": "Kevin Chang holds the position of Division President"
     },
     {
       "source_entity": "Jennifer Martinez",
@@ -367,7 +364,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "Division CFO Jennifer Martinez manages financial operations for Nexus Digital Solutions"
+      "evidence": "Jennifer Martinez is Division CFO responsible for budget"
     },
     {
       "source_entity": "Dr. Amanda Foster",
@@ -378,7 +375,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "VP Product Development Dr. Amanda Foster oversees product development"
+      "evidence": "VP Product Development role suggests management of product development activities"
     },
     {
       "source_entity": "IoT Platform",
@@ -389,7 +386,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "IoT Platform is listed as a business unit within Nexus Digital Solutions"
+      "evidence": "IoT Platform is listed as a business unit under Nexus Digital Solutions"
     },
     {
       "source_entity": "Enterprise Software",
@@ -400,7 +397,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "Enterprise Software is listed as a business unit within Nexus Digital Solutions"
+      "evidence": "Enterprise Software is listed as a business unit under Nexus Digital Solutions"
     },
     {
       "source_entity": "Professional Services",
@@ -411,7 +408,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "Professional Services is listed as a business unit within Nexus Digital Solutions"
+      "evidence": "Professional Services is listed as a business unit under Nexus Digital Solutions"
     },
     {
       "source_entity": "IoT Platform",
@@ -422,7 +419,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "IoT Platform (NexusConnect) produces the NexusConnect product"
+      "evidence": "NexusConnect is explicitly mentioned as the IoT Platform product"
     },
     {
       "source_entity": "Enterprise Software",
@@ -433,29 +430,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "CyberShield Security is listed under Enterprise Software business unit"
-    },
-    {
-      "source_entity": "Enterprise Software",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Industrial Automation",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_digital_division_budget.md",
-      "evidence": "Industrial Automation is listed under Enterprise Software business unit"
-    },
-    {
-      "source_entity": "Enterprise Software",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Data Analytics",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "05_digital_division_budget.md",
-      "evidence": "Data Analytics is listed under Enterprise Software business unit"
+      "evidence": "CyberShield Security is listed under Enterprise Software products"
     },
     {
       "source_entity": "Enterprise Software",
@@ -466,7 +441,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "QuantumLeap Computing is listed under Enterprise Software business unit"
+      "evidence": "QuantumLeap Computing is listed under Enterprise Software products"
+    },
+    {
+      "source_entity": "Enterprise Software",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Industrial Automation",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "05_digital_division_budget.md",
+      "evidence": "Industrial Automation is listed under Enterprise Software products"
     },
     {
       "source_entity": "Professional Services",
@@ -519,9 +505,9 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "Engineering department is part of the organizational structure"
+      "evidence": "Engineering is listed as a department within the division"
     },
     {
       "source_entity": "Sales & Marketing Department",
@@ -530,26 +516,15 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "Sales & Marketing department is part of the organizational structure"
-    },
-    {
-      "source_entity": "Customer Success Department",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_digital_division_budget.md",
-      "evidence": "Customer Success department is part of the organizational structure"
+      "evidence": "Sales & Marketing is listed as a department within the division"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 29,
-    "raw_relationship_count": 18,
+    "raw_entity_count": 28,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }

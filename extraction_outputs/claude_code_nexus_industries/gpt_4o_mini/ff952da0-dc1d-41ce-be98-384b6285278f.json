@@ -2,7 +2,7 @@
   "document_id": "ff952da0-dc1d-41ce-be98-384b6285278f",
   "document_path": "04_procurement_policy.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:53:21.115350",
+  "extracted_at": "2026-01-25T10:32:11.922972",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -39,6 +39,17 @@
       "source_document": "04_procurement_policy.md",
       "source_excerpt": "## Procurement Policy",
       "aliases": []
+    },
+    {
+      "name": "Procurement Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Procurement governance"
+      },
+      "confidence": 0.85,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Procurement Council: Chief Procurement Officer (Chair)",
+      "aliases": []
     }
   ],
   "relationships": [
@@ -63,12 +74,23 @@
       "confidence": 0.85,
       "source_document": "04_procurement_policy.md",
       "evidence": "This policy establishes standards for the procurement of goods and services at Nexus Industries"
+    },
+    {
+      "source_entity": "Procurement Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Procurement Council: Chief Procurement Officer (Chair)"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 3,
-    "raw_relationship_count": 2,
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "17e14e75-748a-4990-b11b-a84040e37109",
   "document_path": "05_fedramp_announcement.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:01:28.485299",
+  "extracted_at": "2026-01-25T10:40:00.208069",
   "entities": [
     {
       "name": "Nexus Industries, Inc.",
@@ -21,7 +21,7 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "An enterprise security platform that combines endpoint protection, SIEM, and threat intelligence to defend against advanced cyber threats.",
-        "category": "Security Software"
+        "category": "Security"
       },
       "confidence": 0.95,
       "source_document": "05_fedramp_announcement.md",
@@ -37,7 +37,7 @@
       },
       "confidence": 0.9,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "said Robert Kim, President of Nexus Digital Solutions",
+      "source_excerpt": "\"FedRAMP High authorization is the gold standard for federal cloud security,\" said Robert Kim, President of Nexus Digital Solutions.",
       "aliases": []
     },
     {
@@ -49,7 +49,7 @@
       },
       "confidence": 0.9,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Authorizing Agency | Department of Defense",
+      "source_excerpt": "| Authorizing Agency | Department of Defense |",
       "aliases": []
     },
     {
@@ -59,7 +59,7 @@
         "title": "VP Investor Relations",
         "role": "Vice President of Investor Relations"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Investor Relations: Jennifer Walsh VP Investor Relations",
       "aliases": []
@@ -71,34 +71,22 @@
         "title": "VP Corporate Communications",
         "role": "Vice President of Corporate Communications"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "05_fedramp_announcement.md",
       "source_excerpt": "Media: Sarah Mitchell VP Corporate Communications",
-      "aliases": []
-    },
-    {
-      "name": "Phoenix, Arizona",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Phoenix",
-        "country": "USA"
-      },
-      "confidence": 0.95,
-      "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "Headquartered in Phoenix, Arizona",
       "aliases": []
     },
     {
       "name": "Cybersecurity Market",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$15 billion",
+        "budget": "$15+ billion",
         "timeline": "Annual",
         "status": "Opportunity"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_fedramp_announcement.md",
-      "source_excerpt": "The federal cybersecurity market represents a $15+ billion annual opportunity",
+      "source_excerpt": "The federal cybersecurity market represents a $15+ billion annual opportunity.",
       "aliases": []
     }
   ],
@@ -118,23 +106,23 @@
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
+      "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "said Robert Kim, President of Nexus Digital Solutions"
+      "evidence": "Robert Kim, President of Nexus Digital Solutions"
     },
     {
       "source_entity": "Nexus Industries, Inc.",
       "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix, Arizona",
-      "target_type": "LOCATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Department of Defense",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.85,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "Headquartered in Phoenix, Arizona"
+      "evidence": "FedRAMP High authorization allows CyberShield to be deployed across: Department of Defense"
     },
     {
       "source_entity": "Jennifer Walsh",
@@ -143,7 +131,7 @@
       "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "05_fedramp_announcement.md",
       "evidence": "Investor Relations: Jennifer Walsh VP Investor Relations"
     },
@@ -154,25 +142,25 @@
       "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "05_fedramp_announcement.md",
       "evidence": "Media: Sarah Mitchell VP Corporate Communications"
     },
     {
       "source_entity": "CyberShield Security Platform",
       "source_type": "PRODUCT",
-      "relationship_type": "RELATED_TO",
-      "target_entity": "Department of Defense",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Cybersecurity Market",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_fedramp_announcement.md",
-      "evidence": "FedRAMP High authorization allows CyberShield to be deployed across: Department of Defense"
+      "evidence": "FedRAMP High authorization allows CyberShield to be deployed across: Department of Defense, Intelligence Community, Federal Civilian Agencies, Defense Industrial Base"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 8,
+    "raw_entity_count": 7,
     "raw_relationship_count": 6,
     "used_partial_parse": false,
     "truncated": false

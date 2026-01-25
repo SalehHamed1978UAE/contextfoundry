@@ -2,7 +2,7 @@
   "document_id": "3b19c5ea-badb-4313-b7bc-304f4cb026f4",
   "document_path": "05_hts_wire_manufacturing_spec.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:03:16.835914",
+  "extracted_at": "2026-01-25T10:42:00.751562",
   "entities": [
     {
       "name": "Dr. Robert Chen",
@@ -43,7 +43,7 @@
       "name": "Materials Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "materials production and development"
+        "focus_areas": "materials manufacturing and production"
       },
       "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -54,12 +54,12 @@
       "name": "Nexus HTS Wire",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "second-generation high-temperature superconducting wire based on REBCO coated conductor technology",
+        "description": "second-generation (2G) high-temperature superconducting wire based on REBCO",
         "category": "superconducting wire"
       },
       "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Nexus HTS Wire is a second-generation (2G) high-temperature superconducting wire based on REBCO (Rare Earth Barium Copper Oxide) coated conductor technology",
+      "source_excerpt": "Nexus HTS Wire is a second-generation (2G) high-temperature superconducting wire based on REBCO",
       "aliases": []
     },
     {
@@ -70,14 +70,14 @@
       },
       "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "REBCO (Rare Earth Barium Copper Oxide) coated conductor technology",
+      "source_excerpt": "based on REBCO (Rare Earth Barium Copper Oxide) coated conductor technology",
       "aliases": []
     },
     {
       "name": "MOCVD",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Metal-Organic Chemical Vapor Deposition process"
+        "description": "Metal Organic Chemical Vapor Deposition"
       },
       "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -85,22 +85,22 @@
       "aliases": []
     },
     {
-      "name": "Ion Beam Assisted Deposition",
+      "name": "IBAD",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "IBAD process for MgO buffer layer deposition"
+        "description": "Ion Beam Assisted Deposition"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "MgO IBAD | Ion beam assisted | 10-12\u00b0 tilt",
+      "source_excerpt": "MgO (10 nm) - IBAD",
       "aliases": []
     },
     {
       "name": "Siemens Healthineers",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "medical devices",
-        "requirements": "High field, long length"
+        "industry": "healthcare",
+        "region": "global"
       },
       "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -111,8 +111,8 @@
       "name": "Government labs",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "research",
-        "requirements": "Extreme field, radiation"
+        "industry": "government research",
+        "region": "US"
       },
       "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -123,8 +123,8 @@
       "name": "Utilities",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "power generation",
-        "requirements": "High capacity, flexibility"
+        "industry": "power utilities",
+        "region": "global"
       },
       "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -132,23 +132,11 @@
       "aliases": []
     },
     {
-      "name": "Transportation",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "transportation",
-        "requirements": "Compact, high efficiency"
-      },
-      "confidence": 0.9,
-      "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Motors/Generators | Compact, high efficiency | Transportation",
-      "aliases": []
-    },
-    {
       "name": "Universities",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "research",
-        "requirements": "Ultra-high field"
+        "industry": "education and research",
+        "region": "global"
       },
       "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -159,9 +147,10 @@
       "name": "Haynes",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Hastelloy C276 HTS grade"
+        "capability": "specialty metals",
+        "risk level": "low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "Hastelloy C276 | HTS grade | Haynes | 6 months",
       "aliases": []
@@ -170,9 +159,10 @@
       "name": "Alfa Aesar",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "REBCO precursors Electronic grade"
+        "capability": "electronic grade chemicals",
+        "risk level": "low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "REBCO precursors | Electronic | Alfa Aesar | 3 months",
       "aliases": []
@@ -181,9 +171,10 @@
       "name": "ESPI",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Silver 99.99%"
+        "capability": "precious metals",
+        "risk level": "low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "Silver | 99.99% | ESPI | 3 months",
       "aliases": []
@@ -192,9 +183,10 @@
       "name": "Linde",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Process gases Ultra-high purity"
+        "capability": "industrial gases",
+        "risk level": "low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "Process gases | Ultra-high purity | Linde | 1 month",
       "aliases": []
@@ -203,9 +195,10 @@
       "name": "Kurt Lesker",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "MgO target 99.9%"
+        "capability": "sputtering targets",
+        "risk level": "low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "MgO target | 99.9% | Kurt Lesker | 6 months",
       "aliases": []
@@ -214,7 +207,8 @@
       "name": "Albuquerque",
       "entity_type": "LOCATION",
       "properties": {
-        "city": "Albuquerque"
+        "city": "Albuquerque",
+        "country": "USA"
       },
       "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -222,37 +216,40 @@
       "aliases": []
     },
     {
-      "name": "Line 1 Manufacturing Facility",
+      "name": "Production Line 1",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "production line",
+        "location": "Albuquerque",
+        "type": "manufacturing line",
         "capacity": "200 km/year"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "Line 1 | Albuquerque | 200 km/year | Operating",
       "aliases": []
     },
     {
-      "name": "Line 2 Manufacturing Facility",
+      "name": "Production Line 2",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "production line",
+        "location": "Albuquerque",
+        "type": "manufacturing line",
         "capacity": "300 km/year"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "Line 2 | Albuquerque | 300 km/year | Operating",
       "aliases": []
     },
     {
-      "name": "Line 3 Manufacturing Facility",
+      "name": "Production Line 3",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "production line",
+        "location": "Albuquerque",
+        "type": "manufacturing line",
         "capacity": "500 km/year"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "Line 3 | Albuquerque | 500 km/year | Commissioning",
       "aliases": []
@@ -261,8 +258,9 @@
       "name": "Material Cost",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Material Cost",
-        "value": "$25/m",
+        "metric_name": "material cost per meter",
+        "value": "$25",
+        "period": "per meter",
         "type": "CURRENCY"
       },
       "confidence": 0.95,
@@ -274,8 +272,9 @@
       "name": "Conversion Cost",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Conversion Cost",
-        "value": "$35/m",
+        "metric_name": "conversion cost per meter",
+        "value": "$35",
+        "period": "per meter",
         "type": "CURRENCY"
       },
       "confidence": 0.95,
@@ -287,8 +286,9 @@
       "name": "Total Cost",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total Cost",
-        "value": "$60/m",
+        "metric_name": "total cost per meter",
+        "value": "$60",
+        "period": "per meter",
         "type": "CURRENCY"
       },
       "confidence": 0.95,
@@ -300,8 +300,9 @@
       "name": "Selling Price",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Selling Price",
-        "value": "$100-150/m",
+        "metric_name": "selling price per meter",
+        "value": "$100-150",
+        "period": "per meter",
         "type": "CURRENCY"
       },
       "confidence": 0.95,
@@ -313,8 +314,9 @@
       "name": "Gross Margin",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Gross Margin",
+        "metric_name": "gross margin",
         "value": "40-60%",
+        "period": "current",
         "type": "PERCENTAGE"
       },
       "confidence": 0.95,
@@ -323,11 +325,25 @@
       "aliases": []
     },
     {
-      "name": "Manufacturing Specification TEC-MAT-001",
+      "name": "Annual Production Capacity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "total annual production capacity",
+        "value": "1,000 km",
+        "period": "per year",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "source_excerpt": "Total | | 1,000 km/year",
+      "aliases": []
+    },
+    {
+      "name": "TEC-MAT-001 Policy",
       "entity_type": "POLICY",
       "properties": {
         "policy_ID": "TEC-MAT-001",
-        "category": "manufacturing specification"
+        "category": "Manufacturing Specification"
       },
       "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
@@ -341,7 +357,7 @@
         "policy_ID": "ASTM F2714",
         "category": "Superconductor Test Methods"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "ASTM F2714 (Superconductor Test Methods)",
       "aliases": []
@@ -353,7 +369,7 @@
         "policy_ID": "IEC 61788",
         "category": "Superconductivity Standards"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "source_excerpt": "IEC 61788 (Superconductivity Standards)",
       "aliases": []
@@ -367,7 +383,7 @@
       "target_entity": "Materials R&D",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "evidence": "Dr. Robert Chen, Materials R&D Director"
     },
@@ -378,7 +394,7 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
       "evidence": "John Williams, Materials Division President"
     },
@@ -389,9 +405,9 @@
       "target_entity": "Nexus HTS Wire",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Manufacturing specification for Nexus HTS Wire under Materials Division"
+      "evidence": "Manufacturing specification document for Nexus HTS Wire"
     },
     {
       "source_entity": "Nexus HTS Wire",
@@ -402,7 +418,7 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Nexus HTS Wire is based on REBCO coated conductor technology"
+      "evidence": "based on REBCO (Rare Earth Barium Copper Oxide) coated conductor technology"
     },
     {
       "source_entity": "Materials Division",
@@ -411,20 +427,20 @@
       "target_entity": "MOCVD",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "REBCO deposition using MOCVD process"
+      "evidence": "REBCO deposition | MOCVD | 780\u00b0C, O\u2082"
     },
     {
       "source_entity": "Materials Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "USES",
-      "target_entity": "Ion Beam Assisted Deposition",
+      "target_entity": "IBAD",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "MgO IBAD process used in manufacturing"
+      "evidence": "MgO IBAD | Ion beam assisted | 10-12\u00b0 tilt"
     },
     {
       "source_entity": "Siemens Healthineers",
@@ -433,9 +449,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Siemens Healthineers listed as customer for MRI Magnets application"
+      "evidence": "MRI Magnets | High field, long length | Siemens Healthineers"
     },
     {
       "source_entity": "Government labs",
@@ -444,9 +460,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Government labs listed as customer for Fusion Reactors application"
+      "evidence": "Fusion Reactors | Extreme field, radiation | Government labs"
     },
     {
       "source_entity": "Utilities",
@@ -455,20 +471,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Utilities listed as customer for Power Cables application"
-    },
-    {
-      "source_entity": "Transportation",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Materials Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Transportation listed as customer for Motors/Generators application"
+      "evidence": "Power Cables | High capacity, flexibility | Utilities"
     },
     {
       "source_entity": "Universities",
@@ -477,9 +482,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Universities listed as customer for Research Magnets application"
+      "evidence": "Research Magnets | Ultra-high field | Universities"
     },
     {
       "source_entity": "Haynes",
@@ -488,9 +493,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Haynes supplies Hastelloy C276 HTS grade"
+      "evidence": "Hastelloy C276 | HTS grade | Haynes | 6 months"
     },
     {
       "source_entity": "Alfa Aesar",
@@ -499,9 +504,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Alfa Aesar supplies REBCO precursors"
+      "evidence": "REBCO precursors | Electronic | Alfa Aesar | 3 months"
     },
     {
       "source_entity": "ESPI",
@@ -510,9 +515,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "ESPI supplies Silver 99.99%"
+      "evidence": "Silver | 99.99% | ESPI | 3 months"
     },
     {
       "source_entity": "Linde",
@@ -521,9 +526,9 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Linde supplies Process gases Ultra-high purity"
+      "evidence": "Process gases | Ultra-high purity | Linde | 1 month"
     },
     {
       "source_entity": "Kurt Lesker",
@@ -532,12 +537,12 @@
       "target_entity": "Materials Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Kurt Lesker supplies MgO target 99.9%"
+      "evidence": "MgO target | 99.9% | Kurt Lesker | 6 months"
     },
     {
-      "source_entity": "Line 1 Manufacturing Facility",
+      "source_entity": "Production Line 1",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Albuquerque",
@@ -548,7 +553,7 @@
       "evidence": "Line 1 | Albuquerque | 200 km/year | Operating"
     },
     {
-      "source_entity": "Line 2 Manufacturing Facility",
+      "source_entity": "Production Line 2",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Albuquerque",
@@ -559,7 +564,7 @@
       "evidence": "Line 2 | Albuquerque | 300 km/year | Operating"
     },
     {
-      "source_entity": "Line 3 Manufacturing Facility",
+      "source_entity": "Production Line 3",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Albuquerque",
@@ -573,40 +578,40 @@
       "source_entity": "Materials Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "Line 1 Manufacturing Facility",
+      "target_entity": "Production Line 1",
       "target_type": "FACILITY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Production lines operated by Materials Division"
+      "evidence": "Production lines are part of Materials Division operations"
     },
     {
       "source_entity": "Materials Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "Line 2 Manufacturing Facility",
+      "target_entity": "Production Line 2",
       "target_type": "FACILITY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Production lines operated by Materials Division"
+      "evidence": "Production lines are part of Materials Division operations"
     },
     {
       "source_entity": "Materials Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "Line 3 Manufacturing Facility",
+      "target_entity": "Production Line 3",
       "target_type": "FACILITY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Production lines operated by Materials Division"
+      "evidence": "Production lines are part of Materials Division operations"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 30,
-    "raw_relationship_count": 22,
+    "raw_relationship_count": 21,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "fe582512-47f9-49f1-8e74-8fcc0c672fa5",
   "document_path": "04_us_dod_customer.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:58:41.413435",
+  "extracted_at": "2026-01-25T10:37:23.924409",
   "entities": [
     {
       "name": "U.S. Department of Defense",
@@ -11,9 +11,7 @@
         "customer_id": "CUST-004",
         "account_type": "Government - Strategic",
         "relationship_since": "1992",
-        "cage_code": "1ABC5",
-        "industry": "Government Defense",
-        "region": "United States"
+        "cage_code": "1ABC5"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -24,7 +22,7 @@
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Aerospace, Defense Systems"
+        "type": "Division"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -35,13 +33,12 @@
       "name": "Colonel (Ret.) James Foster",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Colonel (Ret.)",
-        "role": "VP Government Programs",
-        "department": "Government Programs"
+        "title": "VP Government Programs",
+        "role": "Account Manager"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Account Manager: Colonel (Ret.) James Foster",
+      "source_excerpt": "Account Manager: Colonel (Ret.) James Foster, Account Owner: Col. (Ret.) James Foster, VP Government Programs",
       "aliases": []
     },
     {
@@ -49,7 +46,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division President",
-        "role": "Division President"
+        "role": "Executive Sponsor"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -73,19 +70,32 @@
       "entity_type": "LOCATION",
       "properties": {
         "city": "Arlington",
-        "country": "United States"
+        "state": "VA"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "The Pentagon, Arlington, VA",
+      "source_excerpt": "Headquarters: The Pentagon, Arlington, VA",
+      "aliases": []
+    },
+    {
+      "name": "$886B Annual Budget",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Budget",
+        "value": "$886B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "source_excerpt": "Annual Budget: $886B (FY2025)",
       "aliases": []
     },
     {
       "name": "US Air Force",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "type": "Military Branch",
-        "industry": "Defense"
+        "industry": "Military"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -94,10 +104,9 @@
     },
     {
       "name": "US Navy",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "type": "Military Branch",
-        "industry": "Defense"
+        "industry": "Military"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -106,10 +115,9 @@
     },
     {
       "name": "US Army",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "type": "Military Branch",
-        "industry": "Defense"
+        "industry": "Military"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -118,10 +126,9 @@
     },
     {
       "name": "DARPA",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "type": "Defense Research Agency",
-        "industry": "Defense Research"
+        "industry": "Research"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -130,14 +137,27 @@
     },
     {
       "name": "Space Force",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "type": "Military Branch",
-        "industry": "Defense"
+        "industry": "Military"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
       "source_excerpt": "Satellite Systems: $65M, Space Force",
+      "aliases": []
+    },
+    {
+      "name": "$680M FY2025 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Revenue",
+        "value": "$680M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "source_excerpt": "Total: $680M",
       "aliases": []
     },
     {
@@ -189,39 +209,14 @@
       "aliases": []
     },
     {
-      "name": "Shipboard Electronics",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$45M",
-        "status": "Active"
-      },
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Shipboard Electronics: $45M, Navy, Aerospace, Active",
-      "aliases": []
-    },
-    {
-      "name": "Ground Vehicle Systems",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$35M",
-        "status": "Active"
-      },
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Ground Vehicle Systems: $35M, Army, Aerospace, Active",
-      "aliases": []
-    },
-    {
       "name": "Dr. William LaPlante",
       "entity_type": "PERSON",
       "properties": {
-        "title": "USD(A&S)",
-        "role": "Under Secretary of Defense"
+        "title": "USD(A&S)"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Dr. William LaPlante, USD(A&S)",
+      "source_excerpt": "Dr. William LaPlante: USD(A&S)",
       "aliases": []
     },
     {
@@ -239,31 +234,28 @@
       "name": "Gen. David Allvin",
       "entity_type": "PERSON",
       "properties": {
-        "title": "General",
-        "role": "AF Chief of Staff"
+        "title": "AF Chief of Staff"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Gen. David Allvin, AF Chief of Staff",
+      "source_excerpt": "Gen. David Allvin: AF Chief of Staff",
       "aliases": []
     },
     {
       "name": "VADM Francis Morley",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VADM",
-        "role": "NAVAIR Commander"
+        "title": "NAVAIR Commander"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "VADM Francis Morley, NAVAIR Commander",
+      "source_excerpt": "VADM Francis Morley: NAVAIR Commander",
       "aliases": []
     },
     {
       "name": "Dr. Rachel Kim",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Dr.",
         "role": "Program Contact"
       },
       "confidence": 1.0,
@@ -275,19 +267,17 @@
       "name": "Dr. Stefanie Tompkins",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Dr.",
-        "role": "DARPA Director"
+        "title": "DARPA Director"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Dr. Stefanie Tompkins, DARPA Director",
+      "source_excerpt": "Dr. Stefanie Tompkins: DARPA Director",
       "aliases": []
     },
     {
       "name": "Dr. James Wilson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Dr.",
         "role": "Research Contact"
       },
       "confidence": 1.0,
@@ -299,19 +289,18 @@
       "name": "Col. Sarah Mitchell",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Colonel",
-        "role": "Falcon X Program Manager"
+        "title": "Falcon X Program Manager"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Col. Sarah Mitchell, Falcon X Program Manager",
+      "source_excerpt": "Col. Sarah Mitchell: Falcon X Program Manager",
       "aliases": []
     },
     {
       "name": "Steven Park",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Program Contact"
+        "role": "Nexus Contact"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -322,19 +311,18 @@
       "name": "Lt. Col. James Roberts",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Lt. Col.",
-        "role": "F-35 JPO"
+        "title": "F-35 JPO"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Lt. Col. James Roberts, F-35 JPO",
+      "source_excerpt": "Lt. Col. James Roberts: F-35 JPO",
       "aliases": []
     },
     {
       "name": "Thomas Wright",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Program Contact"
+        "role": "Nexus Contact"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -345,20 +333,18 @@
       "name": "Dr. Michael Chen",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Dr.",
-        "role": "DARPA PM"
+        "title": "DARPA PM"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Dr. Michael Chen, DARPA PM",
+      "source_excerpt": "Dr. Michael Chen: DARPA PM",
       "aliases": []
     },
     {
       "name": "Dr. Victor Hernandez",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Dr.",
-        "role": "Program Contact"
+        "role": "Nexus Contact"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -369,48 +355,18 @@
       "name": "Cdr. Lisa Thompson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Commander",
-        "role": "NAVAIR Contracts"
+        "title": "NAVAIR Contracts"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Cdr. Lisa Thompson, NAVAIR Contracts",
-      "aliases": []
-    },
-    {
-      "name": "FY2025 DoD Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Total DoD Revenue",
-        "value": "$680M",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Total: $680M",
-      "aliases": []
-    },
-    {
-      "name": "DoD Annual Budget",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Annual Budget",
-        "value": "$886B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "source_excerpt": "Annual Budget: $886B (FY2025)",
+      "source_excerpt": "Cdr. Lisa Thompson: NAVAIR Contracts",
       "aliases": []
     },
     {
       "name": "UAV",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Unmanned Aerial Vehicle",
-        "category": "Defense Systems"
+        "category": "Unmanned Aerial Vehicle"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -421,7 +377,6 @@
       "name": "Aircraft Components",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Aircraft components",
         "category": "Aerospace Components"
       },
       "confidence": 1.0,
@@ -433,7 +388,6 @@
       "name": "Shipboard Systems",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Shipboard systems",
         "category": "Naval Systems"
       },
       "confidence": 1.0,
@@ -445,12 +399,47 @@
       "name": "Ground Systems",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Ground systems",
-        "category": "Ground Defense Systems"
+        "category": "Military Ground Systems"
       },
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
       "source_excerpt": "US Army: $95M, Ground systems",
+      "aliases": []
+    },
+    {
+      "name": "CMMC Level 3",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Cybersecurity",
+        "status": "Certified"
+      },
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "source_excerpt": "CMMC Level 3: Certified",
+      "aliases": []
+    },
+    {
+      "name": "NIST 800-171",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Cybersecurity",
+        "status": "Compliant"
+      },
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "source_excerpt": "NIST 800-171: Compliant",
+      "aliases": []
+    },
+    {
+      "name": "ITAR Compliance",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Export Control",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "source_excerpt": "ITAR Compliance: Active",
       "aliases": []
     }
   ],
@@ -486,7 +475,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Executive Sponsor: Michael Torres (Division President)"
+      "evidence": "Michael Torres (Division President)"
     },
     {
       "source_entity": "The Pentagon",
@@ -512,65 +501,65 @@
     },
     {
       "source_entity": "US Air Force",
-      "source_type": "ORGANIZATION",
+      "source_type": "CUSTOMER",
       "relationship_type": "PART_OF",
       "target_entity": "U.S. Department of Defense",
       "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "US Air Force is part of DoD organizational structure"
+      "evidence": "US Air Force is part of DoD structure"
     },
     {
       "source_entity": "US Navy",
-      "source_type": "ORGANIZATION",
+      "source_type": "CUSTOMER",
       "relationship_type": "PART_OF",
       "target_entity": "U.S. Department of Defense",
       "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "US Navy is part of DoD organizational structure"
+      "evidence": "US Navy is part of DoD structure"
     },
     {
       "source_entity": "US Army",
-      "source_type": "ORGANIZATION",
+      "source_type": "CUSTOMER",
       "relationship_type": "PART_OF",
       "target_entity": "U.S. Department of Defense",
       "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "US Army is part of DoD organizational structure"
+      "evidence": "US Army is part of DoD structure"
     },
     {
       "source_entity": "DARPA",
-      "source_type": "ORGANIZATION",
+      "source_type": "CUSTOMER",
       "relationship_type": "PART_OF",
       "target_entity": "U.S. Department of Defense",
       "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "DARPA is part of DoD organizational structure"
+      "evidence": "DARPA is part of DoD structure"
     },
     {
       "source_entity": "Space Force",
-      "source_type": "ORGANIZATION",
+      "source_type": "CUSTOMER",
       "relationship_type": "PART_OF",
       "target_entity": "U.S. Department of Defense",
       "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Space Force is part of DoD organizational structure"
+      "evidence": "Space Force is part of DoD structure"
     },
     {
       "source_entity": "Falcon X UAV Development",
       "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
       "target_entity": "US Air Force",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -581,20 +570,9 @@
       "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
       "target_entity": "US Navy",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "F-35 Components: $85M, Navy/AF"
-    },
-    {
-      "source_entity": "F-35 Components",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "US Air Force",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
       "evidence": "F-35 Components: $85M, Navy/AF"
     },
@@ -603,7 +581,7 @@
       "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
       "target_entity": "DARPA",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
@@ -614,99 +592,11 @@
       "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
       "target_entity": "Space Force",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
       "evidence": "Satellite Systems: $65M, Space Force"
-    },
-    {
-      "source_entity": "Shipboard Electronics",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "US Navy",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Shipboard Electronics: $45M, Navy"
-    },
-    {
-      "source_entity": "Ground Vehicle Systems",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "US Army",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Ground Vehicle Systems: $35M, Army"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV Development",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Falcon X UAV Development: Aerospace division"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "F-35 Components",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "F-35 Components: Aerospace division"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Hypersonic Research",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Hypersonic Research: Aerospace division"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Satellite Systems",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Satellite Systems: Aerospace division"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Shipboard Electronics",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Shipboard Electronics: Aerospace division"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Ground Vehicle Systems",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Ground Vehicle Systems: Aerospace division"
     },
     {
       "source_entity": "Dr. William LaPlante",
@@ -717,40 +607,29 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Dr. William LaPlante, USD(A&S)"
+      "evidence": "Dr. William LaPlante: USD(A&S)"
     },
     {
       "source_entity": "Gen. David Allvin",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "US Air Force",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Gen. David Allvin, AF Chief of Staff"
-    },
-    {
-      "source_entity": "VADM Francis Morley",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "US Navy",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "VADM Francis Morley, NAVAIR Commander"
+      "evidence": "Gen. David Allvin: AF Chief of Staff"
     },
     {
       "source_entity": "Dr. Stefanie Tompkins",
       "source_type": "PERSON",
       "relationship_type": "LEADS",
       "target_entity": "DARPA",
-      "target_type": "ORGANIZATION",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Dr. Stefanie Tompkins, DARPA Director"
+      "evidence": "Dr. Stefanie Tompkins: DARPA Director"
     },
     {
       "source_entity": "Col. Sarah Mitchell",
@@ -761,29 +640,73 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Col. Sarah Mitchell, Falcon X Program Manager"
+      "evidence": "Col. Sarah Mitchell: Falcon X Program Manager"
     },
     {
-      "source_entity": "Lt. Col. James Roberts",
+      "source_entity": "Steven Park",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "F-35 Components",
-      "target_type": "PROJECT",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Lt. Col. James Roberts, F-35 JPO"
+      "evidence": "Steven Park is Nexus contact for Falcon X"
     },
     {
-      "source_entity": "Dr. Michael Chen",
+      "source_entity": "Thomas Wright",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Hypersonic Research",
-      "target_type": "PROJECT",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Dr. Michael Chen, DARPA PM"
+      "evidence": "Thomas Wright is Nexus contact for F-35"
+    },
+    {
+      "source_entity": "Dr. Victor Hernandez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "evidence": "Dr. Victor Hernandez is Nexus contact for DARPA"
+    },
+    {
+      "source_entity": "Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "evidence": "Victoria Chen is executive contact"
+    },
+    {
+      "source_entity": "Dr. Rachel Kim",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "evidence": "Dr. Rachel Kim is program contact"
+    },
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_us_dod_customer.md",
+      "evidence": "Dr. James Wilson is research contact"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -832,8 +755,8 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 37,
-    "raw_relationship_count": 34,
+    "raw_entity_count": 38,
+    "raw_relationship_count": 28,
     "used_partial_parse": false,
     "truncated": false
   }

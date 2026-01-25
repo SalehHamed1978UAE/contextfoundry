@@ -2,7 +2,7 @@
   "document_id": "61c3cdb6-fe7a-4af8-9934-8bca8656f30c",
   "document_path": "04_greenhydrogen_initiative.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:52:33.492639",
+  "extracted_at": "2026-01-25T10:31:11.718088",
   "entities": [
     {
       "name": "GreenHydrogen Initiative",
@@ -120,45 +120,47 @@
       "aliases": []
     },
     {
-      "name": "DOE Hydrogen Hub Grant",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Shell Refining",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "metric name": "Funding Amount",
-        "value": "$75M",
-        "period": "N/A",
-        "type": "CURRENCY"
+        "industry": "Refinery"
       },
       "confidence": 0.9,
       "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Source: DOE Hydrogen Hub Grant",
+      "source_excerpt": "Customer: Shell Refining",
       "aliases": []
     },
     {
-      "name": "Nexus Corporate",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Houston Transit",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "metric name": "Funding Amount",
-        "value": "$85M",
-        "period": "N/A",
-        "type": "CURRENCY"
+        "industry": "Public Transport"
       },
       "confidence": 0.9,
       "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Source: Nexus Corporate",
+      "source_excerpt": "Customer: Houston Transit",
       "aliases": []
     },
     {
-      "name": "Project Finance",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "LyondellBasell",
+      "entity_type": "CUSTOMER",
       "properties": {
-        "metric name": "Funding Amount",
-        "value": "$65M",
-        "period": "15-year term",
-        "type": "CURRENCY"
+        "industry": "Chemical Production"
       },
       "confidence": 0.9,
       "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Source: Project Finance",
+      "source_excerpt": "Customer: LyondellBasell",
+      "aliases": []
+    },
+    {
+      "name": "Port of Houston",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Port Operations"
+      },
+      "confidence": 0.9,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Customer: Port of Houston",
       "aliases": []
     },
     {
@@ -168,7 +170,7 @@
         "title": "Division President",
         "role": "Chair"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Dr. Elena Rodriguez (Division President) - Chair",
       "aliases": []
@@ -198,51 +200,12 @@
       "aliases": []
     },
     {
-      "name": "Patricia Nguyen",
+      "name": "Corporate Strategy Representative",
       "entity_type": "PERSON",
-      "properties": {
-        "title": "Engineering Manager",
-        "role": "Engineering Manager"
-      },
-      "confidence": 0.9,
+      "properties": {},
+      "confidence": 0.8,
       "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Engineering Manager: Patricia Nguyen",
-      "aliases": []
-    },
-    {
-      "name": "Robert Williams",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Construction Manager",
-        "role": "Construction Manager"
-      },
-      "confidence": 0.9,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Construction Manager: Robert Williams",
-      "aliases": []
-    },
-    {
-      "name": "Michelle Thompson",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Procurement Lead",
-        "role": "Procurement Lead"
-      },
-      "confidence": 0.9,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Procurement Lead: Michelle Thompson",
-      "aliases": []
-    },
-    {
-      "name": "David Garcia",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Safety Lead",
-        "role": "Safety Lead"
-      },
-      "confidence": 0.9,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Safety Lead: David Garcia",
+      "source_excerpt": "Corporate Strategy Representative",
       "aliases": []
     }
   ],
@@ -254,7 +217,7 @@
       "target_entity": "Nexus Energy Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Owning Division: Nexus Energy Systems"
     },
@@ -382,18 +345,18 @@
     {
       "source_entity": "Dr. Elena Rodriguez",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "LEADS",
       "target_entity": "Nexus Energy Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Dr. Elena Rodriguez (Division President) - Chair"
     },
     {
       "source_entity": "Dr. Hassan Ahmed",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "PART_OF",
       "target_entity": "Nexus Energy Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -404,19 +367,30 @@
     {
       "source_entity": "Margaret Sullivan",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "PART_OF",
       "target_entity": "Nexus Energy Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Margaret Sullivan (VP Project Delivery)"
+    },
+    {
+      "source_entity": "Corporate Strategy Representative",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Corporate Strategy Representative"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 20,
-    "raw_relationship_count": 15,
+    "raw_entity_count": 18,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }

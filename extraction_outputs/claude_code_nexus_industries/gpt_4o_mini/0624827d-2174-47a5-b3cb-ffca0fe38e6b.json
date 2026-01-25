@@ -2,7 +2,7 @@
   "document_id": "0624827d-2174-47a5-b3cb-ffca0fe38e6b",
   "document_path": "04_toyota_partnership_announcement.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:56:08.031367",
+  "extracted_at": "2026-01-25T10:34:59.665362",
   "entities": [
     {
       "name": "Nexus Industries, Inc.",
@@ -32,11 +32,12 @@
       "name": "NextGen Battery Technologies LLC",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Joint Venture"
+        "type": "Joint Venture",
+        "industry": "Battery Technology"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "the formation of NextGen Battery Technologies LLC",
+      "source_excerpt": "NextGen Battery Technologies LLC, a joint venture",
       "aliases": []
     },
     {
@@ -46,7 +47,7 @@
         "title": "CEO",
         "role": "Chief Executive Officer"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
       "source_excerpt": "said Dr. Victoria Chen, CEO of Nexus Industries",
       "aliases": []
@@ -58,7 +59,7 @@
         "title": "CEO",
         "role": "Chief Executive Officer"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
       "source_excerpt": "said Koji Sato, CEO of Toyota Motor Corporation",
       "aliases": []
@@ -70,7 +71,7 @@
         "title": "CEO",
         "role": "Chief Executive Officer"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
       "source_excerpt": "Dr. Robert Martinez, currently Nexus's BatteryTech Program Director, has been named CEO of NextGen Battery Technologies",
       "aliases": []
@@ -82,7 +83,7 @@
         "title": "EVP of Battery Technology",
         "role": "Chief Operating Officer"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
       "source_excerpt": "Hiroshi Tanaka, Toyota's EVP of Battery Technology, will serve as COO",
       "aliases": []
@@ -156,9 +157,9 @@
       "name": "Phoenix, Arizona",
       "entity_type": "LOCATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "Headquartered in Phoenix, Arizona",
+      "source_excerpt": "Nexus Industries (NYSE: NEXS) is a global technology and advanced manufacturing company... Headquartered in Phoenix, Arizona",
       "aliases": []
     },
     {
@@ -178,33 +179,22 @@
     {
       "source_entity": "Nexus Industries, Inc.",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Toyota Motor Corporation",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "Nexus Industries and Toyota announced the formation of NextGen Battery Technologies LLC, a joint venture"
-    },
-    {
-      "source_entity": "NextGen Battery Technologies LLC",
-      "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
-      "target_entity": "Nexus Industries, Inc.",
+      "target_entity": "NextGen Battery Technologies LLC",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_toyota_partnership_announcement.md",
       "evidence": "Ownership | 51% Nexus Industries / 49% Toyota"
     },
     {
-      "source_entity": "NextGen Battery Technologies LLC",
+      "source_entity": "Toyota Motor Corporation",
       "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
-      "target_entity": "Toyota Motor Corporation",
+      "target_entity": "NextGen Battery Technologies LLC",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_toyota_partnership_announcement.md",
       "evidence": "Ownership | 51% Nexus Industries / 49% Toyota"
     },
@@ -217,7 +207,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "Dr. Victoria Chen, CEO of Nexus Industries"
+      "evidence": "said Dr. Victoria Chen, CEO of Nexus Industries"
     },
     {
       "source_entity": "Koji Sato",
@@ -228,7 +218,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "Koji Sato, CEO of Toyota Motor Corporation"
+      "evidence": "said Koji Sato, CEO of Toyota Motor Corporation"
     },
     {
       "source_entity": "Dr. Robert Martinez",
@@ -259,7 +249,7 @@
       "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_toyota_partnership_announcement.md",
       "evidence": "Nexus Industries will contribute $159 million"
     },
@@ -270,7 +260,7 @@
       "target_entity": "Toyota Motor Corporation",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_toyota_partnership_announcement.md",
       "evidence": "Toyota will contribute $153 million in cash"
     },
@@ -292,7 +282,7 @@
       "target_entity": "San Antonio, Texas",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_toyota_partnership_announcement.md",
       "evidence": "The joint venture will be headquartered in San Antonio, Texas"
     },
@@ -311,7 +301,7 @@
   "metadata": {
     "filename": "",
     "raw_entity_count": 14,
-    "raw_relationship_count": 12,
+    "raw_relationship_count": 11,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,44 +2,30 @@
   "document_id": "61c3cdb6-fe7a-4af8-9934-8bca8656f30c",
   "document_path": "04_greenhydrogen_initiative.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:53:14.124385",
+  "extracted_at": "2026-01-25T10:31:59.384579",
   "entities": [
     {
       "name": "GreenHydrogen Initiative",
       "entity_type": "PROJECT",
       "properties": {
         "project_code": "NX-ENERGY-2025-001",
-        "status": "Detailed Engineering",
+        "budget": "$225 million",
         "start_date": "January 2025",
-        "completion_date": "December 2027",
-        "budget": "$225 million"
+        "commercial_operation_date": "December 2027",
+        "status": "Detailed Engineering"
       },
-      "confidence": 1.0,
+      "confidence": 0.98,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Project Name: GreenHydrogen Initiative, Project Code: NX-ENERGY-2025-001",
       "aliases": []
     },
     {
-      "name": "Dr. James Liu",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Project Manager",
-        "role": "Project Manager",
-        "allocation": "100%"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Project Manager: Dr. James Liu",
-      "aliases": []
-    },
-    {
       "name": "Nexus Energy Systems",
-      "entity_type": "BUSINESS_UNIT",
+      "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Division",
-        "focus_areas": "Energy systems"
+        "type": "Division"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Division: Nexus Energy Systems, Owning Division: Nexus Energy Systems",
       "aliases": []
@@ -48,77 +34,23 @@
       "name": "Hydrogen Technology",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Business Unit",
-        "focus_areas": "Hydrogen technology"
+        "focus_areas": "Hydrogen production and technology"
       },
-      "confidence": 1.0,
+      "confidence": 0.93,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Business Unit: Hydrogen Technology",
       "aliases": []
     },
     {
-      "name": "Dr. Carlos Mendez",
+      "name": "Dr. James Liu",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Technical Director",
-        "role": "Technical Director",
-        "allocation": "100%"
+        "title": "Project Manager",
+        "role": "Project Manager"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Technical Director | Dr. Carlos Mendez | 100%",
-      "aliases": []
-    },
-    {
-      "name": "Patricia Nguyen",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Engineering Manager",
-        "role": "Engineering Manager",
-        "allocation": "100%"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Engineering Manager | Patricia Nguyen | 100%",
-      "aliases": []
-    },
-    {
-      "name": "Robert Williams",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Construction Manager",
-        "role": "Construction Manager",
-        "allocation": "80%"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Construction Manager | Robert Williams | 80%",
-      "aliases": []
-    },
-    {
-      "name": "Michelle Thompson",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Procurement Lead",
-        "role": "Procurement Lead",
-        "allocation": "70%"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Procurement Lead | Michelle Thompson | 70%",
-      "aliases": []
-    },
-    {
-      "name": "David Garcia",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Safety Lead",
-        "role": "Safety Lead",
-        "allocation": "100%"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Safety Lead | David Garcia | 100%",
+      "source_excerpt": "Project Manager: Dr. James Liu",
       "aliases": []
     },
     {
@@ -126,9 +58,9 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division President",
-        "role": "Division President"
+        "role": "Chair of Steering Committee"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Dr. Elena Rodriguez (Division President) - Chair",
       "aliases": []
@@ -140,7 +72,7 @@
         "title": "VP Renewable Technology",
         "role": "VP Renewable Technology"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Dr. Hassan Ahmed (VP Renewable Technology)",
       "aliases": []
@@ -152,19 +84,105 @@
         "title": "VP Project Delivery",
         "role": "VP Project Delivery"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Margaret Sullivan (VP Project Delivery)",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Carlos Mendez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technical Director",
+        "role": "Technical Director"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Technical Director | Dr. Carlos Mendez | 100%",
+      "aliases": []
+    },
+    {
+      "name": "Patricia Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Engineering Manager",
+        "role": "Engineering Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Engineering Manager | Patricia Nguyen | 100%",
+      "aliases": []
+    },
+    {
+      "name": "Robert Williams",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Construction Manager",
+        "role": "Construction Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Construction Manager | Robert Williams | 80%",
+      "aliases": []
+    },
+    {
+      "name": "Michelle Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Procurement Lead",
+        "role": "Procurement Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Procurement Lead | Michelle Thompson | 70%",
+      "aliases": []
+    },
+    {
+      "name": "David Garcia",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Safety Lead",
+        "role": "Safety Lead"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Safety Lead | David Garcia | 100%",
+      "aliases": []
+    },
+    {
+      "name": "Port of Houston Industrial Complex",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "La Porte",
+        "state": "TX",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Site: Port of Houston Industrial Complex",
+      "aliases": []
+    },
+    {
+      "name": "100 MW electrolyzer facility",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "PEM Electrolysis facility",
+        "category": "Industrial equipment",
+        "capacity": "100 MW",
+        "output": "45 tonnes/day"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "100 MW electrolyzer facility, Electrolyzer Capacity | 100 MW",
       "aliases": []
     },
     {
       "name": "Nel Hydrogen",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "PEM electrolyzers",
-        "contract_value": "$82M"
+        "capability": "PEM electrolyzers"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Nel Hydrogen | PEM electrolyzers | $82M",
       "aliases": []
@@ -173,10 +191,9 @@
       "name": "Linde Engineering",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Balance of plant",
-        "contract_value": "$45M"
+        "capability": "Balance of plant"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Linde Engineering | Balance of plant | $45M",
       "aliases": []
@@ -185,10 +202,9 @@
       "name": "Chart Industries",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Storage systems",
-        "contract_value": "$28M"
+        "capability": "Storage systems"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Chart Industries | Storage systems | $28M",
       "aliases": []
@@ -197,10 +213,9 @@
       "name": "Hexagon Purus",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Dispensing equipment",
-        "contract_value": "$12M"
+        "capability": "Dispensing equipment"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Hexagon Purus | Dispensing equipment | $12M",
       "aliases": []
@@ -211,7 +226,7 @@
       "properties": {
         "partnership_type": "Offtake partner"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Shell | Offtake partner | Revenue share",
       "aliases": []
@@ -220,11 +235,11 @@
       "name": "Shell Refining",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Oil & Gas",
+        "industry": "Oil and Gas",
         "volume": "15 tonnes/day",
         "term": "15 years"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Shell Refining | 15 tonnes/day | 15 years | Refinery",
       "aliases": []
@@ -233,11 +248,11 @@
       "name": "Houston Transit",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Transportation",
+        "industry": "Public Transportation",
         "volume": "5 tonnes/day",
         "term": "10 years"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Houston Transit | 5 tonnes/day | 10 years | Fuel cell buses",
       "aliases": []
@@ -246,11 +261,11 @@
       "name": "LyondellBasell",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Chemicals",
+        "industry": "Chemical Manufacturing",
         "volume": "20 tonnes/day",
         "term": "15 years"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "LyondellBasell | 20 tonnes/day | 15 years | Ammonia production",
       "aliases": []
@@ -259,51 +274,13 @@
       "name": "Port of Houston",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Transportation",
+        "industry": "Port Operations",
         "volume": "5 tonnes/day",
         "term": "10 years"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Port of Houston | 5 tonnes/day | 10 years | Port equipment",
-      "aliases": []
-    },
-    {
-      "name": "Port of Houston Industrial Complex",
-      "entity_type": "FACILITY",
-      "properties": {
-        "type": "Industrial Complex",
-        "address": "2500 Energy Drive, La Porte, TX 77571",
-        "land_area": "45 acres"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "Site: Port of Houston Industrial Complex, Address: 2500 Energy Drive, La Porte, TX 77571",
-      "aliases": []
-    },
-    {
-      "name": "La Porte",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "La Porte",
-        "state": "TX",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "2500 Energy Drive, La Porte, TX 77571",
-      "aliases": []
-    },
-    {
-      "name": "DOE",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Government Agency",
-        "name": "Department of Energy"
-      },
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "source_excerpt": "DOE Hydrogen Hub Grant",
       "aliases": []
     },
     {
@@ -312,78 +289,115 @@
       "properties": {
         "description": "Proton Exchange Membrane electrolysis technology"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Technology | PEM Electrolysis",
       "aliases": []
     },
     {
-      "name": "Total Project Budget",
+      "name": "$225 million",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "225",
-        "currency": "USD",
-        "unit": "million",
-        "type": "CURRENCY",
-        "status": "Approved"
+        "metric_name": "Total Project Budget",
+        "value": "225000000",
+        "period": "Project Lifetime",
+        "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.98,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Total Project Budget | $225 million | Approved",
       "aliases": []
     },
     {
-      "name": "DOE Hydrogen Hub Grant",
+      "name": "$75M",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "75",
-        "currency": "USD",
-        "unit": "million",
+        "metric_name": "DOE Hydrogen Hub Grant",
+        "value": "75000000",
+        "period": "Project Lifetime",
         "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.98,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "DOE Hydrogen Hub Grant | $75M | Matching grant",
       "aliases": []
     },
     {
-      "name": "Nexus Corporate Investment",
+      "name": "$85M",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "85",
-        "currency": "USD",
-        "unit": "million",
+        "metric_name": "Nexus Corporate Investment",
+        "value": "85000000",
+        "period": "Project Lifetime",
         "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.98,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Nexus Corporate | $85M | Equity investment",
       "aliases": []
     },
     {
-      "name": "Project Finance",
+      "name": "$65M",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "65",
-        "currency": "USD",
-        "unit": "million",
+        "metric_name": "Project Finance",
+        "value": "65000000",
+        "period": "15-year term",
         "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.98,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Project Finance | $65M | 15-year term",
       "aliases": []
     },
     {
-      "name": "Project IRR",
+      "name": "15.2%",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
+        "metric_name": "Project IRR",
         "value": "15.2",
+        "period": "Project Lifetime",
         "type": "PERCENTAGE"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "source_excerpt": "Project IRR: 15.2%",
+      "aliases": []
+    },
+    {
+      "name": "Hydrogen storage",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "5,000 kg capacity at 350 bar",
+        "category": "Storage system"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Hydrogen storage (5,000 kg capacity), Storage Capacity | 5,000 kg @ 350 bar",
+      "aliases": []
+    },
+    {
+      "name": "Compression and dispensing station",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Dispensing equipment"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Compression and dispensing station",
+      "aliases": []
+    },
+    {
+      "name": "Energy Drive Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "2500 Energy Drive, La Porte, TX 77571",
+        "type": "Production facility",
+        "land_area": "45 acres"
+      },
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "source_excerpt": "Address: 2500 Energy Drive, La Porte, TX 77571, Land Area: 45 acres",
       "aliases": []
     }
   ],
@@ -395,18 +409,18 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.98,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Project Manager: Dr. James Liu"
     },
     {
       "source_entity": "Nexus Energy Systems",
-      "source_type": "BUSINESS_UNIT",
+      "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Owning Division: Nexus Energy Systems"
     },
@@ -415,9 +429,9 @@
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Energy Systems",
-      "target_type": "BUSINESS_UNIT",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.93,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Division: Nexus Energy Systems, Business Unit: Hydrogen Technology"
     },
@@ -426,11 +440,66 @@
       "source_type": "PERSON",
       "relationship_type": "LEADS",
       "target_entity": "Nexus Energy Systems",
-      "target_type": "BUSINESS_UNIT",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
-      "evidence": "Dr. Elena Rodriguez (Division President) - Chair"
+      "evidence": "Dr. Elena Rodriguez (Division President)"
+    },
+    {
+      "source_entity": "Dr. James Liu",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Project Manager for Nexus Energy Systems project"
+    },
+    {
+      "source_entity": "Dr. Carlos Mendez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Technical Director on Nexus Energy Systems project"
+    },
+    {
+      "source_entity": "Patricia Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Engineering Manager on Nexus Energy Systems project"
+    },
+    {
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Port of Houston Industrial Complex",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Site: Port of Houston Industrial Complex"
+    },
+    {
+      "source_entity": "Energy Drive Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Port of Houston Industrial Complex",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Address: 2500 Energy Drive, La Porte, TX 77571"
     },
     {
       "source_entity": "Nel Hydrogen",
@@ -439,7 +508,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Nel Hydrogen | PEM electrolyzers | $82M"
     },
@@ -450,7 +519,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Linde Engineering | Balance of plant | $45M"
     },
@@ -461,7 +530,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Chart Industries | Storage systems | $28M"
     },
@@ -472,7 +541,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Hexagon Purus | Dispensing equipment | $12M"
     },
@@ -483,7 +552,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Shell | Offtake partner | Revenue share"
     },
@@ -494,7 +563,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Shell Refining | 15 tonnes/day | 15 years | Refinery"
     },
@@ -505,7 +574,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Houston Transit | 5 tonnes/day | 10 years | Fuel cell buses"
     },
@@ -516,7 +585,7 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "LyondellBasell | 20 tonnes/day | 15 years | Ammonia production"
     },
@@ -527,42 +596,9 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Port of Houston | 5 tonnes/day | 10 years | Port equipment"
-    },
-    {
-      "source_entity": "GreenHydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Port of Houston Industrial Complex",
-      "target_type": "FACILITY",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "evidence": "Site: Port of Houston Industrial Complex"
-    },
-    {
-      "source_entity": "Port of Houston Industrial Complex",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "La Porte",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "evidence": "Address: 2500 Energy Drive, La Porte, TX 77571"
-    },
-    {
-      "source_entity": "GreenHydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "DOE",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_greenhydrogen_initiative.md",
-      "evidence": "DOE Hydrogen Hub Grant | $75M | Matching grant"
     },
     {
       "source_entity": "GreenHydrogen Initiative",
@@ -571,15 +607,48 @@
       "target_entity": "PEM Electrolysis",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "04_greenhydrogen_initiative.md",
       "evidence": "Technology | PEM Electrolysis"
+    },
+    {
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "100 MW electrolyzer facility",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "100 MW electrolyzer facility as key deliverable"
+    },
+    {
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Hydrogen storage",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Hydrogen storage (5,000 kg capacity) as key deliverable"
+    },
+    {
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Compression and dispensing station",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "04_greenhydrogen_initiative.md",
+      "evidence": "Compression and dispensing station as key deliverable"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 30,
-    "raw_relationship_count": 17,
+    "raw_entity_count": 32,
+    "raw_relationship_count": 22,
     "used_partial_parse": false,
     "truncated": false
   }
