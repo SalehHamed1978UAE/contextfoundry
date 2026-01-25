@@ -1,0 +1,73 @@
+{
+  "document_id": "ae3c3ca4bec0",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:25:50.695519",
+  "entities": [
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees.",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Employee management, HR"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System for maintaining auditable records"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
+      "source_excerpt": "Maintain auditable records in Horizon Prime.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "People Operations",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
+      "evidence": "Owner: People Operations"
+    }
+  ],
+  "metadata": {
+    "filename": "travel_safety_manual.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

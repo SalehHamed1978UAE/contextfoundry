@@ -1,0 +1,95 @@
+{
+  "document_id": "d5c77b2bff68",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:27:02.394586",
+  "entities": [
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees.",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Vendor Risk Management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System for maintaining auditable records"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "source_excerpt": "Maintain auditable records in Horizon Prime.",
+      "aliases": []
+    },
+    {
+      "name": "HR",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Human Resources"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "source_excerpt": "Escalate exceptions through HR or Security.",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Security Management"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "source_excerpt": "Escalate exceptions through HR or Security.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Vendor Risk Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "People Operations",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "evidence": "Applies to all Horizon Nexus Systems employees."
+    }
+  ],
+  "metadata": {
+    "filename": "vendor_risk_policy.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

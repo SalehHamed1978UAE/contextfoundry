@@ -1,0 +1,198 @@
+{
+  "document_id": "690e6f9690e8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:24:10.815156",
+  "entities": [
+    {
+      "name": "Aurora EMEA Expansion",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$165M",
+        "timeline": "2025-2027",
+        "status": "planned",
+        "objective": "Hydrogen-ready controllers"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Aurora EMEA Expansion Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "energy grid technology"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Business Unit: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "Leona Varga",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Project Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Sponsor: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "energy"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Primary Customer: Enceladus Energy",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield H2",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "technical stack for hydrogen-ready controllers"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Technical Stack: ArcShield H2",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "integration platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "SkyPath integrations",
+      "aliases": []
+    },
+    {
+      "name": "$165M Budget",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "project budget",
+        "value": "165000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Budget: $165M",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Aurora EMEA Expansion",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Business Unit: GridWave"
+    },
+    {
+      "source_entity": "Leona Varga",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Aurora EMEA Expansion",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Sponsor: Leona Varga"
+    },
+    {
+      "source_entity": "Enceladus Energy",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Primary Customer: Enceladus Energy for GridWave project"
+    },
+    {
+      "source_entity": "Aurora EMEA Expansion",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "ArcShield H2",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Technical Stack: ArcShield H2"
+    },
+    {
+      "source_entity": "Aurora EMEA Expansion",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Dependencies: Horizon Prime data lake readiness"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Dependencies: CoreMatrix supply"
+    },
+    {
+      "source_entity": "Aurora EMEA Expansion",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SkyPath",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Dependencies: SkyPath integrations"
+    }
+  ],
+  "metadata": {
+    "filename": "aurora_emea_expansion_brief.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

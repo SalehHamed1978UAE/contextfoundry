@@ -1,0 +1,223 @@
+{
+  "document_id": "52f5b736dc57",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:20:49.057354",
+  "entities": [
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "logistics network delivery"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Business Unit: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Sponsor: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics Network",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$350M",
+        "timeline": "2025-2028",
+        "status": "active",
+        "objective": "Global rail freight automation"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Titan Logistics Network Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "Budget",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Project Budget",
+        "value": "350",
+        "currency": "USD",
+        "type": "CURRENCY",
+        "period": "2025-2028"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Budget: $350M",
+      "aliases": []
+    },
+    {
+      "name": "Titan Freight Group",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "freight",
+        "customer_type": "primary"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Primary Customer: Titan Freight Group",
+      "aliases": []
+    },
+    {
+      "name": "AutoRail",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "rail automation technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Technical Stack: AutoRail, PathFind",
+      "aliases": []
+    },
+    {
+      "name": "PathFind",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "pathfinding technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Technical Stack: AutoRail, PathFind",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "supply provider"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "integration platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "source_excerpt": "SkyPath integrations",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Titan Logistics Network",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "Business Unit: TransitEdge owns the Titan Logistics Network project"
+    },
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Titan Logistics Network",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "Marcus Nguyen is the sponsor of the project"
+    },
+    {
+      "source_entity": "Titan Freight Group",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "Titan Freight Group is the primary customer"
+    },
+    {
+      "source_entity": "Titan Logistics Network",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "AutoRail",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "AutoRail is part of the technical stack"
+    },
+    {
+      "source_entity": "Titan Logistics Network",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PathFind",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "PathFind is part of the technical stack"
+    },
+    {
+      "source_entity": "Titan Logistics Network",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "Project depends on Horizon Prime data lake readiness"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "CoreMatrix supply is listed as a dependency"
+    },
+    {
+      "source_entity": "Titan Logistics Network",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SkyPath",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/titan_logistics_network_brief.md",
+      "evidence": "Project depends on SkyPath integrations"
+    }
+  ],
+  "metadata": {
+    "filename": "titan_logistics_network_brief.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

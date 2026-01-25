@@ -1,0 +1,84 @@
+{
+  "document_id": "5851c8342e1e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/policies/travel_and_expense_policy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:26:43.775492",
+  "entities": [
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_and_expense_policy.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees.",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Employee management, HR"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_and_expense_policy.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System for maintaining auditable records"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_and_expense_policy.md",
+      "source_excerpt": "Maintain auditable records in Horizon Prime.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Travel and Expense Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_and_expense_policy.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "Travel and Expense Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_and_expense_policy.md",
+      "evidence": "Applies to all Horizon Nexus Systems employees."
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "USES",
+      "target_entity": "Travel and Expense Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_and_expense_policy.md",
+      "evidence": "Maintain auditable records in Horizon Prime."
+    }
+  ],
+  "metadata": {
+    "filename": "travel_and_expense_policy.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

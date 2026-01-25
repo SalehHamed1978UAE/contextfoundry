@@ -57,6 +57,8 @@ Architectural features include:
   - **Phase 3 Validation** (`src/context_foundry/extraction/consensus_validator.py`): Validates consensus against ontology constraints, detects property conflicts, computes quality scores.
   - **Conflict Resolution**: Auto-resolves conflicts using strategies: majority vote (case-insensitive), most_specific (longest value), average (for numbers). Reduced 21 conflicts to 0 in testing.
   - **Quality Scoring**: Computes overall score (0-1) from completeness, confidence, consistency, and multi-model coverage metrics.
+  - **Extraction Auto-Trigger** (`src/context_foundry/extraction/auto_trigger.py`): Automatically detects unextracted documents (status='queued' with no pending extraction_request) and queues them for extraction. Integrated into GardenerScheduler to poll every 5 minutes. Use `trigger_extraction_for_vault(vault_id)` to manually trigger. Env var `MULTI_MODEL_EXTRACTION_ENABLED=true` enables dual-model extraction.
+  - **Parameterized Extraction Workflow**: Set `EXTRACTION_CORPUS` env var to specify target corpus (e.g., "Codex Horizon_Nexus"). Workflow command uses `${EXTRACTION_CORPUS:-Manus Orion}` for flexibility.
 - **Retrieval Robustness Improvements** (January 2026):
   - **Per-Question Trace Logging**: Captures retrieved files, semantic scores, query_type, and match_type to JSONL traces for debugging retrieval quality.
   - **Keyword+Semantic Fusion**: When semantic scores < 0.4, applies canonical term boosting for project names, business units, and executives using config-driven terms.

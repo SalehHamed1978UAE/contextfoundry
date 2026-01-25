@@ -1,0 +1,221 @@
+{
+  "document_id": "9db428d8a1c2",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:24:39.445286",
+  "entities": [
+    {
+      "name": "Synapse Marketplace 2.0",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$76M",
+        "timeline": "2025-2026",
+        "status": "In Planning",
+        "objective": "Partner analytics apps"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Synapse Marketplace 2.0 Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Marketplace development"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Business Unit: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "Eden Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Sponsor"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Sponsor: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Marketplace partners",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "type": "Primary Customer"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Primary Customer: Marketplace partners",
+      "aliases": []
+    },
+    {
+      "name": "APIs",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Application Programming Interfaces"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Technical Stack: APIs, Insight SDK",
+      "aliases": []
+    },
+    {
+      "name": "Insight SDK",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Software Development Kit for insights"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Technical Stack: APIs, Insight SDK",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Data lake platform"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply services"
+      },
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Integration platform"
+      },
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "SkyPath integrations",
+      "aliases": []
+    },
+    {
+      "name": "$76M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Project Budget",
+        "value": "76000000",
+        "type": "CURRENCY",
+        "period": "2025-2026"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Budget: $76M",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Synapse Marketplace 2.0",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Business Unit: Synapse One owns the project"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Synapse Marketplace 2.0",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Eden Park is listed as the sponsor of the project"
+    },
+    {
+      "source_entity": "Marketplace partners",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Synapse One",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Marketplace partners are the primary customer"
+    },
+    {
+      "source_entity": "Synapse Marketplace 2.0",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "APIs",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Technical Stack includes APIs"
+    },
+    {
+      "source_entity": "Synapse Marketplace 2.0",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Insight SDK",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Technical Stack includes Insight SDK"
+    },
+    {
+      "source_entity": "Synapse Marketplace 2.0",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Project depends on Horizon Prime data lake readiness"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Synapse Marketplace 2.0",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Project has dependency on CoreMatrix supply"
+    },
+    {
+      "source_entity": "Synapse Marketplace 2.0",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SkyPath",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Project depends on SkyPath integrations"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_marketplace_2_0_brief.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

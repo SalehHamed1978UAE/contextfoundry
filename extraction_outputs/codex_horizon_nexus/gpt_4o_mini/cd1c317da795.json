@@ -1,0 +1,142 @@
+{
+  "document_id": "cd1c317da795",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:22:28.496667",
+  "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Grid modernization"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "source_excerpt": "Business Unit: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Sponsor",
+        "role": "Project Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "source_excerpt": "Sponsor: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "Great Plains Utility",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Utilities",
+        "region": "North America"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "source_excerpt": "Primary Customer: Great Plains Utility",
+      "aliases": []
+    },
+    {
+      "name": "Project Aurora",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$480M",
+        "timeline": "2024-2027",
+        "status": "Active"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "source_excerpt": "Project Aurora Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technical stack for grid modernization"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "source_excerpt": "Technical Stack: ArcShield",
+      "aliases": []
+    },
+    {
+      "name": "GridWave Control Suite",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technical stack for grid modernization"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "source_excerpt": "Technical Stack: GridWave Control Suite",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Project Aurora",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "evidence": "Sponsor: Priya Thakur"
+    },
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "evidence": "Business Unit: GridWave"
+    },
+    {
+      "source_entity": "Great Plains Utility",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Project Aurora",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "evidence": "Primary Customer: Great Plains Utility"
+    },
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "ArcShield",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "evidence": "Technical Stack: ArcShield"
+    },
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "GridWave Control Suite",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "evidence": "Technical Stack: GridWave Control Suite"
+    }
+  ],
+  "metadata": {
+    "filename": "project_aurora_brief.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
