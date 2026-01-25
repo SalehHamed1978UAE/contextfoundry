@@ -31,6 +31,7 @@ CORPUS_PATHS = {
     "Manus Medsync": "test documents/Manus Medsync",
     "Manus Healthtec": "test documents/Manus Healthtec",
     "ClaudeCode Medsync": "test documents/ClaudeCode Medsync",
+    "Codex Horizon_Nexus": "test documents/Codex Horizon_Nexus",
 }
 
 DOCUMENT_EXTENSIONS = [".md", ".txt", ".html", ".json"]
