@@ -2,7 +2,7 @@
   "document_id": "326e9b66-0242-40de-85cc-1bff6890d321",
   "document_path": "04_energy_division_structure.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:50:49.398619",
+  "extracted_at": "2026-01-25T10:29:35.273172",
   "entities": [
     {
       "name": "Dr. Elena Rodriguez",
@@ -255,7 +255,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Dr. Elena Rodriguez leads the division"
+      "evidence": "Division President: Dr. Elena Rodriguez"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -321,95 +321,62 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Reports To: Dr. Elena Rodriguez"
+      "evidence": "Reports To: Dr. Elena Rodriguez (dotted line to Corporate CFO)"
     },
     {
-      "source_entity": "Michelle Wong",
+      "source_entity": "Dr. Hassan Ahmed",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Dr. Hassan Ahmed",
-      "target_type": "PERSON",
+      "target_entity": "Renewable Technology",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.85,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Lead: Michelle Wong"
+      "evidence": "VP of Renewable Technology: Dr. Hassan Ahmed"
     },
     {
-      "source_entity": "Erik Johansson",
+      "source_entity": "Margaret Sullivan",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Dr. Hassan Ahmed",
-      "target_type": "PERSON",
+      "target_entity": "Project Delivery",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.85,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Lead: Erik Johansson"
+      "evidence": "VP of Project Delivery: Margaret Sullivan"
     },
     {
-      "source_entity": "Dr. Carlos Mendez",
+      "source_entity": "Derek Washington",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Dr. Hassan Ahmed",
-      "target_type": "PERSON",
+      "target_entity": "Operations and Maintenance",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.85,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Lead: Dr. Carlos Mendez"
+      "evidence": "VP of Operations: Derek Washington"
     },
     {
-      "source_entity": "Nina Petrov",
+      "source_entity": "Caroline Bennett",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Dr. Hassan Ahmed",
-      "target_type": "PERSON",
+      "target_entity": "Sales and Marketing",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.85,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Lead: Nina Petrov"
+      "evidence": "VP of Sales: Caroline Bennett"
     },
     {
-      "source_entity": "Andrew Foster",
+      "source_entity": "Timothy Chang",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Margaret Sullivan",
-      "target_type": "PERSON",
+      "target_entity": "Finance and Administration",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.85,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "PM: Andrew Foster"
-    },
-    {
-      "source_entity": "Rebecca O'Neill",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Margaret Sullivan",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "PM: Rebecca O'Neill"
-    },
-    {
-      "source_entity": "Dr. James Liu",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Margaret Sullivan",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "PM: Dr. James Liu"
-    },
-    {
-      "source_entity": "Sophia Martinez",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Margaret Sullivan",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "PM: Sophia Martinez"
+      "evidence": "Division CFO: Timothy Chang"
     },
     {
       "source_entity": "Houston HQ",
@@ -459,7 +426,7 @@
   "metadata": {
     "filename": "",
     "raw_entity_count": 20,
-    "raw_relationship_count": 19,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }
