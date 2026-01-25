@@ -107,15 +107,32 @@ def find_vault(vault_name: Optional[str] = None, vault_id: Optional[str] = None)
     return None
 
 
-def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = None) -> List[Dict]:
-    """Get documents from vault that need extraction."""
-    query = """
-        SELECT d.id, d.name, d.status, d.mime_type
-        FROM platform.documents d
-        WHERE d.tenant_id = :vault_id
-        AND d.status IN ('queued', 'uploaded', 'chunked')
-        ORDER BY d.created_at
+def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = None, skip_multi: bool = True) -> List[Dict]:
+    """Get documents from vault that need extraction.
+    
+    Args:
+        session: Database session
+        vault_id: Vault/tenant ID
+        limit: Max documents to return
+        skip_multi: If True, skip documents with extraction_level='multi' (resume capability)
     """
+    if skip_multi:
+        query = """
+            SELECT d.id, d.name, d.status, d.mime_type
+            FROM platform.documents d
+            WHERE d.tenant_id = :vault_id
+            AND d.status IN ('queued', 'uploaded', 'chunked', 'extracted')
+            AND (d.extraction_level IS NULL OR d.extraction_level != 'multi')
+            ORDER BY d.created_at
+        """
+    else:
+        query = """
+            SELECT d.id, d.name, d.status, d.mime_type
+            FROM platform.documents d
+            WHERE d.tenant_id = :vault_id
+            AND d.status IN ('queued', 'uploaded', 'chunked')
+            ORDER BY d.created_at
+        """
     if limit:
         query += f" LIMIT {limit}"
     
@@ -130,6 +147,25 @@ def get_documents_for_extraction(session, vault_id: str, limit: Optional[int] = 
             "mime_type": row[3],
         })
     return documents
+
+
+def get_extraction_stats(session, vault_id: str) -> Tuple[int, int, int]:
+    """Get extraction resume statistics for a vault.
+    
+    Returns: (total_docs, already_multi_extracted, remaining)
+    """
+    total = session.execute(
+        text("SELECT COUNT(*) FROM platform.documents WHERE tenant_id = :vault_id"),
+        {"vault_id": vault_id}
+    ).scalar() or 0
+    
+    multi_done = session.execute(
+        text("SELECT COUNT(*) FROM platform.documents WHERE tenant_id = :vault_id AND extraction_level = 'multi'"),
+        {"vault_id": vault_id}
+    ).scalar() or 0
+    
+    remaining = total - multi_done
+    return total, multi_done, remaining
 
 
 def get_document_content(session, doc_id: str) -> Optional[str]:
@@ -161,12 +197,15 @@ def run_extraction_from_db(
     models: List[str],
     limit: int = None
 ) -> Dict[str, Any]:
-    """Run multi-model extraction on documents from database."""
-    documents = get_documents_for_extraction(session, vault_id, limit)
+    """Run multi-model extraction on documents from database.
+    
+    Uses resume capability - skips documents already marked with extraction_level='multi'.
+    """
+    documents = get_documents_for_extraction(session, vault_id, limit, skip_multi=True)
     
     if not documents:
-        log("No documents found needing extraction")
-        return {"total_documents": 0, "total_entities": 0, "total_relationships": 0}
+        log("No documents found needing extraction (all may be already processed)")
+        return {"total_documents": 0, "total_entities": 0, "total_relationships": 0, "document_ids": []}
     
     log(f"Found {len(documents)} documents needing extraction")
     
@@ -177,6 +216,7 @@ def run_extraction_from_db(
         "total_documents": 0,
         "total_entities": 0,
         "total_relationships": 0,
+        "document_ids": [],
         "models": {},
         "errors": [],
     }
@@ -210,6 +250,7 @@ def run_extraction_from_db(
                 stats["total_relationships"] += len(output.relationships)
             
             stats["total_documents"] += 1
+            stats["document_ids"].append(doc_id)
             
         except Exception as e:
             log(f"    Error: {e}")
@@ -308,6 +349,16 @@ def run_consensus_and_ingest(
             if result.errors:
                 stats["errors"].extend(result.errors)
             
+            # IMMEDIATELY update extraction_level after each document (resume capability)
+            try:
+                session.execute(
+                    text("UPDATE platform.documents SET extraction_level = 'multi', updated_at = NOW() WHERE id = :doc_id"),
+                    {"doc_id": doc_id}
+                )
+                session.commit()
+            except Exception as update_err:
+                log(f"  Warning: Failed to update extraction_level for {doc_id}: {update_err}")
+            
             stats["documents_processed"] += 1
             stats["document_ids"].append(doc_id)
             
@@ -383,7 +434,25 @@ def run_full_pipeline(
     log(f"Vault: {vault_name}")
     log(f"Vault ID: {vault_id}")
     
-    doc_count = len(get_documents_for_extraction(session, vault_id))
+    # Show resume status
+    total_docs, multi_done, remaining = get_extraction_stats(session, vault_id)
+    log("")
+    log("=" * 40)
+    log("EXTRACTION RESUME STATUS")
+    log("=" * 40)
+    log(f"Total documents: {total_docs}")
+    log(f"Already multi-extracted: {multi_done}")
+    log(f"Remaining to process: {remaining}")
+    log("=" * 40)
+    log("")
+    
+    if remaining == 0:
+        log("All documents already have multi-model extraction complete!")
+        log("Use --skip-extraction to only run consensus/ingestion on existing extractions.")
+        session.close()
+        return
+    
+    doc_count = len(get_documents_for_extraction(session, vault_id, skip_multi=True))
     log(f"Documents pending extraction: {doc_count}")
     if limit:
         log(f"Limit: {limit} documents")
