@@ -1,0 +1,135 @@
+{
+  "document_id": "e9ce40581ce7",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:29:11.355011",
+  "entities": [
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Owner",
+        "role": "Risk Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Owner: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk Management Platform",
+        "industry": "Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Operational Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": null,
+        "status": "Ongoing"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Risk Types: Operational, supply, compliance",
+      "aliases": []
+    },
+    {
+      "name": "Supply Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": null,
+        "status": "Ongoing"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Risk Types: Operational, supply, compliance",
+      "aliases": []
+    },
+    {
+      "name": "Compliance Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": null,
+        "status": "Ongoing"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "source_excerpt": "Risk Types: Operational, supply, compliance",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Enterprise Risk Dashboard",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "evidence": "Owner: Victor Liao"
+    },
+    {
+      "source_entity": "Operational Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Enterprise Risk Dashboard",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "evidence": "Risk Types: Operational, supply, compliance"
+    },
+    {
+      "source_entity": "Supply Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Enterprise Risk Dashboard",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "evidence": "Risk Types: Operational, supply, compliance"
+    },
+    {
+      "source_entity": "Compliance Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Enterprise Risk Dashboard",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "evidence": "Risk Types: Operational, supply, compliance"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Enterprise Risk Dashboard",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/enterprise_risk_dashboard.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "enterprise_risk_dashboard.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
