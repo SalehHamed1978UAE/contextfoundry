@@ -1,0 +1,843 @@
+{
+  "document_id": "91c6e17463fe",
+  "document_path": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-24T21:01:43.750391",
+  "entities": [
+    {
+      "name": "LEGAL-2025-101",
+      "entity_type": "PROJECT",
+      "properties": {
+        "document_id": "LEGAL-2025-101",
+        "date": "2026-03-29",
+        "status": "Pending"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Document ID: LEGAL-2025-101",
+      "aliases": []
+    },
+    {
+      "name": "Alex Thorne",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "COO",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Alex Thorne (COO)",
+      "aliases": []
+    },
+    {
+      "name": "AutoNav Logistics System",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Logistics system product"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "This document relates to AutoNav Logistics System",
+      "aliases": []
+    },
+    {
+      "name": "Orion Energy Hub - Copenhagen",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Copenhagen, Denmark",
+        "type": "Energy Hub"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "involves Orion Energy Hub - Copenhagen, Denmark",
+      "aliases": []
+    },
+    {
+      "name": "Copenhagen",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Copenhagen",
+        "country": "Denmark"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Copenhagen, Denmark",
+      "aliases": []
+    },
+    {
+      "name": "Quantum Dynamics Ltd",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "primary supplier"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Quantum Dynamics Ltd is the primary supplier for this initiative",
+      "aliases": []
+    },
+    {
+      "name": "Global Defense Systems",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "defense"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Global Defense Systems has expressed interest in this capability",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Webb",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "approved by Marcus Webb (CFO)",
+      "aliases": []
+    },
+    {
+      "name": "$28,870,880",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Budget allocation",
+        "value": 28870880,
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Budget allocation of $28,870,880 approved",
+      "aliases": []
+    },
+    {
+      "name": "Manus Orion Group",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "corporation"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "within the context of Manus Orion Group's strategic objectives",
+      "aliases": []
+    },
+    {
+      "name": "Fatima Al-Mansoori",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "key stakeholder"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "involving key stakeholders including Fatima Al-Mansoori",
+      "aliases": []
+    },
+    {
+      "name": "James Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Legal executive"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "General Counsel James Park",
+      "aliases": []
+    },
+    {
+      "name": "Admiral Michael Torres",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Admiral",
+        "role": "senior executive"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Admiral Michael Torres",
+      "aliases": []
+    },
+    {
+      "name": "$8.5B",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue targets",
+        "value": 8500000000,
+        "period": "by 2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "revenue targets of $8.5B by 2027",
+      "aliases": []
+    },
+    {
+      "name": "24%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "EBITDA margins",
+        "value": 24,
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "EBITDA margins of 24%",
+      "aliases": []
+    },
+    {
+      "name": "Pacific Rim Airlines",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "aviation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Customer requirements from Pacific Rim Airlines",
+      "aliases": []
+    },
+    {
+      "name": "Metropolitan Transit Corp",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "transportation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Customer requirements from Pacific Rim Airlines and Metropolitan Transit Corp",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Evelyn Reed",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "CTO Dr. Evelyn Reed",
+      "aliases": []
+    },
+    {
+      "name": "$81M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Budget allocated",
+        "value": 81000000,
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Budget allocated: $81M",
+      "aliases": []
+    },
+    {
+      "name": "$141M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Spent to date",
+        "value": 141000000,
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Spent to date: $141M",
+      "aliases": []
+    },
+    {
+      "name": "29%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Projected ROI",
+        "value": 29,
+        "period": "over 3 years",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Projected ROI: 29% over 3 years",
+      "aliases": []
+    },
+    {
+      "name": "$135M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue impact",
+        "value": 135000000,
+        "period": "annually by 2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Revenue impact: $135M annually by 2027",
+      "aliases": []
+    },
+    {
+      "name": "SmartCity Innovation Lab - Seoul",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Seoul",
+        "type": "Innovation Lab"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Key facilities: SmartCity Innovation Lab - Seoul",
+      "aliases": []
+    },
+    {
+      "name": "Manufacturing Facility - Bangalore",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Bangalore",
+        "type": "Manufacturing Facility"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Manufacturing Facility - Bangalore",
+      "aliases": []
+    },
+    {
+      "name": "Project Helios",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "engineering project"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "design specifications for Project Helios",
+      "aliases": []
+    },
+    {
+      "name": "NexGen Battery Storage",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "battery storage system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "integration with NexGen Battery Storage",
+      "aliases": []
+    },
+    {
+      "name": "Orion Aerospace Plant - Toulouse",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Toulouse",
+        "type": "Aerospace Plant"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Orion Aerospace Plant - Toulouse",
+      "aliases": []
+    },
+    {
+      "name": "GreenTech Materials",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "component sourcing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "coordinates with GreenTech Materials for component sourcing",
+      "aliases": []
+    },
+    {
+      "name": "SecureCode Systems",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "logistics support"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "SecureCode Systems for logistics support",
+      "aliases": []
+    },
+    {
+      "name": "POL-AERO-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-AERO-001",
+        "category": "export control"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "export control requirements (POL-AERO-001)",
+      "aliases": []
+    },
+    {
+      "name": "POL-SC-003",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-SC-003",
+        "category": "data privacy"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "data privacy regulations (POL-SC-003)",
+      "aliases": []
+    },
+    {
+      "name": "EcoSolutions Corp",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "technology partner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "technology partnerships with EcoSolutions Corp",
+      "aliases": []
+    },
+    {
+      "name": "UrbanTech Solutions",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "competitor"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Competitive products from UrbanTech Solutions",
+      "aliases": []
+    },
+    {
+      "name": "Atlas Freight Systems",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "freight services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "supplier agreements with Atlas Freight Systems",
+      "aliases": []
+    },
+    {
+      "name": "PrecisionParts Manufacturing",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Atlas Freight Systems and PrecisionParts Manufacturing",
+      "aliases": []
+    },
+    {
+      "name": "Orion Logistics Center - Singapore",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Singapore",
+        "type": "Logistics Center"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Begin pilot production at Orion Logistics Center - Singapore",
+      "aliases": []
+    },
+    {
+      "name": "Project Borealis Wind Farm",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "wind farm project"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Complete integration testing with Project Borealis Wind Farm",
+      "aliases": []
+    },
+    {
+      "name": "Neo-City Development Authority",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "urban development"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Secure first commercial order from Neo-City Development Authority",
+      "aliases": []
+    },
+    {
+      "name": "GreenStream Hydrogen Initiative",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "hydrogen initiative"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Complete integration with GreenStream Hydrogen Initiative",
+      "aliases": []
+    },
+    {
+      "name": "Quantum-Secured Supply Chain",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "supply chain security project"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "GreenStream Hydrogen Initiative and Quantum-Secured Supply Chain",
+      "aliases": []
+    },
+    {
+      "name": "risk management and compliance framework",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "enterprise initiative",
+        "status": "ongoing"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "The risk management and compliance framework initiative",
+      "aliases": []
+    },
+    {
+      "name": "Falcon UAV Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "UAV program"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "integration with Falcon UAV Program",
+      "aliases": []
+    },
+    {
+      "name": "Orion R&D Campus - Boulder",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Boulder",
+        "type": "R&D Campus"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Orion R&D Campus - Boulder",
+      "aliases": []
+    },
+    {
+      "name": "AutoFleet Inc",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "competitor"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "Competitive products from AutoFleet Inc",
+      "aliases": []
+    },
+    {
+      "name": "TechFlow Industries",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "industrial services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "GreenTech Materials and TechFlow Industries",
+      "aliases": []
+    },
+    {
+      "name": "SkyLink Satellite Network",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "satellite network project"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "source_excerpt": "GreenStream Hydrogen Initiative and SkyLink Satellite Network",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Alex Thorne (COO)"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Marcus Webb (CFO)"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "CTO Dr. Evelyn Reed"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "General Counsel James Park"
+    },
+    {
+      "source_entity": "Orion Energy Hub - Copenhagen",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Copenhagen",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Orion Energy Hub - Copenhagen, Denmark"
+    },
+    {
+      "source_entity": "Quantum Dynamics Ltd",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Quantum Dynamics Ltd is the primary supplier for this initiative"
+    },
+    {
+      "source_entity": "Global Defense Systems",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Global Defense Systems has expressed interest in this capability"
+    },
+    {
+      "source_entity": "Pacific Rim Airlines",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Customer requirements from Pacific Rim Airlines"
+    },
+    {
+      "source_entity": "Metropolitan Transit Corp",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Customer requirements from Pacific Rim Airlines and Metropolitan Transit Corp"
+    },
+    {
+      "source_entity": "risk management and compliance framework",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "$28,870,880",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Budget allocation of $28,870,880 approved"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "risk management and compliance framework",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "The engineering team led by CTO Dr. Evelyn Reed provides technical oversight"
+    },
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "risk management and compliance framework",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "COO Alex Thorne oversees operational execution"
+    },
+    {
+      "source_entity": "SmartCity Innovation Lab - Seoul",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Key facilities: SmartCity Innovation Lab - Seoul"
+    },
+    {
+      "source_entity": "Manufacturing Facility - Bangalore",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Manufacturing Facility - Bangalore"
+    },
+    {
+      "source_entity": "Orion Aerospace Plant - Toulouse",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "technology transfer from the Orion Aerospace Plant - Toulouse"
+    },
+    {
+      "source_entity": "GreenTech Materials",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "coordinates with GreenTech Materials for component sourcing"
+    },
+    {
+      "source_entity": "SecureCode Systems",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "SecureCode Systems for logistics support"
+    },
+    {
+      "source_entity": "EcoSolutions Corp",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "technology partnerships with EcoSolutions Corp"
+    },
+    {
+      "source_entity": "Atlas Freight Systems",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "supplier agreements with Atlas Freight Systems"
+    },
+    {
+      "source_entity": "PrecisionParts Manufacturing",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Atlas Freight Systems and PrecisionParts Manufacturing"
+    },
+    {
+      "source_entity": "Neo-City Development Authority",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Secure first commercial order from Neo-City Development Authority"
+    },
+    {
+      "source_entity": "Orion Logistics Center - Singapore",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Begin pilot production at Orion Logistics Center - Singapore"
+    },
+    {
+      "source_entity": "Orion R&D Campus - Boulder",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Orion R&D Campus - Boulder"
+    },
+    {
+      "source_entity": "TechFlow Industries",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "GreenTech Materials and TechFlow Industries"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "Document Owner: Fatima Al-Mansoori"
+    },
+    {
+      "source_entity": "Admiral Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/legal/legal_doc_015.md",
+      "evidence": "continued executive sponsorship from Admiral Michael Torres"
+    }
+  ],
+  "metadata": {
+    "filename": "legal_doc_015.md",
+    "raw_entity_count": 46,
+    "raw_relationship_count": 26,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}
