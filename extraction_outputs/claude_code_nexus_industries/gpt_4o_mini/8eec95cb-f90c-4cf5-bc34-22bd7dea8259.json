@@ -2,7 +2,7 @@
   "document_id": "8eec95cb-f90c-4cf5-bc34-22bd7dea8259",
   "document_path": "01_falcon_x_uav_program.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:20:32.030084",
+  "extracted_at": "2026-01-25T15:19:56.042803",
   "entities": [
     {
       "name": "Falcon X UAV Program",
@@ -173,66 +173,6 @@
       "aliases": []
     },
     {
-      "name": "AeroTech Components",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Airframe structures",
-        "risk level": "Medium"
-      },
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "AeroTech Components | Airframe structures | $18.5M",
-      "aliases": []
-    },
-    {
-      "name": "Precision Avionics Inc",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Navigation systems",
-        "risk level": "Medium"
-      },
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Precision Avionics Inc | Navigation systems | $12.3M",
-      "aliases": []
-    },
-    {
-      "name": "PowerDrive Systems",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Propulsion",
-        "risk level": "Medium"
-      },
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "PowerDrive Systems | Propulsion | $9.8M",
-      "aliases": []
-    },
-    {
-      "name": "Composite Solutions Ltd",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Carbon fiber wings",
-        "risk level": "Medium"
-      },
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Composite Solutions Ltd | Carbon fiber wings | $7.2M",
-      "aliases": []
-    },
-    {
-      "name": "DataLink Technologies",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Communication systems",
-        "risk level": "Medium"
-      },
-      "confidence": 0.9,
-      "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "DataLink Technologies | Communication systems | $5.5M",
-      "aliases": []
-    },
-    {
       "name": "US Department of Defense",
       "entity_type": "CUSTOMER",
       "properties": {
@@ -241,7 +181,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "US Department of Defense | 50 | $125M | 2027-2028",
+      "source_excerpt": "Customer: US Department of Defense",
       "aliases": []
     },
     {
@@ -253,7 +193,7 @@
       },
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "Border Security Agency | 20 | $48M | 2028",
+      "source_excerpt": "Customer: Border Security Agency",
       "aliases": []
     },
     {
@@ -265,7 +205,7 @@
       },
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "National Weather Service | 12 | $28M | 2027",
+      "source_excerpt": "Customer: National Weather Service",
       "aliases": []
     },
     {
@@ -277,7 +217,67 @@
       },
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "source_excerpt": "AgriTech Partners | 30 | $65M | 2028",
+      "source_excerpt": "Customer: AgriTech Partners",
+      "aliases": []
+    },
+    {
+      "name": "AeroTech Components",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Airframe structures",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_uav_program.md",
+      "source_excerpt": "Supplier: AeroTech Components",
+      "aliases": []
+    },
+    {
+      "name": "Precision Avionics Inc",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Navigation systems",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_uav_program.md",
+      "source_excerpt": "Supplier: Precision Avionics Inc",
+      "aliases": []
+    },
+    {
+      "name": "PowerDrive Systems",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Propulsion",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_uav_program.md",
+      "source_excerpt": "Supplier: PowerDrive Systems",
+      "aliases": []
+    },
+    {
+      "name": "Composite Solutions Ltd",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Carbon fiber wings",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_uav_program.md",
+      "source_excerpt": "Supplier: Composite Solutions Ltd",
+      "aliases": []
+    },
+    {
+      "name": "DataLink Technologies",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Communication systems",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "01_falcon_x_uav_program.md",
+      "source_excerpt": "Supplier: DataLink Technologies",
       "aliases": []
     }
   ],
@@ -357,7 +357,7 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "US Department of Defense | 50 | $125M | 2027-2028"
+      "evidence": "Customer: US Department of Defense"
     },
     {
       "source_entity": "Border Security Agency",
@@ -368,7 +368,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Border Security Agency | 20 | $48M | 2028"
+      "evidence": "Customer: Border Security Agency"
     },
     {
       "source_entity": "National Weather Service",
@@ -379,7 +379,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "National Weather Service | 12 | $28M | 2027"
+      "evidence": "Customer: National Weather Service"
     },
     {
       "source_entity": "AgriTech Partners",
@@ -390,7 +390,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "AgriTech Partners | 30 | $65M | 2028"
+      "evidence": "Customer: AgriTech Partners"
     },
     {
       "source_entity": "AeroTech Components",
@@ -401,7 +401,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "AeroTech Components | Airframe structures | $18.5M"
+      "evidence": "Supplier: AeroTech Components"
     },
     {
       "source_entity": "Precision Avionics Inc",
@@ -412,7 +412,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Precision Avionics Inc | Navigation systems | $12.3M"
+      "evidence": "Supplier: Precision Avionics Inc"
     },
     {
       "source_entity": "PowerDrive Systems",
@@ -423,7 +423,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "PowerDrive Systems | Propulsion | $9.8M"
+      "evidence": "Supplier: PowerDrive Systems"
     },
     {
       "source_entity": "Composite Solutions Ltd",
@@ -434,7 +434,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "Composite Solutions Ltd | Carbon fiber wings | $7.2M"
+      "evidence": "Supplier: Composite Solutions Ltd"
     },
     {
       "source_entity": "DataLink Technologies",
@@ -445,7 +445,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_uav_program.md",
-      "evidence": "DataLink Technologies | Communication systems | $5.5M"
+      "evidence": "Supplier: DataLink Technologies"
     }
   ],
   "metadata": {

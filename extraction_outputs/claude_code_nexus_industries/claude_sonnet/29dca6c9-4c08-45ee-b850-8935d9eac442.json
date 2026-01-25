@@ -2,7 +2,7 @@
   "document_id": "29dca6c9-4c08-45ee-b850-8935d9eac442",
   "document_path": "02_falcon_x_program_review.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T14:29:48.123220",
+  "extracted_at": "2026-01-25T15:27:10.855969",
   "entities": [
     {
       "name": "Thomas Mueller",
@@ -123,9 +123,8 @@
       "name": "Capt. Williams",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Captain",
-        "role": "Customer Representative",
-        "department": "USAF"
+        "title": "Customer Representative",
+        "role": "USAF Captain"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
@@ -136,7 +135,7 @@
       "name": "Aerospace Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Aerospace engineering and manufacturing"
+        "focus_areas": "aerospace programs, UAV development"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
@@ -147,7 +146,7 @@
       "name": "Corporate",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Corporate functions including finance"
+        "focus_areas": "corporate functions, finance"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
@@ -158,7 +157,7 @@
       "name": "Government Programs",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Government contract management"
+        "focus_areas": "government contracts"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
@@ -170,8 +169,8 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$145.0M",
-        "status": "GREEN",
-        "timeline": "2024-2027"
+        "timeline": "2024-2027",
+        "status": "GREEN"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
@@ -183,23 +182,11 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "Unmanned Aerial Vehicle",
-        "category": "Military Aircraft"
+        "category": "Aerospace"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
-      "source_excerpt": "Falcon X UAV Program",
-      "aliases": []
-    },
-    {
-      "name": "USAF",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Military/Defense",
-        "region": "United States"
-      },
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "source_excerpt": "USAF Representative (Capt. Williams)",
+      "source_excerpt": "Falcon X UAV Program Review Meeting",
       "aliases": []
     },
     {
@@ -263,6 +250,18 @@
       "aliases": []
     },
     {
+      "name": "USAF",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Defense",
+        "region": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "source_excerpt": "Customer Representative (USAF Capt. Williams)",
+      "aliases": []
+    },
+    {
       "name": "Tucson, AZ",
       "entity_type": "LOCATION",
       "properties": {
@@ -278,20 +277,20 @@
       "name": "Tucson Facility",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "Manufacturing Facility",
-        "location": "Tucson, AZ"
+        "location": "Tucson, AZ",
+        "type": "aerospace facility"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
-      "source_excerpt": "Date: February 12, 2026, Location: Tucson Facility",
+      "source_excerpt": "Next Review Location: Tucson Facility",
       "aliases": []
     },
     {
       "name": "Hangar 7",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "Production Facility",
-        "location": "Tucson"
+        "location": "Tucson Facility",
+        "type": "manufacturing hangar"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
@@ -302,9 +301,9 @@
       "name": "Engineering Budget",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Engineering Costs",
-        "value": "$52.0M budgeted, $50.8M actual",
-        "period": "Program Total",
+        "metric_name": "Engineering Budget",
+        "value": "$52.0M",
+        "period": "2024-2027",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
@@ -313,12 +312,26 @@
       "aliases": []
     },
     {
+      "name": "Prototype Build Budget",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Prototype Build Budget",
+        "value": "$38.0M",
+        "period": "2024-2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "source_excerpt": "Prototype Build | $38.0M | $37.2M | ($0.8M)",
+      "aliases": []
+    },
+    {
       "name": "Total Program Budget",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total Program Cost",
-        "value": "$145.0M budgeted, $141.8M actual",
-        "period": "Program Total",
+        "metric_name": "Total Program Budget",
+        "value": "$145.0M",
+        "period": "2024-2027",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
@@ -332,12 +345,25 @@
       "properties": {
         "metric_name": "Budget Under",
         "value": "$3.2M",
-        "period": "Current",
+        "period": "current",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
       "source_excerpt": "$3.2M under budget",
+      "aliases": []
+    },
+    {
+      "name": "FAA",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "name": "Federal Aviation Administration",
+        "type": "Government Agency",
+        "industry": "Aviation Regulation"
+      },
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "source_excerpt": "FAA Type Certification | Q4 2026 | On Track",
       "aliases": []
     }
   ],
@@ -431,15 +457,81 @@
       "evidence": "Col. (Ret.) James Foster | Empowered Official | Government Programs"
     },
     {
-      "source_entity": "Capt. Williams",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "USAF",
-      "target_type": "CUSTOMER",
+      "source_entity": "Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "Falcon X UAV Program Review Meeting held at Aerospace Division"
+    },
+    {
+      "source_entity": "Falcon X UAV Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Falcon X UAV",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Customer Representative (USAF Capt. Williams)"
+      "evidence": "Falcon X UAV Program developing Falcon X UAV product"
+    },
+    {
+      "source_entity": "Honeywell",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "Honeywell | Flight Computer | Green | Low"
+    },
+    {
+      "source_entity": "Collins",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "Collins | Communications | Green | Low"
+    },
+    {
+      "source_entity": "General Atomics",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "General Atomics | Sensor Suite | Yellow | Medium"
+    },
+    {
+      "source_entity": "Pratt & Whitney",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "Pratt & Whitney | Engine | Green | Low"
+    },
+    {
+      "source_entity": "Boeing",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "Boeing | Composite Panels | Green | Low"
     },
     {
       "source_entity": "USAF",
@@ -450,18 +542,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "USAF Representative (Capt. Williams) providing customer feedback"
-    },
-    {
-      "source_entity": "Aerospace Division",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Program team primarily from Aerospace Division"
+      "evidence": "Customer Representative (USAF Capt. Williams)"
     },
     {
       "source_entity": "Aerospace Division",
@@ -475,72 +556,6 @@
       "evidence": "Location: Aerospace Division, Tucson, AZ"
     },
     {
-      "source_entity": "Falcon X UAV Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Falcon X UAV",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Falcon X UAV Program developing UAV product"
-    },
-    {
-      "source_entity": "Honeywell",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Honeywell | Flight Computer supplier"
-    },
-    {
-      "source_entity": "Collins",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Collins | Communications supplier"
-    },
-    {
-      "source_entity": "General Atomics",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "General Atomics | Sensor Suite supplier"
-    },
-    {
-      "source_entity": "Pratt & Whitney",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Pratt & Whitney | Engine supplier"
-    },
-    {
-      "source_entity": "Boeing",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Boeing | Composite Panels supplier"
-    },
-    {
       "source_entity": "Tucson Facility",
       "source_type": "FACILITY",
       "relationship_type": "LOCATED_AT",
@@ -549,23 +564,34 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Next Review Location: Tucson Facility"
+      "evidence": "Tucson Facility location"
     },
     {
       "source_entity": "Hangar 7",
       "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Tucson, AZ",
-      "target_type": "LOCATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "Tucson Facility",
+      "target_type": "FACILITY",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Hangar 7 certified facility for production"
+      "evidence": "Facility | Ready | Hangar 7 certified"
+    },
+    {
+      "source_entity": "Capt. Williams",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "USAF",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "Customer Representative (USAF Capt. Williams)"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 27,
+    "raw_entity_count": 29,
     "raw_relationship_count": 20,
     "used_partial_parse": false,
     "truncated": false

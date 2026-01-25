@@ -503,6 +503,265 @@ def revoke_api_key(key_id):
         return jsonify({'error': 'API key not found or already revoked'}), 404
 
 
+def format_time_ago(timestamp):
+    """Format a timestamp as relative time (just now, Xm ago, Xh ago, Xd ago)."""
+    from datetime import datetime
+    if not timestamp:
+        return None
+    if isinstance(timestamp, str):
+        timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+    now = datetime.utcnow()
+    if timestamp.tzinfo:
+        from datetime import timezone
+        now = datetime.now(timezone.utc)
+    diff = now - timestamp
+    seconds = int(diff.total_seconds())
+    if seconds < 60:
+        return 'just now'
+    minutes = seconds // 60
+    if minutes < 60:
+        return f'{minutes}m ago'
+    hours = minutes // 60
+    if hours < 24:
+        return f'{hours}h ago'
+    days = hours // 24
+    return f'{days}d ago'
+
+
+@app.route('/extraction')
+def extraction_dashboard():
+    """Render the extraction monitoring dashboard."""
+    return render_template('extraction_dashboard.html', active_page='extraction')
+
+
+@app.route('/api/extraction/overview')
+def api_extraction_overview():
+    """Return aggregate extraction metrics across all vaults."""
+    from platform_foundation.src.tenant_service import TenantService
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    try:
+        tenant_svc = TenantService()
+        vaults = tenant_svc.list_tenants(status='active')
+        
+        database_url = os.environ.get('DATABASE_URL')
+        vault_stats = []
+        total_pending_multi = 0
+        vaults_pending = 0
+        vaults_in_progress = 0
+        vaults_complete = 0
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                for vault in vaults:
+                    vault_id = str(vault['id'])
+                    
+                    cur.execute("""
+                        SELECT 
+                            COUNT(*) FILTER (WHERE extraction_level = 'single' AND status = 'completed') as single_done,
+                            COUNT(*) FILTER (WHERE extraction_level = 'multi' AND status = 'completed') as multi_done,
+                            COUNT(*) FILTER (WHERE status = 'pending' OR status IS NULL OR extraction_level IS NULL) as pending,
+                            COUNT(*) FILTER (WHERE status = 'failed') as failed,
+                            COUNT(*) FILTER (WHERE extraction_level = 'single' AND extraction_level != 'multi') as pending_multi,
+                            MAX(updated_at) as last_updated
+                        FROM platform.documents
+                        WHERE tenant_id = %s
+                    """, (vault_id,))
+                    stats = dict(cur.fetchone())
+                    
+                    single_done = stats['single_done'] or 0
+                    multi_done = stats['multi_done'] or 0
+                    pending = stats['pending'] or 0
+                    failed = stats['failed'] or 0
+                    pending_multi = stats['pending_multi'] or 0
+                    total = single_done + multi_done + pending + failed
+                    
+                    total_pending_multi += pending_multi
+                    
+                    if total == 0:
+                        status = 'empty'
+                    elif pending > 0 or (single_done > 0 and multi_done < single_done):
+                        if single_done > 0 or multi_done > 0:
+                            status = 'in_progress'
+                            vaults_in_progress += 1
+                        else:
+                            status = 'pending'
+                            vaults_pending += 1
+                    else:
+                        status = 'complete'
+                        vaults_complete += 1
+                    
+                    vault_stats.append({
+                        'vault_id': vault_id,
+                        'name': vault['name'],
+                        'status': status,
+                        'single_done': single_done,
+                        'multi_done': multi_done,
+                        'pending': pending,
+                        'failed': failed,
+                        'last_updated': stats['last_updated'].isoformat() if stats['last_updated'] else None
+                    })
+        
+        vault_stats.sort(key=lambda x: x['last_updated'] or '', reverse=True)
+        
+        return jsonify({
+            'vaults_pending': vaults_pending,
+            'vaults_in_progress': vaults_in_progress,
+            'vaults_complete': vaults_complete,
+            'docs_pending_multi': total_pending_multi,
+            'vaults': vault_stats
+        })
+    except Exception as e:
+        logger.error(f"Extraction overview failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/extraction/vault/<vault_id>')
+def api_extraction_vault_detail(vault_id):
+    """Return document-level extraction details for a vault."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        id, name, status, extraction_level,
+                        created_at, updated_at
+                    FROM platform.documents
+                    WHERE tenant_id = %s
+                    ORDER BY updated_at DESC
+                    LIMIT 200
+                """, (vault_id,))
+                docs = [dict(row) for row in cur.fetchall()]
+                
+                for doc in docs:
+                    doc['id'] = str(doc['id'])
+                    if doc.get('created_at'):
+                        doc['created_at'] = doc['created_at'].isoformat()
+                    if doc.get('updated_at'):
+                        doc['updated_at'] = doc['updated_at'].isoformat()
+        
+        return jsonify({'vault_id': vault_id, 'documents': docs})
+    except Exception as e:
+        logger.error(f"Vault detail failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/extraction/events')
+def api_extraction_events():
+    """Return extraction event history with optional filters."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    vault_id = request.args.get('vault_id')
+    event_type = request.args.get('type')
+    limit = min(int(request.args.get('limit', 100)), 500)
+    
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                query = "SELECT * FROM platform.extraction_events WHERE 1=1"
+                params = []
+                
+                if vault_id:
+                    query += " AND vault_id = %s"
+                    params.append(vault_id)
+                
+                if event_type and event_type != 'all':
+                    query += " AND event_type ILIKE %s"
+                    params.append(f'%{event_type}%')
+                
+                query += " ORDER BY created_at DESC LIMIT %s"
+                params.append(limit)
+                
+                cur.execute(query, params)
+                events = [dict(row) for row in cur.fetchall()]
+                
+                for ev in events:
+                    if ev.get('vault_id'):
+                        ev['vault_id'] = str(ev['vault_id'])
+                    if ev.get('document_id'):
+                        ev['document_id'] = str(ev['document_id'])
+                    if ev.get('created_at'):
+                        ev['created_at'] = ev['created_at'].isoformat()
+        
+        return jsonify({'events': events})
+    except Exception as e:
+        logger.error(f"Events fetch failed: {e}")
+        return jsonify({'error': str(e), 'events': []})
+
+
+@app.route('/api/extraction/resume/<vault_id>', methods=['POST'])
+def api_extraction_resume(vault_id):
+    """Log a manual resume event for a vault."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT name FROM platform.tenants WHERE id = %s
+                """, (vault_id,))
+                vault = cur.fetchone()
+                vault_name = vault['name'] if vault else None
+                
+                cur.execute("""
+                    INSERT INTO platform.extraction_events 
+                    (vault_id, vault_name, event_type, details)
+                    VALUES (%s, %s, 'resume', 'Manual resume triggered')
+                    RETURNING id
+                """, (vault_id, vault_name))
+                event_id = cur.fetchone()['id']
+                conn.commit()
+        
+        return jsonify({'success': True, 'event_id': event_id})
+    except Exception as e:
+        logger.error(f"Resume event failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/extraction/cancel/<vault_id>', methods=['POST'])
+def api_extraction_cancel(vault_id):
+    """Log a cancel event for a vault."""
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT name FROM platform.tenants WHERE id = %s
+                """, (vault_id,))
+                vault = cur.fetchone()
+                vault_name = vault['name'] if vault else None
+                
+                cur.execute("""
+                    INSERT INTO platform.extraction_events 
+                    (vault_id, vault_name, event_type, details)
+                    VALUES (%s, %s, 'cancel', 'Manual cancel triggered')
+                    RETURNING id
+                """, (vault_id, vault_name))
+                event_id = cur.fetchone()['id']
+                conn.commit()
+        
+        return jsonify({'success': True, 'event_id': event_id})
+    except Exception as e:
+        logger.error(f"Cancel event failed: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 doc_service = None
 
 def get_document_service():

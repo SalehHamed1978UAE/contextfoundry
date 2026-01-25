@@ -2,7 +2,7 @@
   "document_id": "1ed88173-d9c1-43a2-85a0-d196c5399089",
   "document_path": "01_corporate_strategy_2026_2030.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:16:42.923361",
+  "extracted_at": "2026-01-25T15:16:35.149348",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -25,7 +25,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "CEO Dr. Victoria Chen",
+      "source_excerpt": "CEO | Dr. Victoria Chen | Jan 15, 2026",
       "aliases": []
     },
     {
@@ -37,7 +37,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "CFO Robert Kim",
+      "source_excerpt": "CFO | Robert Kim | Jan 14, 2026",
       "aliases": []
     },
     {
@@ -49,7 +49,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Board Chair Richard Blackstone",
+      "source_excerpt": "Board Chair | Richard Blackstone | Jan 20, 2026",
       "aliases": []
     },
     {
@@ -65,7 +65,7 @@
       "aliases": []
     },
     {
-      "name": "Nexus Aerospace",
+      "name": "Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus areas": "Autonomy and space systems"
@@ -76,7 +76,7 @@
       "aliases": []
     },
     {
-      "name": "Nexus Energy Systems",
+      "name": "Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus areas": "Clean energy transition"
@@ -87,7 +87,7 @@
       "aliases": []
     },
     {
-      "name": "Nexus Digital Solutions",
+      "name": "Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus areas": "Platform and security"
@@ -98,7 +98,7 @@
       "aliases": []
     },
     {
-      "name": "Nexus Advanced Materials",
+      "name": "Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus areas": "Next-generation materials"
@@ -170,87 +170,68 @@
       "aliases": []
     },
     {
-      "name": "Revenue",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "R&D Investment",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric name": "Revenue",
-        "value": "$15.0B",
-        "period": "FY2030",
-        "type": "CURRENCY"
+        "budget": "$3.5B",
+        "timeline": "2026-2030",
+        "status": "Ongoing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "| Revenue | $8.45B | $15.0B |",
+      "source_excerpt": "R&D Investment | $3.5B | 47%",
       "aliases": []
     },
     {
-      "name": "Operating Margin",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Capital Expenditure",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric name": "Operating Margin",
-        "value": "16.0%",
-        "period": "FY2030",
-        "type": "PERCENTAGE"
+        "budget": "$1.8B",
+        "timeline": "2026-2030",
+        "status": "Ongoing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "| Operating Margin | 12.3% | 16.0% |",
+      "source_excerpt": "Capital Expenditure | $1.8B | 24%",
       "aliases": []
     },
     {
-      "name": "Net Income",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Shareholder Returns",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric name": "Net Income",
-        "value": "$1.8B",
-        "period": "FY2030",
-        "type": "CURRENCY"
+        "budget": "$1.2B",
+        "timeline": "2026-2030",
+        "status": "Ongoing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "| Net Income | $0.84B | $1.8B |",
+      "source_excerpt": "Shareholder Returns | $1.2B | 16%",
       "aliases": []
     },
     {
-      "name": "EPS",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "M&A",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric name": "EPS",
-        "value": "$10.50",
-        "period": "FY2030",
-        "type": "CURRENCY"
+        "budget": "$0.5B",
+        "timeline": "2026-2030",
+        "status": "Ongoing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "| EPS | $4.28 | $10.50 |",
+      "source_excerpt": "M&A | $0.5B | 7%",
       "aliases": []
     },
     {
-      "name": "Free Cash Flow",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Debt Reduction",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric name": "Free Cash Flow",
-        "value": "$2.0B",
-        "period": "FY2030",
-        "type": "CURRENCY"
+        "budget": "$0.4B",
+        "timeline": "2030",
+        "status": "Ongoing"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "| Free Cash Flow | $0.92B | $2.0B |",
-      "aliases": []
-    },
-    {
-      "name": "ROIC",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "ROIC",
-        "value": "20%+",
-        "period": "FY2030",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "| ROIC | 14% | 20%+ |",
+      "source_excerpt": "Debt Reduction | $0.4B by 2030",
       "aliases": []
     }
   ],
@@ -262,9 +243,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "CEO Dr. Victoria Chen"
+      "evidence": "CEO | Dr. Victoria Chen | Jan 15, 2026"
     },
     {
       "source_entity": "Robert Kim",
@@ -273,9 +254,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "CFO Robert Kim"
+      "evidence": "CFO | Robert Kim | Jan 14, 2026"
     },
     {
       "source_entity": "Richard Blackstone",
@@ -284,9 +265,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Board Chair Richard Blackstone"
+      "evidence": "Board Chair | Richard Blackstone | Jan 20, 2026"
     },
     {
       "source_entity": "Sarah Martinez",
@@ -295,12 +276,78 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "evidence": "Document Owner: Sarah Martinez, Chief Strategy Officer"
     },
     {
-      "source_entity": "Nexus Aerospace",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "2026-2030 Strategic Plan",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Nexus Industries' five-year strategic plan"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "R&D Investment",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "R&D Investment | $3.5B | 47%"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Capital Expenditure",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Capital Expenditure | $1.8B | 24%"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Shareholder Returns",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Shareholder Returns | $1.2B | 16%"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "M&A",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "M&A | $0.5B | 7%"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Debt Reduction",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Debt Reduction | $0.4B by 2030"
+    },
+    {
+      "source_entity": "Aerospace",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
@@ -311,7 +358,7 @@
       "evidence": "Nexus Aerospace Strategy"
     },
     {
-      "source_entity": "Nexus Energy Systems",
+      "source_entity": "Energy Systems",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
@@ -322,7 +369,7 @@
       "evidence": "Nexus Energy Systems Strategy"
     },
     {
-      "source_entity": "Nexus Digital Solutions",
+      "source_entity": "Digital Solutions",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
@@ -333,7 +380,7 @@
       "evidence": "Nexus Digital Solutions Strategy"
     },
     {
-      "source_entity": "Nexus Advanced Materials",
+      "source_entity": "Advanced Materials",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
@@ -342,67 +389,12 @@
       "confidence": 0.9,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "evidence": "Nexus Advanced Materials Strategy"
-    },
-    {
-      "source_entity": "2026-2030 Strategic Plan",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "This document outlines Nexus Industries' five-year strategic plan"
-    },
-    {
-      "source_entity": "Carbon Neutral Operations",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Carbon Neutral Operations | 2030 | On Track"
-    },
-    {
-      "source_entity": "100% Renewable Energy",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "100% Renewable Energy | 2028 | 65% achieved"
-    },
-    {
-      "source_entity": "Zero Waste to Landfill",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Zero Waste to Landfill | 2028 | 40% achieved"
-    },
-    {
-      "source_entity": "Sustainable Products",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Sustainable Products | 50% revenue | Tracking"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 20,
-    "raw_relationship_count": 13,
+    "raw_entity_count": 19,
+    "raw_relationship_count": 14,
     "used_partial_parse": false,
     "truncated": false
   }

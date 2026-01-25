@@ -2,7 +2,7 @@
   "document_id": "d3f0bdfc-53ab-4582-9b39-5f52db28ebe4",
   "document_path": "02_business_divisions.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:27:03.234781",
+  "extracted_at": "2026-01-25T15:24:44.752981",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -184,7 +184,7 @@
       "name": "United States Air Force",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Government",
+        "industry": "Military",
         "region": "USA"
       },
       "confidence": 0.85,
@@ -385,54 +385,6 @@
       "source_document": "02_business_divisions.md",
       "source_excerpt": "Total Revenue 2025: $4.2B",
       "aliases": []
-    },
-    {
-      "name": "Seattle",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Seattle",
-        "country": "USA"
-      },
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "source_excerpt": "Headquarters: Seattle, Washington",
-      "aliases": []
-    },
-    {
-      "name": "Houston",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Houston",
-        "country": "USA"
-      },
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "source_excerpt": "Headquarters: Houston, Texas",
-      "aliases": []
-    },
-    {
-      "name": "San Francisco",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "San Francisco",
-        "country": "USA"
-      },
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "source_excerpt": "Headquarters: San Francisco, California",
-      "aliases": []
-    },
-    {
-      "name": "Phoenix",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Phoenix",
-        "country": "USA"
-      },
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "source_excerpt": "Headquarters: Phoenix, Arizona",
-      "aliases": []
     }
   ],
   "relationships": [
@@ -525,98 +477,54 @@
       "evidence": "Nexus Advanced Materials operates through four strategic business divisions"
     },
     {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Seattle",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "evidence": "Headquarters: Seattle, Washington"
-    },
-    {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Houston",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "evidence": "Headquarters: Houston, Texas"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "San Francisco",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "evidence": "Headquarters: San Francisco, California"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_business_divisions.md",
-      "evidence": "Headquarters: Phoenix, Arizona"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Michael Torres",
+      "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Michael Torres",
-      "target_type": "PERSON",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Division President: Michael Torres"
+      "evidence": "Michael Torres is the Division President of Nexus Aerospace"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Dr. Elena Rodriguez",
-      "target_type": "PERSON",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Division President: Dr. Elena Rodriguez"
+      "evidence": "Dr. Elena Rodriguez is the Division President of Nexus Energy Systems"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Kevin Chang",
+      "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Kevin Chang",
-      "target_type": "PERSON",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Division President: Kevin Chang"
+      "evidence": "Kevin Chang is the Division President of Nexus Digital Solutions"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Dr. Yuki Tanaka",
+      "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Dr. Yuki Tanaka",
-      "target_type": "PERSON",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_business_divisions.md",
-      "evidence": "Division President: Dr. Yuki Tanaka"
+      "evidence": "Dr. Yuki Tanaka is the Division President of Nexus Advanced Materials"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 34,
-    "raw_relationship_count": 16,
+    "raw_entity_count": 30,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

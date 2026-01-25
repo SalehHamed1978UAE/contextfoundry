@@ -2,7 +2,7 @@
   "document_id": "c5b2a814-9652-4e89-9aa1-8dfe15b79cf1",
   "document_path": "02_aerospace_division_strategy.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:22:43.538374",
+  "extracted_at": "2026-01-25T15:21:35.567294",
   "entities": [
     {
       "name": "Nexus Aerospace",
@@ -287,7 +287,7 @@
         "city": "Seattle",
         "country": "USA"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "source_excerpt": "Autonomy Center | Seattle",
       "aliases": []
@@ -299,7 +299,7 @@
         "city": "Los Angeles",
         "country": "USA"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "source_excerpt": "Satellite Factory | LA",
       "aliases": []
@@ -311,7 +311,7 @@
         "city": "Mojave",
         "country": "USA"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "source_excerpt": "Test Facility | Mojave",
       "aliases": []
@@ -323,9 +323,61 @@
         "city": "Phoenix",
         "country": "USA"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "source_excerpt": "Digital Lab | Phoenix",
+      "aliases": []
+    },
+    {
+      "name": "Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "$2.85B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "| Revenue | $2.85B |",
+      "aliases": []
+    },
+    {
+      "name": "Operating Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "12.0%",
+        "period": "FY2025",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "| Operating Margin | 12.0% |",
+      "aliases": []
+    },
+    {
+      "name": "Employees",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "3200",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "| Employees | 3,200 |",
+      "aliases": []
+    },
+    {
+      "name": "Backlog",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "$5.2B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "| Backlog | $5.2B |",
       "aliases": []
     }
   ],
@@ -337,14 +389,14 @@
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Michael Torres, Division President"
+      "evidence": "Document Owner: Michael Torres, Division President"
     },
     {
       "source_entity": "Dr. Rachel Kim",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "PART_OF",
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -355,7 +407,7 @@
     {
       "source_entity": "Catherine O'Brien",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "PART_OF",
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -366,7 +418,7 @@
     {
       "source_entity": "Angela Thompson",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "PART_OF",
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -377,134 +429,134 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Falcon X UAV",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Falcon X UAV | $145M | First delivery 2027"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Autonomy Software",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Autonomy Software | $80M | Platform for multiple vehicles"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Sensor Fusion",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Sensor Fusion | $45M | Industry-leading capability"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "AI/ML Center",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "AI/ML Center | $30M | Center of excellence"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Orbital Constellation",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Orbital Constellation | $680M | Operational 2028"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "StarLiner Satellite Bus",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "StarLiner Satellite Bus | $85M | 36 units/year by 2030"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Launch Integration",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Launch Integration | $45M | Multiple providers"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Ground Systems",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Ground Systems | $60M | Differentiated services"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Hypersonic Technology",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Hypersonic Technology | $245M | TRL 6 by 2028"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "NGAD Positioning",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "NGAD Positioning | $80M | Win content"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Electronic Warfare",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Electronic Warfare | $55M | New capability"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
+      "relationship_type": "PRODUCES",
       "target_entity": "Classified Programs",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Nexus Aerospace Division Strategic Plan 2026-2030"
+      "evidence": "Classified Programs | $65M | Growth platform"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -568,7 +620,7 @@
       "target_entity": "Seattle",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "evidence": "Autonomy Center | Seattle"
     },
@@ -579,7 +631,7 @@
       "target_entity": "LA",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "evidence": "Satellite Factory | LA"
     },
@@ -590,7 +642,7 @@
       "target_entity": "Mojave",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "evidence": "Test Facility | Mojave"
     },
@@ -601,15 +653,26 @@
       "target_entity": "Phoenix",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "evidence": "Digital Lab | Phoenix"
+    },
+    {
+      "source_entity": "Nexus Aerospace",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Michael Torres",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Document Owner: Michael Torres, Division President"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 26,
-    "raw_relationship_count": 25,
+    "raw_entity_count": 30,
+    "raw_relationship_count": 26,
     "used_partial_parse": false,
     "truncated": false
   }

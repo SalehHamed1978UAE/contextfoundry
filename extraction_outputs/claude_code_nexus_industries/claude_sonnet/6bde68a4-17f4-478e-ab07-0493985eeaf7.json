@@ -2,13 +2,13 @@
   "document_id": "6bde68a4-17f4-478e-ab07-0493985eeaf7",
   "document_path": "03_aerospace_division_budget.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:12:33.486340",
+  "extracted_at": "2026-01-25T15:34:19.687984",
   "entities": [
     {
       "name": "Nexus Aerospace Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "aerospace manufacturing, defense systems, commercial aviation, space systems"
+        "focus_areas": "aerospace, aviation, defense, space systems"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -32,7 +32,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division CFO",
-        "role": "Chief Financial Officer"
+        "role": "Division Chief Financial Officer"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -44,7 +44,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Engineering",
-        "role": "Vice President of Engineering"
+        "role": "Vice President Engineering"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -67,33 +67,33 @@
       "name": "Commercial Aviation",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "commercial aircraft components, structures, systems"
+        "focus_areas": "commercial aircraft components and systems"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "Commercial Aviation | $1.56B | $1.42B | +9.9%",
+      "source_excerpt": "Commercial Aviation | $1.56B",
       "aliases": []
     },
     {
       "name": "Defense Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "defense components, UAVs, missile systems, helicopter parts"
+        "focus_areas": "defense aircraft and missile systems"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "Defense Systems | $1.15B | $1.08B | +6.5%",
+      "source_excerpt": "Defense Systems | $1.15B",
       "aliases": []
     },
     {
       "name": "Space Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "satellites, launch vehicle parts, space systems"
+        "focus_areas": "satellite systems and launch vehicle parts"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "Space Systems | $0.41B | $0.35B | +17.1%",
+      "source_excerpt": "Space Systems | $0.41B",
       "aliases": []
     },
     {
@@ -185,12 +185,12 @@
       "aliases": []
     },
     {
-      "name": "787 Structures",
+      "name": "787 Structures Program",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$485M",
-        "status": "ongoing",
-        "timeline": "FY2026"
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -198,12 +198,12 @@
       "aliases": []
     },
     {
-      "name": "A350 Components",
+      "name": "A350 Components Program",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$380M",
-        "status": "ongoing",
-        "timeline": "FY2026"
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -211,12 +211,12 @@
       "aliases": []
     },
     {
-      "name": "737 MAX Parts",
+      "name": "737 MAX Parts Program",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$285M",
-        "status": "ongoing",
-        "timeline": "FY2026"
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -224,25 +224,12 @@
       "aliases": []
     },
     {
-      "name": "A320neo Systems",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$220M",
-        "status": "ongoing",
-        "timeline": "FY2026"
-      },
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "A320neo Systems | $220M | Airbus",
-      "aliases": []
-    },
-    {
-      "name": "F-35 Components",
+      "name": "F-35 Components Program",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$380M",
-        "status": "ongoing",
-        "timeline": "FY2026"
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -250,12 +237,12 @@
       "aliases": []
     },
     {
-      "name": "Falcon X UAV",
+      "name": "Falcon X UAV Program",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$285M",
-        "status": "development",
-        "timeline": "FY2026"
+        "budget": "$285M revenue, $72M investment",
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -263,12 +250,12 @@
       "aliases": []
     },
     {
-      "name": "Orbital Constellation",
+      "name": "Orbital Constellation Program",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$185M",
-        "status": "ongoing",
-        "timeline": "FY2026"
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -276,12 +263,12 @@
       "aliases": []
     },
     {
-      "name": "StarLiner Satellite Bus",
+      "name": "StarLiner Satellite Bus Program",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$95M",
-        "status": "ongoing",
-        "timeline": "FY2026"
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -289,16 +276,16 @@
       "aliases": []
     },
     {
-      "name": "Hypersonic Propulsion",
+      "name": "Hypersonic Propulsion Program",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$78M",
-        "status": "development",
-        "timeline": "FY2026"
+        "timeline": "FY2026",
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "Hypersonic Propulsion | $35M | Scramjet testing",
+      "source_excerpt": "Hypersonic Propulsion | FY2026 R&D | Focus Areas | $35M | Scramjet testing",
       "aliases": []
     },
     {
@@ -316,17 +303,17 @@
       "aliases": []
     },
     {
-      "name": "Total Revenue FY2025",
+      "name": "Cost of Revenue FY2026",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total Revenue",
-        "value": "$2.85B",
-        "period": "FY2025",
+        "metric_name": "Cost of Revenue",
+        "value": "$2.50B",
+        "period": "FY2026",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "Total Revenue | $3.12B | $2.85B | +9.5%",
+      "source_excerpt": "Cost of Revenue | $2.50B | $2.31B | +8.2%",
       "aliases": []
     },
     {
@@ -358,21 +345,7 @@
       "aliases": []
     },
     {
-      "name": "Operating Margin FY2026",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Operating Margin",
-        "value": "11.9%",
-        "period": "FY2026",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "Operating Margin | 11.9% | 12.0% | -10 bps",
-      "aliases": []
-    },
-    {
-      "name": "R&D Budget FY2026",
+      "name": "R&D Investment FY2026",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "R&D",
@@ -386,24 +359,38 @@
       "aliases": []
     },
     {
-      "name": "Total Headcount FY2026",
+      "name": "Total CapEx FY2026",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total Headcount",
-        "value": "3,300",
+        "metric_name": "Capital Expenditure",
+        "value": "$100M",
         "period": "FY2026",
-        "type": "COUNT"
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "source_excerpt": "Total | 3,300 | 3,200 | +100",
+      "source_excerpt": "Total CapEx | $100M | -",
+      "aliases": []
+    },
+    {
+      "name": "Total Compensation FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Compensation",
+        "value": "$525M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "source_excerpt": "Total Compensation | $525M",
       "aliases": []
     },
     {
       "name": "Engineering Department",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "engineering, development, design"
+        "focus_areas": "engineering, product development"
       },
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
@@ -419,6 +406,17 @@
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
       "source_excerpt": "Manufacturing | 1,450 | 1,380 | +70",
+      "aliases": []
+    },
+    {
+      "name": "Quality Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "quality assurance, quality control"
+      },
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "source_excerpt": "Quality | 280 | 260 | +20",
       "aliases": []
     }
   ],
@@ -448,11 +446,11 @@
     {
       "source_entity": "Dr. Rachel Kim",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
+      "relationship_type": "MANAGES",
       "target_entity": "Engineering Department",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "03_aerospace_division_budget.md",
       "evidence": "VP Engineering | Dr. Rachel Kim"
     },
@@ -465,7 +463,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "evidence": "Revenue Budget by Business Unit includes Commercial Aviation"
+      "evidence": "Revenue Budget by Business Unit - Commercial Aviation"
     },
     {
       "source_entity": "Defense Systems",
@@ -476,7 +474,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "evidence": "Revenue Budget by Business Unit includes Defense Systems"
+      "evidence": "Revenue Budget by Business Unit - Defense Systems"
     },
     {
       "source_entity": "Space Systems",
@@ -487,7 +485,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "evidence": "Revenue Budget by Business Unit includes Space Systems"
+      "evidence": "Revenue Budget by Business Unit - Space Systems"
     },
     {
       "source_entity": "Engineering Department",
@@ -498,7 +496,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "evidence": "Engineering department is part of headcount budget"
+      "evidence": "Headcount Budget - Engineering department"
     },
     {
       "source_entity": "Manufacturing Department",
@@ -509,7 +507,84 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "evidence": "Manufacturing department is part of headcount budget"
+      "evidence": "Headcount Budget - Manufacturing department"
+    },
+    {
+      "source_entity": "Quality Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Aerospace Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "evidence": "Headcount Budget - Quality department"
+    },
+    {
+      "source_entity": "787 Structures Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Commercial Aviation",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "evidence": "Commercial Aviation program - 787 Structures"
+    },
+    {
+      "source_entity": "A350 Components Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Commercial Aviation",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "evidence": "Commercial Aviation program - A350 Components"
+    },
+    {
+      "source_entity": "F-35 Components Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Defense Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "evidence": "Defense Systems program - F-35 Components"
+    },
+    {
+      "source_entity": "Falcon X UAV Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Defense Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "evidence": "Defense Systems program - Falcon X UAV"
+    },
+    {
+      "source_entity": "Orbital Constellation Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Space Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "evidence": "Space Systems program - Orbital Constellation"
+    },
+    {
+      "source_entity": "StarLiner Satellite Bus Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Space Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_aerospace_division_budget.md",
+      "evidence": "Space Systems program - StarLiner Satellite Bus"
     },
     {
       "source_entity": "Boeing",
@@ -545,76 +620,32 @@
       "evidence": "Lockheed Martin is customer for F-35 Components"
     },
     {
-      "source_entity": "787 Structures",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Commercial Aviation",
+      "source_entity": "DoD",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Aerospace Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "evidence": "787 Structures listed under Commercial Aviation programs"
+      "evidence": "DoD is customer for Falcon X UAV"
     },
     {
-      "source_entity": "A350 Components",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Commercial Aviation",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Total Revenue FY2026",
+      "target_type": "FINANCIAL_METRIC",
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_aerospace_division_budget.md",
-      "evidence": "A350 Components listed under Commercial Aviation programs"
-    },
-    {
-      "source_entity": "F-35 Components",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Defense Systems",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_budget.md",
-      "evidence": "F-35 Components listed under Defense Systems programs"
-    },
-    {
-      "source_entity": "Falcon X UAV",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Defense Systems",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_budget.md",
-      "evidence": "Falcon X UAV listed under Defense Systems programs"
-    },
-    {
-      "source_entity": "Orbital Constellation",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Space Systems",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_budget.md",
-      "evidence": "Orbital Constellation listed under Space Systems programs"
-    },
-    {
-      "source_entity": "StarLiner Satellite Bus",
-      "source_type": "PROJECT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Space Systems",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_aerospace_division_budget.md",
-      "evidence": "StarLiner Satellite Bus listed under Space Systems programs"
+      "evidence": "Division budget funded by $3.12B total revenue"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 34,
-    "raw_relationship_count": 17,
+    "raw_relationship_count": 20,
     "used_partial_parse": false,
     "truncated": false
   }

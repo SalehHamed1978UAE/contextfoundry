@@ -2,7 +2,7 @@
   "document_id": "3de422f8-84fa-451f-80cf-512960d37f2c",
   "document_path": "02_greenhydrogen_process_specification.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:30:14.114410",
+  "extracted_at": "2026-01-25T15:27:28.474017",
   "entities": [
     {
       "name": "Dr. Marcus Thompson",
@@ -114,27 +114,27 @@
       "aliases": []
     },
     {
-      "name": "TCEQ",
-      "entity_type": "ORGANIZATION",
+      "name": "Emerson",
+      "entity_type": "SUPPLIER",
       "properties": {
-        "type": "Regulatory Agency",
-        "industry": "Environmental"
+        "capability": "Control System Manufacturer",
+        "risk level": null
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_greenhydrogen_process_specification.md",
-      "source_excerpt": "Permit | TCEQ",
+      "source_excerpt": "DCS | Emerson",
       "aliases": []
     },
     {
-      "name": "Texas RRC",
-      "entity_type": "ORGANIZATION",
+      "name": "OSIsoft",
+      "entity_type": "SUPPLIER",
       "properties": {
-        "type": "Regulatory Agency",
-        "industry": "Energy"
+        "capability": "Data Historian Provider",
+        "risk level": null
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_greenhydrogen_process_specification.md",
-      "source_excerpt": "Permit | Texas RRC",
+      "source_excerpt": "Historian | OSIsoft",
       "aliases": []
     }
   ],
@@ -217,26 +217,26 @@
       "evidence": "Manufacturer | Chart Industries"
     },
     {
-      "source_entity": "TCEQ",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
+      "source_entity": "Emerson",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
       "target_entity": "GreenHydrogen Production Process Specification",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_greenhydrogen_process_specification.md",
-      "evidence": "Permit | TCEQ"
+      "evidence": "DCS | Emerson"
     },
     {
-      "source_entity": "Texas RRC",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
+      "source_entity": "OSIsoft",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
       "target_entity": "GreenHydrogen Production Process Specification",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "02_greenhydrogen_process_specification.md",
-      "evidence": "Permit | Texas RRC"
+      "evidence": "Historian | OSIsoft"
     }
   ],
   "metadata": {

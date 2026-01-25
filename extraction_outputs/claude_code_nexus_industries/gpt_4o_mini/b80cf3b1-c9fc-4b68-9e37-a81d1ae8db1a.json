@@ -2,7 +2,7 @@
   "document_id": "b80cf3b1-c9fc-4b68-9e37-a81d1ae8db1a",
   "document_path": "03_desert_sun_solar_farm.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:15:06.329361",
+  "extracted_at": "2026-01-25T15:36:24.933442",
   "entities": [
     {
       "name": "Desert Sun Solar Farm",
@@ -121,7 +121,7 @@
       },
       "confidence": 0.9,
       "source_document": "03_desert_sun_solar_farm.md",
-      "source_excerpt": "Key Suppliers: First Solar",
+      "source_excerpt": "Supplier: First Solar",
       "aliases": []
     },
     {
@@ -133,7 +133,7 @@
       },
       "confidence": 0.9,
       "source_document": "03_desert_sun_solar_farm.md",
-      "source_excerpt": "Key Suppliers: Sungrow",
+      "source_excerpt": "Supplier: Sungrow",
       "aliases": []
     },
     {
@@ -145,7 +145,7 @@
       },
       "confidence": 0.9,
       "source_document": "03_desert_sun_solar_farm.md",
-      "source_excerpt": "Key Suppliers: CATL",
+      "source_excerpt": "Supplier: CATL",
       "aliases": []
     },
     {
@@ -157,7 +157,7 @@
       },
       "confidence": 0.9,
       "source_document": "03_desert_sun_solar_farm.md",
-      "source_excerpt": "Key Suppliers: Array Technologies",
+      "source_excerpt": "Supplier: Array Technologies",
       "aliases": []
     },
     {
@@ -169,7 +169,7 @@
       },
       "confidence": 0.9,
       "source_document": "03_desert_sun_solar_farm.md",
-      "source_excerpt": "Key Suppliers: Quanta Services",
+      "source_excerpt": "Supplier: Quanta Services",
       "aliases": []
     },
     {
@@ -358,6 +358,61 @@
       "evidence": "Quality Manager: Susan Chen"
     },
     {
+      "source_entity": "First Solar",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Desert Sun Solar Farm",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_desert_sun_solar_farm.md",
+      "evidence": "Supplier: First Solar"
+    },
+    {
+      "source_entity": "Sungrow",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Desert Sun Solar Farm",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_desert_sun_solar_farm.md",
+      "evidence": "Supplier: Sungrow"
+    },
+    {
+      "source_entity": "CATL",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Desert Sun Solar Farm",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_desert_sun_solar_farm.md",
+      "evidence": "Supplier: CATL"
+    },
+    {
+      "source_entity": "Array Technologies",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Desert Sun Solar Farm",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_desert_sun_solar_farm.md",
+      "evidence": "Supplier: Array Technologies"
+    },
+    {
+      "source_entity": "Quanta Services",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Desert Sun Solar Farm",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_desert_sun_solar_farm.md",
+      "evidence": "Supplier: Quanta Services"
+    },
+    {
       "source_entity": "Pacific Gas & Electric",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
@@ -438,7 +493,7 @@
   "metadata": {
     "filename": "",
     "raw_entity_count": 21,
-    "raw_relationship_count": 16,
+    "raw_relationship_count": 21,
     "used_partial_parse": false,
     "truncated": false
   }
