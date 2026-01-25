@@ -2,7 +2,7 @@
   "document_id": "b17092479dc1",
   "document_path": "test documents/Codex Horizon_Nexus/docs/memos/cpo_memo_product_vision.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:06:58.542799",
+  "extracted_at": "2026-01-25T08:34:55.148117",
   "entities": [
     {
       "name": "Jonah Keene",
@@ -20,19 +20,19 @@
       "name": "CPO Memo - Product Vision",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active",
-        "focus": "roadmap integration across suites"
+        "description": "Describes roadmap integration across suites",
+        "status": "active"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cpo_memo_product_vision.md",
-      "source_excerpt": "CPO Memo - Product Vision - Describes roadmap integration across suites",
+      "source_excerpt": "CPO Memo - Product Vision - Summary: Describes roadmap integration across suites",
       "aliases": []
     },
     {
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "streaming platform for updates"
+        "description": "Platform with streams for providing updates"
       },
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cpo_memo_product_vision.md",
@@ -44,13 +44,13 @@
     {
       "source_entity": "Jonah Keene",
       "source_type": "PERSON",
-      "relationship_type": "OWNS",
+      "relationship_type": "LEADS",
       "target_entity": "CPO Memo - Product Vision",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cpo_memo_product_vision.md",
-      "evidence": "Author: Jonah Keene"
+      "evidence": "Jonah Keene is the author of the CPO Memo"
     },
     {
       "source_entity": "CPO Memo - Product Vision",
@@ -59,9 +59,9 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cpo_memo_product_vision.md",
-      "evidence": "Provide updates via Horizon Prime streams"
+      "evidence": "Memo requests to provide updates via Horizon Prime streams"
     }
   ],
   "metadata": {

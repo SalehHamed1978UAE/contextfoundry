@@ -2,7 +2,7 @@
   "document_id": "bc84075b2f37",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:08:16.456567",
+  "extracted_at": "2026-01-25T08:36:05.836008",
   "entities": [
     {
       "name": "Revenue",
@@ -64,46 +64,43 @@
       "name": "GridWave",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "GridWave",
         "focus_areas": "technology solutions"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins",
+      "source_excerpt": "GridWave outperformed plan",
       "aliases": []
     },
     {
       "name": "Project Aurora",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Project Aurora",
-        "status": "milestone pull-ins"
+        "status": "milestone pull-ins achieved"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins",
+      "source_excerpt": "Project Aurora milestone pull-ins",
       "aliases": []
     },
     {
       "name": "TransitEdge",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "TransitEdge",
         "focus_areas": "logistics and transportation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
+      "source_excerpt": "TransitEdge Titan Logistics Network",
       "aliases": []
     },
     {
       "name": "Titan Logistics Network",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "Titan Logistics Network",
-        "category": "logistics platform"
+        "description": "logistics network solution",
+        "category": "logistics"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
       "aliases": []
@@ -112,10 +109,9 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Horizon Prime",
-        "status": "glidepath tracking"
+        "description": "operating expense management initiative"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "Operating expenses tracked to Horizon Prime glidepath",
       "aliases": []
@@ -124,10 +120,9 @@
       "name": "EMEA",
       "entity_type": "LOCATION",
       "properties": {
-        "name": "EMEA",
         "region": "Europe, Middle East, Africa"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "FX exposure tied to EMEA hydrogen pilots",
       "aliases": []
@@ -136,7 +131,7 @@
       "name": "CoreMatrix",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "CoreMatrix",
+        "description": "components with supply chain dependencies",
         "category": "components"
       },
       "confidence": 0.9,
@@ -148,10 +143,9 @@
       "name": "Treasury",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "Treasury",
-        "focus_areas": "financial planning and cash management"
+        "focus_areas": "cash planning and financial management"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
       "source_excerpt": "Refresh cash planning with Treasury",
       "aliases": []
@@ -160,8 +154,8 @@
       "name": "Titan Freight",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "Titan Freight",
-        "category": "freight services"
+        "description": "freight conversion solution",
+        "category": "logistics"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
@@ -190,7 +184,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "evidence": "TransitEdge Titan Logistics Network backlog grew double digits"
+      "evidence": "TransitEdge Titan Logistics Network"
     },
     {
       "source_entity": "TransitEdge",
@@ -201,7 +195,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2025.md",
-      "evidence": "Monitor Titan Freight conversion schedule"
+      "evidence": "Monitor Titan Freight conversion schedule - related to TransitEdge logistics focus"
     }
   ],
   "metadata": {

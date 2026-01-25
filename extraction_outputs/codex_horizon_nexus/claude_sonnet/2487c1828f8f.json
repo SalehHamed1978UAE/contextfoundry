@@ -2,7 +2,7 @@
   "document_id": "2487c1828f8f",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:04:29.176531",
+  "extracted_at": "2026-01-25T08:32:36.119445",
   "entities": [
     {
       "name": "Maya Serrano",
@@ -23,14 +23,15 @@
       "aliases": []
     },
     {
-      "name": "BU leaders",
-      "entity_type": "PERSON",
+      "name": "Customer Success Roundtable",
+      "entity_type": "PROJECT",
       "properties": {
-        "role": "Business Unit Leaders"
+        "meeting_date": "2026-01-27",
+        "topics": "Net retention, Titan Freight QBR"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "source_excerpt": "BU leaders",
+      "source_excerpt": "Customer Success Roundtable Meeting Notes",
       "aliases": []
     },
     {
@@ -46,9 +47,9 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active with milestones"
+        "has_milestones": true
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
       "source_excerpt": "Reinforce Horizon Prime milestones",
       "aliases": []
@@ -57,35 +58,11 @@
       "name": "PulseOps",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Operations management platform"
+        "description": "Task assignment system"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
       "source_excerpt": "Owners assigned in PulseOps",
-      "aliases": []
-    },
-    {
-      "name": "Net retention",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Net retention",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 1.0,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "source_excerpt": "Net retention",
-      "aliases": []
-    },
-    {
-      "name": "Customer Success Roundtable Meeting",
-      "entity_type": "PROJECT",
-      "properties": {
-        "timeline": "2026-01-27",
-        "status": "ongoing"
-      },
-      "confidence": 1.0,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "source_excerpt": "Customer Success Roundtable Meeting Notes",
       "aliases": []
     }
   ],
@@ -93,52 +70,41 @@
     {
       "source_entity": "Maya Serrano",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Customer Success Roundtable Meeting",
+      "relationship_type": "OWNS",
+      "target_entity": "Customer Success Roundtable",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "evidence": "Maya Serrano listed as attendee"
+      "evidence": "Maya Serrano listed as attendee in Customer Success Roundtable meeting"
     },
     {
       "source_entity": "Dylan Kaur",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Customer Success Roundtable Meeting",
+      "relationship_type": "OWNS",
+      "target_entity": "Customer Success Roundtable",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "evidence": "Dylan Kaur listed as attendee"
+      "evidence": "Dylan Kaur listed as attendee in Customer Success Roundtable meeting"
     },
     {
-      "source_entity": "BU leaders",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Customer Success Roundtable Meeting",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "evidence": "BU leaders listed as attendees"
-    },
-    {
-      "source_entity": "Customer Success Roundtable Meeting",
+      "source_entity": "Customer Success Roundtable",
       "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "PulseOps",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "evidence": "Owners assigned in PulseOps as action item"
+      "evidence": "Owners assigned in PulseOps"
     }
   ],
   "metadata": {
     "filename": "customer_success_roundtable_2026_01_27.md",
-    "raw_entity_count": 8,
-    "raw_relationship_count": 4,
+    "raw_entity_count": 6,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

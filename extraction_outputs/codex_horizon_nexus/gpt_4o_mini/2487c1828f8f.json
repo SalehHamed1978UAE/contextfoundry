@@ -2,7 +2,7 @@
   "document_id": "2487c1828f8f",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:04:18.733268",
+  "extracted_at": "2026-01-25T08:32:27.695452",
   "entities": [
     {
       "name": "Maya Serrano",
@@ -34,10 +34,21 @@
       "aliases": []
     },
     {
+      "name": "Titan Freight",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Freight"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
+      "source_excerpt": "Titan Freight QBR",
+      "aliases": []
+    },
+    {
       "name": "PulseOps",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "platform for assigning owners"
+        "description": "Project management tool"
       },
       "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
@@ -49,40 +60,40 @@
     {
       "source_entity": "Maya Serrano",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Customer Success Roundtable",
-      "target_type": "PROJECT",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "BU leaders",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "evidence": "Attendees - Maya Serrano"
+      "evidence": "Attendees - BU leaders"
     },
     {
       "source_entity": "Dylan Kaur",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Customer Success Roundtable",
-      "target_type": "PROJECT",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "BU leaders",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "evidence": "Attendees - Dylan Kaur"
+      "evidence": "Attendees - BU leaders"
     },
     {
       "source_entity": "Horizon Prime",
       "source_type": "PROJECT",
       "relationship_type": "OWNS",
-      "target_entity": "Titan Freight",
-      "target_type": "PROJECT",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
       "properties": {},
       "confidence": 0.6,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/customer_success_roundtable_2026_01_27.md",
-      "evidence": "Adjust supply plans with suppliers."
+      "evidence": "Owners assigned in PulseOps."
     }
   ],
   "metadata": {
     "filename": "customer_success_roundtable_2026_01_27.md",
-    "raw_entity_count": 4,
+    "raw_entity_count": 5,
     "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false

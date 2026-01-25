@@ -2,15 +2,15 @@
   "document_id": "8a64877e156f",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:19:41.637050",
+  "extracted_at": "2026-01-25T08:46:40.914725",
   "entities": [
     {
       "name": "GridWave",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Edge sensing refresh"
+        "focus_areas": "sensor technology"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
       "source_excerpt": "Business Unit: GridWave",
       "aliases": []
@@ -21,7 +21,7 @@
       "properties": {
         "role": "Sponsor"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
       "source_excerpt": "Sponsor: Priya Thakur",
       "aliases": []
@@ -32,10 +32,10 @@
       "properties": {
         "budget": "$94M",
         "timeline": "2024-2026",
-        "status": "Active",
+        "status": "active",
         "objective": "Edge sensing refresh"
       },
-      "confidence": 0.98,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
       "source_excerpt": "GridWave Sensor Modernization Delivery Brief",
       "aliases": []
@@ -44,7 +44,7 @@
       "name": "$94M",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Budget",
+        "metric_name": "Project Budget",
         "value": "94000000",
         "type": "CURRENCY",
         "period": "2024-2026"
@@ -58,9 +58,9 @@
       "name": "SensorForge",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Technical stack for GridWave Sensor Modernization"
+        "description": "Technical stack for sensor modernization"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
       "source_excerpt": "Technical Stack: SensorForge",
       "aliases": []
@@ -69,9 +69,9 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data lake platform"
+        "description": "data lake platform"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
       "source_excerpt": "Horizon Prime data lake readiness",
       "aliases": []
@@ -80,7 +80,7 @@
       "name": "CoreMatrix",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Supply"
+        "capability": "supply provider"
       },
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
@@ -91,7 +91,7 @@
       "name": "SkyPath",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Integration platform"
+        "description": "integration platform"
       },
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
@@ -107,20 +107,20 @@
       "target_entity": "GridWave Sensor Modernization",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
-      "evidence": "Business Unit: GridWave owns the GridWave Sensor Modernization project"
+      "evidence": "GridWave Sensor Modernization Delivery Brief with Business Unit: GridWave"
     },
     {
       "source_entity": "Priya Thakur",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "LEADS",
       "target_entity": "GridWave Sensor Modernization",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
-      "evidence": "Priya Thakur is listed as the Sponsor of the project"
+      "evidence": "Sponsor: Priya Thakur"
     },
     {
       "source_entity": "GridWave Sensor Modernization",
@@ -129,20 +129,9 @@
       "target_entity": "SensorForge",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
       "evidence": "Technical Stack: SensorForge"
-    },
-    {
-      "source_entity": "CoreMatrix",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GridWave",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
-      "evidence": "CoreMatrix supply listed as dependency for GridWave project"
     },
     {
       "source_entity": "GridWave Sensor Modernization",
@@ -151,9 +140,20 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "evidence": "Dependencies - Horizon Prime data lake readiness"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GridWave Sensor Modernization",
+      "target_type": "PROJECT",
+      "properties": {},
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
-      "evidence": "Horizon Prime data lake readiness listed as dependency"
+      "evidence": "Dependencies - CoreMatrix supply"
     },
     {
       "source_entity": "GridWave Sensor Modernization",
@@ -164,7 +164,7 @@
       "properties": {},
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
-      "evidence": "SkyPath integrations listed as dependency"
+      "evidence": "Dependencies - SkyPath integrations"
     }
   ],
   "metadata": {

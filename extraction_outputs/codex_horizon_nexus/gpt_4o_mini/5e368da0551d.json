@@ -1,0 +1,62 @@
+{
+  "document_id": "5e368da0551d",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:50:35.160647",
+  "entities": [
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees.",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Employee management, HR processes"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Data Classification Standard",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "Data Classification Standard",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "evidence": "Applies to all Horizon Nexus Systems employees."
+    }
+  ],
+  "metadata": {
+    "filename": "data_classification_standard.md",
+    "raw_entity_count": 2,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

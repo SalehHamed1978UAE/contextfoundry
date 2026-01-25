@@ -1,0 +1,192 @@
+{
+  "document_id": "184e69ab881f",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:37:25.077961",
+  "entities": [
+    {
+      "name": "Leona Varga",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Executive Sponsor: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Hydrogen operator",
+        "profile": "Hydrogen operator"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Enceladus Energy Account Brief, Customer Profile: Hydrogen operator",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield H2",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Primary product",
+        "category": "Hydrogen-related technology"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Primary Products: ArcShield H2",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Grid technology"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Owning BU: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "Hydrogen-ready grid",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Current Objective",
+        "description": "Grid preparation for hydrogen operations"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Current Objective: Hydrogen-ready grid",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "$132M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "ARR: $132M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Deployment maturity",
+        "value": "78%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Expansion opportunities",
+        "value": "3",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Roadmap/update system",
+        "category": "Technology platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leona Varga",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Enceladus Energy",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "evidence": "Leona Varga is listed as Executive Sponsor for Enceladus Energy account"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Enceladus Energy",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "evidence": "Owning BU: GridWave indicates GridWave owns the Enceladus Energy customer relationship"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "ArcShield H2",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "evidence": "GridWave owns the customer account that uses ArcShield H2 as primary product"
+    },
+    {
+      "source_entity": "Enceladus Energy",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "ArcShield H2",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "evidence": "Primary Products: ArcShield H2"
+    },
+    {
+      "source_entity": "Enceladus Energy",
+      "source_type": "CUSTOMER",
+      "relationship_type": "OWNS",
+      "target_entity": "Hydrogen-ready grid",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "evidence": "Current Objective: Hydrogen-ready grid"
+    },
+    {
+      "source_entity": "Hydrogen-ready grid",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_enceladus_energy.md",
+      "evidence": "Align roadmap visibility with Horizon Prime updates"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_enceladus_energy.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

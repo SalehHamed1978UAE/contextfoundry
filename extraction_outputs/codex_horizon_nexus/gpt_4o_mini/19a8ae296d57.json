@@ -2,7 +2,7 @@
   "document_id": "19a8ae296d57",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:05:32.891693",
+  "extracted_at": "2026-01-25T08:33:30.538425",
   "entities": [
     {
       "name": "Maya Serrano",
@@ -59,40 +59,62 @@
       "source_entity": "Maya Serrano",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "BU leaders",
-      "target_type": "BUSINESS_UNIT",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.7,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
-      "evidence": "Attendees - BU leaders"
+      "evidence": "Attendees - Maya Serrano"
     },
     {
       "source_entity": "Dylan Kaur",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "BU leaders",
-      "target_type": "BUSINESS_UNIT",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.7,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
-      "evidence": "Attendees - BU leaders"
+      "evidence": "Attendees - Dylan Kaur"
     },
     {
       "source_entity": "Horizon Prime",
       "source_type": "PROJECT",
       "relationship_type": "OWNS",
-      "target_entity": "PulseOps",
-      "target_type": "PROJECT",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Reinforce Horizon Prime milestones"
+    },
+    {
+      "source_entity": "PulseForge",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "PulseForge roadmap"
+    },
+    {
+      "source_entity": "PulseOps",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.6,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
-      "evidence": "Adjust supply plans with suppliers"
+      "evidence": "Owners assigned in PulseOps"
     }
   ],
   "metadata": {
     "filename": "synapse_one_customer_council_2026_01_22.md",
     "raw_entity_count": 5,
-    "raw_relationship_count": 3,
+    "raw_relationship_count": 5,
     "used_partial_parse": false,
     "truncated": false
   }

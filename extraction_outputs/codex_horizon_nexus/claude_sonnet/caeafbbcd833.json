@@ -2,7 +2,7 @@
   "document_id": "caeafbbcd833",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:09:20.378186",
+  "extracted_at": "2026-01-25T08:37:05.805235",
   "entities": [
     {
       "name": "Revenue",
@@ -65,11 +65,11 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "name": "GridWave",
-        "focus_areas": "outperformed plan"
+        "focus_areas": "performance tracking"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
-      "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins",
+      "source_excerpt": "GridWave outperformed plan",
       "aliases": []
     },
     {
@@ -79,9 +79,9 @@
         "name": "Project Aurora",
         "status": "milestone pull-ins"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
-      "source_excerpt": "GridWave outperformed plan led by Project Aurora milestone pull-ins",
+      "source_excerpt": "Project Aurora milestone pull-ins",
       "aliases": []
     },
     {
@@ -89,21 +89,21 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "name": "TransitEdge",
-        "focus_areas": "logistics"
+        "focus_areas": "logistics network"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
-      "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
+      "source_excerpt": "TransitEdge Titan Logistics Network",
       "aliases": []
     },
     {
       "name": "Titan Logistics Network",
-      "entity_type": "SERVICE",
+      "entity_type": "PROJECT",
       "properties": {
         "name": "Titan Logistics Network",
-        "description": "logistics network service"
+        "status": "double digit backlog growth"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
       "aliases": []
@@ -113,9 +113,9 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "Horizon Prime",
-        "status": "operating expenses tracked to glidepath"
+        "status": "glidepath tracking"
       },
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "Operating expenses tracked to Horizon Prime glidepath",
       "aliases": []
@@ -125,9 +125,21 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "EMEA",
-        "country": "Europe, Middle East, Africa region"
+        "region": "Europe, Middle East, and Africa"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
+      "source_excerpt": "FX exposure tied to EMEA hydrogen pilots",
+      "aliases": []
+    },
+    {
+      "name": "EMEA hydrogen pilots",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "EMEA hydrogen pilots",
+        "status": "FX exposure risk"
+      },
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "FX exposure tied to EMEA hydrogen pilots",
       "aliases": []
@@ -137,9 +149,10 @@
       "entity_type": "PRODUCT",
       "properties": {
         "name": "CoreMatrix",
-        "category": "components"
+        "category": "components",
+        "description": "components with supply-chain timing risk"
       },
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "Supply-chain timing for CoreMatrix components",
       "aliases": []
@@ -151,19 +164,19 @@
         "name": "Treasury",
         "focus_areas": "cash planning"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "Refresh cash planning with Treasury",
       "aliases": []
     },
     {
       "name": "Titan Freight",
-      "entity_type": "SERVICE",
+      "entity_type": "PROJECT",
       "properties": {
         "name": "Titan Freight",
-        "description": "freight service with conversion schedule"
+        "status": "conversion schedule monitoring"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "source_excerpt": "Monitor Titan Freight conversion schedule",
       "aliases": []
@@ -184,29 +197,29 @@
     {
       "source_entity": "TransitEdge",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
+      "relationship_type": "OWNS",
       "target_entity": "Titan Logistics Network",
-      "target_type": "SERVICE",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
       "evidence": "TransitEdge Titan Logistics Network backlog grew double digits"
     },
     {
-      "source_entity": "TransitEdge",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Titan Freight",
-      "target_type": "SERVICE",
+      "source_entity": "EMEA hydrogen pilots",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "EMEA",
+      "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.75,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2025.md",
-      "evidence": "Both Titan services appear related to TransitEdge operations"
+      "evidence": "FX exposure tied to EMEA hydrogen pilots"
     }
   ],
   "metadata": {
     "filename": "financial_results_q2_2025.md",
-    "raw_entity_count": 13,
+    "raw_entity_count": 14,
     "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false

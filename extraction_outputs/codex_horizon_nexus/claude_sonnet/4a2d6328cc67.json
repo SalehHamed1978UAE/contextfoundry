@@ -2,13 +2,13 @@
   "document_id": "4a2d6328cc67",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:03:34.154129",
+  "extracted_at": "2026-01-25T08:31:40.928648",
   "entities": [
     {
       "name": "Maya Serrano",
       "entity_type": "PERSON",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
       "source_excerpt": "Maya Serrano",
       "aliases": []
@@ -17,7 +17,7 @@
       "name": "Dylan Kaur",
       "entity_type": "PERSON",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
       "source_excerpt": "Dylan Kaur",
       "aliases": []
@@ -28,7 +28,7 @@
       "properties": {
         "role": "Business Unit leaders"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
       "source_excerpt": "BU leaders",
       "aliases": []
@@ -37,72 +37,47 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active",
-        "has_milestones": true
+        "status": "active with milestones"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
       "source_excerpt": "Reinforce Horizon Prime milestones",
-      "aliases": []
-    },
-    {
-      "name": "Q4 close",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Q4 close",
-        "period": "Q4",
-        "type": "FINANCIAL_PROCESS"
-      },
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "source_excerpt": "Q4 close",
-      "aliases": []
-    },
-    {
-      "name": "EBITDA outlook",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "EBITDA",
-        "type": "EARNINGS_METRIC"
-      },
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "source_excerpt": "EBITDA outlook",
-      "aliases": []
-    },
-    {
-      "name": "FX hedging",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "FX hedging",
-        "type": "RISK_MANAGEMENT"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "source_excerpt": "FX hedging",
       "aliases": []
     },
     {
       "name": "PulseOps",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Operations management platform"
+        "description": "Operations management system"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
       "source_excerpt": "Owners assigned in PulseOps",
       "aliases": []
     },
     {
-      "name": "Finance & Strategy Review Meeting",
-      "entity_type": "PROJECT",
+      "name": "Q4 EBITDA",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "date": "2026-01-25",
-        "type": "meeting"
+        "metric_name": "EBITDA",
+        "period": "Q4",
+        "type": "CURRENCY"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "source_excerpt": "Finance & Strategy Review Meeting Notes",
+      "source_excerpt": "Q4 close, EBITDA outlook",
+      "aliases": []
+    },
+    {
+      "name": "FX hedging",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Foreign Exchange Hedging",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "FX hedging",
       "aliases": []
     }
   ],
@@ -110,51 +85,51 @@
     {
       "source_entity": "Maya Serrano",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Finance & Strategy Review Meeting",
+      "relationship_type": "MANAGES",
+      "target_entity": "Horizon Prime",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "evidence": "Maya Serrano listed as attendee"
+      "evidence": "Maya Serrano attended meeting where Horizon Prime milestones were discussed and reinforced"
     },
     {
       "source_entity": "Dylan Kaur",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Finance & Strategy Review Meeting",
+      "relationship_type": "MANAGES",
+      "target_entity": "Horizon Prime",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "evidence": "Dylan Kaur listed as attendee"
+      "evidence": "Dylan Kaur attended meeting where Horizon Prime milestones were discussed and reinforced"
     },
     {
       "source_entity": "BU leaders",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Finance & Strategy Review Meeting",
+      "relationship_type": "MANAGES",
+      "target_entity": "Horizon Prime",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "evidence": "BU leaders listed as attendees"
+      "evidence": "BU leaders attended meeting discussing Horizon Prime milestone reinforcement"
     },
     {
-      "source_entity": "Finance & Strategy Review Meeting",
+      "source_entity": "Horizon Prime",
       "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "PulseOps",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/finance_strategy_review_2026_01_25.md",
-      "evidence": "Owners assigned in PulseOps"
+      "evidence": "Owners assigned in PulseOps suggests the project uses this system for task management"
     }
   ],
   "metadata": {
     "filename": "finance_strategy_review_2026_01_25.md",
-    "raw_entity_count": 9,
+    "raw_entity_count": 7,
     "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false

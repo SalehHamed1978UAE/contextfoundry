@@ -2,13 +2,13 @@
   "document_id": "ae3c3ca4bec0",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:26:01.212825",
+  "extracted_at": "2026-01-25T08:52:52.311031",
   "entities": [
     {
       "name": "Travel Safety Manual",
       "entity_type": "POLICY",
       "properties": {
-        "policy_id": "travel_safety_manual",
+        "policy_id": "travel_safety_manual.md",
         "category": "Travel Safety"
       },
       "confidence": 1.0,
@@ -42,7 +42,7 @@
       "name": "People Operations",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "HR, Policy Management"
+        "focus_areas": "HR operations, policy ownership"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
@@ -64,7 +64,7 @@
       "name": "Security",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Security Operations"
+        "focus_areas": "Security operations"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
@@ -93,7 +93,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
-      "evidence": "People Operations is a business unit managing company policies"
+      "evidence": "People Operations is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "HR",
@@ -104,7 +104,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
-      "evidence": "HR is referenced as an internal escalation path"
+      "evidence": "HR is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "Security",
@@ -115,7 +115,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/travel_safety_manual.md",
-      "evidence": "Security is referenced as an internal escalation path"
+      "evidence": "Security is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "Horizon Nexus Systems",

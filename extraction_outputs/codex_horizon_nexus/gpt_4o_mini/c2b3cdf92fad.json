@@ -2,7 +2,7 @@
   "document_id": "c2b3cdf92fad",
   "document_path": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:07:06.580658",
+  "extracted_at": "2026-01-25T08:34:59.795029",
   "entities": [
     {
       "name": "Leah Kade",
@@ -30,10 +30,9 @@
     },
     {
       "name": "Horizon Prime",
-      "entity_type": "PROJECT",
+      "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Streams for updates",
-        "status": "Active"
+        "description": "Streams for updates"
       },
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
@@ -52,34 +51,12 @@
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
       "evidence": "Leah Kade, Chief Security Officer"
-    },
-    {
-      "source_entity": "Leah Kade",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Citadel",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
-      "evidence": "Author: Leah Kade"
-    },
-    {
-      "source_entity": "Horizon Prime",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Citadel",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
-      "evidence": "Provide updates via Horizon Prime streams"
     }
   ],
   "metadata": {
     "filename": "chief_security_officer_memo.md",
     "raw_entity_count": 3,
-    "raw_relationship_count": 3,
+    "raw_relationship_count": 1,
     "used_partial_parse": false,
     "truncated": false
   }

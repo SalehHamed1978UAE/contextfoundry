@@ -2,7 +2,7 @@
   "document_id": "69ae7d09f2b2",
   "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:17:42.520096",
+  "extracted_at": "2026-01-25T08:44:43.849096",
   "entities": [
     {
       "name": "Eden Park",
@@ -13,7 +13,7 @@
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "**GM/VP:** Eden Park",
+      "source_excerpt": "GM/VP: Eden Park",
       "aliases": []
     },
     {
@@ -21,49 +21,49 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus_areas": [
-          "Industrial analytics",
+          "industrial analytics",
           "PulseForge maintenance AI",
-          "Insight marketplace"
+          "insight marketplace"
         ]
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "# Synapse One FY26 Roadmap",
-      "aliases": []
-    },
-    {
-      "name": "Industrial analytics",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Analytics service focused on industrial applications"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "- Industrial analytics",
+      "source_excerpt": "Synapse One FY26 Roadmap",
       "aliases": []
     },
     {
       "name": "PulseForge maintenance AI",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "AI-powered maintenance solution",
-        "category": "Artificial Intelligence"
+        "description": "maintenance AI product",
+        "category": "artificial intelligence"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "- PulseForge maintenance AI",
+      "source_excerpt": "PulseForge maintenance AI",
       "aliases": []
     },
     {
-      "name": "Insight marketplace",
+      "name": "insight marketplace",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Marketplace for insights and analytics",
-        "category": "Data Platform"
+        "description": "marketplace for insights",
+        "category": "platform"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "- Insight marketplace",
+      "source_excerpt": "insight marketplace",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
+      "source_excerpt": "Horizon Prime data lake",
       "aliases": []
     },
     {
@@ -71,28 +71,25 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Annual Recurring Revenue",
-        "value": "298",
-        "period": "FY26",
-        "type": "CURRENCY",
-        "unit": "Million USD"
+        "value": "$298M",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "- **ARR:** $298M",
+      "source_excerpt": "ARR: $298M",
       "aliases": []
     },
     {
       "name": "Net Retention",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Net Retention Rate",
-        "value": "134",
-        "period": "FY26",
+        "metric_name": "Net Retention",
+        "value": "134%",
         "type": "PERCENTAGE"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "- **Net Retention:** 134%",
+      "source_excerpt": "Net Retention: 134%",
       "aliases": []
     },
     {
@@ -101,23 +98,11 @@
       "properties": {
         "metric_name": "Modules per Customer",
         "value": "3.8",
-        "period": "FY26",
         "type": "COUNT"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "- **Modules per Customer:** 3.8",
-      "aliases": []
-    },
-    {
-      "name": "Horizon Prime",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Data lake platform"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "source_excerpt": "Modules per Customer: 3.8",
       "aliases": []
     }
   ],
@@ -136,35 +121,24 @@
     {
       "source_entity": "Synapse One",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Industrial analytics",
-      "target_type": "SERVICE",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "evidence": "Industrial analytics is listed as a focus area for Synapse One"
-    },
-    {
-      "source_entity": "Synapse One",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "FOCUSES_ON",
+      "relationship_type": "PRODUCES",
       "target_entity": "PulseForge maintenance AI",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
       "evidence": "PulseForge maintenance AI is listed as a focus area for Synapse One"
     },
     {
       "source_entity": "Synapse One",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Insight marketplace",
+      "relationship_type": "PRODUCES",
+      "target_entity": "insight marketplace",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "evidence": "Insight marketplace is listed as a focus area for Synapse One"
+      "evidence": "insight marketplace is listed as a focus area for Synapse One"
     },
     {
       "source_entity": "Synapse One",
@@ -173,15 +147,15 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_roadmap.md",
-      "evidence": "Key workstream mentions deepening integration with Horizon Prime data lake"
+      "evidence": "Deepen integration with Horizon Prime data lake is a key workstream"
     }
   ],
   "metadata": {
     "filename": "synapse_one_roadmap.md",
-    "raw_entity_count": 9,
-    "raw_relationship_count": 5,
+    "raw_entity_count": 8,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

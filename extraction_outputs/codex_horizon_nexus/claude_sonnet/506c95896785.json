@@ -2,14 +2,14 @@
   "document_id": "506c95896785",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/data_classification_standard.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:26:35.954046",
+  "extracted_at": "2026-01-25T08:53:27.139209",
   "entities": [
     {
       "name": "Data Classification Standard",
       "entity_type": "POLICY",
       "properties": {
         "policy_id": "data_classification_standard",
-        "category": "Data Governance"
+        "category": "Information Security"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/data_classification_standard.md",
@@ -31,7 +31,7 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Records management system"
+        "description": "Record maintenance system"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/data_classification_standard.md",
@@ -43,8 +43,8 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus_areas": [
-          "HR",
-          "Policy Management"
+          "Policy ownership",
+          "HR functions"
         ]
       },
       "confidence": 1.0,
@@ -58,7 +58,7 @@
       "properties": {
         "focus_areas": [
           "Human Resources",
-          "Exception Handling"
+          "Exception escalation"
         ]
       },
       "confidence": 0.9,
@@ -72,7 +72,7 @@
       "properties": {
         "focus_areas": [
           "Information Security",
-          "Exception Handling"
+          "Exception escalation"
         ]
       },
       "confidence": 0.9,
@@ -102,7 +102,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/data_classification_standard.md",
-      "evidence": "People Operations is mentioned as owner within organizational context"
+      "evidence": "People Operations is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "HR",
@@ -113,7 +113,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/data_classification_standard.md",
-      "evidence": "HR is referenced as part of exception escalation process"
+      "evidence": "HR is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "Security",
@@ -124,7 +124,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/data_classification_standard.md",
-      "evidence": "Security is referenced as part of exception escalation process"
+      "evidence": "Security is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "Horizon Nexus Systems",

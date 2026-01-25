@@ -1,0 +1,138 @@
+{
+  "document_id": "1701f398095b",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:56:06.322359",
+  "entities": [
+    {
+      "name": "Eden Park",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Owner: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk Register"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Bias",
+      "entity_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Risk Types: Bias, drift, governance",
+      "aliases": []
+    },
+    {
+      "name": "Drift",
+      "entity_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Risk Types: Bias, drift, governance",
+      "aliases": []
+    },
+    {
+      "name": "Governance",
+      "entity_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Risk Types: Bias, drift, governance",
+      "aliases": []
+    },
+    {
+      "name": "Medium",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Likelihood",
+        "value": "Medium",
+        "period": "Current Rating",
+        "type": "COUNT"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Likelihood: Medium",
+      "aliases": []
+    },
+    {
+      "name": "High",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Impact",
+        "value": "High",
+        "period": "Current Rating",
+        "type": "COUNT"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "source_excerpt": "Impact: High",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Bias",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "evidence": "Owner: Eden Park"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Drift",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "evidence": "Owner: Eden Park"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Governance",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "evidence": "Owner: Eden Park"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_model_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_model_risk.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

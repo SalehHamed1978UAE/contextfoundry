@@ -2,7 +2,7 @@
   "document_id": "cd1c317da795",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:22:44.729985",
+  "extracted_at": "2026-01-25T08:49:27.436285",
   "entities": [
     {
       "name": "Project Aurora",
@@ -10,9 +10,10 @@
       "properties": {
         "budget": "$480M",
         "timeline": "2024-2027",
+        "status": "active",
         "objective": "Western grid modernization"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "source_excerpt": "Project Aurora Delivery Brief with Budget: $480M, Timeline: 2024-2027",
       "aliases": []
@@ -23,7 +24,7 @@
       "properties": {
         "focus_areas": "grid modernization"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "source_excerpt": "Business Unit: GridWave",
       "aliases": []
@@ -34,7 +35,7 @@
       "properties": {
         "role": "Project Sponsor"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "source_excerpt": "Sponsor: Priya Thakur",
       "aliases": []
@@ -43,9 +44,9 @@
       "name": "Great Plains Utility",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Utility"
+        "industry": "utility"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "source_excerpt": "Primary Customer: Great Plains Utility",
       "aliases": []
@@ -54,9 +55,9 @@
       "name": "ArcShield",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Technical stack component"
+        "description": "part of technical stack"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "source_excerpt": "Technical Stack: ArcShield, GridWave Control Suite",
       "aliases": []
@@ -65,9 +66,9 @@
       "name": "GridWave Control Suite",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Technical stack component"
+        "description": "control suite technology"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "source_excerpt": "Technical Stack: ArcShield, GridWave Control Suite",
       "aliases": []
@@ -78,9 +79,9 @@
       "properties": {
         "description": "data lake"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "source_excerpt": "Dependencies - Horizon Prime data lake readiness",
+      "source_excerpt": "Horizon Prime data lake readiness",
       "aliases": []
     },
     {
@@ -89,20 +90,20 @@
       "properties": {
         "capability": "supply"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "source_excerpt": "Dependencies - CoreMatrix supply",
+      "source_excerpt": "CoreMatrix supply",
       "aliases": []
     },
     {
       "name": "SkyPath",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "integration platform"
+        "description": "integration technology"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "source_excerpt": "Dependencies - SkyPath integrations",
+      "source_excerpt": "SkyPath integrations",
       "aliases": []
     },
     {
@@ -111,10 +112,10 @@
       "properties": {
         "metric_name": "Project Budget",
         "value": "480000000",
-        "type": "CURRENCY",
-        "period": "2024-2027"
+        "period": "2024-2027",
+        "type": "CURRENCY"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "source_excerpt": "Budget: $480M",
       "aliases": []
@@ -128,20 +129,20 @@
       "target_entity": "Project Aurora",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
       "evidence": "Business Unit: GridWave owns Project Aurora"
     },
     {
       "source_entity": "Priya Thakur",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
+      "relationship_type": "MANAGES",
       "target_entity": "Project Aurora",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "evidence": "Sponsor: Priya Thakur sponsors and leads Project Aurora"
+      "evidence": "Sponsor: Priya Thakur sponsors Project Aurora"
     },
     {
       "source_entity": "Great Plains Utility",
@@ -152,7 +153,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "evidence": "Primary Customer: Great Plains Utility is the primary customer for the project"
+      "evidence": "Primary Customer: Great Plains Utility for GridWave's Project Aurora"
     },
     {
       "source_entity": "Project Aurora",
@@ -161,9 +162,9 @@
       "target_entity": "ArcShield",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "evidence": "Technical Stack includes ArcShield"
+      "evidence": "Technical Stack: ArcShield"
     },
     {
       "source_entity": "Project Aurora",
@@ -172,9 +173,9 @@
       "target_entity": "GridWave Control Suite",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "evidence": "Technical Stack includes GridWave Control Suite"
+      "evidence": "Technical Stack: GridWave Control Suite"
     },
     {
       "source_entity": "Project Aurora",
@@ -183,20 +184,20 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "evidence": "Project depends on Horizon Prime data lake readiness"
+      "evidence": "Dependencies: Horizon Prime data lake readiness"
     },
     {
       "source_entity": "CoreMatrix",
       "source_type": "SUPPLIER",
       "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Project Aurora",
-      "target_type": "PROJECT",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "evidence": "Project depends on CoreMatrix supply"
+      "evidence": "Dependencies: CoreMatrix supply"
     },
     {
       "source_entity": "Project Aurora",
@@ -205,15 +206,26 @@
       "target_entity": "SkyPath",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
-      "evidence": "Project depends on SkyPath integrations"
+      "evidence": "Dependencies: SkyPath integrations"
+    },
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_aurora_brief.md",
+      "evidence": "GridWave business unit owns Project Aurora with $480M budget"
     }
   ],
   "metadata": {
     "filename": "project_aurora_brief.md",
     "raw_entity_count": 10,
-    "raw_relationship_count": 8,
+    "raw_relationship_count": 9,
     "used_partial_parse": false,
     "truncated": false
   }

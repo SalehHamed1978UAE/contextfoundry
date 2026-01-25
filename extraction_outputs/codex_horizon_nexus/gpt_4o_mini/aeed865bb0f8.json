@@ -2,7 +2,7 @@
   "document_id": "aeed865bb0f8",
   "document_path": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:28:14.145352",
+  "extracted_at": "2026-01-25T08:54:58.982562",
   "entities": [
     {
       "name": "Leah Kade",
@@ -29,10 +29,8 @@
     },
     {
       "name": "Threat landscape",
-      "entity_type": "POLICY",
-      "properties": {
-        "category": "Risk Type"
-      },
+      "entity_type": "CONCEPT",
+      "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
       "source_excerpt": "Risk Types: Threat landscape",
@@ -40,10 +38,8 @@
     },
     {
       "name": "Readiness",
-      "entity_type": "POLICY",
-      "properties": {
-        "category": "Risk Type"
-      },
+      "entity_type": "CONCEPT",
+      "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
       "source_excerpt": "Risk Types: readiness",
@@ -55,7 +51,7 @@
       "properties": {
         "metric_name": "Likelihood",
         "value": "Medium",
-        "period": "Current",
+        "period": "Current Rating",
         "type": "COUNT"
       },
       "confidence": 0.9,
@@ -69,7 +65,7 @@
       "properties": {
         "metric_name": "Impact",
         "value": "High",
-        "period": "Current",
+        "period": "Current Rating",
         "type": "COUNT"
       },
       "confidence": 0.9,

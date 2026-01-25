@@ -2,16 +2,15 @@
   "document_id": "9bec9170b3a7",
   "document_path": "test documents/Codex Horizon_Nexus/docs/org/synapse_one_organization.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:18:15.841815",
+  "extracted_at": "2026-01-25T08:45:16.064037",
   "entities": [
     {
       "name": "Synapse One",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "AI research organization",
-        "industry": "artificial intelligence"
+        "type": "AI research organization"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/synapse_one_organization.md",
       "source_excerpt": "Synapse One Organization",
       "aliases": []
@@ -20,9 +19,9 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "organizational data management system"
+        "description": "System for maintaining organizational data"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/synapse_one_organization.md",
       "source_excerpt": "Org data maintained in Horizon Prime",
       "aliases": []
@@ -32,11 +31,22 @@
     {
       "source_entity": "Synapse One",
       "source_type": "ORGANIZATION",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "AI research",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/org/synapse_one_organization.md",
+      "evidence": "AI research, product, customer value"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "ORGANIZATION",
       "relationship_type": "USES",
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/org/synapse_one_organization.md",
       "evidence": "Org data maintained in Horizon Prime"
     }
@@ -44,7 +54,7 @@
   "metadata": {
     "filename": "synapse_one_organization.md",
     "raw_entity_count": 2,
-    "raw_relationship_count": 1,
+    "raw_relationship_count": 2,
     "used_partial_parse": false,
     "truncated": false
   }

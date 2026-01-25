@@ -1,0 +1,149 @@
+{
+  "document_id": "a26951797c0d",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:47:10.673000",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "BU leaders",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Business Unit Leaders"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "BU leaders",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active with milestones"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Operations management platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    },
+    {
+      "name": "Q4 close",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Q4 close",
+        "period": "Q4",
+        "type": "FINANCIAL_PROCESS"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Q4 close, EBITDA outlook, FX hedging",
+      "aliases": []
+    },
+    {
+      "name": "EBITDA outlook",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "EBITDA outlook",
+        "type": "PROJECTION"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Q4 close, EBITDA outlook, FX hedging",
+      "aliases": []
+    },
+    {
+      "name": "FX hedging",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "FX hedging",
+        "type": "RISK_MANAGEMENT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "source_excerpt": "Q4 close, EBITDA outlook, FX hedging",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "evidence": "Maya Serrano involved in reinforcing Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "evidence": "Dylan Kaur involved in reinforcing Horizon Prime milestones"
+    },
+    {
+      "source_entity": "BU leaders",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "evidence": "BU leaders involved in reinforcing Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/finance_strategy_review_2026_01_25.md",
+      "evidence": "Owners assigned in PulseOps for project management"
+    }
+  ],
+  "metadata": {
+    "filename": "finance_strategy_review_2026_01_25.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -2,7 +2,7 @@
   "document_id": "0f051f3ff1b7",
   "document_path": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:06:38.465073",
+  "extracted_at": "2026-01-25T08:34:36.958149",
   "entities": [
     {
       "name": "Victor Liao",
@@ -20,12 +20,33 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active",
         "description": "Project involving tooling shutdowns and data lake timing"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
       "source_excerpt": "COO Memo - Horizon Prime Update",
+      "aliases": []
+    },
+    {
+      "name": "data lake",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Data storage and processing platform"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "source_excerpt": "Covers tooling shutdowns, data lake timing",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime streams",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Communication or data streaming platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "source_excerpt": "Provide updates via Horizon Prime streams",
       "aliases": []
     }
   ],
@@ -33,19 +54,41 @@
     {
       "source_entity": "Victor Liao",
       "source_type": "PERSON",
-      "relationship_type": "OWNS",
+      "relationship_type": "LEADS",
       "target_entity": "Horizon Prime",
       "target_type": "PROJECT",
       "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "evidence": "Victor Liao authored the COO memo providing updates on Horizon Prime project"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "data lake",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
-      "evidence": "Victor Liao authored the COO memo providing updates on Horizon Prime"
+      "evidence": "Covers tooling shutdowns, data lake timing"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime streams",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/coo_memo_horizon_prime_update.md",
+      "evidence": "Provide updates via Horizon Prime streams"
     }
   ],
   "metadata": {
     "filename": "coo_memo_horizon_prime_update.md",
-    "raw_entity_count": 2,
-    "raw_relationship_count": 1,
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

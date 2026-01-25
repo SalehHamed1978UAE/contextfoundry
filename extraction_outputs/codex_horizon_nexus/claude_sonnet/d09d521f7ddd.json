@@ -2,7 +2,7 @@
   "document_id": "d09d521f7ddd",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:03:13.625615",
+  "extracted_at": "2026-01-25T08:31:22.639966",
   "entities": [
     {
       "name": "Aether Shield Risk Forum",
@@ -10,7 +10,7 @@
       "properties": {
         "focus_areas": [
           "risk management",
-          "shield operations"
+          "forums"
         ]
       },
       "confidence": 0.9,
@@ -22,7 +22,7 @@
       "name": "Maya Serrano",
       "entity_type": "PERSON",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
       "source_excerpt": "Maya Serrano",
       "aliases": []
@@ -31,7 +31,7 @@
       "name": "Dylan Kaur",
       "entity_type": "PERSON",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
       "source_excerpt": "Dylan Kaur",
       "aliases": []
@@ -40,7 +40,7 @@
       "name": "Citadel wave",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active"
+        "status": "in progress"
       },
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
@@ -53,7 +53,7 @@
       "properties": {
         "description": "service with SLA requirements"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
       "source_excerpt": "SentinelShield SLAs",
       "aliases": []
@@ -62,7 +62,8 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "milestone reinforcement needed"
+        "status": "active",
+        "timeline": "has milestones"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
@@ -73,9 +74,9 @@
       "name": "PulseOps",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "operations management platform"
+        "description": "operational management platform"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
       "source_excerpt": "Owners assigned in PulseOps",
       "aliases": []
@@ -113,7 +114,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
-      "evidence": "Citadel wave was a topic in the Aether Shield Risk Forum meeting"
+      "evidence": "Citadel wave was a topic discussed in the Aether Shield Risk Forum meeting"
     },
     {
       "source_entity": "Aether Shield Risk Forum",
@@ -124,7 +125,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
-      "evidence": "SentinelShield SLAs was a topic in the Aether Shield Risk Forum meeting"
+      "evidence": "SentinelShield SLAs was a topic discussed in the meeting"
     },
     {
       "source_entity": "Aether Shield Risk Forum",
@@ -133,9 +134,9 @@
       "target_entity": "Horizon Prime",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
-      "evidence": "Forum made decisions to reinforce Horizon Prime milestones"
+      "evidence": "Decision made to reinforce Horizon Prime milestones suggests ownership/responsibility"
     },
     {
       "source_entity": "Aether Shield Risk Forum",
@@ -144,9 +145,9 @@
       "target_entity": "PulseOps",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/aether_shield_risk_forum_2026_01_24.md",
-      "evidence": "Owners assigned in PulseOps for action items"
+      "evidence": "Owners assigned in PulseOps indicates the forum uses this platform for task management"
     }
   ],
   "metadata": {

@@ -2,28 +2,29 @@
   "document_id": "9f1ddf23e8ab",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:23:43.861001",
+  "extracted_at": "2026-01-25T08:50:26.980211",
   "entities": [
     {
-      "name": "Helix Federal Overlay",
+      "name": "Helix Federal Overlay Delivery",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$118M",
         "timeline": "2025-2026",
-        "status": "active"
+        "status": "active",
+        "objective": "FedRAMP AI analytics"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "source_excerpt": "Helix Federal Overlay Delivery Brief",
+      "source_excerpt": "Helix Federal Overlay Delivery Brief - Budget: $118M - Timeline: 2025-2026",
       "aliases": []
     },
     {
       "name": "Synapse One",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "federal projects"
+        "focus_areas": "federal overlay delivery"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "Business Unit: Synapse One",
       "aliases": []
@@ -32,9 +33,9 @@
       "name": "Nia Carver",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Sponsor"
+        "role": "Project Sponsor"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "Sponsor: Nia Carver",
       "aliases": []
@@ -43,10 +44,10 @@
       "name": "$118M",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "project budget",
+        "metric_name": "Project Budget",
         "value": "118000000",
-        "type": "CURRENCY",
-        "period": "2025-2026"
+        "period": "2025-2026",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
@@ -57,10 +58,10 @@
       "name": "Defense clients",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "defense",
-        "region": "federal"
+        "industry": "Defense",
+        "region": "Federal"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "Primary Customer: Defense clients",
       "aliases": []
@@ -69,31 +70,20 @@
       "name": "Helix Secure",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "technical stack platform"
+        "description": "Technical stack for federal overlay"
       },
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "Technical Stack: Helix Secure",
-      "aliases": []
-    },
-    {
-      "name": "FedRAMP AI analytics",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "federal AI analytics service"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "source_excerpt": "Objective: FedRAMP AI analytics",
       "aliases": []
     },
     {
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "data lake platform"
+        "description": "Data lake platform"
       },
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "Horizon Prime data lake readiness",
       "aliases": []
@@ -102,9 +92,10 @@
       "name": "CoreMatrix",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "supply services"
+        "capability": "Supply services",
+        "risk_level": "dependency risk"
       },
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "CoreMatrix supply",
       "aliases": []
@@ -113,9 +104,9 @@
       "name": "SkyPath",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "integration platform"
+        "description": "Integration platform"
       },
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "SkyPath integrations",
       "aliases": []
@@ -126,65 +117,54 @@
       "source_entity": "Synapse One",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "Helix Federal Overlay",
+      "target_entity": "Helix Federal Overlay Delivery",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "evidence": "Business Unit: Synapse One owns the Helix Federal Overlay project"
+      "evidence": "Business Unit: Synapse One owns the Helix Federal Overlay Delivery project"
     },
     {
       "source_entity": "Nia Carver",
       "source_type": "PERSON",
       "relationship_type": "LEADS",
-      "target_entity": "Helix Federal Overlay",
+      "target_entity": "Helix Federal Overlay Delivery",
       "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "evidence": "Sponsor: Nia Carver leads the project as sponsor"
+    },
+    {
+      "source_entity": "Defense clients",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Synapse One",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "evidence": "Nia Carver is listed as the sponsor of the project"
+      "evidence": "Primary Customer: Defense clients are the target customer for the project"
     },
     {
-      "source_entity": "Helix Federal Overlay",
-      "source_type": "PROJECT",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Defense clients",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "evidence": "Primary Customer: Defense clients indicates the project serves defense clients"
-    },
-    {
-      "source_entity": "Helix Federal Overlay",
+      "source_entity": "Helix Federal Overlay Delivery",
       "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "Helix Secure",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "evidence": "Technical Stack: Helix Secure indicates the project uses this technology"
+      "evidence": "Technical Stack: Helix Secure is the primary technology stack"
     },
     {
-      "source_entity": "Helix Federal Overlay",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "FedRAMP AI analytics",
-      "target_type": "SERVICE",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "evidence": "Objective: FedRAMP AI analytics indicates the project produces this service"
-    },
-    {
-      "source_entity": "Helix Federal Overlay",
+      "source_entity": "Helix Federal Overlay Delivery",
       "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "evidence": "Dependencies include Horizon Prime data lake readiness"
     },
@@ -192,29 +172,29 @@
       "source_entity": "CoreMatrix",
       "source_type": "SUPPLIER",
       "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Helix Federal Overlay",
+      "target_entity": "Helix Federal Overlay Delivery",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "evidence": "Dependencies list CoreMatrix supply as required for the project"
+      "evidence": "CoreMatrix supply is listed as a dependency"
     },
     {
-      "source_entity": "Helix Federal Overlay",
+      "source_entity": "Helix Federal Overlay Delivery",
       "source_type": "PROJECT",
       "relationship_type": "USES",
       "target_entity": "SkyPath",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
-      "evidence": "Dependencies include SkyPath integrations"
+      "evidence": "SkyPath integrations are listed as dependencies"
     }
   ],
   "metadata": {
     "filename": "helix_federal_overlay_brief.md",
-    "raw_entity_count": 10,
-    "raw_relationship_count": 8,
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
     "used_partial_parse": false,
     "truncated": false
   }

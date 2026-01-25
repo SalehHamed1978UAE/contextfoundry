@@ -2,7 +2,7 @@
   "document_id": "1b2dfd3dd3fd",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:12:14.808827",
+  "extracted_at": "2026-01-25T08:39:28.434896",
   "entities": [
     {
       "name": "GridWave",
@@ -77,6 +77,17 @@
       "confidence": 0.6,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
       "source_excerpt": "FX exposure tied to EMEA hydrogen pilots.",
+      "aliases": []
+    },
+    {
+      "name": "Treasury",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "cash planning"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "source_excerpt": "Refresh cash planning with Treasury.",
       "aliases": []
     },
     {
@@ -158,12 +169,34 @@
       "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
       "evidence": "Supply-chain timing for CoreMatrix components."
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "evidence": "Operating expenses tracked to Horizon Prime glidepath."
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "TransitEdge Titan Logistics Network",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q1_2026.md",
+      "evidence": "Supply-chain timing for CoreMatrix components."
     }
   ],
   "metadata": {
     "filename": "financial_results_q1_2026.md",
-    "raw_entity_count": 10,
-    "raw_relationship_count": 2,
+    "raw_entity_count": 11,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,15 +2,17 @@
   "document_id": "5bbef57c690e",
   "document_path": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:28:57.584504",
+  "extracted_at": "2026-01-25T08:55:36.993623",
   "entities": [
     {
       "name": "Titan Logistics Program Risk",
       "entity_type": "PROJECT",
       "properties": {
-        "description": "Risk management program covering customs, integrations, hardware",
         "status": "Active",
-        "review_cadence": "Monthly"
+        "risk_types": "Customs, integrations, hardware",
+        "likelihood": "Medium",
+        "impact": "High",
+        "cadence": "Monthly"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
@@ -44,7 +46,7 @@
     {
       "source_entity": "Marcus Nguyen",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "OWNS",
       "target_entity": "Titan Logistics Program Risk",
       "target_type": "PROJECT",
       "properties": {},

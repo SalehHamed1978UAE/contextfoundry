@@ -2,18 +2,18 @@
   "document_id": "d5c77b2bff68",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:27:12.946033",
+  "extracted_at": "2026-01-25T08:54:00.641391",
   "entities": [
     {
       "name": "Vendor Risk Policy",
       "entity_type": "POLICY",
       "properties": {
-        "policy_id": "vendor_risk_policy",
-        "category": "Risk Management"
+        "category": "Due diligence",
+        "description": "Due diligence for third parties"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
-      "source_excerpt": "# Vendor Risk Policy",
+      "source_excerpt": "# Vendor Risk Policy\n\n_Due diligence for third parties._",
       "aliases": []
     },
     {
@@ -31,7 +31,7 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Record management system"
+        "description": "System for maintaining auditable records"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
@@ -39,21 +39,11 @@
       "aliases": []
     },
     {
-      "name": "People Operations",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "HR, Policy Management"
-      },
-      "confidence": 1.0,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
-      "source_excerpt": "Owner: People Operations",
-      "aliases": []
-    },
-    {
       "name": "HR",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Human Resources"
+        "name": "Human Resources",
+        "focus_areas": "Exception escalation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
@@ -64,15 +54,59 @@
       "name": "Security",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Security Operations"
+        "focus_areas": "Exception escalation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
       "source_excerpt": "Escalate exceptions through HR or Security",
       "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Policy ownership"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
     }
   ],
   "relationships": [
+    {
+      "source_entity": "HR",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "evidence": "HR is referenced as a business unit within the company"
+    },
+    {
+      "source_entity": "Security",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "evidence": "Security is referenced as a business unit within the company"
+    },
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
+      "evidence": "People Operations is referenced as a business unit within the company"
+    },
     {
       "source_entity": "People Operations",
       "source_type": "BUSINESS_UNIT",
@@ -83,39 +117,6 @@
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
       "evidence": "Owner: People Operations"
-    },
-    {
-      "source_entity": "People Operations",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Horizon Nexus Systems",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
-      "evidence": "People Operations is implied to be part of Horizon Nexus Systems organization"
-    },
-    {
-      "source_entity": "HR",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Horizon Nexus Systems",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
-      "evidence": "HR is implied to be part of Horizon Nexus Systems organization"
-    },
-    {
-      "source_entity": "Security",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Horizon Nexus Systems",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/vendor_risk_policy.md",
-      "evidence": "Security is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "Horizon Nexus Systems",

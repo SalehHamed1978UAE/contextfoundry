@@ -1,0 +1,142 @@
+{
+  "document_id": "4def552dc2ef",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:34:05.524427",
+  "entities": [
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Edge data ingestion"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Business Unit: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "PulseForge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Edge data ingestion",
+        "category": "Module"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Product/Module: PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Eliza Morrell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Design Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Design Owner: Dr. Eliza Morrell",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime Confluence",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Documentation interface"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence.",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Firmware version dependency"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Dashboard for performance KPIs"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard.",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Logistics",
+        "region": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements.",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply readiness",
+        "risk level": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech.",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "description": "Security validation"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "source_excerpt": "Validate encryption module with Security.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Eliza Morrell",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Synapse One",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "evidence": "Design Owner: Dr. Eliza Morrell"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "PulseForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/pulseforge_edge_agent.md",
+      "evidence": "Business Unit: Synapse One"
+    }
+  ],
+  "metadata": {
+    "filename": "pulseforge_edge_agent.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

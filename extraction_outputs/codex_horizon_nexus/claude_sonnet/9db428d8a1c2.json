@@ -2,7 +2,7 @@
   "document_id": "9db428d8a1c2",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:24:39.445286",
+  "extracted_at": "2026-01-25T08:51:26.508573",
   "entities": [
     {
       "name": "Synapse Marketplace 2.0",
@@ -10,10 +10,9 @@
       "properties": {
         "budget": "$76M",
         "timeline": "2025-2026",
-        "status": "In Planning",
-        "objective": "Partner analytics apps"
+        "status": "in_development"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "Synapse Marketplace 2.0 Delivery Brief",
       "aliases": []
@@ -22,9 +21,9 @@
       "name": "Synapse One",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Marketplace development"
+        "focus_areas": "marketplace delivery"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "Business Unit: Synapse One",
       "aliases": []
@@ -33,20 +32,33 @@
       "name": "Eden Park",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Sponsor"
+        "role": "Project Sponsor"
       },
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "Sponsor: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "$76M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "project_budget",
+        "value": "76000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Budget: $76M",
       "aliases": []
     },
     {
       "name": "Marketplace partners",
       "entity_type": "CUSTOMER",
       "properties": {
-        "type": "Primary Customer"
+        "type": "primary_customer"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "Primary Customer: Marketplace partners",
       "aliases": []
@@ -55,9 +67,9 @@
       "name": "APIs",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Application Programming Interfaces"
+        "description": "Application Programming Interface"
       },
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "Technical Stack: APIs, Insight SDK",
       "aliases": []
@@ -66,20 +78,32 @@
       "name": "Insight SDK",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Software Development Kit for insights"
+        "description": "Software Development Kit"
       },
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "Technical Stack: APIs, Insight SDK",
       "aliases": []
     },
     {
-      "name": "Horizon Prime",
+      "name": "Partner analytics apps",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Analytics applications for partners",
+        "category": "software"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "source_excerpt": "Objective: Partner analytics apps",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime data lake",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data lake platform"
+        "description": "Data storage and processing platform"
       },
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "Horizon Prime data lake readiness",
       "aliases": []
@@ -88,9 +112,9 @@
       "name": "CoreMatrix",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Supply services"
+        "capability": "supply provision"
       },
-      "confidence": 0.75,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "CoreMatrix supply",
       "aliases": []
@@ -101,23 +125,9 @@
       "properties": {
         "description": "Integration platform"
       },
-      "confidence": 0.75,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "source_excerpt": "SkyPath integrations",
-      "aliases": []
-    },
-    {
-      "name": "$76M",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Project Budget",
-        "value": "76000000",
-        "type": "CURRENCY",
-        "period": "2025-2026"
-      },
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
-      "source_excerpt": "Budget: $76M",
       "aliases": []
     }
   ],
@@ -129,31 +139,31 @@
       "target_entity": "Synapse Marketplace 2.0",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
-      "evidence": "Business Unit: Synapse One owns the project"
+      "evidence": "Business Unit: Synapse One owns the Synapse Marketplace 2.0 project"
     },
     {
       "source_entity": "Eden Park",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "LEADS",
       "target_entity": "Synapse Marketplace 2.0",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
-      "evidence": "Eden Park is listed as the sponsor of the project"
+      "evidence": "Eden Park is the sponsor of Synapse Marketplace 2.0"
     },
     {
-      "source_entity": "Marketplace partners",
-      "source_type": "CUSTOMER",
+      "source_entity": "Synapse Marketplace 2.0",
+      "source_type": "PROJECT",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Synapse One",
-      "target_type": "BUSINESS_UNIT",
+      "target_entity": "Marketplace partners",
+      "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
-      "evidence": "Marketplace partners are the primary customer"
+      "evidence": "Primary Customer: Marketplace partners"
     },
     {
       "source_entity": "Synapse Marketplace 2.0",
@@ -162,7 +172,7 @@
       "target_entity": "APIs",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "evidence": "Technical Stack includes APIs"
     },
@@ -173,20 +183,31 @@
       "target_entity": "Insight SDK",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
       "evidence": "Technical Stack includes Insight SDK"
     },
     {
       "source_entity": "Synapse Marketplace 2.0",
       "source_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Partner analytics apps",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
+      "evidence": "Project objective is Partner analytics apps"
+    },
+    {
+      "source_entity": "Synapse Marketplace 2.0",
+      "source_type": "PROJECT",
       "relationship_type": "USES",
-      "target_entity": "Horizon Prime",
+      "target_entity": "Horizon Prime data lake",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.75,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
-      "evidence": "Project depends on Horizon Prime data lake readiness"
+      "evidence": "Dependencies include Horizon Prime data lake readiness"
     },
     {
       "source_entity": "CoreMatrix",
@@ -195,9 +216,9 @@
       "target_entity": "Synapse Marketplace 2.0",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.7,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
-      "evidence": "Project has dependency on CoreMatrix supply"
+      "evidence": "CoreMatrix supply is listed as a dependency"
     },
     {
       "source_entity": "Synapse Marketplace 2.0",
@@ -206,15 +227,15 @@
       "target_entity": "SkyPath",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.75,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/synapse_marketplace_2_0_brief.md",
-      "evidence": "Project depends on SkyPath integrations"
+      "evidence": "Dependencies include SkyPath integrations"
     }
   ],
   "metadata": {
     "filename": "synapse_marketplace_2_0_brief.md",
-    "raw_entity_count": 10,
-    "raw_relationship_count": 8,
+    "raw_entity_count": 11,
+    "raw_relationship_count": 9,
     "used_partial_parse": false,
     "truncated": false
   }

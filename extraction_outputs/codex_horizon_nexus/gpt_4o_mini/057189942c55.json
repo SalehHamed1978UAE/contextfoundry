@@ -1,0 +1,188 @@
+{
+  "document_id": "057189942c55",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:32:14.124571",
+  "entities": [
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Owner of the design"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Design Owner: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Corporate functions"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Business Unit: Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Unified data model",
+        "category": "Data Management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Product/Module: Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Technology",
+        "industry": "Firmware"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Technology",
+        "industry": "Dashboard"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Logistics",
+        "region": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply readiness",
+        "risk level": "Not specified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Security measures"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "source_excerpt": "Validate encryption module with Security",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Design Owner: Victor Liao"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Business Unit: Corporate"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "CoreMatrix",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Dependencies on CoreMatrix firmware versions"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Performance KPIs stored in PulseOps dashboard"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Align telemetry schema with Titan Logistics requirements"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "VectorTech",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Confirm supply readiness with VectorTech"
+    },
+    {
+      "source_entity": "Corporate",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "Security",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/horizon_prime_data_lake_schema.md",
+      "evidence": "Validate encryption module with Security"
+    }
+  ],
+  "metadata": {
+    "filename": "horizon_prime_data_lake_schema.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

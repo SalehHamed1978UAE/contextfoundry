@@ -2,7 +2,7 @@
   "document_id": "a049a64a62d4",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:25:13.686704",
+  "extracted_at": "2026-01-25T08:52:01.047910",
   "entities": [
     {
       "name": "Horizon Nexus Systems",
@@ -55,24 +55,24 @@
     {
       "source_entity": "Horizon Nexus Systems",
       "source_type": "ORGANIZATION",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "People Operations",
-      "target_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "PTO Accrual Policy",
+      "target_type": "POLICY",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
-      "evidence": "Owner: People Operations"
+      "evidence": "Applies to all Horizon Nexus Systems employees."
     },
     {
-      "source_entity": "PTO Accrual Policy",
-      "source_type": "POLICY",
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Horizon Nexus Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
-      "evidence": "Applies to all Horizon Nexus Systems employees."
+      "evidence": "Owner: People Operations"
     }
   ],
   "metadata": {

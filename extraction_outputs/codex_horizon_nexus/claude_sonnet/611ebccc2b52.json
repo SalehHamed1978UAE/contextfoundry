@@ -2,7 +2,7 @@
   "document_id": "611ebccc2b52",
   "document_path": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:13:07.537093",
+  "extracted_at": "2026-01-25T08:40:23.242359",
   "entities": [
     {
       "name": "Atlas Materials",
@@ -25,20 +25,9 @@
       "properties": {
         "role": "Executive Sponsor"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
       "source_excerpt": "Executive Sponsor: Victor Liao",
-      "aliases": []
-    },
-    {
-      "name": "Procurement",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Escalation management"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
-      "source_excerpt": "Escalation path defined through Procurement",
       "aliases": []
     },
     {
@@ -53,25 +42,36 @@
       "aliases": []
     },
     {
+      "name": "Procurement",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Supply chain management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
+      "source_excerpt": "Escalation path defined through Procurement",
+      "aliases": []
+    },
+    {
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
         "description": "Documentation system for continuity plans"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
       "source_excerpt": "Document continuity plans in Horizon Prime",
       "aliases": []
     },
     {
-      "name": "On-time delivery rate",
+      "name": "Service Level",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
+        "metric_name": "Service Level",
         "value": "95.2%",
-        "type": "PERCENTAGE",
-        "metric_name": "Service Level"
+        "type": "PERCENTAGE"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
       "source_excerpt": "Service Level: 95.2%",
       "aliases": []
@@ -80,11 +80,11 @@
       "name": "Average Lead Time",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
+        "metric_name": "Average Lead Time",
         "value": "61 days",
-        "type": "COUNT",
-        "metric_name": "Average Lead Time"
+        "type": "COUNT"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
       "source_excerpt": "Average Lead Time: 61 days",
       "aliases": []
@@ -103,17 +103,6 @@
       "evidence": "Victor Liao is listed as Executive Sponsor for Atlas Materials"
     },
     {
-      "source_entity": "Procurement",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "MANAGES",
-      "target_entity": "Atlas Materials",
-      "target_type": "SUPPLIER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
-      "evidence": "Escalation path defined through Procurement"
-    },
-    {
       "source_entity": "Atlas Materials",
       "source_type": "SUPPLIER",
       "relationship_type": "PARTNER_OF",
@@ -122,7 +111,18 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
-      "evidence": "Need to align sourcing forecasts with Titan Logistics schedule"
+      "evidence": "Need to align sourcing forecasts with Titan Logistics schedule indicates partnership"
+    },
+    {
+      "source_entity": "Procurement",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "MANAGES",
+      "target_entity": "Atlas Materials",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_atlas_materials.md",
+      "evidence": "Escalation path defined through Procurement"
     },
     {
       "source_entity": "Atlas Materials",

@@ -1,0 +1,98 @@
+{
+  "document_id": "b0494123d326",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:52:10.523069",
+  "entities": [
+    {
+      "name": "Atlas Materials",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Industrial components",
+        "risk level": "Tier 2"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+      "source_excerpt": "Supplier Profile: Atlas Materials",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Logistics",
+        "industry": "Transportation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Continuity plans documentation",
+        "status": "Ongoing"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Atlas Materials",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+      "evidence": "Executive Sponsor: Victor Liao"
+    },
+    {
+      "source_entity": "Atlas Materials",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+      "evidence": "Align sourcing forecasts with Titan Logistics schedule"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Atlas Materials",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/supplier_assessment_atlas_materials.md",
+      "evidence": "Document continuity plans in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_atlas_materials.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

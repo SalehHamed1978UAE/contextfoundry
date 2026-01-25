@@ -2,7 +2,7 @@
   "document_id": "83b691b4e41d",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:01:54.632734",
+  "extracted_at": "2026-01-25T08:30:04.822206",
   "entities": [
     {
       "name": "Marcus Nguyen",
@@ -44,7 +44,7 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "Logistics services",
-        "category": "Freight"
+        "category": "Logistics"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
@@ -55,7 +55,6 @@
       "name": "Corridor automation",
       "entity_type": "PROJECT",
       "properties": {
-        "description": "Objective for automation in freight corridors",
         "status": "Current Objective"
       },
       "confidence": 0.8,
@@ -67,14 +66,24 @@
       "name": "ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric name": "Annual Recurring Revenue",
         "value": 84000000,
-        "period": "Annual",
+        "period": "annual",
         "type": "CURRENCY"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "ARR: $84M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Updates"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
     }
   ],
@@ -115,9 +124,9 @@
     {
       "source_entity": "Corridor automation",
       "source_type": "PROJECT",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Titan Freight EMEA",
-      "target_type": "CUSTOMER",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
@@ -126,7 +135,7 @@
   ],
   "metadata": {
     "filename": "customer_dossier_titan_freight_emea.md",
-    "raw_entity_count": 6,
+    "raw_entity_count": 7,
     "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false

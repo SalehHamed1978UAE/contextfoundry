@@ -2,7 +2,7 @@
   "document_id": "9f1ddf23e8ab",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:23:27.550903",
+  "extracted_at": "2026-01-25T08:50:11.313673",
   "entities": [
     {
       "name": "Synapse One",
@@ -31,9 +31,9 @@
       "name": "Helix Secure",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Technical Stack for Helix Federal Overlay"
+        "description": "Technical Stack for the project"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "Technical Stack: Helix Secure",
       "aliases": []
@@ -44,7 +44,7 @@
       "properties": {
         "industry": "Defense"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "source_excerpt": "Primary Customer: Defense clients",
       "aliases": []
@@ -71,7 +71,7 @@
       "target_entity": "Helix Federal Overlay",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "evidence": "Sponsor: Nia Carver"
     },
@@ -85,12 +85,23 @@
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
       "evidence": "Business Unit: Synapse One"
+    },
+    {
+      "source_entity": "Nia Carver",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Helix Federal Overlay",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/helix_federal_overlay_brief.md",
+      "evidence": "Sponsor: Nia Carver"
     }
   ],
   "metadata": {
     "filename": "helix_federal_overlay_brief.md",
     "raw_entity_count": 5,
-    "raw_relationship_count": 2,
+    "raw_relationship_count": 3,
     "used_partial_parse": false,
     "truncated": false
   }

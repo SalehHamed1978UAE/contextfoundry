@@ -2,7 +2,7 @@
   "document_id": "36a042b13e69",
   "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:15:31.599881",
+  "extracted_at": "2026-01-25T08:42:44.861033",
   "entities": [
     {
       "name": "Nia Carver",
@@ -13,7 +13,7 @@
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "GM/VP: Nia Carver",
+      "source_excerpt": "Nia Carver",
       "aliases": []
     },
     {
@@ -32,10 +32,13 @@
       "name": "Project Helix",
       "entity_type": "PROJECT",
       "properties": {
-        "description": "Overlays for defense-grade analytics",
-        "status": "Active"
+        "name": "Project Helix",
+        "description": "overlays",
+        "budget": null,
+        "timeline": null,
+        "status": null
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
       "source_excerpt": "Project Helix overlays",
       "aliases": []
@@ -44,11 +47,11 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Data lake for integration"
+        "description": "data lake"
       },
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "source_excerpt": "integration with Horizon Prime data lake",
       "aliases": []
     },
     {
@@ -104,7 +107,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "evidence": "GM/VP: Nia Carver"
+      "evidence": "Nia Carver, GM/VP"
     },
     {
       "source_entity": "Synapse One",
@@ -113,7 +116,7 @@
       "target_entity": "Project Helix",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
       "evidence": "Project Helix overlays"
     },
@@ -124,9 +127,9 @@
       "target_entity": "Horizon Prime",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/synapse_one_federal_roadmap.md",
-      "evidence": "Deepen integration with Horizon Prime data lake"
+      "evidence": "integration with Horizon Prime data lake"
     }
   ],
   "metadata": {

@@ -2,7 +2,7 @@
   "document_id": "690e6f9690e8",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:24:10.815156",
+  "extracted_at": "2026-01-25T08:50:55.788818",
   "entities": [
     {
       "name": "Aurora EMEA Expansion",
@@ -10,8 +10,7 @@
       "properties": {
         "budget": "$165M",
         "timeline": "2025-2027",
-        "status": "planned",
-        "objective": "Hydrogen-ready controllers"
+        "status": "active"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
@@ -22,7 +21,7 @@
       "name": "GridWave",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "energy grid technology"
+        "focus_areas": "hydrogen-ready controllers"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
@@ -38,6 +37,20 @@
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "source_excerpt": "Sponsor: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "Budget Amount",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Project Budget",
+        "value": "$165M",
+        "period": "2025-2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "source_excerpt": "Budget: $165M",
       "aliases": []
     },
     {
@@ -66,9 +79,9 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "data lake"
+        "description": "data lake platform"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "source_excerpt": "Horizon Prime data lake readiness",
       "aliases": []
@@ -79,7 +92,7 @@
       "properties": {
         "capability": "supply"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "source_excerpt": "CoreMatrix supply",
       "aliases": []
@@ -90,22 +103,20 @@
       "properties": {
         "description": "integration platform"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
       "source_excerpt": "SkyPath integrations",
       "aliases": []
     },
     {
-      "name": "$165M Budget",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "EMEA",
+      "entity_type": "LOCATION",
       "properties": {
-        "metric_name": "project budget",
-        "value": "165000000",
-        "type": "CURRENCY"
+        "region": "Europe, Middle East, and Africa"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
-      "source_excerpt": "Budget: $165M",
+      "source_excerpt": "Aurora EMEA Expansion",
       "aliases": []
     }
   ],
@@ -139,9 +150,9 @@
       "target_entity": "GridWave",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
-      "evidence": "Primary Customer: Enceladus Energy for GridWave project"
+      "evidence": "Primary Customer: Enceladus Energy"
     },
     {
       "source_entity": "Aurora EMEA Expansion",
@@ -163,18 +174,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
-      "evidence": "Dependencies: Horizon Prime data lake readiness"
-    },
-    {
-      "source_entity": "CoreMatrix",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GridWave",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
-      "evidence": "Dependencies: CoreMatrix supply"
+      "evidence": "Dependencies - Horizon Prime data lake readiness"
     },
     {
       "source_entity": "Aurora EMEA Expansion",
@@ -185,13 +185,35 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
-      "evidence": "Dependencies: SkyPath integrations"
+      "evidence": "Dependencies - SkyPath integrations"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Aurora EMEA Expansion",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Dependencies - CoreMatrix supply"
+    },
+    {
+      "source_entity": "Aurora EMEA Expansion",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "EMEA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/aurora_emea_expansion_brief.md",
+      "evidence": "Aurora EMEA Expansion"
     }
   ],
   "metadata": {
     "filename": "aurora_emea_expansion_brief.md",
-    "raw_entity_count": 9,
-    "raw_relationship_count": 7,
+    "raw_entity_count": 10,
+    "raw_relationship_count": 8,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "956abb50de35",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:27:48.383277",
+  "extracted_at": "2026-01-25T08:54:35.049201",
   "entities": [
     {
       "name": "Remote Work Guidelines",
@@ -11,7 +11,7 @@
         "policy_id": "remote_work_guidelines.md",
         "category": "HR Policy"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
       "source_excerpt": "# Remote Work Guidelines",
       "aliases": []
@@ -22,7 +22,7 @@
       "properties": {
         "type": "Company"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
       "source_excerpt": "Applies to all Horizon Nexus Systems employees",
       "aliases": []
@@ -31,7 +31,7 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Record keeping system"
+        "description": "Record maintenance system"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
@@ -42,11 +42,33 @@
       "name": "People Operations",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "HR policies and procedures"
+        "focus_areas": "HR policies and remote work guidelines"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
       "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    },
+    {
+      "name": "HR",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Human Resources"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
+      "source_excerpt": "Escalate exceptions through HR or Security",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Security management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
+      "source_excerpt": "Escalate exceptions through HR or Security",
       "aliases": []
     }
   ],
@@ -58,7 +80,7 @@
       "target_entity": "Remote Work Guidelines",
       "target_type": "POLICY",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
       "evidence": "Owner: People Operations"
     },
@@ -71,7 +93,29 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
-      "evidence": "People Operations is referenced as an internal department handling HR policies for Horizon Nexus Systems employees"
+      "evidence": "People Operations manages policy for Horizon Nexus Systems employees"
+    },
+    {
+      "source_entity": "HR",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
+      "evidence": "HR handles exceptions for company employees"
+    },
+    {
+      "source_entity": "Security",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/remote_work_guidelines.md",
+      "evidence": "Security handles exceptions for company employees"
     },
     {
       "source_entity": "Horizon Nexus Systems",
@@ -87,8 +131,8 @@
   ],
   "metadata": {
     "filename": "remote_work_guidelines.md",
-    "raw_entity_count": 4,
-    "raw_relationship_count": 3,
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
     "used_partial_parse": false,
     "truncated": false
   }

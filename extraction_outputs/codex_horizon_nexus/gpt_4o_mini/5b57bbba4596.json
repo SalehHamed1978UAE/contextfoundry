@@ -2,13 +2,13 @@
   "document_id": "5b57bbba4596",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:05:56.821257",
+  "extracted_at": "2026-01-25T08:33:52.866980",
   "entities": [
     {
       "name": "Maya Serrano",
       "entity_type": "PERSON",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
       "source_excerpt": "Attendees - Maya Serrano",
       "aliases": []
@@ -17,7 +17,7 @@
       "name": "Dylan Kaur",
       "entity_type": "PERSON",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
       "source_excerpt": "Attendees - Dylan Kaur",
       "aliases": []
@@ -26,22 +26,22 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "milestones"
+        "status": "milestones reinforced"
       },
-      "confidence": 0.8,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
-      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "source_excerpt": "Reinforce Horizon Prime milestones.",
       "aliases": []
     },
     {
       "name": "PulseOps",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Task management platform"
+        "description": "Task management and tracking"
       },
-      "confidence": 0.7,
+      "confidence": 0.6,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
-      "source_excerpt": "Owners assigned in PulseOps",
+      "source_excerpt": "Owners assigned in PulseOps.",
       "aliases": []
     }
   ],
@@ -49,35 +49,35 @@
     {
       "source_entity": "Maya Serrano",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "BU leaders",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supply Chain Taskforce",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.6,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
-      "evidence": "Attendees - BU leaders"
+      "evidence": "Attendees - Maya Serrano"
     },
     {
       "source_entity": "Dylan Kaur",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "BU leaders",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supply Chain Taskforce",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.6,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
-      "evidence": "Attendees - BU leaders"
+      "evidence": "Attendees - Dylan Kaur"
     },
     {
       "source_entity": "Horizon Prime",
       "source_type": "PROJECT",
       "relationship_type": "OWNS",
-      "target_entity": "PulseOps",
-      "target_type": "SERVICE",
+      "target_entity": "Supply Chain Taskforce",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.5,
+      "confidence": 0.6,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
-      "evidence": "Owners assigned in PulseOps"
+      "evidence": "Reinforce Horizon Prime milestones."
     }
   ],
   "metadata": {

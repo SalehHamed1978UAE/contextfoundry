@@ -2,7 +2,7 @@
   "document_id": "aca8b3cd7191",
   "document_path": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:10:29.523770",
+  "extracted_at": "2026-01-25T08:38:09.058409",
   "entities": [
     {
       "name": "Revenue",
@@ -65,7 +65,7 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "name": "GridWave",
-        "focus_areas": "Unknown"
+        "focus_areas": "energy/grid technology"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
@@ -77,7 +77,7 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "Project Aurora",
-        "status": "milestone pull-ins"
+        "status": "milestone pull-ins achieved"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
@@ -89,7 +89,7 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "name": "TransitEdge",
-        "focus_areas": "Logistics"
+        "focus_areas": "transit/transportation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
@@ -101,11 +101,12 @@
       "entity_type": "PRODUCT",
       "properties": {
         "name": "Titan Logistics Network",
-        "category": "Logistics Platform"
+        "description": "logistics network product",
+        "category": "transportation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
-      "source_excerpt": "TransitEdge Titan Logistics Network",
+      "source_excerpt": "TransitEdge Titan Logistics Network backlog grew double digits",
       "aliases": []
     },
     {
@@ -113,7 +114,7 @@
       "entity_type": "PROJECT",
       "properties": {
         "name": "Horizon Prime",
-        "status": "glidepath tracking"
+        "status": "tracking to glidepath"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
@@ -137,11 +138,12 @@
       "entity_type": "PRODUCT",
       "properties": {
         "name": "CoreMatrix",
-        "category": "Components"
+        "description": "component product",
+        "category": "components"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
-      "source_excerpt": "CoreMatrix components",
+      "source_excerpt": "Supply-chain timing for CoreMatrix components",
       "aliases": []
     },
     {
@@ -149,7 +151,7 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "name": "Treasury",
-        "focus_areas": "Cash planning"
+        "focus_areas": "financial planning and cash management"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
@@ -161,7 +163,8 @@
       "entity_type": "PRODUCT",
       "properties": {
         "name": "Titan Freight",
-        "category": "Freight Service"
+        "description": "freight/logistics product",
+        "category": "transportation"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
@@ -190,7 +193,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
-      "evidence": "TransitEdge Titan Logistics Network"
+      "evidence": "TransitEdge Titan Logistics Network backlog grew double digits"
     },
     {
       "source_entity": "TransitEdge",
@@ -201,7 +204,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/financials/financial_results_q2_2026.md",
-      "evidence": "Monitor Titan Freight conversion schedule related to TransitEdge operations"
+      "evidence": "Monitor Titan Freight conversion schedule in context of TransitEdge operations"
     }
   ],
   "metadata": {

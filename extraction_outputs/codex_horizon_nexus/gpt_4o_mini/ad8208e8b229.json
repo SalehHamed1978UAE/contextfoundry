@@ -1,0 +1,121 @@
+{
+  "document_id": "ad8208e8b229",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:56:20.176822",
+  "entities": [
+    {
+      "name": "Eden Park",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Risk Management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "Owner: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Risk Management"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Bias",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Risk type related to unfair treatment",
+        "status": "Identified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "Risk Types: Bias",
+      "aliases": []
+    },
+    {
+      "name": "Drift",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Risk type related to model performance over time",
+        "status": "Identified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "Risk Types: drift",
+      "aliases": []
+    },
+    {
+      "name": "Governance",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Risk type related to compliance and oversight",
+        "status": "Identified"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "source_excerpt": "Risk Types: governance",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Bias",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "evidence": "Owner: Eden Park"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Drift",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "evidence": "Owner: Eden Park"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Governance",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "evidence": "Owner: Eden Park"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Eden Park",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/synapse_one_model_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_model_risk.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

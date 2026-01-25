@@ -2,13 +2,13 @@
   "document_id": "3214dcde157e",
   "document_path": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:23:02.866210",
+  "extracted_at": "2026-01-25T08:49:45.635908",
   "entities": [
     {
       "name": "Synapse One",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus areas": "AI platform delivery"
+        "focus areas": "AI platform development"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
@@ -130,6 +130,17 @@
       "evidence": "Primary Customer: Meridian Aerospace"
     },
     {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Project Helix",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/project_helix_brief.md",
+      "evidence": "Business Unit: Synapse One"
+    },
+    {
       "source_entity": "Project Helix",
       "source_type": "PROJECT",
       "relationship_type": "USES",
@@ -176,7 +187,7 @@
     {
       "source_entity": "SkyPath",
       "source_type": "TECHNOLOGY",
-      "relationship_type": "USES",
+      "relationship_type": "SUPPLIER_OF",
       "target_entity": "Project Helix",
       "target_type": "PROJECT",
       "properties": {},
@@ -188,7 +199,7 @@
   "metadata": {
     "filename": "project_helix_brief.md",
     "raw_entity_count": 9,
-    "raw_relationship_count": 7,
+    "raw_relationship_count": 8,
     "used_partial_parse": false,
     "truncated": false
   }

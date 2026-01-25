@@ -2,19 +2,19 @@
   "document_id": "a049a64a62d4",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:25:26.248409",
+  "extracted_at": "2026-01-25T08:52:13.318238",
   "entities": [
     {
       "name": "PTO Accrual Policy",
       "entity_type": "POLICY",
       "properties": {
-        "policy_type": "Human Resources",
-        "standard_pto": "20 days",
-        "review_cycle": "Annual"
+        "policy_id": "pto_accrual_policy",
+        "category": "HR Policy",
+        "description": "20 days standard PTO, carryover rules"
       },
-      "confidence": 1.0,
+      "confidence": 0.98,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
-      "source_excerpt": "# PTO Accrual Policy",
+      "source_excerpt": "# PTO Accrual Policy\n\n_20 days standard PTO, carryover rules._",
       "aliases": []
     },
     {
@@ -23,7 +23,7 @@
       "properties": {
         "type": "Company"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
       "source_excerpt": "Applies to all Horizon Nexus Systems employees",
       "aliases": []
@@ -32,9 +32,12 @@
       "name": "People Operations",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "HR policies and employee operations"
+        "focus_areas": [
+          "HR",
+          "Employee Policies"
+        ]
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
       "source_excerpt": "Owner: People Operations",
       "aliases": []
@@ -43,9 +46,12 @@
       "name": "HR",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Human Resources"
+        "focus_areas": [
+          "Human Resources",
+          "Exception Escalation"
+        ]
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
       "source_excerpt": "Escalate exceptions through HR or Security",
       "aliases": []
@@ -54,9 +60,12 @@
       "name": "Security",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Security operations"
+        "focus_areas": [
+          "Security",
+          "Exception Escalation"
+        ]
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
       "source_excerpt": "Escalate exceptions through HR or Security",
       "aliases": []
@@ -65,9 +74,9 @@
       "name": "Horizon Prime",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "System for maintaining auditable records"
+        "description": "Record keeping system for auditable records"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
       "source_excerpt": "Maintain auditable records in Horizon Prime",
       "aliases": []
@@ -76,11 +85,12 @@
       "name": "20 days",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Standard PTO Days",
+        "metric_name": "Standard PTO",
         "value": "20",
-        "type": "COUNT"
+        "type": "COUNT",
+        "unit": "days"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
       "source_excerpt": "20 days standard PTO",
       "aliases": []
@@ -94,7 +104,7 @@
       "target_entity": "PTO Accrual Policy",
       "target_type": "POLICY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
       "evidence": "Owner: People Operations"
     },
@@ -105,9 +115,9 @@
       "target_entity": "Horizon Nexus Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
-      "evidence": "People Operations is referenced as owning company policy"
+      "evidence": "People Operations department within company structure"
     },
     {
       "source_entity": "HR",
@@ -116,9 +126,9 @@
       "target_entity": "Horizon Nexus Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
-      "evidence": "HR is referenced in context of company policy escalation"
+      "evidence": "HR department within company structure"
     },
     {
       "source_entity": "Security",
@@ -127,9 +137,9 @@
       "target_entity": "Horizon Nexus Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/pto_accrual_policy.md",
-      "evidence": "Security is referenced in context of company policy escalation"
+      "evidence": "Security department within company structure"
     },
     {
       "source_entity": "Horizon Nexus Systems",

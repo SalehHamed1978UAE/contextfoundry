@@ -1,0 +1,90 @@
+{
+  "document_id": "9297a64dd0b7",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:43:12.311714",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "milestones to be reinforced"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones.",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Platform for assigning owners"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "source_excerpt": "Owners assigned in PulseOps.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "BU leaders",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Attendees include BU leaders"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "BU leaders",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Attendees include BU leaders"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "PulseOps",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/aether_shield_risk_forum_2026_01_24.md",
+      "evidence": "Owners assigned in PulseOps."
+    }
+  ],
+  "metadata": {
+    "filename": "aether_shield_risk_forum_2026_01_24.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

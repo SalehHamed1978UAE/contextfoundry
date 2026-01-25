@@ -2,7 +2,7 @@
   "document_id": "a64ae6750fda",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:26:07.899650",
+  "extracted_at": "2026-01-25T08:52:59.652293",
   "entities": [
     {
       "name": "Horizon Nexus Systems",
@@ -41,22 +41,11 @@
   ],
   "relationships": [
     {
-      "source_entity": "Horizon Nexus Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "People Operations",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
-      "evidence": "Owner: People Operations"
-    },
-    {
       "source_entity": "People Operations",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "MANAGES",
-      "target_entity": "Horizon Nexus Systems",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Incident Response Playbook",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
@@ -65,19 +54,19 @@
     {
       "source_entity": "Horizon Nexus Systems",
       "source_type": "ORGANIZATION",
-      "relationship_type": "USES",
-      "target_entity": "Horizon Prime",
-      "target_type": "TECHNOLOGY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Incident Response Playbook",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/incident_response_playbook.md",
-      "evidence": "Maintain auditable records in Horizon Prime."
+      "evidence": "Applies to all Horizon Nexus Systems employees."
     }
   ],
   "metadata": {
     "filename": "incident_response_playbook.md",
     "raw_entity_count": 3,
-    "raw_relationship_count": 3,
+    "raw_relationship_count": 2,
     "used_partial_parse": false,
     "truncated": false
   }

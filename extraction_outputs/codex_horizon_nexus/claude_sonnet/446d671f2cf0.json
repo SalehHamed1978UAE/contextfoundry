@@ -2,13 +2,13 @@
   "document_id": "446d671f2cf0",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:06:28.456022",
+  "extracted_at": "2026-01-25T08:34:25.211800",
   "entities": [
     {
       "name": "Product Council",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "product roadmap, partner marketplace"
+        "focus_areas": "roadmap alignment, partner marketplace"
       },
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
@@ -48,10 +48,9 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "active",
-        "timeline": "milestones being reinforced"
+        "status": "active with milestones"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
       "source_excerpt": "Reinforce Horizon Prime milestones",
       "aliases": []
@@ -60,9 +59,9 @@
       "name": "PulseOps",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "task management platform"
+        "description": "system for managing action item owners"
       },
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
       "source_excerpt": "Owners assigned in PulseOps",
       "aliases": []
@@ -78,7 +77,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
-      "evidence": "Maya Serrano listed as attendee in Product Council Meeting"
+      "evidence": "Maya Serrano listed as attendee of Product Council meeting"
     },
     {
       "source_entity": "Dylan Kaur",
@@ -89,7 +88,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
-      "evidence": "Dylan Kaur listed as attendee in Product Council Meeting"
+      "evidence": "Dylan Kaur listed as attendee of Product Council meeting"
     },
     {
       "source_entity": "BU leaders",
@@ -100,16 +99,16 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
-      "evidence": "BU leaders listed as attendees in Product Council Meeting"
+      "evidence": "BU leaders listed as attendees of Product Council meeting"
     },
     {
       "source_entity": "Product Council",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "MANAGES",
+      "relationship_type": "OWNS",
       "target_entity": "Horizon Prime",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
       "evidence": "Product Council decided to reinforce Horizon Prime milestones"
     },
@@ -120,9 +119,9 @@
       "target_entity": "PulseOps",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/product_council_2026_02_01.md",
-      "evidence": "Owners assigned in PulseOps for action items"
+      "evidence": "Owners assigned in PulseOps as action item from Product Council"
     }
   ],
   "metadata": {

@@ -1,0 +1,139 @@
+{
+  "document_id": "5e368da0551d",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:50:46.588538",
+  "entities": [
+    {
+      "name": "Data Classification Standard",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "data_classification_standard.md",
+        "category": "Data Classification"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "# Data Classification Standard",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Record management system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "Maintain auditable records in Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "HR operations, policy management"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    },
+    {
+      "name": "HR",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Human Resources"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "Escalate exceptions through HR or Security",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Information Security"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "source_excerpt": "Escalate exceptions through HR or Security",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Data Classification Standard",
+      "source_type": "POLICY",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "People Operations",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "evidence": "Applies to all Horizon Nexus Systems employees, People Operations is the owner"
+    },
+    {
+      "source_entity": "HR",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "evidence": "HR is referenced as escalation path for Horizon Nexus Systems policy"
+    },
+    {
+      "source_entity": "Security",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "evidence": "Security is referenced as escalation path for Horizon Nexus Systems policy"
+    },
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/data_classification_standard.md",
+      "evidence": "Maintain auditable records in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "data_classification_standard.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

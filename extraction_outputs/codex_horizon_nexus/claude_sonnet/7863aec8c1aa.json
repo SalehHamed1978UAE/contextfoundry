@@ -2,19 +2,20 @@
   "document_id": "7863aec8c1aa",
   "document_path": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:27:35.593736",
+  "extracted_at": "2026-01-25T08:54:20.692809",
   "entities": [
     {
       "name": "Parental Leave Policy",
       "entity_type": "POLICY",
       "properties": {
-        "category": "Employee Benefits",
+        "policy_id": "parental_leave_policy",
+        "category": "Human Resources",
         "primary_leave": "16 weeks",
         "secondary_leave": "8 weeks"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "source_excerpt": "# Parental Leave Policy\n\n_16 weeks primary, 8 weeks secondary._",
+      "source_excerpt": "# Parental Leave Policy _16 weeks primary, 8 weeks secondary._",
       "aliases": []
     },
     {
@@ -25,18 +26,7 @@
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "source_excerpt": "Applies to all Horizon Nexus Systems employees.",
-      "aliases": []
-    },
-    {
-      "name": "Horizon Prime",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Record keeping system"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "source_excerpt": "Maintain auditable records in Horizon Prime.",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees",
       "aliases": []
     },
     {
@@ -45,7 +35,7 @@
       "properties": {
         "focus_areas": [
           "HR policies",
-          "Policy ownership"
+          "policy management"
         ]
       },
       "confidence": 1.0,
@@ -58,13 +48,13 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus_areas": [
-          "Human Resources",
-          "Exception escalation"
+          "human resources",
+          "exception handling"
         ]
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "source_excerpt": "Escalate exceptions through HR or Security.",
+      "source_excerpt": "Escalate exceptions through HR or Security",
       "aliases": []
     },
     {
@@ -72,13 +62,24 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus_areas": [
-          "Security operations",
-          "Exception escalation"
+          "security",
+          "exception handling"
         ]
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "source_excerpt": "Escalate exceptions through HR or Security.",
+      "source_excerpt": "Escalate exceptions through HR or Security",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Record keeping system for auditable records"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
+      "source_excerpt": "Maintain auditable records in Horizon Prime",
       "aliases": []
     }
   ],
@@ -103,7 +104,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "evidence": "People Operations is responsible for policy within Horizon Nexus Systems"
+      "evidence": "People Operations is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "HR",
@@ -114,7 +115,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "evidence": "HR handles exceptions for company policy"
+      "evidence": "HR is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "Security",
@@ -125,7 +126,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "evidence": "Security handles exceptions for company policy"
+      "evidence": "Security is implied to be part of Horizon Nexus Systems organization"
     },
     {
       "source_entity": "Horizon Nexus Systems",
@@ -136,7 +137,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/policies/parental_leave_policy.md",
-      "evidence": "Maintain auditable records in Horizon Prime."
+      "evidence": "Maintain auditable records in Horizon Prime"
     }
   ],
   "metadata": {

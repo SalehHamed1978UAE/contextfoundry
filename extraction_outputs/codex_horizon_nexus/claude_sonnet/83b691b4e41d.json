@@ -2,7 +2,7 @@
   "document_id": "83b691b4e41d",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:02:07.026200",
+  "extracted_at": "2026-01-25T08:30:19.395191",
   "entities": [
     {
       "name": "Marcus Nguyen",
@@ -10,7 +10,7 @@
       "properties": {
         "role": "Executive Sponsor"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "Executive Sponsor: Marcus Nguyen",
       "aliases": []
@@ -19,35 +19,21 @@
       "name": "Titan Freight EMEA",
       "entity_type": "CUSTOMER",
       "properties": {
-        "region": "EMEA",
-        "profile": "Freight expansion"
+        "industry": "Freight",
+        "region": "EMEA"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "Titan Freight EMEA Account Brief",
-      "aliases": []
-    },
-    {
-      "name": "$84M ARR",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "ARR",
-        "value": "84000000",
-        "type": "CURRENCY",
-        "currency": "USD"
-      },
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
-      "source_excerpt": "ARR: $84M ARR",
       "aliases": []
     },
     {
       "name": "Titan Logistics",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Primary product for Titan Freight EMEA"
+        "category": "Logistics"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "Primary Products: Titan Logistics",
       "aliases": []
@@ -56,11 +42,25 @@
       "name": "TransitEdge",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Transit and logistics solutions"
+        "focus_areas": "Transportation and logistics"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "Owning BU: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "$84M ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "84000000",
+        "type": "CURRENCY",
+        "currency": "USD"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "ARR: $84M ARR",
       "aliases": []
     },
     {
@@ -71,7 +71,7 @@
         "value": "78",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "Deployment maturity: 78%",
       "aliases": []
@@ -84,7 +84,7 @@
         "value": "3",
         "type": "COUNT"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "Expansion opportunities: 3",
       "aliases": []
@@ -93,11 +93,23 @@
       "name": "Horizon Prime",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Product with roadmap updates"
+        "category": "Software platform"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    },
+    {
+      "name": "Corridor automation project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Current objective",
+        "focus": "Automation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "source_excerpt": "Current Objective: Corridor automation",
       "aliases": []
     }
   ],
@@ -120,7 +132,7 @@
       "target_entity": "Titan Logistics",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "evidence": "Primary Products: Titan Logistics"
     },
@@ -131,7 +143,7 @@
       "target_entity": "Titan Freight EMEA",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
       "evidence": "Owning BU: TransitEdge"
     },
@@ -144,13 +156,35 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
-      "evidence": "TransitEdge owns the customer account that uses Titan Logistics as primary product"
+      "evidence": "TransitEdge owns the account that uses Titan Logistics as primary product"
+    },
+    {
+      "source_entity": "Titan Freight EMEA",
+      "source_type": "CUSTOMER",
+      "relationship_type": "OWNS",
+      "target_entity": "Corridor automation project",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "evidence": "Current Objective: Corridor automation"
+    },
+    {
+      "source_entity": "Titan Freight EMEA",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_emea.md",
+      "evidence": "Align roadmap visibility with Horizon Prime updates"
     }
   ],
   "metadata": {
     "filename": "customer_dossier_titan_freight_emea.md",
-    "raw_entity_count": 8,
-    "raw_relationship_count": 4,
+    "raw_entity_count": 9,
+    "raw_relationship_count": 6,
     "used_partial_parse": false,
     "truncated": false
   }

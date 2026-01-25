@@ -2,7 +2,7 @@
   "document_id": "6be3a8a20afa",
   "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T08:02:15.429563",
+  "extracted_at": "2026-01-25T08:30:29.547425",
   "entities": [
     {
       "name": "Maya Serrano",
@@ -26,9 +26,9 @@
       "name": "Horizon Prime",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "milestones to be reinforced"
+        "status": "milestones reinforced"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
       "source_excerpt": "Reinforce Horizon Prime milestones.",
       "aliases": []
@@ -39,7 +39,7 @@
       "properties": {
         "description": "platform for assigning owners"
       },
-      "confidence": 0.8,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
       "source_excerpt": "Owners assigned in PulseOps.",
       "aliases": []
@@ -53,7 +53,7 @@
       "target_entity": "Executive Steering Committee",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
       "evidence": "Maya Serrano is an attendee of the Executive Steering Committee meeting."
     },
@@ -64,7 +64,7 @@
       "target_entity": "Executive Steering Committee",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
       "evidence": "Dylan Kaur is an attendee of the Executive Steering Committee meeting."
     },
@@ -72,12 +72,12 @@
       "source_entity": "Horizon Prime",
       "source_type": "PROJECT",
       "relationship_type": "OWNS",
-      "target_entity": "PulseOps",
-      "target_type": "TECHNOLOGY",
+      "target_entity": "Executive Steering Committee",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.75,
+      "confidence": 0.7,
       "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/executive_steering_committee_2026_01_12.md",
-      "evidence": "Owners assigned in PulseOps related to Horizon Prime."
+      "evidence": "Horizon Prime milestones discussed in the Executive Steering Committee."
     }
   ],
   "metadata": {
