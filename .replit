@@ -99,12 +99,12 @@ args = "python -m src.test_runner.runner --corpus \"Manus Orion\" --questions-on
 name = "Run Extraction"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python -u scripts/run_full_corpus_pipeline.py --corpus \"${EXTRACTION_CORPUS:-Manus Orion}\" 2>&1 | tee /tmp/extraction_run.log"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -u scripts/run_vault_extraction.py --vault-name \"${EXTRACTION_VAULT:-Claude Code Nexus Industries}\" 2>&1 | tee /tmp/extraction_run.log"
 
 [[ports]]
 localPort = 3000
@@ -126,5 +126,6 @@ USE_ONTOLOGY_CENTRIC_PIPELINE = "true"
 RLM_ENABLED = "true"
 EXTRACTION_WORKERS = "6"
 EXTRACTION_CORPUS = "Claude Code Nexus Industries"
+EXTRACTION_VAULT = "Claude Code Nexus Industries"
 
 [userenv.development]

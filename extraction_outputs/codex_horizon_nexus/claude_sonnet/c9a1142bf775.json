@@ -1,0 +1,211 @@
+{
+  "document_id": "c9a1142bf775",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:13:57.760492",
+  "entities": [
+    {
+      "name": "Eden Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "GM/VP: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Industrial analytics",
+          "PulseForge maintenance AI",
+          "Insight marketplace"
+        ]
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "# Synapse One FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "PulseForge maintenance AI",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "AI-powered maintenance solution",
+        "category": "artificial intelligence"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "PulseForge maintenance AI",
+      "aliases": []
+    },
+    {
+      "name": "Insight marketplace",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Marketplace for insights",
+        "category": "platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "Insight marketplace",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Data lake platform"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "$298M",
+        "period": "current",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "ARR: $298M",
+      "aliases": []
+    },
+    {
+      "name": "Net Retention",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Net Retention Rate",
+        "value": "134%",
+        "period": "current",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "Net Retention: 134%",
+      "aliases": []
+    },
+    {
+      "name": "Modules per Customer",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Average Modules per Customer",
+        "value": "3.8",
+        "period": "current",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "Modules per Customer: 3.8",
+      "aliases": []
+    },
+    {
+      "name": "FY26 Roadmap",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Synapse One FY26 Roadmap",
+        "timeline": "FY26",
+        "status": "planning"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "source_excerpt": "# Synapse One FY26 Roadmap",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Synapse One",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "evidence": "GM/VP: Eden Park"
+    },
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Synapse One",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "evidence": "GM/VP: Eden Park"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Industrial analytics",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "evidence": "Focus Areas - Industrial analytics"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "PulseForge maintenance AI",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "evidence": "Focus Areas - PulseForge maintenance AI"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Insight marketplace",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "evidence": "Focus Areas - Insight marketplace"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "evidence": "Deepen integration with Horizon Prime data lake"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "FY26 Roadmap",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/synapse_one_roadmap.md",
+      "evidence": "Synapse One FY26 Roadmap"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_roadmap.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

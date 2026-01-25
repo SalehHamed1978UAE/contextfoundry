@@ -1,0 +1,199 @@
+{
+  "document_id": "ad7723d25b92",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:16:13.764211",
+  "entities": [
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Blueprint for scaling Horizon Nexus Systems ahead of the planned 2027 IPO.",
+      "aliases": []
+    },
+    {
+      "name": "Project Aurora",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "grid deployments in Western US",
+        "budget": null,
+        "timeline": "2026",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Accelerate Project Aurora grid deployments in Western US",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics Network",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Expand into DACH freight corridors",
+        "budget": null,
+        "timeline": "2026",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Expand Titan Logistics Network into DACH freight corridors",
+      "aliases": []
+    },
+    {
+      "name": "Synapse One Insight",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "marketplace partnerships",
+        "budget": null,
+        "timeline": "2026",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Monetize Synapse One Insight marketplace partnerships",
+      "aliases": []
+    },
+    {
+      "name": "Aether Shield Project Citadel",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "zero-trust managed service",
+        "budget": null,
+        "timeline": "2026",
+        "status": "ongoing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Launch Aether Shield Project Citadel zero-trust managed service",
+      "aliases": []
+    },
+    {
+      "name": "Series F",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Funding model",
+        "value": null,
+        "period": null,
+        "type": "CURRENCY"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Funding model assumes continued Series F covenant compliance.",
+      "aliases": []
+    },
+    {
+      "name": "Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Revenue",
+        "value": 1450000000,
+        "period": "2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Revenue: $1.45B",
+      "aliases": []
+    },
+    {
+      "name": "EBITDA",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "EBITDA",
+        "value": 21,
+        "period": "2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "EBITDA: 21%",
+      "aliases": []
+    },
+    {
+      "name": "Net Retention",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Net Retention",
+        "value": 129,
+        "period": "2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "Net Retention: 129%",
+      "aliases": []
+    },
+    {
+      "name": "New Flagship Customers",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "New Flagship Customers",
+        "value": 9,
+        "period": "2026",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "source_excerpt": "New Flagship Customers: 9",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "evidence": "Accelerate Project Aurora grid deployments in Western US"
+    },
+    {
+      "source_entity": "Titan Logistics Network",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "evidence": "Expand Titan Logistics Network into DACH freight corridors"
+    },
+    {
+      "source_entity": "Synapse One Insight",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "evidence": "Monetize Synapse One Insight marketplace partnerships"
+    },
+    {
+      "source_entity": "Aether Shield Project Citadel",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Nexus Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/strategy/hns_strategic_plan_2026.md",
+      "evidence": "Launch Aether Shield Project Citadel zero-trust managed service"
+    }
+  ],
+  "metadata": {
+    "filename": "hns_strategic_plan_2026.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

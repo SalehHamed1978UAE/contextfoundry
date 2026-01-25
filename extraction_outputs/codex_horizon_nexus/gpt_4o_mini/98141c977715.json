@@ -1,0 +1,134 @@
+{
+  "document_id": "98141c977715",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:11:08.141942",
+  "entities": [
+    {
+      "name": "Eden Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "source_excerpt": "Executive Sponsor: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Atlas Manufacturing",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Industrial Conglomerate",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "source_excerpt": "Customer Profile: Industrial conglomerate",
+      "aliases": []
+    },
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Owning Business Unit"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "source_excerpt": "Owning BU: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "PulseForge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Primary Product",
+        "category": "Manufacturing Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "source_excerpt": "Primary Products: PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 88000000,
+        "period": "Annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "source_excerpt": "ARR: $88M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Horizon Prime",
+        "status": "Active"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Atlas Manufacturing",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "evidence": "Executive Sponsor: Eden Park"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Atlas Manufacturing",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "evidence": "Owning BU: Synapse One"
+    },
+    {
+      "source_entity": "Atlas Manufacturing",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "PulseForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "evidence": "Primary Products: PulseForge"
+    },
+    {
+      "source_entity": "Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Atlas Manufacturing",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/All docs/customer_dossier_atlas_manufacturing.md",
+      "evidence": "Align roadmap visibility with Horizon Prime updates"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_atlas_manufacturing.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
