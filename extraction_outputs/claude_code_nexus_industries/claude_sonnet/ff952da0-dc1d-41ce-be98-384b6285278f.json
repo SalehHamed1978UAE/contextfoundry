@@ -1,0 +1,505 @@
+{
+  "document_id": "ff952da0-dc1d-41ce-be98-384b6285278f",
+  "document_path": "04_procurement_policy.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:53:57.780325",
+  "entities": [
+    {
+      "name": "POL-004",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-004",
+        "category": "Procurement Policy",
+        "effective_date": "January 1, 2025",
+        "authority_level": "1",
+        "classification": "Internal"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Policy Number: POL-004, Effective Date: January 1, 2025",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "procurement of goods and services at Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Procurement Officer",
+        "role": "CPO"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Approved by: Thomas Chen, Chief Procurement Officer",
+      "aliases": []
+    },
+    {
+      "name": "Chief Procurement Officer",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CPO",
+        "role": "Policy Owner"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Owner: Chief Procurement Officer",
+      "aliases": []
+    },
+    {
+      "name": "CEO",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Executive Officer",
+        "role": "Executive"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": ">$5,000,000 | CEO",
+      "aliases": []
+    },
+    {
+      "name": "CFO",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Financial Officer",
+        "role": "Executive"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "$1,000,000-$5,000,000 | Division President + CFO",
+      "aliases": []
+    },
+    {
+      "name": "Division President",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division President",
+        "role": "Executive"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "$1,000,000-$5,000,000 | Division President + CFO",
+      "aliases": []
+    },
+    {
+      "name": "Procurement Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "Governance Committee",
+        "focus": "Procurement oversight"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Procurement Council: Chief Procurement Officer (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "Procurement Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "Corporate Function",
+        "focus": "Procurement and sourcing"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Manager + Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Legal Representative",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Legal Counsel",
+        "department": "Legal"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Legal Representative",
+      "aliases": []
+    },
+    {
+      "name": "Finance Representative",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Finance",
+        "department": "Finance"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Finance Representative",
+      "aliases": []
+    },
+    {
+      "name": "$10,000 threshold",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Budget holder approval threshold",
+        "value": "10000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "<$10,000 | Budget holder",
+      "aliases": []
+    },
+    {
+      "name": "$50,000 threshold",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Manager approval threshold",
+        "value": "50000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "$10,000-$50,000 | Manager + Procurement",
+      "aliases": []
+    },
+    {
+      "name": "$250,000 threshold",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Director approval threshold",
+        "value": "250000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "$50,000-$250,000 | Director + Procurement",
+      "aliases": []
+    },
+    {
+      "name": "$1,000,000 threshold",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "VP approval threshold",
+        "value": "1000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "$250,000-$1,000,000 | VP + CPO",
+      "aliases": []
+    },
+    {
+      "name": "$5,000,000 threshold",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Division President approval threshold",
+        "value": "5000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "$1,000,000-$5,000,000 | Division President + CFO",
+      "aliases": []
+    },
+    {
+      "name": "$25,000,000 threshold",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Board approval threshold",
+        "value": "25000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": ">$25,000,000 | Board approval",
+      "aliases": []
+    },
+    {
+      "name": "Small Business Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Small Business spending target",
+        "value": "23",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Small Business | 23% of eligible",
+      "aliases": []
+    },
+    {
+      "name": "Small Disadvantaged Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Small Disadvantaged spending target",
+        "value": "8",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Small Disadvantaged | 8%",
+      "aliases": []
+    },
+    {
+      "name": "Women-Owned Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Women-Owned spending target",
+        "value": "5",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Women-Owned | 5%",
+      "aliases": []
+    },
+    {
+      "name": "Veteran-Owned Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Veteran-Owned spending target",
+        "value": "3",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Veteran-Owned | 3%",
+      "aliases": []
+    },
+    {
+      "name": "HUBZone Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "HUBZone spending target",
+        "value": "3",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "HUBZone | 3%",
+      "aliases": []
+    },
+    {
+      "name": "Minority-Owned Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Minority-Owned spending target",
+        "value": "10",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Minority-Owned | 10%",
+      "aliases": []
+    },
+    {
+      "name": "Supplier Portal",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "name": "suppliers.nexus-industries.com",
+        "description": "Supplier portal system"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "Supplier Portal: suppliers.nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "FAR/DFARS",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "FAR/DFARS",
+        "category": "Government contracting regulations"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "FAR/DFARS | Government contracts",
+      "aliases": []
+    },
+    {
+      "name": "ITAR/EAR",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "ITAR/EAR",
+        "category": "Export control regulations"
+      },
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": "ITAR/EAR | Export-controlled items",
+      "aliases": []
+    },
+    {
+      "name": "Board",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "Governance Body",
+        "focus": "Corporate oversight"
+      },
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "source_excerpt": ">$25,000,000 | Board approval",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Thomas Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Thomas Chen, Chief Procurement Officer"
+    },
+    {
+      "source_entity": "POL-004",
+      "source_type": "POLICY",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Chief Procurement Officer",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Owner: Chief Procurement Officer"
+    },
+    {
+      "source_entity": "Thomas Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Procurement Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Chief Procurement Officer (Chair)"
+    },
+    {
+      "source_entity": "Procurement Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Governance structure within Nexus Industries"
+    },
+    {
+      "source_entity": "Procurement Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Procurement function at Nexus Industries"
+    },
+    {
+      "source_entity": "Legal Representative",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Procurement Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Legal Representative member of Procurement Council"
+    },
+    {
+      "source_entity": "Finance Representative",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Procurement Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Finance Representative member of Procurement Council"
+    },
+    {
+      "source_entity": "CEO",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "CEO approval authority in policy"
+    },
+    {
+      "source_entity": "CFO",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "CFO approval authority in policy"
+    },
+    {
+      "source_entity": "Division President",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Division President approval authority in policy"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Supplier Portal",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Supplier Portal: suppliers.nexus-industries.com"
+    },
+    {
+      "source_entity": "POL-004",
+      "source_type": "POLICY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Procurement policy for Nexus Industries"
+    },
+    {
+      "source_entity": "Board",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_procurement_policy.md",
+      "evidence": "Board approval required for high-value purchases"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 27,
+    "raw_relationship_count": 13,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

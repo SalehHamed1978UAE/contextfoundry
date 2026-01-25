@@ -1,0 +1,495 @@
+{
+  "document_id": "2fcb696c-9c8b-4d21-9caa-495e93eb286f",
+  "document_path": "01_boeing_customer_profile.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:54:22.563686",
+  "entities": [
+    {
+      "name": "The Boeing Company",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "customer_id": "CUST-001",
+        "account_type": "Strategic",
+        "relationship_since": "1998",
+        "industry": "Aerospace & Defense",
+        "stock_ticker": "BA (NYSE)",
+        "employees": "170,000"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Customer Name: The Boeing Company, Customer ID: CUST-001",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "Primary Division",
+        "focus_areas": "787 structures, components"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Primary Division: Nexus Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "type": "Secondary Division",
+        "focus_areas": "Composites, alloys"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Secondary Division: Nexus Advanced Materials",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Morrison",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Account Manager",
+        "role": "Account Manager"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Account Manager: Jennifer Morrison",
+      "aliases": []
+    },
+    {
+      "name": "Michael Torres",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Division President",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Executive Sponsor: Michael Torres (Division President)",
+      "aliases": []
+    },
+    {
+      "name": "Chicago, IL",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Chicago",
+        "country": "United States"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Headquarters: Chicago, IL",
+      "aliases": []
+    },
+    {
+      "name": "$78B Annual Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Revenue",
+        "value": "78B",
+        "period": "2024",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Annual Revenue: $78B (2024)",
+      "aliases": []
+    },
+    {
+      "name": "$485M Nexus Aerospace Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "485M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Nexus Aerospace: $485M",
+      "aliases": []
+    },
+    {
+      "name": "$245M Nexus Materials Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "245M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Nexus Advanced Materials: $245M",
+      "aliases": []
+    },
+    {
+      "name": "787 Floor Beams Contract",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$185M",
+        "timeline": "2024-2027",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "787 Floor Beams: $185M, 2024-2027, Active",
+      "aliases": []
+    },
+    {
+      "name": "737 MAX Components Contract",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$145M",
+        "timeline": "2023-2026",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "737 MAX Components: $145M, 2023-2026, Active",
+      "aliases": []
+    },
+    {
+      "name": "Carbon Fiber Supply Contract",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$125M",
+        "timeline": "2024-2028",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Carbon Fiber Supply: $125M, 2024-2028, Active",
+      "aliases": []
+    },
+    {
+      "name": "777X Components Opportunity",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$220M",
+        "status": "Pipeline",
+        "probability": "65%"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "777X Components: $220M, 65%, Q2 2026",
+      "aliases": []
+    },
+    {
+      "name": "Kelly Ortberg",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Kelly Ortberg: CEO",
+      "aliases": []
+    },
+    {
+      "name": "Brian West",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Brian West: CFO",
+      "aliases": []
+    },
+    {
+      "name": "Ted Colbert",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "President, Defense",
+        "role": "President"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Ted Colbert: President, Defense",
+      "aliases": []
+    },
+    {
+      "name": "Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VPC",
+        "role": "Executive"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Victoria Chen: Executive",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Finance Contact",
+        "role": "Finance"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Robert Kim: Finance",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Wright",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Technical Contact"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Thomas Wright: Technical Contact",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Wu",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Quality Manager"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Jennifer Wu: Quality Manager",
+      "aliases": []
+    },
+    {
+      "name": "787 Dreamliner",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Boeing commercial aircraft",
+        "category": "Aircraft"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "787 Dreamliner program",
+      "aliases": []
+    },
+    {
+      "name": "737 MAX",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Boeing commercial aircraft",
+        "category": "Aircraft"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "737 MAX program",
+      "aliases": []
+    },
+    {
+      "name": "P-8A Poseidon",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Boeing defense aircraft",
+        "category": "Defense Aircraft"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "P-8A Poseidon: Component supplier",
+      "aliases": []
+    },
+    {
+      "name": "AeroMaterials Co-Development",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$18M investment",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "AeroMaterials Co-Development: Active, $18M investment",
+      "aliases": []
+    },
+    {
+      "name": "Digital Thread Integration",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$5M",
+        "status": "Pilot"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Digital Thread Integration: Pilot, $5M",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Maria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "Technical Lead"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "AeroMaterials demo: Dr. Maria Chen",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "The Boeing Company",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Primary Division: Nexus Aerospace"
+    },
+    {
+      "source_entity": "The Boeing Company",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Secondary Division: Nexus Advanced Materials"
+    },
+    {
+      "source_entity": "The Boeing Company",
+      "source_type": "CUSTOMER",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Chicago, IL",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Headquarters: Chicago, IL"
+    },
+    {
+      "source_entity": "Jennifer Morrison",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "The Boeing Company",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Account Manager: Jennifer Morrison"
+    },
+    {
+      "source_entity": "Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Michael Torres (Division President)"
+    },
+    {
+      "source_entity": "Kelly Ortberg",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "The Boeing Company",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Kelly Ortberg: CEO"
+    },
+    {
+      "source_entity": "Brian West",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "The Boeing Company",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Brian West: CFO"
+    },
+    {
+      "source_entity": "Ted Colbert",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "The Boeing Company",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Ted Colbert: President, Defense"
+    },
+    {
+      "source_entity": "787 Floor Beams Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "787 Floor Beams contract handled by Aerospace division"
+    },
+    {
+      "source_entity": "Carbon Fiber Supply Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Carbon Fiber Supply contract handled by Materials division"
+    },
+    {
+      "source_entity": "Nexus Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "787 Dreamliner",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "787 structures, components supplied by Nexus Aerospace"
+    },
+    {
+      "source_entity": "Nexus Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "737 MAX",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "737 MAX components supplied by Nexus Aerospace"
+    },
+    {
+      "source_entity": "AeroMaterials Co-Development",
+      "source_type": "PROJECT",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "The Boeing Company",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Joint Initiatives: AeroMaterials Co-Development"
+    },
+    {
+      "source_entity": "Dr. Maria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "AeroMaterials Co-Development",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "AeroMaterials demo: Dr. Maria Chen"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 26,
+    "raw_relationship_count": 14,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

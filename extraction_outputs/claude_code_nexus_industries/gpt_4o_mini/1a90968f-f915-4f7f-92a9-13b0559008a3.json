@@ -1,0 +1,275 @@
+{
+  "document_id": "1a90968f-f915-4f7f-92a9-13b0559008a3",
+  "document_path": "01_annual_report_2025.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T09:50:18.353704",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Public Company",
+        "industry": "Various"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Industries Annual Report FY2025",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Investor Relations",
+        "role": "Investor Relations"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Investor Relations: Jennifer Walsh, VP Investor Relations",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Financial Officer",
+        "role": "CFO"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Certified by: Robert Kim, Chief Financial Officer",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Executive Officer",
+        "role": "CEO"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, Chief Executive Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Aerospace and Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Energy Systems",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Energy Solutions"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Digital Solutions"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Digital Solutions",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Advanced Materials"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Nexus Advanced Materials",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "IoT platform",
+        "category": "Digital Solutions"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "IoT platform (NexusConnect): $0.48B (+25%)",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Cybersecurity solution",
+        "category": "Digital Solutions"
+      },
+      "confidence": 0.85,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "CyberShield beta customers: $12M",
+      "aliases": []
+    },
+    {
+      "name": "Free Cash Flow",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Free Cash Flow",
+        "value": "$0.92B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Free Cash Flow | $0.92B | $0.78B",
+      "aliases": []
+    },
+    {
+      "name": "Total Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Total Revenue",
+        "value": "$8.45B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Total Revenue | $8.45B | $7.62B",
+      "aliases": []
+    },
+    {
+      "name": "EPS (Diluted)",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "EPS (Diluted)",
+        "value": "$4.28",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "EPS (Diluted) | $4.28 | $3.62",
+      "aliases": []
+    },
+    {
+      "name": "NYSE",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "New York",
+        "country": "USA"
+      },
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "source_excerpt": "Exchange: NYSE",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Nexus Aerospace revenue"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Nexus Energy Systems revenue"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Nexus Digital Solutions revenue"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Nexus Advanced Materials revenue"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Investor Relations: Jennifer Walsh, VP Investor Relations"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Certified by: Robert Kim, Chief Financial Officer"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Approved by: Dr. Victoria Chen, Chief Executive Officer"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "NYSE",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_annual_report_2025.md",
+      "evidence": "Exchange: NYSE"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

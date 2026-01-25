@@ -1,0 +1,912 @@
+{
+  "document_id": "6d1cbfd5-3058-4ffc-8457-4f135301a232",
+  "document_path": "04_cybershield_architecture.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T09:46:02.587628",
+  "entities": [
+    {
+      "name": "Dr. Sarah Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Security Architect",
+        "role": "Security Architect"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Owner: Dr. Sarah Mitchell, Security Architect",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "enterprise security platform providing endpoint detection and response (EDR), security information and event management (SIEM), and threat intelligence capabilities",
+        "category": "Security Platform"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "CyberShield is an enterprise security platform providing endpoint detection and response (EDR), security information and event management (SIEM), and threat intelligence capabilities",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield Agent",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Endpoint security agent",
+        "category": "Security Software",
+        "size": "45 MB installed",
+        "platforms": "Windows, macOS, Linux"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Name: CyberShield Agent, Platforms: Windows, macOS, Linux",
+      "aliases": []
+    },
+    {
+      "name": "2.1M Endpoints Protected",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Endpoints Protected",
+        "value": "2.1M",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Endpoints Protected | 2.1M",
+      "aliases": []
+    },
+    {
+      "name": "342 Enterprise Customers",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Enterprise Customers",
+        "value": "342",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Enterprise Customers | 342",
+      "aliases": []
+    },
+    {
+      "name": "50B Events Per Day",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Events Processed",
+        "value": "50B/day",
+        "type": "COUNT",
+        "period": "daily"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Events Processed | 50B/day",
+      "aliases": []
+    },
+    {
+      "name": "99.7% Threat Detection Rate",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Threat Detection Rate",
+        "value": "99.7%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Threat Detection Rate | 99.7%",
+      "aliases": []
+    },
+    {
+      "name": "99.99% Uptime SLA",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Uptime SLA",
+        "value": "99.99%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Uptime SLA | 99.99%",
+      "aliases": []
+    },
+    {
+      "name": "Apache Kafka",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Message Queue system with 2M events/sec capacity"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Message Queue | Apache Kafka | 2M events/sec",
+      "aliases": []
+    },
+    {
+      "name": "Apache Flink",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Stream Processing technology for real-time processing"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Stream Processing | Apache Flink | Real-time",
+      "aliases": []
+    },
+    {
+      "name": "Elasticsearch",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Hot storage for active queries with 30 days retention"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Hot | Elasticsearch | Active queries | 30 days",
+      "aliases": []
+    },
+    {
+      "name": "Amazon S3",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Cloud storage service used for warm and cold storage"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Warm | S3 + Parquet | Historical | 1 year",
+      "aliases": []
+    },
+    {
+      "name": "Redis",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Real-time cache and state storage"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Real-time | Redis | Cache, state | N/A",
+      "aliases": []
+    },
+    {
+      "name": "AWS SageMaker",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Model training platform"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Training Pipeline | Model training | SageMaker",
+      "aliases": []
+    },
+    {
+      "name": "TensorRT",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Real-time inference engine"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Inference Engine | Real-time inference | TensorRT",
+      "aliases": []
+    },
+    {
+      "name": "MLflow",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Model versioning and registry system"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Model Registry | Model versioning | MLflow",
+      "aliases": []
+    },
+    {
+      "name": "Feast",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Feature management system"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Feature Store | Feature management | Feast",
+      "aliases": []
+    },
+    {
+      "name": "AWS KMS",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Key management service"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Key Management | AWS KMS, HSM",
+      "aliases": []
+    },
+    {
+      "name": "HashiCorp Vault",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Secrets management"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Secrets | HashiCorp Vault",
+      "aliases": []
+    },
+    {
+      "name": "Prometheus",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Metrics monitoring system"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Metrics | Performance | Prometheus + Grafana",
+      "aliases": []
+    },
+    {
+      "name": "Grafana",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Metrics visualization dashboard"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Metrics | Performance | Prometheus + Grafana",
+      "aliases": []
+    },
+    {
+      "name": "ELK Stack",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Application logging system"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Logging | Application logs | ELK Stack",
+      "aliases": []
+    },
+    {
+      "name": "Jaeger",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Distributed tracing system"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Tracing | Distributed tracing | Jaeger",
+      "aliases": []
+    },
+    {
+      "name": "PagerDuty",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Incident management alerting system"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Alerting | Incident management | PagerDuty",
+      "aliases": []
+    },
+    {
+      "name": "Datadog",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Synthetic availability monitoring"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Synthetic | Availability | Datadog",
+      "aliases": []
+    },
+    {
+      "name": "AWS",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Primary cloud infrastructure provider"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Cloud | AWS (primary), Azure (secondary)",
+      "aliases": []
+    },
+    {
+      "name": "Azure",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Secondary cloud infrastructure provider"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Cloud | AWS (primary), Azure (secondary)",
+      "aliases": []
+    },
+    {
+      "name": "SOC 2 Type II",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "SOC2-T2",
+        "category": "Compliance Certification",
+        "status": "Certified",
+        "expiry": "Oct 2026"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "SOC 2 Type II | Certified | Oct 2026",
+      "aliases": []
+    },
+    {
+      "name": "ISO 27001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "ISO27001",
+        "category": "Compliance Certification",
+        "status": "Certified",
+        "expiry": "Mar 2027"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "ISO 27001 | Certified | Mar 2027",
+      "aliases": []
+    },
+    {
+      "name": "FedRAMP High",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "FEDRAMP-HIGH",
+        "category": "Compliance Certification",
+        "status": "Authorized",
+        "expiry": "Jan 2026"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "FedRAMP High | Authorized | Jan 2026",
+      "aliases": []
+    },
+    {
+      "name": "HIPAA",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "HIPAA",
+        "category": "Compliance",
+        "status": "Compliant"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "HIPAA | Compliant | N/A",
+      "aliases": []
+    },
+    {
+      "name": "PCI DSS",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "PCI-DSS",
+        "category": "Compliance",
+        "status": "Compliant"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "PCI DSS | Compliant | N/A",
+      "aliases": []
+    },
+    {
+      "name": "DoD IL5",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "DOD-IL5",
+        "category": "Compliance Certification",
+        "status": "Authorized",
+        "expiry": "Jun 2026"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "DoD IL5 | Authorized | Jun 2026",
+      "aliases": []
+    },
+    {
+      "name": "us-east-1",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "N. Virginia",
+        "country": "USA"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Production (US) | Primary US customers | us-east-1, us-west-2",
+      "aliases": []
+    },
+    {
+      "name": "us-west-2",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Oregon",
+        "country": "USA"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Production (US) | Primary US customers | us-east-1, us-west-2",
+      "aliases": []
+    },
+    {
+      "name": "eu-west-1",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Ireland",
+        "country": "Ireland"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Production (EU) | EU customers (GDPR) | eu-west-1, eu-central-1",
+      "aliases": []
+    },
+    {
+      "name": "eu-central-1",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Frankfurt",
+        "country": "Germany"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Production (EU) | EU customers (GDPR) | eu-west-1, eu-central-1",
+      "aliases": []
+    },
+    {
+      "name": "us-gov-west-1",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "US Gov West",
+        "country": "USA"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Production (Gov) | FedRAMP High | us-gov-west-1",
+      "aliases": []
+    },
+    {
+      "name": "Splunk",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "SIEM integration partner"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "SIEM | Splunk, QRadar, Sentinel",
+      "aliases": []
+    },
+    {
+      "name": "QRadar",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "SIEM integration partner"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "SIEM | Splunk, QRadar, Sentinel",
+      "aliases": []
+    },
+    {
+      "name": "Sentinel",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "SIEM integration partner"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "SIEM | Splunk, QRadar, Sentinel",
+      "aliases": []
+    },
+    {
+      "name": "Phantom",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "SOAR integration partner"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "SOAR | Phantom, XSOAR, Swimlane",
+      "aliases": []
+    },
+    {
+      "name": "ServiceNow",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Ticketing system integration"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Ticketing | ServiceNow, Jira",
+      "aliases": []
+    },
+    {
+      "name": "Jira",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Ticketing system integration"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Ticketing | ServiceNow, Jira",
+      "aliases": []
+    },
+    {
+      "name": "Okta",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Identity system integration"
+      },
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Identity | Okta, Azure AD, Ping",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Sarah Mitchell",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "CyberShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Owner: Dr. Sarah Mitchell, Security Architect"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Apache Kafka",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Data Ingestion (Kafka) component in architecture diagram"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Apache Flink",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Stream Processing | Apache Flink | Real-time"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Elasticsearch",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Hot | Elasticsearch | Active queries | 30 days"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Amazon S3",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Storage (S3/ES) component in architecture"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Redis",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Real-time | Redis | Cache, state | N/A"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "AWS SageMaker",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Training Pipeline | Model training | SageMaker"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "TensorRT",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Inference Engine | Real-time inference | TensorRT"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "MLflow",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Model Registry | Model versioning | MLflow"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Feast",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Feature Store | Feature management | Feast"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "AWS KMS",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Key Management | AWS KMS, HSM"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "HashiCorp Vault",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Secrets | HashiCorp Vault"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Prometheus",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Metrics | Performance | Prometheus + Grafana"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Grafana",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Metrics | Performance | Prometheus + Grafana"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "ELK Stack",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Logging | Application logs | ELK Stack"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Jaeger",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Tracing | Distributed tracing | Jaeger"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "PagerDuty",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Alerting | Incident management | PagerDuty"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Datadog",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Synthetic | Availability | Datadog"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "AWS",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Cloud | AWS (primary), Azure (secondary)"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Azure",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Cloud | AWS (primary), Azure (secondary)"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "us-east-1",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Production (US) | Primary US customers | us-east-1, us-west-2"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "us-west-2",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Production (US) | Primary US customers | us-east-1, us-west-2"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "eu-west-1",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Production (EU) | EU customers (GDPR) | eu-west-1, eu-central-1"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "eu-central-1",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Production (EU) | EU customers (GDPR) | eu-west-1, eu-central-1"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "us-gov-west-1",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Production (Gov) | FedRAMP High | us-gov-west-1"
+    },
+    {
+      "source_entity": "CyberShield Agent",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "CyberShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "CyberShield Agent is a component of the CyberShield platform"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Splunk",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "SIEM | Splunk, QRadar, Sentinel"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "QRadar",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "SIEM | Splunk, QRadar, Sentinel"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Sentinel",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "SIEM | Splunk, QRadar, Sentinel"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Phantom",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "SOAR | Phantom, XSOAR, Swimlane"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "ServiceNow",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Ticketing | ServiceNow, Jira"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Jira",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Ticketing | ServiceNow, Jira"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Okta",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Identity | Okta, Azure AD, Ping"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 45,
+    "raw_relationship_count": 33,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}
