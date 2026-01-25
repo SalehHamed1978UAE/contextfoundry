@@ -2,7 +2,7 @@
   "document_id": "fbf259f0-a603-42eb-8556-9a2db24f4b4c",
   "document_path": "02_airbus_customer_profile.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:36:17.407294",
+  "extracted_at": "2026-01-25T10:05:15.119688",
   "entities": [
     {
       "name": "Airbus SE",
@@ -24,9 +24,9 @@
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "division_type": "Primary Division"
+        "type": "Primary Division"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_airbus_customer_profile.md",
       "source_excerpt": "Primary Division: Nexus Aerospace",
       "aliases": []
@@ -35,9 +35,9 @@
       "name": "Nexus Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "division_type": "Secondary Division"
+        "type": "Secondary Division"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_airbus_customer_profile.md",
       "source_excerpt": "Secondary Division: Nexus Advanced Materials",
       "aliases": []
@@ -89,7 +89,7 @@
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Toulouse, France (ops)",
+      "source_excerpt": "Headquarters: Toulouse, France (ops)",
       "aliases": []
     },
     {
@@ -152,74 +152,74 @@
       "name": "A350 Wing Components",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$145M",
-        "timeline": "2023-2027",
+        "value": "$145M",
+        "term": "2023-2027",
         "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "A350 Wing Components: $145M, 2023-2027, Aerospace, Active",
+      "source_excerpt": "A350 Wing Components: $145M, 2023-2027, Active",
       "aliases": []
     },
     {
       "name": "A320neo Structures",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$95M",
-        "timeline": "2024-2027",
+        "value": "$95M",
+        "term": "2024-2027",
         "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "A320neo Structures: $95M, 2024-2027, Aerospace, Active",
+      "source_excerpt": "A320neo Structures: $95M, 2024-2027, Active",
       "aliases": []
     },
     {
       "name": "Carbon Fiber Panels",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$85M",
-        "timeline": "2024-2028",
+        "value": "$85M",
+        "term": "2024-2028",
         "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Carbon Fiber Panels: $85M, 2024-2028, Materials, Active",
+      "source_excerpt": "Carbon Fiber Panels: $85M, 2024-2028, Active",
       "aliases": []
     },
     {
       "name": "A330neo Parts",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$62M",
-        "timeline": "2023-2026",
+        "value": "$62M",
+        "term": "2023-2026",
         "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "A330neo Parts: $62M, 2023-2026, Aerospace, Active",
+      "source_excerpt": "A330neo Parts: $62M, 2023-2026, Active",
       "aliases": []
     },
     {
       "name": "Titanium Supply",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$55M",
-        "timeline": "2024-2027",
+        "value": "$55M",
+        "term": "2024-2027",
         "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Titanium Supply: $55M, 2024-2027, Materials, Active",
+      "source_excerpt": "Titanium Supply: $55M, 2024-2027, Active",
       "aliases": []
     },
     {
       "name": "A350 Freighter",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$125M",
-        "timeline": "Q3 2026",
-        "status": "Pipeline"
+        "value": "$125M",
+        "probability": "55%",
+        "expected_close": "Q3 2026"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -230,9 +230,9 @@
       "name": "Next-Gen Single Aisle",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$280M",
-        "timeline": "2028",
-        "status": "Pipeline"
+        "value": "$280M",
+        "probability": "30%",
+        "expected_close": "2028"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -243,9 +243,9 @@
       "name": "Wing of Tomorrow",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$65M",
-        "timeline": "Q2 2026",
-        "status": "Pipeline"
+        "value": "$65M",
+        "probability": "70%",
+        "expected_close": "Q2 2026"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -256,7 +256,8 @@
       "name": "Guillaume Faury",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CEO"
+        "title": "CEO",
+        "role": "CEO"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -267,18 +268,20 @@
       "name": "Victoria Chen",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Executive Contact"
+        "title": "Executive",
+        "role": "Executive"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Guillaume Faury: CEO, Victoria Chen: Executive",
+      "source_excerpt": "Victoria Chen: Executive",
       "aliases": []
     },
     {
       "name": "Sabine Klauke",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CTO"
+        "title": "CTO",
+        "role": "CTO"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -289,18 +292,20 @@
       "name": "Dr. James Wilson",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Technology Contact"
+        "title": "Technology",
+        "role": "Technology"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Sabine Klauke: CTO, Dr. James Wilson: Technology",
+      "source_excerpt": "Dr. James Wilson: Technology",
       "aliases": []
     },
     {
       "name": "Philippe Mhun",
       "entity_type": "PERSON",
       "properties": {
-        "title": "SVP Programs"
+        "title": "SVP Programs",
+        "role": "SVP Programs"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -311,18 +316,20 @@
       "name": "Michael Torres",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Programs Contact"
+        "title": "Programs",
+        "role": "Programs"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Philippe Mhun: SVP Programs, Michael Torres: Programs",
+      "source_excerpt": "Michael Torres: Programs",
       "aliases": []
     },
     {
       "name": "Alberto Gutierrez",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Head of Aerostructures"
+        "title": "Head of Aerostructures",
+        "role": "Head of Aerostructures"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -333,7 +340,8 @@
       "name": "Jean-Marc Bernard",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Procurement"
+        "title": "VP Procurement",
+        "role": "VP Procurement"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -344,7 +352,8 @@
       "name": "Maria Schmidt",
       "entity_type": "PERSON",
       "properties": {
-        "title": "A350 Program Director"
+        "title": "A350 Program Director",
+        "role": "A350 Program Director"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -355,18 +364,20 @@
       "name": "Thomas Wright",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Program Contact"
+        "title": "Contact",
+        "role": "Contact"
       },
-      "confidence": 1.0,
+      "confidence": 0.8,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Maria Schmidt: A350 Program Director, Thomas Wright",
+      "source_excerpt": "Thomas Wright",
       "aliases": []
     },
     {
       "name": "Hans Mueller",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Quality Director"
+        "title": "Quality Director",
+        "role": "Quality Director"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -377,18 +388,20 @@
       "name": "Jennifer Wu",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Quality Contact"
+        "title": "Contact",
+        "role": "Contact"
       },
-      "confidence": 1.0,
+      "confidence": 0.8,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Hans Mueller: Quality Director, Jennifer Wu",
+      "source_excerpt": "Jennifer Wu",
       "aliases": []
     },
     {
       "name": "Sophie Martin",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Materials Technology"
+        "title": "Materials Technology",
+        "role": "Materials Technology"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
@@ -399,11 +412,12 @@
       "name": "Dr. Maria Chen",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Materials Contact"
+        "title": "Technology",
+        "role": "Technology"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Sophie Martin: Materials Technology, Dr. Maria Chen",
+      "source_excerpt": "Dr. Maria Chen",
       "aliases": []
     },
     {
@@ -455,54 +469,63 @@
       "aliases": []
     },
     {
-      "name": "Wing Ribs",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Aircraft component",
-        "category": "Aerospace component"
-      },
-      "confidence": 1.0,
-      "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Wing Ribs: Primary supplier, $52M",
-      "aliases": []
-    },
-    {
-      "name": "Fuselage Frames",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Aircraft component",
-        "category": "Aerospace component"
-      },
-      "confidence": 1.0,
-      "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Fuselage Frames: Tier 1 supplier, $42M",
-      "aliases": []
-    },
-    {
-      "name": "Door Structures",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Aircraft component",
-        "category": "Aerospace component"
-      },
-      "confidence": 1.0,
-      "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Door Structures: Supplier, $28M",
-      "aliases": []
-    },
-    {
       "name": "Dr. Jennifer Liu",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Materials qualification lead"
+        "title": "Materials Specialist",
+        "role": "Materials qualification"
       },
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Materials qualification: Dr. Jennifer Liu: Ongoing",
+      "source_excerpt": "Materials qualification: Dr. Jennifer Liu",
       "aliases": []
     }
   ],
   "relationships": [
+    {
+      "source_entity": "Airbus SE",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Primary Division: Nexus Aerospace"
+    },
+    {
+      "source_entity": "Airbus SE",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Secondary Division: Nexus Advanced Materials"
+    },
+    {
+      "source_entity": "Pierre Dubois",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Account Manager: Pierre Dubois"
+    },
+    {
+      "source_entity": "Dr. Rachel Kim",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Executive Sponsor: Dr. Rachel Kim (VP Engineering)"
+    },
     {
       "source_entity": "Airbus SE",
       "source_type": "CUSTOMER",
@@ -523,73 +546,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Toulouse, France (ops)"
-    },
-    {
-      "source_entity": "Pierre Dubois",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Airbus SE",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Account Manager: Pierre Dubois"
-    },
-    {
-      "source_entity": "Dr. Rachel Kim",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Airbus SE",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Executive Sponsor: Dr. Rachel Kim (VP Engineering)"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "A350 Wing Components",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "A350 Wing Components: $145M, 2023-2027, Aerospace, Active"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "A320neo Structures",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "A320neo Structures: $95M, 2024-2027, Aerospace, Active"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Carbon Fiber Panels",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Carbon Fiber Panels: $85M, 2024-2028, Materials, Active"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Titanium Supply",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Titanium Supply: $55M, 2024-2027, Materials, Active"
+      "evidence": "Headquarters: Toulouse, France (ops)"
     },
     {
       "source_entity": "Guillaume Faury",
@@ -682,35 +639,57 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Wing Ribs",
-      "target_type": "PRODUCT",
+      "relationship_type": "OWNS",
+      "target_entity": "A350 Wing Components",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Wing Ribs: Primary supplier, $52M"
+      "evidence": "A350 Wing Components contract with Aerospace division"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Fuselage Frames",
-      "target_type": "PRODUCT",
+      "relationship_type": "OWNS",
+      "target_entity": "A320neo Structures",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Fuselage Frames: Tier 1 supplier, $42M"
+      "evidence": "A320neo Structures contract with Aerospace division"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Carbon Fiber Panels",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Carbon Fiber Panels contract with Materials division"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Door Structures",
-      "target_type": "PRODUCT",
+      "relationship_type": "OWNS",
+      "target_entity": "A330neo Parts",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Door Structures: Supplier, $28M"
+      "evidence": "A330neo Parts contract with Aerospace division"
+    },
+    {
+      "source_entity": "Nexus Advanced Materials",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Titanium Supply",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Titanium Supply contract with Materials division"
     },
     {
       "source_entity": "Airbus SE",
@@ -719,7 +698,7 @@
       "target_entity": "A350 XWB",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
       "evidence": "A350 XWB program involvement"
     },
@@ -730,7 +709,7 @@
       "target_entity": "A320/A321neo",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
       "evidence": "A320/A321neo program involvement"
     },
@@ -741,7 +720,7 @@
       "target_entity": "H160",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
       "evidence": "H160 helicopter program"
     },
@@ -752,14 +731,14 @@
       "target_entity": "H225",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "02_airbus_customer_profile.md",
       "evidence": "H225 helicopter program"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 41,
+    "raw_entity_count": 38,
     "raw_relationship_count": 23,
     "used_partial_parse": false,
     "truncated": false

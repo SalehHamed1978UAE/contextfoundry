@@ -2,7 +2,7 @@
   "document_id": "82829c9d-98c4-43a2-8e09-48995b8cb7b9",
   "document_path": "01_falcon_x_system_architecture.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:30:00.455643",
+  "extracted_at": "2026-01-25T09:59:16.332852",
   "entities": [
     {
       "name": "Dr. Elena Rodriguez",
@@ -32,7 +32,7 @@
       "name": "Falcon X",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "medium-altitude, long-endurance unmanned aerial vehicle designed for intelligence, surveillance, and reconnaissance missions",
+        "description": "A medium-altitude, long-endurance unmanned aerial vehicle designed for intelligence, surveillance, and reconnaissance missions.",
         "category": "UAV"
       },
       "confidence": 0.95,
@@ -102,11 +102,11 @@
     },
     {
       "name": "Falcon X UAV System Architecture Document",
-      "entity_type": "DOCUMENT",
+      "entity_type": "PROJECT",
       "properties": {
-        "document type": "Technical Specification",
-        "document number": "TEC-AER-001",
-        "version": "3.2"
+        "budget": null,
+        "timeline": "Effective Date: January 1, 2026",
+        "status": "Confidential - ITAR Restricted"
       },
       "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
@@ -120,18 +120,18 @@
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Falcon X UAV System Architecture Document",
-      "target_type": "DOCUMENT",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.95,
       "source_document": "01_falcon_x_system_architecture.md",
-      "evidence": "Owner: Dr. Elena Rodriguez, Chief Engineer"
+      "evidence": "Prepared By: Dr. Elena Rodriguez, Chief Engineer"
     },
     {
       "source_entity": "Thomas Mueller",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Falcon X UAV System Architecture Document",
-      "target_type": "DOCUMENT",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
@@ -141,52 +141,63 @@
       "source_entity": "Falcon X",
       "source_type": "PRODUCT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Pratt & Whitney",
-      "target_type": "SUPPLIER",
+      "target_entity": "Falcon X UAV System Architecture Document",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_falcon_x_system_architecture.md",
+      "evidence": "The Falcon X is a medium-altitude, long-endurance (MALE) unmanned aerial vehicle designed for intelligence, surveillance, and reconnaissance (ISR) missions."
+    },
+    {
+      "source_entity": "Pratt & Whitney",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
       "evidence": "Manufacturer: Pratt & Whitney"
     },
     {
-      "source_entity": "Falcon X",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Honeywell",
-      "target_type": "SUPPLIER",
+      "source_entity": "Honeywell",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
       "evidence": "Manufacturer: Honeywell"
     },
     {
-      "source_entity": "Falcon X",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "General Atomics",
-      "target_type": "SUPPLIER",
+      "source_entity": "General Atomics",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
       "evidence": "Manufacturer: General Atomics"
     },
     {
-      "source_entity": "Falcon X",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Raytheon",
-      "target_type": "SUPPLIER",
+      "source_entity": "Raytheon",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
       "evidence": "Manufacturer: Raytheon"
     },
     {
-      "source_entity": "Falcon X",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Nexus Digital",
-      "target_type": "SUPPLIER",
+      "source_entity": "Nexus Digital",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon X",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_falcon_x_system_architecture.md",
@@ -196,7 +207,7 @@
   "metadata": {
     "filename": "",
     "raw_entity_count": 9,
-    "raw_relationship_count": 7,
+    "raw_relationship_count": 8,
     "used_partial_parse": false,
     "truncated": false
   }

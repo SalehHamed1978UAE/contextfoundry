@@ -2,7 +2,7 @@
   "document_id": "fbf259f0-a603-42eb-8556-9a2db24f4b4c",
   "document_path": "02_airbus_customer_profile.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:35:26.511462",
+  "extracted_at": "2026-01-25T10:04:27.043510",
   "entities": [
     {
       "name": "Airbus SE",
@@ -134,6 +134,7 @@
       "properties": {
         "value": "$145M",
         "term": "2023-2027",
+        "division": "Aerospace",
         "status": "Active"
       },
       "confidence": 0.9,
@@ -147,6 +148,7 @@
       "properties": {
         "value": "$95M",
         "term": "2024-2027",
+        "division": "Aerospace",
         "status": "Active"
       },
       "confidence": 0.9,
@@ -160,6 +162,7 @@
       "properties": {
         "value": "$85M",
         "term": "2024-2028",
+        "division": "Materials",
         "status": "Active"
       },
       "confidence": 0.9,
@@ -173,6 +176,7 @@
       "properties": {
         "value": "$62M",
         "term": "2023-2026",
+        "division": "Aerospace",
         "status": "Active"
       },
       "confidence": 0.9,
@@ -186,6 +190,7 @@
       "properties": {
         "value": "$55M",
         "term": "2024-2027",
+        "division": "Materials",
         "status": "Active"
       },
       "confidence": 0.9,
@@ -194,78 +199,72 @@
       "aliases": []
     },
     {
-      "name": "A350 Freighter",
+      "name": "Wing of Tomorrow R&D",
       "entity_type": "PROJECT",
       "properties": {
-        "value": "$125M",
-        "expected_close": "Q3 2026",
-        "probability": "55%"
+        "investment": "\u20ac8M",
+        "status": "Active"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Opportunity: A350 Freighter",
+      "source_excerpt": "Joint Initiatives: Wing of Tomorrow R&D",
       "aliases": []
     },
     {
-      "name": "Next-Gen Single Aisle",
+      "name": "Sustainable Aviation Materials",
       "entity_type": "PROJECT",
       "properties": {
-        "value": "$280M",
-        "expected_close": "2028",
-        "probability": "30%"
+        "status": "Planning"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Opportunity: Next-Gen Single Aisle",
+      "source_excerpt": "Joint Initiatives: Sustainable Aviation Materials",
       "aliases": []
     },
     {
-      "name": "Wing of Tomorrow",
+      "name": "Digital Twin Integration",
       "entity_type": "PROJECT",
       "properties": {
-        "value": "$65M",
-        "expected_close": "Q2 2026",
-        "probability": "70%"
+        "investment": "\u20ac2M",
+        "status": "Pilot"
       },
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Opportunity: Wing of Tomorrow",
-      "aliases": []
-    },
-    {
-      "name": "Leiden",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Leiden",
-        "country": "Netherlands"
-      },
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Headquarters: Leiden, Netherlands",
-      "aliases": []
-    },
-    {
-      "name": "Toulouse",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Toulouse",
-        "country": "France"
-      },
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "source_excerpt": "Toulouse, France (ops)",
+      "source_excerpt": "Joint Initiatives: Digital Twin Integration",
       "aliases": []
     }
   ],
   "relationships": [
     {
-      "source_entity": "Pierre Dubois",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "source_entity": "Airbus SE",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
       "target_entity": "Nexus Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Primary Division: Nexus Aerospace"
+    },
+    {
+      "source_entity": "Airbus SE",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Secondary Division: Nexus Advanced Materials"
+    },
+    {
+      "source_entity": "Pierre Dubois",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.95,
       "source_document": "02_airbus_customer_profile.md",
       "evidence": "Account Manager: Pierre Dubois"
     },
@@ -276,102 +275,14 @@
       "target_entity": "Airbus SE",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_airbus_customer_profile.md",
       "evidence": "Executive Sponsor: Dr. Rachel Kim (VP Engineering)"
     },
     {
-      "source_entity": "Airbus SE",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Customer Name: Airbus SE"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "A350 Wing Components",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Nexus Role: Primary supplier"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "A320neo Structures",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Nexus Role: Supplier"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Carbon Fiber Panels",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Nexus Role: Supplier"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "A330neo Parts",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Nexus Role: Supplier"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Titanium Supply",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Nexus Role: Supplier"
-    },
-    {
-      "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Airbus SE",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Primary Division: Nexus Aerospace"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Airbus SE",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_airbus_customer_profile.md",
-      "evidence": "Secondary Division: Nexus Advanced Materials"
-    },
-    {
       "source_entity": "Guillaume Faury",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Airbus SE",
       "target_type": "CUSTOMER",
       "properties": {},
@@ -382,19 +293,107 @@
     {
       "source_entity": "Victoria Chen",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "BUSINESS_UNIT",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Guillaume Faury",
+      "target_type": "PERSON",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_airbus_customer_profile.md",
       "evidence": "Nexus Contact: Victoria Chen"
+    },
+    {
+      "source_entity": "A350 Wing Components",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Contract: A350 Wing Components"
+    },
+    {
+      "source_entity": "A320neo Structures",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Contract: A320neo Structures"
+    },
+    {
+      "source_entity": "Carbon Fiber Panels",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Contract: Carbon Fiber Panels"
+    },
+    {
+      "source_entity": "A330neo Parts",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Contract: A330neo Parts"
+    },
+    {
+      "source_entity": "Titanium Supply",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Contract: Titanium Supply"
+    },
+    {
+      "source_entity": "Wing of Tomorrow R&D",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Joint Initiatives: Wing of Tomorrow R&D"
+    },
+    {
+      "source_entity": "Sustainable Aviation Materials",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Joint Initiatives: Sustainable Aviation Materials"
+    },
+    {
+      "source_entity": "Digital Twin Integration",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Airbus SE",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_airbus_customer_profile.md",
+      "evidence": "Joint Initiatives: Digital Twin Integration"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 21,
-    "raw_relationship_count": 12,
+    "raw_entity_count": 19,
+    "raw_relationship_count": 14,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "2253313b-f956-4b79-93b4-2edc91dc5b74",
   "document_path": "02_organizational_announcement.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:39:52.401793",
+  "extracted_at": "2026-01-25T10:08:25.705466",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -113,15 +113,27 @@
       "aliases": []
     },
     {
+      "name": "Dr. Michael Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Quantum Computing",
+        "role": "Vice President of Quantum Computing"
+      },
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Quantum Computing (Dr. Michael Foster)",
+      "aliases": []
+    },
+    {
       "name": "Nexus Digital Solutions",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Division",
-        "industry": "Digital Solutions"
+        "industry": "Technology"
       },
       "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "President of Nexus Digital Solutions",
+      "source_excerpt": "Nexus Digital Solutions",
       "aliases": []
     },
     {
@@ -137,6 +149,17 @@
       "aliases": []
     },
     {
+      "name": "Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Digital Solutions Division"
+      },
+      "confidence": 0.95,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Digital Solutions is reorganizing into three business units",
+      "aliases": []
+    },
+    {
       "name": "IoT & Edge Computing",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
@@ -144,7 +167,7 @@
       },
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Digital Solutions is reorganizing into three business units: IoT & Edge Computing",
+      "source_excerpt": "1. IoT & Edge Computing (Michelle Torres, acting)",
       "aliases": []
     },
     {
@@ -155,7 +178,7 @@
       },
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Cybersecurity (Jennifer Walsh, acting)",
+      "source_excerpt": "2. Cybersecurity (Jennifer Walsh, acting)",
       "aliases": []
     },
     {
@@ -166,7 +189,7 @@
       },
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Quantum Computing (Dr. Michael Foster)",
+      "source_excerpt": "3. Quantum Computing (Dr. Michael Foster)",
       "aliases": []
     },
     {
@@ -197,7 +220,7 @@
       "name": "Edge AI Solutions",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "AI Solutions for Edge Computing",
+        "description": "Edge AI Solutions",
         "category": "AI Solutions"
       },
       "confidence": 0.9,
@@ -209,7 +232,7 @@
       "name": "Industrial Automation",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Solutions for Industrial Automation",
+        "description": "Industrial Automation Solutions",
         "category": "Automation"
       },
       "confidence": 0.9,
@@ -221,7 +244,7 @@
       "name": "Security Operations Center",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Center for Security Operations",
+        "description": "Security Operations Center",
         "category": "Cybersecurity"
       },
       "confidence": 0.9,
@@ -233,7 +256,7 @@
       "name": "Threat Intelligence",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Intelligence Solutions for Threats",
+        "description": "Threat Intelligence Solutions",
         "category": "Cybersecurity"
       },
       "confidence": 0.9,
@@ -245,7 +268,7 @@
       "name": "QuantumLeap Computing Services",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Services for Quantum Computing",
+        "description": "Quantum Computing Services",
         "category": "Quantum Computing"
       },
       "confidence": 0.9,
@@ -257,7 +280,7 @@
       "name": "Quantum Algorithm Development",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Development of Quantum Algorithms",
+        "description": "Quantum Algorithm Development Services",
         "category": "Quantum Computing"
       },
       "confidence": 0.9,
@@ -269,8 +292,8 @@
       "name": "Research Partnerships",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Partnerships for Research",
-        "category": "Research"
+        "description": "Research Partnerships in Quantum Computing",
+        "category": "Quantum Computing"
       },
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
@@ -360,6 +383,30 @@
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "Product Management: 35",
       "aliases": []
+    },
+    {
+      "name": "January 15, 2026",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "",
+        "country": ""
+      },
+      "confidence": 0.8,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "effective January 15, 2026",
+      "aliases": []
+    },
+    {
+      "name": "January 20, 2026",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "",
+        "country": ""
+      },
+      "confidence": 0.8,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Digital Solutions Town Hall on January 20 at 10:00 AM MT",
+      "aliases": []
     }
   ],
   "relationships": [
@@ -388,7 +435,7 @@
     {
       "source_entity": "Thomas Anderson",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
+      "relationship_type": "MANAGES",
       "target_entity": "Nexus Digital Solutions",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -422,29 +469,62 @@
       "source_entity": "Michelle Torres",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "IoT & Edge Computing",
+      "target_entity": "Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "IoT & Edge Computing (Michelle Torres, acting)"
+      "evidence": "VP Product | Michelle Torres"
+    },
+    {
+      "source_entity": "Steven Park",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Sales | Steven Park"
+    },
+    {
+      "source_entity": "David Lee",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Customer Success | David Lee"
     },
     {
       "source_entity": "Jennifer Walsh",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Cybersecurity",
+      "target_entity": "Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "Cybersecurity (Jennifer Walsh, acting)"
+      "evidence": "CISO (New) | Jennifer Walsh"
+    },
+    {
+      "source_entity": "Jennifer Adams",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "VP Finance | Jennifer Adams"
     },
     {
       "source_entity": "Dr. Michael Foster",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Quantum Computing",
+      "target_entity": "Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
@@ -455,139 +535,51 @@
       "source_entity": "Nexus Digital Solutions",
       "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
-      "target_entity": "IoT & Edge Computing",
+      "target_entity": "Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "Digital Solutions is reorganizing into three business units: IoT & Edge Computing"
+      "evidence": "Nexus Digital Solutions is reorganizing into three business units"
     },
     {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Cybersecurity",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "Digital Solutions is reorganizing into three business units: Cybersecurity"
+      "evidence": "Robert Kim has been appointed President of Nexus Digital Solutions"
     },
     {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Quantum Computing",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Thomas Anderson",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "Digital Solutions is reorganizing into three business units: Quantum Computing"
+      "evidence": "Thomas Anderson will remain available as a consultant"
     },
     {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "CyberShield",
-      "target_type": "PRODUCT",
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "REPORTS_TO",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "launched CyberShield"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "NexusConnect IoT Platform"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Edge AI Solutions",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Edge AI Solutions"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Industrial Automation",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Industrial Automation"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Security Operations Center",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Security Operations Center"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Threat Intelligence",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Threat Intelligence"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "QuantumLeap Computing Services",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "QuantumLeap Computing Services"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Quantum Algorithm Development",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Quantum Algorithm Development"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Research Partnerships",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Research Partnerships"
+      "evidence": "Dr. Victoria Chen, CEO, Nexus Industries"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 29,
-    "raw_relationship_count": 20,
+    "raw_entity_count": 33,
+    "raw_relationship_count": 15,
     "used_partial_parse": false,
     "truncated": false
   }
