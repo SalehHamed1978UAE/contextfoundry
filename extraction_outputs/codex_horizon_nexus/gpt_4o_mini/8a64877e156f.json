@@ -1,0 +1,163 @@
+{
+  "document_id": "8a64877e156f",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:19:28.223485",
+  "entities": [
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Sensor modernization"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "source_excerpt": "Business Unit: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Sponsor",
+        "role": "Project Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "source_excerpt": "Sponsor: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "GridWave Sensor Modernization",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$94M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "source_excerpt": "GridWave Sensor Modernization Delivery Brief",
+      "aliases": []
+    },
+    {
+      "name": "SensorForge",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technical stack used for the project"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "source_excerpt": "Technical Stack: SensorForge",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Data lake readiness dependency"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "source_excerpt": "Horizon Prime data lake readiness",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply for the project"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "source_excerpt": "CoreMatrix supply",
+      "aliases": []
+    },
+    {
+      "name": "SkyPath",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "Integration partner"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "source_excerpt": "SkyPath integrations",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "GridWave Sensor Modernization",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "evidence": "Sponsor: Priya Thakur"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "GridWave Sensor Modernization",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "evidence": "Business Unit: GridWave"
+    },
+    {
+      "source_entity": "GridWave Sensor Modernization",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SensorForge",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "evidence": "Technical Stack: SensorForge"
+    },
+    {
+      "source_entity": "GridWave Sensor Modernization",
+      "source_type": "PROJECT",
+      "relationship_type": "DEPENDS_ON",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "evidence": "Horizon Prime data lake readiness"
+    },
+    {
+      "source_entity": "GridWave Sensor Modernization",
+      "source_type": "PROJECT",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "CoreMatrix",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "evidence": "CoreMatrix supply"
+    },
+    {
+      "source_entity": "GridWave Sensor Modernization",
+      "source_type": "PROJECT",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "SkyPath",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/gridwave_sensor_modernization_brief.md",
+      "evidence": "SkyPath integrations"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_sensor_modernization_brief.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

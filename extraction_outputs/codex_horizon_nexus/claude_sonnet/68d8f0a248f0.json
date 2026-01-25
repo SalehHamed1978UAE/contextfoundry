@@ -1,0 +1,254 @@
+{
+  "document_id": "68d8f0a248f0",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:14:54.856890",
+  "entities": [
+    {
+      "name": "Lucian Cho",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "GM/VP: Lucian Cho",
+      "aliases": []
+    },
+    {
+      "name": "Aether Shield Financial Services",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "VaultSec data residency",
+          "Basel IV reporting",
+          "Citadel managed services"
+        ]
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Aether Shield Financial Services FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "VaultSec data residency",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "data residency service"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "VaultSec data residency",
+      "aliases": []
+    },
+    {
+      "name": "Basel IV reporting",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "regulatory reporting service"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Basel IV reporting",
+      "aliases": []
+    },
+    {
+      "name": "Citadel managed services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "managed services"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Citadel managed services",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "121M",
+        "period": "current",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "ARR: $121M",
+      "aliases": []
+    },
+    {
+      "name": "Active Banks",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Active Banks",
+        "value": "28",
+        "period": "current",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Active Banks: 28",
+      "aliases": []
+    },
+    {
+      "name": "Average Seats",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Average Seats",
+        "value": "4.7k",
+        "period": "current",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Average Seats: 4.7k",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime data lake",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake platform"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "Integration with Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "ongoing",
+        "description": "deepening integration with data lake"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "Joint Offers Launch",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "planned",
+        "description": "launch joint offers with complementary business units"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Launch joint offers with complementary BUs",
+      "aliases": []
+    },
+    {
+      "name": "Controls Engineering Hiring",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "planned",
+        "description": "address hiring gaps in controls engineering"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "source_excerpt": "Address hiring gaps in controls engineering",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Lucian Cho",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Aether Shield Financial Services",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "Lucian Cho is listed as GM/VP of the Aether Shield Financial Services unit"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "VaultSec data residency",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "VaultSec data residency is listed as a focus area"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Basel IV reporting",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "Basel IV reporting is listed as a focus area"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Citadel managed services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "Citadel managed services is listed as a focus area"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Integration with Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "Deepening integration with Horizon Prime is listed as a key workstream for the business unit"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Joint Offers Launch",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "Launching joint offers is listed as a key workstream for the business unit"
+    },
+    {
+      "source_entity": "Aether Shield Financial Services",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Controls Engineering Hiring",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "Addressing hiring gaps in controls engineering is listed as a key workstream for the business unit"
+    },
+    {
+      "source_entity": "Integration with Horizon Prime",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime data lake",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/aether_shield_financial_services_roadmap.md",
+      "evidence": "The integration project specifically involves deepening integration with Horizon Prime data lake"
+    }
+  ],
+  "metadata": {
+    "filename": "aether_shield_financial_services_roadmap.md",
+    "raw_entity_count": 12,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

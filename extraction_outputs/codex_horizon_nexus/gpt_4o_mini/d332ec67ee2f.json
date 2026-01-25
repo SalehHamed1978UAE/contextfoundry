@@ -1,0 +1,105 @@
+{
+  "document_id": "d332ec67ee2f",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:16:01.793795",
+  "entities": [
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "GM/VP",
+        "role": "General Manager/Vice President"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "source_excerpt": "GM/VP: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Energy"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "source_excerpt": "GridWave FY26 Roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "data lake"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "source_excerpt": "Deepen integration with Horizon Prime data lake",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 420000000,
+        "period": "FY26",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "source_excerpt": "ARR: $420M",
+      "aliases": []
+    },
+    {
+      "name": "Pipeline Coverage",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Pipeline Coverage",
+        "value": 3.3,
+        "period": "FY26",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "source_excerpt": "Pipeline Coverage: 3.3x",
+      "aliases": []
+    },
+    {
+      "name": "Gross Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Gross Margin",
+        "value": 57,
+        "period": "FY26",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "source_excerpt": "Gross Margin: 57%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "GridWave",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/business_units/gridwave_roadmap.md",
+      "evidence": "GM/VP: Priya Thakur"
+    }
+  ],
+  "metadata": {
+    "filename": "gridwave_roadmap.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

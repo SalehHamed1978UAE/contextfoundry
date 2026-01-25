@@ -1,0 +1,67 @@
+{
+  "document_id": "2306f3ec784f",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:07:19.722594",
+  "entities": [
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Author: Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Aurora",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Details investment envelope for Aurora",
+      "aliases": []
+    },
+    {
+      "name": "Titan",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Details investment envelope for Titan",
+      "aliases": []
+    },
+    {
+      "name": "Helix",
+      "entity_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Details investment envelope for Helix",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "CFO",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "evidence": "Author: Dylan Kaur"
+    }
+  ],
+  "metadata": {
+    "filename": "cfo_memo_capital_allocation.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

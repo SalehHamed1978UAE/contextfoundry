@@ -1,0 +1,40 @@
+{
+  "document_id": "499700d85752",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/memos/cto_memo_engineering_excellence.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:06:42.554995",
+  "entities": [
+    {
+      "name": "Dr. Eliza Morrell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cto_memo_engineering_excellence.md",
+      "source_excerpt": "Author: Dr. Eliza Morrell",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Eliza Morrell",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Unknown Organization",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cto_memo_engineering_excellence.md",
+      "evidence": "Dr. Eliza Morrell is the CTO"
+    }
+  ],
+  "metadata": {
+    "filename": "cto_memo_engineering_excellence.md",
+    "raw_entity_count": 1,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

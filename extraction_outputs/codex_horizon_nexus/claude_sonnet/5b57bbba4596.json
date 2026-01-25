@@ -1,0 +1,156 @@
+{
+  "document_id": "5b57bbba4596",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:06:08.207288",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Supply Chain Taskforce",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "supply chain management"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Supply Chain Taskforce Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "product requiring allocation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "CoreMatrix allocation",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech robotics",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "robotics technology"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "VectorTech robotics",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active with milestones"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "operations management platform"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supply Chain Taskforce",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "Maya Serrano listed as attendee of Supply Chain Taskforce meeting"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Supply Chain Taskforce",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "Dylan Kaur listed as attendee of Supply Chain Taskforce meeting"
+    },
+    {
+      "source_entity": "Supply Chain Taskforce",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "CoreMatrix",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "CoreMatrix allocation was a meeting topic"
+    },
+    {
+      "source_entity": "Supply Chain Taskforce",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "VectorTech robotics",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "VectorTech robotics was a meeting topic"
+    },
+    {
+      "source_entity": "Supply Chain Taskforce",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "Taskforce decided to reinforce Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Supply Chain Taskforce",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/supply_chain_taskforce_2026_01_28.md",
+      "evidence": "Owners assigned in PulseOps for action items"
+    }
+  ],
+  "metadata": {
+    "filename": "supply_chain_taskforce_2026_01_28.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
