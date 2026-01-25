@@ -1,0 +1,196 @@
+{
+  "document_id": "b14a329d-e7b3-490e-b83d-f94edfcadd92",
+  "document_path": "02_information_security.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T14:31:12.793784",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Information Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "This policy establishes requirements for protecting Nexus Industries' information assets",
+      "aliases": []
+    },
+    {
+      "name": "Maria Santos",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CISO",
+        "role": "Chief Information Security Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Approved by: Maria Santos, CISO",
+      "aliases": []
+    },
+    {
+      "name": "Information Security Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-002",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Policy",
+      "aliases": []
+    },
+    {
+      "name": "Information Security Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Information Security Governance"
+      },
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Information Security Council",
+      "aliases": []
+    },
+    {
+      "name": "CISO",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Information Security"
+      },
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "CISO (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "CTO",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Technology"
+      },
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "CTO",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Legal"
+      },
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "General Counsel",
+      "aliases": []
+    },
+    {
+      "name": "Division CISOs",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Information Security"
+      },
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "Division CISOs",
+      "aliases": []
+    },
+    {
+      "name": "VP IT",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Information Technology"
+      },
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "source_excerpt": "VP IT",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_information_security.md",
+      "evidence": "Approved by: Maria Santos, CISO"
+    },
+    {
+      "source_entity": "Information Security Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "02_information_security.md",
+      "evidence": "Information Security Council"
+    },
+    {
+      "source_entity": "CISO",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "evidence": "CISO (Chair)"
+    },
+    {
+      "source_entity": "CTO",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "evidence": "CTO"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "evidence": "General Counsel"
+    },
+    {
+      "source_entity": "Division CISOs",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "evidence": "Division CISOs"
+    },
+    {
+      "source_entity": "VP IT",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Information Security Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "02_information_security.md",
+      "evidence": "VP IT"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

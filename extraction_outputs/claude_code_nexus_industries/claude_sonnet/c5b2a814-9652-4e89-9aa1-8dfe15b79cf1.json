@@ -2,13 +2,13 @@
   "document_id": "c5b2a814-9652-4e89-9aa1-8dfe15b79cf1",
   "document_path": "02_aerospace_division_strategy.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:03:39.839445",
+  "extracted_at": "2026-01-25T14:23:51.083210",
   "entities": [
     {
       "name": "Nexus Aerospace Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "aerospace systems, autonomy, space, aviation"
+        "focus_areas": "advanced aerospace systems, autonomy, space, next-generation aviation"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -32,7 +32,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Engineering",
-        "role": "Vice President of Engineering"
+        "role": "VP Engineering"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -44,7 +44,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Programs",
-        "role": "Vice President of Programs"
+        "role": "VP Programs"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -56,7 +56,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division CFO",
-        "role": "Chief Financial Officer"
+        "role": "Division CFO"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -129,7 +129,7 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$85M",
-        "description": "36 units/year by 2030"
+        "timeline": "36 units/year by 2030"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -165,7 +165,7 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$245M",
-        "description": "TRL 6 by 2028"
+        "timeline": "TRL 6 by 2028"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -260,8 +260,8 @@
       "name": "Boeing",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Customer/Partner",
-        "industry": "aerospace"
+        "type": "Customer",
+        "industry": "Aerospace"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -273,7 +273,7 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Customer/Competitor",
-        "industry": "aerospace"
+        "industry": "Defense"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -281,35 +281,11 @@
       "aliases": []
     },
     {
-      "name": "Northrop Grumman",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Competitor/Partner",
-        "industry": "aerospace"
-      },
-      "confidence": 1.0,
-      "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "Northrop Grumman | Technology | Partnership",
-      "aliases": []
-    },
-    {
-      "name": "L3Harris",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Competitor",
-        "industry": "aerospace"
-      },
-      "confidence": 1.0,
-      "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "L3Harris | Electronics | Complementary",
-      "aliases": []
-    },
-    {
       "name": "SpaceX",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Customer/Partner",
-        "industry": "space"
+        "industry": "Space"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -317,11 +293,23 @@
       "aliases": []
     },
     {
+      "name": "Northrop Grumman",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Partner/Competitor",
+        "industry": "Defense"
+      },
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "Northrop Grumman | Partner | Systems integration",
+      "aliases": []
+    },
+    {
       "name": "DARPA",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Sponsor",
-        "industry": "defense"
+        "industry": "Government"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -329,11 +317,23 @@
       "aliases": []
     },
     {
+      "name": "L3Harris",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Competitor",
+        "industry": "Defense"
+      },
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "L3Harris | Electronics | Complementary",
+      "aliases": []
+    },
+    {
       "name": "Airbus",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Customer",
-        "industry": "aerospace"
+        "industry": "Aerospace"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -392,7 +392,7 @@
       "name": "Autonomy Center",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "development center",
+        "type": "Development Center",
         "purpose": "UAV development"
       },
       "confidence": 1.0,
@@ -404,7 +404,7 @@
       "name": "Satellite Factory",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "manufacturing facility",
+        "type": "Manufacturing",
         "purpose": "Manufacturing"
       },
       "confidence": 1.0,
@@ -416,7 +416,7 @@
       "name": "Test Facility",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "testing facility",
+        "type": "Testing",
         "purpose": "Flight testing"
       },
       "confidence": 1.0,
@@ -428,7 +428,7 @@
       "name": "Digital Lab",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "laboratory",
+        "type": "Laboratory",
         "purpose": "Simulation"
       },
       "confidence": 1.0,
@@ -437,7 +437,7 @@
       "aliases": []
     },
     {
-      "name": "Revenue FY2025",
+      "name": "FY2025 Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Revenue",
@@ -451,21 +451,7 @@
       "aliases": []
     },
     {
-      "name": "Revenue FY2030 Target",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$4.8B",
-        "period": "FY2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "Revenue | $2.85B | $4.8B | 11.0%",
-      "aliases": []
-    },
-    {
-      "name": "Operating Margin FY2025",
+      "name": "FY2025 Operating Margin",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Operating Margin",
@@ -479,21 +465,21 @@
       "aliases": []
     },
     {
-      "name": "Operating Margin FY2030 Target",
+      "name": "FY2025 Employees",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Operating Margin",
-        "value": "15.0%",
-        "period": "FY2030",
-        "type": "PERCENTAGE"
+        "metric_name": "Employees",
+        "value": "3,200",
+        "period": "FY2025",
+        "type": "COUNT"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "source_excerpt": "Operating Margin | 12.0% | 15.0%",
+      "source_excerpt": "Employees | 3,200",
       "aliases": []
     },
     {
-      "name": "Backlog FY2025",
+      "name": "FY2025 Backlog",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Backlog",
@@ -507,7 +493,49 @@
       "aliases": []
     },
     {
-      "name": "Backlog FY2030 Target",
+      "name": "FY2030 Revenue Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$4.8B",
+        "period": "FY2030",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "Revenue | $2.85B | $4.8B | 11.0%",
+      "aliases": []
+    },
+    {
+      "name": "FY2030 Operating Margin Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Operating Margin",
+        "value": "15.0%",
+        "period": "FY2030",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "Operating Margin | 12.0% | 15.0%",
+      "aliases": []
+    },
+    {
+      "name": "FY2030 Employee Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Employees",
+        "value": "4,500",
+        "period": "FY2030",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "source_excerpt": "Employees | 3,200 | 4,500 | 7.1%",
+      "aliases": []
+    },
+    {
+      "name": "FY2030 Backlog Target",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Backlog",
@@ -524,9 +552,8 @@
       "name": "Autonomous Navigation",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Autonomous navigation technology",
-        "current_TRL": "5",
-        "target_TRL": "9"
+        "description": "Current TRL 5, 2030 TRL 9",
+        "investment": "$95M"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -537,9 +564,8 @@
       "name": "Scramjet Propulsion",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Scramjet propulsion technology",
-        "current_TRL": "4",
-        "target_TRL": "6"
+        "description": "Current TRL 4, 2030 TRL 6",
+        "investment": "$120M"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -550,9 +576,8 @@
       "name": "Small Satellite Platform",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Small satellite platform technology",
-        "current_TRL": "6",
-        "target_TRL": "9"
+        "description": "Current TRL 6, 2030 TRL 9",
+        "investment": "$55M"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -563,9 +588,8 @@
       "name": "Advanced Composites",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Advanced composites technology",
-        "current_TRL": "5",
-        "target_TRL": "8"
+        "description": "Current TRL 5, 2030 TRL 8",
+        "investment": "$45M"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -576,9 +600,8 @@
       "name": "Digital Twin",
       "entity_type": "TECHNOLOGY",
       "properties": {
-        "description": "Digital twin technology",
-        "current_TRL": "4",
-        "target_TRL": "7"
+        "description": "Current TRL 4, 2030 TRL 7",
+        "investment": "$35M"
       },
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
@@ -640,7 +663,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "Falcon X UAV project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -651,7 +674,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "Autonomy Software project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -662,7 +685,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "Sensor Fusion project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -673,7 +696,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "AI/ML Center project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -684,7 +707,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "Orbital Constellation project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -695,7 +718,29 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "StarLiner Satellite Bus project listed under Nexus Aerospace initiatives"
+    },
+    {
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Launch Integration",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Launch Integration project listed under Nexus Aerospace initiatives"
+    },
+    {
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Ground Systems",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Ground Systems project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -706,7 +751,40 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "Hypersonic Technology project listed under Nexus Aerospace initiatives"
+    },
+    {
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "NGAD Positioning",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "NGAD Positioning project listed under Nexus Aerospace initiatives"
+    },
+    {
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Electronic Warfare",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Electronic Warfare project listed under Nexus Aerospace initiatives"
+    },
+    {
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Classified Programs",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Classified Programs project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -717,7 +795,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "Boeing Programs project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -728,51 +806,29 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Division project listed under strategic priorities"
+      "evidence": "Airbus Programs project listed under Nexus Aerospace initiatives"
     },
     {
-      "source_entity": "Autonomy Center",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Seattle",
-      "target_type": "LOCATION",
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Business Aviation",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Autonomy Center | Seattle"
+      "evidence": "Business Aviation project listed under Nexus Aerospace initiatives"
     },
     {
-      "source_entity": "Satellite Factory",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "LA",
-      "target_type": "LOCATION",
+      "source_entity": "Nexus Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "MRO Services",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Satellite Factory | LA"
-    },
-    {
-      "source_entity": "Test Facility",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Mojave",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Test Facility | Mojave"
-    },
-    {
-      "source_entity": "Digital Lab",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Digital Lab | Phoenix"
+      "evidence": "MRO Services project listed under Nexus Aerospace initiatives"
     },
     {
       "source_entity": "Boeing",
@@ -825,9 +881,64 @@
       "target_entity": "Nexus Aerospace Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
       "evidence": "DARPA | Sponsor | Technology funding"
+    },
+    {
+      "source_entity": "Airbus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Aerospace Division",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Airbus Programs mentioned as customer relationship"
+    },
+    {
+      "source_entity": "Autonomy Center",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Seattle",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Autonomy Center | Seattle | $45M | UAV development"
+    },
+    {
+      "source_entity": "Satellite Factory",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "LA",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Satellite Factory | LA | $65M | Manufacturing"
+    },
+    {
+      "source_entity": "Test Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Mojave",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Test Facility | Mojave | $35M | Flight testing"
+    },
+    {
+      "source_entity": "Digital Lab",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "Digital Lab | Phoenix | $25M | Simulation"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -836,9 +947,9 @@
       "target_entity": "Autonomous Navigation",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Technology roadmap includes autonomous navigation"
+      "evidence": "Technology roadmap shows Autonomous Navigation as key technology"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -847,9 +958,9 @@
       "target_entity": "Scramjet Propulsion",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Technology roadmap includes scramjet propulsion"
+      "evidence": "Technology roadmap shows Scramjet Propulsion as key technology"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -858,9 +969,9 @@
       "target_entity": "Small Satellite Platform",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Technology roadmap includes small satellite platform"
+      "evidence": "Technology roadmap shows Small Satellite Platform as key technology"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -869,9 +980,9 @@
       "target_entity": "Advanced Composites",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Technology roadmap includes advanced composites"
+      "evidence": "Technology roadmap shows Advanced Composites as key technology"
     },
     {
       "source_entity": "Nexus Aerospace Division",
@@ -880,15 +991,15 @@
       "target_entity": "Digital Twin",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Technology roadmap includes digital twin"
+      "evidence": "Technology roadmap shows Digital Twin as key technology"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 47,
-    "raw_relationship_count": 27,
+    "raw_entity_count": 49,
+    "raw_relationship_count": 35,
     "used_partial_parse": false,
     "truncated": false
   }

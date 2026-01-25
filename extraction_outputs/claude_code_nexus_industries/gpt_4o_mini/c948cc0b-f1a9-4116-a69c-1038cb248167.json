@@ -2,7 +2,7 @@
   "document_id": "c948cc0b-f1a9-4116-a69c-1038cb248167",
   "document_path": "01_board_meeting_q4_2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T11:42:21.166327",
+  "extracted_at": "2026-01-25T14:10:55.410212",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -33,7 +33,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Former HP CTO"
+        "role": "former HP CTO"
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -45,7 +45,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Former GE CEO"
+        "role": "former GE CEO"
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -129,7 +129,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "General Counsel",
-        "role": "Legal"
+        "role": "General Counsel"
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -153,7 +153,7 @@
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Corporation",
-        "industry": "Manufacturing"
+        "industry": "Various"
       },
       "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -270,7 +270,7 @@
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Top 10 enterprise risks reviewed",
+      "source_excerpt": "Approved: Updated risk framework",
       "aliases": []
     },
     {
@@ -317,7 +317,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Dr. Victoria Chen, CEO & Chair"
+      "evidence": "Dr. Victoria Chen leads the executive team"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -326,20 +326,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "Dr. Victoria Chen, CEO & Chair"
-    },
-    {
-      "source_entity": "Robert Mitchell",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Robert Mitchell, Lead Independent Director"
     },
     {
       "source_entity": "Michael Chang",
@@ -386,208 +375,142 @@
       "evidence": "Maria Santos, CHRO"
     },
     {
-      "source_entity": "Michael Chang",
+      "source_entity": "Robert Mitchell",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Robert Mitchell, Lead Independent Director"
+    },
+    {
+      "source_entity": "James Harrison",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
       "target_entity": "Q4 2025 Financial Review",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Michael Chang, CFO"
+      "evidence": "James Harrison asked about sustainability of margin expansion"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
+      "source_entity": "Maria Gonzalez",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
       "target_entity": "FY2026 Operating Plan and Budget",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Dr. Victoria Chen, CEO"
+      "evidence": "Maria Gonzalez inquired about capital allocation priorities"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
+      "source_entity": "Dr. Kim",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
+      "target_entity": "FY2026 Operating Plan and Budget",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Dr. Kim raised concerns about R&D efficiency metrics"
+    },
+    {
+      "source_entity": "James Harrison",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
       "target_entity": "Falcon X UAV Program",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Dr. Victoria Chen"
+      "evidence": "James Harrison praised Aerospace execution"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
+      "source_entity": "Maria Gonzalez",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Dr. Victoria Chen"
+      "evidence": "Maria Gonzalez asked about hydrogen project financing"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
+      "source_entity": "Dr. Kim",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
       "target_entity": "BatteryTech Solid-State",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Dr. Victoria Chen"
+      "evidence": "Dr. Kim inquired about battery technology IP protection"
     },
     {
-      "source_entity": "Robert Kim",
+      "source_entity": "Dr. Kim",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
       "target_entity": "Cybersecurity Update",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Robert Kim, CISO (via video)"
+      "evidence": "Dr. Kim requested annual security briefing"
     },
     {
-      "source_entity": "Compensation Committee",
+      "source_entity": "Robert Mitchell",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
+      "target_entity": "Cybersecurity Update",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Robert Mitchell emphasized board-level oversight"
+    },
+    {
+      "source_entity": "Maria Gonzalez",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
       "target_entity": "Executive Compensation Review",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Compensation Committee (Maria Gonzalez, Chair)"
+      "evidence": "Maria Gonzalez, Chair of Compensation Committee"
     },
     {
       "source_entity": "Lisa Thompson",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
       "target_entity": "Governance Matters",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Lisa Thompson, General Counsel"
+      "evidence": "Lisa Thompson, General Counsel"
     },
     {
       "source_entity": "James Harrison",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "PART_OF",
       "target_entity": "Risk Review",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Presenter: Risk Committee (James Harrison, Chair)"
-    },
-    {
-      "source_entity": "Q4 2025 Financial Review",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Q4 revenue of $2.38B"
-    },
-    {
-      "source_entity": "FY2026 Operating Plan and Budget",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "FY2026 revenue target: $9.5-9.8B"
-    },
-    {
-      "source_entity": "Falcon X UAV Program",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Falcon X UAV Program - On track for Q2 2026 first flight"
-    },
-    {
-      "source_entity": "GreenHydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "First hydrogen production expected March 2026"
-    },
-    {
-      "source_entity": "BatteryTech Solid-State",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Commercial production target: Q4 2027"
-    },
-    {
-      "source_entity": "Cybersecurity Update",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "FY2026 cybersecurity budget for FY2026"
-    },
-    {
-      "source_entity": "Executive Compensation Review",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "CEO total compensation: $4.2M"
-    },
-    {
-      "source_entity": "Governance Matters",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Governance policy updates"
-    },
-    {
-      "source_entity": "Risk Review",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Top 10 enterprise risks reviewed"
+      "evidence": "James Harrison, Chair of Risk Committee"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 25,
-    "raw_relationship_count": 25,
+    "raw_relationship_count": 18,
     "used_partial_parse": false,
     "truncated": false
   }

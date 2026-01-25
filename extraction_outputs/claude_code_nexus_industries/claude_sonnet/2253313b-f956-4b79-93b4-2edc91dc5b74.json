@@ -2,7 +2,7 @@
   "document_id": "2253313b-f956-4b79-93b4-2edc91dc5b74",
   "document_path": "02_organizational_announcement.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:09:10.084558",
+  "extracted_at": "2026-01-25T14:35:49.622157",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -11,7 +11,7 @@
         "title": "CEO",
         "role": "Chief Executive Officer"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "Dr. Victoria Chen, CEO",
       "aliases": []
@@ -20,12 +20,13 @@
       "name": "Robert Kim",
       "entity_type": "PERSON",
       "properties": {
-        "title": "President",
-        "role": "President of Nexus Digital Solutions",
-        "education": "Ph.D. in Computer Science from Stanford and MBA from Wharton",
-        "joined": "2018"
+        "title": "President of Nexus Digital Solutions",
+        "role": "President",
+        "previous_role": "CISO",
+        "education": "Ph.D. in Computer Science from Stanford, MBA from Wharton",
+        "join_date": "2018"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "Robert Kim has been appointed President of Nexus Digital Solutions",
       "aliases": []
@@ -35,11 +36,12 @@
       "entity_type": "PERSON",
       "properties": {
         "role": "Former President",
-        "tenure": "15 years"
+        "service_years": "15",
+        "status": "stepping down"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Robert succeeds Thomas Anderson, who is stepping down for personal health reasons after 15 years of distinguished service",
+      "source_excerpt": "Robert succeeds Thomas Anderson, who is stepping down for personal health reasons after 15 years",
       "aliases": []
     },
     {
@@ -49,7 +51,7 @@
         "title": "VP Engineering",
         "previous_role": "VP Platform Engineering"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "VP Engineering | Dr. Alan Chen | VP Platform Engineering",
       "aliases": []
@@ -62,7 +64,7 @@
         "previous_role": "Sr. Director Product",
         "acting_role": "IoT & Edge Computing"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "VP Product | Michelle Torres | Sr. Director Product",
       "aliases": []
@@ -72,9 +74,9 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Sales",
-        "role": "VP Sales"
+        "status": "No change"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "VP Sales | Steven Park | No change",
       "aliases": []
@@ -84,9 +86,9 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Customer Success",
-        "role": "VP Customer Success"
+        "status": "No change"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "VP Customer Success | David Lee | No change",
       "aliases": []
@@ -99,7 +101,7 @@
         "previous_role": "Director Security Operations",
         "acting_role": "Cybersecurity"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "CISO (New) | Jennifer Walsh | Director Security Operations",
       "aliases": []
@@ -111,7 +113,7 @@
         "title": "VP Finance",
         "previous_role": "Controller, Digital"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "VP Finance | Jennifer Adams | Controller, Digital",
       "aliases": []
@@ -120,9 +122,9 @@
       "name": "Dr. Michael Foster",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Quantum Computing Business Unit Leader"
+        "role": "Quantum Computing leader"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "Quantum Computing (Dr. Michael Foster)",
       "aliases": []
@@ -134,7 +136,7 @@
         "title": "HR Business Partner",
         "email": "sarah.kim@nexus-industries.com"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "HR Business Partner Sarah Kim (sarah.kim@nexus-industries.com)",
       "aliases": []
@@ -143,9 +145,9 @@
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Corporation"
+        "type": "Parent Company"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "CEO, Nexus Industries",
       "aliases": []
@@ -154,32 +156,25 @@
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Digital Solutions Division",
+        "type": "Division",
         "parent": "Nexus Industries"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "President of Nexus Digital Solutions",
-      "aliases": []
-    },
-    {
-      "name": "Digital Solutions",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "type": "Division"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Digital Solutions Division",
       "aliases": []
     },
     {
       "name": "IoT & Edge Computing",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "NexusConnect IoT Platform, Edge AI Solutions, Industrial Automation"
+        "focus_areas": [
+          "NexusConnect IoT Platform",
+          "Edge AI Solutions",
+          "Industrial Automation"
+        ]
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "IoT & Edge Computing (Michelle Torres, acting)",
       "aliases": []
@@ -188,9 +183,13 @@
       "name": "Cybersecurity",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "CyberShield Security Suite, Security Operations Center, Threat Intelligence"
+        "focus_areas": [
+          "CyberShield Security Suite",
+          "Security Operations Center",
+          "Threat Intelligence"
+        ]
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "Cybersecurity (Jennifer Walsh, acting)",
       "aliases": []
@@ -199,11 +198,27 @@
       "name": "Quantum Computing",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "QuantumLeap Computing Services, Quantum Algorithm Development, Research Partnerships"
+        "focus_areas": [
+          "QuantumLeap Computing Services",
+          "Quantum Algorithm Development",
+          "Research Partnerships"
+        ]
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "Quantum Computing (Dr. Michael Foster)",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Security product launched under Robert Kim's leadership",
+        "category": "Security Suite"
+      },
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "launched CyberShield",
       "aliases": []
     },
     {
@@ -212,97 +227,20 @@
       "properties": {
         "category": "IoT Platform"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "NexusConnect IoT Platform",
-      "aliases": []
-    },
-    {
-      "name": "Edge AI Solutions",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "category": "AI Solutions"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Edge AI Solutions",
-      "aliases": []
-    },
-    {
-      "name": "Industrial Automation",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "category": "Automation Solutions"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Industrial Automation",
-      "aliases": []
-    },
-    {
-      "name": "CyberShield",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "category": "Security Suite"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "CyberShield Security Suite",
-      "aliases": []
-    },
-    {
-      "name": "Security Operations Center",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Security operations service"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Security Operations Center",
-      "aliases": []
-    },
-    {
-      "name": "Threat Intelligence",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Threat intelligence service"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Threat Intelligence",
       "aliases": []
     },
     {
       "name": "QuantumLeap Computing Services",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Quantum computing services"
+        "description": "Quantum Computing Services"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "QuantumLeap Computing Services",
-      "aliases": []
-    },
-    {
-      "name": "Quantum Algorithm Development",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Algorithm development service"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Quantum Algorithm Development",
-      "aliases": []
-    },
-    {
-      "name": "Research Partnerships",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Research collaboration service"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Research Partnerships",
       "aliases": []
     },
     {
@@ -314,90 +252,43 @@
         "period": "FY2026",
         "type": "COUNT"
       },
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "Digital Solutions will add 450 new positions in FY2026",
       "aliases": []
     },
     {
-      "name": "200 Software Engineering",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Software Engineering Hiring",
-        "value": "200",
-        "period": "FY2026",
-        "type": "COUNT"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Software Engineering: 200",
-      "aliases": []
-    },
-    {
-      "name": "85 Security Operations",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Security Operations Hiring",
-        "value": "85",
-        "period": "FY2026",
-        "type": "COUNT"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Security Operations: 85",
-      "aliases": []
-    },
-    {
-      "name": "80 Sales & Marketing",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Sales & Marketing Hiring",
-        "value": "80",
-        "period": "FY2026",
-        "type": "COUNT"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Sales & Marketing: 80",
-      "aliases": []
-    },
-    {
-      "name": "50 Customer Success",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Customer Success Hiring",
-        "value": "50",
-        "period": "FY2026",
-        "type": "COUNT"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Customer Success: 50",
-      "aliases": []
-    },
-    {
-      "name": "35 Product Management",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Product Management Hiring",
-        "value": "35",
-        "period": "FY2026",
-        "type": "COUNT"
-      },
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "source_excerpt": "Product Management: 35",
-      "aliases": []
-    },
-    {
-      "name": "SOC 2 Type II",
+      "name": "SOC 2 Type II certification",
       "entity_type": "POLICY",
       "properties": {
-        "category": "Compliance Certification"
+        "policy_ID": "SOC 2 Type II",
+        "category": "Security Certification"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
       "source_excerpt": "we achieved SOC 2 Type II certification",
+      "aliases": []
+    },
+    {
+      "name": "Stanford",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "University"
+      },
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "Ph.D. in Computer Science from Stanford",
+      "aliases": []
+    },
+    {
+      "name": "Wharton",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Business School"
+      },
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "source_excerpt": "MBA from Wharton",
       "aliases": []
     }
   ],
@@ -409,20 +300,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "Dr. Victoria Chen, CEO"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Dr. Victoria Chen, CEO"
+      "evidence": "Dr. Victoria Chen, CEO, Nexus Industries"
     },
     {
       "source_entity": "Robert Kim",
@@ -431,18 +311,7 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Robert Kim has been appointed President of Nexus Digital Solutions"
-    },
-    {
-      "source_entity": "Robert Kim",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Robert Kim has been appointed President of Nexus Digital Solutions"
     },
@@ -453,20 +322,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Robert joined Nexus in 2018"
-    },
-    {
-      "source_entity": "Thomas Anderson",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "Thomas Anderson, who is stepping down for personal health reasons after 15 years of distinguished service"
     },
     {
       "source_entity": "Dr. Alan Chen",
@@ -475,20 +333,9 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "VP Engineering | Dr. Alan Chen"
-    },
-    {
-      "source_entity": "Michelle Torres",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "VP Product | Michelle Torres"
     },
     {
       "source_entity": "Michelle Torres",
@@ -497,42 +344,9 @@
       "target_entity": "IoT & Edge Computing",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "IoT & Edge Computing (Michelle Torres, acting)"
-    },
-    {
-      "source_entity": "Steven Park",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "VP Sales | Steven Park"
-    },
-    {
-      "source_entity": "David Lee",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "VP Customer Success | David Lee"
-    },
-    {
-      "source_entity": "Jennifer Walsh",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "CISO (New) | Jennifer Walsh"
     },
     {
       "source_entity": "Jennifer Walsh",
@@ -541,20 +355,9 @@
       "target_entity": "Cybersecurity",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Cybersecurity (Jennifer Walsh, acting)"
-    },
-    {
-      "source_entity": "Jennifer Adams",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "VP Finance | Jennifer Adams"
     },
     {
       "source_entity": "Dr. Michael Foster",
@@ -563,20 +366,9 @@
       "target_entity": "Quantum Computing",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Quantum Computing (Dr. Michael Foster)"
-    },
-    {
-      "source_entity": "Sarah Kim",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "HR Business Partner Sarah Kim"
     },
     {
       "source_entity": "Nexus Digital Solutions",
@@ -585,9 +377,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
-      "evidence": "Digital Solutions Division"
+      "evidence": "Digital Solutions division of Nexus Industries"
     },
     {
       "source_entity": "IoT & Edge Computing",
@@ -596,7 +388,7 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Digital Solutions is reorganizing into three business units"
     },
@@ -607,7 +399,7 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Digital Solutions is reorganizing into three business units"
     },
@@ -618,7 +410,7 @@
       "target_entity": "Nexus Digital Solutions",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.95,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Digital Solutions is reorganizing into three business units"
     },
@@ -629,31 +421,9 @@
       "target_entity": "NexusConnect IoT Platform",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
       "evidence": "IoT & Edge Computing - NexusConnect IoT Platform"
-    },
-    {
-      "source_entity": "IoT & Edge Computing",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Edge AI Solutions",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "IoT & Edge Computing - Edge AI Solutions"
-    },
-    {
-      "source_entity": "IoT & Edge Computing",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Industrial Automation",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_organizational_announcement.md",
-      "evidence": "IoT & Edge Computing - Industrial Automation"
     },
     {
       "source_entity": "Cybersecurity",
@@ -662,7 +432,7 @@
       "target_entity": "CyberShield",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Cybersecurity - CyberShield Security Suite"
     },
@@ -673,15 +443,26 @@
       "target_entity": "QuantumLeap Computing Services",
       "target_type": "SERVICE",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_organizational_announcement.md",
       "evidence": "Quantum Computing - QuantumLeap Computing Services"
+    },
+    {
+      "source_entity": "Thomas Anderson",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_organizational_announcement.md",
+      "evidence": "Thomas Anderson, who is stepping down after 15 years"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 33,
-    "raw_relationship_count": 25,
+    "raw_entity_count": 23,
+    "raw_relationship_count": 15,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "3439eabf-2b91-4615-965b-8ed4d2b75390",
   "document_path": "01_ceo_all_hands_memo.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T11:45:25.942663",
+  "extracted_at": "2026-01-25T14:14:19.984981",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -13,7 +13,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Dr. Victoria Chen, CEO",
+      "source_excerpt": "From: Dr. Victoria Chen, CEO",
       "aliases": []
     },
     {
@@ -25,7 +25,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Nexus Industries delivered its strongest year in company history",
+      "source_excerpt": "Nexus Industries delivered its strongest year in company history.",
       "aliases": []
     },
     {
@@ -38,7 +38,7 @@
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget",
+      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget.",
       "aliases": []
     },
     {
@@ -51,43 +51,42 @@
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility",
+      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility.",
       "aliases": []
     },
     {
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership type": "Joint venture"
+        "partnership type": "Joint Venture"
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "We finalized our solid-state battery joint venture with Toyota",
+      "source_excerpt": "We finalized our solid-state battery joint venture with Toyota.",
       "aliases": []
     },
     {
       "name": "CyberShield",
-      "entity_type": "PROJECT",
+      "entity_type": "PRODUCT",
       "properties": {
-        "budget": null,
-        "timeline": null,
-        "status": "Achieved FedRAMP High authorization"
+        "description": "Cybersecurity solution",
+        "category": "Digital Solutions"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "CyberShield now protects over 2 million endpoints",
+      "source_excerpt": "CyberShield now protects over 2 million endpoints.",
       "aliases": []
     },
     {
       "name": "NexusConnect",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Edge AI processing capabilities",
+        "description": "AI processing capabilities",
         "category": "Digital Solutions"
       },
       "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Edge AI processing capabilities for NexusConnect",
+      "source_excerpt": "Edge AI processing capabilities for NexusConnect.",
       "aliases": []
     },
     {
@@ -99,31 +98,40 @@
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Construction is 68% complete at our El Paso facility",
+      "source_excerpt": "Construction is 68% complete at our El Paso facility.",
       "aliases": []
     },
     {
-      "name": "Nexus Industries Board of Directors",
+      "name": "Board of Directors",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Board",
-        "industry": "Corporate Governance"
-      },
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "our Board of Directors approved a 12% dividend increase",
-      "aliases": []
-    },
-    {
-      "name": "Phoenix HQ",
-      "entity_type": "FACILITY",
-      "properties": {
-        "location": "Phoenix",
-        "type": "Headquarters"
+        "type": "Governing Body"
       },
       "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Join our CEO Town Hall on January 28 at 2:00 PM PT (virtual and in-person at Phoenix HQ)",
+      "source_excerpt": "our Board of Directors approved a 12% dividend increase.",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Team",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "All Employees"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Dear Nexus Team,",
+      "aliases": []
+    },
+    {
+      "name": "Asia-Pacific",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Asia-Pacific"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Grow our Asia-Pacific presence with targeted investments.",
       "aliases": []
     }
   ],
@@ -154,23 +162,23 @@
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
+      "target_entity": "CyberShield",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Our largest aerospace program remains on schedule"
+      "evidence": "CyberShield now protects over 2 million endpoints."
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Board of Directors",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Construction is 68% complete at our El Paso facility"
+      "evidence": "our Board of Directors approved a 12% dividend increase."
     },
     {
       "source_entity": "Nexus Industries",
@@ -181,46 +189,68 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "We finalized our solid-state battery joint venture with Toyota"
+      "evidence": "We finalized our solid-state battery joint venture with Toyota."
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "CyberShield",
+      "relationship_type": "OWNS",
+      "target_entity": "Falcon X UAV Program",
       "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Falcon X UAV Program: Our largest aerospace program remains on schedule."
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "GreenHydrogen Initiative: Construction is 68% complete."
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "CyberShield now protects over 2 million endpoints"
+      "evidence": "Expand our Digital Solutions business with AI-powered security."
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix HQ",
-      "target_type": "FACILITY",
+      "target_entity": "El Paso",
+      "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Join our CEO Town Hall on January 28 at 2:00 PM PT (virtual and in-person at Phoenix HQ)"
+      "evidence": "Construction is 68% complete at our El Paso facility."
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Nexus Industries Board of Directors",
-      "target_type": "ORGANIZATION",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Sustainability Leadership",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.8,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "our Board of Directors approved a 12% dividend increase"
+      "evidence": "Achieve 70% renewable energy and continue progress toward carbon neutrality."
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 10,
-    "raw_relationship_count": 8,
+    "raw_entity_count": 11,
+    "raw_relationship_count": 10,
     "used_partial_parse": false,
     "truncated": false
   }

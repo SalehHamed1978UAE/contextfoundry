@@ -1,0 +1,199 @@
+Resume Capability + Workflow Decoupling                                       
+                                                                                                         
+  Problem                                                                                                
+                                                                                                         
+  1. Extraction restarted from 0/100 when "Start All" killed "Run Extraction"                            
+  2. Lost 39 documents of work                                                                           
+  3. This will happen again unless fixed                                                                 
+                                                                                                         
+  ---                                                                                                    
+  Step 1: Apply Database Migration (DO FIRST - 5 seconds)                                                
+                                                                                                         
+  The extraction_level column is required for everything else. Run immediately:                          
+                                                                                                         
+  ALTER TABLE platform.documents                                                                         
+  ADD COLUMN IF NOT EXISTS extraction_level VARCHAR(20) DEFAULT NULL;                                    
+                                                                                                         
+  ---                                                                                                    
+  Step 2: Decouple "Run Extraction" from "Start All" (DO SECOND)                                         
+                                                                                                         
+  Root cause: "Start All" kills all workflows, including "Run Extraction".                               
+                                                                                                         
+  Fix: In the "Start All" workflow configuration, do ONE of these:                                       
+                                                                                                         
+  Option A (Recommended): Remove "Run Extraction" from the kill list entirely. The extraction workflow   
+  should be independent.                                                                                 
+                                                                                                         
+  Option B: Add a check before killing:                                                                  
+  # In Start All workflow                                                                                
+  if workflow_name == "Run Extraction":                                                                  
+      # Don't kill - let it continue running                                                             
+      continue                                                                                           
+                                                                                                         
+  Option C: Move "Run Extraction" to a separate Replit deployment or make it a background service that   
+  "Start All" doesn't manage.                                                                            
+                                                                                                         
+  Result: "Run Extraction" only stops when:                                                              
+  - It finishes all documents                                                                            
+  - It's manually stopped                                                                                
+  - It crashes (which resume logic will handle)                                                          
+                                                                                                         
+  ---                                                                                                    
+  Step 3: Update Document Query to Skip Already-Processed Docs                                           
+                                                                                                         
+  In run_vault_extraction.py, find the query that gets documents for extraction.                         
+                                                                                                         
+  Change from:                                                                                           
+  SELECT id, name, ... FROM platform.documents WHERE tenant_id = :vault_id                               
+                                                                                                         
+  Change to:                                                                                             
+  SELECT id, name, ... FROM platform.documents                                                           
+  WHERE tenant_id = :vault_id                                                                            
+  AND (extraction_level IS NULL OR extraction_level != 'multi')                                          
+                                                                                                         
+  This skips documents that already completed multi-model extraction.                                    
+                                                                                                         
+  ---                                                                                                    
+  Step 4: Save Progress After EACH Document (Not Batched)                                                
+                                                                                                         
+  In run_vault_extraction.py, immediately after a document's multi-model extraction succeeds, update the 
+  database:                                                                                              
+                                                                                                         
+  def process_document(doc_id, doc_name, vault_id, session):                                             
+      try:                                                                                               
+          # ... existing extraction code ...                                                             
+                                                                                                         
+          # IMMEDIATELY after successful extraction:                                                     
+          session.execute(                                                                               
+              text("""                                                                                   
+                  UPDATE platform.documents                                                              
+                  SET extraction_level = 'multi'                                                         
+                  WHERE id = :doc_id                                                                     
+              """),                                                                                      
+              {"doc_id": doc_id}                                                                         
+          )                                                                                              
+          session.commit()                                                                               
+          print(f"✓ [{current}/{total}] {doc_name} - multi-model complete")                              
+                                                                                                         
+      except Exception as e:                                                                             
+          print(f"✗ [{current}/{total}] {doc_name} - failed: {e}")                                       
+          # Don't set extraction_level - will retry on next run                                          
+                                                                                                         
+  Critical: The UPDATE and commit() must happen after EACH document, not at the end of the batch.        
+                                                                                                         
+  ---                                                                                                    
+  Step 5: Add Resume Logging at Startup                                                                  
+                                                                                                         
+  At the start of the extraction script, show resume state:                                              
+                                                                                                         
+  def get_extraction_stats(vault_id, session):                                                           
+      total = session.execute(                                                                           
+          text("SELECT COUNT(*) FROM platform.documents WHERE tenant_id = :vault_id"),                   
+          {"vault_id": vault_id}                                                                         
+      ).scalar()                                                                                         
+                                                                                                         
+      remaining = session.execute(                                                                       
+          text("""                                                                                       
+              SELECT COUNT(*) FROM platform.documents                                                    
+              WHERE tenant_id = :vault_id                                                                
+              AND (extraction_level IS NULL OR extraction_level != 'multi')                              
+          """),                                                                                          
+          {"vault_id": vault_id}                                                                         
+      ).scalar()                                                                                         
+                                                                                                         
+      done = total - remaining                                                                           
+      return total, done, remaining                                                                      
+                                                                                                         
+  # At startup:                                                                                          
+  total, done, remaining = get_extraction_stats(vault_id, session)                                       
+  print(f"")                                                                                             
+  print(f"========================================")                                                     
+  print(f"EXTRACTION RESUME STATUS")                                                                     
+  print(f"========================================")                                                     
+  print(f"Vault: {vault_name}")                                                                          
+  print(f"Total documents: {total}")                                                                     
+  print(f"Already multi-extracted: {done}")                                                              
+  print(f"Remaining to process: {remaining}")                                                            
+  print(f"========================================")                                                     
+  print(f"")                                                                                             
+                                                                                                         
+  if remaining == 0:                                                                                     
+      print("All documents already multi-extracted. Nothing to do.")                                     
+      return                                                                                             
+                                                                                                         
+  ---                                                                                                    
+  Step 6: Update Single-Model Extraction (Lower Priority)                                                
+                                                                                                         
+  In the single-model extraction worker, wherever it sets status = 'extracted', also set:                
+                                                                                                         
+  extraction_level = 'single'                                                                            
+                                                                                                         
+  This ensures the UI can show green (single) vs blue (multi).                                           
+                                                                                                         
+  ---                                                                                                    
+  Expected Behavior After Implementation                                                                 
+                                                                                                         
+  Scenario: Normal run                                                                                   
+  ========================================                                                               
+  EXTRACTION RESUME STATUS                                                                               
+  ========================================                                                               
+  Vault: Claude Code Nexus Industries                                                                    
+  Total documents: 100                                                                                   
+  Already multi-extracted: 0                                                                             
+  Remaining to process: 100                                                                              
+  ========================================                                                               
+                                                                                                         
+  [1/100] Extracting: 01_executive_team.md                                                               
+  ✓ [1/100] 01_executive_team.md - multi-model complete                                                  
+  [2/100] Extracting: 02_corporate_org_chart.md                                                          
+  ✓ [2/100] 02_corporate_org_chart.md - multi-model complete                                             
+  ...                                                                                                    
+                                                                                                         
+  Scenario: Restart at document 40                                                                       
+  ========================================                                                               
+  EXTRACTION RESUME STATUS                                                                               
+  ========================================                                                               
+  Vault: Claude Code Nexus Industries                                                                    
+  Total documents: 100                                                                                   
+  Already multi-extracted: 39                                                                            
+  Remaining to process: 61                                                                               
+  ========================================                                                               
+                                                                                                         
+  [40/100] Extracting: 40_some_document.md                                                               
+  ✓ [40/100] 40_some_document.md - multi-model complete                                                  
+  ...                                                                                                    
+                                                                                                         
+  Scenario: "Start All" restarts                                                                         
+  - "Run Extraction" is NOT killed (due to Step 2)                                                       
+  - Extraction continues uninterrupted                                                                   
+  - No progress lost                                                                                     
+                                                                                                         
+  ---                                                                                                    
+  Verification Checklist                                                                                 
+                                                                                                         
+  After implementation, verify:                                                                          
+                                                                                                         
+  - extraction_level column exists in platform.documents                                                 
+  - "Start All" does NOT kill "Run Extraction"                                                           
+  - Extraction query filters out extraction_level = 'multi' docs                                         
+  - Each document is marked 'multi' immediately after completion                                         
+  - Startup shows resume statistics                                                                      
+  - Restart mid-extraction resumes from correct document                                                 
+                                                                                                         
+  ---                                                                                                    
+  Priority Summary                                                                                       
+  ┌──────────────────────────┬─────────────────┬────────────────────────────────────┐                    
+  │           Step           │    Priority     │                Why                 │                    
+  ├──────────────────────────┼─────────────────┼────────────────────────────────────┤                    
+  │ 1. Migration             │ DO FIRST        │ Everything depends on this column  │                    
+  ├──────────────────────────┼─────────────────┼────────────────────────────────────┤                    
+  │ 2. Decouple workflows    │ CRITICAL        │ Prevents unnecessary restarts      │                    
+  ├──────────────────────────┼─────────────────┼────────────────────────────────────┤                    
+  │ 3. Filter query          │ CRITICAL        │ Enables resume                     │                    
+  ├──────────────────────────┼─────────────────┼────────────────────────────────────┤                    
+  │ 4. Save per-document     │ CRITICAL        │ Tracks progress for resume         │                    
+  ├──────────────────────────┼─────────────────┼────────────────────────────────────┤                    
+  │ 5. Startup logging       │ IMPORTANT       │ Visibility into resume state       │                    
+  ├──────────────────────────┼─────────────────┼────────────────────────────────────┤                    
+  │ 6. Single-model tracking │ WHEN CONVENIENT │ UI colors (already partially done) │                    
+  └──────────────────────────┴─────────────────┴────────────────────────────────────┘    
