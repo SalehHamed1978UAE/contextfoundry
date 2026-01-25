@@ -285,8 +285,12 @@ class TargetedExtractor:
     Runs targeted extraction for specific failure patterns.
     """
 
-    def __init__(self, config: Optional[Dict] = None):
-        self.config = config or {}
+    def __init__(self, config=None):
+        # Support both string (corpus dir) and dict config
+        if isinstance(config, str):
+            self.config = {"corpus_dir": config}
+        else:
+            self.config = config or {}
         
         from openai import OpenAI
         api_key = self.config.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
@@ -295,6 +299,10 @@ class TargetedExtractor:
         self.model = self.config.get("model", "gpt-4o")
         self.temperature = self.config.get("temperature", 0)
         self.max_tokens = self.config.get("max_tokens", 4000)
+        
+        # Load corpus if directory specified
+        self.corpus_dir = self.config.get("corpus_dir", "test documents/Manus Orion/documents/")
+        self._documents_cache = None
 
     def extract_for_category(self, category: str, documents: List[Dict]) -> List[Dict]:
         """
@@ -404,5 +412,17 @@ class TargetedExtractor:
                 except Exception as e:
                     logger.warning(f"Failed to load {file_path}: {e}")
 
-        logger.info(f"Loaded {len(documents)} documents from {corpus_dir}")
         return documents
+
+    def load_documents(self) -> List[Dict]:
+        """Load documents from configured corpus directory."""
+        if self._documents_cache is None:
+            self._documents_cache = self.load_corpus_documents(self.corpus_dir)
+        return self._documents_cache
+
+    def extract_category(self, category: str) -> List[Dict]:
+        """
+        Convenience method - loads corpus and runs extraction for a category.
+        """
+        documents = self.load_documents()
+        return self.extract_for_category(category, documents)
