@@ -1,0 +1,178 @@
+{
+  "document_id": "79f48063f8ee",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T07:59:56.909360",
+  "entities": [
+    {
+      "name": "Eden Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Executive Sponsor: Eden Park",
+      "aliases": []
+    },
+    {
+      "name": "Meridian Aerospace",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Aerospace",
+        "type": "manufacturer"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Customer Profile: Aerospace manufacturer",
+      "aliases": []
+    },
+    {
+      "name": "Synapse Insight",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Primary Product"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Primary Products: Synapse Insight, PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "PulseForge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Primary Product"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Primary Products: Synapse Insight, PulseForge",
+      "aliases": []
+    },
+    {
+      "name": "Synapse One",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Customer management"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Owning BU: Synapse One",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Recurring Revenue",
+        "value": "124M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "ARR: $124M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Deployment maturity",
+        "value": "78",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Expansion opportunities",
+        "value": "3",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Product with roadmap updates"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Eden Park",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Meridian Aerospace",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "evidence": "Eden Park is listed as Executive Sponsor for Meridian Aerospace account"
+    },
+    {
+      "source_entity": "Meridian Aerospace",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "Synapse Insight",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "evidence": "Primary Products: Synapse Insight, PulseForge"
+    },
+    {
+      "source_entity": "Meridian Aerospace",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "PulseForge",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "evidence": "Primary Products: Synapse Insight, PulseForge"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Meridian Aerospace",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "evidence": "Owning BU: Synapse One"
+    },
+    {
+      "source_entity": "Synapse One",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Synapse Insight",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "evidence": "Synapse One owns the account that uses Synapse Insight as primary product"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_meridian_aerospace.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

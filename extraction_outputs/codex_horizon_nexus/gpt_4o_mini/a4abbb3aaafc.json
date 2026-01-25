@@ -1,0 +1,133 @@
+{
+  "document_id": "a4abbb3aaafc",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T07:59:20.664457",
+  "entities": [
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "source_excerpt": "Executive Sponsor: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Urban transit agency",
+        "region": ""
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "source_excerpt": "Customer Profile: Urban transit agency",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Transit solutions"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "source_excerpt": "Owning BU: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "Control Tower",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Product for transit management",
+        "category": "Transit Solutions"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "source_excerpt": "Primary Products: Control Tower",
+      "aliases": []
+    },
+    {
+      "name": "AutoRail",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Automated rail management product",
+        "category": "Transit Solutions"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "source_excerpt": "Primary Products: AutoRail",
+      "aliases": []
+    },
+    {
+      "name": "Annual Recurring Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": 96000000,
+        "period": "annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "source_excerpt": "ARR: $96M ARR",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "MetroLink",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "evidence": "Executive Sponsor: Marcus Nguyen"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "MetroLink",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "evidence": "Owning BU: TransitEdge"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Control Tower",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "evidence": "Primary Products: Control Tower"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "AutoRail",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_metrolink.md",
+      "evidence": "Primary Products: AutoRail"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_metrolink.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

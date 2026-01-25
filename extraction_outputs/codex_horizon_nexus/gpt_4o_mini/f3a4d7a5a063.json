@@ -1,0 +1,110 @@
+{
+  "document_id": "f3a4d7a5a063",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T07:57:41.396655",
+  "entities": [
+    {
+      "name": "Leona Varga",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Executive Sponsor: Leona Varga",
+      "aliases": []
+    },
+    {
+      "name": "Enceladus Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Hydrogen operator"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Customer Profile: Hydrogen operator",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Owning BU"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Owning BU: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "ArcShield H2",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Primary Products",
+        "category": "Hydrogen"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "Primary Products: ArcShield H2",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Annual Recurring Revenue",
+        "value": 132000000,
+        "period": "annual",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "source_excerpt": "ARR: $132M ARR",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leona Varga",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Enceladus Energy",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "evidence": "Executive Sponsor: Leona Varga"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Enceladus Energy",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "evidence": "Owning BU: GridWave"
+    },
+    {
+      "source_entity": "Enceladus Energy",
+      "source_type": "CUSTOMER",
+      "relationship_type": "PRODUCES",
+      "target_entity": "ArcShield H2",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_enceladus_energy.md",
+      "evidence": "Primary Products: ArcShield H2"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_enceladus_energy.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

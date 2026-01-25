@@ -35,10 +35,6 @@ args = "Test: Manus Medsync"
 task = "workflow.run"
 args = "Test: Manus Orion"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Multi-Model Extraction"
-
 [[workflows.workflow]]
 name = "Start All"
 author = "agent"
@@ -94,17 +90,6 @@ outputType = "console"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python -m src.test_runner.runner --corpus \"Manus Orion\" --questions-only 2>&1"
-
-[[workflows.workflow]]
-name = "Multi-Model Extraction"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python scripts/run_full_corpus_pipeline.py --corpus \"Manus Orion\" 2>&1 | tee /tmp/extraction_run.log"
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[ports]]
 localPort = 3000

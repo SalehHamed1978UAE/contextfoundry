@@ -1,0 +1,189 @@
+{
+  "document_id": "a5cd1edb85e1",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T07:59:09.530507",
+  "entities": [
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Executive Sponsor: Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "Titan Freight Group",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "rail freight",
+        "profile": "Global rail freight company"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Titan Freight Group Account Brief - Customer Profile: Global rail freight company",
+      "aliases": []
+    },
+    {
+      "name": "AutoRail",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "primary product"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Primary Products: AutoRail, PathFind",
+      "aliases": []
+    },
+    {
+      "name": "PathFind",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "primary product"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Primary Products: AutoRail, PathFind",
+      "aliases": []
+    },
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "rail freight solutions"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Owning BU: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "$210M ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "ARR",
+        "value": "$210M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "ARR: $210M ARR",
+      "aliases": []
+    },
+    {
+      "name": "78% Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Deployment maturity",
+        "value": "78%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "3 Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Expansion opportunities",
+        "value": "3",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "roadmap/platform"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Titan Freight Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "evidence": "Marcus Nguyen is the Executive Sponsor for Titan Freight Group account"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Titan Freight Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "evidence": "TransitEdge is the owning BU for Titan Freight Group"
+    },
+    {
+      "source_entity": "Titan Freight Group",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "AutoRail",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "evidence": "AutoRail is listed as primary product for Titan Freight Group"
+    },
+    {
+      "source_entity": "Titan Freight Group",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "PathFind",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "evidence": "PathFind is listed as primary product for Titan Freight Group"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "AutoRail",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "evidence": "TransitEdge owns the customer relationship using AutoRail"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "PathFind",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_titan_freight_group.md",
+      "evidence": "TransitEdge owns the customer relationship using PathFind"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_titan_freight_group.md",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
