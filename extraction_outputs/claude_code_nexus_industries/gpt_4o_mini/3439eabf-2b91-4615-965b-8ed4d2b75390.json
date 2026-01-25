@@ -2,7 +2,7 @@
   "document_id": "3439eabf-2b91-4615-965b-8ed4d2b75390",
   "document_path": "01_ceo_all_hands_memo.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T14:14:19.984981",
+  "extracted_at": "2026-01-25T15:07:31.461939",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -25,7 +25,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Nexus Industries delivered its strongest year in company history.",
+      "source_excerpt": "Nexus Industries delivered its strongest year in company history",
       "aliases": []
     },
     {
@@ -38,7 +38,7 @@
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget.",
+      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget",
       "aliases": []
     },
     {
@@ -51,42 +51,57 @@
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility.",
+      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility",
       "aliases": []
     },
     {
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership type": "Joint Venture"
+        "partnership type": "Joint venture"
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "We finalized our solid-state battery joint venture with Toyota.",
+      "source_excerpt": "finalized our solid-state battery joint venture with Toyota",
       "aliases": []
     },
     {
       "name": "CyberShield",
-      "entity_type": "PRODUCT",
+      "entity_type": "PROJECT",
       "properties": {
-        "description": "Cybersecurity solution",
-        "category": "Digital Solutions"
+        "budget": null,
+        "timeline": null,
+        "status": "Achieved FedRAMP High authorization"
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "CyberShield now protects over 2 million endpoints.",
+      "source_excerpt": "CyberShield Success: Our Digital Solutions division achieved FedRAMP High authorization",
       "aliases": []
     },
     {
       "name": "NexusConnect",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "AI processing capabilities",
+        "description": "Edge AI processing capabilities",
         "category": "Digital Solutions"
       },
       "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Edge AI processing capabilities for NexusConnect.",
+      "source_excerpt": "Edge AI processing capabilities for NexusConnect",
+      "aliases": []
+    },
+    {
+      "name": "12% dividend increase",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Dividend Increase",
+        "value": "12%",
+        "period": "Annual",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "our Board of Directors approved a 12% dividend increase to $1.80 per share annually",
       "aliases": []
     },
     {
@@ -98,40 +113,19 @@
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Construction is 68% complete at our El Paso facility.",
+      "source_excerpt": "at our El Paso facility",
       "aliases": []
     },
     {
-      "name": "Board of Directors",
-      "entity_type": "ORGANIZATION",
+      "name": "Phoenix HQ",
+      "entity_type": "FACILITY",
       "properties": {
-        "type": "Governing Body"
+        "location": "Phoenix",
+        "type": "Headquarters"
       },
       "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "our Board of Directors approved a 12% dividend increase.",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Team",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus areas": "All Employees"
-      },
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Dear Nexus Team,",
-      "aliases": []
-    },
-    {
-      "name": "Asia-Pacific",
-      "entity_type": "LOCATION",
-      "properties": {
-        "region": "Asia-Pacific"
-      },
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Grow our Asia-Pacific presence with targeted investments.",
+      "source_excerpt": "Join our CEO Town Hall on January 28 at 2:00 PM PT (virtual and in-person at Phoenix HQ)",
       "aliases": []
     }
   ],
@@ -148,37 +142,26 @@
       "evidence": "I am honored to lead this incredible team"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Dr. Victoria Chen, CEO"
+      "evidence": "Falcon X UAV Program: Our largest aerospace program"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
-      "target_entity": "CyberShield",
-      "target_type": "PRODUCT",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "CyberShield now protects over 2 million endpoints."
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Board of Directors",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "our Board of Directors approved a 12% dividend increase."
+      "evidence": "GreenHydrogen Initiative: Construction is 68% complete"
     },
     {
       "source_entity": "Nexus Industries",
@@ -189,68 +172,35 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "We finalized our solid-state battery joint venture with Toyota."
+      "evidence": "finalized our solid-state battery joint venture with Toyota"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV Program",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Falcon X UAV Program: Our largest aerospace program remains on schedule."
+      "evidence": "CyberShield Success: Our Digital Solutions division achieved FedRAMP High authorization"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Dr. Victoria Chen",
+      "target_type": "PERSON",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "GreenHydrogen Initiative: Construction is 68% complete."
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Expand our Digital Solutions business with AI-powered security."
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "El Paso",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Construction is 68% complete at our El Paso facility."
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Sustainability Leadership",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Achieve 70% renewable energy and continue progress toward carbon neutrality."
+      "evidence": "Dr. Victoria Chen, CEO"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 11,
-    "raw_relationship_count": 10,
+    "raw_entity_count": 10,
+    "raw_relationship_count": 6,
     "used_partial_parse": false,
     "truncated": false
   }

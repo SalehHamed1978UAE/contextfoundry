@@ -2,7 +2,7 @@
   "document_id": "30ccb3ef-944f-42be-8a33-18bfb0479f9c",
   "document_path": "11_microsoft_customer.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:01:55.864094",
+  "extracted_at": "2026-01-25T15:08:46.845306",
   "entities": [
     {
       "name": "Microsoft Corporation",
@@ -46,7 +46,7 @@
       "properties": {
         "title": "CEO"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
       "source_excerpt": "Satya Nadella | CEO",
       "aliases": []
@@ -88,7 +88,7 @@
       "name": "Dr. Elena Rodriguez",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Sustainability Consultant"
+        "title": "Sustainability Contact"
       },
       "confidence": 0.8,
       "source_document": "11_microsoft_customer.md",
@@ -96,10 +96,21 @@
       "aliases": []
     },
     {
+      "name": "Dr. Katherine Brooks",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Sustainability Contact"
+      },
+      "confidence": 0.8,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Jennifer Chen | Director, Sustainability | Dr. Katherine Brooks",
+      "aliases": []
+    },
+    {
       "name": "NexusConnect IoT",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "IoT platform for connectivity",
+        "description": "IoT platform",
         "category": "Technology"
       },
       "confidence": 0.9,
@@ -108,10 +119,22 @@
       "aliases": []
     },
     {
+      "name": "Cloud",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Cloud services",
+        "category": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Products/Services: Cloud",
+      "aliases": []
+    },
+    {
       "name": "Carbon credits",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Credits for carbon offsetting"
+        "description": "Carbon offset credits"
       },
       "confidence": 0.85,
       "source_document": "11_microsoft_customer.md",
@@ -119,16 +142,14 @@
       "aliases": []
     },
     {
-      "name": "Azure IoT Integration",
-      "entity_type": "PROJECT",
+      "name": "consulting",
+      "entity_type": "SERVICE",
       "properties": {
-        "budget": "$8M",
-        "timeline": "2025-2026",
-        "status": "Active"
+        "description": "Consulting services"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "Azure IoT Integration | $8M | 2025-2026 | Active",
+      "source_excerpt": "Products/Services: consulting",
       "aliases": []
     },
     {
@@ -141,7 +162,59 @@
       },
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "CarbonZero Credit Offtake | $52.5M | 2028-2038 | Signed",
+      "source_excerpt": "CarbonZero Credit Agreement",
+      "aliases": []
+    },
+    {
+      "name": "Azure IoT Integration",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$8M",
+        "timeline": "2025-2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Azure IoT Integration",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect Enterprise License",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$18M",
+        "timeline": "2024-2027",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "NexusConnect Enterprise License",
+      "aliases": []
+    },
+    {
+      "name": "Carbon Consulting",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$3M",
+        "timeline": "2025",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Carbon Consulting",
+      "aliases": []
+    },
+    {
+      "name": "Renewable Energy Advisory",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$2M",
+        "timeline": "2025",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "source_excerpt": "Renewable Energy Advisory",
       "aliases": []
     },
     {
@@ -157,15 +230,15 @@
       "aliases": []
     },
     {
-      "name": "NexusConnect",
+      "name": "Nexus",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Business Unit",
+        "type": "Digital Solutions Provider",
         "industry": "Technology"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "source_excerpt": "NexusConnect",
+      "source_excerpt": "Nexus Contact",
       "aliases": []
     }
   ],
@@ -174,12 +247,12 @@
       "source_entity": "Microsoft Corporation",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "NexusConnect",
+      "target_entity": "Nexus",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "Microsoft Corporation is a customer of NexusConnect"
+      "evidence": "Microsoft Corporation is a customer of Nexus"
     },
     {
       "source_entity": "Amanda Torres",
@@ -210,7 +283,7 @@
       "target_entity": "Microsoft Corporation",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
       "evidence": "Satya Nadella | CEO"
     },
@@ -248,17 +321,6 @@
       "evidence": "Melanie Nakagawa | Chief Sustainability"
     },
     {
-      "source_entity": "NexusConnect IoT",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "NexusConnect",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "NexusConnect IoT"
-    },
-    {
       "source_entity": "CarbonZero Credit Offtake",
       "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
@@ -267,35 +329,68 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "CarbonZero Credit Offtake | $52.5M | 2028-2038 | Signed"
+      "evidence": "CarbonZero Credit Offtake is a project under Microsoft Corporation"
     },
     {
-      "source_entity": "Azure IoT Integration",
+      "source_entity": "NexusConnect IoT",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "NexusConnect IoT is produced by Nexus"
+    },
+    {
+      "source_entity": "Cloud",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Cloud is produced by Nexus"
+    },
+    {
+      "source_entity": "Carbon credits",
+      "source_type": "SERVICE",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Carbon credits are produced by Nexus"
+    },
+    {
+      "source_entity": "consulting",
+      "source_type": "SERVICE",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Consulting services are produced by Nexus"
+    },
+    {
+      "source_entity": "CarbonZero Credit Offtake",
       "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
+      "relationship_type": "OWNS",
       "target_entity": "Microsoft Corporation",
       "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "Azure IoT Integration | $8M | 2025-2026 | Active"
-    },
-    {
-      "source_entity": "Redmond, WA",
-      "source_type": "LOCATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Microsoft Corporation",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "11_microsoft_customer.md",
-      "evidence": "Headquarters: Redmond, WA"
+      "evidence": "CarbonZero Credit Offtake is owned by Microsoft Corporation"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 14,
-    "raw_relationship_count": 11,
+    "raw_entity_count": 20,
+    "raw_relationship_count": 13,
     "used_partial_parse": false,
     "truncated": false
   }
