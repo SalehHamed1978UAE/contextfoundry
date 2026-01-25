@@ -2,7 +2,7 @@
   "document_id": "855a77ec-7117-4d73-9804-aba1bcd65500",
   "document_path": "04_digital_division_quarterly_review.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:47:07.666208",
+  "extracted_at": "2026-01-25T10:26:29.490363",
   "entities": [
     {
       "name": "Robert Kim",
@@ -113,15 +113,6 @@
       "aliases": []
     },
     {
-      "name": "Denver Technology Campus",
-      "entity_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Location: Denver Technology Campus",
-      "aliases": []
-    },
-    {
       "name": "NexusConnect IoT Platform",
       "entity_type": "PRODUCT",
       "properties": {
@@ -158,12 +149,35 @@
       "aliases": []
     },
     {
+      "name": "Denver Technology Campus",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Denver",
+        "country": "USA"
+      },
+      "confidence": 0.95,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Location: Denver Technology Campus",
+      "aliases": []
+    },
+    {
+      "name": "Digital Solutions Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Digital solutions and technology"
+      },
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Digital Solutions Division",
+      "aliases": []
+    },
+    {
       "name": "Microsoft Azure",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership type": "expanded partnership"
+        "partnership type": "Technology partnership"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Microsoft Azure partnership expanded",
       "aliases": []
@@ -185,7 +199,7 @@
       "entity_type": "CUSTOMER",
       "properties": {
         "industry": "Utilities",
-        "region": "North America"
+        "region": "USA"
       },
       "confidence": 0.85,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -196,9 +210,9 @@
       "name": "IBM",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership type": "announced partnership"
+        "partnership type": "Technology partnership"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "IBM partnership announced",
       "aliases": []
@@ -207,10 +221,10 @@
       "name": "FedRAMP High",
       "entity_type": "POLICY",
       "properties": {
-        "policy ID": "FedRAMP High",
+        "policy ID": "FedRAMP",
         "category": "Security Compliance"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "FedRAMP High authorization",
       "aliases": []
@@ -222,7 +236,7 @@
         "policy ID": "DoD IL5",
         "category": "Security Compliance"
       },
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "DoD IL5 certification achieved",
       "aliases": []
@@ -236,7 +250,7 @@
         "period": "Q4 2025",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Q4 Actual Revenue: $535M",
       "aliases": []
@@ -250,7 +264,7 @@
         "period": "Q4 2025",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Q4 Actual Gross Margin: 59.2%",
       "aliases": []
@@ -264,7 +278,7 @@
         "period": "Q4 2025",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Q4 Actual Operating Income: $91M",
       "aliases": []
@@ -278,7 +292,7 @@
         "period": "Q4 2025",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Q4 Actual Operating Margin: 17.0%",
       "aliases": []
@@ -292,7 +306,7 @@
         "period": "FY2026",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "FY2026 Target Revenue: $2.38B",
       "aliases": []
@@ -306,7 +320,7 @@
         "period": "FY2026",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "FY2026 Target Gross Margin: 59%",
       "aliases": []
@@ -320,7 +334,7 @@
         "period": "FY2026",
         "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "FY2026 Target Operating Income: $405M",
       "aliases": []
@@ -334,7 +348,7 @@
         "period": "FY2026",
         "type": "PERCENTAGE"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "FY2026 Target Operating Margin: 17.0%",
       "aliases": []
@@ -355,90 +369,13 @@
     {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
-      "relationship_type": "LEADS",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Digital Solutions Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Victoria Chen, CEO"
-    },
-    {
-      "source_entity": "Dr. Alan Chen",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Alan Chen, VP Engineering"
-    },
-    {
-      "source_entity": "Michelle Torres",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Michelle Torres, VP Product"
-    },
-    {
-      "source_entity": "Steven Park",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Steven Park, VP Sales"
-    },
-    {
-      "source_entity": "Jennifer Adams",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Jennifer Adams, VP Finance"
-    },
-    {
-      "source_entity": "David Lee",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "David Lee, VP Customer Success"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Victoria Chen commended team on exceeding revenue targets"
-    },
-    {
-      "source_entity": "Dr. Alan Chen",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "CyberShield Security Suite",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Alan Chen presented CyberShield Security Suite"
+      "evidence": "Dr. Victoria Chen: Commended team on exceeding revenue targets"
     },
     {
       "source_entity": "Dr. Alan Chen",
@@ -447,158 +384,136 @@
       "target_entity": "QuantumLeap Computing Services",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Alan Chen presented QuantumLeap Computing Services"
-    },
-    {
-      "source_entity": "NexusConnect IoT Platform",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
       "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "NexusConnect IoT Platform presented by Michelle Torres"
-    },
-    {
-      "source_entity": "CyberShield Security Suite",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "CyberShield Security Suite presented by Dr. Alan Chen"
-    },
-    {
-      "source_entity": "QuantumLeap Computing Services",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "QuantumLeap Computing Services presented by Dr. Alan Chen"
-    },
-    {
-      "source_entity": "NexusConnect IoT Platform",
-      "source_type": "PRODUCT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Investment Status: Total invested: $38M of $42M budget"
-    },
-    {
-      "source_entity": "CyberShield Security Suite",
-      "source_type": "PRODUCT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Investment Status: Total invested: $38M of $42M budget"
-    },
-    {
-      "source_entity": "QuantumLeap Computing Services",
-      "source_type": "PRODUCT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Investment Status: Total invested: $38M of $42M budget"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Michael Chang",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Victoria Chen, CEO"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. James Wilson",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Victoria Chen, CEO"
-    },
-    {
-      "source_entity": "Dr. Alan Chen",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Alan Chen, VP Engineering"
+      "evidence": "Presenter: Dr. Alan Chen"
     },
     {
       "source_entity": "Michelle Torres",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
-      "target_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "NexusConnect IoT Platform",
+      "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Michelle Torres, VP Product"
+      "evidence": "Presenter: Michelle Torres"
     },
     {
-      "source_entity": "Steven Park",
+      "source_entity": "Dr. Alan Chen",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
-      "target_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "CyberShield Security Suite",
+      "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Steven Park, VP Sales"
-    },
-    {
-      "source_entity": "Jennifer Adams",
-      "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
-      "target_type": "PERSON",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Jennifer Adams, VP Finance"
+      "evidence": "Presenter: Dr. Alan Chen"
     },
     {
       "source_entity": "David Lee",
       "source_type": "PERSON",
-      "relationship_type": "REPORTS_TO",
-      "target_entity": "Dr. Victoria Chen",
-      "target_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Customer Satisfaction",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "David Lee, VP Customer Success"
+      "evidence": "Presenter: David Lee"
+    },
+    {
+      "source_entity": "Steven Park",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Sales Performance",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "Presenter: Steven Park"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "FY2026 Plan",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "Supported FY2026 investment plan"
+    },
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "Quantum computing progress impressive"
+    },
+    {
+      "source_entity": "Michael Chang",
+      "source_type": "PERSON",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "FY2026 Plan",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "Watch R&D efficiency metrics"
+    },
+    {
+      "source_entity": "Digital Solutions Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Denver Technology Campus",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "Location: Denver Technology Campus"
+    },
+    {
+      "source_entity": "NexusConnect IoT Platform",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Microsoft Azure",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "Microsoft Azure partnership expanded"
+    },
+    {
+      "source_entity": "CyberShield Security Suite",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "FedRAMP High",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "FedRAMP High authorization"
+    },
+    {
+      "source_entity": "CyberShield Security Suite",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "DoD IL5",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "DoD IL5 certification achieved"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 27,
-    "raw_relationship_count": 23,
+    "raw_entity_count": 28,
+    "raw_relationship_count": 14,
     "used_partial_parse": false,
     "truncated": false
   }

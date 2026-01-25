@@ -2,12 +2,13 @@
   "document_id": "8acc8406-7770-45cd-bc53-61bec42fc5c7",
   "document_path": "04_energy_division_budget.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:49:55.312587",
+  "extracted_at": "2026-01-25T10:28:51.217375",
   "entities": [
     {
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
+        "type": "Division",
         "focus_areas": [
           "renewable energy",
           "grid technology",
@@ -28,7 +29,7 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Division President | Dr. Elena Rodriguez",
+      "source_excerpt": "Division President | Dr. Elena Rodriguez | Jan 10, 2026",
       "aliases": []
     },
     {
@@ -36,11 +37,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division CFO",
-        "role": "Chief Financial Officer"
+        "role": "Division CFO"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Division CFO | Timothy Chang | Budget Owner: Timothy Chang, Division CFO",
+      "source_excerpt": "Division CFO | Timothy Chang | Jan 8, 2026",
       "aliases": []
     },
     {
@@ -48,11 +49,11 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Project Delivery",
-        "role": "Vice President Project Delivery"
+        "role": "VP Project Delivery"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "VP Project Delivery | Margaret Sullivan",
+      "source_excerpt": "VP Project Delivery | Margaret Sullivan | Jan 7, 2026",
       "aliases": []
     },
     {
@@ -60,17 +61,18 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Corporate CFO",
-        "role": "Chief Financial Officer"
+        "role": "Corporate CFO"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Corporate CFO | Robert Kim",
+      "source_excerpt": "Corporate CFO | Robert Kim | Jan 15, 2026",
       "aliases": []
     },
     {
       "name": "Renewable Energy Projects",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
+        "type": "Business Unit",
         "focus_areas": [
           "solar",
           "wind",
@@ -80,13 +82,14 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Renewable Energy Projects | $1.72B",
+      "source_excerpt": "Renewable Energy Projects | $1.72B | $1.45B | +18.6%",
       "aliases": []
     },
     {
       "name": "Grid Technology",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
+        "type": "Business Unit",
         "focus_areas": [
           "smart grid",
           "substation equipment",
@@ -95,13 +98,14 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Grid Technology | $0.68B",
+      "source_excerpt": "Grid Technology | $0.68B | $0.62B | +9.7%",
       "aliases": []
     },
     {
       "name": "Energy Storage",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
+        "type": "Business Unit",
         "focus_areas": [
           "battery systems",
           "thermal storage",
@@ -110,7 +114,7 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Energy Storage | $0.38B",
+      "source_excerpt": "Energy Storage | $0.38B | $0.35B | +8.6%",
       "aliases": []
     },
     {
@@ -118,8 +122,8 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$285M",
-        "timeline": "FY2026",
-        "status": "Construction"
+        "status": "Construction",
+        "timeline": "FY2026"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -131,8 +135,8 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$125M",
-        "timeline": "FY2026",
-        "status": "Engineering"
+        "status": "Engineering",
+        "timeline": "FY2026"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -144,8 +148,8 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$485M",
-        "timeline": "FY2026",
-        "status": "Operations"
+        "status": "Operations",
+        "timeline": "FY2026"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -157,8 +161,8 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$625M",
-        "timeline": "FY2026",
-        "status": "Various"
+        "status": "Various",
+        "timeline": "FY2026"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -170,8 +174,8 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$45M",
-        "timeline": "FY2026",
-        "status": "Development"
+        "status": "Development",
+        "timeline": "FY2026"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -182,7 +186,7 @@
       "name": "SmartGrid Controller",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Smart grid control system",
+        "description": "Grid control technology",
         "category": "Grid Technology"
       },
       "confidence": 1.0,
@@ -200,6 +204,28 @@
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Substation Equipment | $245M",
+      "aliases": []
+    },
+    {
+      "name": "Grid Services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Grid-related services"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Grid Services | $165M",
+      "aliases": []
+    },
+    {
+      "name": "Consulting",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Consulting services"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Consulting | $85M",
       "aliases": []
     },
     {
@@ -224,28 +250,6 @@
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Thermal Storage | $85M",
-      "aliases": []
-    },
-    {
-      "name": "Grid Services",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Grid operation and maintenance services"
-      },
-      "confidence": 1.0,
-      "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Grid Services | $165M",
-      "aliases": []
-    },
-    {
-      "name": "Consulting",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Energy consulting services"
-      },
-      "confidence": 1.0,
-      "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Consulting | $85M",
       "aliases": []
     },
     {
@@ -281,7 +285,35 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Total Revenue | $2.78B",
+      "source_excerpt": "Total Revenue | $2.78B | $2.42B | +14.9%",
+      "aliases": []
+    },
+    {
+      "name": "Total Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Revenue",
+        "value": "$2.42B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Total Revenue | $2.78B | $2.42B | +14.9%",
+      "aliases": []
+    },
+    {
+      "name": "Revenue Growth Rate",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue Growth",
+        "value": "14.9%",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Total Revenue | $2.78B | $2.42B | +14.9%",
       "aliases": []
     },
     {
@@ -295,7 +327,7 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Operating Income | $334M",
+      "source_excerpt": "Operating Income | $334M | $266M | +25.6%",
       "aliases": []
     },
     {
@@ -309,7 +341,21 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Operating Margin | 12.0%",
+      "source_excerpt": "Operating Margin | 12.0% | 11.0% | +100 bps",
+      "aliases": []
+    },
+    {
+      "name": "Total OpEx FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Operating Expenses",
+        "value": "$222M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Total OpEx | $222M | $194M | +14.4%",
       "aliases": []
     },
     {
@@ -323,21 +369,49 @@
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "R&D | $125M",
+      "source_excerpt": "R&D | $125M | $108M | +15.7%",
       "aliases": []
     },
     {
       "name": "Total CapEx FY2026",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total CapEx",
+        "metric_name": "Capital Expenditure",
         "value": "$190M",
         "period": "FY2026",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Total CapEx | $190M",
+      "source_excerpt": "Total CapEx | $190M | -",
+      "aliases": []
+    },
+    {
+      "name": "Total Headcount FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Headcount",
+        "value": "2,900",
+        "period": "FY2026",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Total | 2,900 | 2,800 | +100",
+      "aliases": []
+    },
+    {
+      "name": "Total Compensation FY2026",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Compensation",
+        "value": "$435M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Total Compensation | $435M",
       "aliases": []
     },
     {
@@ -345,7 +419,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "North America",
-        "country": "Various"
+        "region": "North America"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -357,7 +431,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Europe",
-        "country": "Various"
+        "region": "Europe"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -369,7 +443,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Asia Pacific",
-        "country": "Various"
+        "region": "Asia Pacific"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -381,7 +455,7 @@
       "entity_type": "LOCATION",
       "properties": {
         "name": "Latin America",
-        "country": "Various"
+        "region": "Latin America"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
@@ -393,47 +467,12 @@
       "entity_type": "FACILITY",
       "properties": {
         "name": "GreenHydrogen Facility",
-        "type": "Manufacturing"
+        "type": "Construction",
+        "investment": "$65M"
       },
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "GreenHydrogen Facility | $65M | Construction",
-      "aliases": []
-    },
-    {
-      "name": "IRA Incentives Policy",
-      "entity_type": "POLICY",
-      "properties": {
-        "name": "IRA incentives",
-        "category": "Government Incentives"
-      },
-      "confidence": 0.9,
-      "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Policy: IRA incentives continue",
-      "aliases": []
-    },
-    {
-      "name": "SmartGrid AI Technology",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "name": "SmartGrid AI",
-        "description": "Grid intelligence artificial intelligence"
-      },
-      "confidence": 0.9,
-      "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Grid Intelligence | $35M | SmartGrid AI",
-      "aliases": []
-    },
-    {
-      "name": "Electrolyzer Technology",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "name": "Electrolyzer",
-        "description": "Hydrogen production technology"
-      },
-      "confidence": 0.9,
-      "source_document": "04_energy_division_budget.md",
-      "source_excerpt": "Hydrogen Technology | $42M | Electrolyzer efficiency",
       "aliases": []
     }
   ],
@@ -452,7 +491,7 @@
     {
       "source_entity": "Timothy Chang",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Energy Systems",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
@@ -463,13 +502,24 @@
     {
       "source_entity": "Margaret Sullivan",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Renewable Energy Projects",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Energy Systems",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
       "evidence": "VP Project Delivery | Margaret Sullivan"
+    },
+    {
+      "source_entity": "Margaret Sullivan",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Desert Sun Solar Farm",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "04_energy_division_budget.md",
+      "evidence": "VP Project Delivery responsible for project delivery"
     },
     {
       "source_entity": "Renewable Energy Projects",
@@ -480,7 +530,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "Business Unit under Nexus Energy Systems"
+      "evidence": "Renewable Energy Projects listed as business unit under Nexus Energy Systems"
     },
     {
       "source_entity": "Grid Technology",
@@ -491,7 +541,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "Business Unit under Nexus Energy Systems"
+      "evidence": "Grid Technology listed as business unit under Nexus Energy Systems"
     },
     {
       "source_entity": "Energy Storage",
@@ -502,7 +552,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "Business Unit under Nexus Energy Systems"
+      "evidence": "Energy Storage listed as business unit under Nexus Energy Systems"
     },
     {
       "source_entity": "Renewable Energy Projects",
@@ -568,7 +618,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "SmartGrid Controller listed under Grid Technology"
+      "evidence": "SmartGrid Controller listed under Grid Technology products"
     },
     {
       "source_entity": "Grid Technology",
@@ -579,7 +629,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "Substation Equipment listed under Grid Technology"
+      "evidence": "Substation Equipment listed under Grid Technology products"
     },
     {
       "source_entity": "Energy Storage",
@@ -590,7 +640,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "Battery Systems listed under Energy Storage"
+      "evidence": "Battery Systems listed under Energy Storage products"
     },
     {
       "source_entity": "Energy Storage",
@@ -601,35 +651,13 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "Thermal Storage listed under Energy Storage"
-    },
-    {
-      "source_entity": "GreenHydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "USES",
-      "target_entity": "Electrolyzer Technology",
-      "target_type": "TECHNOLOGY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_energy_division_budget.md",
-      "evidence": "Hydrogen Technology | $42M | Electrolyzer efficiency"
-    },
-    {
-      "source_entity": "SmartGrid Controller",
-      "source_type": "PRODUCT",
-      "relationship_type": "USES",
-      "target_entity": "SmartGrid AI Technology",
-      "target_type": "TECHNOLOGY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_energy_division_budget.md",
-      "evidence": "Grid Intelligence | $35M | SmartGrid AI"
+      "evidence": "Thermal Storage listed under Energy Storage products"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 34,
-    "raw_relationship_count": 17,
+    "raw_entity_count": 36,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }
