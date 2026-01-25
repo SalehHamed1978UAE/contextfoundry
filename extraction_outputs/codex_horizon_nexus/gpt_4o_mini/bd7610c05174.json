@@ -1,0 +1,62 @@
+{
+  "document_id": "bd7610c05174",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:27:54.796965",
+  "entities": [
+    {
+      "name": "Horizon Nexus Systems",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
+      "source_excerpt": "Applies to all Horizon Nexus Systems employees.",
+      "aliases": []
+    },
+    {
+      "name": "People Operations",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Human Resources"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
+      "source_excerpt": "Owner: People Operations",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "People Operations",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Ethics and Compliance Code",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
+      "evidence": "Owner: People Operations"
+    },
+    {
+      "source_entity": "Horizon Nexus Systems",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "People Operations",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/policies/ethics_and_compliance_code.md",
+      "evidence": "Applies to all Horizon Nexus Systems employees."
+    }
+  ],
+  "metadata": {
+    "filename": "ethics_and_compliance_code.md",
+    "raw_entity_count": 2,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

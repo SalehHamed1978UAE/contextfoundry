@@ -2,7 +2,7 @@
   "document_id": "1420fbf5e637",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T08:00:27.444094",
+  "extracted_at": "2026-01-25T08:28:40.866326",
   "entities": [
     {
       "name": "Breck Collins",
@@ -19,12 +19,12 @@
       "name": "Federal Finance Network",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Public sector",
+        "industry": "public sector",
         "type": "consortium"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
-      "source_excerpt": "Federal Finance Network Account Brief",
+      "source_excerpt": "Federal Finance Network Account Brief, Customer Profile: Public sector consortium",
       "aliases": []
     },
     {
@@ -55,18 +55,19 @@
       "properties": {
         "focus_areas": "security solutions"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
       "source_excerpt": "Owning BU: Aether Shield",
       "aliases": []
     },
     {
-      "name": "Annual Recurring Revenue",
+      "name": "$101M ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "ARR",
-        "value": "$101M",
-        "type": "CURRENCY"
+        "value": "101000000",
+        "type": "CURRENCY",
+        "currency": "USD"
       },
       "confidence": 0.95,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
@@ -74,11 +75,11 @@
       "aliases": []
     },
     {
-      "name": "Deployment maturity",
+      "name": "78%",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Deployment maturity",
-        "value": "78%",
+        "value": "78",
         "type": "PERCENTAGE"
       },
       "confidence": 0.9,
@@ -87,7 +88,7 @@
       "aliases": []
     },
     {
-      "name": "Expansion opportunities",
+      "name": "3",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Expansion opportunities",
@@ -101,21 +102,21 @@
     },
     {
       "name": "CMMC compliance",
-      "entity_type": "PROJECT",
+      "entity_type": "POLICY",
       "properties": {
-        "status": "current objective",
-        "category": "compliance"
+        "category": "compliance framework",
+        "policy_ID": "CMMC"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
       "source_excerpt": "Current Objective: CMMC compliance",
       "aliases": []
     },
     {
       "name": "Horizon Prime",
-      "entity_type": "PRODUCT",
+      "entity_type": "PROJECT",
       "properties": {
-        "description": "roadmap/platform updates"
+        "type": "roadmap/updates"
       },
       "confidence": 0.8,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
@@ -138,74 +139,63 @@
     {
       "source_entity": "Federal Finance Network",
       "source_type": "CUSTOMER",
-      "relationship_type": "USES",
-      "target_entity": "SentinelShield",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
-      "evidence": "Primary Products: SentinelShield, VaultSec"
-    },
-    {
-      "source_entity": "Federal Finance Network",
-      "source_type": "CUSTOMER",
-      "relationship_type": "USES",
-      "target_entity": "VaultSec",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
-      "evidence": "Primary Products: SentinelShield, VaultSec"
-    },
-    {
-      "source_entity": "Aether Shield",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Federal Finance Network",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
-      "evidence": "Owning BU: Aether Shield"
-    },
-    {
-      "source_entity": "Aether Shield",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "SentinelShield",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
-      "evidence": "Aether Shield owns the account using SentinelShield as primary product"
-    },
-    {
-      "source_entity": "Aether Shield",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "VaultSec",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
-      "evidence": "Aether Shield owns the account using VaultSec as primary product"
-    },
-    {
-      "source_entity": "Federal Finance Network",
-      "source_type": "CUSTOMER",
-      "relationship_type": "OWNS",
-      "target_entity": "CMMC compliance",
-      "target_type": "PROJECT",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Aether Shield",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.85,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
-      "evidence": "Current Objective: CMMC compliance"
+      "evidence": "Federal Finance Network is managed by Aether Shield business unit"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Aether Shield owns the Federal Finance Network account which uses SentinelShield"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "VaultSec",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Aether Shield owns the Federal Finance Network account which uses VaultSec"
+    },
+    {
+      "source_entity": "Federal Finance Network",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "SentinelShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Primary Products: SentinelShield, VaultSec"
+    },
+    {
+      "source_entity": "Federal Finance Network",
+      "source_type": "CUSTOMER",
+      "relationship_type": "USES",
+      "target_entity": "VaultSec",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_federal_finance_network.md",
+      "evidence": "Primary Products: SentinelShield, VaultSec"
     }
   ],
   "metadata": {
     "filename": "customer_dossier_federal_finance_network.md",
     "raw_entity_count": 10,
-    "raw_relationship_count": 7,
+    "raw_relationship_count": 6,
     "used_partial_parse": false,
     "truncated": false
   }

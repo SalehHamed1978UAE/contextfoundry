@@ -1,0 +1,125 @@
+{
+  "document_id": "acd2b39029ca",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:28:43.355972",
+  "entities": [
+    {
+      "name": "Project Aurora",
+      "entity_type": "PROJECT",
+      "properties": {
+        "risk_types": [
+          "Regulatory approvals",
+          "weather",
+          "labor"
+        ],
+        "current_likelihood": "Medium",
+        "current_impact": "High",
+        "review_cadence": "Bi-weekly"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "source_excerpt": "Project Aurora Risk Log",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Log Owner"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "source_excerpt": "Owner: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime risk register",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Risk tracking system",
+        "category": "Risk Management Platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Regulatory approvals",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Risk Type"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "source_excerpt": "Risk Types: Regulatory approvals, weather, labor",
+      "aliases": []
+    },
+    {
+      "name": "Supplier diversification",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Risk Mitigation Strategy"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "source_excerpt": "Diversify suppliers",
+      "aliases": []
+    },
+    {
+      "name": "Compliance automation",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Automated compliance system",
+        "category": "Risk Mitigation Tool"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "source_excerpt": "Strengthen compliance automation",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Project Aurora",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "evidence": "Owner: Priya Thakur"
+    },
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime risk register",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "evidence": "Track via Horizon Prime risk register"
+    },
+    {
+      "source_entity": "Project Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Compliance automation",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/project_aurora_risk_log.md",
+      "evidence": "Strengthen compliance automation"
+    }
+  ],
+  "metadata": {
+    "filename": "project_aurora_risk_log.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

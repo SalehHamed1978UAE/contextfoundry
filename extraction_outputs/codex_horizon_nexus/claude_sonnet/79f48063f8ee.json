@@ -2,7 +2,7 @@
   "document_id": "79f48063f8ee",
   "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T07:59:56.909360",
+  "extracted_at": "2026-01-25T08:28:10.962586",
   "entities": [
     {
       "name": "Eden Park",
@@ -19,12 +19,24 @@
       "name": "Meridian Aerospace",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Aerospace",
-        "type": "manufacturer"
+        "industry": "Aerospace manufacturer"
       },
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "Customer Profile: Aerospace manufacturer",
+      "aliases": []
+    },
+    {
+      "name": "$124M ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "ARR",
+        "value": "124M",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
+      "source_excerpt": "ARR: $124M ARR",
       "aliases": []
     },
     {
@@ -61,20 +73,18 @@
       "aliases": []
     },
     {
-      "name": "ARR",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric_name": "Annual Recurring Revenue",
-        "value": "124M",
-        "type": "CURRENCY"
+        "description": "Roadmap updates"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
-      "source_excerpt": "ARR: $124M ARR",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
     },
     {
-      "name": "Deployment maturity",
+      "name": "78%",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Deployment maturity",
@@ -87,7 +97,7 @@
       "aliases": []
     },
     {
-      "name": "Expansion opportunities",
+      "name": "3",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Expansion opportunities",
@@ -97,17 +107,6 @@
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "source_excerpt": "Expansion opportunities: 3",
-      "aliases": []
-    },
-    {
-      "name": "Horizon Prime",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Product with roadmap updates"
-      },
-      "confidence": 0.9,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
-      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
       "aliases": []
     }
   ],
@@ -155,23 +154,12 @@
       "confidence": 1.0,
       "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
       "evidence": "Owning BU: Synapse One"
-    },
-    {
-      "source_entity": "Synapse One",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Synapse Insight",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_meridian_aerospace.md",
-      "evidence": "Synapse One owns the account that uses Synapse Insight as primary product"
     }
   ],
   "metadata": {
     "filename": "customer_dossier_meridian_aerospace.md",
     "raw_entity_count": 9,
-    "raw_relationship_count": 5,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

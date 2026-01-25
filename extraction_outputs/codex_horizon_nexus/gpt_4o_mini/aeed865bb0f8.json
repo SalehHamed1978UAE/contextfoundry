@@ -1,0 +1,101 @@
+{
+  "document_id": "aeed865bb0f8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:28:14.145352",
+  "entities": [
+    {
+      "name": "Leah Kade",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Owner",
+        "role": "Risk Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Owner: Leah Kade",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk Management Tool"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Threat landscape",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Risk Type"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Risk Types: Threat landscape",
+      "aliases": []
+    },
+    {
+      "name": "Readiness",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Risk Type"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Risk Types: readiness",
+      "aliases": []
+    },
+    {
+      "name": "Medium",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Likelihood",
+        "value": "Medium",
+        "period": "Current",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Likelihood: Medium",
+      "aliases": []
+    },
+    {
+      "name": "High",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Impact",
+        "value": "High",
+        "period": "Current",
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Impact: High",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leah Kade",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Owner: Leah Kade"
+    }
+  ],
+  "metadata": {
+    "filename": "security_incident_risk.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
