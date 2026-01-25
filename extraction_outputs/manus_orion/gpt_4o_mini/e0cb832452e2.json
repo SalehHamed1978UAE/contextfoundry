@@ -1,0 +1,207 @@
+{
+  "document_id": "e0cb832452e2",
+  "document_path": "test documents/Manus Orion/CORPUS_STATS.txt",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T00:28:26.802612",
+  "entities": [
+    {
+      "name": "Manus Orion Group",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Group",
+        "industry": "Synthetic Knowledge"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "MANUS ORION GROUP - SYNTHETIC KNOWLEDGE CORPUS",
+      "aliases": []
+    },
+    {
+      "name": "Context Foundry Stress Testing",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Complete"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "Purpose: Context Foundry Stress Testing",
+      "aliases": []
+    },
+    {
+      "name": "CORPUS STATISTICS",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Complete"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "CORPUS STATISTICS",
+      "aliases": []
+    },
+    {
+      "name": "Executives",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Leadership"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "KEY ENTITIES: - Executives: 8",
+      "aliases": []
+    },
+    {
+      "name": "Business Units",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Various"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "KEY ENTITIES: - Business Units: 4",
+      "aliases": []
+    },
+    {
+      "name": "Major Programs",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Programs"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "KEY ENTITIES: - Major Programs: 9",
+      "aliases": []
+    },
+    {
+      "name": "Facilities",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Physical Locations"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "KEY ENTITIES: - Facilities: 6",
+      "aliases": []
+    },
+    {
+      "name": "Suppliers",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Various",
+        "risk level": "Varied"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "KEY ENTITIES: - Suppliers: 10+",
+      "aliases": []
+    },
+    {
+      "name": "Customers",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Various",
+        "region": "Various"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "source_excerpt": "KEY ENTITIES: - Customers: 6+",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Manus Orion Group",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Context Foundry Stress Testing",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "Purpose: Context Foundry Stress Testing"
+    },
+    {
+      "source_entity": "Manus Orion Group",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "CORPUS STATISTICS",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "CORPUS STATISTICS"
+    },
+    {
+      "source_entity": "Executives",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "KEY ENTITIES: - Executives: 8"
+    },
+    {
+      "source_entity": "Business Units",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "KEY ENTITIES: - Business Units: 4"
+    },
+    {
+      "source_entity": "Major Programs",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "KEY ENTITIES: - Major Programs: 9"
+    },
+    {
+      "source_entity": "Facilities",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "KEY ENTITIES: - Facilities: 6"
+    },
+    {
+      "source_entity": "Suppliers",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "KEY ENTITIES: - Suppliers: 10+"
+    },
+    {
+      "source_entity": "Customers",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.7,
+      "source_document": "test documents/Manus Orion/CORPUS_STATS.txt",
+      "evidence": "KEY ENTITIES: - Customers: 6+"
+    }
+  ],
+  "metadata": {
+    "filename": "CORPUS_STATS.txt",
+    "raw_entity_count": 9,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

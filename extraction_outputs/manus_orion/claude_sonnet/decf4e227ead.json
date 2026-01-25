@@ -1,0 +1,864 @@
+{
+  "document_id": "decf4e227ead",
+  "document_path": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T00:30:38.708294",
+  "entities": [
+    {
+      "name": "Orion Aerospace Plant - Toulouse",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Toulouse, France",
+        "type": "Aerospace Manufacturing Plant",
+        "capacity_utilization": "92%",
+        "production_volume": "152 units/month",
+        "workforce": "1048 employees"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Orion Aerospace Plant - Toulouse, France - Capacity Utilization: 92%, Production Volume: 152 units/month, Workforce: 1048 employees",
+      "aliases": []
+    },
+    {
+      "name": "Toulouse",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Toulouse",
+        "country": "France"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Safety Incident Report - Orion Aerospace Plant - Toulouse, France",
+      "aliases": []
+    },
+    {
+      "name": "Orion Logistics Center - Singapore",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Singapore",
+        "type": "Logistics Center"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Facility: Orion Logistics Center - Singapore",
+      "aliases": []
+    },
+    {
+      "name": "Singapore",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Singapore",
+        "country": "Singapore"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Facility: Orion Logistics Center - Singapore",
+      "aliases": []
+    },
+    {
+      "name": "Operations Team",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Operational performance and safety incident reporting"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Author: Operations Team",
+      "aliases": []
+    },
+    {
+      "name": "Falcon UAV Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "On track",
+        "timeline": "213 units in 2025"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Falcon UAV Program - Production Status: On track for 213 units in 2025",
+      "aliases": []
+    },
+    {
+      "name": "Project Helios",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$12M over budget",
+        "timeline": "Q2 2026 commissioning",
+        "status": "78% complete"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Project Helios - Construction Progress: 78% complete as of 2025-08-12, Budget Status: $12M over budget",
+      "aliases": []
+    },
+    {
+      "name": "AutoNav Logistics System",
+      "entity_type": "PROJECT",
+      "properties": {
+        "fleet_size": "112 autonomous vehicles",
+        "utilization_rate": "71%"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "AutoNav Logistics System - Fleet Deployment: 112 autonomous vehicles operational, Utilization Rate: 71%",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Webb",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "CFO Marcus Webb (CFO) approved contingency funding",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Evelyn Reed",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CTO",
+        "role": "Chief Technology Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Joint reviews with CTO Dr. Evelyn Reed (CTO) team",
+      "aliases": []
+    },
+    {
+      "name": "Fatima Al-Mansoori",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Sustainability Officer",
+        "role": "Chief Sustainability Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Quarterly emissions reporting to Chief Sustainability Officer Fatima Al-Mansoori (Chief Sustainability Officer)",
+      "aliases": []
+    },
+    {
+      "name": "Alex Thorne",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "COO",
+        "role": "Chief Operating Officer"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "COO Alex Thorne oversees operational execution",
+      "aliases": []
+    },
+    {
+      "name": "James Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "General Counsel"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "General Counsel James Park ensures regulatory compliance",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rostova",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Approval Status: Pending review by Dr. Elena Rostova",
+      "aliases": []
+    },
+    {
+      "name": "TechFlow Industries",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "performance_score": "79/100",
+        "on_time_delivery": "95%",
+        "quality_rating": "90%",
+        "risk_level": "Medium"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "TechFlow Industries - Performance Score: 79/100, On-Time Delivery: 95%, Quality Rating: 90%",
+      "aliases": []
+    },
+    {
+      "name": "SecureCode Systems",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Backup supplier for avionics"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "mitigation plan activated with SecureCode Systems as backup supplier",
+      "aliases": []
+    },
+    {
+      "name": "AutoNav Systems",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "performance_score": "83/100",
+        "on_time_delivery": "92%",
+        "quality_rating": "96%"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "AutoNav Systems - Performance Score: 83/100, On-Time Delivery: 92%, Quality Rating: 96%",
+      "aliases": []
+    },
+    {
+      "name": "GreenTech Materials",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "performance_score": "87/100",
+        "on_time_delivery": "75%",
+        "quality_rating": "93%"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "GreenTech Materials - Performance Score: 87/100, On-Time Delivery: 75%, Quality Rating: 93%",
+      "aliases": []
+    },
+    {
+      "name": "PrecisionParts Manufacturing",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Manufacturing supplier"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Finalize supplier agreements with AutoNav Systems and PrecisionParts Manufacturing",
+      "aliases": []
+    },
+    {
+      "name": "Quantum Dynamics Ltd",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Logistics support",
+        "risk_level": "High"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "coordinates with AutoNav Systems for component sourcing and Quantum Dynamics Ltd for logistics support",
+      "aliases": []
+    },
+    {
+      "name": "Pacific Rim Airlines",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Aviation",
+        "order_size": "50 units"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Pacific Rim Airlines order of 50 units scheduled for Q3 2025 delivery",
+      "aliases": []
+    },
+    {
+      "name": "Metropolitan Transit Corp",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Transportation"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Customer requirements from Metropolitan Transit Corp and Global Defense Systems",
+      "aliases": []
+    },
+    {
+      "name": "Global Defense Systems",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Defense"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Customer requirements from Metropolitan Transit Corp and Global Defense Systems",
+      "aliases": []
+    },
+    {
+      "name": "EuroGrid Energy",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Energy"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Conduct customer workshops with EuroGrid Energy and SolarFuture Holdings",
+      "aliases": []
+    },
+    {
+      "name": "SolarFuture Holdings",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Renewable Energy"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Conduct customer workshops with EuroGrid Energy and SolarFuture Holdings",
+      "aliases": []
+    },
+    {
+      "name": "AutoFleet Inc",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Competitor",
+        "industry": "Autonomous Vehicles"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Competitive products from AutoFleet Inc may erode market share",
+      "aliases": []
+    },
+    {
+      "name": "Manus Orion Group",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Parent Company",
+        "industry": "Aerospace and Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "digital transformation and data analytics within the context of Manus Orion Group's strategic objectives",
+      "aliases": []
+    },
+    {
+      "name": "Orion Energy Hub - Copenhagen",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Copenhagen, Denmark",
+        "type": "Energy Hub",
+        "renewable_energy": "551 MWh"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Orion Energy Hub - Copenhagen, Denmark - Renewable Energy Generated: 551 MWh",
+      "aliases": []
+    },
+    {
+      "name": "Copenhagen",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Copenhagen",
+        "country": "Denmark"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Orion Energy Hub - Copenhagen, Denmark",
+      "aliases": []
+    },
+    {
+      "name": "Manufacturing Facility - Bangalore",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Bangalore, India",
+        "type": "Manufacturing Facility"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Roll out to Manufacturing Facility - Bangalore, India in Q3 2025",
+      "aliases": []
+    },
+    {
+      "name": "Bangalore",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Bangalore",
+        "country": "India"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Manufacturing Facility - Bangalore, India",
+      "aliases": []
+    },
+    {
+      "name": "Orion R&D Campus - Boulder",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Boulder",
+        "type": "R&D Campus"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "technology transfer from the Orion R&D Campus - Boulder",
+      "aliases": []
+    },
+    {
+      "name": "Boulder",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Boulder"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Orion R&D Campus - Boulder",
+      "aliases": []
+    },
+    {
+      "name": "SmartCity Innovation Lab - Seoul",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Seoul",
+        "type": "Innovation Lab"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Begin pilot production at SmartCity Innovation Lab - Seoul",
+      "aliases": []
+    },
+    {
+      "name": "Seoul",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Seoul"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "SmartCity Innovation Lab - Seoul",
+      "aliases": []
+    },
+    {
+      "name": "NexGen Battery Storage",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Battery storage system",
+        "category": "Energy Storage"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Co-located battery storage (NexGen Battery Storage) operational at 80% capacity",
+      "aliases": []
+    },
+    {
+      "name": "UrbanMesh IoT Platform",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "AI-powered analytics using IoT sensor data"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "AI-powered analytics using IoT sensor data from UrbanMesh IoT Platform platform",
+      "aliases": []
+    },
+    {
+      "name": "Quantum-Secured Supply Chain",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Quantum-secured supply chain system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Quantum-Secured Supply Chain quantum-secured supply chain pilot launched",
+      "aliases": []
+    },
+    {
+      "name": "Project Borealis Wind Farm",
+      "entity_type": "PROJECT",
+      "properties": {
+        "type": "Wind Farm Project"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Complete integration with Project Borealis Wind Farm and AutoNav Logistics System",
+      "aliases": []
+    },
+    {
+      "name": "POL-AERO-001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-AERO-001",
+        "category": "Export Control"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "All Falcon UAV Program shipments reviewed per POL-AERO-001 export policy",
+      "aliases": []
+    },
+    {
+      "name": "POL-SC-003",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-SC-003",
+        "category": "Data Privacy"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "data privacy regulations (POL-SC-003)",
+      "aliases": []
+    },
+    {
+      "name": "Units Produced",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Units Produced",
+        "value": "4303",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Units Produced: 4303 units",
+      "aliases": []
+    },
+    {
+      "name": "On-Time Delivery",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "On-Time Delivery",
+        "value": "89",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "On-Time Delivery: 89%",
+      "aliases": []
+    },
+    {
+      "name": "Quality Yield",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Quality Yield",
+        "value": "97",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Quality Yield: 97%",
+      "aliases": []
+    },
+    {
+      "name": "Project Helios Budget Overrun",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Budget Overrun",
+        "value": "12000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "$12M over budget due to commodity price increases",
+      "aliases": []
+    },
+    {
+      "name": "Facility Expansion Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Investment",
+        "value": "45000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "$45M investment approved for additional production line",
+      "aliases": []
+    },
+    {
+      "name": "Revenue Target 2027",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue Target",
+        "value": "8500000000",
+        "period": "2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "revenue targets of $8.5B by 2027",
+      "aliases": []
+    },
+    {
+      "name": "EBITDA Margin Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "EBITDA Margin",
+        "value": "24",
+        "period": "2027",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "EBITDA margins of 24%",
+      "aliases": []
+    },
+    {
+      "name": "Digital Transformation Budget",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Budget Allocated",
+        "value": "95000000",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "source_excerpt": "Budget allocated: $95M",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Orion Aerospace Plant - Toulouse",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Toulouse",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Orion Aerospace Plant - Toulouse, France"
+    },
+    {
+      "source_entity": "Orion Logistics Center - Singapore",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Singapore",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Orion Logistics Center - Singapore"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "CFO Marcus Webb (CFO) approved contingency funding"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "CTO Dr. Evelyn Reed (CTO) team"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Chief Sustainability Officer Fatima Al-Mansoori"
+    },
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "COO Alex Thorne oversees operational execution"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "General Counsel James Park ensures regulatory compliance"
+    },
+    {
+      "source_entity": "TechFlow Industries",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "TechFlow Industries experiencing 2-week delay in avionics delivery"
+    },
+    {
+      "source_entity": "SecureCode Systems",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Falcon UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "mitigation plan activated with SecureCode Systems as backup supplier"
+    },
+    {
+      "source_entity": "Pacific Rim Airlines",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Falcon UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Pacific Rim Airlines order of 50 units scheduled for Q3 2025 delivery"
+    },
+    {
+      "source_entity": "Operations Team",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Operations Team authoring operational reports"
+    },
+    {
+      "source_entity": "Falcon UAV Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Falcon UAV Program production status within Manus Orion operations"
+    },
+    {
+      "source_entity": "Project Helios",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "CFO Marcus Webb approved contingency funding for Project Helios"
+    },
+    {
+      "source_entity": "AutoNav Logistics System",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "UrbanMesh IoT Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "AI-powered analytics using IoT sensor data from UrbanMesh IoT Platform platform"
+    },
+    {
+      "source_entity": "Orion Energy Hub - Copenhagen",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Copenhagen",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Orion Energy Hub - Copenhagen, Denmark"
+    },
+    {
+      "source_entity": "Manufacturing Facility - Bangalore",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Bangalore",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Manufacturing Facility - Bangalore, India"
+    },
+    {
+      "source_entity": "Orion R&D Campus - Boulder",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Boulder",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "technology transfer from the Orion R&D Campus - Boulder"
+    },
+    {
+      "source_entity": "SmartCity Innovation Lab - Seoul",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Seoul",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Begin pilot production at SmartCity Innovation Lab - Seoul"
+    },
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Operations Team",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "COO Alex Thorne oversees operational execution"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Orion R&D Campus - Boulder",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "CTO Dr. Evelyn Reed team provides technical oversight and R&D support"
+    },
+    {
+      "source_entity": "AutoNav Systems",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Manus Orion Group",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Joint development agreement for next-gen propulsion systems signed"
+    },
+    {
+      "source_entity": "Quantum-Secured Supply Chain",
+      "source_type": "TECHNOLOGY",
+      "relationship_type": "USES",
+      "target_entity": "Orion Logistics Center - Singapore",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "quantum-secured supply chain pilot launched at Orion Logistics Center - Singapore"
+    },
+    {
+      "source_entity": "NexGen Battery Storage",
+      "source_type": "PRODUCT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Orion Energy Hub - Copenhagen",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/documents/operations/incident_report_safety.txt",
+      "evidence": "Co-located battery storage (NexGen Battery Storage) operational at Orion Energy Hub"
+    }
+  ],
+  "metadata": {
+    "filename": "incident_report_safety.txt",
+    "raw_entity_count": 49,
+    "raw_relationship_count": 23,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}
