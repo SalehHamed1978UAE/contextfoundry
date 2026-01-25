@@ -2,7 +2,7 @@
   "document_id": "f6afe152-e681-4393-9103-093ba1aea6b9",
   "document_path": "03_greenhydrogen_steering_committee.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:21:23.646760",
+  "extracted_at": "2026-01-25T15:41:42.287701",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -95,7 +95,7 @@
         "title": "Supplier Rep",
         "role": "Supplier Representative"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
       "source_excerpt": "James Foster, Nel Hydrogen (Supplier Rep) - Virtual",
       "aliases": []
@@ -105,9 +105,9 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Shell Representative",
-        "role": "Partner Representative"
+        "role": "Offtake Partner Representative"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
       "source_excerpt": "Sarah Mitchell, Shell (Offtake Partner) - Virtual",
       "aliases": []
@@ -119,29 +119,18 @@
         "title": "Texas RRC Representative",
         "role": "Regulatory Representative"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
       "source_excerpt": "Maria Garcia, Texas RRC (Regulatory) - Virtual",
-      "aliases": []
-    },
-    {
-      "name": "Energy Division",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Energy projects and operations"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Dr. Sarah Park | Energy Division President",
       "aliases": []
     },
     {
       "name": "GreenHydrogen Initiative",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$225.0M",
-        "timeline": "March 2026 first hydrogen",
-        "status": "68% complete"
+        "budget": "$225M",
+        "status": "GREEN",
+        "timeline": "March 2026 completion"
       },
       "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
@@ -149,10 +138,21 @@
       "aliases": []
     },
     {
+      "name": "Energy Division",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Energy projects"
+      },
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Dr. Sarah Park | Energy Division President",
+      "aliases": []
+    },
+    {
       "name": "Nel Hydrogen",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Electrolyzer equipment supplier",
+        "capability": "Electrolyzer equipment",
         "risk_level": "Low"
       },
       "confidence": 0.95,
@@ -172,6 +172,66 @@
       "aliases": []
     },
     {
+      "name": "Atlas Copco",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Compressor equipment",
+        "risk_level": "Low"
+      },
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Compressors (3) | Atlas Copco | All delivered",
+      "aliases": []
+    },
+    {
+      "name": "Chart Industries",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Storage tank manufacturing",
+        "risk_level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Storage Tanks (6) | Chart Industries | 4 delivered, 2 in fabrication",
+      "aliases": []
+    },
+    {
+      "name": "Siemens",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Transformer equipment",
+        "risk_level": "Low"
+      },
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Transformers | Siemens | Delivered",
+      "aliases": []
+    },
+    {
+      "name": "Emerson",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Control systems",
+        "risk_level": "Low"
+      },
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Control Systems | Emerson | Delivered, installing",
+      "aliases": []
+    },
+    {
+      "name": "Veolia",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Water treatment systems",
+        "risk_level": "Low"
+      },
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Water Treatment | Veolia | Installed",
+      "aliases": []
+    },
+    {
       "name": "Texas RRC",
       "entity_type": "ORGANIZATION",
       "properties": {
@@ -184,155 +244,15 @@
       "aliases": []
     },
     {
-      "name": "Atlas Copco",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Compressor supplier",
-        "risk_level": "Low"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Compressors (3) | Atlas Copco | All delivered",
-      "aliases": []
-    },
-    {
-      "name": "Chart Industries",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Storage tank supplier",
-        "risk_level": "Low"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Storage Tanks (6) | Chart Industries | 4 delivered, 2 in fabrication",
-      "aliases": []
-    },
-    {
-      "name": "Siemens",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Transformer supplier",
-        "risk_level": "Low"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Transformers | Siemens | Delivered",
-      "aliases": []
-    },
-    {
-      "name": "Emerson",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Control systems supplier",
-        "risk_level": "Low"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Control Systems | Emerson | Delivered, installing",
-      "aliases": []
-    },
-    {
-      "name": "Veolia",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Water treatment supplier",
-        "risk_level": "Low"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Water Treatment | Veolia | Installed",
-      "aliases": []
-    },
-    {
-      "name": "El Paso Site",
-      "entity_type": "FACILITY",
-      "properties": {
-        "location": "El Paso",
-        "type": "Hydrogen production facility"
-      },
-      "confidence": 0.95,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Virtual (Teams) + El Paso Site",
-      "aliases": []
-    },
-    {
-      "name": "El Paso",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "El Paso",
-        "country": "USA"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "El Paso Site",
-      "aliases": []
-    },
-    {
-      "name": "Budget Spent",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Budget Spent",
-        "value": "$152.9M",
-        "period": "Project to date",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Budget Spent | $155M | $152.9M",
-      "aliases": []
-    },
-    {
-      "name": "Total Project Budget",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Total Project Budget",
-        "value": "$225.0M",
-        "period": "Project total",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Total | $225.0M | $152.9M | $49.6M | $22.5M",
-      "aliases": []
-    },
-    {
-      "name": "Construction Progress",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Construction Progress",
-        "value": "68%",
-        "period": "Current",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Construction Progress: 68% complete",
-      "aliases": []
-    },
-    {
-      "name": "Shell Offtake Contract",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Shell Contract Value",
-        "value": "$450M+",
-        "period": "10 years",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Total contract value: $450M+ over 10 years",
-      "aliases": []
-    },
-    {
       "name": "TCEQ",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Regulatory Agency",
-        "industry": "Environmental"
+        "industry": "Government"
       },
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Air Quality | TCEQ | Approved | Dec 2030",
+      "source_excerpt": "Air Quality | TCEQ | Approved",
       "aliases": []
     },
     {
@@ -351,7 +271,7 @@
       "name": "City of El Paso",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Municipality",
+        "type": "Municipal Government",
         "industry": "Government"
       },
       "confidence": 0.9,
@@ -363,8 +283,8 @@
       "name": "OSHA",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Regulatory Agency",
-        "industry": "Safety"
+        "type": "Federal Agency",
+        "industry": "Government"
       },
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
@@ -372,28 +292,137 @@
       "aliases": []
     },
     {
-      "name": "Electrolyzer Units",
-      "entity_type": "PRODUCT",
+      "name": "El Paso Site",
+      "entity_type": "FACILITY",
       "properties": {
-        "name": "Electrolyzer Units",
-        "description": "Hydrogen production equipment",
-        "category": "Industrial Equipment"
+        "location": "El Paso",
+        "type": "Industrial Facility"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Electrolyzer Units (5) | Nel Hydrogen | 4 delivered, 1 in transit",
+      "source_excerpt": "Location: Virtual (Teams) + El Paso Site",
       "aliases": []
     },
     {
-      "name": "Hydrogen Production",
-      "entity_type": "SERVICE",
+      "name": "El Paso",
+      "entity_type": "LOCATION",
       "properties": {
-        "name": "Hydrogen Production",
-        "description": "Industrial hydrogen gas production"
+        "city": "El Paso",
+        "country": "United States"
       },
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "source_excerpt": "Performance guarantee: 85 kg H2/hour per unit",
+      "source_excerpt": "El Paso Site",
+      "aliases": []
+    },
+    {
+      "name": "Texas",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Texas",
+        "country": "United States"
+      },
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Texas RRC",
+      "aliases": []
+    },
+    {
+      "name": "Construction Progress",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Construction Progress",
+        "value": "68%",
+        "period": "January 2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Construction Progress: 68% complete",
+      "aliases": []
+    },
+    {
+      "name": "Budget Under",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Budget Variance",
+        "value": "$2.1M",
+        "period": "January 2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Budget Status: $2.1M under budget",
+      "aliases": []
+    },
+    {
+      "name": "Total Budget",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Project Budget",
+        "value": "$225.0M",
+        "period": "Project Total",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Total | $225.0M",
+      "aliases": []
+    },
+    {
+      "name": "Budget Spent",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Budget Spent",
+        "value": "$152.9M",
+        "period": "January 2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Budget Spent | $155M | $152.9M",
+      "aliases": []
+    },
+    {
+      "name": "Shell Contract Value",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Contract Value",
+        "value": "$450M+",
+        "period": "10 years",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Total contract value: $450M+ over 10 years",
+      "aliases": []
+    },
+    {
+      "name": "Safety TRIR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Recordable Incident Rate",
+        "value": "0.0",
+        "period": "January 2026",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Safety TRIR | <1.0 | 0.0",
+      "aliases": []
+    },
+    {
+      "name": "Work Hours",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Work Hours",
+        "value": "485,000",
+        "period": "Project to Date",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "source_excerpt": "Zero recordable incidents (485,000 work hours)",
       "aliases": []
     }
   ],
@@ -407,7 +436,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Dr. Victoria Chen serves as Executive Sponsor for the project"
+      "evidence": "Dr. Victoria Chen listed as Executive Sponsor"
     },
     {
       "source_entity": "Dr. Sarah Park",
@@ -506,7 +535,62 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Electrolyzer Units (5) | Nel Hydrogen | 4 delivered, 1 in transit"
+      "evidence": "Electrolyzer Units (5) | Nel Hydrogen"
+    },
+    {
+      "source_entity": "Atlas Copco",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "evidence": "Compressors (3) | Atlas Copco"
+    },
+    {
+      "source_entity": "Chart Industries",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "evidence": "Storage Tanks (6) | Chart Industries"
+    },
+    {
+      "source_entity": "Siemens",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "evidence": "Transformers | Siemens"
+    },
+    {
+      "source_entity": "Emerson",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "evidence": "Control Systems | Emerson"
+    },
+    {
+      "source_entity": "Veolia",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "GreenHydrogen Initiative",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_greenhydrogen_steering_committee.md",
+      "evidence": "Water Treatment | Veolia"
     },
     {
       "source_entity": "Shell",
@@ -520,61 +604,6 @@
       "evidence": "10-year agreement signed December 15, 2025"
     },
     {
-      "source_entity": "Atlas Copco",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Compressors (3) | Atlas Copco | All delivered"
-    },
-    {
-      "source_entity": "Chart Industries",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Storage Tanks (6) | Chart Industries | 4 delivered, 2 in fabrication"
-    },
-    {
-      "source_entity": "Siemens",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Transformers | Siemens | Delivered"
-    },
-    {
-      "source_entity": "Emerson",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Control Systems | Emerson | Delivered, installing"
-    },
-    {
-      "source_entity": "Veolia",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Water Treatment | Veolia | Installed"
-    },
-    {
       "source_entity": "GreenHydrogen Initiative",
       "source_type": "PROJECT",
       "relationship_type": "LOCATED_AT",
@@ -583,7 +612,7 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Meeting at El Paso Site for hydrogen production facility"
+      "evidence": "Location: Virtual (Teams) + El Paso Site"
     },
     {
       "source_entity": "El Paso Site",
@@ -594,7 +623,7 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "El Paso Site location reference"
+      "evidence": "El Paso Site"
     },
     {
       "source_entity": "Energy Division",
@@ -605,35 +634,13 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Energy Division President leads the project steering committee"
-    },
-    {
-      "source_entity": "Nel Hydrogen",
-      "source_type": "SUPPLIER",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Electrolyzer Units",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Electrolyzer Units (5) | Nel Hydrogen"
-    },
-    {
-      "source_entity": "GreenHydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Hydrogen Production",
-      "target_type": "SERVICE",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "03_greenhydrogen_steering_committee.md",
-      "evidence": "Project focused on hydrogen production with performance guarantee: 85 kg H2/hour per unit"
+      "evidence": "Dr. Sarah Park, Energy Division President leading the project"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 32,
-    "raw_relationship_count": 21,
+    "raw_entity_count": 34,
+    "raw_relationship_count": 19,
     "used_partial_parse": false,
     "truncated": false
   }

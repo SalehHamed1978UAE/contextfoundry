@@ -2,16 +2,16 @@
   "document_id": "a2e1c726-e842-4ca3-b0ff-b1f670f2f272",
   "document_path": "03_ge_aerospace_customer.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:19:52.348433",
+  "extracted_at": "2026-01-25T15:40:27.955442",
   "entities": [
     {
       "name": "GE Aerospace",
       "entity_type": "CUSTOMER",
       "properties": {
+        "industry": "Aerospace - Propulsion",
         "customer_id": "CUST-003",
         "account_type": "Strategic",
         "relationship_since": "2001",
-        "industry": "Aerospace - Propulsion",
         "stock_ticker": "GE (NYSE)",
         "employees": "52,000"
       },
@@ -24,22 +24,24 @@
       "name": "Nexus Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
+        "type": "Primary Division",
         "focus_areas": "Superalloys, ceramics"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Primary Division: Nexus Advanced Materials, Revenue: $165M, Products/Services: Superalloys, ceramics",
+      "source_excerpt": "Primary Division: Nexus Advanced Materials",
       "aliases": []
     },
     {
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
+        "type": "Secondary Division",
         "focus_areas": "Engine components"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Secondary Division: Nexus Aerospace, Revenue: $42M, Products/Services: Engine components",
+      "source_excerpt": "Secondary Division: Nexus Aerospace",
       "aliases": []
     },
     {
@@ -67,189 +69,180 @@
       "aliases": []
     },
     {
-      "name": "Evendale, OH",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Evendale",
-        "state": "OH",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Headquarters: Evendale, OH",
-      "aliases": []
-    },
-    {
       "name": "Larry Culp",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CEO",
-        "role": "Chief Executive Officer"
+        "title": "CEO"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Larry Culp, CEO",
+      "source_excerpt": "Larry Culp | CEO",
       "aliases": []
     },
     {
       "name": "Victoria Chen",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Executive contact"
+        "title": "Executive"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Larry Culp, CEO, Nexus Contact: Victoria Chen, Relationship: Executive",
+      "source_excerpt": "Victoria Chen | Executive",
       "aliases": []
     },
     {
       "name": "Russell Stokes",
       "entity_type": "PERSON",
       "properties": {
-        "title": "EVP Commercial",
-        "role": "Executive Vice President Commercial"
+        "title": "EVP Commercial"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Russell Stokes, EVP Commercial",
+      "source_excerpt": "Russell Stokes | EVP Commercial",
       "aliases": []
     },
     {
       "name": "Michael Torres",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Commercial contact"
+        "title": "Commercial"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Russell Stokes, EVP Commercial, Nexus Contact: Michael Torres, Relationship: Commercial",
+      "source_excerpt": "Michael Torres | Commercial",
       "aliases": []
     },
     {
       "name": "Mohamed Ali",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Engineering",
-        "role": "Vice President Engineering"
+        "title": "VP Engineering"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Mohamed Ali, VP Engineering",
+      "source_excerpt": "Mohamed Ali | VP Engineering",
       "aliases": []
     },
     {
       "name": "Dr. Jennifer Liu",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Technology contact"
+        "title": "Technology"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Mohamed Ali, VP Engineering, Nexus Contact: Dr. Jennifer Liu, Relationship: Technology",
+      "source_excerpt": "Dr. Jennifer Liu | Technology",
       "aliases": []
     },
     {
       "name": "Rahul Ghai",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CFO",
-        "role": "Chief Financial Officer"
+        "title": "CFO"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Rahul Ghai, CFO",
+      "source_excerpt": "Rahul Ghai | CFO",
       "aliases": []
     },
     {
       "name": "Robert Kim",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Finance contact"
+        "title": "Finance"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Rahul Ghai, CFO, Nexus Contact: Robert Kim, Relationship: Finance",
+      "source_excerpt": "Robert Kim | Finance",
       "aliases": []
     },
     {
       "name": "Karen Johnson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Supplier Management",
-        "role": "Vice President Supplier Management"
+        "title": "VP Supplier Management"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Karen Johnson, VP Supplier Management",
+      "source_excerpt": "Karen Johnson | VP Supplier Management",
       "aliases": []
     },
     {
       "name": "Dr. Michael Zhang",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Materials Director",
-        "role": "Materials Director"
+        "title": "Materials Director"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Dr. Michael Zhang, Materials Director",
+      "source_excerpt": "Dr. Michael Zhang | Materials Director",
       "aliases": []
     },
     {
       "name": "Dr. Maria Chen",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Technology contact"
+        "title": "Materials Specialist"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Dr. Michael Zhang, Materials Director, Nexus Contact: Dr. Maria Chen",
+      "source_excerpt": "Dr. Maria Chen",
       "aliases": []
     },
     {
       "name": "Sarah Williams",
       "entity_type": "PERSON",
       "properties": {
-        "title": "LEAP Program Manager",
-        "role": "Program Manager"
+        "title": "LEAP Program Manager"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Sarah Williams, LEAP Program Manager",
+      "source_excerpt": "Sarah Williams | LEAP Program Manager",
       "aliases": []
     },
     {
       "name": "Robert Martinez",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Program contact"
+        "title": "Program Manager"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Sarah Williams, LEAP Program Manager, Nexus Contact: Robert Martinez",
+      "source_excerpt": "Robert Martinez",
       "aliases": []
     },
     {
       "name": "James Park",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Quality Director",
-        "role": "Quality Director"
+        "title": "Quality Director"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "James Park, Quality Director",
+      "source_excerpt": "James Park | Quality Director",
       "aliases": []
     },
     {
       "name": "Dr. Susan Kim",
       "entity_type": "PERSON",
       "properties": {
-        "role": "Quality contact"
+        "title": "Quality Specialist"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "James Park, Quality Director, Nexus Contact: Dr. Susan Kim",
+      "source_excerpt": "Dr. Susan Kim",
+      "aliases": []
+    },
+    {
+      "name": "Evendale, OH",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Evendale",
+        "country": "OH"
+      },
+      "confidence": 1.0,
+      "source_document": "03_ge_aerospace_customer.md",
+      "source_excerpt": "Headquarters: Evendale, OH",
       "aliases": []
     },
     {
@@ -262,7 +255,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "LEAP Engine Superalloys, $85M, 2024-2029, Materials, Active",
+      "source_excerpt": "LEAP Engine Superalloys | $85M | 2024-2029 | Materials | Active",
       "aliases": []
     },
     {
@@ -275,7 +268,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "GE9X Materials, $45M, 2025-2028, Materials, Active",
+      "source_excerpt": "GE9X Materials | $45M | 2025-2028 | Materials | Active",
       "aliases": []
     },
     {
@@ -288,7 +281,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Turbine Blades, $32M, 2023-2026, Aerospace, Active",
+      "source_excerpt": "Turbine Blades | $32M | 2023-2026 | Aerospace | Active",
       "aliases": []
     },
     {
@@ -301,7 +294,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Ceramic Matrix Composites, $28M, 2025-2030, Materials, New",
+      "source_excerpt": "Ceramic Matrix Composites | $28M | 2025-2030 | Materials | New",
       "aliases": []
     },
     {
@@ -314,7 +307,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "GEnx Components, $18M, 2024-2027, Materials, Active",
+      "source_excerpt": "GEnx Components | $18M | 2024-2027 | Materials | Active",
       "aliases": []
     },
     {
@@ -323,12 +316,11 @@
       "properties": {
         "value": "$150M",
         "probability": "45%",
-        "expected_close": "2027",
-        "status": "Pipeline"
+        "expected_close": "2027"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "CFM RISE Program, $150M, 45%, 2027",
+      "source_excerpt": "CFM RISE Program | $150M | 45% | 2027",
       "aliases": []
     },
     {
@@ -337,12 +329,11 @@
       "properties": {
         "value": "$65M",
         "probability": "60%",
-        "expected_close": "Q4 2026",
-        "status": "Pipeline"
+        "expected_close": "Q4 2026"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Military Engine Materials, $65M, 60%, Q4 2026",
+      "source_excerpt": "Military Engine Materials | $65M | 60% | Q4 2026",
       "aliases": []
     },
     {
@@ -351,105 +342,90 @@
       "properties": {
         "value": "$35M",
         "probability": "75%",
-        "expected_close": "Q2 2026",
-        "status": "Pipeline"
+        "expected_close": "Q2 2026"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Additive Manufacturing, $35M, 75%, Q2 2026",
+      "source_excerpt": "Additive Manufacturing | $35M | 75% | Q2 2026",
       "aliases": []
     },
     {
       "name": "Rene N5",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Superalloy for turbine blades",
-        "category": "Superalloy",
-        "annual_volume": "85 tonnes"
+        "application": "Turbine blades",
+        "annual_volume": "85 tonnes",
+        "value": "$42M"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Rene N5, Turbine blades, 85 tonnes, $42M",
+      "source_excerpt": "Rene N5 | Turbine blades | 85 tonnes | $42M",
       "aliases": []
     },
     {
       "name": "Inconel 718",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Structural superalloy",
-        "category": "Superalloy",
-        "annual_volume": "120 tonnes"
+        "application": "Structural",
+        "annual_volume": "120 tonnes",
+        "value": "$28M"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Inconel 718, Structural, 120 tonnes, $28M",
+      "source_excerpt": "Inconel 718 | Structural | 120 tonnes | $28M",
       "aliases": []
     },
     {
       "name": "Custom Alloys",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Various custom alloy products",
-        "category": "Superalloy",
-        "annual_volume": "45 tonnes"
+        "application": "Various",
+        "annual_volume": "45 tonnes",
+        "value": "$25M"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Custom Alloys, Various, 45 tonnes, $25M",
+      "source_excerpt": "Custom Alloys | Various | 45 tonnes | $25M",
       "aliases": []
     },
     {
       "name": "CMC Shrouds",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Ceramic Matrix Composite Shrouds for LEAP engines",
-        "category": "Ceramic Matrix Composite"
+        "application": "LEAP engines",
+        "status": "Production"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "CMC Shrouds, LEAP engines, Production",
+      "source_excerpt": "CMC Shrouds | LEAP engines | Production",
       "aliases": []
     },
     {
       "name": "CMC Nozzles",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Ceramic Matrix Composite Nozzles for GE9X",
-        "category": "Ceramic Matrix Composite"
+        "application": "GE9X",
+        "status": "Qualification"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "CMC Nozzles, GE9X, Qualification",
+      "source_excerpt": "CMC Nozzles | GE9X | Qualification",
       "aliases": []
     },
     {
       "name": "CMC Blades",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Next-generation Ceramic Matrix Composite Blades",
-        "category": "Ceramic Matrix Composite"
+        "application": "Next-gen",
+        "status": "Development"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "CMC Blades, Next-gen, Development",
+      "source_excerpt": "CMC Blades | Next-gen | Development",
       "aliases": []
     },
     {
-      "name": "FY2025 Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Annual Revenue",
-        "value": "$207M",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "FY2025, $207M",
-      "aliases": []
-    },
-    {
-      "name": "GE Annual Revenue",
+      "name": "Annual Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Annual Revenue",
@@ -463,31 +439,87 @@
       "aliases": []
     },
     {
-      "name": "Nexus Advanced Materials Revenue",
+      "name": "FY2025 Materials Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Division Revenue",
+        "metric_name": "Revenue",
         "value": "$165M",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Nexus Advanced Materials, $165M",
+      "source_excerpt": "Nexus Advanced Materials | $165M",
       "aliases": []
     },
     {
-      "name": "Nexus Aerospace Revenue",
+      "name": "FY2025 Aerospace Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Division Revenue",
+        "metric_name": "Revenue",
         "value": "$42M",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "source_excerpt": "Nexus Aerospace, $42M",
+      "source_excerpt": "Nexus Aerospace | $42M",
+      "aliases": []
+    },
+    {
+      "name": "FY2025 Total Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Revenue",
+        "value": "$207M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_ge_aerospace_customer.md",
+      "source_excerpt": "Total | $207M",
+      "aliases": []
+    },
+    {
+      "name": "FY2023 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$168M",
+        "period": "FY2023",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_ge_aerospace_customer.md",
+      "source_excerpt": "FY2023 | $168M",
+      "aliases": []
+    },
+    {
+      "name": "FY2024 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$185M",
+        "period": "FY2024",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_ge_aerospace_customer.md",
+      "source_excerpt": "FY2024 | $185M | +10%",
+      "aliases": []
+    },
+    {
+      "name": "FY2026 Estimated Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Estimated Revenue",
+        "value": "$235M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "03_ge_aerospace_customer.md",
+      "source_excerpt": "FY2026 (Est) | $235M | +14%",
       "aliases": []
     }
   ],
@@ -521,7 +553,7 @@
       "target_entity": "GE Aerospace",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
       "evidence": "Executive Sponsor: Dr. William Foster (Division President)"
     },
@@ -534,7 +566,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Larry Culp, CEO"
+      "evidence": "Larry Culp | CEO"
     },
     {
       "source_entity": "Russell Stokes",
@@ -545,7 +577,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Russell Stokes, EVP Commercial"
+      "evidence": "Russell Stokes | EVP Commercial"
     },
     {
       "source_entity": "Mohamed Ali",
@@ -556,7 +588,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Mohamed Ali, VP Engineering"
+      "evidence": "Mohamed Ali | VP Engineering"
     },
     {
       "source_entity": "Rahul Ghai",
@@ -567,7 +599,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Rahul Ghai, CFO"
+      "evidence": "Rahul Ghai | CFO"
     },
     {
       "source_entity": "Karen Johnson",
@@ -578,7 +610,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Karen Johnson, VP Supplier Management"
+      "evidence": "Karen Johnson | VP Supplier Management"
     },
     {
       "source_entity": "Dr. Michael Zhang",
@@ -589,7 +621,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Dr. Michael Zhang, Materials Director"
+      "evidence": "Dr. Michael Zhang | Materials Director"
     },
     {
       "source_entity": "Sarah Williams",
@@ -600,7 +632,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Sarah Williams, LEAP Program Manager"
+      "evidence": "Sarah Williams | LEAP Program Manager"
     },
     {
       "source_entity": "James Park",
@@ -611,7 +643,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "James Park, Quality Director"
+      "evidence": "James Park | Quality Director"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -622,7 +654,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "LEAP Engine Superalloys, Materials division"
+      "evidence": "LEAP Engine Superalloys | Materials | Active"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -633,7 +665,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "GE9X Materials, Materials division"
+      "evidence": "GE9X Materials | Materials | Active"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -644,7 +676,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Turbine Blades, Aerospace division"
+      "evidence": "Turbine Blades | Aerospace | Active"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -655,7 +687,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Ceramic Matrix Composites, Materials division"
+      "evidence": "Ceramic Matrix Composites | Materials | New"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -666,7 +698,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "GEnx Components, Materials division"
+      "evidence": "GEnx Components | Materials | Active"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -677,7 +709,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Superalloys supply including Rene N5"
+      "evidence": "Rene N5 superalloys supply"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -688,7 +720,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Superalloys supply including Inconel 718"
+      "evidence": "Inconel 718 superalloys supply"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -699,7 +731,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Superalloys supply including Custom Alloys"
+      "evidence": "Custom Alloys superalloys supply"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -710,7 +742,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Ceramic Matrix Composites products including CMC Shrouds"
+      "evidence": "CMC Shrouds ceramic matrix composites"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -721,7 +753,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Ceramic Matrix Composites products including CMC Nozzles"
+      "evidence": "CMC Nozzles ceramic matrix composites"
     },
     {
       "source_entity": "Nexus Advanced Materials",
@@ -732,29 +764,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Ceramic Matrix Composites products including CMC Blades"
-    },
-    {
-      "source_entity": "GE Aerospace",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Primary Division: Nexus Advanced Materials"
-    },
-    {
-      "source_entity": "GE Aerospace",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "Secondary Division: Nexus Aerospace"
+      "evidence": "CMC Blades ceramic matrix composites"
     },
     {
       "source_entity": "Dr. Jennifer Liu",
@@ -763,15 +773,26 @@
       "target_entity": "CFM RISE Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "03_ge_aerospace_customer.md",
-      "evidence": "RISE proposal submission, Dr. Jennifer Liu, Q1 2026"
+      "evidence": "RISE proposal submission | Dr. Jennifer Liu | Q1 2026"
+    },
+    {
+      "source_entity": "Sarah Williams",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "LEAP Engine Superalloys",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_ge_aerospace_customer.md",
+      "evidence": "Sarah Williams | LEAP Program Manager"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 39,
-    "raw_relationship_count": 25,
+    "raw_entity_count": 42,
+    "raw_relationship_count": 24,
     "used_partial_parse": false,
     "truncated": false
   }
