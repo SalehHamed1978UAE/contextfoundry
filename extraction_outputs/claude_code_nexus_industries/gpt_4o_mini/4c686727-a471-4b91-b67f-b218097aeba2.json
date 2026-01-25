@@ -2,7 +2,7 @@
   "document_id": "4c686727-a471-4b91-b67f-b218097aeba2",
   "document_path": "03_press_release_fy2025.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:42:55.513928",
+  "extracted_at": "2026-01-25T10:22:48.056073",
   "entities": [
     {
       "name": "Nexus Industries, Inc.",
@@ -96,7 +96,7 @@
       "aliases": []
     },
     {
-      "name": "GreenHydrogen",
+      "name": "GreenHydrogen facility",
       "entity_type": "PROJECT",
       "properties": {
         "status": "Nearing completion"
@@ -143,33 +143,11 @@
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership type": "Strategic"
+        "partnership type": "Strategic partnership"
       },
       "confidence": 0.85,
       "source_document": "03_press_release_fy2025.md",
       "source_excerpt": "our partnership with Toyota will revolutionize battery technology",
-      "aliases": []
-    },
-    {
-      "name": "Jennifer Walsh",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "VP Investor Relations"
-      },
-      "confidence": 0.9,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Jennifer Walsh VP Investor Relations",
-      "aliases": []
-    },
-    {
-      "name": "Sarah Mitchell",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "VP Corporate Communications"
-      },
-      "confidence": 0.9,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Sarah Mitchell VP Corporate Communications",
       "aliases": []
     },
     {
@@ -185,59 +163,27 @@
       "aliases": []
     },
     {
-      "name": "$8.45 Billion",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
       "properties": {
-        "metric name": "Revenue",
-        "value": 8450000000,
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Revenue up 13.9% to $8.45 Billion",
-      "aliases": []
-    },
-    {
-      "name": "$5.82",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Diluted EPS",
-        "value": 5.82,
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "EPS up 17.6% to $5.82",
-      "aliases": []
-    },
-    {
-      "name": "$725 million",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Capital Returns",
-        "value": 725000000,
-        "period": "FY2025",
-        "type": "CURRENCY"
+        "title": "VP Investor Relations",
+        "role": "Vice President"
       },
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "the Company returned $725 million to shareholders",
+      "source_excerpt": "Jennifer Walsh VP Investor Relations",
       "aliases": []
     },
     {
-      "name": "$0.45",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Sarah Mitchell",
+      "entity_type": "PERSON",
       "properties": {
-        "metric name": "Quarterly Dividend",
-        "value": 0.45,
-        "period": "Q1 2026",
-        "type": "CURRENCY"
+        "title": "VP Corporate Communications",
+        "role": "Vice President"
       },
       "confidence": 0.9,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "declared a quarterly dividend of $0.45 per share",
+      "source_excerpt": "Sarah Mitchell VP Corporate Communications",
       "aliases": []
     }
   ],
@@ -320,7 +266,7 @@
       "evidence": "driven by the Falcon X UAV program"
     },
     {
-      "source_entity": "GreenHydrogen",
+      "source_entity": "Desert Sun Solar Farm",
       "source_type": "PROJECT",
       "relationship_type": "OWNS",
       "target_entity": "Nexus Energy Systems",
@@ -328,29 +274,18 @@
       "properties": {},
       "confidence": 0.85,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "led by the Desert Sun Solar Farm and GreenHydrogen project progress"
+      "evidence": "led by the Desert Sun Solar Farm"
     },
     {
-      "source_entity": "NexusConnect IoT",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Nexus Digital Solutions",
+      "source_entity": "GreenHydrogen facility",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Energy Systems",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "03_press_release_fy2025.md",
-      "evidence": "with NexusConnect IoT and CyberShield security platforms driving growth"
-    },
-    {
-      "source_entity": "CyberShield",
-      "source_type": "PRODUCT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Nexus Digital Solutions",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "03_press_release_fy2025.md",
-      "evidence": "with NexusConnect IoT and CyberShield security platforms driving growth"
+      "evidence": "our GreenHydrogen facility is nearing completion"
     },
     {
       "source_entity": "Nexus Industries, Inc.",
@@ -362,17 +297,6 @@
       "confidence": 0.95,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "Headquartered in Phoenix, Arizona"
-    },
-    {
-      "source_entity": "Nexus Industries, Inc.",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Toyota",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "03_press_release_fy2025.md",
-      "evidence": "our partnership with Toyota will revolutionize battery technology"
     },
     {
       "source_entity": "Jennifer Walsh",
@@ -399,8 +323,8 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 20,
-    "raw_relationship_count": 14,
+    "raw_entity_count": 16,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }
