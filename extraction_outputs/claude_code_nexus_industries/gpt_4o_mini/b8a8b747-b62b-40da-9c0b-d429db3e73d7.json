@@ -2,7 +2,7 @@
   "document_id": "b8a8b747-b62b-40da-9c0b-d429db3e73d7",
   "document_path": "06_employee_benefits_update.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:11:55.877500",
+  "extracted_at": "2026-01-25T10:49:00.395538",
   "entities": [
     {
       "name": "Maria Santos",
@@ -29,132 +29,38 @@
       "aliases": []
     },
     {
-      "name": "Mental Health Support",
+      "name": "Gradifi",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Platform for student loan administration"
+      },
+      "confidence": 0.9,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Administration | Through Gradifi platform",
+      "aliases": []
+    },
+    {
+      "name": "Benefits Town Hall",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$1.2 million",
+        "budget": null,
+        "timeline": "January 22, 2026",
+        "status": "Upcoming"
+      },
+      "confidence": 0.85,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Join our Benefits Town Hall on January 22 at 11:00 AM PT",
+      "aliases": []
+    },
+    {
+      "name": "Employee Benefits Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$6.0 million",
         "timeline": "FY2026",
         "status": "Enhanced"
       },
       "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "We are significantly expanding our mental health benefits",
-      "aliases": []
-    },
-    {
-      "name": "Family Building Benefits",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$800,000",
-        "timeline": "FY2026",
-        "status": "New"
-      },
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "New fertility and family building support",
-      "aliases": []
-    },
-    {
-      "name": "Student Loan Assistance",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$1.5 million",
-        "timeline": "FY2026",
-        "status": "New"
-      },
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "New student loan repayment benefit",
-      "aliases": []
-    },
-    {
-      "name": "Sabbatical Program",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$500,000",
-        "timeline": "Launching July 2026",
-        "status": "New"
-      },
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Launching July 2026 for long-tenured employees",
-      "aliases": []
-    },
-    {
-      "name": "401(k) Retirement",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "N/A",
-        "timeline": "FY2026",
-        "status": "Enhanced"
-      },
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Enhanced Existing Benefits",
-      "aliases": []
-    },
-    {
-      "name": "Health Insurance",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "N/A",
-        "timeline": "FY2026",
-        "status": "Enhanced"
-      },
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Enhanced Existing Benefits",
-      "aliases": []
-    },
-    {
-      "name": "Life and Disability",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "N/A",
-        "timeline": "FY2026",
-        "status": "Enhanced"
-      },
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Enhanced Existing Benefits",
-      "aliases": []
-    },
-    {
-      "name": "Remote Work Equipment",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "N/A",
-        "timeline": "FY2026",
-        "status": "New"
-      },
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "For our hybrid and remote workforce",
-      "aliases": []
-    },
-    {
-      "name": "Wellness Programs",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "N/A",
-        "timeline": "FY2026",
-        "status": "Enhanced"
-      },
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Wellness Programs",
-      "aliases": []
-    },
-    {
-      "name": "$6.0 million",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Total Investment",
-        "value": "$6.0 million",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
       "source_excerpt": "Our total investment in benefits enhancements for FY2026 is **$6.0 million**",
       "aliases": []
@@ -173,109 +79,43 @@
       "evidence": "Maria Santos, Chief Human Resources Officer"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "evidence": "Maria Santos, Chief Human Resources Officer"
+    },
+    {
+      "source_entity": "Employee Benefits Program",
+      "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
-      "target_entity": "Mental Health Support",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Investment: $1.2 million annually"
+      "evidence": "Our total investment in benefits enhancements for FY2026 is **$6.0 million**"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Family Building Benefits",
+      "source_entity": "Benefits Town Hall",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Employee Benefits Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Investment: $800,000 annually"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Student Loan Assistance",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "Investment: $1.5 million annually"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Sabbatical Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "Investment: $500,000 annually"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "401(k) Retirement",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "Enhanced Existing Benefits"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Health Insurance",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "Enhanced Existing Benefits"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Life and Disability",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "Enhanced Existing Benefits"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Remote Work Equipment",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "For our hybrid and remote workforce"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Wellness Programs",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "Wellness Programs"
+      "evidence": "Join our Benefits Town Hall on January 22 at 11:00 AM PT"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 12,
-    "raw_relationship_count": 10,
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

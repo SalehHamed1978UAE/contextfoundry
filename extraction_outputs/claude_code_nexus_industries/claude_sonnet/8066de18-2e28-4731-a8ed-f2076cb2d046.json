@@ -2,15 +2,14 @@
   "document_id": "8066de18-2e28-4731-a8ed-f2076cb2d046",
   "document_path": "05_safety_committee_meeting.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:07:47.577681",
+  "extracted_at": "2026-01-25T10:46:08.741751",
   "entities": [
     {
       "name": "Dr. Patricia Martinez",
       "entity_type": "PERSON",
       "properties": {
         "title": "VP EHS",
-        "role": "Chair",
-        "department": "Corporate"
+        "role": "Chair"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -21,8 +20,7 @@
       "name": "Robert Kim",
       "entity_type": "PERSON",
       "properties": {
-        "title": "EHS Director",
-        "department": "Aerospace"
+        "title": "EHS Director"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -33,8 +31,7 @@
       "name": "Jennifer Walsh",
       "entity_type": "PERSON",
       "properties": {
-        "title": "EHS Director",
-        "department": "Energy"
+        "title": "EHS Director"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -45,8 +42,7 @@
       "name": "Michael Torres",
       "entity_type": "PERSON",
       "properties": {
-        "title": "EHS Director",
-        "department": "Digital"
+        "title": "EHS Director"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -57,8 +53,7 @@
       "name": "Sarah Chen",
       "entity_type": "PERSON",
       "properties": {
-        "title": "EHS Director",
-        "department": "Materials"
+        "title": "EHS Director"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -69,8 +64,7 @@
       "name": "Lisa Thompson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "General Counsel",
-        "department": "Corporate"
+        "title": "General Counsel"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -81,8 +75,7 @@
       "name": "Dr. James Wilson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CTO",
-        "department": "Corporate"
+        "title": "CTO"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -93,8 +86,7 @@
       "name": "Maria Santos",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CHRO",
-        "role": "Chief Human Resources Officer"
+        "title": "CHRO"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -116,8 +108,7 @@
       "name": "Dr. Victoria Chen",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CEO",
-        "role": "Chief Executive Officer"
+        "title": "CEO"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -126,9 +117,9 @@
     },
     {
       "name": "Corporate Safety Committee",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Committee"
+        "focus_areas": "Safety oversight, EHS compliance"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -136,51 +127,7 @@
       "aliases": []
     },
     {
-      "name": "Aerospace Division",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Aerospace manufacturing"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Robert Kim | EHS Director | Aerospace",
-      "aliases": []
-    },
-    {
-      "name": "Energy Division",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Energy systems"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Jennifer Walsh | EHS Director | Energy",
-      "aliases": []
-    },
-    {
-      "name": "Digital Division",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Digital technologies"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Michael Torres | EHS Director | Digital",
-      "aliases": []
-    },
-    {
-      "name": "Materials Division",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Materials manufacturing"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Sarah Chen | EHS Director | Materials",
-      "aliases": []
-    },
-    {
-      "name": "Corporate Division",
+      "name": "Corporate",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "focus_areas": "Corporate functions"
@@ -191,11 +138,54 @@
       "aliases": []
     },
     {
+      "name": "Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Aerospace operations"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Robert Kim | EHS Director | Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Energy",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Energy operations"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Jennifer Walsh | EHS Director | Energy",
+      "aliases": []
+    },
+    {
+      "name": "Digital",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Digital operations"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Michael Torres | EHS Director | Digital",
+      "aliases": []
+    },
+    {
+      "name": "Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Materials operations"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Sarah Chen | EHS Director | Materials",
+      "aliases": []
+    },
+    {
       "name": "Phoenix Headquarters",
       "entity_type": "LOCATION",
       "properties": {
-        "city": "Phoenix",
-        "type": "Headquarters"
+        "city": "Phoenix"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -206,8 +196,8 @@
       "name": "Albuquerque Manufacturing Facility",
       "entity_type": "FACILITY",
       "properties": {
-        "location": "Albuquerque",
-        "type": "Manufacturing"
+        "type": "Manufacturing",
+        "location": "Albuquerque"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -215,10 +205,34 @@
       "aliases": []
     },
     {
+      "name": "Houston site",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Site",
+        "location": "Houston"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "VPP application for Houston site",
+      "aliases": []
+    },
+    {
+      "name": "Albuquerque Site",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Site",
+        "location": "Albuquerque"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Location: Albuquerque Site (includes facility tour)",
+      "aliases": []
+    },
+    {
       "name": "TRIR Q4 2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "TRIR",
+        "metric_name": "Total Recordable Incident Rate",
         "value": "0.82",
         "period": "Q4 2025",
         "type": "COUNT"
@@ -232,7 +246,7 @@
       "name": "LTIR Q4 2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "LTIR",
+        "metric_name": "Lost Time Incident Rate",
         "value": "0.18",
         "period": "Q4 2025",
         "type": "COUNT"
@@ -243,7 +257,7 @@
       "aliases": []
     },
     {
-      "name": "Near Misses Reported Q4 2025",
+      "name": "Near Misses Q4 2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Near Misses Reported",
@@ -274,7 +288,7 @@
       "name": "TRIR FY2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "TRIR",
+        "metric_name": "Total Recordable Incident Rate",
         "value": "0.82",
         "period": "FY2025",
         "type": "COUNT"
@@ -285,66 +299,12 @@
       "aliases": []
     },
     {
-      "name": "LTIR FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "LTIR",
-        "value": "0.18",
-        "period": "FY2025",
-        "type": "COUNT"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "LTIR | 0.18 | 0.22 | <0.20",
-      "aliases": []
-    },
-    {
-      "name": "Near Misses FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Near Misses",
-        "value": "2,450",
-        "period": "FY2025",
-        "type": "COUNT"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Near Misses | 2,450 | 1,980 | >2,000",
-      "aliases": []
-    },
-    {
-      "name": "Training Hours FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Training Hours",
-        "value": "52,000",
-        "period": "FY2025",
-        "type": "COUNT"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Training Hours | 52,000 | 48,500 | >50,000",
-      "aliases": []
-    },
-    {
-      "name": "Materials Division Safety Improvement Plan",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$2.3M",
-        "status": "Approved"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Materials Division Improvement | $2.3M | S. Chen",
-      "aliases": []
-    },
-    {
-      "name": "Automated Material Handling",
+      "name": "Automated material handling",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$1.2M",
-        "timeline": "Q2 2026",
-        "status": "In Progress"
+        "status": "In Progress",
+        "timeline": "Q2 2026"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -352,12 +312,12 @@
       "aliases": []
     },
     {
-      "name": "Ventilation Upgrade",
+      "name": "Ventilation upgrade",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$850K",
-        "timeline": "Mar 2026",
-        "status": "Approved"
+        "status": "Approved",
+        "timeline": "Mar 2026"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -365,59 +325,48 @@
       "aliases": []
     },
     {
-      "name": "VR Safety Training",
+      "name": "Enhanced PPE program",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$350K",
-        "timeline": "Q1 2026",
-        "status": "Approved"
+        "budget": "$120K",
+        "status": "Complete"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "VR Safety Training | $350K | Q1 2026",
+      "source_excerpt": "Enhanced PPE program | Complete | $120K | Done",
       "aliases": []
     },
     {
-      "name": "Turner",
-      "entity_type": "SUPPLIER",
+      "name": "Night shift supervision",
+      "entity_type": "PROJECT",
       "properties": {
-        "capability": "Construction",
-        "risk_level": "Medium"
+        "budget": "$180K/yr",
+        "status": "In Progress",
+        "timeline": "Feb 2026"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "GreenHydrogen Construction | Turner | Green | Medium",
+      "source_excerpt": "Night shift supervision | In Progress | $180K/yr | Feb 2026",
       "aliases": []
     },
     {
-      "name": "DPR",
-      "entity_type": "SUPPLIER",
+      "name": "Ergonomic assessment",
+      "entity_type": "PROJECT",
       "properties": {
-        "capability": "Construction",
-        "risk_level": "Low"
+        "budget": "$45K",
+        "status": "Complete"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Aerospace Hangar 7 | DPR | Green | Low",
-      "aliases": []
-    },
-    {
-      "name": "Hensel Phelps",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Construction",
-        "risk_level": "High"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Materials Facility Expansion | Hensel Phelps | Yellow | High",
+      "source_excerpt": "Ergonomic assessment | Complete | $45K | Done",
       "aliases": []
     },
     {
       "name": "GreenHydrogen Construction",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Green"
+        "status": "Green",
+        "risk_level": "Medium"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -428,7 +377,8 @@
       "name": "Aerospace Hangar 7",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Green"
+        "status": "Green",
+        "risk_level": "Low"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
@@ -439,11 +389,48 @@
       "name": "Materials Facility Expansion",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "Yellow"
+        "status": "Yellow",
+        "risk_level": "High"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
       "source_excerpt": "Materials Facility Expansion | Hensel Phelps | Yellow | High",
+      "aliases": []
+    },
+    {
+      "name": "Behavior-Based Safety 2.0",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$450K",
+        "timeline": "FY2026"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Behavior-Based Safety 2.0 | $450K | EHS | TRIR <0.75",
+      "aliases": []
+    },
+    {
+      "name": "Materials Division Improvement",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$2.3M",
+        "timeline": "FY2026"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Materials Division Improvement | $2.3M | S. Chen | TRIR <0.90",
+      "aliases": []
+    },
+    {
+      "name": "VR Safety Training",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$350K",
+        "timeline": "Q1 2026"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "VR Safety Training | $350K | Q1 2026",
       "aliases": []
     },
     {
@@ -459,27 +446,47 @@
       "aliases": []
     },
     {
-      "name": "Supervisor Certification",
-      "entity_type": "PROJECT",
+      "name": "Turner",
+      "entity_type": "SUPPLIER",
       "properties": {
-        "budget": "$120K",
-        "timeline": "Q1 2026"
+        "capability": "Construction"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Supervisor Certification | $120K | Q1 2026",
+      "source_excerpt": "GreenHydrogen Construction | Turner",
       "aliases": []
     },
     {
-      "name": "Contractor Training Portal",
-      "entity_type": "PROJECT",
+      "name": "DPR",
+      "entity_type": "SUPPLIER",
       "properties": {
-        "budget": "$95K",
-        "timeline": "Q2 2026"
+        "capability": "Construction"
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Contractor Training Portal | $95K | Q2 2026",
+      "source_excerpt": "Aerospace Hangar 7 | DPR",
+      "aliases": []
+    },
+    {
+      "name": "Hensel Phelps",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Construction"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Materials Facility Expansion | Hensel Phelps",
+      "aliases": []
+    },
+    {
+      "name": "VR Training Technology",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Virtual Reality Safety Training"
+      },
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "VR Safety Training | $350K | Q1 2026",
       "aliases": []
     },
     {
@@ -493,21 +500,7 @@
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "GHG Emissions (MT CO2e) | 185,000 | 198,000 | <200,000",
-      "aliases": []
-    },
-    {
-      "name": "Waste Diverted FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Waste Diverted",
-        "value": "72%",
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Waste Diverted | 72% | 68% | 75%",
+      "source_excerpt": "GHG Emissions (MT CO2e) | 185,000 | 198,000",
       "aliases": []
     },
     {
@@ -521,43 +514,7 @@
       },
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Water Usage (M gal) | 425 | 448 | <450",
-      "aliases": []
-    },
-    {
-      "name": "Behavior-Based Safety 2.0",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$450K",
-        "status": "Priority Program"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Behavior-Based Safety 2.0 | $450K | EHS | TRIR <0.75",
-      "aliases": []
-    },
-    {
-      "name": "Contractor Safety Portal",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$180K",
-        "status": "Priority Program"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Contractor Safety Portal | $180K | J. Walsh | 100% compliance",
-      "aliases": []
-    },
-    {
-      "name": "Leading Indicators Program",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$125K",
-        "status": "Priority Program"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Leading Indicators Program | $125K | EHS | Predictive analytics",
+      "source_excerpt": "Water Usage (M gal) | 425 | 448",
       "aliases": []
     }
   ],
@@ -565,19 +522,19 @@
     {
       "source_entity": "Dr. Patricia Martinez",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "LEADS",
       "target_entity": "Corporate Safety Committee",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Dr. Patricia Martinez | VP EHS (Chair) | Corporate"
+      "evidence": "Dr. Patricia Martinez | VP EHS (Chair)"
     },
     {
       "source_entity": "Dr. Patricia Martinez",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Corporate Division",
+      "target_entity": "Corporate",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
@@ -587,8 +544,8 @@
     {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Aerospace Division",
+      "relationship_type": "MANAGES",
+      "target_entity": "Aerospace",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
@@ -598,8 +555,8 @@
     {
       "source_entity": "Jennifer Walsh",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Energy Division",
+      "relationship_type": "MANAGES",
+      "target_entity": "Energy",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
@@ -609,8 +566,8 @@
     {
       "source_entity": "Michael Torres",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Digital Division",
+      "relationship_type": "MANAGES",
+      "target_entity": "Digital",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
@@ -620,8 +577,8 @@
     {
       "source_entity": "Sarah Chen",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Materials Division",
+      "relationship_type": "MANAGES",
+      "target_entity": "Materials",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
@@ -632,7 +589,7 @@
       "source_entity": "Lisa Thompson",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Corporate Division",
+      "target_entity": "Corporate",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
@@ -643,7 +600,7 @@
       "source_entity": "Dr. James Wilson",
       "source_type": "PERSON",
       "relationship_type": "PART_OF",
-      "target_entity": "Corporate Division",
+      "target_entity": "Corporate",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.95,
@@ -651,10 +608,76 @@
       "evidence": "Dr. James Wilson | CTO | Corporate"
     },
     {
+      "source_entity": "Automated material handling",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Corrective Actions for Materials Division"
+    },
+    {
+      "source_entity": "Ventilation upgrade",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Corrective Actions for Materials Division"
+    },
+    {
+      "source_entity": "Enhanced PPE program",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Corrective Actions for Materials Division"
+    },
+    {
+      "source_entity": "GreenHydrogen Construction",
+      "source_type": "PROJECT",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Turner",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "GreenHydrogen Construction | Turner"
+    },
+    {
+      "source_entity": "Aerospace Hangar 7",
+      "source_type": "PROJECT",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "DPR",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Aerospace Hangar 7 | DPR"
+    },
+    {
+      "source_entity": "Materials Facility Expansion",
+      "source_type": "PROJECT",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Hensel Phelps",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Materials Facility Expansion | Hensel Phelps"
+    },
+    {
       "source_entity": "Sarah Chen",
       "source_type": "PERSON",
-      "relationship_type": "OWNS",
-      "target_entity": "Materials Division Safety Improvement Plan",
+      "relationship_type": "MANAGES",
+      "target_entity": "Materials Division Improvement",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.95,
@@ -662,87 +685,32 @@
       "evidence": "Materials Division Improvement | $2.3M | S. Chen"
     },
     {
-      "source_entity": "Materials Division Safety Improvement Plan",
+      "source_entity": "VR Safety Training",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Automated Material Handling",
-      "target_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "VR Training Technology",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "VR Safety Training pilot program"
+    },
+    {
+      "source_entity": "Corporate Safety Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix Headquarters",
+      "target_type": "LOCATION",
       "properties": {},
       "confidence": 0.85,
       "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Automated material handling is part of corrective actions for Materials division"
-    },
-    {
-      "source_entity": "Materials Division Safety Improvement Plan",
-      "source_type": "PROJECT",
-      "relationship_type": "OWNS",
-      "target_entity": "Ventilation Upgrade",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Ventilation upgrade is part of corrective actions for Materials division"
-    },
-    {
-      "source_entity": "Turner",
-      "source_type": "SUPPLIER",
-      "relationship_type": "OWNS",
-      "target_entity": "GreenHydrogen Construction",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "GreenHydrogen Construction | Turner | Green | Medium"
-    },
-    {
-      "source_entity": "DPR",
-      "source_type": "SUPPLIER",
-      "relationship_type": "OWNS",
-      "target_entity": "Aerospace Hangar 7",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Aerospace Hangar 7 | DPR | Green | Low"
-    },
-    {
-      "source_entity": "Hensel Phelps",
-      "source_type": "SUPPLIER",
-      "relationship_type": "OWNS",
-      "target_entity": "Materials Facility Expansion",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Materials Facility Expansion | Hensel Phelps | Yellow | High"
-    },
-    {
-      "source_entity": "Jennifer Walsh",
-      "source_type": "PERSON",
-      "relationship_type": "OWNS",
-      "target_entity": "Contractor Safety Portal",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Contractor Safety Portal | $180K | J. Walsh | 100% compliance"
-    },
-    {
-      "source_entity": "Maria Santos",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "VR Safety Training",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "VR training vendor selection | Maria Santos"
+      "evidence": "Location: Phoenix Headquarters + Virtual"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 45,
-    "raw_relationship_count": 16,
+    "raw_entity_count": 43,
+    "raw_relationship_count": 17,
     "used_partial_parse": false,
     "truncated": false
   }

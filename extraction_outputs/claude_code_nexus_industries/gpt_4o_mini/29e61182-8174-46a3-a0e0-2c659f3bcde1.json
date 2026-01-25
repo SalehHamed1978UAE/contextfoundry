@@ -2,7 +2,7 @@
   "document_id": "29e61182-8174-46a3-a0e0-2c659f3bcde1",
   "document_path": "05_siemens_healthineers_customer.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:08:51.649719",
+  "extracted_at": "2026-01-25T10:47:01.974880",
   "entities": [
     {
       "name": "Siemens Healthineers AG",
@@ -131,7 +131,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "CEO",
-        "role": "Chief Executive Officer"
+        "role": "CEO"
       },
       "confidence": 0.95,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -143,7 +143,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "CFO",
-        "role": "Chief Financial Officer"
+        "role": "CFO"
       },
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -167,7 +167,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "CTO",
-        "role": "Chief Technology Officer"
+        "role": "CTO"
       },
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -223,63 +223,15 @@
       "aliases": []
     },
     {
-      "name": "Dr. William Foster",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Executive",
-        "role": "Executive"
-      },
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Nexus Contact: Dr. William Foster",
-      "aliases": []
-    },
-    {
       "name": "Dr. Takeshi Yamamoto",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Executive",
-        "role": "Executive"
+        "title": "R&D Director",
+        "role": "R&D Director"
       },
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Nexus Contact: Dr. Takeshi Yamamoto",
-      "aliases": []
-    },
-    {
-      "name": "Robert Kim",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Finance",
-        "role": "Finance"
-      },
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Nexus Contact: Robert Kim",
-      "aliases": []
-    },
-    {
-      "name": "Victoria Chen",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Executive",
-        "role": "Executive"
-      },
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Nexus Contact: Victoria Chen",
-      "aliases": []
-    },
-    {
-      "name": "Dr. Maria Santos",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Quality Manager",
-        "role": "Quality Manager"
-      },
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "source_excerpt": "Nexus Contact: Dr. Maria Santos",
+      "source_excerpt": "Contact: Dr. Takeshi Yamamoto",
       "aliases": []
     }
   ],
@@ -291,53 +243,31 @@
       "target_entity": "Nexus Advanced Materials",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Customer Name: Siemens Healthineers AG"
+      "evidence": "Account Type: Strategic"
     },
     {
       "source_entity": "Dr. Elena Petrova",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Account Manager: Dr. Elena Petrova"
+      "evidence": "Account Owner: Dr. Elena Petrova, Account Manager"
     },
     {
       "source_entity": "Dr. Christopher Lee",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
       "evidence": "Executive Sponsor: Dr. Christopher Lee (Project Manager, HTS)"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "HTS Wire",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Product: HTS Wire"
-    },
-    {
-      "source_entity": "Nexus Advanced Materials",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Specialty Conductors",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Product: Specialty Conductors"
     },
     {
       "source_entity": "HTS Wire Supply Agreement",
@@ -392,36 +322,25 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Executive Sponsor: Dr. Christopher Lee (Project Manager, HTS)"
-    },
-    {
-      "source_entity": "Dr. William Foster",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Qualification Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Nexus Contact: Dr. William Foster"
+      "evidence": "Project Manager: Dr. Christopher Lee"
     },
     {
       "source_entity": "Bernd Montag",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
       "evidence": "Siemens Contact: Bernd Montag"
     },
     {
       "source_entity": "Jochen Schmitz",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -430,9 +349,9 @@
     {
       "source_entity": "Christoph Zindel",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
@@ -441,107 +360,19 @@
     {
       "source_entity": "Dr. Peter Winkelmann",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Siemens Healthineers AG",
-      "target_type": "CUSTOMER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_siemens_healthineers_customer.md",
       "evidence": "Siemens Contact: Dr. Peter Winkelmann"
-    },
-    {
-      "source_entity": "Dr. Hans Mueller",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Contact: Dr. Hans Mueller"
-    },
-    {
-      "source_entity": "Maria Schmidt",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Contact: Maria Schmidt"
-    },
-    {
-      "source_entity": "Thomas Wagner",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Contact: Thomas Wagner"
-    },
-    {
-      "source_entity": "Dr. Klaus Fischer",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Contact: Dr. Klaus Fischer"
-    },
-    {
-      "source_entity": "Dr. Takeshi Yamamoto",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Nexus Contact: Dr. Takeshi Yamamoto"
-    },
-    {
-      "source_entity": "Robert Kim",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Nexus Contact: Robert Kim"
-    },
-    {
-      "source_entity": "Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Nexus Contact: Victoria Chen"
-    },
-    {
-      "source_entity": "Dr. Maria Santos",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Advanced Materials",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_siemens_healthineers_customer.md",
-      "evidence": "Nexus Contact: Dr. Maria Santos"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 23,
-    "raw_relationship_count": 23,
+    "raw_entity_count": 19,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

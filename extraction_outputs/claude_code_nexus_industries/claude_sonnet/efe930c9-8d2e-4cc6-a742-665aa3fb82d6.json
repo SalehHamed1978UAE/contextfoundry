@@ -2,14 +2,13 @@
   "document_id": "efe930c9-8d2e-4cc6-a742-665aa3fb82d6",
   "document_path": "06_market_expansion_asia.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:14:28.159190",
+  "extracted_at": "2026-01-25T10:51:45.115345",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Corporation",
-        "industry": "Industrial Technology"
+        "industry": "Multi-industry conglomerate"
       },
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
@@ -89,10 +88,21 @@
       "aliases": []
     },
     {
+      "name": "APAC Leadership Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Asia Pacific regional governance"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "APAC Leadership Council: - Kenji Yamamoto (Chair)",
+      "aliases": []
+    },
+    {
       "name": "Aerospace Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Aerospace components, technology"
+        "focus_areas": "Aerospace products and services"
       },
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
@@ -103,7 +113,7 @@
       "name": "Energy Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Clean energy, energy systems"
+        "focus_areas": "Energy systems and solutions"
       },
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
@@ -114,7 +124,7 @@
       "name": "Digital Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Industrial IoT, digital solutions"
+        "focus_areas": "Digital solutions and IoT"
       },
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
@@ -133,234 +143,68 @@
       "aliases": []
     },
     {
-      "name": "India Market Entry",
+      "name": "India Market Entry Initiative",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$85M",
         "timeline": "5 years",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Initiative 1: India Market Entry | Investment: $85M over 5 years",
+      "source_excerpt": "Initiative 1: India Market Entry **Investment:** $85M over 5 years",
       "aliases": []
     },
     {
-      "name": "China Localization",
+      "name": "China Localization Initiative",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$120M",
         "timeline": "5 years",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Initiative 2: China Localization | Investment: $120M over 5 years",
+      "source_excerpt": "Initiative 2: China Localization **Investment:** $120M over 5 years",
       "aliases": []
     },
     {
-      "name": "Japan Technology Partnership",
+      "name": "Japan Technology Partnership Initiative",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$65M",
         "timeline": "5 years",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Initiative 3: Japan Technology Partnership | Investment: $65M over 5 years",
+      "source_excerpt": "Initiative 3: Japan Technology Partnership **Investment:** $65M over 5 years",
       "aliases": []
     },
     {
-      "name": "Australia/ANZ Energy Leadership",
+      "name": "Australia/ANZ Energy Leadership Initiative",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$55M",
         "timeline": "5 years",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Initiative 4: Australia/ANZ Energy Leadership | Investment: $55M over 5 years",
+      "source_excerpt": "Initiative 4: Australia/ANZ Energy Leadership **Investment:** $55M over 5 years",
       "aliases": []
     },
     {
-      "name": "Southeast Asia Hub",
+      "name": "Southeast Asia Hub Initiative",
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$45M",
         "timeline": "5 years",
-        "status": "Active"
+        "status": "Planned"
       },
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Initiative 5: Southeast Asia Hub | Investment: $45M over 5 years",
-      "aliases": []
-    },
-    {
-      "name": "APAC Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "APAC Revenue",
-        "value": "$1.52B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "$1.52B in FY2025 revenue (18% of total)",
-      "aliases": []
-    },
-    {
-      "name": "APAC Revenue Target 2030",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "APAC Revenue Target",
-        "value": "$3.5B",
-        "period": "2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "potential to grow to $3.5B by 2030",
-      "aliases": []
-    },
-    {
-      "name": "Japan Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Japan Revenue",
-        "value": "$520M",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Japan | $520M | +12% | 450",
-      "aliases": []
-    },
-    {
-      "name": "China Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "China Revenue",
-        "value": "$385M",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "China | $385M | +18% | 380",
-      "aliases": []
-    },
-    {
-      "name": "India Revenue Target 2030",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "India Revenue Target",
-        "value": "$350M",
-        "period": "2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Revenue Target: $350M by 2030",
-      "aliases": []
-    },
-    {
-      "name": "Singapore",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Singapore",
-        "country": "Singapore"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Singapore (Hub) | $85M | +8% | 180",
-      "aliases": []
-    },
-    {
-      "name": "Tokyo",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Tokyo",
-        "country": "Japan"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "VP Japan | Takeshi Suzuki | Tokyo",
-      "aliases": []
-    },
-    {
-      "name": "Shanghai",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Shanghai",
-        "country": "China"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "VP Greater China | Wei Chen | Shanghai",
-      "aliases": []
-    },
-    {
-      "name": "Sydney",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Sydney",
-        "country": "Australia"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "VP Australia/NZ | Sarah Thompson | Sydney",
-      "aliases": []
-    },
-    {
-      "name": "Mumbai",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Mumbai",
-        "country": "India"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "VP South Asia | Raj Patel | Mumbai (new)",
-      "aliases": []
-    },
-    {
-      "name": "Bangalore",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Bangalore",
-        "country": "India"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Bangalore (tech), Chennai (manufacturing)",
-      "aliases": []
-    },
-    {
-      "name": "Chennai",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Chennai",
-        "country": "India"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Bangalore (tech), Chennai (manufacturing)",
-      "aliases": []
-    },
-    {
-      "name": "Suzhou",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Suzhou",
-        "country": "China"
-      },
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "Shanghai (HQ), Suzhou (manufacturing)",
+      "source_excerpt": "Initiative 5: Southeast Asia Hub **Investment:** $45M over 5 years",
       "aliases": []
     },
     {
@@ -447,9 +291,249 @@
         "industry": "Mining",
         "region": "Australia"
       },
-      "confidence": 0.85,
+      "confidence": 0.8,
       "source_document": "06_market_expansion_asia.md",
       "source_excerpt": "Mining Automation | Rio Tinto expansion",
+      "aliases": []
+    },
+    {
+      "name": "Japan",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Various",
+        "country": "Japan"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Japan | $520M | +12% | 450",
+      "aliases": []
+    },
+    {
+      "name": "China",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Various",
+        "country": "China"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "China | $385M | +18% | 380",
+      "aliases": []
+    },
+    {
+      "name": "Australia",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Various",
+        "country": "Australia"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Australia | $285M | +15% | 320",
+      "aliases": []
+    },
+    {
+      "name": "Singapore",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Singapore",
+        "country": "Singapore"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Singapore (Hub) | $85M | +8% | 180",
+      "aliases": []
+    },
+    {
+      "name": "India",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Various",
+        "country": "India"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "India | $60M | +35% | 125",
+      "aliases": []
+    },
+    {
+      "name": "South Korea",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Various",
+        "country": "South Korea"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "South Korea | $165M | +22% | 145",
+      "aliases": []
+    },
+    {
+      "name": "Tokyo Office",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Tokyo",
+        "type": "Regional Office"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "VP Japan | Takeshi Suzuki | Tokyo",
+      "aliases": []
+    },
+    {
+      "name": "Shanghai Office",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Shanghai",
+        "type": "Regional Headquarters"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Shanghai (HQ), Suzhou (manufacturing)",
+      "aliases": []
+    },
+    {
+      "name": "Suzhou Manufacturing Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Suzhou",
+        "type": "Manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Shanghai (HQ), Suzhou (manufacturing)",
+      "aliases": []
+    },
+    {
+      "name": "Bangalore Office",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Bangalore",
+        "type": "Technology Center"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Bangalore (tech), Chennai (manufacturing)",
+      "aliases": []
+    },
+    {
+      "name": "Chennai Manufacturing Facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Chennai",
+        "type": "Manufacturing"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Bangalore (tech), Chennai (manufacturing)",
+      "aliases": []
+    },
+    {
+      "name": "Sydney Office",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Sydney",
+        "type": "Regional Office"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "VP Australia/NZ | Sarah Thompson | Sydney",
+      "aliases": []
+    },
+    {
+      "name": "Mumbai Office",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Mumbai",
+        "type": "Regional Office"
+      },
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "VP South Asia | Raj Patel | Mumbai (new)",
+      "aliases": []
+    },
+    {
+      "name": "FY2025 APAC Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue",
+        "value": "$1.52B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "with $1.52B in FY2025 revenue (18% of total)",
+      "aliases": []
+    },
+    {
+      "name": "2030 Revenue Target",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Revenue Target",
+        "value": "$3.5B",
+        "period": "2030",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "potential to grow to $3.5B by 2030 (23% of total)",
+      "aliases": []
+    },
+    {
+      "name": "Japan Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Country Revenue",
+        "value": "$520M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Japan | $520M | +12% | 450",
+      "aliases": []
+    },
+    {
+      "name": "China Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Country Revenue",
+        "value": "$385M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "China | $385M | +18% | 380",
+      "aliases": []
+    },
+    {
+      "name": "Australia Revenue FY2025",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Country Revenue",
+        "value": "$285M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Australia | $285M | +15% | 320",
+      "aliases": []
+    },
+    {
+      "name": "Total Investment 5 Years",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Investment",
+        "value": "$370M",
+        "period": "5 years",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "source_excerpt": "Total Investment: $370M (5 years)",
       "aliases": []
     },
     {
@@ -457,7 +541,7 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "Industrial IoT platform",
-        "category": "Digital Technology"
+        "category": "Digital"
       },
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
@@ -468,8 +552,8 @@
       "name": "Energy Systems",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Energy systems and solutions",
-        "category": "Energy Technology"
+        "description": "Energy solutions and systems",
+        "category": "Energy"
       },
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
@@ -480,23 +564,12 @@
       "name": "Aerospace Components",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Aerospace components",
-        "category": "Aerospace Technology"
+        "description": "Aerospace components and systems",
+        "category": "Aerospace"
       },
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
       "source_excerpt": "Products | IoT platform, energy systems, aerospace components",
-      "aliases": []
-    },
-    {
-      "name": "APAC Leadership Council",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Regional governance and strategy"
-      },
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "source_excerpt": "APAC Leadership Council: - Kenji Yamamoto (Chair)",
       "aliases": []
     }
   ],
@@ -538,8 +611,8 @@
       "source_entity": "Takeshi Suzuki",
       "source_type": "PERSON",
       "relationship_type": "WORKS_AT",
-      "target_entity": "Tokyo",
-      "target_type": "LOCATION",
+      "target_entity": "Tokyo Office",
+      "target_type": "FACILITY",
       "properties": {},
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
@@ -560,8 +633,8 @@
       "source_entity": "Wei Chen",
       "source_type": "PERSON",
       "relationship_type": "WORKS_AT",
-      "target_entity": "Shanghai",
-      "target_type": "LOCATION",
+      "target_entity": "Shanghai Office",
+      "target_type": "FACILITY",
       "properties": {},
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
@@ -582,8 +655,8 @@
       "source_entity": "Sarah Thompson",
       "source_type": "PERSON",
       "relationship_type": "WORKS_AT",
-      "target_entity": "Sydney",
-      "target_type": "LOCATION",
+      "target_entity": "Sydney Office",
+      "target_type": "FACILITY",
       "properties": {},
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
@@ -604,8 +677,8 @@
       "source_entity": "Raj Patel",
       "source_type": "PERSON",
       "relationship_type": "WORKS_AT",
-      "target_entity": "Mumbai",
-      "target_type": "LOCATION",
+      "target_entity": "Mumbai Office",
+      "target_type": "FACILITY",
       "properties": {},
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
@@ -634,268 +707,15 @@
       "evidence": "VP Southeast Asia | Lisa Tan | Singapore"
     },
     {
-      "source_entity": "Aerospace Division",
+      "source_entity": "APAC Leadership Council",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Aerospace | $380M | 13%"
-    },
-    {
-      "source_entity": "Energy Division",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Energy | $485M | 20%"
-    },
-    {
-      "source_entity": "Digital Division",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Digital | $445M | 24%"
-    },
-    {
-      "source_entity": "Materials Division",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Materials | $210M | 15%"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "India Market Entry",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Initiative 1: India Market Entry | Investment: $85M over 5 years"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "China Localization",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Initiative 2: China Localization | Investment: $120M over 5 years"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Japan Technology Partnership",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Initiative 3: Japan Technology Partnership | Investment: $65M over 5 years"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Australia/ANZ Energy Leadership",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Initiative 4: Australia/ANZ Energy Leadership | Investment: $55M over 5 years"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Southeast Asia Hub",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Initiative 5: Southeast Asia Hub | Investment: $45M over 5 years"
-    },
-    {
-      "source_entity": "India Market Entry",
-      "source_type": "PROJECT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Bangalore",
-      "target_type": "LOCATION",
-      "properties": {},
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
-      "evidence": "Bangalore (tech), Chennai (manufacturing)"
-    },
-    {
-      "source_entity": "India Market Entry",
-      "source_type": "PROJECT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Chennai",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Bangalore (tech), Chennai (manufacturing)"
-    },
-    {
-      "source_entity": "China Localization",
-      "source_type": "PROJECT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Shanghai",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Shanghai (HQ), Suzhou (manufacturing)"
-    },
-    {
-      "source_entity": "China Localization",
-      "source_type": "PROJECT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Suzhou",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Shanghai (HQ), Suzhou (manufacturing)"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "CATL",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "CATL | Battery materials | Active"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "State Grid",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "State Grid | SmartGrid | Discussions"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "COMAC",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.7,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "COMAC | Aerospace (limited) | Exploring"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Toyota",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Toyota | Battery technology | $35M (joint)"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Mitsubishi Heavy",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.7,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Mitsubishi Heavy | Aerospace | Exploring"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Hitachi",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Hitachi | Digital solutions | Pilot"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Panasonic",
-      "target_type": "PARTNER",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Panasonic | Energy storage | Discussions"
-    },
-    {
-      "source_entity": "Rio Tinto",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Mining Automation | Rio Tinto expansion"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "IoT Platform",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Products | IoT platform, energy systems, aerospace components"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Energy Systems",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Products | IoT platform, energy systems, aerospace components"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Aerospace Components",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_market_expansion_asia.md",
-      "evidence": "Products | IoT platform, energy systems, aerospace components"
+      "evidence": "APAC Leadership Council governance structure"
     },
     {
       "source_entity": "Kenji Yamamoto",
@@ -906,10 +726,10 @@
       "properties": {},
       "confidence": 0.95,
       "source_document": "06_market_expansion_asia.md",
-      "evidence": "APAC Leadership Council: - Kenji Yamamoto (Chair)"
+      "evidence": "Kenji Yamamoto (Chair)"
     },
     {
-      "source_entity": "APAC Leadership Council",
+      "source_entity": "Aerospace Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
@@ -917,13 +737,299 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_market_expansion_asia.md",
-      "evidence": "APAC Leadership Council: - Kenji Yamamoto (Chair)"
+      "evidence": "Division structure within Nexus Industries"
+    },
+    {
+      "source_entity": "Energy Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Division structure within Nexus Industries"
+    },
+    {
+      "source_entity": "Digital Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Division structure within Nexus Industries"
+    },
+    {
+      "source_entity": "Materials Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Division structure within Nexus Industries"
+    },
+    {
+      "source_entity": "India Market Entry Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Strategic initiative owned by Nexus Industries"
+    },
+    {
+      "source_entity": "China Localization Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Strategic initiative owned by Nexus Industries"
+    },
+    {
+      "source_entity": "Japan Technology Partnership Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Strategic initiative owned by Nexus Industries"
+    },
+    {
+      "source_entity": "Australia/ANZ Energy Leadership Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Strategic initiative owned by Nexus Industries"
+    },
+    {
+      "source_entity": "Southeast Asia Hub Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Strategic initiative owned by Nexus Industries"
+    },
+    {
+      "source_entity": "CATL",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "CATL | Battery materials | Active"
+    },
+    {
+      "source_entity": "State Grid",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "State Grid | SmartGrid | Discussions"
+    },
+    {
+      "source_entity": "COMAC",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "COMAC | Aerospace (limited) | Exploring"
+    },
+    {
+      "source_entity": "Toyota",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Toyota | Battery technology | $35M (joint)"
+    },
+    {
+      "source_entity": "Mitsubishi Heavy",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Mitsubishi Heavy | Aerospace | Exploring"
+    },
+    {
+      "source_entity": "Hitachi",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Hitachi | Digital solutions | Pilot"
+    },
+    {
+      "source_entity": "Panasonic",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Panasonic | Energy storage | Discussions"
+    },
+    {
+      "source_entity": "Rio Tinto",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Mining Automation | Rio Tinto expansion"
+    },
+    {
+      "source_entity": "Tokyo Office",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Japan",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "VP Japan located in Tokyo"
+    },
+    {
+      "source_entity": "Shanghai Office",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "China",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Shanghai (HQ) location"
+    },
+    {
+      "source_entity": "Suzhou Manufacturing Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "China",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Suzhou (manufacturing) location"
+    },
+    {
+      "source_entity": "Bangalore Office",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "India",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Bangalore (tech) location"
+    },
+    {
+      "source_entity": "Chennai Manufacturing Facility",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "India",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Chennai (manufacturing) location"
+    },
+    {
+      "source_entity": "Sydney Office",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Australia",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Sydney office location"
+    },
+    {
+      "source_entity": "Mumbai Office",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "India",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Mumbai (new) office location"
+    },
+    {
+      "source_entity": "Digital Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "IoT Platform",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "IoT platform product under Digital division"
+    },
+    {
+      "source_entity": "Energy Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Energy Systems",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Energy systems product under Energy division"
+    },
+    {
+      "source_entity": "Aerospace Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Aerospace Components",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "06_market_expansion_asia.md",
+      "evidence": "Aerospace components product under Aerospace division"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 41,
-    "raw_relationship_count": 38,
+    "raw_entity_count": 47,
+    "raw_relationship_count": 41,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -2,7 +2,7 @@
   "document_id": "b8a8b747-b62b-40da-9c0b-d429db3e73d7",
   "document_path": "06_employee_benefits_update.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:12:29.782238",
+  "extracted_at": "2026-01-25T10:49:32.192009",
   "entities": [
     {
       "name": "Maria Santos",
@@ -20,7 +20,7 @@
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Corporation"
+        "type": "Company"
       },
       "confidence": 1.0,
       "source_document": "06_employee_benefits_update.md",
@@ -31,13 +31,13 @@
       "name": "Mental Health Support Program",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$1,200,000",
-        "period": "annually",
-        "status": "active"
+        "budget": "$1.2 million",
+        "timeline": "FY2026",
+        "status": "Active"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Investment: $1.2 million annually",
+      "source_excerpt": "Mental Health Support Investment: $1.2 million annually",
       "aliases": []
     },
     {
@@ -45,25 +45,25 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$800,000",
-        "period": "annually",
-        "status": "new"
+        "timeline": "FY2026",
+        "status": "Active"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Investment: $800,000 annually",
+      "source_excerpt": "Family Building Benefits Investment: $800,000 annually",
       "aliases": []
     },
     {
       "name": "Student Loan Assistance Program",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$1,500,000",
-        "period": "annually",
-        "status": "new"
+        "budget": "$1.5 million",
+        "timeline": "FY2026",
+        "status": "Active"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Investment: $1.5 million annually",
+      "source_excerpt": "Student Loan Assistance Investment: $1.5 million annually",
       "aliases": []
     },
     {
@@ -71,22 +71,22 @@
       "entity_type": "PROJECT",
       "properties": {
         "budget": "$500,000",
-        "period": "annually",
-        "status": "launching",
-        "start_date": "July 2026"
+        "timeline": "July 2026",
+        "status": "Launching"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Investment: $500,000 annually",
+      "source_excerpt": "Sabbatical Program Launching July 2026, Investment: $500,000 annually",
       "aliases": []
     },
     {
       "name": "Talkspace",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Digital Therapy Platform"
+        "capability": "Digital therapy platform",
+        "risk_level": "Low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
       "source_excerpt": "Talkspace premium subscription included",
       "aliases": []
@@ -95,65 +95,46 @@
       "name": "Gradifi",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Student Loan Administration Platform"
+        "capability": "Student loan administration platform",
+        "risk_level": "Low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Administration: Through Gradifi platform",
+      "source_excerpt": "Administration Through Gradifi platform",
       "aliases": []
     },
     {
       "name": "Fidelity",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "401(k) Administration"
+        "capability": "401(k) administration",
+        "risk_level": "Low"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "401(k): Fidelity at 1-800-555-1234",
+      "source_excerpt": "401(k) Fidelity at 1-800-555-1234",
       "aliases": []
     },
     {
-      "name": "Therapy Coverage Service",
-      "entity_type": "SERVICE",
+      "name": "FY2026 Total Benefits Investment",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "Increased from 20 to 52 sessions per year"
+        "metric_name": "Total Investment",
+        "value": "$6.0 million",
+        "period": "FY2026",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Therapy Coverage: Increased from 20 to 52 sessions per year",
-      "aliases": []
-    },
-    {
-      "name": "Mental Health Days Policy",
-      "entity_type": "POLICY",
-      "properties": {
-        "category": "Employee Benefits",
-        "description": "3 dedicated days (no documentation required)"
-      },
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Mental Health Days: 3 dedicated days (no documentation required)",
-      "aliases": []
-    },
-    {
-      "name": "Parental Leave Policy",
-      "entity_type": "POLICY",
-      "properties": {
-        "category": "Employee Benefits",
-        "description": "Extended to 16 weeks (all parents)"
-      },
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Parental Leave: Extended to 16 weeks (all parents)",
+      "source_excerpt": "Our total investment in benefits enhancements for FY2026 is $6.0 million",
       "aliases": []
     },
     {
       "name": "Mental Health Investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Investment",
-        "value": "$1,200,000",
+        "metric_name": "Mental Health Support Investment",
+        "value": "$1.2 million",
         "period": "FY2026",
         "type": "CURRENCY"
       },
@@ -166,7 +147,7 @@
       "name": "Family Building Investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Investment",
+        "metric_name": "Family Building Benefits Investment",
         "value": "$800,000",
         "period": "FY2026",
         "type": "CURRENCY"
@@ -180,8 +161,8 @@
       "name": "Student Loan Investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Investment",
-        "value": "$1,500,000",
+        "metric_name": "Student Loan Assistance Investment",
+        "value": "$1.5 million",
         "period": "FY2026",
         "type": "CURRENCY"
       },
@@ -194,7 +175,7 @@
       "name": "Sabbatical Investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Investment",
+        "metric_name": "Sabbatical Program Investment",
         "value": "$500,000",
         "period": "FY2026",
         "type": "CURRENCY"
@@ -205,81 +186,120 @@
       "aliases": []
     },
     {
-      "name": "Total Benefits Investment",
+      "name": "Company Match Increase",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Total Investment",
-        "value": "$6,000,000",
+        "metric_name": "401k Company Match",
+        "value": "5%",
+        "period": "FY2026",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Company Match 4% to 5%",
+      "aliases": []
+    },
+    {
+      "name": "Maximum Match Amount",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Maximum 401k Match",
+        "value": "$11,500",
         "period": "FY2026",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Our total investment in benefits enhancements for FY2026 is $6.0 million",
+      "source_excerpt": "Maximum Match $11,500",
       "aliases": []
     },
     {
       "name": "Fertility Treatment Coverage",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Lifetime Coverage",
+        "metric_name": "Fertility Treatment Coverage",
         "value": "$25,000",
+        "period": "Lifetime",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Fertility Treatment: Up to $25,000 lifetime",
+      "source_excerpt": "Fertility Treatment Up to $25,000 lifetime",
       "aliases": []
     },
     {
       "name": "Student Loan Annual Contribution",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Contribution",
+        "metric_name": "Student Loan Annual Contribution",
         "value": "$3,000",
-        "period": "per year",
+        "period": "Annual",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Annual Contribution: Up to $3,000 per year",
+      "source_excerpt": "Annual Contribution Up to $3,000 per year",
       "aliases": []
     },
     {
-      "name": "401k Company Match Increase",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Company Match",
-        "value": "5%",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 1.0,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Company Match: 4% to 5%",
-      "aliases": []
-    },
-    {
-      "name": "Benefits Town Hall",
-      "entity_type": "PROJECT",
-      "properties": {
-        "date": "January 22",
-        "time": "11:00 AM PT",
-        "status": "scheduled"
-      },
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "source_excerpt": "Join our Benefits Town Hall on January 22 at 11:00 AM PT",
-      "aliases": []
-    },
-    {
-      "name": "Human Resources",
+      "name": "HR Department",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Employee Benefits, HR Operations"
+        "name": "Human Resources",
+        "focus_areas": "Employee Benefits, HR Administration"
       },
       "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
       "source_excerpt": "Chief Human Resources Officer",
+      "aliases": []
+    },
+    {
+      "name": "Therapy Coverage Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "Therapy Coverage",
+        "description": "Increased from 20 to 52 sessions per year"
+      },
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Therapy Coverage Increased from 20 to 52 sessions per year",
+      "aliases": []
+    },
+    {
+      "name": "Digital Therapy Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "Digital Therapy",
+        "description": "Talkspace premium subscription included"
+      },
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Digital Therapy Talkspace premium subscription included",
+      "aliases": []
+    },
+    {
+      "name": "401k Retirement Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "401(k) Retirement",
+        "description": "Company match increased to 5%"
+      },
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "401(k) Retirement Company Match 5%",
+      "aliases": []
+    },
+    {
+      "name": "Benefits Policy FY2026",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "FY2026 Benefits Updates",
+        "policy_ID": "b8a8b747-b62b-40da-9c0b-d429db3e73d7",
+        "category": "Employee Benefits"
+      },
+      "confidence": 1.0,
+      "source_document": "06_employee_benefits_update.md",
+      "source_excerpt": "Employee Communication: FY2026 Benefits Updates",
       "aliases": []
     }
   ],
@@ -299,15 +319,15 @@
       "source_entity": "Maria Santos",
       "source_type": "PERSON",
       "relationship_type": "LEADS",
-      "target_entity": "Human Resources",
+      "target_entity": "HR Department",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
       "evidence": "Chief Human Resources Officer"
     },
     {
-      "source_entity": "Human Resources",
+      "source_entity": "HR Department",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries",
@@ -315,51 +335,51 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "HR department within Nexus Industries"
+      "evidence": "Human Resources department within Nexus Industries"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Mental Health Support Program",
-      "target_type": "PROJECT",
+      "source_entity": "Mental Health Support Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Company funding mental health benefits enhancement"
+      "evidence": "Company-sponsored mental health program"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Family Building Benefits Program",
-      "target_type": "PROJECT",
+      "source_entity": "Family Building Benefits Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Company implementing new family building support"
+      "evidence": "Company-sponsored family building program"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Student Loan Assistance Program",
-      "target_type": "PROJECT",
+      "source_entity": "Student Loan Assistance Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Company launching new student loan repayment benefit"
+      "evidence": "Company-sponsored student loan program"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Sabbatical Program",
-      "target_type": "PROJECT",
+      "source_entity": "Sabbatical Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Company launching sabbatical program in July 2026"
+      "evidence": "Company-sponsored sabbatical program"
     },
     {
       "source_entity": "Talkspace",
@@ -368,7 +388,7 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
       "evidence": "Talkspace premium subscription included in mental health benefits"
     },
@@ -379,9 +399,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Administration: Through Gradifi platform"
+      "evidence": "Student loan administration through Gradifi platform"
     },
     {
       "source_entity": "Fidelity",
@@ -390,64 +410,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "401(k): Fidelity at 1-800-555-1234"
-    },
-    {
-      "source_entity": "Mental Health Support Program",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
       "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "$1.2 million annual investment by company"
-    },
-    {
-      "source_entity": "Family Building Benefits Program",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "$800,000 annual investment by company"
-    },
-    {
-      "source_entity": "Student Loan Assistance Program",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "$1.5 million annual investment by company"
-    },
-    {
-      "source_entity": "Sabbatical Program",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "$500,000 annual investment by company"
-    },
-    {
-      "source_entity": "Mental Health Support Program",
-      "source_type": "PROJECT",
-      "relationship_type": "USES",
-      "target_entity": "Talkspace",
-      "target_type": "SUPPLIER",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "06_employee_benefits_update.md",
-      "evidence": "Digital Therapy: Talkspace premium subscription included"
+      "evidence": "401(k) administered by Fidelity"
     },
     {
       "source_entity": "Student Loan Assistance Program",
@@ -456,15 +421,26 @@
       "target_entity": "Gradifi",
       "target_type": "SUPPLIER",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "06_employee_benefits_update.md",
-      "evidence": "Administration: Through Gradifi platform"
+      "evidence": "Administration Through Gradifi platform"
+    },
+    {
+      "source_entity": "Mental Health Support Program",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Talkspace",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "06_employee_benefits_update.md",
+      "evidence": "Talkspace premium subscription included"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 22,
-    "raw_relationship_count": 16,
+    "raw_entity_count": 23,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

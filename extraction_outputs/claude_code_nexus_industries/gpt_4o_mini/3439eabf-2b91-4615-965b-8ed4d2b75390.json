@@ -2,7 +2,7 @@
   "document_id": "3439eabf-2b91-4615-965b-8ed4d2b75390",
   "document_path": "01_ceo_all_hands_memo.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:55:08.007571",
+  "extracted_at": "2026-01-25T11:45:25.942663",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -13,7 +13,7 @@
       },
       "confidence": 0.95,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "From: Dr. Victoria Chen, CEO",
+      "source_excerpt": "Dr. Victoria Chen, CEO",
       "aliases": []
     },
     {
@@ -58,7 +58,7 @@
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership type": "Joint Venture"
+        "partnership type": "Joint venture"
       },
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -67,14 +67,27 @@
     },
     {
       "name": "CyberShield",
-      "entity_type": "PRODUCT",
+      "entity_type": "PROJECT",
       "properties": {
-        "description": "Cybersecurity solution",
-        "category": "Digital Solutions"
+        "budget": null,
+        "timeline": null,
+        "status": "Achieved FedRAMP High authorization"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
       "source_excerpt": "CyberShield now protects over 2 million endpoints",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Edge AI processing capabilities",
+        "category": "Digital Solutions"
+      },
+      "confidence": 0.85,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Edge AI processing capabilities for NexusConnect",
       "aliases": []
     },
     {
@@ -90,22 +103,11 @@
       "aliases": []
     },
     {
-      "name": "NexusConnect",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "AI processing capabilities",
-        "category": "Digital Solutions"
-      },
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Edge AI processing capabilities for NexusConnect",
-      "aliases": []
-    },
-    {
-      "name": "Board of Directors",
+      "name": "Nexus Industries Board of Directors",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Governing Body"
+        "type": "Board",
+        "industry": "Corporate Governance"
       },
       "confidence": 0.8,
       "source_document": "01_ceo_all_hands_memo.md",
@@ -113,182 +115,15 @@
       "aliases": []
     },
     {
-      "name": "12%",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "Phoenix HQ",
+      "entity_type": "FACILITY",
       "properties": {
-        "metric name": "Dividend Increase",
-        "value": "12%",
-        "period": "Annual",
-        "type": "PERCENTAGE"
+        "location": "Phoenix",
+        "type": "Headquarters"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "our Board of Directors approved a 12% dividend increase to $1.80 per share annually",
-      "aliases": []
-    },
-    {
-      "name": "$1.80",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Dividend per Share",
-        "value": "$1.80",
-        "period": "Annual",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "approved a 12% dividend increase to $1.80 per share annually",
-      "aliases": []
-    },
-    {
-      "name": "$8.45 billion",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Revenue",
-        "value": "$8.45 billion",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Revenue: $8.45 billion, up 13.9% year-over-year",
-      "aliases": []
-    },
-    {
-      "name": "$945 million",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Operating Income",
-        "value": "$945 million",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Operating Income: $945 million, a 16% increase",
-      "aliases": []
-    },
-    {
-      "name": "$1.12 billion",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Free Cash Flow",
-        "value": "$1.12 billion",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Free Cash Flow: $1.12 billion",
-      "aliases": []
-    },
-    {
-      "name": "$12.4 billion",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Backlog",
-        "value": "$12.4 billion",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Record $12.4 billion",
-      "aliases": []
-    },
-    {
-      "name": "$966 million",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "R&D Investment",
-        "value": "$966 million",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "R&D Investment: $966 million (11.4% of revenue)",
-      "aliases": []
-    },
-    {
-      "name": "$680 million",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Capital Expenditure",
-        "value": "$680 million",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Capital Expenditure: $680 million",
-      "aliases": []
-    },
-    {
-      "name": "1,200",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Net New Positions",
-        "value": "1,200",
-        "period": "FY2026",
-        "type": "COUNT"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Hiring: 1,200 net new positions",
-      "aliases": []
-    },
-    {
-      "name": "4.0%",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Merit Increase",
-        "value": "4.0%",
-        "period": "Effective April 1",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Merit increases: 4.0% average, effective April 1",
-      "aliases": []
-    },
-    {
-      "name": "1.5%",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Market Adjustments",
-        "value": "1.5%",
-        "period": "Effective April 1",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Market adjustments: Additional 1.5% for critical roles",
-      "aliases": []
-    },
-    {
-      "name": "112%",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Bonus Payout",
-        "value": "112%",
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 0.9,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "Bonus: Average payout of 112% of target",
-      "aliases": []
-    },
-    {
-      "name": "Leadership Academy",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus areas": "Talent Development"
-      },
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "source_excerpt": "launch our new Leadership Academy",
+      "source_excerpt": "Join our CEO Town Hall on January 28 at 2:00 PM PT (virtual and in-person at Phoenix HQ)",
       "aliases": []
     }
   ],
@@ -324,7 +159,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Falcon X UAV Program: Our largest aerospace program"
+      "evidence": "Our largest aerospace program remains on schedule"
     },
     {
       "source_entity": "Nexus Industries",
@@ -335,7 +170,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "GreenHydrogen Initiative: Construction is 68% complete"
+      "evidence": "Construction is 68% complete at our El Paso facility"
     },
     {
       "source_entity": "Nexus Industries",
@@ -353,50 +188,39 @@
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
       "target_entity": "CyberShield",
-      "target_type": "PRODUCT",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "01_ceo_all_hands_memo.md",
       "evidence": "CyberShield now protects over 2 million endpoints"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Board of Directors",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix HQ",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Join our CEO Town Hall on January 28 at 2:00 PM PT (virtual and in-person at Phoenix HQ)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries Board of Directors",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.8,
       "source_document": "01_ceo_all_hands_memo.md",
       "evidence": "our Board of Directors approved a 12% dividend increase"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "USES",
-      "target_entity": "NexusConnect",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "Edge AI processing capabilities for NexusConnect"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FOCUSES_ON",
-      "target_entity": "Leadership Academy",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_ceo_all_hands_memo.md",
-      "evidence": "launch our new Leadership Academy"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 22,
-    "raw_relationship_count": 9,
+    "raw_entity_count": 10,
+    "raw_relationship_count": 8,
     "used_partial_parse": false,
     "truncated": false
   }

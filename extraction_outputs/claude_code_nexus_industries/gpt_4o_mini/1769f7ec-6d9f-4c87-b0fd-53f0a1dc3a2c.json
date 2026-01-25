@@ -2,14 +2,14 @@
   "document_id": "1769f7ec-6d9f-4c87-b0fd-53f0a1dc3a2c",
   "document_path": "01_code_of_ethics.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T09:56:02.622297",
+  "extracted_at": "2026-01-25T11:46:22.826283",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Corporation",
-        "industry": "Various"
+        "industry": "Manufacturing"
       },
       "confidence": 0.95,
       "source_document": "01_code_of_ethics.md",
@@ -32,7 +32,7 @@
       "name": "General Counsel",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus areas": "Legal and Compliance"
+        "focus areas": "Legal Affairs"
       },
       "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
@@ -128,12 +128,34 @@
       "confidence": 0.85,
       "source_document": "01_code_of_ethics.md",
       "evidence": "Ethics Office: ethics@nexus-industries.com"
+    },
+    {
+      "source_entity": "Ethics Hotline",
+      "source_type": "SERVICE",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Ethics Hotline: 1-800-555-ETHX (anonymous)"
+    },
+    {
+      "source_entity": "POL-001",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Nexus Industries Code of Ethics and Business Conduct"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 7,
-    "raw_relationship_count": 4,
+    "raw_relationship_count": 6,
     "used_partial_parse": false,
     "truncated": false
   }

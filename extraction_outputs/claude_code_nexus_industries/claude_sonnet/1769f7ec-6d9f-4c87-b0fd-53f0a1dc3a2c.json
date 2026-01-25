@@ -2,14 +2,14 @@
   "document_id": "1769f7ec-6d9f-4c87-b0fd-53f0a1dc3a2c",
   "document_path": "01_code_of_ethics.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T09:56:32.107520",
+  "extracted_at": "2026-01-25T11:46:54.056404",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Corporation",
-        "industry": "Manufacturing/Industrial"
+        "industry": "Industrial"
       },
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
@@ -20,14 +20,26 @@
       "name": "Code of Ethics and Business Conduct",
       "entity_type": "POLICY",
       "properties": {
-        "policy_ID": "POL-001",
-        "category": "Ethics",
-        "effective_date": "January 1, 2024",
-        "classification": "Public"
+        "policy_id": "POL-001",
+        "category": "Corporate Policy",
+        "authority_level": "1",
+        "effective_date": "January 1, 2024"
       },
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
       "source_excerpt": "Policy Number: POL-001, Effective Date: January 1, 2024",
+      "aliases": []
+    },
+    {
+      "name": "General Counsel",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "General Counsel",
+        "role": "Policy Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Owner: General Counsel",
       "aliases": []
     },
     {
@@ -40,18 +52,6 @@
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
       "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
-      "aliases": []
-    },
-    {
-      "name": "General Counsel",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "General Counsel",
-        "role": "Legal Officer"
-      },
-      "confidence": 0.9,
-      "source_document": "01_code_of_ethics.md",
-      "source_excerpt": "Owner: General Counsel",
       "aliases": []
     },
     {
@@ -83,7 +83,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division Ethics Officers",
-        "role": "Ethics Officer"
+        "role": "Ethics Officers"
       },
       "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
@@ -95,7 +95,11 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "name": "Ethics Committee",
-        "focus_areas": "Ethics governance and oversight"
+        "focus_areas": [
+          "Ethics",
+          "Compliance",
+          "Governance"
+        ]
       },
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
@@ -107,9 +111,12 @@
       "entity_type": "BUSINESS_UNIT",
       "properties": {
         "name": "Ethics Office",
-        "focus_areas": "Ethics compliance and reporting"
+        "focus_areas": [
+          "Ethics",
+          "Compliance"
+        ]
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
       "source_excerpt": "Ethics Office: ethics@nexus-industries.com",
       "aliases": []
@@ -118,20 +125,35 @@
       "name": "HR Department",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "HR Department",
-        "focus_areas": "Human Resources"
+        "name": "HR",
+        "focus_areas": [
+          "Employment Issues"
+        ]
       },
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "01_code_of_ethics.md",
-      "source_excerpt": "HR | hr@nexus-industries.com | Employment issues",
+      "source_excerpt": "HR: hr@nexus-industries.com",
+      "aliases": []
+    },
+    {
+      "name": "Ethics Hotline",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "Ethics Hotline",
+        "description": "Anonymous reporting service",
+        "contact": "1-800-555-ETHX"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Ethics Hotline: 1-800-555-ETHX (anonymous)",
       "aliases": []
     },
     {
       "name": "ITAR Compliance",
       "entity_type": "POLICY",
       "properties": {
-        "policy_ID": "ITAR",
-        "category": "Export Control"
+        "name": "ITAR",
+        "category": "Export Controls"
       },
       "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
@@ -142,8 +164,8 @@
       "name": "EAR Compliance",
       "entity_type": "POLICY",
       "properties": {
-        "policy_ID": "EAR",
-        "category": "Export Control"
+        "name": "EAR",
+        "category": "Export Controls"
       },
       "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
@@ -151,39 +173,67 @@
       "aliases": []
     },
     {
-      "name": "Gift Limit Policy",
+      "name": "Anti-Corruption Policy",
       "entity_type": "POLICY",
       "properties": {
-        "policy_ID": "GIFT-001",
-        "category": "Ethics"
-      },
-      "confidence": 0.8,
-      "source_document": "01_code_of_ethics.md",
-      "source_excerpt": "Gifts Received <$100 None required, $100-500 Manager approval, >$500 Not permitted",
-      "aliases": []
-    },
-    {
-      "name": "Ethics Hotline",
-      "entity_type": "SERVICE",
-      "properties": {
-        "name": "Ethics Hotline",
-        "description": "Anonymous reporting service"
+        "name": "Anti-Corruption",
+        "category": "Compliance"
       },
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
-      "source_excerpt": "Ethics Hotline | 1-800-555-ETHX | Anonymous reporting",
+      "source_excerpt": "Zero tolerance for bribery or corruption",
       "aliases": []
     },
     {
-      "name": "Annual Ethics Training",
-      "entity_type": "SERVICE",
+      "name": "Gift Limit $100",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "name": "Annual Ethics Training",
-        "description": "Mandatory ethics education"
+        "metric_name": "Gift Limit",
+        "value": "100",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
-      "source_excerpt": "Complete annual ethics training",
+      "source_excerpt": "Gifts Received <$100",
+      "aliases": []
+    },
+    {
+      "name": "Gift Limit $500",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Gift Upper Limit",
+        "value": "500",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Gifts Received >$500 Not permitted",
+      "aliases": []
+    },
+    {
+      "name": "Entertainment Limit $250",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Entertainment Limit",
+        "value": "250",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Entertainment <$250 None required",
+      "aliases": []
+    },
+    {
+      "name": "Financial Interest Threshold $10K",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Financial Interest Threshold",
+        "value": "10000",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "01_code_of_ethics.md",
+      "source_excerpt": "Financial interest >$10K VP + Ethics Office",
       "aliases": []
     }
   ],
@@ -213,6 +263,17 @@
     {
       "source_entity": "General Counsel",
       "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "Owner: General Counsel"
+    },
+    {
+      "source_entity": "General Counsel",
+      "source_type": "PERSON",
       "relationship_type": "OWNS",
       "target_entity": "Code of Ethics and Business Conduct",
       "target_type": "POLICY",
@@ -220,17 +281,6 @@
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
       "evidence": "Owner: General Counsel"
-    },
-    {
-      "source_entity": "General Counsel",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "01_code_of_ethics.md",
-      "evidence": "General Counsel (Chair)"
     },
     {
       "source_entity": "General Counsel",
@@ -250,9 +300,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
-      "evidence": "CHRO"
+      "evidence": "Ethics Committee: CHRO"
     },
     {
       "source_entity": "CHRO",
@@ -272,9 +322,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
-      "evidence": "Chief Compliance Officer"
+      "evidence": "Ethics Committee: Chief Compliance Officer"
     },
     {
       "source_entity": "Chief Compliance Officer",
@@ -294,9 +344,9 @@
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
-      "evidence": "Division Ethics Officers"
+      "evidence": "Ethics Committee: Division Ethics Officers"
     },
     {
       "source_entity": "Division Ethics Officers",
@@ -318,7 +368,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
-      "evidence": "Ethics Committee governance structure within Nexus Industries"
+      "evidence": "Ethics Committee governance structure"
     },
     {
       "source_entity": "Ethics Office",
@@ -340,7 +390,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_code_of_ethics.md",
-      "evidence": "HR | hr@nexus-industries.com"
+      "evidence": "HR: hr@nexus-industries.com"
     },
     {
       "source_entity": "Nexus Industries",
@@ -357,62 +407,51 @@
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
-      "target_entity": "ITAR Compliance",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_code_of_ethics.md",
-      "evidence": "Full ITAR and EAR compliance"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "EAR Compliance",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_code_of_ethics.md",
-      "evidence": "Full ITAR and EAR compliance"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Gift Limit Policy",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_code_of_ethics.md",
-      "evidence": "Gifts and Entertainment policy section"
-    },
-    {
-      "source_entity": "Ethics Office",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PRODUCES",
       "target_entity": "Ethics Hotline",
       "target_type": "SERVICE",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_code_of_ethics.md",
-      "evidence": "Ethics Hotline service provided by Ethics Office"
+      "evidence": "Ethics Hotline service provided by Nexus Industries"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Annual Ethics Training",
-      "target_type": "SERVICE",
+      "source_entity": "Code of Ethics and Business Conduct",
+      "source_type": "POLICY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Anti-Corruption Policy",
+      "target_type": "POLICY",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "01_code_of_ethics.md",
-      "evidence": "Complete annual ethics training requirement"
+      "evidence": "Anti-corruption section within the code"
+    },
+    {
+      "source_entity": "Code of Ethics and Business Conduct",
+      "source_type": "POLICY",
+      "relationship_type": "PART_OF",
+      "target_entity": "ITAR Compliance",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "ITAR compliance requirements within the code"
+    },
+    {
+      "source_entity": "Code of Ethics and Business Conduct",
+      "source_type": "POLICY",
+      "relationship_type": "PART_OF",
+      "target_entity": "EAR Compliance",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "01_code_of_ethics.md",
+      "evidence": "EAR compliance requirements within the code"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 15,
-    "raw_relationship_count": 20,
+    "raw_entity_count": 18,
+    "raw_relationship_count": 19,
     "used_partial_parse": false,
     "truncated": false
   }
