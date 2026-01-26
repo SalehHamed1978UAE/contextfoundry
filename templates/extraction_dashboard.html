@@ -286,6 +286,7 @@ tr:hover {
                 <tr>
                     <th>Vault</th>
                     <th>Status</th>
+                    <th>Phase 1</th>
                     <th>Progress</th>
                     <th>Single</th>
                     <th>Multi</th>
@@ -296,7 +297,7 @@ tr:hover {
                 </tr>
             </thead>
             <tbody id="vaultQueueBody">
-                <tr><td colspan="9" style="text-align: center; color: #6b7280;">Loading...</td></tr>
+                <tr><td colspan="10" style="text-align: center; color: #6b7280;">Loading...</td></tr>
             </tbody>
         </table>
     </div>
@@ -383,12 +384,30 @@ function renderVaultQueue(vaults) {
         const progressClass = getProgressClass(pct);
         const statusClass = getStatusClass(v.status);
         
+        // Phase 1 progress (JSON files extracted)
+        const phase1 = v.phase1_extracted || 0;
+        const phase1Pct = total > 0 ? Math.round((phase1 / total) * 100) : 0;
+        const phase1Class = getProgressClass(phase1Pct);
+        
+        // Derive effective status from phase1 progress
+        let effectiveStatus = v.status || 'empty';
+        if (effectiveStatus === 'pending' && phase1 > 0) {
+            effectiveStatus = 'in_progress';
+        }
+        const effectiveStatusClass = getStatusClass(effectiveStatus);
+        
         return `
             <tr>
                 <td>${v.name || v.vault_id}</td>
-                <td><span class="status-badge ${statusClass}">${v.status || 'empty'}</span></td>
+                <td><span class="status-badge ${effectiveStatusClass}">${effectiveStatus}</span></td>
                 <td>
-                    <div class="progress-bar">
+                    <div class="progress-bar" title="Phase 1: ${phase1}/${total} extracted">
+                        <div class="progress-fill ${phase1Class}" style="width: ${phase1Pct}%"></div>
+                    </div>
+                    <span style="font-size: 10px; color: #9ca3af;">${phase1}/${total}</span>
+                </td>
+                <td>
+                    <div class="progress-bar" title="Ingested: ${done}/${total}">
                         <div class="progress-fill ${progressClass}" style="width: ${pct}%"></div>
                     </div>
                 </td>

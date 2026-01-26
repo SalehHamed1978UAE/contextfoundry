@@ -1,0 +1,305 @@
+{
+  "document_id": "e04dcd16-3b0a-4a00-af5a-e9cc60ad378a",
+  "document_path": "09_nel_hydrogen_supplier.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-26T03:22:53.804873",
+  "entities": [
+    {
+      "name": "Nel ASA",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "type": "Strategic Technology",
+        "industry": "Hydrogen Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Supplier Name: Nel ASA",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Energy Systems",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Energy Systems"
+      },
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Primary Division: Nexus Energy Systems",
+      "aliases": []
+    },
+    {
+      "name": "Michelle Thompson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Commodity Manager",
+        "role": "Commodity Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Commodity Manager: Michelle Thompson",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Carlos Mendez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Technical Director",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Executive Sponsor: Dr. Carlos Mendez (Technical Director, GreenHydrogen)",
+      "aliases": []
+    },
+    {
+      "name": "Oslo",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Oslo",
+        "country": "Norway"
+      },
+      "confidence": 0.95,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Headquarters: Oslo, Norway",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Electrolyzers",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$82M",
+        "timeline": "2025-2027",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "GreenHydrogen Electrolyzers | $82M | 2025-2027 | Active",
+      "aliases": []
+    },
+    {
+      "name": "Long-term Service Agreement",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$8M",
+        "timeline": "2027-2037",
+        "status": "Signed"
+      },
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Long-term Service Agreement | $8M | 2027-2037 | Signed",
+      "aliases": []
+    },
+    {
+      "name": "Engineering Support",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$5M",
+        "timeline": "2025-2026",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Engineering Support | $5M | 2025-2026 | Active",
+      "aliases": []
+    },
+    {
+      "name": "Nel M5000",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "PEM Electrolyzer System",
+        "category": "Electrolyzer"
+      },
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Model: Nel M5000",
+      "aliases": []
+    },
+    {
+      "name": "USD",
+      "entity_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Currency: USD",
+      "aliases": []
+    },
+    {
+      "name": "ITM Power",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "capability": "PEM technology",
+        "industry": "Hydrogen Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Competitor: ITM Power",
+      "aliases": []
+    },
+    {
+      "name": "Plug Power",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "capability": "PEM technology",
+        "industry": "Hydrogen Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Competitor: Plug Power",
+      "aliases": []
+    },
+    {
+      "name": "Thyssenkrupp",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "capability": "Alkaline technology",
+        "industry": "Hydrogen Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Competitor: Thyssenkrupp",
+      "aliases": []
+    },
+    {
+      "name": "Siemens Energy",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "capability": "PEM technology",
+        "industry": "Hydrogen Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "source_excerpt": "Competitor: Siemens Energy",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nel ASA",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Supplier Name: Nel ASA"
+    },
+    {
+      "source_entity": "Michelle Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Commodity Manager: Michelle Thompson"
+    },
+    {
+      "source_entity": "Dr. Carlos Mendez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nel ASA",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Executive Sponsor: Dr. Carlos Mendez (Technical Director, GreenHydrogen)"
+    },
+    {
+      "source_entity": "GreenHydrogen Electrolyzers",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nel ASA",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "GreenHydrogen Electrolyzers | $82M | 2025-2027 | Active"
+    },
+    {
+      "source_entity": "Long-term Service Agreement",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nel ASA",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Long-term Service Agreement | $8M | 2027-2037 | Signed"
+    },
+    {
+      "source_entity": "Engineering Support",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nel ASA",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Engineering Support | $5M | 2025-2026 | Active"
+    },
+    {
+      "source_entity": "Nel ASA",
+      "source_type": "SUPPLIER",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Oslo",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Headquarters: Oslo, Norway"
+    },
+    {
+      "source_entity": "Nel ASA",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "ITM Power",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Competitor: ITM Power"
+    },
+    {
+      "source_entity": "Nel ASA",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Plug Power",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Competitor: Plug Power"
+    },
+    {
+      "source_entity": "Nel ASA",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Thyssenkrupp",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Competitor: Thyssenkrupp"
+    },
+    {
+      "source_entity": "Nel ASA",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Siemens Energy",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "09_nel_hydrogen_supplier.md",
+      "evidence": "Competitor: Siemens Energy"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 11,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
