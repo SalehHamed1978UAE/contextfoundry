@@ -1,0 +1,87 @@
+Principle: Database is the ONLY source of truth                                                        
+                                                                                                         
+  DO:                                                                                                    
+  - Count documents from platform.documents                                                              
+  - Update extraction_level in database after each document completes                                    
+  - Dashboard reads only from database                                                                   
+                                                                                                         
+  DON'T:                                                                                                 
+  - Count JSON files on disk for progress                                                                
+  - Mix filesystem counts with database counts                                                           
+  - Cap percentages to hide mismatches                                                                   
+                                                                                                         
+  ---                                                                                                    
+  1. Update extraction script to mark progress in DB                                                     
+                                                                                                         
+  After each document completes multi-model extraction:                                                  
+                                                                                                         
+  # Immediately after both GPT and Claude JSON files are written                                         
+  session.execute(text("""                                                                               
+      UPDATE platform.documents                                                                          
+      SET extraction_level = 'multi',                                                                    
+          multi_extracted_at = NOW()                                                                     
+      WHERE id = :doc_id                                                                                 
+  """), {"doc_id": doc_id})                                                                              
+  session.commit()                                                                                       
+                                                                                                         
+  ---                                                                                                    
+  2. Dashboard queries ONLY the database                                                                 
+                                                                                                         
+  @app.route('/api/extraction/status/<vault_id>')                                                        
+  def get_extraction_status(vault_id):                                                                   
+      with get_db_session() as session:                                                                  
+          stats = session.execute(text("""                                                               
+              SELECT                                                                                     
+                  COUNT(*) as total,                                                                     
+                  COUNT(*) FILTER (WHERE extraction_level = 'single') as single_done,                    
+                  COUNT(*) FILTER (WHERE extraction_level = 'multi') as multi_done,                      
+                  COUNT(*) FILTER (WHERE extraction_level IS NULL AND status NOT IN ('failed',           
+  'processing')) as pending,                                                                             
+                  COUNT(*) FILTER (WHERE status = 'failed') as failed,                                   
+                  COUNT(*) FILTER (WHERE status = 'processing') as in_progress                           
+              FROM platform.documents                                                                    
+              WHERE tenant_id = :vault_id                                                                
+          """), {"vault_id": vault_id}).fetchone()                                                       
+                                                                                                         
+          completed = stats.single_done + stats.multi_done                                               
+          progress_pct = round((completed / stats.total * 100), 1) if stats.total > 0 else 0             
+                                                                                                         
+          return jsonify({                                                                               
+              "total": stats.total,                                                                      
+              "single_done": stats.single_done,                                                          
+              "multi_done": stats.multi_done,                                                            
+              "pending": stats.pending,                                                                  
+              "failed": stats.failed,                                                                    
+              "in_progress": stats.in_progress,                                                          
+              "progress_pct": progress_pct                                                               
+          })                                                                                             
+                                                                                                         
+  ---                                                                                                    
+  3. Remove all filesystem counting from dashboard                                                       
+                                                                                                         
+  Delete or comment out any code that does:                                                              
+  # DELETE THIS                                                                                          
+  gpt_files = len(list(output_dir.glob("*.json")))                                                       
+  claude_files = len(list(output_dir.glob("*.json")))                                                    
+                                                                                                         
+  ---                                                                                                    
+  4. Backfill historical data (one-time)                                                                 
+                                                                                                         
+  -- Mark old extracted docs as single-model                                                             
+  UPDATE platform.documents                                                                              
+  SET extraction_level = 'single'                                                                        
+  WHERE status = 'extracted'                                                                             
+  AND extraction_level IS NULL;                                                                          
+                                                                                                         
+  ---                                                                                                    
+  Result                                                                                                 
+  ┌────────────┬─────────────────┬─────────────────────────────┐                                         
+  │   Metric   │     Source      │      Can exceed 100%?       │                                         
+  ├────────────┼─────────────────┼─────────────────────────────┤                                         
+  │ Total      │ DB count        │ N/A                         │                                         
+  ├────────────┼─────────────────┼─────────────────────────────┤                                         
+  │ Completed  │ DB count        │ No - it's a subset of Total │                                         
+  ├────────────┼─────────────────┼─────────────────────────────┤                                         
+  │ Progress % │ Completed/Total │ Never                       │                                         
+  └────────────┴─────────────────┴─────────────────────────────┘                                         
+  No more mismatches. No more >100%.  
