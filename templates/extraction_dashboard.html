@@ -286,11 +286,11 @@ tr:hover {
                 <tr>
                     <th>Vault</th>
                     <th>Status</th>
-                    <th>Phase 1</th>
                     <th>Progress</th>
+                    <th>Extracted</th>
                     <th>Single</th>
                     <th>Multi</th>
-                    <th>Pending</th>
+                    <th>Total</th>
                     <th>Failed</th>
                     <th>Last Updated</th>
                     <th>Actions</th>
@@ -378,42 +378,41 @@ function renderVaultQueue(vaults) {
     }
     
     tbody.innerHTML = vaults.map(v => {
+        // Total documents in the vault
         const total = (v.single_done || 0) + (v.multi_done || 0) + (v.pending || 0) + (v.failed || 0);
-        const done = (v.single_done || 0) + (v.multi_done || 0);
-        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        
+        // Extracted = files written (real-time progress)
+        const extracted = v.phase1_extracted || 0;
+        const pct = total > 0 ? Math.round((extracted / total) * 100) : 0;
         const progressClass = getProgressClass(pct);
-        const statusClass = getStatusClass(v.status);
         
-        // Phase 1 progress (JSON files extracted)
-        const phase1 = v.phase1_extracted || 0;
-        const phase1Pct = total > 0 ? Math.round((phase1 / total) * 100) : 0;
-        const phase1Class = getProgressClass(phase1Pct);
-        
-        // Derive effective status from phase1 progress
-        let effectiveStatus = v.status || 'empty';
-        if (effectiveStatus === 'pending' && phase1 > 0) {
-            effectiveStatus = 'in_progress';
+        // Derive status from extraction progress
+        let status = 'empty';
+        if (total === 0) {
+            status = 'empty';
+        } else if (extracted === 0) {
+            status = 'pending';
+        } else if (extracted >= total) {
+            status = 'complete';
+        } else {
+            status = 'in_progress';
         }
-        const effectiveStatusClass = getStatusClass(effectiveStatus);
+        const statusClass = getStatusClass(status);
         
         return `
             <tr>
                 <td>${v.name || v.vault_id}</td>
-                <td><span class="status-badge ${effectiveStatusClass}">${effectiveStatus}</span></td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
                 <td>
-                    <div class="progress-bar" title="Phase 1: ${phase1}/${total} extracted">
-                        <div class="progress-fill ${phase1Class}" style="width: ${phase1Pct}%"></div>
-                    </div>
-                    <span style="font-size: 10px; color: #9ca3af;">${phase1}/${total}</span>
-                </td>
-                <td>
-                    <div class="progress-bar" title="Ingested: ${done}/${total}">
+                    <div class="progress-bar" title="${extracted}/${total} extracted">
                         <div class="progress-fill ${progressClass}" style="width: ${pct}%"></div>
                     </div>
+                    <span style="font-size: 10px; color: #9ca3af;">${pct}%</span>
                 </td>
+                <td class="stat-num">${extracted}</td>
                 <td class="stat-num">${v.single_done || 0}</td>
                 <td class="stat-num">${v.multi_done || 0}</td>
-                <td class="stat-num">${v.pending || 0}</td>
+                <td class="stat-num">${total}</td>
                 <td class="stat-num">${v.failed || 0}</td>
                 <td>${formatTimeAgo(v.last_updated)}</td>
                 <td class="action-btns">
