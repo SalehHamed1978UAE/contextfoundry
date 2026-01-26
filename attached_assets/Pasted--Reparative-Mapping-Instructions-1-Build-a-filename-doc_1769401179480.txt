@@ -1,0 +1,52 @@
+ ### Reparative Mapping Instructions
+
+  1. Build a filename → document ID map from the current DB
+     For each Manus Orion document:
+
+     SELECT id, path
+     FROM platform.documents
+     WHERE tenant_id = '<manus_orion_vault_id>';
+     Store a mapping such as {'projects/projects_doc_010.md': 'fe2a...-doc-id'}.
+     Store a mapping such as {'projects/projects_doc_010.md': 'fe2a...-doc-id'}.
+  2. For each extraction JSON output:
+      - Load the JSON and read the stored document_path (e.g., test documents/Manus Orion/documents/
+        projects/projects_doc_010.md).
+      - Normalize the path to match the DB’s path field, then look up the corresponding document ID from
+        the map.
+      - Rename/copy the JSON files so they use the actual DB document ID:
+
+        gpt_4o_mini/{doc_id}.json
+        claude_sonnet/{doc_id}.json
+      - Update the DB row for that doc:
+
+        UPDATE platform.documents
+        SET extraction_level = 'multi',
+            gpt_extracted_at = NOW(),   -- optional dedicated timestamp
+            claude_extracted_at = NOW()
+        WHERE id = '<doc_id>';
+  3. Handle unmatched files
+     For any extraction JSON where the filename doesn’t exist in the current DB (e.g., document deleted or
+     renamed), log it separately. These are just orphaned outputs and can be ignored or archived.
+  4. Repeat for other legacy vaults (Horizon_Nexus, etc.)
+     So their historical progress also appears on the dashboard without rerunning the whole pipeline.
+  5. Verify
+     Once the mapping is done, refresh the dashboard. Manus Orion should show ~242/250 docs completed (or
+     whatever the match count is) with accurate GPT/Claude counts and percentages under 100%.
+
+  ———
+
+  This approach uses the metadata already in the extraction JSON, so we preserve all the work those runs
+  did—no re-extraction needed.
+ 1. Build filename → document ID map from DB                                                            
+  2. For each extraction JSON, read document_path, match to DB, rename file                              
+  3. Update DB: extraction_level = 'multi' + timestamps                                                  
+  4. Log unmatched files (orphaned)                                                                      
+  5. Repeat for Horizon_Nexus and other vaults                                                           
+  6. Verify dashboard shows accurate progress                                                            
+                                                                                                         
+  Expected result after remapping:                                                                       
+  - Manus Orion: ~242/250 (97%)                                                                          
+  - Horizon_Nexus: similar recovery                                                                      
+  - Claude Code Nexus Industries: 100/100 (already correct)                                              
+  - All percentages ≤100%                                                                                
+  - No filesystem counting in dashboard 
