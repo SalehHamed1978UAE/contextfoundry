@@ -140,6 +140,24 @@ class EntityResolver:
         Returns:
             ResolveResult with matched entity or disambiguation candidates
         """
+        try:
+            return self._resolve_internal(query, entity_type_hint, top_k, include_archived)
+        except Exception as e:
+            logger.error(f"[ENTITY_RESOLVER] Resolution failed, rolling back session: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            return ResolveResult(match_stage="error")
+    
+    def _resolve_internal(
+        self,
+        query: str,
+        entity_type_hint: Optional[str] = None,
+        top_k: int = 20,
+        include_archived: bool = False
+    ) -> ResolveResult:
+        """Internal resolution logic with database queries."""
         if not query or not query.strip():
             return ResolveResult(match_stage="empty_query")
         
