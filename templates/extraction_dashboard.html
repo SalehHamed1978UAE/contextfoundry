@@ -107,23 +107,35 @@ tr:hover {
 .status-badge.complete { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
 .status-badge.empty { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
 
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
 .progress-bar {
     width: 100px;
-    height: 8px;
+    height: 6px;
     background: #334155;
-    border-radius: 4px;
+    border-radius: 3px;
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
-    border-radius: 4px;
+    border-radius: 3px;
     transition: width 0.3s ease;
 }
+
+.progress-fill.single { background: #22c55e; }
+.progress-fill.multi { background: #3b82f6; }
 
 .progress-fill.low { background: #f97316; }
 .progress-fill.medium { background: #3b82f6; }
 .progress-fill.high { background: #22c55e; }
+
+.count-single { color: #22c55e; }
+.count-multi { color: #3b82f6; }
 
 .btn {
     padding: 6px 12px;
@@ -286,12 +298,11 @@ tr:hover {
                 <tr>
                     <th>Vault</th>
                     <th>Status</th>
-                    <th>Progress</th>
-                    <th title="Documents extracted by both GPT-4 + Claude">Multi Extracted</th>
-                    <th title="Documents ingested with single-model">Single Ingested</th>
-                    <th title="Documents ingested with multi-model">Multi Ingested</th>
+                    <th title="Green=Single (GPT), Blue=Multi (Both)">Progress</th>
+                    <th title="GPT-4 only extraction">Single</th>
+                    <th title="GPT-4 + Claude extraction">Multi</th>
                     <th>Total</th>
-                    <th>Failed</th>
+                    <th title="Green=Single failures, Blue=Multi failures">Failed</th>
                     <th>Last Updated</th>
                     <th>Actions</th>
                 </tr>
@@ -381,39 +392,49 @@ function renderVaultQueue(vaults) {
         // Total documents in the vault
         const total = (v.single_done || 0) + (v.multi_done || 0) + (v.pending || 0) + (v.failed || 0);
         
-        // Extracted = files written (real-time progress)
-        const extracted = v.phase1_extracted || 0;
-        const pct = total > 0 ? Math.round((extracted / total) * 100) : 0;
-        const progressClass = getProgressClass(pct);
+        // Single = GPT only, Multi = both models
+        const singleExtracted = v.gpt_extracted || 0;
+        const multiExtracted = v.both_extracted || 0;
+        const singlePct = total > 0 ? Math.round((singleExtracted / total) * 100) : 0;
+        const multiPct = total > 0 ? Math.round((multiExtracted / total) * 100) : 0;
         
         // Derive status from extraction progress
         let status = 'empty';
         if (total === 0) {
             status = 'empty';
-        } else if (extracted === 0) {
+        } else if (singleExtracted === 0 && multiExtracted === 0) {
             status = 'pending';
-        } else if (extracted >= total) {
+        } else if (multiExtracted >= total) {
             status = 'complete';
         } else {
             status = 'in_progress';
         }
         const statusClass = getStatusClass(status);
         
+        // Failed counts (placeholder - would need API update for separate counts)
+        const singleFailed = 0;
+        const multiFailed = v.failed || 0;
+        
         return `
             <tr>
                 <td>${v.name || v.vault_id}</td>
                 <td><span class="status-badge ${statusClass}">${status}</span></td>
                 <td>
-                    <div class="progress-bar" title="${extracted}/${total} extracted">
-                        <div class="progress-fill ${progressClass}" style="width: ${pct}%"></div>
+                    <div class="progress-container">
+                        <span style="font-size: 9px;" class="count-single">${singlePct}%</span>
+                        <div class="progress-bar" title="Single (GPT): ${singleExtracted}/${total}">
+                            <div class="progress-fill single" style="width: ${singlePct}%"></div>
+                        </div>
+                        <div class="progress-bar" title="Multi (Both): ${multiExtracted}/${total}">
+                            <div class="progress-fill multi" style="width: ${multiPct}%"></div>
+                        </div>
+                        <span style="font-size: 9px;" class="count-multi">${multiPct}%</span>
                     </div>
-                    <span style="font-size: 10px; color: #9ca3af;">${pct}%</span>
                 </td>
-                <td class="stat-num">${extracted}</td>
-                <td class="stat-num">${v.single_done || 0}</td>
-                <td class="stat-num">${v.multi_done || 0}</td>
+                <td class="stat-num count-single">${singleExtracted}</td>
+                <td class="stat-num count-multi">${multiExtracted}</td>
                 <td class="stat-num">${total}</td>
-                <td class="stat-num">${v.failed || 0}</td>
+                <td class="stat-num"><span class="count-single">${singleFailed}</span> / <span class="count-multi">${multiFailed}</span></td>
                 <td>${formatTimeAgo(v.last_updated)}</td>
                 <td class="action-btns">
                     <button class="btn btn-primary btn-sm" onclick="resumeVault('${v.vault_id}')">Resume</button>
