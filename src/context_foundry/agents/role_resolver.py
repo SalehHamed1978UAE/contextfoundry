@@ -248,7 +248,31 @@ class RoleResolver:
                     else:
                         logger.info(f"[ROLE_RESOLVER] Stage 0: Partial match for '{role}' → '{person['name']}' (role='{person_role}'), falling through to validate")
                 else:
-                    logger.info(f"[ROLE_RESOLVER] Stage 0: Multiple matches ({len(entities)}) for '{role}' via graph_traversal")
+                    # Multiple matches - check if first match has significantly better edge_rank
+                    # Matches are already sorted by edge_rank (HOLDS_POSITION=1 > LEADS=2 > WORKS_FOR=3)
+                    best_match = entities[0]
+                    best_rank = best_match.get('edge_rank', 9)
+                    second_rank = entities[1].get('edge_rank', 9) if len(entities) > 1 else 9
+                    
+                    # If best match has HOLDS_POSITION (rank=1) and second doesn't, use the best
+                    if best_rank == 1 and second_rank > 1:
+                        logger.info(f"[ROLE_RESOLVER] Stage 0: Best match '{best_match['name']}' has HOLDS_POSITION (rank=1), second has rank={second_rank} - using best")
+                        return RoleResolution(
+                            role=role,
+                            resolved_name=best_match['name'],
+                            resolved_entity_id=best_match['id'],
+                            confidence=0.90,  # High confidence - HOLDS_POSITION is definitive
+                            resolution_method="stage0_graph_traversal_ranked",
+                            all_matches=[{
+                                "name": p['name'],
+                                "entity_id": p['id'],
+                                "role": p.get('role_from_props', role),
+                                "organization": anchor['name'],
+                                "edge_rank": p.get('edge_rank', 9)
+                            } for p in entities]
+                        )
+                    
+                    logger.info(f"[ROLE_RESOLVER] Stage 0: Multiple matches ({len(entities)}) for '{role}' via graph_traversal (ranks: {[e.get('edge_rank', 9) for e in entities]})")
                     return RoleResolution(
                         role=role,
                         resolved_name=None,
@@ -258,7 +282,8 @@ class RoleResolver:
                             "name": p['name'],
                             "entity_id": p['id'],
                             "role": p.get('role_from_props', role),
-                            "organization": anchor['name']
+                            "organization": anchor['name'],
+                            "edge_rank": p.get('edge_rank', 9)
                         } for p in entities]
                     )
             

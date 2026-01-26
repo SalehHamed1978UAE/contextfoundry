@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-26T18:11:27.431330",
+  "timestamp": "2026-01-26T19:07:34.340904",
   "corpus": "ClaudeCode Nexus Industries",
   "vault_id": "b8b157e1-077f-4b33-9fbd-4569e04db006",
   "vault_stats": {
@@ -9,26 +9,26 @@
   },
   "results": {
     "total": 100,
-    "passed": 71,
-    "failed": 29,
-    "accuracy_pct": 71.0
+    "passed": 75,
+    "failed": 25,
+    "accuracy_pct": 75.0
   },
   "breakdown": {
     "exact_match": {
-      "passed": 36,
+      "passed": 39,
       "failed": 0
     },
     "no_match": {
       "passed": 0,
-      "failed": 13
-    },
-    "component_match": {
-      "passed": 25,
-      "failed": 0
+      "failed": 16
     },
     "no_data": {
       "passed": 0,
-      "failed": 16
+      "failed": 9
+    },
+    "component_match": {
+      "passed": 26,
+      "failed": 0
     },
     "number_match": {
       "passed": 7,
@@ -49,27 +49,14 @@
   },
   "failures": [
     {
-      "q": 2,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What is the name of the CFO?",
-      "expected": "Michael Chang",
-      "expected_normalized": "Michael Chang",
-      "actual": "I couldn't find the name of the CFO of Nexus Industries in the available data or documents. If you h",
-      "actual_normalized": "I couldn't find the name of the CFO of Nexus Industries in the available data or documents. If you h",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
       "q": 3,
       "passed": false,
       "match_type": "no_match",
       "query": "Who is the President of Nexus Digital Solutions?",
       "expected": "Robert Kim",
       "expected_normalized": "Robert Kim",
-      "actual": "I found multiple people with the PRESIDENT role:\n\n- Kevin Chang (Executive Sponsor of Nexus Digital ",
-      "actual_normalized": "I found multiple people with the PRESIDENT role: - Kevin Chang (Executive Sponsor of Nexus Digital S",
+      "actual": "The PRESIDENT of Nexus Digital Solutions is Dr. Lisa Chang.\n\nNote: Your documents also mention other",
+      "actual_normalized": "The PRESIDENT of Nexus Digital Solutions is Dr. Lisa Chang. Note: Your documents also mention other ",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -81,8 +68,8 @@
       "query": "Who is the Chief Engineer for the Falcon X program?",
       "expected": "Dr. Elena Rodriguez",
       "expected_normalized": "Dr. Elena Rodriguez",
-      "actual": "I couldn't find any information regarding the Chief Engineer for the Falcon X program in the availab",
-      "actual_normalized": "I couldn't find any information regarding the Chief Engineer for the Falcon X program in the availab",
+      "actual": "The Chief Engineer for the Falcon X program is Dr. Priya Sharma.",
+      "actual_normalized": "The Chief Engineer for the Falcon X program is Dr. Priya Sharma",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -90,15 +77,15 @@
     {
       "q": 5,
       "passed": false,
-      "match_type": "no_match",
+      "match_type": "no_data",
       "query": "Who is the Empowered Official for ITAR compliance?",
       "expected": "Col. (Ret.) James Foster",
       "expected_normalized": "Col. (Ret.) James Foster",
-      "actual": "I couldn't find any information regarding the Empowered Official for ITAR compliance in the availabl",
-      "actual_normalized": "I couldn't find any information regarding the Empowered Official for ITAR compliance in the availabl",
+      "actual": "The documents do not explicitly mention the name of the Empowered Official for ITAR compliance. If y",
+      "actual_normalized": "The documents do not explicitly mention the name of the Empowered Official for ITAR compliance. If y",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 16,
@@ -140,19 +127,6 @@
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 19,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "Who is the largest aerospace customer of Nexus by relationship value?",
-      "expected": "Boeing ($730 million)",
-      "expected_normalized": "Boeing ($730 million)",
-      "actual": "The largest aerospace customer of Nexus by relationship value is Airbus SE, with a total relationshi",
-      "actual_normalized": "The largest aerospace customer of Nexus by relationship value is Airbus SE, with a total relationshi",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
       "q": 29,
       "passed": false,
       "match_type": "no_match",
@@ -179,19 +153,6 @@
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 32,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?",
-      "expected": "Dr. Robert Martinez",
-      "expected_normalized": "Dr. Robert Martinez",
-      "actual": "I couldn't find any information regarding the CEO of the Toyota joint venture, NextGen Battery Techn",
-      "actual_normalized": "I couldn't find any information regarding the CEO of the Toyota joint venture, NextGen Battery Techn",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
       "q": 36,
       "passed": false,
       "match_type": "no_match",
@@ -207,28 +168,28 @@
     {
       "q": 37,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the Project Director for the GreenHydrogen Initiative?",
       "expected": "Jennifer Walsh",
       "expected_normalized": "Jennifer Walsh",
-      "actual": "I was unable to find specific information regarding the Project Director for the GreenHydrogen Initi",
-      "actual_normalized": "I was unable to find specific information regarding the Project Director for the GreenHydrogen Initi",
+      "actual": "The DIRECTOR of Nexus Industries is Thomas Anderson.",
+      "actual_normalized": "The DIRECTOR of Nexus Industries is Thomas Anderson",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 38,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the CISO of Nexus Industries?",
       "expected": "Jennifer Walsh (appointed January 2026, formerly Robert Kim)",
       "expected_normalized": "Jennifer Walsh (appointed January 2026, formerly Robert Kim)",
-      "actual": "I was unable to find specific information regarding the Chief Information Security Officer (CISO) of",
-      "actual_normalized": "I was unable to find specific information regarding the Chief Information Security Officer (CISO) of",
+      "actual": "The Chief Information Security Officer (CISO) of Nexus Industries is **Maria Santos**.",
+      "actual_normalized": "The Chief Information Security Officer (CISO) of Nexus Industries is Maria Santos",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 40,
@@ -237,24 +198,24 @@
       "query": "What is the total company backlog?",
       "expected": "$12.4 billion",
       "expected_normalized": "$12.4 billion",
-      "actual": "The total company backlog for The Boeing Company is **$11.5 billion**. This backlog includes various",
-      "actual_normalized": "The total company backlog for The Boeing Company is $11.5 billion. This backlog includes various div",
+      "actual": "The total company backlog for the fiscal year 2025 is **$8.45 billion**.",
+      "actual_normalized": "The total company backlog for the fiscal year 2025 is $8.45 billion",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 12400000000.0, found {'5200000000', '5', '11500000000', '1400000000', '1100000000', '11', '3800000000', '1', '3'}",
+      "failure_reason": "Number format mismatch: expected 12400000000.0, found {'8', '2025', '8449999999'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
       "q": 45,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "When was Dr. Victoria Chen appointed CEO?",
       "expected": "2019",
       "expected_normalized": "2019",
-      "actual": "I couldn't find specific information regarding the appointment date of Dr. Victoria Chen as CEO. It ",
-      "actual_normalized": "I couldn't find specific information regarding the appointment date of Dr. Victoria Chen as CEO. It ",
+      "actual": "The CEO of Nexus Industries is Dr. Victoria Chen.",
+      "actual_normalized": "The CEO of Nexus Industries is Dr. Victoria Chen",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 46,
@@ -263,8 +224,8 @@
       "query": "Who supplies solar panels for the Desert Sun project?",
       "expected": "First Solar",
       "expected_normalized": "First Solar",
-      "actual": "The retrieved information does not specify the exact supplier of the solar panels for the Desert Sun",
-      "actual_normalized": "The retrieved information does not specify the exact supplier of the solar panels for the Desert Sun",
+      "actual": "The retrieved information does not specify the exact supplier of solar panels for the Desert Sun pro",
+      "actual_normalized": "The retrieved information does not specify the exact supplier of solar panels for the Desert Sun pro",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -272,15 +233,15 @@
     {
       "q": 61,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who replaced Thomas Anderson as Digital President?",
       "expected": "Robert Kim",
       "expected_normalized": "Robert Kim",
-      "actual": "I was unable to find specific information regarding who replaced Thomas Anderson as Digital Presiden",
-      "actual_normalized": "I was unable to find specific information regarding who replaced Thomas Anderson as Digital Presiden",
+      "actual": "The PRESIDENT of Nexus Industries is Kenji Yamamoto.",
+      "actual_normalized": "The PRESIDENT of Nexus Industries is Kenji Yamamoto",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 66,
@@ -292,7 +253,7 @@
       "actual": "The FY2026 capital expenditure plan for Nexus Industries is set at **$520 million**. This amount is ",
       "actual_normalized": "The FY2026 capital expenditure plan for Nexus Industries is set at $520 million. This amount is allo",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 680000000.0, found {'1650000000', '1', '650000000', '7', '190', '3500000000', '400000000', '175000000', '300000000', '365000000', '430000000', '0', '340000000', '820000000', '2000000000', '225000000', '3', '115000000', '1950000000', '135', '1180000000', '95', '195000000', '125000000', '7610000000', '1200000000', '200000000', '600000000', '3350000000', '75000000', '295000000', '800000000', '1520000000', '1050000000', '150000000', '185000000', '190000000', '2500000000', '580000000', '550000000', '173', '285000000', '210000000', '105000000', '95000000', '275000000', '52000000', '1720000000', '100', '1400000000', '135000000', '500000000', '2', '2270000000', '4', '2620000000', '4590000000', '520', '50000000', '1020000000', '100000000', '1090000000', '385000000', '7600000000', '1800000000', '4070000000', '250000000', '160', '450000000', '320000000', '1770000000', '85000000', '580', '550', '310000000', '440000000', '2880000000', '145000000', '520000000', '80', '140000000', '2100000000', '1500000000', '7500000000', '2470000000', '2028', '350000000', '1120000000', '1000000000', '4200000000', '1350000000'}",
+      "failure_reason": "Number format mismatch: expected 680000000.0, found {'385000000', '0', '320000000', '80', '75000000', '1720000000', '7600000000', '1400000000', '1350000000', '580', '2000000000', '125000000', '550', '580000000', '135000000', '4', '400000000', '200000000', '440000000', '190', '2100000000', '100', '1050000000', '105000000', '7', '550000000', '150000000', '50000000', '600000000', '1020000000', '160', '2880000000', '4590000000', '295000000', '1', '52000000', '7500000000', '225000000', '175000000', '365000000', '3', '2270000000', '520', '520000000', '95', '1520000000', '1650000000', '1500000000', '650000000', '85000000', '1000000000', '115000000', '350000000', '450000000', '2028', '1180000000', '4200000000', '3500000000', '250000000', '100000000', '7610000000', '185000000', '1200000000', '285000000', '1090000000', '1120000000', '310000000', '300000000', '210000000', '2620000000', '1800000000', '2470000000', '340000000', '135', '430000000', '195000000', '2500000000', '145000000', '4070000000', '820000000', '173', '500000000', '140000000', '2', '95000000', '275000000', '190000000', '1770000000', '3350000000', '800000000', '1950000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
@@ -302,24 +263,11 @@
       "query": "Who is the Chair of the Export Control Committee?",
       "expected": "Col. (Ret.) James Foster (Empowered Official)",
       "expected_normalized": "Col. (Ret.) James Foster (Empowered Official)",
-      "actual": "I couldn't find specific information regarding the Chair of the Export Control Committee in the avai",
-      "actual_normalized": "I couldn't find specific information regarding the Chair of the Export Control Committee in the avai",
+      "actual": "The Chair of Nexus Industries is Dr. Sarah Williams.",
+      "actual_normalized": "The Chair of Nexus Industries is Dr. Sarah Williams",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
-    },
-    {
-      "q": 75,
-      "passed": false,
-      "match_type": "no_data",
-      "query": "Who is the VP of Engineering for Nexus Digital Solutions?",
-      "expected": "Dr. Alan Chen",
-      "expected_normalized": "Dr. Alan Chen",
-      "actual": "I was unable to find specific information regarding the VP of Engineering for Nexus Digital Solution",
-      "actual_normalized": "I was unable to find specific information regarding the VP of Engineering for Nexus Digital Solution",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
     },
     {
       "q": 78,
@@ -344,7 +292,7 @@
       "actual": "The 2030 revenue targets outlined in the corporate strategy are as follows: ### Nexus Aerospace Stra",
       "actual_normalized": "The 2030 revenue targets outlined in the corporate strategy are as follows: ### Nexus Aerospace Stra",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 15000000000.0, found {'850000000', '470000000', '30000000', '1400000000', '245000000', '180000000', '85000000', '1', '60000000', '5000', '1200000000', '85000000000', '7', '500000000', '310000000', '280000000000', '2', '200000000', '45000000000', '145000000', '4800000000', '445000000', '600000000', '485000000', '75000000000', '125000000000', '2030', '220000000', '80000000', '2850000000', '3500000000', '80', '400000000', '75000000', '120000000', '750', '380000000', '65000000', '4', '300000000', '0', '165000000000', '1500000000', '420000000', '800000000', '7500000000', '350', '50000000', '185000000', '150000000', '45000000', '55000000', '2500000000', '350000000', '580000000', '35000000', '185000000000', '680000000', '1080000000', '340000000', '1420000000', '25000000', '520000000000', '1320000000', '750000000', '1800000000', '2000000000', '100000000', '285000000', '210000000', '3', '1000000000', '95000000', '250000000'}",
+      "failure_reason": "Number format mismatch: expected 15000000000.0, found {'0', '50000000', '300000000', '750000000', '310000000', '600000000', '2030', '750', '210000000', '80', '75000000', '1420000000', '85000000000', '245000000', '65000000', '4800000000', '185000000000', '1500000000', '25000000', '45000000000', '1400000000', '85000000', '1000000000', '2000000000', '180000000', '380000000', '1800000000', '850000000', '340000000', '580000000', '120000000', '2500000000', '75000000000', '1', '145000000', '280000000000', '350000000', '55000000', '4', '400000000', '445000000', '500000000', '7500000000', '3500000000', '60000000', '2', '80000000', '250000000', '95000000', '200000000', '100000000', '1320000000', '45000000', '3', '485000000', '1080000000', '420000000', '470000000', '185000000', '5000', '2850000000', '1200000000', '30000000', '350', '285000000', '220000000', '165000000000', '520000000000', '800000000', '35000000', '7', '680000000', '150000000', '125000000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
@@ -363,41 +311,41 @@
     {
       "q": 83,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the primary customer for the SmartGrid Controller?",
       "expected": "Pacific Power (pilot customer)",
       "expected_normalized": "Pacific Power (pilot customer)",
-      "actual": "The information regarding the primary customer for the SmartGrid Controller is not available in the ",
-      "actual_normalized": "The information regarding the primary customer for the SmartGrid Controller is not available in the ",
+      "actual": "The search did not yield specific information regarding the primary customer for the SmartGrid Contr",
+      "actual_normalized": "The search did not yield specific information regarding the primary customer for the SmartGrid Contr",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 85,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the Chair of the Quality Council?",
       "expected": "Chief Quality Officer",
       "expected_normalized": "Chief Quality Officer",
-      "actual": "I could not find any information regarding the Chair of the Quality Council in the available documen",
-      "actual_normalized": "I could not find any information regarding the Chair of the Quality Council in the available documen",
+      "actual": "The Chair of Nexus Industries is Dr. Sarah Williams.",
+      "actual_normalized": "The Chair of Nexus Industries is Dr. Sarah Williams",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 91,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the VP Trade Compliance?",
       "expected": "Owns the Export Control Policy (per POL-009)",
       "expected_normalized": "Owns the Export Control Policy (per POL-009)",
-      "actual": "I couldn't find specific information regarding the current VP of Trade Compliance. It seems that the",
-      "actual_normalized": "I couldn't find specific information regarding the current VP of Trade Compliance. It seems that the",
+      "actual": "I found multiple people with the VP role:\n\n- Wei Chen (Vice President of Nexus Industries)\n- Lisa Ta",
+      "actual_normalized": "I found multiple people with the VP role: - Wei Chen (Vice President of Nexus Industries) - Lisa Tan",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 95,
@@ -406,8 +354,8 @@
       "query": "Who provides the SAR radar for Falcon X?",
       "expected": "Raytheon (APY-8)",
       "expected_normalized": "Raytheon (APY-8)",
-      "actual": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) radar for",
-      "actual_normalized": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) radar for",
+      "actual": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) for the F",
+      "actual_normalized": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) for the F",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -434,24 +382,24 @@
       "query": "Who is the CEO of Nexus Industries?",
       "expected": "Dr. Victoria Chen",
       "expected_normalized": "Dr. Victoria Chen",
-      "actual": "The CEO of Nexus Industries is Dr. Victoria Chen.",
-      "actual_normalized": "The CEO of Nexus Industries is Dr. Victoria Chen",
+      "actual": "I found multiple people with the CEO role:\n\n- Dr. Robert Martinez (Chief Executive Officer of Nexus ",
+      "actual_normalized": "I found multiple people with the CEO role: - Dr. Robert Martinez (Chief Executive Officer of Nexus I",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
       "q": 2,
-      "passed": false,
-      "match_type": "no_match",
+      "passed": true,
+      "match_type": "exact_match",
       "query": "What is the name of the CFO?",
       "expected": "Michael Chang",
       "expected_normalized": "Michael Chang",
-      "actual": "I couldn't find the name of the CFO of Nexus Industries in the available data or documents. If you h",
-      "actual_normalized": "I couldn't find the name of the CFO of Nexus Industries in the available data or documents. If you h",
+      "actual": "I found multiple people with the CFO role:\n\n- Michael Chang (Chief Financial Officer of Nexus Indust",
+      "actual_normalized": "I found multiple people with the CFO role: - Michael Chang (Chief Financial Officer of Nexus Industr",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 3,
@@ -460,8 +408,8 @@
       "query": "Who is the President of Nexus Digital Solutions?",
       "expected": "Robert Kim",
       "expected_normalized": "Robert Kim",
-      "actual": "I found multiple people with the PRESIDENT role:\n\n- Kevin Chang (Executive Sponsor of Nexus Digital ",
-      "actual_normalized": "I found multiple people with the PRESIDENT role: - Kevin Chang (Executive Sponsor of Nexus Digital S",
+      "actual": "The PRESIDENT of Nexus Digital Solutions is Dr. Lisa Chang.\n\nNote: Your documents also mention other",
+      "actual_normalized": "The PRESIDENT of Nexus Digital Solutions is Dr. Lisa Chang. Note: Your documents also mention other ",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -473,8 +421,8 @@
       "query": "Who is the Chief Engineer for the Falcon X program?",
       "expected": "Dr. Elena Rodriguez",
       "expected_normalized": "Dr. Elena Rodriguez",
-      "actual": "I couldn't find any information regarding the Chief Engineer for the Falcon X program in the availab",
-      "actual_normalized": "I couldn't find any information regarding the Chief Engineer for the Falcon X program in the availab",
+      "actual": "The Chief Engineer for the Falcon X program is Dr. Priya Sharma.",
+      "actual_normalized": "The Chief Engineer for the Falcon X program is Dr. Priya Sharma",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -482,15 +430,15 @@
     {
       "q": 5,
       "passed": false,
-      "match_type": "no_match",
+      "match_type": "no_data",
       "query": "Who is the Empowered Official for ITAR compliance?",
       "expected": "Col. (Ret.) James Foster",
       "expected_normalized": "Col. (Ret.) James Foster",
-      "actual": "I couldn't find any information regarding the Empowered Official for ITAR compliance in the availabl",
-      "actual_normalized": "I couldn't find any information regarding the Empowered Official for ITAR compliance in the availabl",
+      "actual": "The documents do not explicitly mention the name of the Empowered Official for ITAR compliance. If y",
+      "actual_normalized": "The documents do not explicitly mention the name of the Empowered Official for ITAR compliance. If y",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 6,
@@ -663,16 +611,16 @@
     },
     {
       "q": 19,
-      "passed": false,
-      "match_type": "no_match",
+      "passed": true,
+      "match_type": "component_match",
       "query": "Who is the largest aerospace customer of Nexus by relationship value?",
       "expected": "Boeing ($730 million)",
       "expected_normalized": "Boeing ($730 million)",
-      "actual": "The largest aerospace customer of Nexus by relationship value is Airbus SE, with a total relationshi",
-      "actual_normalized": "The largest aerospace customer of Nexus by relationship value is Airbus SE, with a total relationshi",
+      "actual": "The largest aerospace customer of Nexus by relationship value is The Boeing Company. There is no spe",
+      "actual_normalized": "The largest aerospace customer of Nexus by relationship value is The Boeing Company. There is no spe",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 20,
@@ -681,8 +629,8 @@
       "query": "Which supplier is rated Red and at risk?",
       "expected": "General Atomics",
       "expected_normalized": "General Atomics",
-      "actual": "The supplier rated Red and at risk is General Atomics. The decision to upgrade to a Red rating was m",
-      "actual_normalized": "The supplier rated Red and at risk is General Atomics. The decision to upgrade to a Red rating was m",
+      "actual": "The supplier rated Red and at risk is General Atomics. This rating indicates that there are signific",
+      "actual_normalized": "The supplier rated Red and at risk is General Atomics. This rating indicates that there are signific",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -733,8 +681,8 @@
       "query": "What is the hydrogen production capacity of the GreenHydrogen facility?",
       "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
       "expected_normalized": "425 kg/hour (Phase 1) or 10,200 kg/day",
-      "actual": "The GreenHydrogen facility has a hydrogen production capacity of 850 kg per hour at full capacity. T",
-      "actual_normalized": "The GreenHydrogen facility has a hydrogen production capacity of 850 kg per hour at full capacity. T",
+      "actual": "The GreenHydrogen facility in El Paso, Texas, has a hydrogen production capacity of 850 kg per hour ",
+      "actual_normalized": "The GreenHydrogen facility in El Paso, Texas, has a hydrogen production capacity of 850 kg per hour ",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -832,16 +780,16 @@
     },
     {
       "q": 32,
-      "passed": false,
-      "match_type": "no_match",
+      "passed": true,
+      "match_type": "exact_match",
       "query": "Who will be the CEO of the Toyota JV (NextGen Battery Technologies)?",
       "expected": "Dr. Robert Martinez",
       "expected_normalized": "Dr. Robert Martinez",
-      "actual": "I couldn't find any information regarding the CEO of the Toyota joint venture, NextGen Battery Techn",
-      "actual_normalized": "I couldn't find any information regarding the CEO of the Toyota joint venture, NextGen Battery Techn",
+      "actual": "I found multiple people with the CEO role:\n\n- Dr. Robert Martinez (Chief Executive Officer of Nexus ",
+      "actual_normalized": "I found multiple people with the CEO role: - Dr. Robert Martinez (Chief Executive Officer of Nexus I",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 33,
@@ -898,28 +846,28 @@
     {
       "q": 37,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the Project Director for the GreenHydrogen Initiative?",
       "expected": "Jennifer Walsh",
       "expected_normalized": "Jennifer Walsh",
-      "actual": "I was unable to find specific information regarding the Project Director for the GreenHydrogen Initi",
-      "actual_normalized": "I was unable to find specific information regarding the Project Director for the GreenHydrogen Initi",
+      "actual": "The DIRECTOR of Nexus Industries is Thomas Anderson.",
+      "actual_normalized": "The DIRECTOR of Nexus Industries is Thomas Anderson",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 38,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the CISO of Nexus Industries?",
       "expected": "Jennifer Walsh (appointed January 2026, formerly Robert Kim)",
       "expected_normalized": "Jennifer Walsh (appointed January 2026, formerly Robert Kim)",
-      "actual": "I was unable to find specific information regarding the Chief Information Security Officer (CISO) of",
-      "actual_normalized": "I was unable to find specific information regarding the Chief Information Security Officer (CISO) of",
+      "actual": "The Chief Information Security Officer (CISO) of Nexus Industries is **Maria Santos**.",
+      "actual_normalized": "The Chief Information Security Officer (CISO) of Nexus Industries is Maria Santos",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 39,
@@ -941,10 +889,10 @@
       "query": "What is the total company backlog?",
       "expected": "$12.4 billion",
       "expected_normalized": "$12.4 billion",
-      "actual": "The total company backlog for The Boeing Company is **$11.5 billion**. This backlog includes various",
-      "actual_normalized": "The total company backlog for The Boeing Company is $11.5 billion. This backlog includes various div",
+      "actual": "The total company backlog for the fiscal year 2025 is **$8.45 billion**.",
+      "actual_normalized": "The total company backlog for the fiscal year 2025 is $8.45 billion",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 12400000000.0, found {'5200000000', '5', '11500000000', '1400000000', '1100000000', '11', '3800000000', '1', '3'}",
+      "failure_reason": "Number format mismatch: expected 12400000000.0, found {'8', '2025', '8449999999'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
@@ -954,8 +902,8 @@
       "query": "How many endpoints does CyberShield protect?",
       "expected": "Over 2 million (2.1 million)",
       "expected_normalized": "Over 2 million (2.1 million)",
-      "actual": "CyberShield protects over **2 million endpoints** across its enterprise customers. Here are the spec",
-      "actual_normalized": "CyberShield protects over 2 million endpoints across its enterprise customers. Here are the specific",
+      "actual": "CyberShield protects over **2 million endpoints**. This figure is consistently mentioned across mult",
+      "actual_normalized": "CyberShield protects over 2 million endpoints. This figure is consistently mentioned across multiple",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1002,15 +950,15 @@
     {
       "q": 45,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "When was Dr. Victoria Chen appointed CEO?",
       "expected": "2019",
       "expected_normalized": "2019",
-      "actual": "I couldn't find specific information regarding the appointment date of Dr. Victoria Chen as CEO. It ",
-      "actual_normalized": "I couldn't find specific information regarding the appointment date of Dr. Victoria Chen as CEO. It ",
+      "actual": "The CEO of Nexus Industries is Dr. Victoria Chen.",
+      "actual_normalized": "The CEO of Nexus Industries is Dr. Victoria Chen",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 46,
@@ -1019,8 +967,8 @@
       "query": "Who supplies solar panels for the Desert Sun project?",
       "expected": "First Solar",
       "expected_normalized": "First Solar",
-      "actual": "The retrieved information does not specify the exact supplier of the solar panels for the Desert Sun",
-      "actual_normalized": "The retrieved information does not specify the exact supplier of the solar panels for the Desert Sun",
+      "actual": "The retrieved information does not specify the exact supplier of solar panels for the Desert Sun pro",
+      "actual_normalized": "The retrieved information does not specify the exact supplier of solar panels for the Desert Sun pro",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -1032,8 +980,8 @@
       "query": "Which university is a research partner for quantum computing?",
       "expected": "MIT",
       "expected_normalized": "MIT",
-      "actual": "Based on the retrieved information, **Stanford University** is identified as a research partner for ",
-      "actual_normalized": "Based on the retrieved information, Stanford University is identified as a research partner for quan",
+      "actual": "The university that is a research partner for quantum computing is **Stanford University**. Accordin",
+      "actual_normalized": "The university that is a research partner for quantum computing is Stanford University. According to",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1110,8 +1058,8 @@
       "query": "What percentage of the Toyota JV production will Toyota purchase?",
       "expected": "Minimum 60% for the first 5 years",
       "expected_normalized": "Minimum 60% for the first 5 years",
-      "actual": "Toyota has agreed to purchase a minimum of **60%** of the joint venture's production for the first f",
-      "actual_normalized": "Toyota has agreed to purchase a minimum of 60% of the joint venture's production for the first five ",
+      "actual": "Toyota will purchase a minimum of 60% of the joint venture's production for the first five years, as",
+      "actual_normalized": "Toyota will purchase a minimum of 60% of the joint venture's production for the first five years, as",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1136,8 +1084,8 @@
       "query": "What is the total cost savings from the cybersecurity incident avoidance?",
       "expected": "Avoided $5-10M ransom, $2-5M/day downtime, up to $10M fines",
       "expected_normalized": "Avoided $5-10M ransom, $2-5M/day downtime, up to $10M fines",
-      "actual": "The total cost savings from the cybersecurity incident avoidance are estimated to be significant, pa",
-      "actual_normalized": "The total cost savings from the cybersecurity incident avoidance are estimated to be significant, pa",
+      "actual": "The total cost savings from cybersecurity incident avoidance, particularly in the context of the rec",
+      "actual_normalized": "The total cost savings from cybersecurity incident avoidance, particularly in the context of the rec",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1162,8 +1110,8 @@
       "query": "What are the four divisions of Nexus Industries?",
       "expected": "Aerospace, Energy Systems, Digital Solutions, Advanced Materials",
       "expected_normalized": "Aerospace, Energy Systems, Digital Solutions, Advanced Materials",
-      "actual": "The four divisions of Nexus Industries are: 1. **Nexus Aerospace** - Focuses on aviation, space, and",
-      "actual_normalized": "The four divisions of Nexus Industries are: 1. Nexus Aerospace - Focuses on aviation, space, and def",
+      "actual": "The four divisions of Nexus Industries are: 1. **Nexus Aerospace** - Focus: Aviation, Space, Defense",
+      "actual_normalized": "The four divisions of Nexus Industries are: 1. Nexus Aerospace - Focus: Aviation, Space, Defense - A",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1171,12 +1119,12 @@
     {
       "q": 58,
       "passed": true,
-      "match_type": "component_match",
+      "match_type": "exact_match",
       "query": "What is the Falcon X program's budget variance?",
       "expected": "$3.2 million under budget",
       "expected_normalized": "$3.2 million under budget",
-      "actual": "The Falcon X program has a total budget of $145 million. As of the latest financial update, the actu",
-      "actual_normalized": "The Falcon X program has a total budget of $145 million. As of the latest financial update, the actu",
+      "actual": "The budget variance for the Falcon X program is reported as **$3.2 million under budget**. This indi",
+      "actual_normalized": "The budget variance for the Falcon X program is reported as $3.2 million under budget. This indicate",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1210,15 +1158,15 @@
     {
       "q": 61,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who replaced Thomas Anderson as Digital President?",
       "expected": "Robert Kim",
       "expected_normalized": "Robert Kim",
-      "actual": "I was unable to find specific information regarding who replaced Thomas Anderson as Digital Presiden",
-      "actual_normalized": "I was unable to find specific information regarding who replaced Thomas Anderson as Digital Presiden",
+      "actual": "The PRESIDENT of Nexus Industries is Kenji Yamamoto.",
+      "actual_normalized": "The PRESIDENT of Nexus Industries is Kenji Yamamoto",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 62,
@@ -1282,7 +1230,7 @@
       "actual": "The FY2026 capital expenditure plan for Nexus Industries is set at **$520 million**. This amount is ",
       "actual_normalized": "The FY2026 capital expenditure plan for Nexus Industries is set at $520 million. This amount is allo",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 680000000.0, found {'1650000000', '1', '650000000', '7', '190', '3500000000', '400000000', '175000000', '300000000', '365000000', '430000000', '0', '340000000', '820000000', '2000000000', '225000000', '3', '115000000', '1950000000', '135', '1180000000', '95', '195000000', '125000000', '7610000000', '1200000000', '200000000', '600000000', '3350000000', '75000000', '295000000', '800000000', '1520000000', '1050000000', '150000000', '185000000', '190000000', '2500000000', '580000000', '550000000', '173', '285000000', '210000000', '105000000', '95000000', '275000000', '52000000', '1720000000', '100', '1400000000', '135000000', '500000000', '2', '2270000000', '4', '2620000000', '4590000000', '520', '50000000', '1020000000', '100000000', '1090000000', '385000000', '7600000000', '1800000000', '4070000000', '250000000', '160', '450000000', '320000000', '1770000000', '85000000', '580', '550', '310000000', '440000000', '2880000000', '145000000', '520000000', '80', '140000000', '2100000000', '1500000000', '7500000000', '2470000000', '2028', '350000000', '1120000000', '1000000000', '4200000000', '1350000000'}",
+      "failure_reason": "Number format mismatch: expected 680000000.0, found {'385000000', '0', '320000000', '80', '75000000', '1720000000', '7600000000', '1400000000', '1350000000', '580', '2000000000', '125000000', '550', '580000000', '135000000', '4', '400000000', '200000000', '440000000', '190', '2100000000', '100', '1050000000', '105000000', '7', '550000000', '150000000', '50000000', '600000000', '1020000000', '160', '2880000000', '4590000000', '295000000', '1', '52000000', '7500000000', '225000000', '175000000', '365000000', '3', '2270000000', '520', '520000000', '95', '1520000000', '1650000000', '1500000000', '650000000', '85000000', '1000000000', '115000000', '350000000', '450000000', '2028', '1180000000', '4200000000', '3500000000', '250000000', '100000000', '7610000000', '185000000', '1200000000', '285000000', '1090000000', '1120000000', '310000000', '300000000', '210000000', '2620000000', '1800000000', '2470000000', '340000000', '135', '430000000', '195000000', '2500000000', '145000000', '4070000000', '820000000', '173', '500000000', '140000000', '2', '95000000', '275000000', '190000000', '1770000000', '3350000000', '800000000', '1950000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
@@ -1305,8 +1253,8 @@
       "query": "Who is the Chair of the Export Control Committee?",
       "expected": "Col. (Ret.) James Foster (Empowered Official)",
       "expected_normalized": "Col. (Ret.) James Foster (Empowered Official)",
-      "actual": "I couldn't find specific information regarding the Chair of the Export Control Committee in the avai",
-      "actual_normalized": "I couldn't find specific information regarding the Chair of the Export Control Committee in the avai",
+      "actual": "The Chair of Nexus Industries is Dr. Sarah Williams.",
+      "actual_normalized": "The Chair of Nexus Industries is Dr. Sarah Williams",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -1314,12 +1262,12 @@
     {
       "q": 69,
       "passed": true,
-      "match_type": "exact_match",
+      "match_type": "component_match",
       "query": "What is the TRIR safety target for FY2026?",
       "expected": "<0.75",
       "expected_normalized": "<0.75",
-      "actual": "The TRIR (Total Recordable Incident Rate) safety target for FY2026 is set to be less than 0.75 (<0.7",
-      "actual_normalized": "The TRIR (Total Recordable Incident Rate) safety target for FY2026 is set to be less than 0.75 (<0.7",
+      "actual": "The TRIR (Total Recordable Incident Rate) safety target for FY2026 is set to be less than 0.75, with",
+      "actual_normalized": "The TRIR (Total Recordable Incident Rate) safety target for FY2026 is set to be less than 0.75, with",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1357,8 +1305,8 @@
       "query": "What is the fast charge time for the solid-state battery (10-80%)?",
       "expected": "15 minutes",
       "expected_normalized": "15 minutes",
-      "actual": "The fast charge time for the solid-state battery, specifically for charging from 10% to 80%, is 15 m",
-      "actual_normalized": "The fast charge time for the solid-state battery, specifically for charging from 10% to 80%, is 15 m",
+      "actual": "The fast charge time for the solid-state battery, specifically from 10% to 80% charge, is 15 minutes",
+      "actual_normalized": "The fast charge time for the solid-state battery, specifically from 10% to 80% charge, is 15 minutes",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1391,16 +1339,16 @@
     },
     {
       "q": 75,
-      "passed": false,
-      "match_type": "no_data",
+      "passed": true,
+      "match_type": "exact_match",
       "query": "Who is the VP of Engineering for Nexus Digital Solutions?",
       "expected": "Dr. Alan Chen",
       "expected_normalized": "Dr. Alan Chen",
-      "actual": "I was unable to find specific information regarding the VP of Engineering for Nexus Digital Solution",
-      "actual_normalized": "I was unable to find specific information regarding the VP of Engineering for Nexus Digital Solution",
+      "actual": "I found multiple people with the VP role:\n\n- Wei Chen (Vice President of Nexus Industries)\n- Lisa Ta",
+      "actual_normalized": "I found multiple people with the VP role: - Wei Chen (Vice President of Nexus Industries) - Lisa Tan",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 76,
@@ -1409,8 +1357,8 @@
       "query": "What is the total patent portfolio size?",
       "expected": "2,412 patents",
       "expected_normalized": "2,412 patents",
-      "actual": "The total patent portfolio size for Nexus is **2,412 patents**. This includes various categories suc",
-      "actual_normalized": "The total patent portfolio size for Nexus is 2,412 patents. This includes various categories such as",
+      "actual": "The total patent portfolio size for Nexus is **2,412 patents**. This includes: - **Patents Filed in ",
+      "actual_normalized": "The total patent portfolio size for Nexus is 2,412 patents. This includes: - Patents Filed in 2025: ",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1451,7 +1399,7 @@
       "actual": "The 2030 revenue targets outlined in the corporate strategy are as follows: ### Nexus Aerospace Stra",
       "actual_normalized": "The 2030 revenue targets outlined in the corporate strategy are as follows: ### Nexus Aerospace Stra",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 15000000000.0, found {'850000000', '470000000', '30000000', '1400000000', '245000000', '180000000', '85000000', '1', '60000000', '5000', '1200000000', '85000000000', '7', '500000000', '310000000', '280000000000', '2', '200000000', '45000000000', '145000000', '4800000000', '445000000', '600000000', '485000000', '75000000000', '125000000000', '2030', '220000000', '80000000', '2850000000', '3500000000', '80', '400000000', '75000000', '120000000', '750', '380000000', '65000000', '4', '300000000', '0', '165000000000', '1500000000', '420000000', '800000000', '7500000000', '350', '50000000', '185000000', '150000000', '45000000', '55000000', '2500000000', '350000000', '580000000', '35000000', '185000000000', '680000000', '1080000000', '340000000', '1420000000', '25000000', '520000000000', '1320000000', '750000000', '1800000000', '2000000000', '100000000', '285000000', '210000000', '3', '1000000000', '95000000', '250000000'}",
+      "failure_reason": "Number format mismatch: expected 15000000000.0, found {'0', '50000000', '300000000', '750000000', '310000000', '600000000', '2030', '750', '210000000', '80', '75000000', '1420000000', '85000000000', '245000000', '65000000', '4800000000', '185000000000', '1500000000', '25000000', '45000000000', '1400000000', '85000000', '1000000000', '2000000000', '180000000', '380000000', '1800000000', '850000000', '340000000', '580000000', '120000000', '2500000000', '75000000000', '1', '145000000', '280000000000', '350000000', '55000000', '4', '400000000', '445000000', '500000000', '7500000000', '3500000000', '60000000', '2', '80000000', '250000000', '95000000', '200000000', '100000000', '1320000000', '45000000', '3', '485000000', '1080000000', '420000000', '470000000', '185000000', '5000', '2850000000', '1200000000', '30000000', '350', '285000000', '220000000', '165000000000', '520000000000', '800000000', '35000000', '7', '680000000', '150000000', '125000000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
@@ -1461,8 +1409,8 @@
       "query": "What is the operating margin for FY2025?",
       "expected": "11.2%",
       "expected_normalized": "11.2%",
-      "actual": "The operating margin for FY2025 is reported as 12.0%. This figure is derived from the context of the",
-      "actual_normalized": "The operating margin for FY2025 is reported as 12.0%. This figure is derived from the context of the",
+      "actual": "The operating margin for FY2025 is reported as 12.0%. This figure is part of the 2030 Operating Marg",
+      "actual_normalized": "The operating margin for FY2025 is reported as 12.0%. This figure is part of the 2030 Operating Marg",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1496,15 +1444,15 @@
     {
       "q": 83,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the primary customer for the SmartGrid Controller?",
       "expected": "Pacific Power (pilot customer)",
       "expected_normalized": "Pacific Power (pilot customer)",
-      "actual": "The information regarding the primary customer for the SmartGrid Controller is not available in the ",
-      "actual_normalized": "The information regarding the primary customer for the SmartGrid Controller is not available in the ",
+      "actual": "The search did not yield specific information regarding the primary customer for the SmartGrid Contr",
+      "actual_normalized": "The search did not yield specific information regarding the primary customer for the SmartGrid Contr",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 84,
@@ -1522,15 +1470,15 @@
     {
       "q": 85,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the Chair of the Quality Council?",
       "expected": "Chief Quality Officer",
       "expected_normalized": "Chief Quality Officer",
-      "actual": "I could not find any information regarding the Chair of the Quality Council in the available documen",
-      "actual_normalized": "I could not find any information regarding the Chair of the Quality Council in the available documen",
+      "actual": "The Chair of Nexus Industries is Dr. Sarah Williams.",
+      "actual_normalized": "The Chair of Nexus Industries is Dr. Sarah Williams",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 86,
@@ -1600,15 +1548,15 @@
     {
       "q": 91,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Who is the VP Trade Compliance?",
       "expected": "Owns the Export Control Policy (per POL-009)",
       "expected_normalized": "Owns the Export Control Policy (per POL-009)",
-      "actual": "I couldn't find specific information regarding the current VP of Trade Compliance. It seems that the",
-      "actual_normalized": "I couldn't find specific information regarding the current VP of Trade Compliance. It seems that the",
+      "actual": "I found multiple people with the VP role:\n\n- Wei Chen (Vice President of Nexus Industries)\n- Lisa Ta",
+      "actual_normalized": "I found multiple people with the VP role: - Wei Chen (Vice President of Nexus Industries) - Lisa Tan",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 92,
@@ -1617,8 +1565,8 @@
       "query": "What is the Quantum Volume of the QL-127 system?",
       "expected": "256",
       "expected_normalized": "256",
-      "actual": "The Quantum Volume of the QL-127 system is 256, as noted in the performance benchmarks section of th",
-      "actual_normalized": "The Quantum Volume of the QL-127 system is 256, as noted in the performance benchmarks section of th",
+      "actual": "The Quantum Volume of the QL-127 system is 256, as indicated in the performance benchmarks section o",
+      "actual_normalized": "The Quantum Volume of the QL-127 system is 256, as indicated in the performance benchmarks section o",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1643,8 +1591,8 @@
       "query": "When is the 256-qubit quantum system planned?",
       "expected": "Q2 2026",
       "expected_normalized": "Q2 2026",
-      "actual": "The 256-qubit quantum system, referred to as QL-256, is planned for release in Q2 2026.\n\n---\n**Confi",
-      "actual_normalized": "The 256-qubit quantum system, referred to as QL-256, is planned for release in Q2 2026. --- Confiden",
+      "actual": "The 256-qubit quantum system, referred to as QL-256, is planned for release in Q2 2026. This milesto",
+      "actual_normalized": "The 256-qubit quantum system, referred to as QL-256, is planned for release in Q2 2026. This milesto",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1656,8 +1604,8 @@
       "query": "Who provides the SAR radar for Falcon X?",
       "expected": "Raytheon (APY-8)",
       "expected_normalized": "Raytheon (APY-8)",
-      "actual": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) radar for",
-      "actual_normalized": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) radar for",
+      "actual": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) for the F",
+      "actual_normalized": "The retrieved information does not specify who provides the SAR (Synthetic Aperture Radar) for the F",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -1669,8 +1617,8 @@
       "query": "What is the APAC revenue target for 2030?",
       "expected": "$3.5 billion",
       "expected_normalized": "$3.5 billion",
-      "actual": "The APAC revenue target for 2030 is projected to be **$3.5 billion**. This target reflects the growt",
-      "actual_normalized": "The APAC revenue target for 2030 is projected to be $3.5 billion. This target reflects the growth po",
+      "actual": "The APAC revenue target for 2030 is projected to be **$3.5 billion**. This target represents an incr",
+      "actual_normalized": "The APAC revenue target for 2030 is projected to be $3.5 billion. This target represents an increase",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1729,12 +1677,23 @@
     }
   ],
   "trace_stats": {
-    "total_questions": 0,
-    "avg_chunks_retrieved": 0,
-    "avg_semantic_score": 0,
-    "query_type_distribution": {},
-    "evaluator_rule_distribution": {},
-    "low_score_queries": 0
+    "total_questions": 100,
+    "avg_chunks_retrieved": 2.8400000000000003,
+    "avg_semantic_score": 0.06493600000000004,
+    "query_type_distribution": {
+      "unknown": 100
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 39,
+      "no_match": 16,
+      "no_data": 9,
+      "component_match": 26,
+      "number_match": 7,
+      "percentage_match": 1,
+      "entity_match": 1,
+      "semantic_match": 1
+    },
+    "low_score_queries": 88
   },
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_b8b157e1.jsonl"
 }
