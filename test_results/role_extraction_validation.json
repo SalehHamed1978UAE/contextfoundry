@@ -1,0 +1,438 @@
+[
+  {
+    "document": "executive_leadership",
+    "person": "Dr. Victoria Chen",
+    "extracted_role": "Chief Executive Officer",
+    "expected_role": "CEO",
+    "verification": {
+      "person_name": "Dr. Victoria Chen",
+      "extracted_role": "Chief Executive Officer",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "NAME, ROLE",
+      "evidence_span": "ecutive Team\n\n**Dr. Victoria Chen, Chief Executive Officer**\nDr. Chen has led ",
+      "issues": []
+    }
+  },
+  {
+    "document": "executive_leadership",
+    "person": "Michael Chang",
+    "extracted_role": "Chief Financial Officer",
+    "expected_role": "CFO",
+    "verification": {
+      "person_name": "Michael Chang",
+      "extracted_role": "Chief Financial Officer",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "NAME, ROLE",
+      "evidence_span": "chnology leader.\n\n**Michael Chang, Chief Financial Officer**\nMichael Chang ser",
+      "issues": []
+    }
+  },
+  {
+    "document": "executive_leadership",
+    "person": "Dr. Elena Rodriguez",
+    "extracted_role": "Chief Engineer",
+    "expected_role": "Chief Engineer",
+    "verification": {
+      "person_name": "Dr. Elena Rodriguez",
+      "extracted_role": "Chief Engineer",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "NAME, ROLE",
+      "evidence_span": " operations.\n\n**Dr. Elena Rodriguez, Chief Engineer**\nChief Engineer: D",
+      "issues": []
+    }
+  },
+  {
+    "document": "executive_leadership",
+    "person": "Thomas Wright",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "Thomas Wright",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "executive_leadership",
+    "person": "Jennifer Walsh",
+    "extracted_role": "VP Investor Relations",
+    "expected_role": "VP Investor Relations",
+    "verification": {
+      "person_name": "Jennifer Walsh",
+      "extracted_role": "VP Investor Relations",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "NAME, ROLE",
+      "evidence_span": "alcon X program.\n\n**Jennifer Walsh, VP Investor Relations**\nJennifer Walsh is",
+      "issues": []
+    }
+  },
+  {
+    "document": "division_leadership",
+    "person": "Michael Torres",
+    "extracted_role": "Division President",
+    "expected_role": "Division President",
+    "verification": {
+      "person_name": "Michael Torres",
+      "extracted_role": "Division President",
+      "verification_confidence": 0.6,
+      "verification_status": "PROXIMITY_ONLY",
+      "matched_pattern": null,
+      "evidence_span": "rospace\n**Division President:** Michael Torres\nHeadquart",
+      "issues": [
+        "Role and name found 22 chars apart but no explicit pattern"
+      ]
+    }
+  },
+  {
+    "document": "division_leadership",
+    "person": "Dr. Elena Rodriguez",
+    "extracted_role": "Division President",
+    "expected_role": "Chief Engineer",
+    "verification": {
+      "person_name": "Dr. Elena Rodriguez",
+      "extracted_role": "Division President",
+      "verification_confidence": 0.3,
+      "verification_status": "ROLE_FOUND_NO_ASSOCIATION",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": [
+        "Role 'Division President' found in text but not associated with 'Dr. Elena Rodriguez'"
+      ]
+    }
+  },
+  {
+    "document": "division_leadership",
+    "person": "Robert Kim",
+    "extracted_role": "President",
+    "expected_role": "President",
+    "verification": {
+      "person_name": "Robert Kim",
+      "extracted_role": "President",
+      "verification_confidence": 0.3,
+      "verification_status": "ROLE_FOUND_NO_ASSOCIATION",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": [
+        "Role 'President' found in text but not associated with 'Robert Kim'"
+      ]
+    }
+  },
+  {
+    "document": "division_leadership",
+    "person": "Thomas Anderson",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "Thomas Anderson",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "project_team",
+    "person": "Thomas Wright",
+    "extracted_role": "Project Director",
+    "expected_role": null,
+    "verification": {
+      "person_name": "Thomas Wright",
+      "extracted_role": "Project Director",
+      "verification_confidence": 0.6,
+      "verification_status": "PROXIMITY_ONLY",
+      "matched_pattern": null,
+      "evidence_span": "Update\n\n**Project Director:** Thomas Wright\n**Chief E",
+      "issues": [
+        "Role and name found 20 chars apart but no explicit pattern"
+      ]
+    }
+  },
+  {
+    "document": "project_team",
+    "person": "Dr. Elena Rodriguez",
+    "extracted_role": "Chief Engineer",
+    "expected_role": "Chief Engineer",
+    "verification": {
+      "person_name": "Dr. Elena Rodriguez",
+      "extracted_role": "Chief Engineer",
+      "verification_confidence": 0.6,
+      "verification_status": "PROXIMITY_ONLY",
+      "matched_pattern": null,
+      "evidence_span": " Wright\n**Chief Engineer:** Dr. Elena Rodriguez (Chair)\n\n",
+      "issues": [
+        "Role and name found 22 chars apart but no explicit pattern"
+      ]
+    }
+  },
+  {
+    "document": "project_team",
+    "person": "Thomas Mueller",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "Thomas Mueller",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "project_team",
+    "person": "Sarah Kim",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "Sarah Kim",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "project_team",
+    "person": "James Park",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "James Park",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "press_release",
+    "person": "Dr. Victoria Chen",
+    "extracted_role": "CEO",
+    "expected_role": "CEO",
+    "verification": {
+      "person_name": "Dr. Victoria Chen",
+      "extracted_role": "CEO",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "NAME, ROLE",
+      "evidence_span": "nal year,\" said Dr. Victoria Chen, CEO.\n\nCFO Michael Chang",
+      "issues": []
+    }
+  },
+  {
+    "document": "press_release",
+    "person": "Michael Chang",
+    "extracted_role": "CFO",
+    "expected_role": "CFO",
+    "verification": {
+      "person_name": "Michael Chang",
+      "extracted_role": "CFO",
+      "verification_confidence": 0.9,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "ROLE NAME",
+      "evidence_span": "ictoria Chen, CEO.\n\nCFO Michael Chang added: \"Our diversi",
+      "issues": []
+    }
+  },
+  {
+    "document": "press_release",
+    "person": "Dr. Elena Rodriguez",
+    "extracted_role": "Chief Engineer",
+    "expected_role": "Chief Engineer",
+    "verification": {
+      "person_name": "Dr. Elena Rodriguez",
+      "extracted_role": "Chief Engineer",
+      "verification_confidence": 0.6,
+      "verification_status": "PROXIMITY_ONLY",
+      "matched_pattern": null,
+      "evidence_span": "company's Chief Engineer, Dr. Elena Rodriguez, presente",
+      "issues": [
+        "Role and name found 20 chars apart but no explicit pattern"
+      ]
+    }
+  },
+  {
+    "document": "press_release",
+    "person": "Jennifer Walsh",
+    "extracted_role": "VP Investor Relations",
+    "expected_role": "VP Investor Relations",
+    "verification": {
+      "person_name": "Jennifer Walsh",
+      "extracted_role": "VP Investor Relations",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "NAME, ROLE",
+      "evidence_span": "stor day.\n\nContact:\nJennifer Walsh, VP Investor Relations\nir@nexus-industries",
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Dr. Victoria Chen",
+    "extracted_role": "CEO",
+    "expected_role": "CEO",
+    "verification": {
+      "person_name": "Dr. Victoria Chen",
+      "extracted_role": "CEO",
+      "verification_confidence": 0.6,
+      "verification_status": "PROXIMITY_ONLY",
+      "matched_pattern": null,
+      "evidence_span": "nization\n\nCEO: Dr. Victoria Chen\n\u251c\u2500\u2500 CFO: ",
+      "issues": [
+        "Role and name found 9 chars apart but no explicit pattern"
+      ]
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Michael Chang",
+    "extracted_role": "CFO",
+    "expected_role": "CFO",
+    "verification": {
+      "person_name": "Michael Chang",
+      "extracted_role": "CFO",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "ROLE: NAME",
+      "evidence_span": ". Victoria Chen\n\u251c\u2500\u2500 CFO: Michael Chang\n\u251c\u2500\u2500 Chief Engineer:",
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Dr. Elena Rodriguez",
+    "extracted_role": "Chief Engineer",
+    "expected_role": "Chief Engineer",
+    "verification": {
+      "person_name": "Dr. Elena Rodriguez",
+      "extracted_role": "Chief Engineer",
+      "verification_confidence": 0.6,
+      "verification_status": "PROXIMITY_ONLY",
+      "matched_pattern": null,
+      "evidence_span": "Chang\n\u251c\u2500\u2500 Chief Engineer: Dr. Elena Rodriguez\n\u2502   \u251c\u2500\u2500 A",
+      "issues": [
+        "Role and name found 20 chars apart but no explicit pattern"
+      ]
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Thomas Wright",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "Thomas Wright",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "James Park",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "James Park",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Alan Chen",
+    "extracted_role": null,
+    "expected_role": null,
+    "verification": {
+      "person_name": "Alan Chen",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Michael Torres",
+    "extracted_role": null,
+    "expected_role": "Division President",
+    "verification": {
+      "person_name": "Michael Torres",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Dr. Elena Rodriguez",
+    "extracted_role": null,
+    "expected_role": "Chief Engineer",
+    "verification": {
+      "person_name": "Dr. Elena Rodriguez",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Robert Kim",
+    "extracted_role": null,
+    "expected_role": "President",
+    "verification": {
+      "person_name": "Robert Kim",
+      "extracted_role": null,
+      "verification_confidence": 1.0,
+      "verification_status": "NO_ROLE_TO_VERIFY",
+      "matched_pattern": null,
+      "evidence_span": null,
+      "issues": []
+    }
+  },
+  {
+    "document": "organizational_chart",
+    "person": "Jennifer Walsh",
+    "extracted_role": "VP Investor Relations",
+    "expected_role": "VP Investor Relations",
+    "verification": {
+      "person_name": "Jennifer Walsh",
+      "extracted_role": "VP Investor Relations",
+      "verification_confidence": 1.0,
+      "verification_status": "VERIFIED",
+      "matched_pattern": "ROLE: NAME",
+      "evidence_span": "tal: Robert Kim\n\u2514\u2500\u2500 VP Investor Relations: Jennifer Walsh\n",
+      "issues": []
+    }
+  }
+]
