@@ -271,6 +271,7 @@ class RelationshipFirstRetriever:
         'EMPLOYED_BY',
         'LEADS',
         'MEMBER_OF',
+        'HOLDS_POSITION',  # Person HOLDS_POSITION at Organization
     ]
     
     ROLE_NORMALIZATIONS = {
@@ -323,9 +324,14 @@ class RelationshipFirstRetriever:
         for person in connected_people:
             if self._matches_role(person, role):
                 matches.append(person)
-                logger.info(f"[REL_FIRST] Role match: {person['name']} - {person.get('role_from_props', 'via relationship')}")
+                edge_info = f"[edge_rank={person.get('edge_rank', 9)}, {person.get('edge_type', 'unknown')}]"
+                logger.info(f"[REL_FIRST] Role match: {person['name']} - {person.get('role_from_props', 'via relationship')} {edge_info}")
         
         if matches:
+            # Sort by edge_rank (HOLDS_POSITION=1 > LEADS=2 > WORKS_FOR=3)
+            matches.sort(key=lambda x: x.get('edge_rank', 9))
+            logger.info(f"[REL_FIRST] Sorted {len(matches)} matches by edge_rank, best: {matches[0]['name']} (rank={matches[0].get('edge_rank', 9)})")
+            
             return {
                 "entities": matches,
                 "confidence": "high",
@@ -352,6 +358,7 @@ class RelationshipFirstRetriever:
         outgoing_types = ", ".join([f"'{t}'" for t in self.ROLE_EDGE_TYPES])
         incoming_types = ", ".join([f"'{t}'" for t in self.REVERSE_EDGE_TYPES])
         
+        # Rank edge types by quality: HOLDS_POSITION (1) > LEADS (2) > WORKS_FOR (3) > others (4)
         query = text(f"""
             WITH connected AS (
                 -- Outgoing from anchor (e.g., Nexus LEADS person)
@@ -360,7 +367,14 @@ class RelationshipFirstRetriever:
                     target.name as person_name,
                     target.properties::jsonb as props,
                     r.relationship_type as edge_type,
-                    'outgoing' as direction
+                    'outgoing' as direction,
+                    CASE 
+                        WHEN r.relationship_type = 'HOLDS_POSITION' THEN 1
+                        WHEN r.relationship_type = 'LEADS' THEN 2
+                        WHEN r.relationship_type IN ('HAS_EXECUTIVE', 'HAS_OFFICER') THEN 2
+                        WHEN r.relationship_type = 'WORKS_FOR' THEN 3
+                        ELSE 4
+                    END as edge_rank
                 FROM relationships r
                 JOIN entities target ON r.target_id = target.id
                 WHERE r.source_id = :anchor_id
@@ -376,7 +390,14 @@ class RelationshipFirstRetriever:
                     source.name as person_name,
                     source.properties::jsonb as props,
                     r.relationship_type as edge_type,
-                    'incoming' as direction
+                    'incoming' as direction,
+                    CASE 
+                        WHEN r.relationship_type = 'HOLDS_POSITION' THEN 1
+                        WHEN r.relationship_type = 'LEADS' THEN 2
+                        WHEN r.relationship_type IN ('HAS_EXECUTIVE', 'HAS_OFFICER') THEN 2
+                        WHEN r.relationship_type = 'WORKS_FOR' THEN 3
+                        ELSE 4
+                    END as edge_rank
                 FROM relationships r
                 JOIN entities source ON r.source_id = source.id
                 WHERE r.target_id = :anchor_id
@@ -389,9 +410,10 @@ class RelationshipFirstRetriever:
                 person_name,
                 props,
                 edge_type,
-                direction
+                direction,
+                edge_rank
             FROM connected
-            ORDER BY person_id
+            ORDER BY person_id, edge_rank ASC
         """)
         
         try:
@@ -416,6 +438,7 @@ class RelationshipFirstRetriever:
                     "properties": props,
                     "edge_type": row.edge_type,
                     "direction": row.direction,
+                    "edge_rank": row.edge_rank,
                     "role_from_props": role_from_props
                 })
             
