@@ -1,0 +1,110 @@
+{
+  "document_id": "76fb86f47238",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:35:33.012157",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Author: Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Communication platform with streams"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Provide updates via Horizon Prime streams",
+      "aliases": []
+    },
+    {
+      "name": "FY26",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "FY26 plays",
+        "timeline": "Fiscal Year 2026",
+        "status": "Strategic priority"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Highlights FY26 plays",
+      "aliases": []
+    },
+    {
+      "name": "IPO readiness",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "IPO readiness",
+        "status": "Strategic priority"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "Highlights FY26 plays, IPO readiness",
+      "aliases": []
+    },
+    {
+      "name": "Customer trust",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Customer trust initiative",
+        "status": "Strategic priority"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "source_excerpt": "IPO readiness, customer trust",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "FY26",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "evidence": "Maya Serrano as CEO highlights FY26 plays as strategic priorities"
+    },
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "IPO readiness",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "evidence": "Maya Serrano as CEO highlights IPO readiness as strategic priority"
+    },
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Customer trust",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/ceo_memo_strategic_priorities.md",
+      "evidence": "Maya Serrano as CEO highlights customer trust as strategic priority"
+    }
+  ],
+  "metadata": {
+    "filename": "ceo_memo_strategic_priorities.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "document_id": "56a4226740ec",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:56:11.008245",
+  "entities": [
+    {
+      "name": "Supplier Concentration Risk",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "supplier_concentration_risk",
+        "category": "Risk Management"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "# Supplier Concentration Risk",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "**Owner:** Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "risk_level": "Medium-High"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "**Risk Types:** CoreMatrix, VectorTech",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "risk_level": "Medium-High"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "**Risk Types:** CoreMatrix, VectorTech",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "risk register system"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Supplier Concentration Risk",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "evidence": "**Owner:** Dylan Kaur"
+    },
+    {
+      "source_entity": "Supplier Concentration Risk",
+      "source_type": "POLICY",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_concentration_risk.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

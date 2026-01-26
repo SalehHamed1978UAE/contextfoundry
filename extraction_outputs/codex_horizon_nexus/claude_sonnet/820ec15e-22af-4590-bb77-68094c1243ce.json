@@ -1,0 +1,149 @@
+{
+  "document_id": "ba95994c63d8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:40:02.033309",
+  "entities": [
+    {
+      "name": "VectorTech Robotics",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "category": "Sensors",
+        "tier": "Tier 1",
+        "engagement_model": "Dual-source",
+        "average_lead_time": "78 days",
+        "service_level": "99.1%"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Supplier Profile: VectorTech Robotics",
+      "aliases": []
+    },
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Executive Sponsor: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "Procurement",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Escalation path management",
+          "Sourcing"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Escalation path defined through Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Logistics provider"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Documentation system for continuity plans"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "On-time delivery",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "On-time delivery trends",
+        "value": "within tolerance",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "On-time delivery trends remain within tolerance",
+      "aliases": []
+    },
+    {
+      "name": "Service Level",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Service Level",
+        "value": "99.1%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "source_excerpt": "Service Level: 99.1%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "VectorTech Robotics",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "evidence": "Executive Sponsor: Priya Thakur"
+    },
+    {
+      "source_entity": "VectorTech Robotics",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "evidence": "Align sourcing forecasts with Titan Logistics schedule"
+    },
+    {
+      "source_entity": "Procurement",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "MANAGES",
+      "target_entity": "VectorTech Robotics",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "evidence": "Escalation path defined through Procurement"
+    },
+    {
+      "source_entity": "Procurement",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_vectortech_robotics.md",
+      "evidence": "Document continuity plans in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_vectortech_robotics.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

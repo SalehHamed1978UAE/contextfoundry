@@ -1,0 +1,120 @@
+{
+  "document_id": "f0098dcd379e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:51:38.369335",
+  "entities": [
+    {
+      "name": "Aether Shield",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Zero-trust for banks"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "source_excerpt": "Business Unit: Aether Shield",
+      "aliases": []
+    },
+    {
+      "name": "Lucian Cho",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Sponsor",
+        "role": "Project Sponsor"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "source_excerpt": "Sponsor: Lucian Cho",
+      "aliases": []
+    },
+    {
+      "name": "Global banks",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Banking",
+        "region": "Global"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "source_excerpt": "Primary Customer: Global banks",
+      "aliases": []
+    },
+    {
+      "name": "SentinelShield FS",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Technical Stack for banking solutions"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "source_excerpt": "Technical Stack: SentinelShield FS",
+      "aliases": []
+    },
+    {
+      "name": "Citadel Banking Wave",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$126M",
+        "timeline": "2025-2027",
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "source_excerpt": "Citadel Banking Wave Delivery Brief",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Lucian Cho",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Citadel Banking Wave",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "evidence": "Sponsor: Lucian Cho"
+    },
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Citadel Banking Wave",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "evidence": "Business Unit: Aether Shield"
+    },
+    {
+      "source_entity": "Global banks",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Citadel Banking Wave",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "evidence": "Primary Customer: Global banks"
+    },
+    {
+      "source_entity": "Citadel Banking Wave",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SentinelShield FS",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/projects/citadel_banking_wave_brief.md",
+      "evidence": "Technical Stack: SentinelShield FS"
+    }
+  ],
+  "metadata": {
+    "filename": "citadel_banking_wave_brief.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

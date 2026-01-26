@@ -1,0 +1,104 @@
+{
+  "document_id": "e4edce813008",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:33:08.621392",
+  "entities": [
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Titan Logistics",
+        "status": "milestones"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Titan Logistics milestones",
+      "aliases": []
+    },
+    {
+      "name": "MetroLink",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "MetroLink",
+        "status": "rollout"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "MetroLink rollout",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Horizon Prime",
+        "status": "milestones"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "platform for assigning owners"
+      },
+      "confidence": 0.6,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Titan Logistics",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "evidence": "BU leaders"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "MetroLink",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.5,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/transitedge_program_review_2026_01_19.md",
+      "evidence": "BU leaders"
+    }
+  ],
+  "metadata": {
+    "filename": "transitedge_program_review_2026_01_19.md",
+    "raw_entity_count": 6,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

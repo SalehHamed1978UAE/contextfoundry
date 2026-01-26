@@ -1,0 +1,97 @@
+{
+  "document_id": "56a4226740ec",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:56:03.809406",
+  "entities": [
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Owner",
+        "role": "Risk Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "Owner: Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Risk Type",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "Risk Types: CoreMatrix",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Risk Type",
+        "risk level": "Medium"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "Risk Types: VectorTech",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk Management Tool"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Risk Owner",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "evidence": "Owner: Dylan Kaur"
+    },
+    {
+      "source_entity": "CoreMatrix",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Risk Type",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "evidence": "Risk Types: CoreMatrix"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Risk Type",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/supplier_concentration_risk.md",
+      "evidence": "Risk Types: VectorTech"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_concentration_risk.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

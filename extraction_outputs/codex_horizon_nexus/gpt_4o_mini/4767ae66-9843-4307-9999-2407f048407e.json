@@ -1,0 +1,87 @@
+{
+  "document_id": "9ccaf3275524",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_corematrix_semiconductors.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:40:32.233449",
+  "entities": [
+    {
+      "name": "CoreMatrix Semiconductors",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Chipsets",
+        "risk level": "Tier 1"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Supplier Profile: CoreMatrix Semiconductors",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Executive"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Logistics",
+        "industry": "Transportation"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Continuity plans documentation",
+        "status": "Ongoing"
+      },
+      "confidence": 0.7,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_corematrix_semiconductors.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "CoreMatrix Semiconductors",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_corematrix_semiconductors.md",
+      "evidence": "Executive Sponsor: Victor Liao"
+    },
+    {
+      "source_entity": "CoreMatrix Semiconductors",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_corematrix_semiconductors.md",
+      "evidence": "Align sourcing forecasts with Titan Logistics schedule"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_corematrix_semiconductors.md",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

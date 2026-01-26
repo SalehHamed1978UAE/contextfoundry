@@ -1,0 +1,94 @@
+{
+  "document_id": "eebc508afdb5",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:56:36.463870",
+  "entities": [
+    {
+      "name": "Breck Collins",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Owner",
+        "role": "Risk Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+      "source_excerpt": "Owner: Breck Collins",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk Management Tool",
+        "industry": "Risk Management"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Citadel Compliance Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": null,
+        "status": "Active"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+      "source_excerpt": "Citadel Compliance Risk",
+      "aliases": []
+    },
+    {
+      "name": "Banking regulators",
+      "entity_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+      "source_excerpt": "Risk Types: Banking regulators",
+      "aliases": []
+    },
+    {
+      "name": "Data residency",
+      "entity_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+      "source_excerpt": "Risk Types: data residency",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Breck Collins",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Citadel Compliance Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+      "evidence": "Owner: Breck Collins"
+    },
+    {
+      "source_entity": "Citadel Compliance Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/citadel_compliance_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "citadel_compliance_risk.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
