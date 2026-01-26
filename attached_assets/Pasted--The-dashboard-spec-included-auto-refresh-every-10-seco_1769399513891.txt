@@ -1,0 +1,46 @@
+ The dashboard spec included auto-refresh every 10 seconds, but it's either not implemented or broken.  
+                                                                                                         
+  ---                                                                                                    
+  Instructions for Replit:                                                                               
+                                                                                                         
+  Add auto-refresh to the dashboard. In the JavaScript:                                                  
+                                                                                                         
+  // Auto-refresh every 10 seconds                                                                       
+  async function loadDashboard() {                                                                       
+      // ... existing fetch and update code ...                                                          
+  }                                                                                                      
+                                                                                                         
+  // Initial load                                                                                        
+  loadDashboard();                                                                                       
+                                                                                                         
+  // Auto-refresh                                                                                        
+  setInterval(loadDashboard, 10000);  // 10 seconds                                                      
+                                                                                                         
+  Or for smoother updates, use a shorter interval:                                                       
+                                                                                                         
+  setInterval(loadDashboard, 5000);  // 5 seconds                                                        
+                                                                                                         
+  Also add a visual indicator so users know it's live:                                                   
+                                                                                                         
+  <div class="auto-refresh-indicator">                                                                   
+      <span class="pulse"></span> Live - Auto-refreshing every 10s                                       
+  </div>                                                                                                 
+                                                                                                         
+  <style>                                                                                                
+  .pulse {                                                                                               
+      display: inline-block;                                                                             
+      width: 8px;                                                                                        
+      height: 8px;                                                                                       
+      background: #4CAF50;                                                                               
+      border-radius: 50%;                                                                                
+      animation: pulse 2s infinite;                                                                      
+  }                                                                                                      
+  @keyframes pulse {                                                                                     
+      0% { opacity: 1; }                                                                                 
+      50% { opacity: 0.3; }                                                                              
+      100% { opacity: 1; }                                                                               
+  }                                                                                                      
+  </style>                                                                                               
+                                                                                                         
+  ---                                                                                                    
+  The dashboard should update automatically without manual refresh. This was in the original spec. 
