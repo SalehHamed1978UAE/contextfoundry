@@ -1,0 +1,74 @@
+{
+  "document_id": "62ac663ba0b0",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/autorail_orchestrator_telemetry_spec.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:32:59.401433",
+  "entities": [
+    {
+      "name": "TransitEdge",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Transit"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Business Unit: TransitEdge",
+      "aliases": []
+    },
+    {
+      "name": "AutoRail",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Telemetry schema for freight",
+        "category": "Module"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Product/Module: AutoRail",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Design Owner",
+        "role": "Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/autorail_orchestrator_telemetry_spec.md",
+      "source_excerpt": "Design Owner: Marcus Nguyen",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "TransitEdge",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Design Owner: Marcus Nguyen"
+    },
+    {
+      "source_entity": "TransitEdge",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "AutoRail",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/autorail_orchestrator_telemetry_spec.md",
+      "evidence": "Business Unit: TransitEdge"
+    }
+  ],
+  "metadata": {
+    "filename": "autorail_orchestrator_telemetry_spec.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

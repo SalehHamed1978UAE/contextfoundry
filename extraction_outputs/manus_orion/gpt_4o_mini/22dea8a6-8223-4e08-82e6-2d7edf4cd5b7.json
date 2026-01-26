@@ -1,0 +1,177 @@
+{
+  "document_id": "2e4c637e703b",
+  "document_path": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T01:10:43.678252",
+  "entities": [
+    {
+      "name": "Dr. Evelyn Reed",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Dr. Evelyn Reed",
+      "aliases": []
+    },
+    {
+      "name": "Fatima Al-Mansoori",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Fatima Al-Mansoori",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rostova",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Dr. Elena Rostova",
+      "aliases": []
+    },
+    {
+      "name": "James Park",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: James Park",
+      "aliases": []
+    },
+    {
+      "name": "Alex Thorne",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Alex Thorne",
+      "aliases": []
+    },
+    {
+      "name": "Admiral Michael Torres",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Admiral Michael Torres",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Chen",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Sarah Chen",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Webb",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Marcus Webb",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "customer_records",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "permission_granted for customer_records"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "compliance_reports",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "access_denied for compliance_reports"
+    },
+    {
+      "source_entity": "Dr. Elena Rostova",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "compliance_reports",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "login for compliance_reports"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "compliance_reports",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "logout for compliance_reports"
+    },
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "compliance_reports",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "data_export for compliance_reports"
+    },
+    {
+      "source_entity": "Admiral Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "strategic_plans",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "data_export for strategic_plans"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "financial_data",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "logout for financial_data"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "strategic_plans",
+      "target_type": "CONCEPT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "access_denied for strategic_plans"
+    }
+  ],
+  "metadata": {
+    "filename": "security_audit_logs_2025.json",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 8,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}

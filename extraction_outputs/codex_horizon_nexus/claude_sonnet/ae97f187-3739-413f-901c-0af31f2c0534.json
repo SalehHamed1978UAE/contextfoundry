@@ -1,0 +1,139 @@
+{
+  "document_id": "2306f3ec784f",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:35:20.960373",
+  "entities": [
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Author: Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "Aurora",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "investment allocation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Details investment envelope for Aurora, Titan, Helix",
+      "aliases": []
+    },
+    {
+      "name": "Titan",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "investment allocation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Details investment envelope for Aurora, Titan, Helix",
+      "aliases": []
+    },
+    {
+      "name": "Helix",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "investment allocation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Details investment envelope for Aurora, Titan, Helix",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "communication/reporting platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "source_excerpt": "Provide updates via Horizon Prime streams",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Aurora",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "evidence": "CFO Dylan Kaur details investment envelope for Aurora"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Titan",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "evidence": "CFO Dylan Kaur details investment envelope for Titan"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Helix",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "evidence": "CFO Dylan Kaur details investment envelope for Helix"
+    },
+    {
+      "source_entity": "Aurora",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "evidence": "Provide updates via Horizon Prime streams (applies to all projects mentioned)"
+    },
+    {
+      "source_entity": "Titan",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "evidence": "Provide updates via Horizon Prime streams (applies to all projects mentioned)"
+    },
+    {
+      "source_entity": "Helix",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.75,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/cfo_memo_capital_allocation.md",
+      "evidence": "Provide updates via Horizon Prime streams (applies to all projects mentioned)"
+    }
+  ],
+  "metadata": {
+    "filename": "cfo_memo_capital_allocation.md",
+    "raw_entity_count": 5,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

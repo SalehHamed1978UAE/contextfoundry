@@ -1,0 +1,167 @@
+{
+  "document_id": "19a8ae296d57",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:33:43.737962",
+  "entities": [
+    {
+      "name": "Synapse One Customer Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "customer engagement, strategic planning"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Synapse One Customer Council Meeting Notes",
+      "aliases": []
+    },
+    {
+      "name": "Maya Serrano",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Maya Serrano",
+      "aliases": []
+    },
+    {
+      "name": "Dylan Kaur",
+      "entity_type": "PERSON",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Dylan Kaur",
+      "aliases": []
+    },
+    {
+      "name": "BU leaders",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Business Unit Leaders"
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "BU leaders",
+      "aliases": []
+    },
+    {
+      "name": "Meridian",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "expansion phase"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Meridian expansion",
+      "aliases": []
+    },
+    {
+      "name": "PulseForge",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "product with development roadmap"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "PulseForge roadmap",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "active with milestones"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Reinforce Horizon Prime milestones",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "operations management platform"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "source_excerpt": "Owners assigned in PulseOps",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Maya Serrano",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Maya Serrano listed as attendee of Synapse One Customer Council meeting"
+    },
+    {
+      "source_entity": "Dylan Kaur",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Dylan Kaur listed as attendee of Synapse One Customer Council meeting"
+    },
+    {
+      "source_entity": "BU leaders",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Synapse One Customer Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "BU leaders listed as attendees of the meeting"
+    },
+    {
+      "source_entity": "Synapse One Customer Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Meridian",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Meridian expansion discussed as topic in council meeting"
+    },
+    {
+      "source_entity": "Synapse One Customer Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Horizon Prime",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Council made decision to reinforce Horizon Prime milestones"
+    },
+    {
+      "source_entity": "Synapse One Customer Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/meeting_minutes/synapse_one_customer_council_2026_01_22.md",
+      "evidence": "Action items owners assigned in PulseOps platform"
+    }
+  ],
+  "metadata": {
+    "filename": "synapse_one_customer_council_2026_01_22.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "document_id": "228ded5ab516",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:26:30.418267",
+  "entities": [
+    {
+      "name": "Priya Thakur",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "Executive Sponsor: Priya Thakur",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech Robotics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Robotics",
+        "profile": "Supplier partnership"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "VectorTech Robotics Account Brief",
+      "aliases": []
+    },
+    {
+      "name": "GridWave",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Customer management"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "Owning BU: GridWave",
+      "aliases": []
+    },
+    {
+      "name": "Joint R&D",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active",
+        "focus": "Sensor innovation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "Primary Products: Joint R&D, Current Objective: Sensor innovation",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Platform",
+        "description": "Product with roadmap updates"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "Align roadmap visibility with Horizon Prime updates",
+      "aliases": []
+    },
+    {
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "61000000",
+        "type": "CURRENCY",
+        "metric_name": "Annual Recurring Revenue"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "ARR: $61M ARR",
+      "aliases": []
+    },
+    {
+      "name": "Deployment maturity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "78",
+        "type": "PERCENTAGE",
+        "metric_name": "Deployment maturity"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "Deployment maturity: 78%",
+      "aliases": []
+    },
+    {
+      "name": "Expansion opportunities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "value": "3",
+        "type": "COUNT",
+        "metric_name": "Expansion opportunities"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "source_excerpt": "Expansion opportunities: 3",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Priya Thakur",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "VectorTech Robotics",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "evidence": "Priya Thakur is the Executive Sponsor for VectorTech Robotics account"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "VectorTech Robotics",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "evidence": "Owning BU: GridWave"
+    },
+    {
+      "source_entity": "VectorTech Robotics",
+      "source_type": "CUSTOMER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "GridWave",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "evidence": "Customer Profile: Supplier partnership"
+    },
+    {
+      "source_entity": "Joint R&D",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "VectorTech Robotics",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "evidence": "Primary Products: Joint R&D indicates project relationship with customer"
+    },
+    {
+      "source_entity": "GridWave",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Joint R&D",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/customers/customer_dossier_vectortech_robotics.md",
+      "evidence": "GridWave owns the customer relationship that includes Joint R&D"
+    }
+  ],
+  "metadata": {
+    "filename": "customer_dossier_vectortech_robotics.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

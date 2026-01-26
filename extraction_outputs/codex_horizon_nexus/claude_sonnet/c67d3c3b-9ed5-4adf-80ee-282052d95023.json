@@ -1,0 +1,147 @@
+{
+  "document_id": "6d8fbd641d59",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:41:39.457545",
+  "entities": [
+    {
+      "name": "BluePeak Data Centers",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "category": "Hosting",
+        "tier": "Strategic",
+        "engagement_model": "Dedicated racks",
+        "average_lead_time": "45 days",
+        "service_level": "99.9%"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "source_excerpt": "Supplier Profile: BluePeak Data Centers",
+      "aliases": []
+    },
+    {
+      "name": "Victor Liao",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "source_excerpt": "Executive Sponsor: Victor Liao",
+      "aliases": []
+    },
+    {
+      "name": "Procurement",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Escalation management"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "source_excerpt": "Escalation path defined through Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Logistics organization"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "source_excerpt": "Align sourcing forecasts with Titan Logistics schedule",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Documentation system for continuity plans"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "source_excerpt": "Document continuity plans in Horizon Prime",
+      "aliases": []
+    },
+    {
+      "name": "99.9%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Service Level",
+        "value": "99.9%",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "source_excerpt": "Service Level: 99.9%",
+      "aliases": []
+    },
+    {
+      "name": "45 days",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Average Lead Time",
+        "value": "45",
+        "type": "COUNT",
+        "unit": "days"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "source_excerpt": "Average Lead Time: 45 days",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Victor Liao",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "BluePeak Data Centers",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "evidence": "Victor Liao is listed as Executive Sponsor for BluePeak Data Centers"
+    },
+    {
+      "source_entity": "BluePeak Data Centers",
+      "source_type": "SUPPLIER",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Titan Logistics",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "evidence": "Need to align sourcing forecasts with Titan Logistics schedule"
+    },
+    {
+      "source_entity": "Procurement",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "MANAGES",
+      "target_entity": "BluePeak Data Centers",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "evidence": "Escalation path defined through Procurement"
+    },
+    {
+      "source_entity": "BluePeak Data Centers",
+      "source_type": "SUPPLIER",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_bluepeak_data_centers.md",
+      "evidence": "Document continuity plans in Horizon Prime"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_bluepeak_data_centers.md",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 4,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

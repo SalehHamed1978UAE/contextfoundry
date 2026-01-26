@@ -1,0 +1,63 @@
+{
+  "document_id": "c2b3cdf92fad",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:34:59.795029",
+  "entities": [
+    {
+      "name": "Leah Kade",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Security Officer",
+        "role": "Chief Security Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
+      "source_excerpt": "Author: Leah Kade",
+      "aliases": []
+    },
+    {
+      "name": "Citadel",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Security"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
+      "source_excerpt": "Summarizes Citadel readiness",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Streams for updates"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
+      "source_excerpt": "Provide updates via Horizon Prime streams",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leah Kade",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Citadel",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/memos/chief_security_officer_memo.md",
+      "evidence": "Leah Kade, Chief Security Officer"
+    }
+  ],
+  "metadata": {
+    "filename": "chief_security_officer_memo.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

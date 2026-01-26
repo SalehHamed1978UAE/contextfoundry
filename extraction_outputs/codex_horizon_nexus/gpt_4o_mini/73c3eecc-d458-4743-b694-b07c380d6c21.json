@@ -1,0 +1,52 @@
+{
+  "document_id": "8153569eec7e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-25T08:40:50.217730",
+  "entities": [
+    {
+      "name": "QuantumForge Labs",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Supplier",
+        "industry": "AI research"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "source_excerpt": "Supplier Profile: QuantumForge Labs",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Eliza Morrell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Executive Sponsor",
+        "role": "Sponsor"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "source_excerpt": "Executive Sponsor: Dr. Eliza Morrell",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Eliza Morrell",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "QuantumForge Labs",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/suppliers/supplier_assessment_quantumforge_labs.md",
+      "evidence": "Executive Sponsor: Dr. Eliza Morrell"
+    }
+  ],
+  "metadata": {
+    "filename": "supplier_assessment_quantumforge_labs.md",
+    "raw_entity_count": 2,
+    "raw_relationship_count": 1,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

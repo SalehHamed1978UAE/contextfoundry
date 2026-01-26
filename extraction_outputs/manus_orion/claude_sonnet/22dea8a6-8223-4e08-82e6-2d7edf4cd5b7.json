@@ -1,0 +1,493 @@
+{
+  "document_id": "2e4c637e703b",
+  "document_path": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T01:11:16.072314",
+  "entities": [
+    {
+      "name": "Dr. Evelyn Reed",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Dr. Evelyn Reed",
+      "aliases": []
+    },
+    {
+      "name": "Fatima Al-Mansoori",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Fatima Al-Mansoori",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rostova",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Dr. Elena Rostova",
+      "aliases": []
+    },
+    {
+      "name": "James Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: James Park",
+      "aliases": []
+    },
+    {
+      "name": "Alex Thorne",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Alex Thorne",
+      "aliases": []
+    },
+    {
+      "name": "Admiral Michael Torres",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Admiral",
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Admiral Michael Torres",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Sarah Chen",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Webb",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "System User"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "user: Marcus Webb",
+      "aliases": []
+    },
+    {
+      "name": "Security Audit System",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "System monitoring user access and activities"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "security_audit_logs_2025.json",
+      "aliases": []
+    },
+    {
+      "name": "customer_records",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Customer data repository"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "resource: customer_records",
+      "aliases": []
+    },
+    {
+      "name": "compliance_reports",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Compliance reporting system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "resource: compliance_reports",
+      "aliases": []
+    },
+    {
+      "name": "strategic_plans",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Strategic planning documents system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "resource: strategic_plans",
+      "aliases": []
+    },
+    {
+      "name": "financial_data",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Financial data management system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "resource: financial_data",
+      "aliases": []
+    },
+    {
+      "name": "engineering_docs",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Engineering documentation system"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "source_excerpt": "resource: engineering_docs",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "customer_records",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Evelyn Reed accessing customer_records multiple times"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "financial_data",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Evelyn Reed accessing financial_data"
+    },
+    {
+      "source_entity": "Dr. Evelyn Reed",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "engineering_docs",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Evelyn Reed accessing engineering_docs"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "compliance_reports",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Fatima Al-Mansoori accessing compliance_reports"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "strategic_plans",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Fatima Al-Mansoori accessing strategic_plans"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "customer_records",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Fatima Al-Mansoori accessing customer_records"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "financial_data",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Fatima Al-Mansoori accessing financial_data"
+    },
+    {
+      "source_entity": "Fatima Al-Mansoori",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "engineering_docs",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Fatima Al-Mansoori accessing engineering_docs"
+    },
+    {
+      "source_entity": "Dr. Elena Rostova",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "compliance_reports",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Elena Rostova accessing compliance_reports multiple times"
+    },
+    {
+      "source_entity": "Dr. Elena Rostova",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "engineering_docs",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Elena Rostova accessing engineering_docs"
+    },
+    {
+      "source_entity": "Dr. Elena Rostova",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "strategic_plans",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Elena Rostova accessing strategic_plans"
+    },
+    {
+      "source_entity": "Dr. Elena Rostova",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "customer_records",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Elena Rostova accessing customer_records"
+    },
+    {
+      "source_entity": "Dr. Elena Rostova",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "financial_data",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Dr. Elena Rostova accessing financial_data"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "compliance_reports",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "James Park accessing compliance_reports"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "financial_data",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "James Park accessing financial_data"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "customer_records",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "James Park accessing customer_records"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "engineering_docs",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "James Park accessing engineering_docs"
+    },
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "compliance_reports",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Alex Thorne accessing compliance_reports"
+    },
+    {
+      "source_entity": "Alex Thorne",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "strategic_plans",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Alex Thorne accessing strategic_plans"
+    },
+    {
+      "source_entity": "Admiral Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "strategic_plans",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Admiral Michael Torres accessing strategic_plans"
+    },
+    {
+      "source_entity": "Admiral Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "engineering_docs",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Admiral Michael Torres accessing engineering_docs"
+    },
+    {
+      "source_entity": "Admiral Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "compliance_reports",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Admiral Michael Torres accessing compliance_reports"
+    },
+    {
+      "source_entity": "Admiral Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "financial_data",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Admiral Michael Torres accessing financial_data"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "financial_data",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Sarah Chen accessing financial_data"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "customer_records",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Sarah Chen accessing customer_records"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "strategic_plans",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Marcus Webb accessing strategic_plans"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "customer_records",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Marcus Webb accessing customer_records"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "financial_data",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Marcus Webb accessing financial_data"
+    },
+    {
+      "source_entity": "Marcus Webb",
+      "source_type": "PERSON",
+      "relationship_type": "USES",
+      "target_entity": "engineering_docs",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Manus Orion/compliance/security_audit_logs_2025.json",
+      "evidence": "Marcus Webb accessing engineering_docs"
+    }
+  ],
+  "metadata": {
+    "filename": "security_audit_logs_2025.json",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 29,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}

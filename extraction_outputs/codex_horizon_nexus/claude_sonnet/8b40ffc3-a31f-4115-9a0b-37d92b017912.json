@@ -1,0 +1,212 @@
+{
+  "document_id": "71ffaa4f3668",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:34:44.045013",
+  "entities": [
+    {
+      "name": "Citadel VaultSec Connector",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Data residency connectors"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "# Citadel VaultSec Connector",
+      "aliases": []
+    },
+    {
+      "name": "Aether Shield",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Data residency"
+        ]
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "**Business Unit:** Aether Shield",
+      "aliases": []
+    },
+    {
+      "name": "VaultSec",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Product/Module"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "**Product/Module:** VaultSec",
+      "aliases": []
+    },
+    {
+      "name": "Leah Kade",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Design Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "**Design Owner:** Leah Kade",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime Confluence",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Interface documentation platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "Interfaces documented via Horizon Prime Confluence",
+      "aliases": []
+    },
+    {
+      "name": "CoreMatrix",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Firmware platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "Dependencies on CoreMatrix firmware versions",
+      "aliases": []
+    },
+    {
+      "name": "PulseOps dashboard",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Performance monitoring platform"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "Performance KPIs stored in PulseOps dashboard",
+      "aliases": []
+    },
+    {
+      "name": "Titan Logistics",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Logistics",
+          "Telemetry"
+        ]
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "Align telemetry schema with Titan Logistics requirements",
+      "aliases": []
+    },
+    {
+      "name": "Security",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": [
+          "Security",
+          "Encryption"
+        ]
+      },
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "Validate encryption module with Security",
+      "aliases": []
+    },
+    {
+      "name": "VectorTech",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Supply provision"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "source_excerpt": "Confirm supply readiness with VectorTech",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Aether Shield",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
+      "target_entity": "Citadel VaultSec Connector",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "evidence": "**Business Unit:** Aether Shield owns the Citadel VaultSec Connector"
+    },
+    {
+      "source_entity": "Leah Kade",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Citadel VaultSec Connector",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "evidence": "**Design Owner:** Leah Kade"
+    },
+    {
+      "source_entity": "Citadel VaultSec Connector",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "VaultSec",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "evidence": "**Product/Module:** VaultSec"
+    },
+    {
+      "source_entity": "Citadel VaultSec Connector",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime Confluence",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "evidence": "Interfaces documented via Horizon Prime Confluence"
+    },
+    {
+      "source_entity": "Citadel VaultSec Connector",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "CoreMatrix",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "evidence": "Dependencies on CoreMatrix firmware versions"
+    },
+    {
+      "source_entity": "Citadel VaultSec Connector",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "PulseOps dashboard",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "evidence": "Performance KPIs stored in PulseOps dashboard"
+    },
+    {
+      "source_entity": "VectorTech",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Aether Shield",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/engineering/citadel_vaultsec_connector.md",
+      "evidence": "Confirm supply readiness with VectorTech"
+    }
+  ],
+  "metadata": {
+    "filename": "citadel_vaultsec_connector.md",
+    "raw_entity_count": 10,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

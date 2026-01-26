@@ -1,0 +1,76 @@
+{
+  "document_id": "5bbef57c690e",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:55:36.993623",
+  "entities": [
+    {
+      "name": "Titan Logistics Program Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active",
+        "risk_types": "Customs, integrations, hardware",
+        "likelihood": "Medium",
+        "impact": "High",
+        "cadence": "Monthly"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
+      "source_excerpt": "# Titan Logistics Program Risk",
+      "aliases": []
+    },
+    {
+      "name": "Marcus Nguyen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
+      "source_excerpt": "**Owner:** Marcus Nguyen",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Risk register system"
+      },
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Marcus Nguyen",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Titan Logistics Program Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
+      "evidence": "**Owner:** Marcus Nguyen"
+    },
+    {
+      "source_entity": "Titan Logistics Program Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/titan_logistics_program_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    }
+  ],
+  "metadata": {
+    "filename": "titan_logistics_program_risk.md",
+    "raw_entity_count": 3,
+    "raw_relationship_count": 2,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

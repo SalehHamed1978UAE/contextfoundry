@@ -1,0 +1,170 @@
+{
+  "document_id": "aeed865bb0f8",
+  "document_path": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-25T08:55:11.181744",
+  "entities": [
+    {
+      "name": "Leah Kade",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Risk Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Owner: Leah Kade",
+      "aliases": []
+    },
+    {
+      "name": "Security Incident Risk",
+      "entity_type": "PROJECT",
+      "properties": {
+        "risk_types": "Threat landscape, readiness",
+        "cadence": "Monthly",
+        "likelihood": "Medium",
+        "impact": "High"
+      },
+      "confidence": 1.0,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "# Security Incident Risk",
+      "aliases": []
+    },
+    {
+      "name": "Horizon Prime",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Risk Management System"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Track via Horizon Prime risk register",
+      "aliases": []
+    },
+    {
+      "name": "Threat landscape likelihood",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Risk Likelihood",
+        "value": "Medium",
+        "type": "RATING"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Likelihood: Medium",
+      "aliases": []
+    },
+    {
+      "name": "Security incident impact",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Risk Impact",
+        "value": "High",
+        "type": "RATING"
+      },
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "Impact: High",
+      "aliases": []
+    },
+    {
+      "name": "Supplier diversification",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Diversify suppliers",
+        "type": "Mitigation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "1. Diversify suppliers.",
+      "aliases": []
+    },
+    {
+      "name": "Compliance automation strengthening",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Strengthen compliance automation",
+        "type": "Mitigation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "2. Strengthen compliance automation.",
+      "aliases": []
+    },
+    {
+      "name": "Scenario testing increase",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Increase scenario testing",
+        "type": "Mitigation"
+      },
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "source_excerpt": "3. Increase scenario testing.",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Leah Kade",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Security Incident Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Owner: Leah Kade"
+    },
+    {
+      "source_entity": "Security Incident Risk",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "Horizon Prime",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Track via Horizon Prime risk register"
+    },
+    {
+      "source_entity": "Supplier diversification",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Security Incident Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Listed as mitigation #1 for Security Incident Risk"
+    },
+    {
+      "source_entity": "Compliance automation strengthening",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Security Incident Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Listed as mitigation #2 for Security Incident Risk"
+    },
+    {
+      "source_entity": "Scenario testing increase",
+      "source_type": "PROJECT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Security Incident Risk",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "test documents/Codex Horizon_Nexus/docs/risk/security_incident_risk.md",
+      "evidence": "Listed as mitigation #3 for Security Incident Risk"
+    }
+  ],
+  "metadata": {
+    "filename": "security_incident_risk.md",
+    "raw_entity_count": 8,
+    "raw_relationship_count": 5,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
