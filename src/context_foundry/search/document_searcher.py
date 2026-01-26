@@ -461,4 +461,8 @@ class DocumentSearcher:
             ]
         except Exception as e:
             logger.error(f"[SEARCHER] Text search failed: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
             return []

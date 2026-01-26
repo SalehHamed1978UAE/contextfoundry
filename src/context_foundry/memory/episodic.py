@@ -136,44 +136,52 @@ class EpisodicMemory:
         Search for similar document chunks using pgvector cosine similarity.
         Returns chunks with their similarity scores and source document info.
         """
-        query_embedding = openai_embedding(query_text, self.embedding_dim)
-        embedding_str = '[' + ','.join(str(x) for x in query_embedding) + ']'
-        
-        sql = text("""
-            SELECT 
-                dc.id, dc.document_id, dc.chunk_index, dc.text,
-                d.name as source_document, d.mime_type,
-                1 - (dc.embedding <=> CAST(:emb AS vector)) as similarity
-            FROM document_chunks dc
-            JOIN platform.documents d ON dc.document_id = d.id
-            WHERE dc.tenant_id = :tid 
-              AND dc.embedding IS NOT NULL
-            ORDER BY dc.embedding <=> CAST(:emb AS vector)
-            LIMIT :lim
-        """)
-        
-        rows = self.session.execute(sql, {
-            "emb": embedding_str,
-            "tid": self.tenant_id,
-            "lim": limit
-        }).fetchall()
-        
-        results = []
-        for row in rows:
-            similarity = float(row.similarity) if row.similarity else 0.0
-            if similarity >= min_similarity:
-                results.append({
-                    "id": str(row.id),
-                    "document_id": str(row.document_id),
-                    "chunk_index": row.chunk_index,
-                    "content": row.text[:2000] if row.text else "",
-                    "source_document": row.source_document or "Unknown",
-                    "doc_type": row.mime_type or "unknown",
-                    "similarity": similarity
-                })
-        
-        logger.debug(f"Episodic search '{query_text[:50]}...': found {len(results)} similar chunks")
-        return results
+        try:
+            query_embedding = openai_embedding(query_text, self.embedding_dim)
+            embedding_str = '[' + ','.join(str(x) for x in query_embedding) + ']'
+            
+            sql = text("""
+                SELECT 
+                    dc.id, dc.document_id, dc.chunk_index, dc.text,
+                    d.name as source_document, d.mime_type,
+                    1 - (dc.embedding <=> CAST(:emb AS vector)) as similarity
+                FROM document_chunks dc
+                JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tid 
+                  AND dc.embedding IS NOT NULL
+                ORDER BY dc.embedding <=> CAST(:emb AS vector)
+                LIMIT :lim
+            """)
+            
+            rows = self.session.execute(sql, {
+                "emb": embedding_str,
+                "tid": self.tenant_id,
+                "lim": limit
+            }).fetchall()
+            
+            results = []
+            for row in rows:
+                similarity = float(row.similarity) if row.similarity else 0.0
+                if similarity >= min_similarity:
+                    results.append({
+                        "id": str(row.id),
+                        "document_id": str(row.document_id),
+                        "chunk_index": row.chunk_index,
+                        "content": row.text[:2000] if row.text else "",
+                        "source_document": row.source_document or "Unknown",
+                        "doc_type": row.mime_type or "unknown",
+                        "similarity": similarity
+                    })
+            
+            logger.debug(f"Episodic search '{query_text[:50]}...': found {len(results)} similar chunks")
+            return results
+        except Exception as e:
+            logger.error(f"[EPISODIC] Vector search failed, rolling back session: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            return []
     
     def search_by_keywords(
         self,
@@ -192,67 +200,75 @@ class EpisodicMemory:
         if not keywords:
             return []
         
-        like_clauses = []
-        params = {"tid": self.tenant_id}
-        for i, kw in enumerate(keywords[:5]):
-            param_name = f"kw{i}"
-            like_clauses.append(f"LOWER(dc.text) LIKE :{param_name} OR LOWER(d.name) LIKE :{param_name}")
-            params[param_name] = f"%{kw.lower()}%"
-        
-        where_keywords = " OR ".join(like_clauses)
-        
-        sql = text(f"""
-            SELECT 
-                dc.id, dc.document_id, dc.chunk_index, dc.text,
-                d.name as source_document, d.mime_type
-            FROM document_chunks dc
-            JOIN platform.documents d ON dc.document_id = d.id
-            WHERE dc.tenant_id = :tid
-              AND ({where_keywords})
-        """)
-        
-        rows = self.session.execute(sql, params).fetchall()
-        
-        results = []
-        for row in rows:
-            score = 0
-            unique_keywords_matched = 0
-            content_lower = (row.text or "").lower()
-            doc_name_lower = (row.source_document or "").lower()
+        try:
+            like_clauses = []
+            params = {"tid": self.tenant_id}
+            for i, kw in enumerate(keywords[:5]):
+                param_name = f"kw{i}"
+                like_clauses.append(f"LOWER(dc.text) LIKE :{param_name} OR LOWER(d.name) LIKE :{param_name}")
+                params[param_name] = f"%{kw.lower()}%"
             
-            for i, keyword in enumerate(keywords):
-                keyword_lower = keyword.lower()
-                weight = 10 if i == 0 else 1
-                
-                if keyword_lower in doc_name_lower:
-                    score += 5 * weight
-                    unique_keywords_matched += 1
-                
-                if keyword_lower in content_lower:
-                    count = content_lower.count(keyword_lower)
-                    score += min(count, 3) * weight
-                    unique_keywords_matched += 1
+            where_keywords = " OR ".join(like_clauses)
             
-            if score > 0:
-                bonus = unique_keywords_matched * 2
-                final_score = score + bonus
+            sql = text(f"""
+                SELECT 
+                    dc.id, dc.document_id, dc.chunk_index, dc.text,
+                    d.name as source_document, d.mime_type
+                FROM document_chunks dc
+                JOIN platform.documents d ON dc.document_id = d.id
+                WHERE dc.tenant_id = :tid
+                  AND ({where_keywords})
+            """)
+            
+            rows = self.session.execute(sql, params).fetchall()
+            
+            results = []
+            for row in rows:
+                score = 0
+                unique_keywords_matched = 0
+                content_lower = (row.text or "").lower()
+                doc_name_lower = (row.source_document or "").lower()
                 
-                results.append({
-                    "id": str(row.id),
-                    "document_id": str(row.document_id),
-                    "chunk_index": row.chunk_index,
-                    "content": row.text[:2000] if row.text else "",
-                    "source_document": row.source_document or "Unknown",
-                    "doc_type": row.mime_type or "unknown",
-                    "similarity": min(final_score / 20, 1.0),
-                    "_raw_score": final_score
-                })
-        
-        results.sort(key=lambda x: x["_raw_score"], reverse=True)
-        results = results[:limit]
-        
-        logger.debug(f"Keyword search {keywords}: found {len(results)} chunks (from {len(rows)} matches)")
-        return results
+                for i, keyword in enumerate(keywords):
+                    keyword_lower = keyword.lower()
+                    weight = 10 if i == 0 else 1
+                    
+                    if keyword_lower in doc_name_lower:
+                        score += 5 * weight
+                        unique_keywords_matched += 1
+                    
+                    if keyword_lower in content_lower:
+                        count = content_lower.count(keyword_lower)
+                        score += min(count, 3) * weight
+                        unique_keywords_matched += 1
+                
+                if score > 0:
+                    bonus = unique_keywords_matched * 2
+                    final_score = score + bonus
+                    
+                    results.append({
+                        "id": str(row.id),
+                        "document_id": str(row.document_id),
+                        "chunk_index": row.chunk_index,
+                        "content": row.text[:2000] if row.text else "",
+                        "source_document": row.source_document or "Unknown",
+                        "doc_type": row.mime_type or "unknown",
+                        "similarity": min(final_score / 20, 1.0),
+                        "_raw_score": final_score
+                    })
+            
+            results.sort(key=lambda x: x["_raw_score"], reverse=True)
+            results = results[:limit]
+            
+            logger.debug(f"Keyword search {keywords}: found {len(results)} chunks (from {len(rows)} matches)")
+            return results
+        except Exception as e:
+            logger.error(f"[EPISODIC] Keyword search failed, rolling back session: {e}")
+            try:
+                self.session.rollback()
+            except Exception:
+                pass
+            return []
     
     def search_for_rule_context(
         self,
