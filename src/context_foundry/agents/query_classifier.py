@@ -96,7 +96,9 @@ class QueryClassifier:
         query_lower = query.lower()
         for role in self.ROLE_KEYWORDS:
             if role in query_lower:
+                logger.debug(f"[QUICK_ROLE_CHECK] MATCH: query='{query}' matched role='{role}'")
                 return True, role.upper()
+        logger.debug(f"[QUICK_ROLE_CHECK] NO MATCH: query='{query}' (lowered='{query_lower}')")
         return False, None
     
     def _quick_list_check(self, query: str) -> bool:
