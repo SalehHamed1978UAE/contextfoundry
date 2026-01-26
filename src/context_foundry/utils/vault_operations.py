@@ -65,7 +65,9 @@ def cleanup_orphaned_entities() -> dict:
             tenant_id = str(row.tenant_id)
             
             tables_to_clean = [
+                # Nullify superseded_by references WITHIN the tenant
                 ('superseded_by_nullify_self', "UPDATE entities SET superseded_by = NULL WHERE tenant_id = :tid"),
+                # Nullify superseded_by references FROM OTHER tenants TO this tenant's entities
                 ('superseded_by_nullify_refs', "UPDATE entities SET superseded_by = NULL WHERE superseded_by IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
                 ('relationships', "DELETE FROM relationships WHERE source_id IN (SELECT id FROM entities WHERE tenant_id = :tid) OR target_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
                 ('entity_mentions', "DELETE FROM entity_mentions WHERE entity_id IN (SELECT id FROM entities WHERE tenant_id = :tid)"),
@@ -144,8 +146,16 @@ def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
     try:
         tenant_id_str = str(vault_uuid)
         
-        safe_delete('superseded_by_nullify',
+        # First: Nullify superseded_by references WITHIN the tenant being deleted
+        safe_delete('superseded_by_nullify_self',
             "UPDATE public.entities SET superseded_by = NULL WHERE tenant_id = :tid",
+            {'tid': tenant_id_str})
+        
+        # Second: Nullify superseded_by references FROM OTHER tenants TO this tenant's entities
+        # This fixes the FK constraint violation when deleting entities
+        safe_delete('superseded_by_nullify_cross_tenant',
+            """UPDATE public.entities SET superseded_by = NULL 
+               WHERE superseded_by IN (SELECT id FROM public.entities WHERE tenant_id = :tid)""",
             {'tid': tenant_id_str})
         
         fk_subquery_deletes = [
