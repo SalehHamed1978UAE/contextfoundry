@@ -1,0 +1,363 @@
+Relationship-First Retrieval: Complete Implementation Spec                                             
+                                                                                                         
+  Problem Statement                                                                                      
+                                                                                                         
+  Current query behavior searches entity properties (e.g., title=CFO) and returns any matching entity    
+  regardless of organizational context. This causes:                                                     
+                                                                                                         
+  - 16 MISMATCH failures: Alex Bradley (unaffiliated CFO) returned instead of Michael Chang (Nexus CFO)  
+  - Entity contamination: Boeing, Microsoft, Toyota executives extracted from Nexus documents appear in  
+  results                                                                                                
+  - KG used as flat database: Relationships exist but aren't used for discovery                          
+                                                                                                         
+  Test accuracy stuck at 74% despite embedding backfill and threshold tuning.                            
+                                                                                                         
+  ---                                                                                                    
+  Goal                                                                                                   
+                                                                                                         
+  Treat the KG as a graph, not a property store. Every answer must be reachable via relationship         
+  traversal from the query's anchor entity.                                                              
+                                                                                                         
+  ---                                                                                                    
+  Implementation Steps                                                                                   
+                                                                                                         
+  1. Vault Anchor Configuration                                                                          
+                                                                                                         
+  Add to vault/tenant config:                                                                            
+  {                                                                                                      
+    "vault_id": "b8b157e1-077f-4b33-9fbd-4569e04db006",                                                  
+    "primary_organization_id": "<entity_id of Nexus Industries>",                                        
+    "primary_organization_name": "Nexus Industries"                                                      
+  }                                                                                                      
+                                                                                                         
+  SQL migration:                                                                                         
+  ALTER TABLE vaults ADD COLUMN primary_organization_id UUID REFERENCES entities(id);                    
+  ALTER TABLE vaults ADD COLUMN primary_organization_name TEXT;                                          
+                                                                                                         
+  -- Set for Claude Code Nexus Industries vault                                                          
+  UPDATE vaults                                                                                          
+  SET primary_organization_id = (SELECT id FROM entities WHERE name = 'Nexus Industries' AND tenant_id = 
+  'b8b157e1-077f-4b33-9fbd-4569e04db006' LIMIT 1),                                                       
+      primary_organization_name = 'Nexus Industries'                                                     
+  WHERE id = 'b8b157e1-077f-4b33-9fbd-4569e04db006';                                                     
+                                                                                                         
+  ---                                                                                                    
+  2. Anchor Identification (Query Time)                                                                  
+                                                                                                         
+  Logic for determining anchor:                                                                          
+                                                                                                         
+  def identify_anchor(query: str, vault_id: str) -> Entity:                                              
+      """                                                                                                
+      Determine the anchor entity for a query.                                                           
+                                                                                                         
+      Priority:                                                                                          
+      1. Explicit mention in query ("CFO of Nexus", "Toyota's CEO")                                      
+      2. Vault's primary organization (default)                                                          
+      """                                                                                                
+                                                                                                         
+      # Step 1: Check for explicit org mention                                                           
+      explicit_org = extract_organization_from_query(query)                                              
+      if explicit_org:                                                                                   
+          # Find that org entity in the vault                                                            
+          anchor = find_entity_by_name(explicit_org, vault_id)                                           
+          if anchor:                                                                                     
+              return anchor                                                                              
+                                                                                                         
+      # Step 2: Fall back to vault's primary org                                                         
+      vault = get_vault(vault_id)                                                                        
+      if vault.primary_organization_id:                                                                  
+          return get_entity(vault.primary_organization_id)                                               
+                                                                                                         
+      # Step 3: No anchor available - will use fallback retrieval                                        
+      return None                                                                                        
+                                                                                                         
+  ---                                                                                                    
+  3. Relationship Traversal (Core Change)                                                                
+                                                                                                         
+  Replace property-first search with graph traversal:                                                    
+                                                                                                         
+  def resolve_role_query(role: str, anchor: Entity, vault_id: str) -> List[Entity]:                      
+      """                                                                                                
+      Find entities with a given role by traversing from anchor.                                         
+                                                                                                         
+      Example: "Who is the CFO?" with anchor=Nexus Industries                                            
+      """                                                                                                
+                                                                                                         
+      if not anchor:                                                                                     
+          # No anchor - skip to fallback                                                                 
+          return []                                                                                      
+                                                                                                         
+      # Define relationship types that connect orgs to people                                            
+      role_relationships = [                                                                             
+          'HAS_EXECUTIVE',                                                                               
+          'HAS_ROLE',                                                                                    
+          'LEADS',                                                                                       
+          'EMPLOYS',                                                                                     
+          'HAS_OFFICER',                                                                                 
+          'WORKS_FOR'  # traverse reverse                                                                
+      ]                                                                                                  
+                                                                                                         
+      # Step 1: Traverse from anchor via relationships                                                   
+      connected_people = []                                                                              
+      for rel_type in role_relationships:                                                                
+          # Outgoing edges from anchor                                                                   
+          edges = get_relationships(                                                                     
+              from_entity=anchor.id,                                                                     
+              relationship_type=rel_type,                                                                
+              vault_id=vault_id                                                                          
+          )                                                                                              
+          for edge in edges:                                                                             
+              connected_people.append(edge.to_entity)                                                    
+                                                                                                         
+          # Incoming edges to anchor (e.g., WORKS_FOR)                                                   
+          reverse_edges = get_relationships(                                                             
+              to_entity=anchor.id,                                                                       
+              relationship_type=rel_type,                                                                
+              vault_id=vault_id                                                                          
+          )                                                                                              
+          for edge in reverse_edges:                                                                     
+              connected_people.append(edge.from_entity)                                                  
+                                                                                                         
+      # Step 2: Filter by role property                                                                  
+      results = []                                                                                       
+      for person in connected_people:                                                                    
+          if matches_role(person, role):  # Check title, position properties                             
+              results.append(person)                                                                     
+                                                                                                         
+      return results                                                                                     
+                                                                                                         
+                                                                                                         
+  def matches_role(entity: Entity, role: str) -> bool:                                                   
+      """Check if entity matches the requested role."""                                                  
+      role_lower = role.lower()                                                                          
+                                                                                                         
+      # Check properties                                                                                 
+      title = (entity.properties.get('title') or '').lower()                                             
+      position = (entity.properties.get('position') or '').lower()                                       
+                                                                                                         
+      # Fuzzy match on role                                                                              
+      if role_lower in title or role_lower in position:                                                  
+          return True                                                                                    
+                                                                                                         
+      # Check relationship metadata                                                                      
+      for rel in entity.relationships:                                                                   
+          if rel.type == 'HOLDS_POSITION':                                                               
+              if role_lower in rel.metadata.get('position', '').lower():                                 
+                  return True                                                                            
+                                                                                                         
+      return False                                                                                       
+                                                                                                         
+  ---                                                                                                    
+  4. Query Pipeline Integration                                                                          
+                                                                                                         
+  Update the main query resolver:                                                                        
+                                                                                                         
+  def answer_role_question(query: str, vault_id: str) -> Answer:                                         
+      """                                                                                                
+      Main entry point for role-based questions.                                                         
+      """                                                                                                
+                                                                                                         
+      # Step 1: Parse query                                                                              
+      role = extract_role_from_query(query)  # "CFO", "CEO", "Chief Engineer"                            
+                                                                                                         
+      # Step 2: Identify anchor                                                                          
+      anchor = identify_anchor(query, vault_id)                                                          
+                                                                                                         
+      # Step 3: Relationship-first retrieval                                                             
+      if anchor:                                                                                         
+          results = resolve_role_query(role, anchor, vault_id)                                           
+          if results:                                                                                    
+              return Answer(                                                                             
+                  entities=results,                                                                      
+                  confidence="high",                                                                     
+                  method="graph_traversal"                                                               
+              )                                                                                          
+                                                                                                         
+      # Step 4: Fallback - property search with tenant filter                                            
+      results = property_search(                                                                         
+          role=role,                                                                                     
+          vault_id=vault_id,                                                                             
+          require_org_relationship=True  # Must have SOME org relationship                               
+      )                                                                                                  
+      if results:                                                                                        
+          return Answer(                                                                                 
+              entities=results,                                                                          
+              confidence="medium",                                                                       
+              method="property_search_filtered"                                                          
+          )                                                                                              
+                                                                                                         
+      # Step 5: Last resort - semantic search                                                            
+      results = semantic_search(query, vault_id)                                                         
+      return Answer(                                                                                     
+          entities=results,                                                                              
+          confidence="low",                                                                              
+          method="semantic_fallback"                                                                     
+      )                                                                                                  
+                                                                                                         
+  ---                                                                                                    
+  5. Extraction-Time Safeguards                                                                          
+                                                                                                         
+  Update entity extraction to require context:                                                           
+                                                                                                         
+  def extract_person_entity(text: str, document_id: str, vault_id: str) -> Entity:                       
+      """                                                                                                
+      Extract person entity with mandatory organizational context.                                       
+      """                                                                                                
+                                                                                                         
+      # LLM extraction prompt update                                                                     
+      prompt = """                                                                                       
+      Extract person entities from this text.                                                            
+                                                                                                         
+      CRITICAL RULES:                                                                                    
+      1. Every role MUST include the organization: "CFO of Nexus", not just "CFO"                        
+      2. If organization is unclear, mark as "mentioned" not "primary"                                   
+      3. Include the exact quote where this person/role is stated                                        
+                                                                                                         
+      Output format:                                                                                     
+      {                                                                                                  
+        "name": "Michael Chang",                                                                         
+        "role": "Chief Financial Officer",                                                               
+        "organization": "Nexus Industries",  // REQUIRED                                                 
+        "entity_type": "primary" | "mentioned",                                                          
+        "source_quote": "Michael Chang, CFO of Nexus Industries, stated..."                              
+      }                                                                                                  
+      """                                                                                                
+                                                                                                         
+      extracted = llm_extract(prompt, text)                                                              
+                                                                                                         
+      # Validate: reject entities without organization                                                   
+      if not extracted.get('organization'):                                                              
+          log_warning(f"Rejected entity without org context: {extracted}")                               
+          return None                                                                                    
+                                                                                                         
+      # Create entity with provenance                                                                    
+      entity = Entity(                                                                                   
+          name=extracted['name'],                                                                        
+          type='PERSON',                                                                                 
+          properties={                                                                                   
+              'title': extracted['role'],                                                                
+              'source_org': extracted['organization'],                                                   
+              'entity_type': extracted['entity_type'],  # primary vs mentioned                           
+              'source_quote': extracted['source_quote']                                                  
+          },                                                                                             
+          tenant_id=vault_id,                                                                            
+          document_id=document_id                                                                        
+      )                                                                                                  
+                                                                                                         
+      # Create relationship to organization                                                              
+      org_entity = find_or_create_org(extracted['organization'], vault_id)                               
+      create_relationship(                                                                               
+          from_entity=org_entity,                                                                        
+          to_entity=entity,                                                                              
+          type='HAS_EXECUTIVE' if 'primary' else 'MENTIONS',                                             
+          metadata={'role': extracted['role']}                                                           
+      )                                                                                                  
+                                                                                                         
+      return entity                                                                                      
+                                                                                                         
+  ---                                                                                                    
+  6. Entity Classification: Primary vs. Mentioned                                                        
+                                                                                                         
+  Add to entity schema:                                                                                  
+                                                                                                         
+  ALTER TABLE entities ADD COLUMN entity_class TEXT DEFAULT 'primary';                                   
+  -- Values: 'primary' (belongs to vault org), 'mentioned' (partner/customer/referenced)                 
+                                                                                                         
+  -- Update existing entities based on relationships                                                     
+  UPDATE entities e                                                                                      
+  SET entity_class = CASE                                                                                
+      WHEN EXISTS (                                                                                      
+          SELECT 1 FROM relationships r                                                                  
+          WHERE (r.from_entity_id = e.id OR r.to_entity_id = e.id)                                       
+          AND r.relationship_type IN ('HAS_EXECUTIVE', 'EMPLOYS', 'LEADS', 'WORKS_FOR')                  
+          AND (r.from_entity_id = vault.primary_organization_id OR r.to_entity_id =                      
+  vault.primary_organization_id)                                                                         
+      ) THEN 'primary'                                                                                   
+      ELSE 'mentioned'                                                                                   
+  END                                                                                                    
+  FROM vaults vault                                                                                      
+  WHERE e.tenant_id = vault.id;                                                                          
+                                                                                                         
+  Use in queries:                                                                                        
+                                                                                                         
+  # Prefer primary entities, include mentioned only if no primary found                                  
+  results = resolve_role_query(role, anchor, vault_id)                                                   
+  primary_results = [r for r in results if r.entity_class == 'primary']                                  
+  if primary_results:                                                                                    
+      return primary_results                                                                             
+  return results  # Fall back to all including mentioned                                                 
+                                                                                                         
+  ---                                                                                                    
+  7. Fallback Behavior with Data Gate                                                                    
+                                                                                                         
+  def answer_with_confidence(query: str, vault_id: str) -> Answer:                                       
+      answer = answer_role_question(query, vault_id)                                                     
+                                                                                                         
+      if answer.confidence == "low":                                                                     
+          # Route through Data Gate                                                                      
+          if not data_gate_approves(answer):                                                             
+              return Answer(                                                                             
+                  text="The retrieved information does not clearly specify this for the organization in  
+  context.",                                                                                             
+                  confidence="refused",                                                                  
+                  method="data_gate_block"                                                               
+              )                                                                                          
+                                                                                                         
+      return answer                                                                                      
+                                                                                                         
+  ---                                                                                                    
+  Testing & Validation                                                                                   
+                                                                                                         
+  After implementation, run:                                                                             
+                                                                                                         
+  # Clear any cached results                                                                             
+  rm -f test_results/*nexus*.json                                                                        
+                                                                                                         
+  # Run fresh test                                                                                       
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "b8b157e1-077f-4b33-9fbd-4569e04db006" \                                                  
+    --questions "src/test_questions/nexus_100q.json"                                                     
+                                                                                                         
+  Expected results:                                                                                      
+  ┌──────────────────────┬────────┬────────┐                                                             
+  │        Metric        │ Before │ After  │                                                             
+  ├──────────────────────┼────────┼────────┤                                                             
+  │ Accuracy             │ 74%    │ 85-90% │                                                             
+  ├──────────────────────┼────────┼────────┤                                                             
+  │ MISMATCH failures    │ 16     │ 2-4    │                                                             
+  ├──────────────────────┼────────┼────────┤                                                             
+  │ NOT_FOUND failures   │ 7      │ 4-6    │                                                             
+  ├──────────────────────┼────────┼────────┤                                                             
+  │ Graph traversal used │ 0%     │ 80%+   │                                                             
+  └──────────────────────┴────────┴────────┘                                                             
+  Verify with trace:                                                                                     
+                                                                                                         
+  # Add logging to confirm traversal is used                                                             
+  logger.info(f"Query: {query}")                                                                         
+  logger.info(f"Anchor: {anchor.name if anchor else 'None'}")                                            
+  logger.info(f"Method: {answer.method}")                                                                
+  logger.info(f"Results: {[e.name for e in answer.entities]}")                                           
+                                                                                                         
+  ---                                                                                                    
+  Summary Checklist                                                                                      
+                                                                                                         
+  - Add primary_organization_id to vault config                                                          
+  - Set anchor for Claude Code Nexus Industries vault                                                    
+  - Implement identify_anchor() function                                                                 
+  - Implement resolve_role_query() with graph traversal                                                  
+  - Update query pipeline to use traversal-first                                                         
+  - Add entity_class column (primary/mentioned)                                                          
+  - Update extraction prompts to require org context                                                     
+  - Add relationship creation during extraction                                                          
+  - Implement fallback chain: traversal → property → semantic                                            
+  - Add Data Gate for low-confidence answers                                                             
+  - Run 100-question test and compare to 74% baseline                                                    
+                                                                                                         
+  ---                                                                                                    
+  Why This Matters                                                                                       
+                                                                                                         
+  1. Generalizes - Works for any vault, any organization, not just "filter by Nexus"                     
+  2. Uses the KG correctly - Graph traversal, not property search                                        
+  3. Prevents contamination - Boeing/Toyota execs not reachable from Nexus anchor                        
+  4. Aligns with Stanford research - Graph-based retrieval is "what next-gen RAG looks like"             
+  5. Scalable - As corpus grows, graph structure prevents semantic collapse  
