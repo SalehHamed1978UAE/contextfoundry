@@ -111,9 +111,16 @@ AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_UR
 
 CORE_FOUNDATION_TYPES = {
     "PERSON": {
-        "description": "A human individual - any named person, role, or position",
+        "description": "A human individual with a proper name (first + last name). NOT job titles alone.",
         "required_fields": ["canonical_name"],
-        "optional_fields": ["role", "title", "organization", "email"]
+        "optional_fields": ["role", "title", "department", "organization", "email"],
+        "role_extraction_rules": [
+            "Only extract 'role' if EXPLICITLY stated: 'X is the Y', 'X, Y', 'Y: X'",
+            "Use FORMAL titles only: CEO, CFO, Chief Engineer, VP, Director, President",
+            "Do NOT use departments/teams as roles (Engineering, Aerospace Division)",
+            "Do NOT infer roles from project associations (Falcon X Lead → wrong)",
+            "If role not explicitly stated, OMIT the role property entirely"
+        ]
     },
     "ORGANIZATION": {
         "description": "A company, team, department, institution, or any organized group",
@@ -328,6 +335,29 @@ LOCATION: PHYSICAL places (cities, countries, buildings, facilities)
 6. Extract ALL capitalized multi-word terms and named concepts
 7. Be EXHAUSTIVE - do not stop until every entity is captured
 8. When uncertain, INCLUDE with confidence 0.7-0.8
+
+## ROLE EXTRACTION RULES (CRITICAL FOR PERSON ENTITIES)
+
+When extracting the 'role' property for PERSON entities:
+
+1. ONLY use EXPLICIT role statements from the text:
+   CORRECT: "Dr. Victoria Chen, CEO" → role: "CEO"
+   CORRECT: "Michael Chang serves as CFO" → role: "CFO"  
+   CORRECT: "Chief Engineer: Dr. Elena Rodriguez" → role: "Chief Engineer"
+   
+2. NEVER infer roles from context or associations:
+   WRONG: "Thomas Wright leads UAV engineering" → role: "UAV Engineering Lead"
+   CORRECT: "Thomas Wright leads UAV engineering" → NO role property (not explicitly titled)
+   
+3. DISTINGUISH formal titles from job functions:
+   FORMAL TITLES (use these): CEO, CFO, COO, CTO, CISO, Chief Engineer, VP, Director, President, Division President
+   JOB FUNCTIONS (avoid): Engineering Lead, Project Manager, Team Lead, Program Manager
+   
+4. When role is NOT explicitly stated with a formal title, OMIT the role property entirely.
+   It is better to have NO role than a WRONG role.
+
+5. Use high confidence (0.9+) only when role is explicitly stated with formal title.
+   Use lower confidence (0.7-0.8) for inferred associations.
 
 ## DO NOT EXTRACT
 
@@ -1016,6 +1046,20 @@ IMPORTANT RULES:
 - Include people, organizations, concepts, processes, dates mentioned
 - Use the exact text span where the entity appears
 - Assign confidence based on how clearly the entity type is indicated
+
+ROLE EXTRACTION RULES (CRITICAL FOR PERSON ENTITIES):
+When extracting the 'role' property for PERSON entities:
+1. ONLY use EXPLICIT role statements from the text:
+   CORRECT: "Dr. Victoria Chen, CEO" → role: "CEO"
+   CORRECT: "CEO: Dr. Victoria Chen" → role: "CEO"
+   CORRECT: "Michael Chang serves as CFO" → role: "CFO"
+   CORRECT: "Chief Engineer: Dr. Elena Rodriguez" → role: "Chief Engineer"
+2. NEVER infer roles from context or associations:
+   WRONG: "Thomas Wright leads UAV engineering" → role: "UAV Engineering Lead"
+   CORRECT: "Thomas Wright leads UAV engineering" → NO role property
+3. Use FORMAL TITLES only: CEO, CFO, COO, CTO, CISO, Chief Engineer, VP, Director, President
+4. When role is NOT explicitly stated with a formal title, OMIT the role property.
+   It is better to have NO role than a WRONG role.
 
 Return the result as a JSON array of objects.
 
