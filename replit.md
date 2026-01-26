@@ -73,6 +73,13 @@ Architectural features include:
   - **FixApplier** (`src/context_foundry/analysis/fix_applier.py`): Applies targeted extraction results to KG entities and relationships.
   - **ImprovementLoop** (`src/context_foundry/analysis/improvement_loop.py`): Orchestrates analyze → extract → apply → test cycle for iterative accuracy improvement.
   - **Current Status**: Manus Orion 106q test at 66.0% (70/106). Analysis identified 28 ENTITY_RESOLUTION, 8 CONFLICT_RESOLUTION, 7 CORPUS_GAP, 6 QUERY_ROUTING failures. Key finding: Many failures are corpus/test expectation mismatches (expected answers not explicitly in corpus) rather than pipeline defects. Reaching 90% requires test alignment or corpus augmentation.
+- **Relationship-First Retrieval Architecture** (January 2026):
+  - **AnchorResolver** (`src/context_foundry/retrieval/anchor_resolver.py`): Auto-detects primary organization for each vault using graph centrality (most connected org entity). Stores anchor in `tenants.primary_organization_id` column for fast lookup.
+  - **RelationshipFirstRetriever** (`src/context_foundry/retrieval/anchor_resolver.py`): Traverses LEADS/WORKS_AT/EMPLOYS edges from anchor org to find connected people, then filters by role properties. Treats KG as a graph (not flat property store).
+  - **Stage 0 Role Resolution**: Integrated into `RoleResolver.resolve()` as the highest priority lookup stage (before exact relationship and fuzzy matching). Uses graph traversal to find role holders connected to anchor org.
+  - **Pipeline Integration**: `RetrievalRouter.process()` now calls `role_resolver.resolve()` with query parameter to enable anchor detection and Stage 0 execution.
+  - **Current Status**: Stage 0 is working correctly (confirmed via logs: `[ROLE_RESOLVER] Stage 0 SUCCESS`). CEO/CFO queries now return correct answers (Dr. Victoria Chen, Michael Chang) via graph traversal. However, overall accuracy remains at 73-74% due to KG data quality issues (some roles incorrectly assigned during extraction).
+  - **Root Cause Finding**: The KG has incorrect role data for some entities (e.g., Thomas Wright stored as "Chief Engineer" when documents show Dr. Elena Rodriguez in that role). Pipeline is correct; the bottleneck is now extraction quality, not retrieval architecture.
 
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)

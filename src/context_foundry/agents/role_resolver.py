@@ -1,10 +1,15 @@
 """
-Role Resolver - Enhanced 3-Stage Resolution
+Role Resolver - Enhanced 4-Stage Resolution with Relationship-First Retrieval
 
 Resolves job titles/roles to actual people via:
-1. Stage 1: Exact relationship lookup (HOLDS_POSITION)
-2. Stage 2: Fuzzy ILIKE matching on role names
-3. Stage 3: Document search fallback for patterns like "Sarah Chen, CEO"
+1. Stage 0: RELATIONSHIP-FIRST - Traverse from anchor org via LEADS/WORKS_AT edges (NEW)
+2. Stage 1: Exact relationship lookup (HOLDS_POSITION)
+3. Stage 2: Fuzzy ILIKE matching on role names
+4. Stage 3: Document search fallback for patterns like "Sarah Chen, CEO"
+
+The key improvement: Stage 0 treats the KG as a graph, not a flat property store.
+Every answer must be reachable via relationship traversal from the anchor entity.
+This prevents returning Alex Bradley (random CFO) instead of Michael Chang (Nexus CFO).
 
 CEO → Sarah Chen
 CTO → Marcus Williams
@@ -16,6 +21,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 from src.context_foundry.utils.logger import logger
+from src.context_foundry.retrieval.anchor_resolver import AnchorResolver, RelationshipFirstRetriever
 
 
 # Entity names that should be filtered from role resolution results
@@ -89,7 +95,12 @@ class RoleResolution:
 
 class RoleResolver:
     """
-    Enhanced 3-stage role resolution.
+    Enhanced 4-stage role resolution with relationship-first retrieval.
+    
+    Stage 0 (NEW): Traverse from anchor org via relationship edges
+    Stage 1: Exact relationship lookup (HOLDS_POSITION)
+    Stage 2: Fuzzy ILIKE matching on role names  
+    Stage 3: Document search fallback
     
     Handles role variations and multiple relationship type names.
     """
@@ -160,6 +171,103 @@ class RoleResolver:
     def __init__(self, session: Session, tenant_id: str):
         self.session = session
         self.tenant_id = tenant_id
+        self._anchor_resolver = None
+        self._relationship_retriever = None
+    
+    def _get_anchor_resolver(self) -> AnchorResolver:
+        """Lazy initialization of anchor resolver."""
+        if self._anchor_resolver is None:
+            self._anchor_resolver = AnchorResolver(self.session, self.tenant_id)
+        return self._anchor_resolver
+    
+    def _get_relationship_retriever(self) -> RelationshipFirstRetriever:
+        """Lazy initialization of relationship retriever."""
+        if self._relationship_retriever is None:
+            self._relationship_retriever = RelationshipFirstRetriever(self.session, self.tenant_id)
+        return self._relationship_retriever
+    
+    def resolve_from_anchor(self, role: str, query: Optional[str] = None) -> RoleResolution:
+        """
+        Stage 0: Relationship-first retrieval from anchor organization.
+        
+        This is the primary resolution method that treats the KG as a graph.
+        It finds people connected to the anchor org via relationship edges,
+        then filters by role properties.
+        
+        Args:
+            role: The role to resolve (e.g., "CFO", "Chief Engineer")
+            query: Optional query text to extract explicit org mention
+            
+        Returns:
+            RoleResolution with high confidence if found via graph traversal
+        """
+        logger.info(f"[ROLE_RESOLVER] Stage 0: Relationship-first for role '{role}'")
+        
+        try:
+            anchor_resolver = self._get_anchor_resolver()
+            anchor = anchor_resolver.identify_anchor(query or "")
+            
+            if not anchor:
+                logger.info(f"[ROLE_RESOLVER] Stage 0: No anchor found, skipping relationship-first")
+                return RoleResolution(role=role)
+            
+            logger.info(f"[ROLE_RESOLVER] Stage 0: Using anchor '{anchor['name']}' (id={anchor['id']})")
+            
+            retriever = self._get_relationship_retriever()
+            result = retriever.resolve_role_from_anchor(role, anchor['id'], anchor['name'])
+            
+            if result['entities']:
+                entities = result['entities']
+                
+                if len(entities) == 1:
+                    person = entities[0]
+                    person_role = person.get('role_from_props', '')
+                    role_lower = role.lower().strip()
+                    
+                    HIGH_CONFIDENCE_ROLES = {'ceo', 'cfo', 'cto', 'coo', 'cmo', 'ciso', 'chro', 
+                                             'president', 'chairman', 'vice president'}
+                    is_high_confidence = role_lower in HIGH_CONFIDENCE_ROLES
+                    
+                    is_exact_match = person_role and person_role.lower().strip() == role_lower
+                    
+                    if is_high_confidence or is_exact_match:
+                        logger.info(f"[ROLE_RESOLVER] Stage 0 SUCCESS: '{role}' → '{person['name']}' via graph_traversal (exact={is_exact_match}, high_conf={is_high_confidence})")
+                        return RoleResolution(
+                            role=role,
+                            resolved_name=person['name'],
+                            resolved_entity_id=person['id'],
+                            confidence=0.95 if is_exact_match else 0.85,
+                            resolution_method="stage0_graph_traversal",
+                            all_matches=[{
+                                "name": p['name'],
+                                "entity_id": p['id'],
+                                "role": p.get('role_from_props', role),
+                                "organization": anchor['name']
+                            } for p in entities]
+                        )
+                    else:
+                        logger.info(f"[ROLE_RESOLVER] Stage 0: Partial match for '{role}' → '{person['name']}' (role='{person_role}'), falling through to validate")
+                else:
+                    logger.info(f"[ROLE_RESOLVER] Stage 0: Multiple matches ({len(entities)}) for '{role}' via graph_traversal")
+                    return RoleResolution(
+                        role=role,
+                        resolved_name=None,
+                        confidence=0.0,
+                        resolution_method="stage0_graph_traversal_multiple",
+                        all_matches=[{
+                            "name": p['name'],
+                            "entity_id": p['id'],
+                            "role": p.get('role_from_props', role),
+                            "organization": anchor['name']
+                        } for p in entities]
+                    )
+            
+            logger.info(f"[ROLE_RESOLVER] Stage 0: No matches for '{role}' from anchor '{anchor['name']}'")
+            return RoleResolution(role=role)
+            
+        except Exception as e:
+            logger.error(f"[ROLE_RESOLVER] Stage 0 failed: {e}")
+            return RoleResolution(role=role)
     
     def _normalize_role(self, role: str) -> str:
         """Normalize role to standard form (CEO, CTO, etc.)."""
@@ -253,22 +361,33 @@ class RoleResolver:
             logger.error(f"[ROLE_RESOLVER] _check_entity_is_main_org_role failed: {e}")
             return False
     
-    def resolve(self, role: str, organization: Optional[str] = None) -> RoleResolution:
+    def resolve(self, role: str, organization: Optional[str] = None, query: Optional[str] = None) -> RoleResolution:
         """
-        Resolve a role to the person who holds it using 3-stage lookup.
+        Resolve a role to the person who holds it using 4-stage lookup.
         
-        Now checks both Stage 1 (relationships) and Stage 2 (properties) to find
-        the best match based on organization context, rather than stopping at
-        Stage 1 if any result is found.
+        Stage 0: Relationship-first retrieval from anchor org (NEW - highest priority)
+        Stage 1: Exact relationship lookup (HOLDS_POSITION)
+        Stage 2: Fuzzy ILIKE matching on role properties
+        Stage 3: Document search fallback
         
         Args:
             role: The role to resolve (e.g., "CEO", "Chief Technology Officer")
             organization: Optional organization context
+            query: Optional query text for anchor detection
             
         Returns:
             RoleResolution with resolved person info
         """
         logger.info(f"[ROLE_RESOLVER] Resolving role: '{role}' (org={organization})")
+        
+        stage0_result = self.resolve_from_anchor(role, query)
+        if stage0_result.is_resolved:
+            logger.info(f"[ROLE_RESOLVER] Stage 0 (graph_traversal): '{role}' → '{stage0_result.resolved_name}'")
+            return stage0_result
+        
+        if stage0_result.has_multiple_matches:
+            logger.info(f"[ROLE_RESOLVER] Stage 0 has multiple matches, returning for disambiguation")
+            return stage0_result
         
         stage1_result = self._stage1_exact_relationship(role, organization)
         stage2_result = self._stage2_fuzzy_relationship(role, organization)
