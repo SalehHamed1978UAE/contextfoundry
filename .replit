@@ -39,6 +39,10 @@ args = "Test: Manus Orion"
 task = "workflow.run"
 args = "Run Extraction"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test: ClaudeCode Nexus"
+
 [[workflows.workflow]]
 name = "Start All"
 author = "agent"
@@ -105,6 +109,17 @@ outputType = "console"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python -u scripts/run_vault_extraction.py --vault-name \"${EXTRACTION_VAULT:-Claude Code Nexus Industries}\" 2>&1 | tee /tmp/extraction_run.log"
+
+[[workflows.workflow]]
+name = "Test: ClaudeCode Nexus"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m src.test_runner.runner --corpus \"ClaudeCode Nexus Industries\" --questions-only 2>&1"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [[ports]]
 localPort = 3000

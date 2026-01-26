@@ -1093,7 +1093,7 @@ class QueryPipeline:
         
         role_resolution = None
         if classification.has_role_reference and classification.role_referenced and not skip_role_resolution:
-            role_resolution = self.role_resolver.resolve_all(classification.role_referenced, vault_context=vault_context)
+            role_resolution = self.role_resolver.resolve(classification.role_referenced, organization=vault_context, query=query)
             
             should_chain = (
                 intent 

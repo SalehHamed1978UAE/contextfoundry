@@ -1,26 +1,41 @@
 {
-  "run_timestamp": "2026-01-26T16:14:49.973228",
-  "trace_file": "test_results/traces/claudecode_nexus_industries_traces_b8b157e1.jsonl",
+  "run_timestamp": "2026-01-26T15:54:43.194873",
+  "trace_file": "test_results/traces/vault_b8b157e1_traces_353f2d06.jsonl",
   "stats": {
-    "total_questions": 97,
-    "avg_chunks_retrieved": 3.051546391752576,
-    "avg_semantic_score": 0.06102783505154637,
+    "total_questions": 100,
+    "avg_chunks_retrieved": 2.9400000000000004,
+    "avg_semantic_score": 0.057433999999999985,
     "query_type_distribution": {
-      "unknown": 97
+      "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "no_match": 20,
-      "exact_match": 35,
+      "exact_match": 36,
+      "no_match": 18,
       "component_match": 27,
-      "no_data": 6,
-      "number_match": 6,
+      "no_data": 8,
+      "number_match": 8,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 91
   },
   "low_score_questions": [
+    {
+      "q_id": 1,
+      "question": "Who is the CEO of Nexus Industries?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 2,
+      "question": "What is the name of the CFO?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 3,
+      "question": "Who is the President of Nexus Digital Solutions?",
+      "avg_score": 0.0
+    },
     {
       "q_id": 4,
       "question": "Who is the Chief Engineer for the Falcon X program?",
@@ -174,7 +189,7 @@
     {
       "q_id": 36,
       "question": "Which division has the highest safety incident rate (TRIR)?",
-      "avg_score": 0.0
+      "avg_score": 0.1808
     },
     {
       "q_id": 37,
@@ -194,7 +209,7 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.2977
+      "avg_score": 0.0
     },
     {
       "q_id": 41,
@@ -465,32 +480,43 @@
   "failures_by_type": {
     "no_match": [
       {
+        "q_id": 3,
+        "question": "Who is the President of Nexus Digital Solutions?",
+        "expected": "Robert Kim",
+        "actual": "The President of Nexus Digital Solutions",
+        "files_retrieved": [
+          "11_microsoft_customer.md",
+          "05_digital_division_structure.md",
+          "02_organizational_announcement.md"
+        ]
+      },
+      {
         "q_id": 4,
         "question": "Who is the Chief Engineer for the Falcon X program?",
         "expected": "Dr. Elena Rodriguez",
         "actual": "The Chief Engineer for the Falcon X prog",
         "files_retrieved": [
-          "03_aerospace_division_structure.md",
+          "02_falcon_x_program_review.md",
           "01_falcon_x_system_architecture.md",
-          "02_falcon_x_program_review.md"
+          "07_aerospace_engineering_review.md"
         ]
       },
       {
         "q_id": 5,
         "question": "Who is the Empowered Official for ITAR compliance?",
         "expected": "Col. (Ret.) James Foster",
-        "actual": "I couldn't find specific information reg",
+        "actual": "I couldn't find specific information abo",
         "files_retrieved": []
       },
       {
-        "q_id": 19,
-        "question": "Who is the largest aerospace customer of Nexus by relationsh",
-        "expected": "Boeing ($730 million)",
-        "actual": "The largest aerospace customer of Nexus ",
+        "q_id": 29,
+        "question": "Who are the members of the Executive Leadership Team?",
+        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
+        "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "07_ma_strategy.md",
-          "12_supplier_performance_review.md",
-          "02_airbus_customer_profile.md"
+          "08_hr_talent_review.md",
+          "05_talent_strategy.md",
+          "01_executive_team.md"
         ]
       },
       {
@@ -501,20 +527,10 @@
         "files_retrieved": []
       },
       {
-        "q_id": 36,
-        "question": "Which division has the highest safety incident rate (TRIR)?",
-        "expected": "Nexus Advanced Materials (1.24 TRIR)",
-        "actual": "The division with the highest safety inc",
-        "files_retrieved": [
-          "05_safety_committee_meeting.md",
-          "07_environmental_health_safety.md"
-        ]
-      },
-      {
         "q_id": 37,
         "question": "Who is the Project Director for the GreenHydrogen Initiative",
         "expected": "Jennifer Walsh",
-        "actual": "The DIRECTOR of Nexus Industries is Dr. ",
+        "actual": "The CTO of Nexus Industries is Dr. Rober",
         "files_retrieved": []
       },
       {
@@ -523,9 +539,9 @@
         "expected": "Jennifer Walsh (appointed January 2026, ",
         "actual": "The Chief Information Security Officer (",
         "files_retrieved": [
-          "01_annual_report_2025.md",
+          "08_cybersecurity_advisory.md",
           "01_corporate_strategy_2026_2030.md",
-          "02_organizational_announcement.md"
+          "01_annual_report_2025.md"
         ]
       },
       {
@@ -534,9 +550,9 @@
         "expected": "$12.4 billion",
         "actual": "The total company backlog for The Boeing",
         "files_retrieved": [
-          "11_product_launch_planning.md",
+          "03_aerospace_division_budget.md",
           "01_annual_report_2025.md",
-          "02_airbus_customer_profile.md"
+          "01_boeing_customer_profile.md"
         ]
       },
       {
@@ -559,8 +575,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
         ]
       },
       {
@@ -569,18 +585,7 @@
         "expected": "Col. (Ret.) James Foster (Empowered Offi",
         "actual": "The Chair of the Export Control Committe",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "09_export_control.md"
-        ]
-      },
-      {
-        "q_id": 73,
-        "question": "How many new employees will Nexus hire in FY2026?",
-        "expected": "1,200 net new positions",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": [
-          "08_global_locations.md",
-          "05_talent_strategy.md",
+          "09_export_control.md",
           "01_corporate_strategy_2026_2030.md"
         ]
       },
@@ -603,20 +608,13 @@
         ]
       },
       {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "I couldn't find specific information reg",
-        "files_retrieved": []
-      },
-      {
         "q_id": 85,
         "question": "Who is the Chair of the Quality Council?",
         "expected": "Chief Quality Officer",
         "actual": "The Chair of the Quality Council is Rich",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
           "10_board_strategic_priorities.md",
+          "04_sustainability_roadmap.md",
           "01_corporate_strategy_2026_2030.md"
         ]
       },
@@ -631,11 +629,11 @@
         "q_id": 95,
         "question": "Who provides the SAR radar for Falcon X?",
         "expected": "Raytheon (APY-8)",
-        "actual": "The specific provider of the SAR radar f",
+        "actual": "The search did not yield specific inform",
         "files_retrieved": [
-          "01_falcon_x_system_architecture.md",
-          "12_supplier_performance_review.md",
-          "04_us_dod_customer.md"
+          "01_falcon_x_uav_program.md",
+          "04_us_dod_customer.md",
+          "01_falcon_x_system_architecture.md"
         ]
       },
       {
@@ -644,9 +642,9 @@
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
         "actual": "The total value of the top three custome",
         "files_retrieved": [
-          "07_ma_strategy.md",
-          "11_microsoft_customer.md",
-          "11_product_launch_planning.md"
+          "12_superconductor_wire.md",
+          "05_siemens_healthineers_customer.md",
+          "10_aeromaterials_composites.md"
         ]
       }
     ],
@@ -673,6 +671,13 @@
         "files_retrieved": []
       },
       {
+        "q_id": 19,
+        "question": "Who is the largest aerospace customer of Nexus by relationsh",
+        "expected": "Boeing ($730 million)",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": []
+      },
+      {
         "q_id": 31,
         "question": "What is Nexus's ownership percentage in the Toyota battery j",
         "expected": "51%",
@@ -683,7 +688,7 @@
         "q_id": 76,
         "question": "What is the total patent portfolio size?",
         "expected": "2,412 patents",
-        "actual": "I was unable to retrieve the total paten",
+        "actual": "I was unable to determine the total pate",
         "files_retrieved": []
       },
       {
@@ -692,10 +697,17 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "08_global_locations.md",
-          "04_toyota_partnership_announcement.md",
+          "03_press_release_fy2025.md",
+          "05_fedramp_announcement.md",
           "02_business_divisions.md"
         ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The information regarding the primary cu",
+        "files_retrieved": []
       }
     ]
   }
