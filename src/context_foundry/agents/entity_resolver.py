@@ -98,7 +98,7 @@ class EntityResolver:
     """
     
     EXACT_MATCH_THRESHOLD = 0.95
-    SEMANTIC_THRESHOLD = 0.75
+    SEMANTIC_THRESHOLD = 0.70
     FUZZY_THRESHOLD = 0.70
     DISAMBIGUATION_DELTA = 0.1
     
