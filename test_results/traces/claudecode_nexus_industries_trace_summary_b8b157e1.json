@@ -1,0 +1,56 @@
+{
+  "run_timestamp": "2026-01-26T13:01:53.860133",
+  "trace_file": "test_results/traces/claudecode_nexus_industries_traces_b8b157e1.jsonl",
+  "stats": {
+    "total_questions": 5,
+    "avg_chunks_retrieved": 3.2,
+    "avg_semantic_score": 0.08818000000000001,
+    "query_type_distribution": {
+      "unknown": 5
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 1,
+      "semantic_match": 1,
+      "number_match": 2,
+      "no_match": 1
+    },
+    "low_score_queries": 4
+  },
+  "low_score_questions": [
+    {
+      "q_id": 96,
+      "question": "What is the APAC revenue target for 2030?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 97,
+      "question": "What is the M&A budget capacity?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 98,
+      "question": "What is the renewable energy achievement percentage?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 99,
+      "question": "How does Nexus's operating margin compare to target?",
+      "avg_score": 0.0
+    }
+  ],
+  "failures_by_type": {
+    "no_match": [
+      {
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top three custome",
+        "files_retrieved": [
+          "04_digital_division_quarterly_review.md",
+          "07_spacex_customer.md",
+          "01_corporate_strategy_2026_2030.md"
+        ]
+      }
+    ]
+  }
+}
