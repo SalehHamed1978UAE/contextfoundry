@@ -104,10 +104,10 @@
   ],
   "total_entities_input": 5067,
   "total_entities_consensus": 3436,
-  "total_entities_created": 33,
-  "total_entities_updated": 13,
-  "total_relationships_created": 34,
-  "total_relationships_updated": 0,
+  "total_entities_created": 0,
+  "total_entities_updated": 46,
+  "total_relationships_created": 0,
+  "total_relationships_updated": 34,
   "errors": [
     "Failed to ingest entity 'Nexus Industries': (psycopg2.errors.InFailedSqlTransaction) current transaction is aborted, commands ignored until end of transaction block\n\n[SQL: SELECT entities.id AS entities_id, entities.tenant_id AS entities_tenant_id, entities.name AS entities_name, entities.entity_type AS entities_entity_type, entities.raw_entity_type AS entities_raw_entity_type, entities.lifecycle_state AS entities_lifecycle_state, entities.validation_status AS entities_validation_status, entities.properties AS entities_properties, entities.description AS entities_description, entities.name_embedding AS entities_name_embedding, entities.confidence AS entities_confidence, entities.source_document_id AS entities_source_document_id, entities.source_chunk_id AS entities_source_chunk_id, entities.source_section AS entities_source_section, entities.source_sentence AS entities_source_sentence, entities.extracted_at AS entities_extracted_at, entities.extraction_method AS entities_extraction_method, entities.created_at AS entities_created_at, entities.updated_at AS entities_updated_at, entities.promoted_at AS entities_promoted_at, entities.archived_at AS entities_archived_at, entities.last_validated_at AS entities_last_validated_at, entities.valid_from AS entities_valid_from, entities.valid_to AS entities_valid_to, entities.superseded_by AS entities_superseded_by, entities.change_reason AS entities_change_reason \nFROM entities \nWHERE entities.tenant_id = %(tenant_id_1)s::UUID AND entities.name = %(name_1)s AND entities.entity_type = %(entity_type_1)s \n LIMIT %(param_1)s]\n[parameters: {'tenant_id_1': 'b8b157e1-077f-4b33-9fbd-4569e04db006', 'name_1': 'Nexus Industries', 'entity_type_1': 'ORGANIZATION', 'param_1': 1}]\n(Background on this error at: https://sqlalche.me/e/20/2j85)",
     "Failed to ingest entity 'Jennifer Walsh': (psycopg2.errors.InFailedSqlTransaction) current transaction is aborted, commands ignored until end of transaction block\n\n[SQL: SELECT entities.id AS entities_id, entities.tenant_id AS entities_tenant_id, entities.name AS entities_name, entities.entity_type AS entities_entity_type, entities.raw_entity_type AS entities_raw_entity_type, entities.lifecycle_state AS entities_lifecycle_state, entities.validation_status AS entities_validation_status, entities.properties AS entities_properties, entities.description AS entities_description, entities.name_embedding AS entities_name_embedding, entities.confidence AS entities_confidence, entities.source_document_id AS entities_source_document_id, entities.source_chunk_id AS entities_source_chunk_id, entities.source_section AS entities_source_section, entities.source_sentence AS entities_source_sentence, entities.extracted_at AS entities_extracted_at, entities.extraction_method AS entities_extraction_method, entities.created_at AS entities_created_at, entities.updated_at AS entities_updated_at, entities.promoted_at AS entities_promoted_at, entities.archived_at AS entities_archived_at, entities.last_validated_at AS entities_last_validated_at, entities.valid_from AS entities_valid_from, entities.valid_to AS entities_valid_to, entities.superseded_by AS entities_superseded_by, entities.change_reason AS entities_change_reason \nFROM entities \nWHERE entities.tenant_id = %(tenant_id_1)s::UUID AND entities.name = %(name_1)s AND entities.entity_type = %(entity_type_1)s \n LIMIT %(param_1)s]\n[parameters: {'tenant_id_1': 'b8b157e1-077f-4b33-9fbd-4569e04db006', 'name_1': 'Jennifer Walsh', 'entity_type_1': 'PERSON', 'param_1': 1}]\n(Background on this error at: https://sqlalche.me/e/20/2j85)",
@@ -6698,5 +6698,5 @@
     "gpt-4o-mini",
     "claude-sonnet"
   ],
-  "completed_at": "2026-01-26T03:57:43.624413"
+  "completed_at": "2026-01-26T11:37:12.119632"
 }
