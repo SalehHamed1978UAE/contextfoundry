@@ -2,16 +2,15 @@
   "document_id": "0624827d-2174-47a5-b3cb-ffca0fe38e6b",
   "document_path": "04_toyota_partnership_announcement.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:35:34.296132",
+  "extracted_at": "2026-01-25T15:55:08.020901",
   "entities": [
     {
       "name": "Nexus Industries, Inc.",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "stock_symbol": "NYSE: NEXS",
-        "type": "Technology and manufacturing company",
-        "headquarters": "Phoenix, Arizona",
-        "employees": "12,500"
+        "type": "Corporation",
+        "industry": "Technology and Advanced Manufacturing",
+        "stock_symbol": "NYSE: NEXS"
       },
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
@@ -22,9 +21,9 @@
       "name": "Toyota Motor Corporation",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "stock_symbol": "NYSE: TM",
-        "type": "Automotive manufacturer",
-        "industry": "Automotive"
+        "type": "Corporation",
+        "industry": "Automotive",
+        "stock_symbol": "NYSE: TM"
       },
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
@@ -35,13 +34,12 @@
       "name": "NextGen Battery Technologies LLC",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Joint venture",
-        "ownership": "51% Nexus Industries / 49% Toyota",
-        "location": "San Antonio, Texas"
+        "type": "Joint Venture",
+        "industry": "Battery Technology"
       },
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "NextGen Battery Technologies LLC, a joint venture",
+      "source_excerpt": "NextGen Battery Technologies LLC, a joint venture to develop and manufacture solid-state batteries",
       "aliases": []
     },
     {
@@ -72,8 +70,9 @@
       "name": "Dr. Robert Martinez",
       "entity_type": "PERSON",
       "properties": {
-        "current_title": "BatteryTech Program Director",
-        "new_title": "CEO of NextGen Battery Technologies"
+        "title": "CEO",
+        "role": "Chief Executive Officer",
+        "previous_role": "BatteryTech Program Director"
       },
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
@@ -84,8 +83,9 @@
       "name": "Hiroshi Tanaka",
       "entity_type": "PERSON",
       "properties": {
-        "title": "EVP of Battery Technology",
-        "new_title": "COO of NextGen Battery Technologies"
+        "title": "COO",
+        "role": "Chief Operating Officer",
+        "previous_role": "EVP of Battery Technology"
       },
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
@@ -97,8 +97,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Investor Relations",
-        "email": "ir@nexus-industries.com",
-        "phone": "(602) 555-1234"
+        "role": "Vice President of Investor Relations"
       },
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
@@ -107,9 +106,9 @@
     },
     {
       "name": "BatteryTech Program",
-      "entity_type": "BUSINESS_UNIT",
+      "entity_type": "PROJECT",
       "properties": {
-        "focus_areas": "Battery technology development"
+        "name": "BatteryTech Program"
       },
       "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
@@ -117,111 +116,7 @@
       "aliases": []
     },
     {
-      "name": "Joint Venture Formation",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$312 million",
-        "timeline": "Q4 2027 target production",
-        "status": "Approved"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "Total Investment: $312 million",
-      "aliases": []
-    },
-    {
-      "name": "Solid-state batteries",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Batteries with solid ceramic electrolyte",
-        "category": "Electric vehicle batteries",
-        "energy_density": "400 Wh/kg"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "solid-state batteries for electric vehicles",
-      "aliases": []
-    },
-    {
-      "name": "Solid-state battery technology",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Solid ceramic material replacing liquid electrolyte"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "Solid-state batteries replace the liquid electrolyte in conventional lithium-ion batteries with a solid ceramic material",
-      "aliases": []
-    },
-    {
-      "name": "$312 million total investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Total Investment",
-        "value": "$312 million",
-        "period": "2026-2028",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "Total Investment: $312 million",
-      "aliases": []
-    },
-    {
-      "name": "$159 million Nexus contribution",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Nexus Investment",
-        "value": "$159 million",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "Nexus Industries will contribute $159 million",
-      "aliases": []
-    },
-    {
-      "name": "$153 million Toyota contribution",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Toyota Investment",
-        "value": "$153 million",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "Toyota will contribute $153 million in cash",
-      "aliases": []
-    },
-    {
-      "name": "$2 billion contract value",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Offtake Agreement Value",
-        "value": "$2 billion",
-        "period": "5 years",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "total contract value expected to exceed $2 billion",
-      "aliases": []
-    },
-    {
-      "name": "2 GWh initial capacity",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Production Capacity",
-        "value": "2 GWh",
-        "type": "COUNT"
-      },
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "Initial Capacity: 2 GWh",
-      "aliases": []
-    },
-    {
-      "name": "Phoenix, Arizona",
+      "name": "Phoenix",
       "entity_type": "LOCATION",
       "properties": {
         "city": "Phoenix",
@@ -234,7 +129,7 @@
       "aliases": []
     },
     {
-      "name": "Plano, Texas",
+      "name": "Plano",
       "entity_type": "LOCATION",
       "properties": {
         "city": "Plano",
@@ -247,7 +142,7 @@
       "aliases": []
     },
     {
-      "name": "San Antonio, Texas",
+      "name": "San Antonio",
       "entity_type": "LOCATION",
       "properties": {
         "city": "San Antonio",
@@ -260,22 +155,143 @@
       "aliases": []
     },
     {
-      "name": "San Antonio Manufacturing Facility",
-      "entity_type": "FACILITY",
+      "name": "Solid-State Batteries",
+      "entity_type": "PRODUCT",
       "properties": {
-        "type": "Manufacturing facility",
-        "capacity": "2 GWh"
+        "description": "Electric vehicle batteries with solid ceramic electrolyte",
+        "category": "Energy Storage"
       },
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "source_excerpt": "headquartered in San Antonio, Texas, adjacent to Toyota's existing manufacturing campus",
+      "source_excerpt": "solid-state batteries for electric vehicles",
       "aliases": []
     },
     {
-      "name": "Hart-Scott-Rodino Antitrust Improvements Act",
+      "name": "$312 million investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Investment",
+        "value": "312000000",
+        "type": "CURRENCY",
+        "period": "2026"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Total Investment: $312 million",
+      "aliases": []
+    },
+    {
+      "name": "$159 million Nexus contribution",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Nexus Investment",
+        "value": "159000000",
+        "type": "CURRENCY",
+        "period": "2026"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Nexus Industries will contribute $159 million",
+      "aliases": []
+    },
+    {
+      "name": "$153 million Toyota contribution",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Toyota Investment",
+        "value": "153000000",
+        "type": "CURRENCY",
+        "period": "2026"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Toyota will contribute $153 million in cash",
+      "aliases": []
+    },
+    {
+      "name": "$2 billion offtake contract",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Offtake Contract Value",
+        "value": "2000000000",
+        "type": "CURRENCY",
+        "period": "5 years"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "total contract value expected to exceed $2 billion",
+      "aliases": []
+    },
+    {
+      "name": "51% Nexus ownership",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Nexus Ownership",
+        "value": "51",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "51% Nexus Industries / 49% Toyota",
+      "aliases": []
+    },
+    {
+      "name": "49% Toyota ownership",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Toyota Ownership",
+        "value": "49",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "51% Nexus Industries / 49% Toyota",
+      "aliases": []
+    },
+    {
+      "name": "2 GWh capacity",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Initial Production Capacity",
+        "value": "2",
+        "type": "COUNT",
+        "unit": "GWh"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Initial Capacity: 2 GWh",
+      "aliases": []
+    },
+    {
+      "name": "12,500 employees",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Employee Count",
+        "value": "12500",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Nexus employs over 12,500 people worldwide",
+      "aliases": []
+    },
+    {
+      "name": "Solid Electrolyte Technology",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Breakthrough solid electrolyte technology for batteries"
+      },
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "source_excerpt": "Nexus's breakthrough solid electrolyte technology",
+      "aliases": []
+    },
+    {
+      "name": "Hart-Scott-Rodino Act",
       "entity_type": "POLICY",
       "properties": {
-        "category": "Antitrust regulation"
+        "policy_ID": "Hart-Scott-Rodino",
+        "category": "Antitrust Law"
       },
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
@@ -309,35 +325,24 @@
     {
       "source_entity": "Dr. Robert Martinez",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "BatteryTech Program",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "Dr. Robert Martinez, currently Nexus's BatteryTech Program Director"
-    },
-    {
-      "source_entity": "Dr. Robert Martinez",
-      "source_type": "PERSON",
       "relationship_type": "LEADS",
       "target_entity": "NextGen Battery Technologies LLC",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "has been named CEO of NextGen Battery Technologies"
+      "evidence": "Dr. Robert Martinez has been named CEO of NextGen Battery Technologies"
     },
     {
       "source_entity": "Hiroshi Tanaka",
       "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Toyota Motor Corporation",
+      "relationship_type": "MANAGES",
+      "target_entity": "NextGen Battery Technologies LLC",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "Hiroshi Tanaka, Toyota's EVP of Battery Technology"
+      "evidence": "Hiroshi Tanaka will serve as COO"
     },
     {
       "source_entity": "Jennifer Walsh",
@@ -351,6 +356,28 @@
       "evidence": "Jennifer Walsh, VP Investor Relations"
     },
     {
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries, Inc.",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "currently Nexus's BatteryTech Program Director"
+    },
+    {
+      "source_entity": "Hiroshi Tanaka",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Toyota Motor Corporation",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "Toyota's EVP of Battery Technology"
+    },
+    {
       "source_entity": "Nexus Industries, Inc.",
       "source_type": "ORGANIZATION",
       "relationship_type": "PARTNER_OF",
@@ -359,7 +386,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "formation of NextGen Battery Technologies LLC, a joint venture"
+      "evidence": "joint venture to develop and manufacture solid-state batteries"
+    },
+    {
+      "source_entity": "Toyota Motor Corporation",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries, Inc.",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "joint venture to develop and manufacture solid-state batteries"
     },
     {
       "source_entity": "Nexus Industries, Inc.",
@@ -370,7 +408,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "51% Nexus Industries / 49% Toyota"
+      "evidence": "51% Nexus Industries"
     },
     {
       "source_entity": "Toyota Motor Corporation",
@@ -381,46 +419,13 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "51% Nexus Industries / 49% Toyota"
-    },
-    {
-      "source_entity": "Joint Venture Formation",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries, Inc.",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "Nexus Industries will contribute $159 million"
-    },
-    {
-      "source_entity": "Joint Venture Formation",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Toyota Motor Corporation",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "Toyota will contribute $153 million"
-    },
-    {
-      "source_entity": "NextGen Battery Technologies LLC",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Solid-state batteries",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "develop and manufacture solid-state batteries"
+      "evidence": "49% Toyota"
     },
     {
       "source_entity": "NextGen Battery Technologies LLC",
       "source_type": "ORGANIZATION",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "San Antonio, Texas",
+      "target_entity": "San Antonio",
       "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
@@ -431,7 +436,7 @@
       "source_entity": "Nexus Industries, Inc.",
       "source_type": "ORGANIZATION",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix, Arizona",
+      "target_entity": "Phoenix",
       "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
@@ -441,13 +446,24 @@
     {
       "source_entity": "NextGen Battery Technologies LLC",
       "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Solid-State Batteries",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_toyota_partnership_announcement.md",
+      "evidence": "develop and manufacture solid-state batteries for electric vehicles"
+    },
+    {
+      "source_entity": "Nexus Industries, Inc.",
+      "source_type": "ORGANIZATION",
       "relationship_type": "USES",
-      "target_entity": "Solid-state battery technology",
+      "target_entity": "Solid Electrolyte Technology",
       "target_type": "TECHNOLOGY",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "develop and manufacture solid-state batteries"
+      "evidence": "Nexus's breakthrough solid electrolyte technology"
     },
     {
       "source_entity": "Toyota Motor Corporation",
@@ -462,30 +478,30 @@
     },
     {
       "source_entity": "BatteryTech Program",
-      "source_type": "BUSINESS_UNIT",
+      "source_type": "PROJECT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Industries, Inc.",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
       "evidence": "Nexus's BatteryTech Program Director"
     },
     {
-      "source_entity": "San Antonio Manufacturing Facility",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "San Antonio, Texas",
-      "target_type": "LOCATION",
+      "source_entity": "Dr. Robert Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "BatteryTech Program",
+      "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_toyota_partnership_announcement.md",
-      "evidence": "headquartered in San Antonio, Texas"
+      "evidence": "Nexus's BatteryTech Program Director"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 22,
+    "raw_entity_count": 23,
     "raw_relationship_count": 18,
     "used_partial_parse": false,
     "truncated": false

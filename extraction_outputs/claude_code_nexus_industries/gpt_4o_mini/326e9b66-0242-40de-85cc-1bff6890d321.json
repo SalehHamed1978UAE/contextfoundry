@@ -2,7 +2,7 @@
   "document_id": "326e9b66-0242-40de-85cc-1bff6890d321",
   "document_path": "04_energy_division_structure.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:29:35.273172",
+  "extracted_at": "2026-01-25T15:49:48.134475",
   "entities": [
     {
       "name": "Dr. Elena Rodriguez",
@@ -197,6 +197,15 @@
       "aliases": []
     },
     {
+      "name": "Houston, Texas",
+      "entity_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_energy_division_structure.md",
+      "source_excerpt": "Location: Houston, Texas",
+      "aliases": []
+    },
+    {
       "name": "Houston HQ",
       "entity_type": "FACILITY",
       "properties": {
@@ -255,7 +264,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Division President: Dr. Elena Rodriguez"
+      "evidence": "Dr. Elena Rodriguez leads the division"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -321,62 +330,18 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "Reports To: Dr. Elena Rodriguez (dotted line to Corporate CFO)"
+      "evidence": "Reports To: Dr. Elena Rodriguez"
     },
     {
-      "source_entity": "Dr. Hassan Ahmed",
+      "source_entity": "Dr. Elena Rodriguez",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Renewable Technology",
-      "target_type": "BUSINESS_UNIT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_structure.md",
-      "evidence": "VP of Renewable Technology: Dr. Hassan Ahmed"
-    },
-    {
-      "source_entity": "Margaret Sullivan",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Project Delivery",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "VP of Project Delivery: Margaret Sullivan"
-    },
-    {
-      "source_entity": "Derek Washington",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Operations and Maintenance",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "VP of Operations: Derek Washington"
-    },
-    {
-      "source_entity": "Caroline Bennett",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Sales and Marketing",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "VP of Sales: Caroline Bennett"
-    },
-    {
-      "source_entity": "Timothy Chang",
-      "source_type": "PERSON",
-      "relationship_type": "PART_OF",
-      "target_entity": "Finance and Administration",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "04_energy_division_structure.md",
-      "evidence": "Division CFO: Timothy Chang"
+      "evidence": "Division President: Dr. Elena Rodriguez"
     },
     {
       "source_entity": "Houston HQ",
@@ -425,8 +390,8 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 20,
-    "raw_relationship_count": 16,
+    "raw_entity_count": 21,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

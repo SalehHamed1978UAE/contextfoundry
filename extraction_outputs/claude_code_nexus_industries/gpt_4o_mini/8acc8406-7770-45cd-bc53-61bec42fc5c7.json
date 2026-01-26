@@ -2,7 +2,7 @@
   "document_id": "8acc8406-7770-45cd-bc53-61bec42fc5c7",
   "document_path": "04_energy_division_budget.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:28:09.331455",
+  "extracted_at": "2026-01-25T15:48:33.570732",
   "entities": [
     {
       "name": "Nexus Energy Systems",
@@ -23,7 +23,7 @@
         "title": "Division President",
         "role": "President"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Division President | Dr. Elena Rodriguez",
       "aliases": []
@@ -35,7 +35,7 @@
         "title": "Division CFO",
         "role": "Chief Financial Officer"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Division CFO | Timothy Chang",
       "aliases": []
@@ -47,7 +47,7 @@
         "title": "VP Project Delivery",
         "role": "Vice President"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "VP Project Delivery | Margaret Sullivan",
       "aliases": []
@@ -59,7 +59,7 @@
         "title": "Corporate CFO",
         "role": "Chief Financial Officer"
       },
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Corporate CFO | Robert Kim",
       "aliases": []
@@ -71,7 +71,7 @@
         "budget": "$285M",
         "status": "Construction"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Desert Sun Solar Farm | $285M | Construction",
       "aliases": []
@@ -83,7 +83,7 @@
         "budget": "$125M",
         "status": "Engineering"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "GreenHydrogen Initiative | $125M | Engineering",
       "aliases": []
@@ -95,7 +95,7 @@
         "budget": "$485M",
         "status": "Operations"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Wind Farm Portfolio | $485M | Operations",
       "aliases": []
@@ -107,7 +107,7 @@
         "budget": "$625M",
         "status": "Various"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Solar EPC Projects | $625M | Various",
       "aliases": []
@@ -119,7 +119,7 @@
         "budget": "$45M",
         "status": "Development"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "CarbonZero DAC | $45M | Development",
       "aliases": []
@@ -131,7 +131,7 @@
         "description": "A controller for smart grid technology",
         "category": "Grid Technology"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "SmartGrid Controller | $185M",
       "aliases": []
@@ -143,7 +143,7 @@
         "description": "Equipment for substations",
         "category": "Grid Technology"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Substation Equipment | $245M",
       "aliases": []
@@ -155,7 +155,7 @@
         "description": "Systems for energy storage",
         "category": "Energy Storage"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Battery Systems | $195M",
       "aliases": []
@@ -167,7 +167,7 @@
         "description": "Thermal energy storage systems",
         "category": "Energy Storage"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Thermal Storage | $85M",
       "aliases": []
@@ -178,7 +178,7 @@
       "properties": {
         "description": "Services related to pumped hydro storage"
       },
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Pumped Hydro Services | $65M",
       "aliases": []
@@ -189,7 +189,7 @@
       "properties": {
         "description": "Services for energy storage solutions"
       },
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Storage Services | $35M",
       "aliases": []
@@ -249,20 +249,20 @@
       "source_document": "04_energy_division_budget.md",
       "source_excerpt": "Policy: IRA incentives continue",
       "aliases": []
+    },
+    {
+      "name": "energy.finance@nexus-energy.com",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Contact email for budget inquiries"
+      },
+      "confidence": 0.8,
+      "source_document": "04_energy_division_budget.md",
+      "source_excerpt": "Contact: energy.finance@nexus-energy.com",
+      "aliases": []
     }
   ],
   "relationships": [
-    {
-      "source_entity": "Dr. Elena Rodriguez",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Energy Systems",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "04_energy_division_budget.md",
-      "evidence": "Division President | Dr. Elena Rodriguez"
-    },
     {
       "source_entity": "Timothy Chang",
       "source_type": "PERSON",
@@ -270,212 +270,223 @@
       "target_entity": "Nexus Energy Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
+      "source_document": "04_energy_division_budget.md",
+      "evidence": "Budget Owner: Timothy Chang, Division CFO"
+    },
+    {
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_energy_division_budget.md",
+      "evidence": "Division President | Dr. Elena Rodriguez"
+    },
+    {
+      "source_entity": "Timothy Chang",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Division CFO | Timothy Chang"
     },
     {
       "source_entity": "Margaret Sullivan",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "LEADS",
       "target_entity": "Nexus Energy Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "VP Project Delivery | Margaret Sullivan"
     },
     {
       "source_entity": "Robert Kim",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_energy_division_budget.md",
+      "evidence": "Corporate CFO | Robert Kim"
+    },
+    {
+      "source_entity": "Desert Sun Solar Farm",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
       "target_entity": "Nexus Energy Systems",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
-      "evidence": "Corporate CFO | Robert Kim"
-    },
-    {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Desert Sun Solar Farm",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_energy_division_budget.md",
       "evidence": "Desert Sun Solar Farm | $285M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
-      "target_entity": "GreenHydrogen Initiative",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "evidence": "GreenHydrogen Initiative | $125M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Wind Farm Portfolio",
+      "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
-      "target_entity": "Wind Farm Portfolio",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Wind Farm Portfolio | $485M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Solar EPC Projects",
+      "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
-      "target_entity": "Solar EPC Projects",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Solar EPC Projects | $625M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "CarbonZero DAC",
+      "source_type": "PROJECT",
       "relationship_type": "FUNDED_BY",
-      "target_entity": "CarbonZero DAC",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_energy_division_budget.md",
       "evidence": "CarbonZero DAC | $45M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "SmartGrid Controller",
+      "source_type": "PRODUCT",
       "relationship_type": "PRODUCES",
-      "target_entity": "SmartGrid Controller",
-      "target_type": "PRODUCT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "SmartGrid Controller | $185M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Substation Equipment",
+      "source_type": "PRODUCT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Substation Equipment",
-      "target_type": "PRODUCT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Substation Equipment | $245M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Battery Systems",
+      "source_type": "PRODUCT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Battery Systems",
-      "target_type": "PRODUCT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Battery Systems | $195M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
+      "source_entity": "Thermal Storage",
+      "source_type": "PRODUCT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Thermal Storage",
-      "target_type": "PRODUCT",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Thermal Storage | $85M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Pumped Hydro Services",
-      "target_type": "SERVICE",
+      "source_entity": "Pumped Hydro Services",
+      "source_type": "SERVICE",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Pumped Hydro Services | $65M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Storage Services",
-      "target_type": "SERVICE",
+      "source_entity": "Storage Services",
+      "source_type": "SERVICE",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.85,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Storage Services | $35M"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "North America",
-      "target_type": "LOCATION",
+      "source_entity": "North America",
+      "source_type": "LOCATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "North America | $1.67B | 60%"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Europe",
-      "target_type": "LOCATION",
+      "source_entity": "Europe",
+      "source_type": "LOCATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Europe | $0.56B | 20%"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Asia Pacific",
-      "target_type": "LOCATION",
+      "source_entity": "Asia Pacific",
+      "source_type": "LOCATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Asia Pacific | $0.42B | 15%"
     },
     {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Latin America",
-      "target_type": "LOCATION",
+      "source_entity": "Latin America",
+      "source_type": "LOCATION",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_energy_division_budget.md",
       "evidence": "Latin America | $0.14B | 5%"
-    },
-    {
-      "source_entity": "Nexus Energy Systems",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "USES",
-      "target_entity": "IRA incentives",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "04_energy_division_budget.md",
-      "evidence": "Policy: IRA incentives continue"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 21,
+    "raw_entity_count": 22,
     "raw_relationship_count": 20,
     "used_partial_parse": false,
     "truncated": false

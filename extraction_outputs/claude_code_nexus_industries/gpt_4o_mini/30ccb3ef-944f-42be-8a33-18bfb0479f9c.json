@@ -2,7 +2,7 @@
   "document_id": "30ccb3ef-944f-42be-8a33-18bfb0479f9c",
   "document_path": "11_microsoft_customer.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:08:46.845306",
+  "extracted_at": "2026-01-26T02:51:01.562246",
   "entities": [
     {
       "name": "Microsoft Corporation",
@@ -134,7 +134,7 @@
       "name": "Carbon credits",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Carbon offset credits"
+        "description": "Credits for carbon offsetting"
       },
       "confidence": 0.85,
       "source_document": "11_microsoft_customer.md",
@@ -236,7 +236,7 @@
         "type": "Digital Solutions Provider",
         "industry": "Technology"
       },
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "11_microsoft_customer.md",
       "source_excerpt": "Nexus Contact",
       "aliases": []
@@ -376,21 +376,54 @@
       "evidence": "Consulting services are produced by Nexus"
     },
     {
-      "source_entity": "CarbonZero Credit Offtake",
+      "source_entity": "NexusConnect Enterprise License",
       "source_type": "PROJECT",
-      "relationship_type": "OWNS",
+      "relationship_type": "FUNDED_BY",
       "target_entity": "Microsoft Corporation",
       "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 0.9,
       "source_document": "11_microsoft_customer.md",
-      "evidence": "CarbonZero Credit Offtake is owned by Microsoft Corporation"
+      "evidence": "NexusConnect Enterprise License is funded by Microsoft Corporation"
+    },
+    {
+      "source_entity": "Azure IoT Integration",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Azure IoT Integration is funded by Microsoft Corporation"
+    },
+    {
+      "source_entity": "Carbon Consulting",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Carbon Consulting is funded by Microsoft Corporation"
+    },
+    {
+      "source_entity": "Renewable Energy Advisory",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Microsoft Corporation",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_microsoft_customer.md",
+      "evidence": "Renewable Energy Advisory is funded by Microsoft Corporation"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 20,
-    "raw_relationship_count": 13,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }

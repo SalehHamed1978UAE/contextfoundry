@@ -2,7 +2,7 @@
   "document_id": "8066de18-2e28-4731-a8ed-f2076cb2d046",
   "document_path": "05_safety_committee_meeting.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:45:20.629734",
+  "extracted_at": "2026-01-25T16:04:42.626632",
   "entities": [
     {
       "name": "Dr. Patricia Martinez",
@@ -59,7 +59,7 @@
         "title": "EHS Director",
         "role": "Environmental Health and Safety Director"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
       "source_excerpt": "Sarah Chen, EHS Director",
       "aliases": []
@@ -189,29 +189,6 @@
       "aliases": []
     },
     {
-      "name": "Dr. Victoria Chen",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "CEO",
-        "role": "Chief Executive Officer"
-      },
-      "confidence": 0.95,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Approved By: Dr. Victoria Chen, CEO",
-      "aliases": []
-    },
-    {
-      "name": "EHS",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus areas": "Environmental Health and Safety"
-      },
-      "confidence": 0.9,
-      "source_document": "05_safety_committee_meeting.md",
-      "source_excerpt": "Owner: EHS",
-      "aliases": []
-    },
-    {
       "name": "Turner",
       "entity_type": "SUPPLIER",
       "properties": {
@@ -246,6 +223,84 @@
       "source_document": "05_safety_committee_meeting.md",
       "source_excerpt": "Materials Facility Expansion | Hensel Phelps",
       "aliases": []
+    },
+    {
+      "name": "Corporate",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Corporate functions"
+      },
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Corporate",
+      "aliases": []
+    },
+    {
+      "name": "Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Aerospace operations"
+      },
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Energy",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Energy operations"
+      },
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Energy",
+      "aliases": []
+    },
+    {
+      "name": "Digital",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Digital operations"
+      },
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Digital",
+      "aliases": []
+    },
+    {
+      "name": "Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Materials operations"
+      },
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Materials",
+      "aliases": []
+    },
+    {
+      "name": "EHS",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Environmental Health and Safety"
+      },
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "EHS",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "source_excerpt": "Approved By: Dr. Victoria Chen, CEO",
+      "aliases": []
     }
   ],
   "relationships": [
@@ -267,9 +322,9 @@
       "target_entity": "Materials",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Sarah Chen, EHS Director, Materials"
+      "evidence": "Sarah Chen, EHS Director"
     },
     {
       "source_entity": "Sarah Chen",
@@ -280,7 +335,18 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Owner: S. Chen"
+      "evidence": "Materials division safety improvement plan ($2.3M)"
+    },
+    {
+      "source_entity": "Dr. Patricia Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Corporate",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Dr. Patricia Martinez, VP EHS"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -292,6 +358,149 @@
       "confidence": 0.95,
       "source_document": "05_safety_committee_meeting.md",
       "evidence": "Approved By: Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Robert Kim, EHS Director"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Energy",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Jennifer Walsh, EHS Director"
+    },
+    {
+      "source_entity": "Michael Torres",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Digital",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Michael Torres, EHS Director"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Lisa Thompson, General Counsel"
+    },
+    {
+      "source_entity": "Dr. James Wilson",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Dr. James Wilson, CTO"
+    },
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Maria Santos, CHRO"
+    },
+    {
+      "source_entity": "Col. (Ret.) James Foster",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Col. (Ret.) James Foster, VP Government Programs"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Materials Division Safety Deep Dive",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Presenter: Sarah Chen, Materials EHS Director"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Contractor Performance",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Presenter: Jennifer Walsh"
+    },
+    {
+      "source_entity": "Lisa Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Regulatory Compliance Update",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Presenter: Lisa Thompson"
+    },
+    {
+      "source_entity": "Maria Santos",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Training Update",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Presenter: Maria Santos, CHRO"
+    },
+    {
+      "source_entity": "Dr. Patricia Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Environmental Update",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Presenter: Dr. Patricia Martinez"
+    },
+    {
+      "source_entity": "Sarah Chen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Corporate",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_safety_committee_meeting.md",
+      "evidence": "Sarah Chen, EHS Director"
     },
     {
       "source_entity": "Robert Kim",
@@ -325,17 +534,6 @@
       "confidence": 0.9,
       "source_document": "05_safety_committee_meeting.md",
       "evidence": "Michael Torres, EHS Director"
-    },
-    {
-      "source_entity": "Sarah Chen",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Corporate",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Sarah Chen, EHS Director"
     },
     {
       "source_entity": "Lisa Thompson",
@@ -380,45 +578,12 @@
       "confidence": 0.85,
       "source_document": "05_safety_committee_meeting.md",
       "evidence": "Col. (Ret.) James Foster, VP Government Programs"
-    },
-    {
-      "source_entity": "Turner",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Construction",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "GreenHydrogen Construction | Turner"
-    },
-    {
-      "source_entity": "DPR",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Aerospace Hangar 7",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Aerospace Hangar 7 | DPR"
-    },
-    {
-      "source_entity": "Hensel Phelps",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "Materials Facility Expansion",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "05_safety_committee_meeting.md",
-      "evidence": "Materials Facility Expansion | Hensel Phelps"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 20,
-    "raw_relationship_count": 15,
+    "raw_entity_count": 25,
+    "raw_relationship_count": 25,
     "used_partial_parse": false,
     "truncated": false
   }

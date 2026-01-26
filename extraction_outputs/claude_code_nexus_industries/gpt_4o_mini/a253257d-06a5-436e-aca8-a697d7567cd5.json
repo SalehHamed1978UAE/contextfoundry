@@ -2,7 +2,7 @@
   "document_id": "a253257d-06a5-436e-aca8-a697d7567cd5",
   "document_path": "04_sustainability_roadmap.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:33:21.973242",
+  "extracted_at": "2026-01-25T15:53:03.701279",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -88,7 +88,8 @@
       "name": "STEM Education",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Annual investment in STEM education"
+        "description": "Community investment program",
+        "annual investment": "$5M"
       },
       "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
@@ -99,7 +100,8 @@
       "name": "Community Grants",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Annual investment in community grants"
+        "description": "Community investment program",
+        "annual investment": "$3M"
       },
       "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
@@ -110,7 +112,8 @@
       "name": "Employee Volunteering",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Annual hours of employee volunteering"
+        "description": "Community investment program",
+        "annual investment": "40,000 hours"
       },
       "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
@@ -121,122 +124,16 @@
       "name": "Disaster Relief",
       "entity_type": "SERVICE",
       "properties": {
-        "description": "Annual investment in disaster relief"
+        "description": "Community investment program",
+        "annual investment": "$1M"
       },
       "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
       "source_excerpt": "Disaster Relief | $1M (fund)",
       "aliases": []
-    },
-    {
-      "name": "Renewable Energy",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Renewable energy systems, hydrogen",
-        "category": "Energy"
-      },
-      "confidence": 0.9,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Renewable energy systems, hydrogen",
-      "aliases": []
-    },
-    {
-      "name": "Lightweight composites",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Lightweight composites (-20% fuel burn)",
-        "category": "Materials"
-      },
-      "confidence": 0.9,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Lightweight composites (-20% fuel burn)",
-      "aliases": []
-    },
-    {
-      "name": "IoT for energy efficiency",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "IoT for energy efficiency",
-        "category": "Digital"
-      },
-      "confidence": 0.9,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "IoT for energy efficiency",
-      "aliases": []
-    },
-    {
-      "name": "Battery materials",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Battery materials, recyclable composites",
-        "category": "Materials"
-      },
-      "confidence": 0.9,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Battery materials, recyclable composites",
-      "aliases": []
-    },
-    {
-      "name": "Sustainability assessment",
-      "entity_type": "POLICY",
-      "properties": {
-        "policy ID": "SA-2026",
-        "category": "Supplier Requirements"
-      },
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Sustainability assessment | 80%",
-      "aliases": []
-    },
-    {
-      "name": "Carbon disclosure",
-      "entity_type": "POLICY",
-      "properties": {
-        "policy ID": "CD-2026",
-        "category": "Supplier Requirements"
-      },
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Carbon disclosure | 50%",
-      "aliases": []
-    },
-    {
-      "name": "Science-based targets",
-      "entity_type": "POLICY",
-      "properties": {
-        "policy ID": "SBT-2026",
-        "category": "Supplier Requirements"
-      },
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Science-based targets | 20%",
-      "aliases": []
-    },
-    {
-      "name": "Sustainability audit",
-      "entity_type": "POLICY",
-      "properties": {
-        "policy ID": "SAUD-2026",
-        "category": "Supplier Requirements"
-      },
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Sustainability audit | High-risk",
-      "aliases": []
     }
   ],
   "relationships": [
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Dr. Victoria Chen | CEO"
-    },
     {
       "source_entity": "Dr. Sarah Williams",
       "source_type": "PERSON",
@@ -271,6 +168,17 @@
       "evidence": "Jennifer Walsh | VP Investor Relations"
     },
     {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_sustainability_roadmap.md",
+      "evidence": "Dr. Victoria Chen | CEO"
+    },
+    {
       "source_entity": "Dr. Elena Rodriguez",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
@@ -282,109 +190,65 @@
       "evidence": "Dr. Elena Rodriguez | Council Chair"
     },
     {
-      "source_entity": "Sustainability Roadmap 2026-2030",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Sustainability Roadmap 2026-2030",
+      "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.95,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Total investment of $245M"
+      "evidence": "Nexus Industries Sustainability Roadmap 2026-2030"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
-      "target_entity": "Renewable Energy",
-      "target_type": "PRODUCT",
+      "target_entity": "STEM Education",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Renewable energy systems, hydrogen"
+      "evidence": "STEM Education | $5M"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
-      "target_entity": "Lightweight composites",
-      "target_type": "PRODUCT",
+      "target_entity": "Community Grants",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Lightweight composites (-20% fuel burn)"
+      "evidence": "Community Grants | $3M"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
-      "target_entity": "IoT for energy efficiency",
-      "target_type": "PRODUCT",
+      "target_entity": "Employee Volunteering",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "IoT for energy efficiency"
+      "evidence": "Employee Volunteering | 40,000 hours"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "PRODUCES",
-      "target_entity": "Battery materials",
-      "target_type": "PRODUCT",
+      "target_entity": "Disaster Relief",
+      "target_type": "SERVICE",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Battery materials, recyclable composites"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Sustainability assessment",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Sustainability assessment | 80%"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Carbon disclosure",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Carbon disclosure | 50%"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Science-based targets",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Science-based targets | 20%"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Sustainability audit",
-      "target_type": "POLICY",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Sustainability audit | High-risk"
+      "evidence": "Disaster Relief | $1M (fund)"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 19,
-    "raw_relationship_count": 14,
+    "raw_entity_count": 11,
+    "raw_relationship_count": 10,
     "used_partial_parse": false,
     "truncated": false
   }
