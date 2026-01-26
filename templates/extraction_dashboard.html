@@ -298,9 +298,9 @@ tr:hover {
                 <tr>
                     <th>Vault</th>
                     <th>Status</th>
-                    <th title="Green=Single (GPT), Blue=Multi (Both)">Progress</th>
-                    <th title="GPT-4 only extraction">Single</th>
-                    <th title="GPT-4 + Claude extraction">Multi</th>
+                    <th title="Green=GPT-4, Blue=Claude">Progress</th>
+                    <th title="GPT-4o-mini extractions (fast)">GPT</th>
+                    <th title="Claude Sonnet extractions (slower)">Claude</th>
                     <th>Total</th>
                     <th title="Green=Single failures, Blue=Multi failures">Failed</th>
                     <th>Last Updated</th>
@@ -392,9 +392,9 @@ function renderVaultQueue(vaults) {
         // Total documents in the vault
         const total = (v.single_done || 0) + (v.multi_done || 0) + (v.pending || 0) + (v.failed || 0);
         
-        // Single = GPT only, Multi = both models
+        // Single = GPT-4o-mini (fast), Multi = Claude Sonnet (slower)
         const singleExtracted = v.gpt_extracted || 0;
-        const multiExtracted = v.both_extracted || 0;
+        const multiExtracted = v.claude_extracted || 0;
         const singlePct = total > 0 ? Math.round((singleExtracted / total) * 100) : 0;
         const multiPct = total > 0 ? Math.round((multiExtracted / total) * 100) : 0;
         
