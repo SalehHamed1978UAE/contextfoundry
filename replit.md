@@ -78,8 +78,9 @@ Architectural features include:
   - **RelationshipFirstRetriever** (`src/context_foundry/retrieval/anchor_resolver.py`): Traverses LEADS/WORKS_AT/EMPLOYS edges from anchor org to find connected people, then filters by role properties. Treats KG as a graph (not flat property store).
   - **Stage 0 Role Resolution**: Integrated into `RoleResolver.resolve()` as the highest priority lookup stage (before exact relationship and fuzzy matching). Uses graph traversal to find role holders connected to anchor org.
   - **Pipeline Integration**: `RetrievalRouter.process()` now calls `role_resolver.resolve()` with query parameter to enable anchor detection and Stage 0 execution.
-  - **Current Status**: Stage 0 is working correctly (confirmed via logs: `[ROLE_RESOLVER] Stage 0 SUCCESS`). CEO/CFO queries now return correct answers (Dr. Victoria Chen, Michael Chang) via graph traversal. However, overall accuracy remains at 73-74% due to KG data quality issues (some roles incorrectly assigned during extraction).
-  - **Root Cause Finding**: The KG has incorrect role data for some entities (e.g., Thomas Wright stored as "Chief Engineer" when documents show Dr. Elena Rodriguez in that role). Pipeline is correct; the bottleneck is now extraction quality, not retrieval architecture.
+  - **Edge-Rank Prioritization** (January 26, 2026): Implemented ranking system for relationship types to select the best match when multiple candidates exist: HOLDS_POSITION (rank=1) > LEADS (rank=2) > WORKS_FOR (rank=3). Added HOLDS_POSITION to REVERSE_EDGE_TYPES for proper bidirectional traversal. Auto-selects best match when edge_rank difference is significant.
+  - **Current Status**: Stage 0 working correctly with edge_rank prioritization. Claude Code Nexus Industries test at 75/100 (75.0%). CEO returns Dr. Victoria Chen, CFO returns Michael Chang (both correct). Remaining 25% failures are: role mismatches (wrong person for specific positions), corpus gaps (data not in documents), and query routing for complex queries.
+  - **Root Cause Finding**: The KG has some incorrect role data (extraction quality issues). Pipeline architecture is correct; reaching 90% requires improved extraction quality and addressing corpus gaps.
 
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)
