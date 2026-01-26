@@ -287,6 +287,37 @@ tr:hover {
     </div>
 </div>
 
+<div class="section" id="metricsSection" style="display: none;">
+    <div class="section-header">
+        <h2 class="section-title">Extraction Quality</h2>
+        <span id="metricsVaultName" style="color: #9ca3af;"></span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+        <div class="metric-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent); border-left: 3px solid #10b981;">
+            <h4 style="color: #10b981; margin: 0 0 12px 0; font-size: 14px;">GPT-4o-mini</h4>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: #9ca3af;">Entities:</span>
+                <span id="gpt-entities" class="stat-num" style="color: #10b981;">-</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #9ca3af;">Relationships:</span>
+                <span id="gpt-relationships" class="stat-num" style="color: #10b981;">-</span>
+            </div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent); border-left: 3px solid #3b82f6;">
+            <h4 style="color: #3b82f6; margin: 0 0 12px 0; font-size: 14px;">Claude Sonnet</h4>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: #9ca3af;">Entities:</span>
+                <span id="claude-entities" class="stat-num" style="color: #3b82f6;">-</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #9ca3af;">Relationships:</span>
+                <span id="claude-relationships" class="stat-num" style="color: #3b82f6;">-</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="section">
     <div class="section-header">
         <h2 class="section-title">Vault Queue</h2>
@@ -389,31 +420,30 @@ function renderVaultQueue(vaults) {
     }
     
     tbody.innerHTML = vaults.map(v => {
-        // Total documents in the vault
-        const total = (v.single_done || 0) + (v.multi_done || 0) + (v.pending || 0) + (v.failed || 0);
+        // Use total_docs from DB for accurate progress (single source of truth)
+        const total = v.total_docs || 0;
         
-        // Single = GPT-4o-mini (fast), Multi = Claude Sonnet (slower)
-        const singleExtracted = v.gpt_extracted || 0;
-        const multiExtracted = v.claude_extracted || 0;
-        const singlePct = total > 0 ? Math.round((singleExtracted / total) * 100) : 0;
-        const multiPct = total > 0 ? Math.round((multiExtracted / total) * 100) : 0;
+        // GPT-4o-mini and Claude Sonnet extraction counts (from DB)
+        const gptExtracted = v.gpt_extracted || 0;
+        const claudeExtracted = v.claude_extracted || 0;
+        const gptPct = total > 0 ? Math.min(100, Math.round((gptExtracted / total) * 100)) : 0;
+        const claudePct = total > 0 ? Math.min(100, Math.round((claudeExtracted / total) * 100)) : 0;
         
         // Derive status from extraction progress
         let status = 'empty';
         if (total === 0) {
             status = 'empty';
-        } else if (singleExtracted === 0 && multiExtracted === 0) {
+        } else if (gptExtracted === 0 && claudeExtracted === 0) {
             status = 'pending';
-        } else if (multiExtracted >= total) {
+        } else if (claudeExtracted >= total && gptExtracted >= total) {
             status = 'complete';
         } else {
             status = 'in_progress';
         }
         const statusClass = getStatusClass(status);
         
-        // Failed counts (placeholder - would need API update for separate counts)
-        const singleFailed = 0;
-        const multiFailed = v.failed || 0;
+        // Failed counts from API
+        const failedCount = v.failed || 0;
         
         return `
             <tr>
@@ -421,24 +451,24 @@ function renderVaultQueue(vaults) {
                 <td><span class="status-badge ${statusClass}">${status}</span></td>
                 <td>
                     <div class="progress-container">
-                        <span style="font-size: 9px;" class="count-single">${singlePct}%</span>
-                        <div class="progress-bar" title="Single (GPT): ${singleExtracted}/${total}">
-                            <div class="progress-fill single" style="width: ${singlePct}%"></div>
+                        <span style="font-size: 9px;" class="count-single">${gptPct}%</span>
+                        <div class="progress-bar" title="GPT-4o-mini: ${gptExtracted}/${total}">
+                            <div class="progress-fill single" style="width: ${gptPct}%"></div>
                         </div>
-                        <div class="progress-bar" title="Multi (Both): ${multiExtracted}/${total}">
-                            <div class="progress-fill multi" style="width: ${multiPct}%"></div>
+                        <div class="progress-bar" title="Claude Sonnet: ${claudeExtracted}/${total}">
+                            <div class="progress-fill multi" style="width: ${claudePct}%"></div>
                         </div>
-                        <span style="font-size: 9px;" class="count-multi">${multiPct}%</span>
+                        <span style="font-size: 9px;" class="count-multi">${claudePct}%</span>
                     </div>
                 </td>
-                <td class="stat-num count-single">${singleExtracted}</td>
-                <td class="stat-num count-multi">${multiExtracted}</td>
+                <td class="stat-num count-single">${gptExtracted}</td>
+                <td class="stat-num count-multi">${claudeExtracted}</td>
                 <td class="stat-num">${total}</td>
-                <td class="stat-num"><span class="count-single">${singleFailed}</span> / <span class="count-multi">${multiFailed}</span></td>
+                <td class="stat-num">${failedCount}</td>
                 <td>${formatTimeAgo(v.last_updated)}</td>
                 <td class="action-btns">
                     <button class="btn btn-primary btn-sm" onclick="resumeVault('${v.vault_id}')">Resume</button>
-                    <a href="/vault/${v.vault_id}" class="btn btn-secondary btn-sm">View</a>
+                    <button class="btn btn-secondary btn-sm" onclick="showMetrics('${v.vault_id}', '${(v.name || v.vault_id).replace(/'/g, "\\'")}')">Metrics</button>
                 </td>
             </tr>
         `;
@@ -493,6 +523,37 @@ async function resumeVault(vaultId) {
         }
     } catch (e) {
         console.error('Failed to resume vault:', e);
+    }
+}
+
+async function showMetrics(vaultId, vaultName) {
+    const section = document.getElementById('metricsSection');
+    document.getElementById('metricsVaultName').textContent = vaultName;
+    
+    document.getElementById('gpt-entities').textContent = '...';
+    document.getElementById('gpt-relationships').textContent = '...';
+    document.getElementById('claude-entities').textContent = '...';
+    document.getElementById('claude-relationships').textContent = '...';
+    
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    
+    try {
+        const resp = await fetch(`/api/extraction/metrics/${vaultId}`);
+        const data = await resp.json();
+        
+        if (data.gpt_4o_mini) {
+            document.getElementById('gpt-entities').textContent = data.gpt_4o_mini.entities.toLocaleString();
+            document.getElementById('gpt-relationships').textContent = data.gpt_4o_mini.relationships.toLocaleString();
+        }
+        if (data.claude_sonnet) {
+            document.getElementById('claude-entities').textContent = data.claude_sonnet.entities.toLocaleString();
+            document.getElementById('claude-relationships').textContent = data.claude_sonnet.relationships.toLocaleString();
+        }
+    } catch (e) {
+        console.error('Failed to fetch metrics:', e);
+        document.getElementById('gpt-entities').textContent = '-';
+        document.getElementById('claude-entities').textContent = '-';
     }
 }
 

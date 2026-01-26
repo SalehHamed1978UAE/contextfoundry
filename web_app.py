@@ -564,7 +564,10 @@ def api_extraction_overview():
                             COUNT(*) FILTER (WHERE status = 'pending' OR status IS NULL OR extraction_level IS NULL) as pending,
                             COUNT(*) FILTER (WHERE status = 'failed') as failed,
                             COUNT(*) FILTER (WHERE extraction_level = 'single' AND extraction_level != 'multi') as pending_multi,
-                            MAX(updated_at) as last_updated
+                            COUNT(*) FILTER (WHERE gpt_extracted_at IS NOT NULL) as gpt_extracted,
+                            COUNT(*) FILTER (WHERE claude_extracted_at IS NOT NULL) as claude_extracted,
+                            COUNT(*) as total_docs,
+                            MAX(GREATEST(COALESCE(gpt_extracted_at, '1970-01-01'::timestamptz), COALESCE(claude_extracted_at, '1970-01-01'::timestamptz))) as last_extraction
                         FROM platform.documents
                         WHERE tenant_id = %s
                     """, (vault_id,))
@@ -592,8 +595,12 @@ def api_extraction_overview():
                         status = 'complete'
                         vaults_complete += 1
                     
-                    vault_slug = vault['name'].lower().replace(" ", "_")
-                    phase1 = _count_phase1_files(vault_slug)
+                    gpt_extracted = stats['gpt_extracted'] or 0
+                    claude_extracted = stats['claude_extracted'] or 0
+                    total_docs = stats['total_docs'] or 0
+                    last_extraction = stats['last_extraction']
+                    
+                    both_extracted = min(gpt_extracted, claude_extracted)
                     
                     vault_stats.append({
                         'vault_id': vault_id,
@@ -603,12 +610,13 @@ def api_extraction_overview():
                         'multi_done': multi_done,
                         'pending': pending,
                         'failed': failed,
-                        'gpt_extracted': phase1['gpt_extracted'],
-                        'claude_extracted': phase1['claude_extracted'],
-                        'both_extracted': phase1['both_complete'],
-                        'gpt_only': phase1['gpt_only'],
-                        'claude_only': phase1['claude_only'],
-                        'last_updated': stats['last_updated'].isoformat() if stats['last_updated'] else None
+                        'gpt_extracted': gpt_extracted,
+                        'claude_extracted': claude_extracted,
+                        'both_extracted': both_extracted,
+                        'gpt_only': gpt_extracted - both_extracted,
+                        'claude_only': claude_extracted - both_extracted,
+                        'total_docs': total_docs,
+                        'last_updated': last_extraction.isoformat() if last_extraction and last_extraction.year > 1970 else None
                     })
         
         vault_stats.sort(key=lambda x: x['last_updated'] or '', reverse=True)
@@ -694,6 +702,60 @@ def _count_phase1_files(vault_slug: str) -> dict:
         'gpt_only': len(gpt_files - claude_files),
         'claude_only': len(claude_files - gpt_files)
     }
+
+
+@app.route('/api/extraction/metrics/<vault_id>')
+def api_extraction_metrics(vault_id):
+    """Get entity/relationship counts from extraction JSON files."""
+    import json as json_module
+    from pathlib import Path
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    
+    try:
+        database_url = os.environ.get('DATABASE_URL')
+        
+        with psycopg2.connect(database_url) as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT name FROM platform.tenants WHERE id = %s", (vault_id,))
+                vault_row = cur.fetchone()
+                vault_name = vault_row['name'] if vault_row else vault_id
+        
+        vault_slug = vault_name.lower().replace(" ", "_")
+        output_dir = Path("extraction_outputs") / vault_slug
+        
+        gpt_entities = 0
+        gpt_relationships = 0
+        claude_entities = 0
+        claude_relationships = 0
+        
+        gpt_dir = output_dir / "gpt_4o_mini"
+        if gpt_dir.exists():
+            for f in gpt_dir.glob("*.json"):
+                try:
+                    data = json_module.loads(f.read_text())
+                    gpt_entities += len(data.get("entities", []))
+                    gpt_relationships += len(data.get("relationships", []))
+                except:
+                    pass
+        
+        claude_dir = output_dir / "claude_sonnet"
+        if claude_dir.exists():
+            for f in claude_dir.glob("*.json"):
+                try:
+                    data = json_module.loads(f.read_text())
+                    claude_entities += len(data.get("entities", []))
+                    claude_relationships += len(data.get("relationships", []))
+                except:
+                    pass
+        
+        return jsonify({
+            "gpt_4o_mini": {"entities": gpt_entities, "relationships": gpt_relationships},
+            "claude_sonnet": {"entities": claude_entities, "relationships": claude_relationships}
+        })
+    except Exception as e:
+        logger.error(f"Metrics failed: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/extraction/events')

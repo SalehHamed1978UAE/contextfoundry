@@ -413,6 +413,28 @@ class MultiModelExtractor:
             elif model in ["claude-sonnet", "claude-sonnet-4"]:
                 self.extractors["claude-sonnet"] = ClaudeSonnetExtractor()
     
+    def _mark_extraction_complete(self, document_id: str, model_name: str):
+        """Mark extraction complete for a specific model in the database."""
+        import psycopg2
+        
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            return
+            
+        column = 'gpt_extracted_at' if 'gpt' in model_name.lower() else 'claude_extracted_at'
+        
+        try:
+            with psycopg2.connect(database_url) as conn:
+                with conn.cursor() as cur:
+                    cur.execute(f"""
+                        UPDATE platform.documents 
+                        SET {column} = NOW()
+                        WHERE id = %s
+                    """, (document_id,))
+                conn.commit()
+        except Exception as e:
+            print(f"[MultiExtractor] Failed to update DB for {document_id}: {e}")
+
     def extract_document(
         self, 
         document: DocumentInfo,
@@ -451,6 +473,8 @@ class MultiModelExtractor:
             output_path = model_dir / f"{document.document_id}.json"
             with open(output_path, 'w') as f:
                 json.dump(output.model_dump(mode='json'), f, indent=2, default=str)
+            
+            self._mark_extraction_complete(document.document_id, model_name)
             
             print(f"[MultiExtractor] {model_name}: {len(output.entities)} entities, {len(output.relationships)} relationships")
         
