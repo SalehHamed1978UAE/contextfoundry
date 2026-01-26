@@ -1,45 +1,45 @@
 {
-  "timestamp": "2026-01-24T17:34:19.694325",
+  "timestamp": "2026-01-26T06:38:14.396485",
   "corpus": "Manus Orion",
   "vault_id": "aab0ec76-3b72-43e5-a41f-15e08771bc24",
   "vault_stats": {
     "chunks": 3314,
-    "entities": 3328,
-    "relationships": 2214
+    "entities": 4128,
+    "relationships": 4223
   },
   "results": {
-    "total": 120,
-    "passed": 70,
-    "failed": 50,
-    "accuracy_pct": 58.3
+    "total": 106,
+    "passed": 65,
+    "failed": 41,
+    "accuracy_pct": 61.3
   },
   "breakdown": {
     "exact_match": {
-      "passed": 41,
+      "passed": 35,
+      "failed": 0
+    },
+    "no_match": {
+      "passed": 0,
+      "failed": 35
+    },
+    "boolean_match": {
+      "passed": 2,
       "failed": 0
     },
     "semantic_match": {
       "passed": 1,
       "failed": 0
     },
-    "no_match": {
-      "passed": 0,
-      "failed": 38
+    "component_match": {
+      "passed": 19,
+      "failed": 0
     },
     "no_data": {
       "passed": 0,
-      "failed": 12
-    },
-    "boolean_match": {
-      "passed": 2,
-      "failed": 0
-    },
-    "component_match": {
-      "passed": 16,
-      "failed": 0
+      "failed": 6
     },
     "number_match": {
-      "passed": 6,
+      "passed": 3,
       "failed": 0
     },
     "percentage_match": {
@@ -47,11 +47,24 @@
       "failed": 0
     },
     "entity_match": {
-      "passed": 3,
+      "passed": 4,
       "failed": 0
     }
   },
   "failures": [
+    {
+      "q": 9,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Sarah Chen's role?",
+      "expected": "CEO",
+      "expected_normalized": "CEO",
+      "actual": "Executive Sponsor",
+      "actual_normalized": "Executive Sponsor",
+      "error_type": null,
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
+    },
     {
       "q": 13,
       "passed": false,
@@ -59,8 +72,8 @@
       "query": "What are the CEO's key responsibilities?",
       "expected": "Overall strategy, board relations, M&A",
       "expected_normalized": "Overall strategy, board relations, M&A",
-      "actual": "The key responsibilities of the CEO, Sarah Chen, based on the retrieved information, include: 1. **L",
-      "actual_normalized": "The key responsibilities of the CEO, Sarah Chen, based on the retrieved information, include: 1. Lea",
+      "actual": "The key responsibilities of the CEO, Sarah Chen, as mentioned in the retrieved information, are: 1. ",
+      "actual_normalized": "The key responsibilities of the CEO, Sarah Chen, as mentioned in the retrieved information, are: 1. ",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -85,8 +98,8 @@
       "query": "What are the CTO's key responsibilities?",
       "expected": "R&D, technology roadmap, innovation",
       "expected_normalized": "R&D, technology roadmap, innovation",
-      "actual": "The CTO of Manus Orion is Dr. Evelyn Reed.",
-      "actual_normalized": "The CTO of Manus Orion is Dr. Evelyn Reed",
+      "actual": "The CTO of Manus Orion Group is Dr. Evelyn Reed.",
+      "actual_normalized": "The CTO of Manus Orion Group is Dr. Evelyn Reed",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -111,11 +124,11 @@
       "query": "What are the four main business units?",
       "expected": "Orion Aerospace, Orion Energy Solutions, Orion Logistics, and Orion SmartCity",
       "expected_normalized": "Orion Aerospace, Orion Energy Solutions, Orion Logistics, and Orion SmartCity",
-      "actual": "The retrieved information does not explicitly list the four main business units. However, it does me",
-      "actual_normalized": "The retrieved information does not explicitly list the four main business units. However, it does me",
+      "actual": "Based on the retrieved information, the four main business units of Manus Orion Group are: 1. **Engi",
+      "actual_normalized": "Based on the retrieved information, the four main business units of Manus Orion Group are: 1. Engine",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 19,
@@ -124,8 +137,8 @@
       "query": "What does Orion Aerospace focus on?",
       "expected": "Aircraft, UAVs, satellites, defense systems",
       "expected_normalized": "Aircraft, UAVs, satellites, defense systems",
-      "actual": "Orion Aerospace appears to focus on the aerospace industry, specifically involving the expansion of ",
-      "actual_normalized": "Orion Aerospace appears to focus on the aerospace industry, specifically involving the expansion of ",
+      "actual": "Orion Aerospace focuses on manufacturing within the aerospace sector. Specifically, the Orion Aerosp",
+      "actual_normalized": "Orion Aerospace focuses on manufacturing within the aerospace sector. Specifically, the Orion Aerosp",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -133,25 +146,12 @@
     {
       "q": 20,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "What does Orion Energy Solutions focus on?",
       "expected": "Solar, wind, hydrogen, battery storage",
       "expected_normalized": "Solar, wind, hydrogen, battery storage",
-      "actual": "The retrieved information does not provide specific details about the focus or activities of Orion E",
-      "actual_normalized": "The retrieved information does not provide specific details about the focus or activities of Orion E",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 22,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What does Orion SmartCity focus on?",
-      "expected": "IoT platforms, urban infrastructure, smart mobility",
-      "expected_normalized": "IoT platforms, urban infrastructure, smart mobility",
-      "actual": "Orion SmartCity focuses on developing IoT infrastructure for urban environments through its **UrbanM",
-      "actual_normalized": "Orion SmartCity focuses on developing IoT infrastructure for urban environments through its UrbanMes",
+      "actual": "Orion Energy Solutions focuses on green hydrogen and offshore wind. These areas represent their prim",
+      "actual_normalized": "Orion Energy Solutions focuses on green hydrogen and offshore wind. These areas represent their prim",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -163,8 +163,8 @@
       "query": "Which business unit handles defense systems?",
       "expected": "Orion Aerospace",
       "expected_normalized": "Orion Aerospace",
-      "actual": "The business unit that handles defense systems is identified as **Global Defense Systems**. This org",
-      "actual_normalized": "The business unit that handles defense systems is identified as Global Defense Systems. This organiz",
+      "actual": "The business unit that handles defense systems is **Global Defense Systems**. This entity operates i",
+      "actual_normalized": "The business unit that handles defense systems is Global Defense Systems. This entity operates in th",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -189,8 +189,8 @@
       "query": "Which business unit owns the Falcon UAV Program?",
       "expected": "Aerospace",
       "expected_normalized": "Aerospace",
-      "actual": "The Falcon UAV Program is overseen by multiple business units, with significant involvement from the",
-      "actual_normalized": "The Falcon UAV Program is overseen by multiple business units, with significant involvement from the",
+      "actual": "The retrieved information does not explicitly state which business unit owns the Falcon UAV Program.",
+      "actual_normalized": "The retrieved information does not explicitly state which business unit owns the Falcon UAV Program.",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -205,8 +205,8 @@
       "actual": "The budget for the Falcon UAV Program varies across different documents, indicating different total ",
       "actual_normalized": "The budget for the Falcon UAV Program varies across different documents, indicating different total ",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "Number format mismatch: expected 45000000.0, found {'3', '12', '4', '80', '71119832', '5', '1', '169816871', '12000000', '199343340', '2', '157283308', '64638932'}",
+      "failure_category": "FORMAT_MISMATCH"
     },
     {
       "q": 28,
@@ -222,17 +222,30 @@
       "failure_category": "MISMATCH"
     },
     {
-      "q": 30,
+      "q": 29,
       "passed": false,
-      "match_type": "no_data",
-      "query": "Which business unit owns Project Helios?",
-      "expected": "Energy",
-      "expected_normalized": "Energy",
-      "actual": "Project Helios is managed by Dr. Evelyn Reed, who is the Chief Technology Officer (CTO). This indica",
-      "actual_normalized": "Project Helios is managed by Dr. Evelyn Reed, who is the Chief Technology Officer (CTO). This indica",
+      "match_type": "no_match",
+      "query": "What is Project Helios?",
+      "expected": "800 MW solar-thermal facility in Morocco",
+      "expected_normalized": "800 MW solar-thermal facility in Moroc",
+      "actual": "Project Helios is a strategic initiative associated with Manus Orion Group, focusing on the integrat",
+      "actual_normalized": "Project Helios is a strategic initiative associated with Manus Orion Group, focusing on the integrat",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
+    },
+    {
+      "q": 30,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "Which business unit owns Project Helios?",
+      "expected": "Energy",
+      "expected_normalized": "Energy",
+      "actual": "Project Helios is owned by the Manus Orion Group. Additionally, it is managed by several individuals",
+      "actual_normalized": "Project Helios is owned by the Manus Orion Group. Additionally, it is managed by several individuals",
+      "error_type": null,
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 31,
@@ -241,11 +254,11 @@
       "query": "What is the budget for Project Helios?",
       "expected": "$850M",
       "expected_normalized": "$850M",
-      "actual": "The budget for Project Helios includes several components: 1. **Total Investment Required**: $157,28",
-      "actual_normalized": "The budget for Project Helios includes several components: 1. Total Investment Required: $157,283,30",
+      "actual": "The budget for Project Helios includes a contingency allocation of $28 million, which has been appro",
+      "actual_normalized": "The budget for Project Helios includes a contingency allocation of $28 million, which has been appro",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 850000000.0, found {'15', '185', '157283308', '85', '10', '185300000', '30', '3', '40', '28', '35', '24', '157300000', '12', '2', '28000000', '157', '1', '17', '80'}",
-      "failure_category": "FORMAT_MISMATCH"
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 32,
@@ -267,8 +280,8 @@
       "query": "What is the capacity of Project Helios?",
       "expected": "800 MW",
       "expected_normalized": "800 MW",
-      "actual": "The capacity of Project Helios is reported to be **991 units per month** as of February 2025. This f",
-      "actual_normalized": "The capacity of Project Helios is reported to be 991 units per month as of February 2025. This figur",
+      "actual": "The capacity of Project Helios is reported to be **991 units per month** as of February 22, 2025. Th",
+      "actual_normalized": "The capacity of Project Helios is reported to be 991 units per month as of February 22, 2025. This f",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -280,8 +293,8 @@
       "query": "Where is Project Helios located?",
       "expected": "Morocco",
       "expected_normalized": "Moroc",
-      "actual": "Project Helios is associated with the Manus Orion Group and is primarily located in Seoul, as indica",
-      "actual_normalized": "Project Helios is associated with the Manus Orion Group and is primarily located in Seoul, as indica",
+      "actual": "Project Helios is located at the Orion Energy Hub in Copenhagen. This information is confirmed by th",
+      "actual_normalized": "Project Helios is located at the Orion Energy Hub in Copenhagen. This information is confirmed by th",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -289,15 +302,15 @@
     {
       "q": 36,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Which business unit owns UrbanMesh IoT Platform?",
       "expected": "SmartCity",
       "expected_normalized": "SmartCity",
-      "actual": "The UrbanMesh IoT Platform is owned by the business unit led by Dr. Evelyn Reed, who is the Chief Te",
-      "actual_normalized": "The UrbanMesh IoT Platform is owned by the business unit led by Dr. Evelyn Reed, who is the Chief Te",
+      "actual": "The UrbanMesh IoT Platform is owned by two entities: the Manus Orion Group and the Strategy Team. Bo",
+      "actual_normalized": "The UrbanMesh IoT Platform is owned by two entities: the Manus Orion Group and the Strategy Team. Bo",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 40,
@@ -309,7 +322,7 @@
       "actual": "The budget for the AutoNav Logistics System is allocated at **$40,434,966**, as approved by CFO Marc",
       "actual_normalized": "The budget for the AutoNav Logistics System is allocated at $40,434,966, as approved by CFO Marcus W",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 120000000.0, found {'15000000', '9000000', '8', '1000000', '2026', '2000000', '6000000', '40434966', '14000000', '8500000000', '10', '80', '5000000', '13000000'}",
+      "failure_reason": "Number format mismatch: expected 120000000.0, found {'8', '40434966', '15000000', '2026', '9000000', '80', '8500000000', '2000000', '6000000', '5000000', '1000000', '10', '13000000', '14000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
@@ -319,11 +332,11 @@
       "query": "What is Project Borealis?",
       "expected": "Offshore wind farm",
       "expected_normalized": "Offshore wind farm",
-      "actual": "Project Borealis is a wind farm initiative that is part of a broader strategic plan by the Manus Ori",
-      "actual_normalized": "Project Borealis is a wind farm initiative that is part of a broader strategic plan by the Manus Ori",
+      "actual": "Project Borealis refers to the Project Borealis Wind Farm, which is an initiative under the Manus Or",
+      "actual_normalized": "Project Borealis refers to the Project Borealis Wind Farm, which is an initiative under the Manus Or",
       "error_type": null,
-      "failure_reason": "Partial overlap (67%) - may be from different source",
-      "failure_category": "ALTERNATE_SOURCE"
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 48,
@@ -332,11 +345,11 @@
       "query": "What is the Quantum-Secured Supply Chain?",
       "expected": "Blockchain-based tracking system with quantum-resistant encryption",
       "expected_normalized": "Blockchain-based tracking system with quantum-resistant encryption",
-      "actual": "The Quantum-Secured Supply Chain is a strategic initiative focused on enhancing supply chain securit",
-      "actual_normalized": "The Quantum-Secured Supply Chain is a strategic initiative focused on enhancing supply chain securit",
+      "actual": "The Quantum-Secured Supply Chain refers to a technology and system designed to enhance the security ",
+      "actual_normalized": "The Quantum-Secured Supply Chain refers to a technology and system designed to enhance the security ",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 62,
@@ -352,27 +365,40 @@
       "failure_category": "MISMATCH"
     },
     {
+      "q": 63,
+      "passed": false,
+      "match_type": "no_match",
+      "query": "What is Project Helios expected to contribute by 2026?",
+      "expected": "$800M",
+      "expected_normalized": "$800M",
+      "actual": "By 2026, Project Helios is expected to contribute significantly to the organization's financial and ",
+      "actual_normalized": "By 2026, Project Helios is expected to contribute significantly to the organization's financial and ",
+      "error_type": null,
+      "failure_reason": "Number format mismatch: expected 800000000.0, found {'3', '2026', '35', '26', '86', '95', '46', '75', '18', '92', '28', '67', '424', '4', '12', '94', '2025', '31', '1', '15', '10', '2027', '64', '29', '80', '96', '5', '24', '97', '100', '28000000', '85', '424000000', '33', '74', '27', '76', '40', '1979', '30', '2', '93'}",
+      "failure_category": "FORMAT_MISMATCH"
+    },
+    {
       "q": 65,
       "passed": false,
       "match_type": "no_match",
       "query": "What is the R&D spending target as percentage of revenue?",
       "expected": "12%",
       "expected_normalized": "12%",
-      "actual": "The retrieved information does not specify a direct target for R&D spending as a percentage of reven",
-      "actual_normalized": "The retrieved information does not specify a direct target for R&D spending as a percentage of reven",
+      "actual": "The retrieved information does not explicitly state the R&D spending target as a percentage of reven",
+      "actual_normalized": "The retrieved information does not explicitly state the R&D spending target as a percentage of reven",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 69,
+      "q": 68,
       "passed": false,
       "match_type": "no_match",
-      "query": "What is the budget allocation for CapEx?",
-      "expected": "35%",
-      "expected_normalized": "35%",
-      "actual": "The budget allocation for Capital Expenditures (CapEx) is planned to be **$15 million** for the year",
-      "actual_normalized": "The budget allocation for Capital Expenditures (CapEx) is planned to be $15 million for the year 202",
+      "query": "What is the budget allocation for R&D?",
+      "expected": "40%",
+      "expected_normalized": "40%",
+      "actual": "The budget allocation for the Technology Innovation and R&D Roadmap initiative is reported to be $73",
+      "actual_normalized": "The budget allocation for the Technology Innovation and R&D Roadmap initiative is reported to be $73",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -391,14 +417,14 @@
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 78,
+      "q": 74,
       "passed": false,
       "match_type": "no_data",
-      "query": "Which supplier is Quantum Dynamics Ltd?",
-      "expected": "Critical supplier for Manus Orion operations",
-      "expected_normalized": "Critical supplier for Manus Orion operations",
-      "actual": "Quantum Dynamics Ltd is identified as an organization that supplies various entities, including Atla",
-      "actual_normalized": "Quantum Dynamics Ltd is identified as an organization that supplies various entities, including Atla",
+      "query": "What is the target PPA capacity for Project Borealis?",
+      "expected": "2 GW",
+      "expected_normalized": "2 GW",
+      "actual": "The retrieved information does not specify the target PPA (Power Purchase Agreement) capacity for Pr",
+      "actual_normalized": "The retrieved information does not specify the target PPA (Power Purchase Agreement) capacity for Pr",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -410,8 +436,8 @@
       "query": "Which supplier handles component sourcing?",
       "expected": "EcoSolutions Corp",
       "expected_normalized": "EcoSolutions",
-      "actual": "The supplier that handles component sourcing is **GreenTech Materials**. The operations team, overse",
-      "actual_normalized": "The supplier that handles component sourcing is GreenTech Materials. The operations team, overseen b",
+      "actual": "The supplier that handles component sourcing is **GreenTech Materials**. The operations team coordin",
+      "actual_normalized": "The supplier that handles component sourcing is GreenTech Materials. The operations team coordinates",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -419,25 +445,12 @@
     {
       "q": 82,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Which supplier provides materials support?",
       "expected": "GreenTech Materials",
       "expected_normalized": "GreenTech Materials",
       "actual": "Based on the retrieved information, the suppliers that provide materials support are EcoSolutions Co",
       "actual_normalized": "Based on the retrieved information, the suppliers that provide materials support are EcoSolutions Co",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 86,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "Who is Metropolitan Transit Corp?",
-      "expected": "A customer of Manus Orion Group",
-      "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "Metropolitan Transit Corp is an organization that appears to be involved in various initiatives and ",
-      "actual_normalized": "Metropolitan Transit Corp is an organization that appears to be involved in various initiatives and ",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -449,47 +462,8 @@
       "query": "Who is Neo-City Development Authority?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "The Neo-City Development Authority is identified as both an organization and a customer in the retri",
-      "actual_normalized": "The Neo-City Development Authority is identified as both an organization and a customer in the retri",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 88,
-      "passed": false,
-      "match_type": "no_data",
-      "query": "Who is SolarFuture Holdings?",
-      "expected": "A customer of Manus Orion Group",
-      "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "SolarFuture Holdings is an organization that is actively involved in various initiatives related to ",
-      "actual_normalized": "SolarFuture Holdings is an organization that is actively involved in various initiatives related to ",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 89,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "Who is EuroGrid Energy?",
-      "expected": "A customer of Manus Orion Group",
-      "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "EuroGrid Energy is an organization that operates in the renewable energy sector. It is involved in v",
-      "actual_normalized": "EuroGrid Energy is an organization that operates in the renewable energy sector. It is involved in v",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 90,
-      "passed": false,
-      "match_type": "no_data",
-      "query": "Who is Global Defense Systems?",
-      "expected": "A customer of Manus Orion Group",
-      "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "Global Defense Systems is an organization operating in the defense industry. It has a presence in mu",
-      "actual_normalized": "Global Defense Systems is an organization operating in the defense industry. It has a presence in mu",
+      "actual": "The Neo-City Development Authority is identified as both a customer and an organization in the retri",
+      "actual_normalized": "The Neo-City Development Authority is identified as both a customer and an organization in the retri",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -501,24 +475,37 @@
       "query": "Who is Pacific Rim Airlines?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "Pacific Rim Airlines is identified as both an organization and a customer in the retrieved informati",
-      "actual_normalized": "Pacific Rim Airlines is identified as both an organization and a customer in the retrieved informati",
+      "actual": "Pacific Rim Airlines is identified as both a customer and an organization in the provided informatio",
+      "actual_normalized": "Pacific Rim Airlines is identified as both a customer and an organization in the provided informatio",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 94,
+      "q": 93,
       "passed": false,
       "match_type": "no_match",
-      "query": "Which customer requires workshops for Project Helios?",
-      "expected": "Neo-City Development Authority",
-      "expected_normalized": "Neo-City Development Authority",
-      "actual": "The customer that requires workshops for Project Helios is **Global Defense Systems**. This requirem",
-      "actual_normalized": "The customer that requires workshops for Project Helios is Global Defense Systems. This requirement ",
+      "query": "Which customer has expressed interest in AutoNav capabilities?",
+      "expected": "Metropolitan Transit Corp",
+      "expected_normalized": "Metropolitan Transit",
+      "actual": "Based on the retrieved information, the customer that has expressed interest in AutoNav capabilities",
+      "actual_normalized": "Based on the retrieved information, the customer that has expressed interest in AutoNav capabilities",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
+    },
+    {
+      "q": 94,
+      "passed": false,
+      "match_type": "no_data",
+      "query": "Which customer requires workshops for Project Helios?",
+      "expected": "Neo-City Development Authority",
+      "expected_normalized": "Neo-City Development Authority",
+      "actual": "The retrieved information does not specify which customer requires workshops for Project Helios. It ",
+      "actual_normalized": "The retrieved information does not specify which customer requires workshops for Project Helios. It ",
+      "error_type": null,
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 95,
@@ -537,45 +524,6 @@
       "q": 96,
       "passed": false,
       "match_type": "no_match",
-      "query": "How many documents are in the Manus Orion corpus?",
-      "expected": "241+",
-      "expected_normalized": "241+",
-      "actual": "The retrieved information does not specify the exact number of documents in the Manus Orion corpus. ",
-      "actual_normalized": "The retrieved information does not specify the exact number of documents in the Manus Orion corpus. ",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 97,
-      "passed": false,
-      "match_type": "no_data",
-      "query": "What is the total word count of the corpus?",
-      "expected": "250,000+",
-      "expected_normalized": "250,000+",
-      "actual": "The retrieved information does not provide a specific total word count for the corpus. The documents",
-      "actual_normalized": "The retrieved information does not provide a specific total word count for the corpus. The documents",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 99,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "How many executives are in leadership?",
-      "expected": "8",
-      "expected_normalized": "8",
-      "actual": "The executive of Manus Orion Group is Dr. Evelyn Reed.\n\nNote: Your documents also mention other exec",
-      "actual_normalized": "The executive of Manus Orion Group is Dr. Evelyn Reed. Note: Your documents also mention other execu",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 106,
-      "passed": false,
-      "match_type": "no_match",
       "query": "What is the target autonomous logistics market share?",
       "expected": "30%",
       "expected_normalized": "30%",
@@ -586,20 +534,20 @@
       "failure_category": "MISMATCH"
     },
     {
-      "q": 108,
+      "q": 98,
       "passed": false,
       "match_type": "no_match",
       "query": "What regions are targeted for regulatory engagement?",
       "expected": "EU, US, APAC",
       "expected_normalized": "EU, US, APAC",
-      "actual": "The regions targeted for regulatory engagement based on the retrieved information are: 1. **Seoul** ",
-      "actual_normalized": "The regions targeted for regulatory engagement based on the retrieved information are: 1. Seoul - Sp",
+      "actual": "The regions targeted for regulatory engagement based on the retrieved information include: 1. **Euro",
+      "actual_normalized": "The regions targeted for regulatory engagement based on the retrieved information include: 1. EuroGr",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
     },
     {
-      "q": 109,
+      "q": 99,
       "passed": false,
       "match_type": "no_match",
       "query": "What is the working capital inventory target?",
@@ -612,95 +560,30 @@
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 110,
+      "q": 100,
       "passed": false,
       "match_type": "no_match",
       "query": "What is the CapEx approval threshold for individual projects?",
       "expected": "$7M",
       "expected_normalized": "$7M",
-      "actual": "The CapEx approval threshold for individual projects is $10 million. Additionally, there are other t",
-      "actual_normalized": "The CapEx approval threshold for individual projects is $10 million. Additionally, there are other t",
+      "actual": "The CapEx approval threshold for individual projects is $5 million. This information is supported by",
+      "actual_normalized": "The CapEx approval threshold for individual projects is $5 million. This information is supported by",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 7000000.0, found {'10000000', '5', '15000000', '2', '28000000', '8', '36000000', '45000000', '6000000', '2000000', '10', '12000000', '8500000000', '80', '5000000'}",
+      "failure_reason": "Number format mismatch: expected 7000000.0, found {'8', '15000000', '10000000', '45000000', '80', '8500000000', '5', '12000000', '2000000', '6000000', '5000000', '2', '10', '28000000', '36000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
-      "q": 113,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "Who oversees operational execution?",
-      "expected": "COO Alex Thorne",
-      "expected_normalized": "COO Alex Thorne",
-      "actual": "The operational execution is overseen by the Manus Orion Group. This organization is responsible for",
-      "actual_normalized": "The operational execution is overseen by the Manus Orion Group. This organization is responsible for",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 114,
+      "q": 104,
       "passed": false,
       "match_type": "no_data",
       "query": "Who ensures regulatory compliance?",
       "expected": "General Counsel James Park",
       "expected_normalized": "General Counsel James Park",
-      "actual": "Based on the retrieved information, it appears that the Manus Orion Group is the organization involv",
-      "actual_normalized": "Based on the retrieved information, it appears that the Manus Orion Group is the organization involv",
+      "actual": "Based on the retrieved information, the Manus Orion Group is the organization mentioned, but there i",
+      "actual_normalized": "Based on the retrieved information, the Manus Orion Group is the organization mentioned, but there i",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 117,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "When was the corpus generated?",
-      "expected": "2025-01-21",
-      "expected_normalized": "2025-01-21",
-      "actual": "The corpus was generated as a result of strategic planning sessions conducted in Q4 2024. This infor",
-      "actual_normalized": "The corpus was generated as a result of strategic planning sessions conducted in Q4 2024. This infor",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 118,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What is the purpose of the corpus?",
-      "expected": "Context Foundry stress testing",
-      "expected_normalized": "Context Foundry stress testing",
-      "actual": "The purpose of the corpus, as indicated by the retrieved documents, is to support the strategic init",
-      "actual_normalized": "The purpose of the corpus, as indicated by the retrieved documents, is to support the strategic init",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 119,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What is the document ID format?",
-      "expected": "CATEGORY-YYYY-NNN",
-      "expected_normalized": "CATEGORY-YYYY-NNN",
-      "actual": "The document ID format appears to consist of a prefix that indicates the type of document followed b",
-      "actual_normalized": "The document ID format appears to consist of a prefix that indicates the type of document followed b",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 120,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What is the policy ID format?",
-      "expected": "POL-UNIT-NNN",
-      "expected_normalized": "POL-UNIT-NNN",
-      "actual": "The policy ID format is structured as follows: **POLICIES-YYYY-NNN**, where **YYYY** represents the ",
-      "actual_normalized": "The policy ID format is structured as follows: POLICIES-YYYY-NNN, where YYYY represents the year (e.",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
     }
   ],
   "all_results": [
@@ -737,8 +620,8 @@
       "query": "Who is the CTO of Manus Orion Group?",
       "expected": "Dr. Evelyn Reed",
       "expected_normalized": "Dr. Evelyn Reed",
-      "actual": "The CTO of Manus Orion Group is Dr. Evelyn Reed.\n\nNote: Your documents also mention other CTOs:\n- Fa",
-      "actual_normalized": "The CTO of Manus Orion Group is Dr. Evelyn Reed. Note: Your documents also mention other CTOs: - Fat",
+      "actual": "The CTO of Manus Orion Group is Dr. Evelyn Reed.",
+      "actual_normalized": "The CTO of Manus Orion Group is Dr. Evelyn Reed",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -802,24 +685,24 @@
       "query": "Who is the VP Defense & Aerospace?",
       "expected": "Admiral (Ret.) Michael Torres",
       "expected_normalized": "Admiral (Ret.) Michael Torres",
-      "actual": "The Vice President of Defense & Aerospace is Admiral (Ret.) Michael Torres. He holds this position a",
-      "actual_normalized": "The Vice President of Defense & Aerospace is Admiral (Ret.) Michael Torres. He holds this position a",
+      "actual": "The VP Defense & Aerospace is Admiral (Ret.) Michael Torres.",
+      "actual_normalized": "The VP Defense & Aerospace is Admiral (Ret.) Michael Torres",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
       "q": 9,
-      "passed": true,
-      "match_type": "semantic_match",
+      "passed": false,
+      "match_type": "no_match",
       "query": "What is Sarah Chen's role?",
       "expected": "CEO",
       "expected_normalized": "CEO",
-      "actual": "Chief Executive Officer",
-      "actual_normalized": "Chief Executive Officer",
+      "actual": "Executive Sponsor",
+      "actual_normalized": "Executive Sponsor",
       "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 10,
@@ -854,8 +737,8 @@
       "query": "What is Alex Thorne's role?",
       "expected": "COO",
       "expected_normalized": "COO",
-      "actual": "Alex Thorne's role is Chief Operating Officer (COO). He was promoted to this position on January 23,",
-      "actual_normalized": "Alex Thorne's role is Chief Operating Officer (COO). He was promoted to this position on January 23,",
+      "actual": "COO",
+      "actual_normalized": "COO",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -867,8 +750,8 @@
       "query": "What are the CEO's key responsibilities?",
       "expected": "Overall strategy, board relations, M&A",
       "expected_normalized": "Overall strategy, board relations, M&A",
-      "actual": "The key responsibilities of the CEO, Sarah Chen, based on the retrieved information, include: 1. **L",
-      "actual_normalized": "The key responsibilities of the CEO, Sarah Chen, based on the retrieved information, include: 1. Lea",
+      "actual": "The key responsibilities of the CEO, Sarah Chen, as mentioned in the retrieved information, are: 1. ",
+      "actual_normalized": "The key responsibilities of the CEO, Sarah Chen, as mentioned in the retrieved information, are: 1. ",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -893,8 +776,8 @@
       "query": "What are the CTO's key responsibilities?",
       "expected": "R&D, technology roadmap, innovation",
       "expected_normalized": "R&D, technology roadmap, innovation",
-      "actual": "The CTO of Manus Orion is Dr. Evelyn Reed.",
-      "actual_normalized": "The CTO of Manus Orion is Dr. Evelyn Reed",
+      "actual": "The CTO of Manus Orion Group is Dr. Evelyn Reed.",
+      "actual_normalized": "The CTO of Manus Orion Group is Dr. Evelyn Reed",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -932,11 +815,11 @@
       "query": "What are the four main business units?",
       "expected": "Orion Aerospace, Orion Energy Solutions, Orion Logistics, and Orion SmartCity",
       "expected_normalized": "Orion Aerospace, Orion Energy Solutions, Orion Logistics, and Orion SmartCity",
-      "actual": "The retrieved information does not explicitly list the four main business units. However, it does me",
-      "actual_normalized": "The retrieved information does not explicitly list the four main business units. However, it does me",
+      "actual": "Based on the retrieved information, the four main business units of Manus Orion Group are: 1. **Engi",
+      "actual_normalized": "Based on the retrieved information, the four main business units of Manus Orion Group are: 1. Engine",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 19,
@@ -945,8 +828,8 @@
       "query": "What does Orion Aerospace focus on?",
       "expected": "Aircraft, UAVs, satellites, defense systems",
       "expected_normalized": "Aircraft, UAVs, satellites, defense systems",
-      "actual": "Orion Aerospace appears to focus on the aerospace industry, specifically involving the expansion of ",
-      "actual_normalized": "Orion Aerospace appears to focus on the aerospace industry, specifically involving the expansion of ",
+      "actual": "Orion Aerospace focuses on manufacturing within the aerospace sector. Specifically, the Orion Aerosp",
+      "actual_normalized": "Orion Aerospace focuses on manufacturing within the aerospace sector. Specifically, the Orion Aerosp",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -954,15 +837,15 @@
     {
       "q": 20,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "What does Orion Energy Solutions focus on?",
       "expected": "Solar, wind, hydrogen, battery storage",
       "expected_normalized": "Solar, wind, hydrogen, battery storage",
-      "actual": "The retrieved information does not provide specific details about the focus or activities of Orion E",
-      "actual_normalized": "The retrieved information does not provide specific details about the focus or activities of Orion E",
+      "actual": "Orion Energy Solutions focuses on green hydrogen and offshore wind. These areas represent their prim",
+      "actual_normalized": "Orion Energy Solutions focuses on green hydrogen and offshore wind. These areas represent their prim",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 21,
@@ -971,24 +854,24 @@
       "query": "What does Orion Logistics focus on?",
       "expected": "Autonomous vehicles, supply chain, freight",
       "expected_normalized": "Autonomous vehicles, supply chain, freight",
-      "actual": "Based on the retrieved information, Orion Logistics Center, located in Singapore, appears to focus o",
-      "actual_normalized": "Based on the retrieved information, Orion Logistics Center, located in Singapore, appears to focus o",
+      "actual": "Orion Logistics focuses on operating a logistics center located in Singapore. The information retrie",
+      "actual_normalized": "Orion Logistics focuses on operating a logistics center located in Singapore. The information retrie",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
       "q": 22,
-      "passed": false,
-      "match_type": "no_match",
+      "passed": true,
+      "match_type": "semantic_match",
       "query": "What does Orion SmartCity focus on?",
       "expected": "IoT platforms, urban infrastructure, smart mobility",
       "expected_normalized": "IoT platforms, urban infrastructure, smart mobility",
-      "actual": "Orion SmartCity focuses on developing IoT infrastructure for urban environments through its **UrbanM",
-      "actual_normalized": "Orion SmartCity focuses on developing IoT infrastructure for urban environments through its UrbanMes",
+      "actual": "Orion SmartCity focuses on developing IoT (Internet of Things) infrastructure for urban environments",
+      "actual_normalized": "Orion SmartCity focuses on developing IoT (Internet of Things) infrastructure for urban environments",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 23,
@@ -997,8 +880,8 @@
       "query": "Which business unit handles defense systems?",
       "expected": "Orion Aerospace",
       "expected_normalized": "Orion Aerospace",
-      "actual": "The business unit that handles defense systems is identified as **Global Defense Systems**. This org",
-      "actual_normalized": "The business unit that handles defense systems is identified as Global Defense Systems. This organiz",
+      "actual": "The business unit that handles defense systems is **Global Defense Systems**. This entity operates i",
+      "actual_normalized": "The business unit that handles defense systems is Global Defense Systems. This entity operates in th",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -1036,8 +919,8 @@
       "query": "Which business unit owns the Falcon UAV Program?",
       "expected": "Aerospace",
       "expected_normalized": "Aerospace",
-      "actual": "The Falcon UAV Program is overseen by multiple business units, with significant involvement from the",
-      "actual_normalized": "The Falcon UAV Program is overseen by multiple business units, with significant involvement from the",
+      "actual": "The retrieved information does not explicitly state which business unit owns the Falcon UAV Program.",
+      "actual_normalized": "The retrieved information does not explicitly state which business unit owns the Falcon UAV Program.",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -1052,8 +935,8 @@
       "actual": "The budget for the Falcon UAV Program varies across different documents, indicating different total ",
       "actual_normalized": "The budget for the Falcon UAV Program varies across different documents, indicating different total ",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "Number format mismatch: expected 45000000.0, found {'3', '12', '4', '80', '71119832', '5', '1', '169816871', '12000000', '199343340', '2', '157283308', '64638932'}",
+      "failure_category": "FORMAT_MISMATCH"
     },
     {
       "q": 28,
@@ -1070,29 +953,29 @@
     },
     {
       "q": 29,
-      "passed": true,
-      "match_type": "number_match",
+      "passed": false,
+      "match_type": "no_match",
       "query": "What is Project Helios?",
       "expected": "800 MW solar-thermal facility in Morocco",
       "expected_normalized": "800 MW solar-thermal facility in Moroc",
-      "actual": "Project Helios is a strategic initiative undertaken by Manus Orion Group, focusing on the integratio",
-      "actual_normalized": "Project Helios is a strategic initiative undertaken by Manus Orion Group, focusing on the integratio",
+      "actual": "Project Helios is a strategic initiative associated with Manus Orion Group, focusing on the integrat",
+      "actual_normalized": "Project Helios is a strategic initiative associated with Manus Orion Group, focusing on the integrat",
       "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 30,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Which business unit owns Project Helios?",
       "expected": "Energy",
       "expected_normalized": "Energy",
-      "actual": "Project Helios is managed by Dr. Evelyn Reed, who is the Chief Technology Officer (CTO). This indica",
-      "actual_normalized": "Project Helios is managed by Dr. Evelyn Reed, who is the Chief Technology Officer (CTO). This indica",
+      "actual": "Project Helios is owned by the Manus Orion Group. Additionally, it is managed by several individuals",
+      "actual_normalized": "Project Helios is owned by the Manus Orion Group. Additionally, it is managed by several individuals",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 31,
@@ -1101,11 +984,11 @@
       "query": "What is the budget for Project Helios?",
       "expected": "$850M",
       "expected_normalized": "$850M",
-      "actual": "The budget for Project Helios includes several components: 1. **Total Investment Required**: $157,28",
-      "actual_normalized": "The budget for Project Helios includes several components: 1. Total Investment Required: $157,283,30",
+      "actual": "The budget for Project Helios includes a contingency allocation of $28 million, which has been appro",
+      "actual_normalized": "The budget for Project Helios includes a contingency allocation of $28 million, which has been appro",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 850000000.0, found {'15', '185', '157283308', '85', '10', '185300000', '30', '3', '40', '28', '35', '24', '157300000', '12', '2', '28000000', '157', '1', '17', '80'}",
-      "failure_category": "FORMAT_MISMATCH"
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 32,
@@ -1127,8 +1010,8 @@
       "query": "What is the capacity of Project Helios?",
       "expected": "800 MW",
       "expected_normalized": "800 MW",
-      "actual": "The capacity of Project Helios is reported to be **991 units per month** as of February 2025. This f",
-      "actual_normalized": "The capacity of Project Helios is reported to be 991 units per month as of February 2025. This figur",
+      "actual": "The capacity of Project Helios is reported to be **991 units per month** as of February 22, 2025. Th",
+      "actual_normalized": "The capacity of Project Helios is reported to be 991 units per month as of February 22, 2025. This f",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -1140,8 +1023,8 @@
       "query": "Where is Project Helios located?",
       "expected": "Morocco",
       "expected_normalized": "Moroc",
-      "actual": "Project Helios is associated with the Manus Orion Group and is primarily located in Seoul, as indica",
-      "actual_normalized": "Project Helios is associated with the Manus Orion Group and is primarily located in Seoul, as indica",
+      "actual": "Project Helios is located at the Orion Energy Hub in Copenhagen. This information is confirmed by th",
+      "actual_normalized": "Project Helios is located at the Orion Energy Hub in Copenhagen. This information is confirmed by th",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -1153,8 +1036,8 @@
       "query": "What is the UrbanMesh IoT Platform?",
       "expected": "Smart city infrastructure platform",
       "expected_normalized": "Smart city infrastructure platform",
-      "actual": "The UrbanMesh IoT Platform is a strategic initiative aimed at enhancing urban infrastructure through",
-      "actual_normalized": "The UrbanMesh IoT Platform is a strategic initiative aimed at enhancing urban infrastructure through",
+      "actual": "The UrbanMesh IoT Platform is an Internet of Things (IoT) platform specifically designed for urban a",
+      "actual_normalized": "The UrbanMesh IoT Platform is an Internet of Things (IoT) platform specifically designed for urban a",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1162,15 +1045,15 @@
     {
       "q": 36,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Which business unit owns UrbanMesh IoT Platform?",
       "expected": "SmartCity",
       "expected_normalized": "SmartCity",
-      "actual": "The UrbanMesh IoT Platform is owned by the business unit led by Dr. Evelyn Reed, who is the Chief Te",
-      "actual_normalized": "The UrbanMesh IoT Platform is owned by the business unit led by Dr. Evelyn Reed, who is the Chief Te",
+      "actual": "The UrbanMesh IoT Platform is owned by two entities: the Manus Orion Group and the Strategy Team. Bo",
+      "actual_normalized": "The UrbanMesh IoT Platform is owned by two entities: the Manus Orion Group and the Strategy Team. Bo",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 37,
@@ -1192,8 +1075,8 @@
       "query": "What is the AutoNav Logistics System?",
       "expected": "Autonomous vehicle fleet (50 to 500 units)",
       "expected_normalized": "Autonomous vehicle fleet (50 to 500 units)",
-      "actual": "The AutoNav Logistics System is a service and project initiative that focuses on enhancing logistics",
-      "actual_normalized": "The AutoNav Logistics System is a service and project initiative that focuses on enhancing logistics",
+      "actual": "The AutoNav Logistics System is a logistics system product designed to enhance operational efficienc",
+      "actual_normalized": "The AutoNav Logistics System is a logistics system product designed to enhance operational efficienc",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1205,8 +1088,8 @@
       "query": "Which business unit owns AutoNav Logistics System?",
       "expected": "Logistics",
       "expected_normalized": "Logistics",
-      "actual": "The AutoNav Logistics System is owned by the customer success team, as indicated by the relationship",
-      "actual_normalized": "The AutoNav Logistics System is owned by the customer success team, as indicated by the relationship",
+      "actual": "The AutoNav Logistics System is owned by the Manus Orion Group. This is indicated by the relationshi",
+      "actual_normalized": "The AutoNav Logistics System is owned by the Manus Orion Group. This is indicated by the relationshi",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1221,7 +1104,7 @@
       "actual": "The budget for the AutoNav Logistics System is allocated at **$40,434,966**, as approved by CFO Marc",
       "actual_normalized": "The budget for the AutoNav Logistics System is allocated at $40,434,966, as approved by CFO Marcus W",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 120000000.0, found {'15000000', '9000000', '8', '1000000', '2026', '2000000', '6000000', '40434966', '14000000', '8500000000', '10', '80', '5000000', '13000000'}",
+      "failure_reason": "Number format mismatch: expected 120000000.0, found {'8', '40434966', '15000000', '2026', '9000000', '80', '8500000000', '2000000', '6000000', '5000000', '1000000', '10', '13000000', '14000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
@@ -1231,8 +1114,8 @@
       "query": "What is the timeline for AutoNav Logistics System?",
       "expected": "2024-2026",
       "expected_normalized": "2024-2026",
-      "actual": "The timeline for the AutoNav Logistics System includes several key dates and milestones: 1. **Produc",
-      "actual_normalized": "The timeline for the AutoNav Logistics System includes several key dates and milestones: 1. Producti",
+      "actual": "The timeline for the AutoNav Logistics System includes several key dates related to its development ",
+      "actual_normalized": "The timeline for the AutoNav Logistics System includes several key dates related to its development ",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1244,11 +1127,11 @@
       "query": "What is Project Borealis?",
       "expected": "Offshore wind farm",
       "expected_normalized": "Offshore wind farm",
-      "actual": "Project Borealis is a wind farm initiative that is part of a broader strategic plan by the Manus Ori",
-      "actual_normalized": "Project Borealis is a wind farm initiative that is part of a broader strategic plan by the Manus Ori",
+      "actual": "Project Borealis refers to the Project Borealis Wind Farm, which is an initiative under the Manus Or",
+      "actual_normalized": "Project Borealis refers to the Project Borealis Wind Farm, which is an initiative under the Manus Or",
       "error_type": null,
-      "failure_reason": "Partial overlap (67%) - may be from different source",
-      "failure_category": "ALTERNATE_SOURCE"
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 43,
@@ -1257,8 +1140,8 @@
       "query": "What is the expected revenue from Project Borealis?",
       "expected": "$450M in recurring revenue",
       "expected_normalized": "$450M in recurring revenue",
-      "actual": "The expected revenue from Project Borealis Wind Farm is $450 million. This revenue is categorized as",
-      "actual_normalized": "The expected revenue from Project Borealis Wind Farm is $450 million. This revenue is categorized as",
+      "actual": "The expected revenue from Project Borealis Wind Farm is $450 million, which is categorized as recurr",
+      "actual_normalized": "The expected revenue from Project Borealis Wind Farm is $450 million, which is categorized as recurr",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1283,8 +1166,8 @@
       "query": "What is the capacity target for GreenStream Hydrogen?",
       "expected": "50 tons/day",
       "expected_normalized": "50 tons/day",
-      "actual": "The capacity target for the GreenStream Hydrogen Initiative is set at **50 tons per day**. This targ",
-      "actual_normalized": "The capacity target for the GreenStream Hydrogen Initiative is set at 50 tons per day. This target i",
+      "actual": "The capacity target for the GreenStream Hydrogen Initiative is set at **50 tons per day** for its co",
+      "actual_normalized": "The capacity target for the GreenStream Hydrogen Initiative is set at 50 tons per day for its commer",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1292,12 +1175,12 @@
     {
       "q": 46,
       "passed": true,
-      "match_type": "number_match",
+      "match_type": "exact_match",
       "query": "What is NexGen Battery Storage's capacity target?",
       "expected": "1 GWh",
       "expected_normalized": "1 GWh",
-      "actual": "NexGen Battery Storage has a target capacity of 1,954 units annually, with production ramp-up schedu",
-      "actual_normalized": "NexGen Battery Storage has a target capacity of 1,954 units annually, with production ramp-up schedu",
+      "actual": "NexGen Battery Storage has a capacity target of 1 GWh. This information indicates the intended energ",
+      "actual_normalized": "NexGen Battery Storage has a capacity target of 1 GWh. This information indicates the intended energ",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1309,8 +1192,8 @@
       "query": "What is the SkyLink Satellite Network target?",
       "expected": "120 units by 2027",
       "expected_normalized": "120 units by 2027",
-      "actual": "The target for the SkyLink Satellite Network is to achieve the deployment of 120 units by the deadli",
-      "actual_normalized": "The target for the SkyLink Satellite Network is to achieve the deployment of 120 units by the deadli",
+      "actual": "The target for the SkyLink Satellite Network, as part of its strategic initiative, is to achieve 120",
+      "actual_normalized": "The target for the SkyLink Satellite Network, as part of its strategic initiative, is to achieve 120",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1322,11 +1205,11 @@
       "query": "What is the Quantum-Secured Supply Chain?",
       "expected": "Blockchain-based tracking system with quantum-resistant encryption",
       "expected_normalized": "Blockchain-based tracking system with quantum-resistant encryption",
-      "actual": "The Quantum-Secured Supply Chain is a strategic initiative focused on enhancing supply chain securit",
-      "actual_normalized": "The Quantum-Secured Supply Chain is a strategic initiative focused on enhancing supply chain securit",
+      "actual": "The Quantum-Secured Supply Chain refers to a technology and system designed to enhance the security ",
+      "actual_normalized": "The Quantum-Secured Supply Chain refers to a technology and system designed to enhance the security ",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 49,
@@ -1335,8 +1218,8 @@
       "query": "Where is the Orion Aerospace Plant located?",
       "expected": "Toulouse, France",
       "expected_normalized": "Toulouse, France",
-      "actual": "The Orion Aerospace Plant is located in Toulouse, France. This information is consistently reference",
-      "actual_normalized": "The Orion Aerospace Plant is located in Toulouse, France. This information is consistently reference",
+      "actual": "The Orion Aerospace Plant is located in Toulouse, France. It is a manufacturing facility with an ann",
+      "actual_normalized": "The Orion Aerospace Plant is located in Toulouse, France. It is a manufacturing facility with an ann",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1348,8 +1231,8 @@
       "query": "Where is the Orion Energy Hub located?",
       "expected": "Copenhagen, Denmark",
       "expected_normalized": "Copenhagen, Denmark",
-      "actual": "The Orion Energy Hub is located in Copenhagen, Denmark. This information is consistently supported a",
-      "actual_normalized": "The Orion Energy Hub is located in Copenhagen, Denmark. This information is consistently supported a",
+      "actual": "The Orion Energy Hub is located in Copenhagen, Denmark. It is identified as an energy hub and is ass",
+      "actual_normalized": "The Orion Energy Hub is located in Copenhagen, Denmark. It is identified as an energy hub and is ass",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1361,8 +1244,8 @@
       "query": "Where is the Orion Logistics Center located?",
       "expected": "Singapore",
       "expected_normalized": "Singapore",
-      "actual": "The Orion Logistics Center is located in Singapore. This information is consistently supported acros",
-      "actual_normalized": "The Orion Logistics Center is located in Singapore. This information is consistently supported acros",
+      "actual": "The Orion Logistics Center is located in Singapore. It is identified as a logistics center and is as",
+      "actual_normalized": "The Orion Logistics Center is located in Singapore. It is identified as a logistics center and is as",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1374,8 +1257,8 @@
       "query": "Where is the SmartCity Innovation Lab located?",
       "expected": "Seoul, South Korea",
       "expected_normalized": "Seoul, South Korea",
-      "actual": "The SmartCity Innovation Lab is located in Seoul, South Korea. This information is consistently refe",
-      "actual_normalized": "The SmartCity Innovation Lab is located in Seoul, South Korea. This information is consistently refe",
+      "actual": "The SmartCity Innovation Lab is located in Seoul, South Korea. This facility is part of various init",
+      "actual_normalized": "The SmartCity Innovation Lab is located in Seoul, South Korea. This facility is part of various init",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1387,8 +1270,8 @@
       "query": "Where is the Orion R&D Campus located?",
       "expected": "Boulder",
       "expected_normalized": "Boulder",
-      "actual": "The Orion R&D Campus is located in Boulder, Colorado, USA. This information is consistently supporte",
-      "actual_normalized": "The Orion R&D Campus is located in Boulder, Colorado, USA. This information is consistently supporte",
+      "actual": "The Orion R&D Campus is located in Boulder, Colorado, USA. This facility is designated as a research",
+      "actual_normalized": "The Orion R&D Campus is located in Boulder, Colorado, USA. This facility is designated as a research",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1413,8 +1296,8 @@
       "query": "How many global facilities does Manus Orion Group have?",
       "expected": "6",
       "expected_normalized": "6",
-      "actual": "Based on the retrieved information, Manus Orion Group has the following global facilities: 1. **Smar",
-      "actual_normalized": "Based on the retrieved information, Manus Orion Group has the following global facilities: 1. SmartC",
+      "actual": "The retrieved information does not specify the exact number of global facilities that Manus Orion Gr",
+      "actual_normalized": "The retrieved information does not specify the exact number of global facilities that Manus Orion Gr",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1426,8 +1309,8 @@
       "query": "Which facility handles aerospace manufacturing?",
       "expected": "Orion Aerospace Plant - Toulouse",
       "expected_normalized": "Orion Aerospace Plant - Toulouse",
-      "actual": "The facility that handles aerospace manufacturing is the **Orion Aerospace Plant**, which is located",
-      "actual_normalized": "The facility that handles aerospace manufacturing is the Orion Aerospace Plant, which is located in ",
+      "actual": "The facility that handles aerospace manufacturing is the **Orion Aerospace Plant**, located in Toulo",
+      "actual_normalized": "The facility that handles aerospace manufacturing is the Orion Aerospace Plant, located in Toulouse,",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1439,8 +1322,8 @@
       "query": "Which facility handles energy operations?",
       "expected": "Orion Energy Hub - Copenhagen",
       "expected_normalized": "Orion Energy Hub - Copenhagen",
-      "actual": "The facility that handles energy operations is the **Energy Hub**, which is located in **Copenhagen*",
-      "actual_normalized": "The facility that handles energy operations is the Energy Hub, which is located in Copenhagen. This ",
+      "actual": "The facility that handles energy operations is the **Orion Energy Hub**, located in Copenhagen. This",
+      "actual_normalized": "The facility that handles energy operations is the Orion Energy Hub, located in Copenhagen. This fac",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1453,7 +1336,7 @@
       "expected": "Orion Logistics Center - Singapore",
       "expected_normalized": "Orion Logistics Center - Singapore",
       "actual": "The facility that handles logistics operations is the **Logistics Center - Singapore**. This facilit",
-      "actual_normalized": "The facility that handles logistics operations is the Logistics Center - Singapore. This facility co",
+      "actual_normalized": "The facility that handles logistics operations is the Logistics Center - Singapore. This facility is",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1465,8 +1348,8 @@
       "query": "Which facility handles smart city R&D?",
       "expected": "SmartCity Innovation Lab - Seoul",
       "expected_normalized": "SmartCity Innovation Lab - Seoul",
-      "actual": "The facility that handles smart city R&D is the **SmartCity Innovation Lab**, which is located in **",
-      "actual_normalized": "The facility that handles smart city R&D is the SmartCity Innovation Lab, which is located in Seoul.",
+      "actual": "The facility that handles smart city R&D is the **SmartCity Innovation Lab**, located in Seoul. This",
+      "actual_normalized": "The facility that handles smart city R&D is the SmartCity Innovation Lab, located in Seoul. This lab",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1491,8 +1374,8 @@
       "query": "What is the 2027 revenue target?",
       "expected": "$8.5B",
       "expected_normalized": "$8.5B",
-      "actual": "The revenue target for the year 2027 is set at **$8.5 billion (USD)**. This target is part of the st",
-      "actual_normalized": "The revenue target for the year 2027 is set at $8.5 billion (USD). This target is part of the strate",
+      "actual": "The revenue target for 2027 is set at **$8.5 billion**. This target is part of the company's strateg",
+      "actual_normalized": "The revenue target for 2027 is set at $8.5 billion. This target is part of the company's strategic f",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1512,16 +1395,16 @@
     },
     {
       "q": 63,
-      "passed": true,
-      "match_type": "component_match",
+      "passed": false,
+      "match_type": "no_match",
       "query": "What is Project Helios expected to contribute by 2026?",
       "expected": "$800M",
       "expected_normalized": "$800M",
-      "actual": "By 2026, Project Helios is expected to contribute significantly in terms of revenue and operational ",
-      "actual_normalized": "By 2026, Project Helios is expected to contribute significantly in terms of revenue and operational ",
+      "actual": "By 2026, Project Helios is expected to contribute significantly to the organization's financial and ",
+      "actual_normalized": "By 2026, Project Helios is expected to contribute significantly to the organization's financial and ",
       "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
+      "failure_reason": "Number format mismatch: expected 800000000.0, found {'3', '2026', '35', '26', '86', '95', '46', '75', '18', '92', '28', '67', '424', '4', '12', '94', '2025', '31', '1', '15', '10', '2027', '64', '29', '80', '96', '5', '24', '97', '100', '28000000', '85', '424000000', '33', '74', '27', '76', '40', '1979', '30', '2', '93'}",
+      "failure_category": "FORMAT_MISMATCH"
     },
     {
       "q": 64,
@@ -1530,8 +1413,8 @@
       "query": "What percentage market share does Falcon UAV have?",
       "expected": "12%",
       "expected_normalized": "12%",
-      "actual": "Falcon UAV has a market share of 12%. This information is confirmed in the retrieved data under the ",
-      "actual_normalized": "Falcon UAV has a market share of 12%. This information is confirmed in the retrieved data under the ",
+      "actual": "Based on the retrieved information, Falcon UAV is aiming to achieve a market leadership position wit",
+      "actual_normalized": "Based on the retrieved information, Falcon UAV is aiming to achieve a market leadership position wit",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1543,8 +1426,8 @@
       "query": "What is the R&D spending target as percentage of revenue?",
       "expected": "12%",
       "expected_normalized": "12%",
-      "actual": "The retrieved information does not specify a direct target for R&D spending as a percentage of reven",
-      "actual_normalized": "The retrieved information does not specify a direct target for R&D spending as a percentage of reven",
+      "actual": "The retrieved information does not explicitly state the R&D spending target as a percentage of reven",
+      "actual_normalized": "The retrieved information does not explicitly state the R&D spending target as a percentage of reven",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -1577,29 +1460,29 @@
     },
     {
       "q": 68,
-      "passed": true,
-      "match_type": "exact_match",
+      "passed": false,
+      "match_type": "no_match",
       "query": "What is the budget allocation for R&D?",
       "expected": "40%",
       "expected_normalized": "40%",
-      "actual": "The budget allocation for Research and Development (R&D) is 40%. Additionally, various financial met",
-      "actual_normalized": "The budget allocation for Research and Development (R&D) is 40%. Additionally, various financial met",
+      "actual": "The budget allocation for the Technology Innovation and R&D Roadmap initiative is reported to be $73",
+      "actual_normalized": "The budget allocation for the Technology Innovation and R&D Roadmap initiative is reported to be $73",
       "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 69,
-      "passed": false,
-      "match_type": "no_match",
+      "passed": true,
+      "match_type": "exact_match",
       "query": "What is the budget allocation for CapEx?",
       "expected": "35%",
       "expected_normalized": "35%",
       "actual": "The budget allocation for Capital Expenditures (CapEx) is planned to be **$15 million** for the year",
       "actual_normalized": "The budget allocation for Capital Expenditures (CapEx) is planned to be $15 million for the year 202",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 70,
@@ -1621,8 +1504,8 @@
       "query": "What is the budget allocation for working capital?",
       "expected": "10%",
       "expected_normalized": "10%",
-      "actual": "The budget allocation for working capital is set at 10%. Additionally, there is a specific budget it",
-      "actual_normalized": "The budget allocation for working capital is set at 10%. Additionally, there is a specific budget it",
+      "actual": "The budget allocation for working capital is a reduction of $12 million. This reduction is specifica",
+      "actual_normalized": "The budget allocation for working capital is a reduction of $12 million. This reduction is specifica",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1643,28 +1526,28 @@
     {
       "q": 73,
       "passed": true,
-      "match_type": "exact_match",
+      "match_type": "component_match",
       "query": "What is the UrbanMesh deployment target for Q4 2025?",
       "expected": "25 cities",
       "expected_normalized": "25 cities",
-      "actual": "The UrbanMesh deployment target for Q4 2025 is to accelerate the UrbanMesh IoT Platform deployment t",
-      "actual_normalized": "The UrbanMesh deployment target for Q4 2025 is to accelerate the UrbanMesh IoT Platform deployment t",
+      "actual": "The retrieved information does not specify a particular deployment target for the UrbanMesh IoT Plat",
+      "actual_normalized": "The retrieved information does not specify a particular deployment target for the UrbanMesh IoT Plat",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
       "q": 74,
-      "passed": true,
-      "match_type": "number_match",
+      "passed": false,
+      "match_type": "no_data",
       "query": "What is the target PPA capacity for Project Borealis?",
       "expected": "2 GW",
       "expected_normalized": "2 GW",
       "actual": "The retrieved information does not specify the target PPA (Power Purchase Agreement) capacity for Pr",
       "actual_normalized": "The retrieved information does not specify the target PPA (Power Purchase Agreement) capacity for Pr",
       "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 75,
@@ -1686,8 +1569,8 @@
       "query": "Who is the supplier for avionics components?",
       "expected": "TechFlow Industries",
       "expected_normalized": "TechFlow Industries",
-      "actual": "The supplier for avionics components is **TechFlow Industries**. They have a performance score of 79",
-      "actual_normalized": "The supplier for avionics components is TechFlow Industries. They have a performance score of 79/100",
+      "actual": "The suppliers for avionics components include: 1. **TechFlow Industries** - Performance Score: 79/10",
+      "actual_normalized": "The suppliers for avionics components include: 1. TechFlow Industries - Performance Score: 79/100 - ",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1699,24 +1582,24 @@
       "query": "Which supplier provides components for AutoNav?",
       "expected": "AutoNav Systems",
       "expected_normalized": "AutoNav Systems",
-      "actual": "The suppliers that provide components for AutoNav Logistics System include: 1. SecureCode Systems\n2.",
-      "actual_normalized": "The suppliers that provide components for AutoNav Logistics System include: 1. SecureCode Systems 2.",
+      "actual": "The supplier that provides components for AutoNav is **AutoNav Systems**. They are identified as a s",
+      "actual_normalized": "The supplier that provides components for AutoNav is AutoNav Systems. They are identified as a suppl",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
       "q": 78,
-      "passed": false,
-      "match_type": "no_data",
+      "passed": true,
+      "match_type": "entity_match",
       "query": "Which supplier is Quantum Dynamics Ltd?",
       "expected": "Critical supplier for Manus Orion operations",
       "expected_normalized": "Critical supplier for Manus Orion operations",
-      "actual": "Quantum Dynamics Ltd is identified as an organization that supplies various entities, including Atla",
-      "actual_normalized": "Quantum Dynamics Ltd is identified as an organization that supplies various entities, including Atla",
+      "actual": "Quantum Dynamics Ltd is identified as a supplier with a medium risk level, providing components. Add",
+      "actual_normalized": "Quantum Dynamics Ltd is identified as a supplier with a medium risk level, providing components. Add",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 79,
@@ -1751,8 +1634,8 @@
       "query": "Which supplier handles component sourcing?",
       "expected": "EcoSolutions Corp",
       "expected_normalized": "EcoSolutions",
-      "actual": "The supplier that handles component sourcing is **GreenTech Materials**. The operations team, overse",
-      "actual_normalized": "The supplier that handles component sourcing is GreenTech Materials. The operations team, overseen b",
+      "actual": "The supplier that handles component sourcing is **GreenTech Materials**. The operations team coordin",
+      "actual_normalized": "The supplier that handles component sourcing is GreenTech Materials. The operations team coordinates",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
@@ -1760,7 +1643,7 @@
     {
       "q": 82,
       "passed": false,
-      "match_type": "no_data",
+      "match_type": "no_match",
       "query": "Which supplier provides materials support?",
       "expected": "GreenTech Materials",
       "expected_normalized": "GreenTech Materials",
@@ -1773,12 +1656,12 @@
     {
       "q": 83,
       "passed": true,
-      "match_type": "component_match",
+      "match_type": "entity_match",
       "query": "What risk does TechFlow Industries present?",
       "expected": "Supply chain dependencies",
       "expected_normalized": "Supply chain dependencies",
-      "actual": "TechFlow Industries presents several risks primarily related to its financial condition and operatio",
-      "actual_normalized": "TechFlow Industries presents several risks primarily related to its financial condition and operatio",
+      "actual": "TechFlow Industries presents several significant risks, primarily categorized as follows: 1. **High ",
+      "actual_normalized": "TechFlow Industries presents several significant risks, primarily categorized as follows: 1. High Ri",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
@@ -1811,16 +1694,16 @@
     },
     {
       "q": 86,
-      "passed": false,
-      "match_type": "no_match",
+      "passed": true,
+      "match_type": "component_match",
       "query": "Who is Metropolitan Transit Corp?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "Metropolitan Transit Corp is an organization that appears to be involved in various initiatives and ",
-      "actual_normalized": "Metropolitan Transit Corp is an organization that appears to be involved in various initiatives and ",
+      "actual": "Metropolitan Transit Corp is an organization operating in the transportation industry, specifically ",
+      "actual_normalized": "Metropolitan Transit Corp is an organization operating in the transportation industry, specifically ",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 87,
@@ -1829,50 +1712,50 @@
       "query": "Who is Neo-City Development Authority?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "The Neo-City Development Authority is identified as both an organization and a customer in the retri",
-      "actual_normalized": "The Neo-City Development Authority is identified as both an organization and a customer in the retri",
+      "actual": "The Neo-City Development Authority is identified as both a customer and an organization in the retri",
+      "actual_normalized": "The Neo-City Development Authority is identified as both a customer and an organization in the retri",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
     },
     {
       "q": 88,
-      "passed": false,
-      "match_type": "no_data",
+      "passed": true,
+      "match_type": "component_match",
       "query": "Who is SolarFuture Holdings?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "SolarFuture Holdings is an organization that is actively involved in various initiatives related to ",
-      "actual_normalized": "SolarFuture Holdings is an organization that is actively involved in various initiatives related to ",
+      "actual": "SolarFuture Holdings is an organization that appears to be involved in the renewable energy sector, ",
+      "actual_normalized": "SolarFuture Holdings is an organization that appears to be involved in the renewable energy sector, ",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 89,
-      "passed": false,
-      "match_type": "no_match",
+      "passed": true,
+      "match_type": "component_match",
       "query": "Who is EuroGrid Energy?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "EuroGrid Energy is an organization that operates in the renewable energy sector. It is involved in v",
-      "actual_normalized": "EuroGrid Energy is an organization that operates in the renewable energy sector. It is involved in v",
+      "actual": "EuroGrid Energy is an organization that is involved in various initiatives related to sustainability",
+      "actual_normalized": "EuroGrid Energy is an organization that is involved in various initiatives related to sustainability",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 90,
-      "passed": false,
-      "match_type": "no_data",
+      "passed": true,
+      "match_type": "component_match",
       "query": "Who is Global Defense Systems?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "Global Defense Systems is an organization operating in the defense industry. It has a presence in mu",
-      "actual_normalized": "Global Defense Systems is an organization operating in the defense industry. It has a presence in mu",
+      "actual": "Global Defense Systems is a customer in the defense industry with a global presence. The organizatio",
+      "actual_normalized": "Global Defense Systems is a customer in the defense industry with a global presence. The organizatio",
       "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
       "q": 91,
@@ -1881,8 +1764,8 @@
       "query": "Who is Pacific Rim Airlines?",
       "expected": "A customer of Manus Orion Group",
       "expected_normalized": "A customer of Manus Orion Group",
-      "actual": "Pacific Rim Airlines is identified as both an organization and a customer in the retrieved informati",
-      "actual_normalized": "Pacific Rim Airlines is identified as both an organization and a customer in the retrieved informati",
+      "actual": "Pacific Rim Airlines is identified as both a customer and an organization in the provided informatio",
+      "actual_normalized": "Pacific Rim Airlines is identified as both a customer and an organization in the provided informatio",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
@@ -1894,37 +1777,37 @@
       "query": "How many major customer accounts does Manus Orion have?",
       "expected": "6",
       "expected_normalized": "6",
-      "actual": "Based on the retrieved information, Manus Orion Group is looking to expand its customer accounts. He",
-      "actual_normalized": "Based on the retrieved information, Manus Orion Group is looking to expand its customer accounts. He",
+      "actual": "Based on the retrieved information, Manus Orion Group has the following major customer accounts: 1. ",
+      "actual_normalized": "Based on the retrieved information, Manus Orion Group has the following major customer accounts: 1. ",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
       "q": 93,
-      "passed": true,
-      "match_type": "exact_match",
+      "passed": false,
+      "match_type": "no_match",
       "query": "Which customer has expressed interest in AutoNav capabilities?",
       "expected": "Metropolitan Transit Corp",
       "expected_normalized": "Metropolitan Transit",
-      "actual": "The customer that has expressed interest in AutoNav capabilities is **Metropolitan Transit Corp**. T",
-      "actual_normalized": "The customer that has expressed interest in AutoNav capabilities is Metropolitan Transit Corp. This ",
+      "actual": "Based on the retrieved information, the customer that has expressed interest in AutoNav capabilities",
+      "actual_normalized": "Based on the retrieved information, the customer that has expressed interest in AutoNav capabilities",
       "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
+      "failure_reason": "No significant overlap between expected and actual",
+      "failure_category": "MISMATCH"
     },
     {
       "q": 94,
       "passed": false,
-      "match_type": "no_match",
+      "match_type": "no_data",
       "query": "Which customer requires workshops for Project Helios?",
       "expected": "Neo-City Development Authority",
       "expected_normalized": "Neo-City Development Authority",
-      "actual": "The customer that requires workshops for Project Helios is **Global Defense Systems**. This requirem",
-      "actual_normalized": "The customer that requires workshops for Project Helios is Global Defense Systems. This requirement ",
+      "actual": "The retrieved information does not specify which customer requires workshops for Project Helios. It ",
+      "actual_normalized": "The retrieved information does not specify which customer requires workshops for Project Helios. It ",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": "System explicitly said no data found",
+      "failure_category": "NOT_FOUND"
     },
     {
       "q": 95,
@@ -1943,136 +1826,6 @@
       "q": 96,
       "passed": false,
       "match_type": "no_match",
-      "query": "How many documents are in the Manus Orion corpus?",
-      "expected": "241+",
-      "expected_normalized": "241+",
-      "actual": "The retrieved information does not specify the exact number of documents in the Manus Orion corpus. ",
-      "actual_normalized": "The retrieved information does not specify the exact number of documents in the Manus Orion corpus. ",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 97,
-      "passed": false,
-      "match_type": "no_data",
-      "query": "What is the total word count of the corpus?",
-      "expected": "250,000+",
-      "expected_normalized": "250,000+",
-      "actual": "The retrieved information does not provide a specific total word count for the corpus. The documents",
-      "actual_normalized": "The retrieved information does not provide a specific total word count for the corpus. The documents",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 98,
-      "passed": true,
-      "match_type": "exact_match",
-      "query": "How many key programs does Manus Orion have?",
-      "expected": "9",
-      "expected_normalized": "9",
-      "actual": "Based on the retrieved information, Manus Orion has the following key programs: 1. **Falcon UAV Prog",
-      "actual_normalized": "Based on the retrieved information, Manus Orion has the following key programs: 1. Falcon UAV Progra",
-      "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
-    },
-    {
-      "q": 99,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "How many executives are in leadership?",
-      "expected": "8",
-      "expected_normalized": "8",
-      "actual": "The executive of Manus Orion Group is Dr. Evelyn Reed.\n\nNote: Your documents also mention other exec",
-      "actual_normalized": "The executive of Manus Orion Group is Dr. Evelyn Reed. Note: Your documents also mention other execu",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 100,
-      "passed": true,
-      "match_type": "exact_match",
-      "query": "How many critical suppliers does Manus Orion have?",
-      "expected": "10",
-      "expected_normalized": "10",
-      "actual": "The retrieved information does not specify the exact number of critical suppliers that Manus Orion h",
-      "actual_normalized": "The retrieved information does not specify the exact number of critical suppliers that Manus Orion h",
-      "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
-    },
-    {
-      "q": 101,
-      "passed": true,
-      "match_type": "entity_match",
-      "query": "What file formats are used in the corpus?",
-      "expected": "Markdown, TXT, HTML, CSV, JSON, XLSX",
-      "expected_normalized": "Markdown, TXT, HTML, CSV, JSON, XLSX",
-      "actual": "The corpus contains the following file formats: 1. **Markdown (.md)** - Examples include: - esg_stra",
-      "actual_normalized": "The corpus contains the following file formats: 1. Markdown (.md) - Examples include: - esgstrategyf",
-      "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
-    },
-    {
-      "q": 102,
-      "passed": true,
-      "match_type": "exact_match",
-      "query": "How many documents are in the strategy folder?",
-      "expected": "25",
-      "expected_normalized": "25",
-      "actual": "Based on the retrieved information, there are **four documents** specifically mentioned in the strat",
-      "actual_normalized": "Based on the retrieved information, there are four documents specifically mentioned in the strategy ",
-      "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
-    },
-    {
-      "q": 103,
-      "passed": true,
-      "match_type": "exact_match",
-      "query": "How many documents are in the operations folder?",
-      "expected": "22",
-      "expected_normalized": "22",
-      "actual": "The retrieved information does not explicitly mention the number of documents in the operations fold",
-      "actual_normalized": "The retrieved information does not explicitly mention the number of documents in the operations fold",
-      "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
-    },
-    {
-      "q": 104,
-      "passed": true,
-      "match_type": "exact_match",
-      "query": "How many documents are in the engineering folder?",
-      "expected": "25",
-      "expected_normalized": "25",
-      "actual": "Based on the retrieved information, there are **eight documents** in the engineering folder. Here is",
-      "actual_normalized": "Based on the retrieved information, there are eight documents in the engineering folder. Here is the",
-      "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
-    },
-    {
-      "q": 105,
-      "passed": true,
-      "match_type": "exact_match",
-      "query": "How many documents are in the projects folder?",
-      "expected": "25",
-      "expected_normalized": "25",
-      "actual": "Based on the retrieved information, there are **seven documents** in the projects folder. Here is th",
-      "actual_normalized": "Based on the retrieved information, there are seven documents in the projects folder. Here is the li",
-      "error_type": null,
-      "failure_reason": null,
-      "failure_category": null
-    },
-    {
-      "q": 106,
-      "passed": false,
-      "match_type": "no_match",
       "query": "What is the target autonomous logistics market share?",
       "expected": "30%",
       "expected_normalized": "30%",
@@ -2083,7 +1836,7 @@
       "failure_category": "MISMATCH"
     },
     {
-      "q": 107,
+      "q": 97,
       "passed": true,
       "match_type": "number_match",
       "query": "When is Project Borealis commissioning scheduled?",
@@ -2096,20 +1849,20 @@
       "failure_category": null
     },
     {
-      "q": 108,
+      "q": 98,
       "passed": false,
       "match_type": "no_match",
       "query": "What regions are targeted for regulatory engagement?",
       "expected": "EU, US, APAC",
       "expected_normalized": "EU, US, APAC",
-      "actual": "The regions targeted for regulatory engagement based on the retrieved information are: 1. **Seoul** ",
-      "actual_normalized": "The regions targeted for regulatory engagement based on the retrieved information are: 1. Seoul - Sp",
+      "actual": "The regions targeted for regulatory engagement based on the retrieved information include: 1. **Euro",
+      "actual_normalized": "The regions targeted for regulatory engagement based on the retrieved information include: 1. EuroGr",
       "error_type": null,
       "failure_reason": "No significant overlap between expected and actual",
       "failure_category": "MISMATCH"
     },
     {
-      "q": 109,
+      "q": 99,
       "passed": false,
       "match_type": "no_match",
       "query": "What is the working capital inventory target?",
@@ -2122,72 +1875,72 @@
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 110,
+      "q": 100,
       "passed": false,
       "match_type": "no_match",
       "query": "What is the CapEx approval threshold for individual projects?",
       "expected": "$7M",
       "expected_normalized": "$7M",
-      "actual": "The CapEx approval threshold for individual projects is $10 million. Additionally, there are other t",
-      "actual_normalized": "The CapEx approval threshold for individual projects is $10 million. Additionally, there are other t",
+      "actual": "The CapEx approval threshold for individual projects is $5 million. This information is supported by",
+      "actual_normalized": "The CapEx approval threshold for individual projects is $5 million. This information is supported by",
       "error_type": null,
-      "failure_reason": "Number format mismatch: expected 7000000.0, found {'10000000', '5', '15000000', '2', '28000000', '8', '36000000', '45000000', '6000000', '2000000', '10', '12000000', '8500000000', '80', '5000000'}",
+      "failure_reason": "Number format mismatch: expected 7000000.0, found {'8', '15000000', '10000000', '45000000', '80', '8500000000', '5', '12000000', '2000000', '6000000', '5000000', '2', '10', '28000000', '36000000'}",
       "failure_category": "FORMAT_MISMATCH"
     },
     {
-      "q": 111,
+      "q": 101,
       "passed": true,
-      "match_type": "entity_match",
+      "match_type": "exact_match",
       "query": "Who oversees budget and monthly variance reviews?",
       "expected": "CFO Marcus Webb",
       "expected_normalized": "CFO Marcus Webb",
-      "actual": "The retrieved information does not specify who exactly oversees budget and monthly variance reviews ",
-      "actual_normalized": "The retrieved information does not specify who exactly oversees budget and monthly variance reviews ",
+      "actual": "The oversight of budget and monthly variance reviews is handled by CFO Marcus Webb. Monthly variance",
+      "actual_normalized": "The oversight of budget and monthly variance reviews is handled by CFO Marcus Webb. Monthly variance",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
-      "q": 112,
+      "q": 102,
       "passed": true,
       "match_type": "entity_match",
       "query": "Who leads the engineering team?",
       "expected": "CTO Dr. Evelyn Reed",
       "expected_normalized": "CTO Dr. Evelyn Reed",
-      "actual": "The engineering team is led by Dr. Evelyn Reed. She also leads the Engineering Integration team.",
-      "actual_normalized": "The engineering team is led by Dr. Evelyn Reed. She also leads the Engineering Integration team",
+      "actual": "The engineering team is led by Dr. Evelyn Reed. She has been identified as the leader of both the En",
+      "actual_normalized": "The engineering team is led by Dr. Evelyn Reed. She has been identified as the leader of both the En",
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
     },
     {
-      "q": 113,
-      "passed": false,
-      "match_type": "no_match",
+      "q": 103,
+      "passed": true,
+      "match_type": "entity_match",
       "query": "Who oversees operational execution?",
       "expected": "COO Alex Thorne",
       "expected_normalized": "COO Alex Thorne",
-      "actual": "The operational execution is overseen by the Manus Orion Group. This organization is responsible for",
-      "actual_normalized": "The operational execution is overseen by the Manus Orion Group. This organization is responsible for",
+      "actual": "The operational execution is overseen by the Manus Orion Group. This organization is involved in str",
+      "actual_normalized": "The operational execution is overseen by the Manus Orion Group. This organization is involved in str",
       "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
+      "failure_reason": null,
+      "failure_category": null
     },
     {
-      "q": 114,
+      "q": 104,
       "passed": false,
       "match_type": "no_data",
       "query": "Who ensures regulatory compliance?",
       "expected": "General Counsel James Park",
       "expected_normalized": "General Counsel James Park",
-      "actual": "Based on the retrieved information, it appears that the Manus Orion Group is the organization involv",
-      "actual_normalized": "Based on the retrieved information, it appears that the Manus Orion Group is the organization involv",
+      "actual": "Based on the retrieved information, the Manus Orion Group is the organization mentioned, but there i",
+      "actual_normalized": "Based on the retrieved information, the Manus Orion Group is the organization mentioned, but there i",
       "error_type": null,
       "failure_reason": "System explicitly said no data found",
       "failure_category": "NOT_FOUND"
     },
     {
-      "q": 115,
+      "q": 105,
       "passed": true,
       "match_type": "exact_match",
       "query": "What is the export control policy reference?",
@@ -2200,7 +1953,7 @@
       "failure_category": null
     },
     {
-      "q": 116,
+      "q": 106,
       "passed": true,
       "match_type": "number_match",
       "query": "What is the data privacy policy reference?",
@@ -2211,67 +1964,27 @@
       "error_type": null,
       "failure_reason": null,
       "failure_category": null
-    },
-    {
-      "q": 117,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "When was the corpus generated?",
-      "expected": "2025-01-21",
-      "expected_normalized": "2025-01-21",
-      "actual": "The corpus was generated as a result of strategic planning sessions conducted in Q4 2024. This infor",
-      "actual_normalized": "The corpus was generated as a result of strategic planning sessions conducted in Q4 2024. This infor",
-      "error_type": null,
-      "failure_reason": "System explicitly said no data found",
-      "failure_category": "NOT_FOUND"
-    },
-    {
-      "q": 118,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What is the purpose of the corpus?",
-      "expected": "Context Foundry stress testing",
-      "expected_normalized": "Context Foundry stress testing",
-      "actual": "The purpose of the corpus, as indicated by the retrieved documents, is to support the strategic init",
-      "actual_normalized": "The purpose of the corpus, as indicated by the retrieved documents, is to support the strategic init",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 119,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What is the document ID format?",
-      "expected": "CATEGORY-YYYY-NNN",
-      "expected_normalized": "CATEGORY-YYYY-NNN",
-      "actual": "The document ID format appears to consist of a prefix that indicates the type of document followed b",
-      "actual_normalized": "The document ID format appears to consist of a prefix that indicates the type of document followed b",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
-    },
-    {
-      "q": 120,
-      "passed": false,
-      "match_type": "no_match",
-      "query": "What is the policy ID format?",
-      "expected": "POL-UNIT-NNN",
-      "expected_normalized": "POL-UNIT-NNN",
-      "actual": "The policy ID format is structured as follows: **POLICIES-YYYY-NNN**, where **YYYY** represents the ",
-      "actual_normalized": "The policy ID format is structured as follows: POLICIES-YYYY-NNN, where YYYY represents the year (e.",
-      "error_type": null,
-      "failure_reason": "No significant overlap between expected and actual",
-      "failure_category": "MISMATCH"
     }
   ],
   "trace_stats": {
-    "total_questions": 0,
-    "avg_chunks_retrieved": 0,
-    "avg_semantic_score": 0,
-    "query_type_distribution": {},
-    "evaluator_rule_distribution": {},
-    "low_score_queries": 0
+    "total_questions": 106,
+    "avg_chunks_retrieved": 3.9150943396226405,
+    "avg_semantic_score": 0.012805660377358493,
+    "query_type_distribution": {
+      "unknown": 106
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 35,
+      "no_match": 35,
+      "boolean_match": 2,
+      "semantic_match": 1,
+      "component_match": 19,
+      "no_data": 6,
+      "number_match": 3,
+      "percentage_match": 1,
+      "entity_match": 4
+    },
+    "low_score_queries": 105
   },
   "trace_file": "test_results/traces/manus_orion_traces_aab0ec76.jsonl"
 }
