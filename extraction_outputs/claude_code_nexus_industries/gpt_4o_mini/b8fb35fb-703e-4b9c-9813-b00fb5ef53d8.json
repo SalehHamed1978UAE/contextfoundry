@@ -2,7 +2,7 @@
   "document_id": "b8fb35fb-703e-4b9c-9813-b00fb5ef53d8",
   "document_path": "01_executive_team.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:17:34.725542",
+  "extracted_at": "2026-01-26T03:00:15.452188",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -117,7 +117,7 @@
       "properties": {
         "type": "Governing Body"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "01_executive_team.md",
       "source_excerpt": "Reports To: Board of Directors",
       "aliases": []
@@ -144,7 +144,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "Robert Martinez reports to CEO (Dr. Victoria Chen)"
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
       "source_entity": "Dr. Aisha Patel",
@@ -155,7 +155,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "Dr. Aisha Patel reports to CEO (Dr. Victoria Chen)"
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
       "source_entity": "James Wilson",
@@ -166,7 +166,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "James Wilson reports to CEO (Dr. Victoria Chen)"
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
       "source_entity": "Maria Santos",
@@ -177,7 +177,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "Maria Santos reports to CEO (Dr. Victoria Chen)"
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
       "source_entity": "David Park",
@@ -188,7 +188,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "David Park reports to CEO (Dr. Victoria Chen)"
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
       "source_entity": "Dr. Samuel Okonkwo",
@@ -199,7 +199,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "Dr. Samuel Okonkwo reports to CEO (Dr. Victoria Chen)"
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
       "source_entity": "Jennifer Lee",
@@ -210,7 +210,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "Jennifer Lee reports to CEO (Dr. Victoria Chen)"
+      "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
       "source_entity": "Dr. Victoria Chen",
@@ -222,12 +222,23 @@
       "confidence": 0.95,
       "source_document": "01_executive_team.md",
       "evidence": "Dr. Victoria Chen, Chief Executive Officer (CEO)"
+    },
+    {
+      "source_entity": "Board of Directors",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Dr. Victoria Chen",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_executive_team.md",
+      "evidence": "Reports To: Board of Directors"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 10,
-    "raw_relationship_count": 9,
+    "raw_relationship_count": 10,
     "used_partial_parse": false,
     "truncated": false
   }

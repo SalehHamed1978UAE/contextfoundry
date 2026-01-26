@@ -1,0 +1,31 @@
+ The backfill fixes 32 OLD documents. That's not the problem.                                           
+                                                                                                         
+  The problem is Claude Code Nexus Industries:                                                           
+  - 100 documents                                                                                        
+  - 48+ hours running                                                                                    
+  - Currently on doc 3                                                                                   
+  - Zero documents completed                                                                             
+                                                                                                         
+  Why is it on doc 3 after 48 hours?                                                                     
+                                                                                                         
+  Either:                                                                                                
+  1. It's been resetting repeatedly (was on doc 39, now back to doc 3)                                   
+  2. It takes 16 hours per document (broken)                                                             
+  3. Documents aren't being marked complete after processing                                             
+                                                                                                         
+  Ask Replit:                                                                                            
+                                                                                                         
+  1. How long has it been on doc 3? Is it stuck?                                                         
+  2. After doc 3 finishes, does extraction_level get set to 'multi'?                                     
+  3. Check the extraction_events log - how many times has it "started" in the last 48h?                  
+                                                                                                         
+  SELECT event_type, COUNT(*), MAX(created_at)                                                           
+  FROM platform.extraction_events                                                                        
+  WHERE vault_name = 'Claude Code Nexus Industries'                                                      
+  GROUP BY event_type;                                                                                   
+                                                                                                         
+  If there are multiple "started" events, it's been resetting. Find out why.                             
+                                                                                                         
+  ---                                                                                                    
+  The backfill is a distraction. The extraction pipeline is either resetting or not saving progress.     
+  That's the issue.     

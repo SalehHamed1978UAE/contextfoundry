@@ -2,14 +2,14 @@
   "document_id": "1ed88173-d9c1-43a2-85a0-d196c5399089",
   "document_path": "01_corporate_strategy_2026_2030.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T15:17:15.025098",
+  "extracted_at": "2026-01-26T02:59:48.596880",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Industrial Company",
-        "industry": "Diversified Industrial"
+        "type": "diversified industrial leader",
+        "industry": "industrial"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
@@ -45,7 +45,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Board Chair",
-        "role": "Chairman of the Board"
+        "role": "Board Chairman"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
@@ -57,7 +57,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Chief Strategy Officer",
-        "role": "Strategy Leadership"
+        "role": "Document Owner"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
@@ -68,51 +68,62 @@
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "UAV/Autonomy, Space Systems, Defense, Commercial Aviation"
+        "focus_areas": "autonomy and space systems leadership"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Nexus Aerospace Strategy",
+      "source_excerpt": "Nexus Aerospace Strategy - Strategic Focus: Autonomy and space systems leadership",
       "aliases": []
     },
     {
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Hydrogen Economy, Grid Modernization, Renewable Projects, Carbon Solutions"
+        "focus_areas": "clean energy transition leadership"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Nexus Energy Systems Strategy",
+      "source_excerpt": "Nexus Energy Systems Strategy - Strategic Focus: Clean energy transition leadership",
       "aliases": []
     },
     {
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "IoT Platform, Cybersecurity, Industrial AI, Quantum Computing"
+        "focus_areas": "platform and security leadership"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Nexus Digital Solutions Strategy",
+      "source_excerpt": "Nexus Digital Solutions Strategy - Strategic Focus: Platform and security leadership",
       "aliases": []
     },
     {
       "name": "Nexus Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Battery Materials, Superconductors, Aerospace Composites, Specialty Materials"
+        "focus_areas": "next-generation materials for energy transition"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Nexus Advanced Materials Strategy",
+      "source_excerpt": "Nexus Advanced Materials Strategy - Strategic Focus: Next-generation materials for energy transition",
+      "aliases": []
+    },
+    {
+      "name": "Strategy Office",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "coordination, tracking"
+      },
+      "confidence": 1.0,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Strategy Office | Coordination, tracking | Ongoing",
       "aliases": []
     },
     {
       "name": "Board of Directors",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Approval, oversight"
+        "focus_areas": "approval, oversight"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
@@ -123,7 +134,7 @@
       "name": "Executive Committee",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Execution leadership"
+        "focus_areas": "execution leadership"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
@@ -131,18 +142,56 @@
       "aliases": []
     },
     {
-      "name": "Strategy Office",
-      "entity_type": "BUSINESS_UNIT",
+      "name": "Strategic Plan",
+      "entity_type": "PROJECT",
       "properties": {
-        "focus_areas": "Coordination, tracking"
+        "name": "Corporate Strategy 2026-2030",
+        "timeline": "2026-2030",
+        "status": "approved"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Strategy Office | Coordination, tracking | Ongoing",
+      "source_excerpt": "Nexus Industries Corporate Strategy 2026-2030",
       "aliases": []
     },
     {
-      "name": "2030 Revenue Target",
+      "name": "UAV/Autonomy",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Unmanned Aerial Vehicles and Autonomy systems",
+        "category": "aerospace"
+      },
+      "confidence": 1.0,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "UAV/Autonomy | $500M | $1.5B by 2030",
+      "aliases": []
+    },
+    {
+      "name": "Space Systems",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Space systems and technologies",
+        "category": "aerospace"
+      },
+      "confidence": 1.0,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "Space Systems | $800M | $1.2B by 2030",
+      "aliases": []
+    },
+    {
+      "name": "IoT Platform",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Internet of Things platform",
+        "category": "digital"
+      },
+      "confidence": 1.0,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "source_excerpt": "IoT Platform | $400M | $1.5B by 2030",
+      "aliases": []
+    },
+    {
+      "name": "Revenue Target 2030",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Revenue",
@@ -156,7 +205,7 @@
       "aliases": []
     },
     {
-      "name": "2025 Revenue",
+      "name": "Revenue 2025",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Revenue",
@@ -170,7 +219,7 @@
       "aliases": []
     },
     {
-      "name": "2030 Operating Margin Target",
+      "name": "Operating Margin 2030",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Operating Margin",
@@ -184,21 +233,7 @@
       "aliases": []
     },
     {
-      "name": "2025 Operating Margin",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Operating Margin",
-        "value": "12.3%",
-        "period": "FY2025",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Operating Margin | 12.3% | 16.0% | -",
-      "aliases": []
-    },
-    {
-      "name": "2030 Net Income Target",
+      "name": "Net Income 2030",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Net Income",
@@ -209,48 +244,6 @@
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
       "source_excerpt": "Net Income | $0.84B | $1.8B | 16.5%",
-      "aliases": []
-    },
-    {
-      "name": "2025 Net Income",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Net Income",
-        "value": "$0.84B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Net Income | $0.84B | $1.8B | 16.5%",
-      "aliases": []
-    },
-    {
-      "name": "2030 Free Cash Flow Target",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Free Cash Flow",
-        "value": "$2.0B",
-        "period": "FY2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Free Cash Flow | $0.92B | $2.0B | 16.8%",
-      "aliases": []
-    },
-    {
-      "name": "2025 Free Cash Flow",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Free Cash Flow",
-        "value": "$0.92B",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Free Cash Flow | $0.92B | $2.0B | 16.8%",
       "aliases": []
     },
     {
@@ -282,126 +275,17 @@
       "aliases": []
     },
     {
-      "name": "University Partnerships Investment",
+      "name": "R&D Spending Target",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "University Partnerships",
-        "value": "$25M/year",
-        "period": "Annual",
-        "type": "CURRENCY"
+        "metric_name": "R&D Spending",
+        "value": "11%",
+        "period": "annual",
+        "type": "PERCENTAGE"
       },
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "University Partnerships | $25M/year | Talent pipeline",
-      "aliases": []
-    },
-    {
-      "name": "Internal Ventures Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Internal Ventures",
-        "value": "$50M/year",
-        "period": "Annual",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Internal Ventures | $50M/year | Disruptive innovation",
-      "aliases": []
-    },
-    {
-      "name": "UAV/Autonomy Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "UAV/Autonomy Investment",
-        "value": "$500M",
-        "period": "2026-2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "UAV/Autonomy | $500M | $1.5B by 2030",
-      "aliases": []
-    },
-    {
-      "name": "Space Systems Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Space Systems Investment",
-        "value": "$800M",
-        "period": "2026-2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Space Systems | $800M | $1.2B by 2030",
-      "aliases": []
-    },
-    {
-      "name": "Hydrogen Economy Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Hydrogen Economy Investment",
-        "value": "$400M",
-        "period": "2026-2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Hydrogen Economy | $400M | $1.0B by 2030",
-      "aliases": []
-    },
-    {
-      "name": "IoT Platform Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "IoT Platform Investment",
-        "value": "$400M",
-        "period": "2026-2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "IoT Platform | $400M | $1.5B by 2030",
-      "aliases": []
-    },
-    {
-      "name": "Battery Materials Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Battery Materials Investment",
-        "value": "$400M",
-        "period": "2026-2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Battery Materials | $400M | $0.8B by 2030",
-      "aliases": []
-    },
-    {
-      "name": "Corporate Strategy 2026-2030",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$7.5B",
-        "timeline": "2026-2030",
-        "status": "Active"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Nexus Industries Corporate Strategy 2026-2030",
-      "aliases": []
-    },
-    {
-      "name": "Carbon Neutral Operations",
-      "entity_type": "PROJECT",
-      "properties": {
-        "timeline": "2030",
-        "status": "On Track"
-      },
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "source_excerpt": "Carbon Neutral Operations | 2030 | On Track",
+      "source_excerpt": "R&D Spending | 11%+ of revenue | Technology moat",
       "aliases": []
     }
   ],
@@ -448,7 +332,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Sarah Martinez, Chief Strategy Officer"
+      "evidence": "Document Owner: Sarah Martinez, Chief Strategy Officer"
+    },
+    {
+      "source_entity": "Sarah Martinez",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Strategy Office",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Document Owner: Sarah Martinez, Chief Strategy Officer"
     },
     {
       "source_entity": "Nexus Aerospace",
@@ -495,6 +390,17 @@
       "evidence": "Nexus Advanced Materials Strategy"
     },
     {
+      "source_entity": "Strategy Office",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_corporate_strategy_2026_2030.md",
+      "evidence": "Strategy Office governance structure"
+    },
+    {
       "source_entity": "Board of Directors",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
@@ -503,7 +409,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Board of Directors | Approval, oversight"
+      "evidence": "Board of Directors governance structure"
     },
     {
       "source_entity": "Executive Committee",
@@ -514,24 +420,13 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Executive Committee | Execution leadership"
-    },
-    {
-      "source_entity": "Strategy Office",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Strategy Office | Coordination, tracking"
+      "evidence": "Executive Committee governance structure"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
-      "target_entity": "Corporate Strategy 2026-2030",
+      "target_entity": "Strategic Plan",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 1.0,
@@ -539,65 +434,43 @@
       "evidence": "Nexus Industries Corporate Strategy 2026-2030"
     },
     {
-      "source_entity": "Corporate Strategy 2026-2030",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "UAV/Autonomy",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Five-Year Plan ($7.5B Total)"
+      "evidence": "UAV/Autonomy under Nexus Aerospace Strategy"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Carbon Neutral Operations",
-      "target_type": "PROJECT",
+      "source_entity": "Nexus Aerospace",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Space Systems",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Carbon Neutral Operations | 2030 | On Track"
+      "evidence": "Space Systems under Nexus Aerospace Strategy"
     },
     {
-      "source_entity": "Sarah Martinez",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Strategy Office",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Document Owner: Sarah Martinez, Chief Strategy Officer"
-    },
-    {
-      "source_entity": "Richard Blackstone",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Board of Directors",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "Board Chair | Richard Blackstone"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Digital Solutions",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "IoT Platform",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_corporate_strategy_2026_2030.md",
-      "evidence": "CEO | Dr. Victoria Chen"
+      "evidence": "IoT Platform under Nexus Digital Solutions Strategy"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 31,
-    "raw_relationship_count": 17,
+    "raw_entity_count": 23,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }
