@@ -603,7 +603,11 @@ def api_extraction_overview():
                         'multi_done': multi_done,
                         'pending': pending,
                         'failed': failed,
-                        'phase1_extracted': phase1['both_complete'],
+                        'gpt_extracted': phase1['gpt_extracted'],
+                        'claude_extracted': phase1['claude_extracted'],
+                        'both_extracted': phase1['both_complete'],
+                        'gpt_only': phase1['gpt_only'],
+                        'claude_only': phase1['claude_only'],
                         'last_updated': stats['last_updated'].isoformat() if stats['last_updated'] else None
                     })
         
