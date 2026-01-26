@@ -558,65 +558,61 @@ def api_extraction_overview():
                     vault_id = str(vault['id'])
                     
                     cur.execute("""
-                        SELECT 
-                            COUNT(*) FILTER (WHERE extraction_level = 'single' AND status = 'completed') as single_done,
-                            COUNT(*) FILTER (WHERE extraction_level = 'multi' AND status = 'completed') as multi_done,
-                            COUNT(*) FILTER (WHERE status = 'pending' OR status IS NULL OR extraction_level IS NULL) as pending,
-                            COUNT(*) FILTER (WHERE status = 'failed') as failed,
-                            COUNT(*) FILTER (WHERE extraction_level = 'single' AND extraction_level != 'multi') as pending_multi,
-                            COUNT(*) FILTER (WHERE gpt_extracted_at IS NOT NULL) as gpt_extracted,
-                            COUNT(*) FILTER (WHERE claude_extracted_at IS NOT NULL) as claude_extracted,
-                            COUNT(*) as total_docs,
-                            MAX(GREATEST(COALESCE(gpt_extracted_at, '1970-01-01'::timestamptz), COALESCE(claude_extracted_at, '1970-01-01'::timestamptz))) as last_extraction
+                        SELECT COUNT(*) as total_docs
                         FROM platform.documents
                         WHERE tenant_id = %s
                     """, (vault_id,))
-                    stats = dict(cur.fetchone())
+                    doc_stats = cur.fetchone()
+                    total_docs = doc_stats['total_docs'] or 0
                     
-                    single_done = stats['single_done'] or 0
-                    multi_done = stats['multi_done'] or 0
-                    pending = stats['pending'] or 0
-                    failed = stats['failed'] or 0
-                    pending_multi = stats['pending_multi'] or 0
-                    total = single_done + multi_done + pending + failed
+                    cur.execute("""
+                        SELECT 
+                            COUNT(*) FILTER (WHERE status = 'completed') as completed,
+                            COUNT(*) FILTER (WHERE status = 'pending') as pending,
+                            COUNT(*) FILTER (WHERE status = 'processing') as processing,
+                            COUNT(*) FILTER (WHERE status = 'failed') as failed,
+                            MAX(completed_at) as last_extraction
+                        FROM platform.extraction_requests
+                        WHERE tenant_id = %s
+                    """, (vault_id,))
+                    req_stats = dict(cur.fetchone())
                     
-                    total_pending_multi += pending_multi
+                    completed = req_stats['completed'] or 0
+                    pending_reqs = req_stats['pending'] or 0
+                    processing = req_stats['processing'] or 0
+                    failed = req_stats['failed'] or 0
+                    last_extraction = req_stats['last_extraction']
                     
-                    if total == 0:
+                    if total_docs == 0:
                         status = 'empty'
-                    elif pending > 0 or (single_done > 0 and multi_done < single_done):
-                        if single_done > 0 or multi_done > 0:
-                            status = 'in_progress'
-                            vaults_in_progress += 1
-                        else:
-                            status = 'pending'
-                            vaults_pending += 1
-                    else:
+                    elif completed >= total_docs and pending_reqs == 0 and processing == 0:
                         status = 'complete'
                         vaults_complete += 1
+                    elif completed > 0 or processing > 0:
+                        status = 'in_progress'
+                        vaults_in_progress += 1
+                    else:
+                        status = 'pending'
+                        vaults_pending += 1
                     
-                    gpt_extracted = stats['gpt_extracted'] or 0
-                    claude_extracted = stats['claude_extracted'] or 0
-                    total_docs = stats['total_docs'] or 0
-                    last_extraction = stats['last_extraction']
-                    
-                    both_extracted = min(gpt_extracted, claude_extracted)
+                    pending_multi = max(0, total_docs - completed)
+                    total_pending_multi += pending_multi
                     
                     vault_stats.append({
                         'vault_id': vault_id,
                         'name': vault['name'],
                         'status': status,
-                        'single_done': single_done,
-                        'multi_done': multi_done,
-                        'pending': pending,
+                        'single_done': completed,
+                        'multi_done': completed,
+                        'pending': pending_reqs + processing,
                         'failed': failed,
-                        'gpt_extracted': gpt_extracted,
-                        'claude_extracted': claude_extracted,
-                        'both_extracted': both_extracted,
-                        'gpt_only': gpt_extracted - both_extracted,
-                        'claude_only': claude_extracted - both_extracted,
+                        'gpt_extracted': completed,
+                        'claude_extracted': completed,
+                        'both_extracted': completed,
+                        'gpt_only': 0,
+                        'claude_only': 0,
                         'total_docs': total_docs,
-                        'last_updated': last_extraction.isoformat() if last_extraction and last_extraction.year > 1970 else None
+                        'last_updated': last_extraction.isoformat() if last_extraction else None
                     })
         
         vault_stats.sort(key=lambda x: x['last_updated'] or '', reverse=True)
