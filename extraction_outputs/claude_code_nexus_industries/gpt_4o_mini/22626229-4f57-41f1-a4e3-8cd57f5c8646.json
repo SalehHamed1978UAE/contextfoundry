@@ -2,7 +2,7 @@
   "document_id": "22626229-4f57-41f1-a4e3-8cd57f5c8646",
   "document_path": "03_travel_expense.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:23:39.871757",
+  "extracted_at": "2026-01-25T15:43:48.104436",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -35,9 +35,9 @@
         "policy ID": "POL-003",
         "category": "Corporate Policy"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "03_travel_expense.md",
-      "source_excerpt": "This policy establishes guidelines for business travel and expense reimbursement",
+      "source_excerpt": "Travel and Expense Policy",
       "aliases": []
     },
     {
@@ -46,7 +46,7 @@
       "properties": {
         "description": "Corporate travel portal"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "03_travel_expense.md",
       "source_excerpt": "Use corporate travel portal (Concur/SAP)",
       "aliases": []
@@ -76,13 +76,24 @@
       "evidence": "This policy applies to all Nexus Industries employees and contractors"
     },
     {
+      "source_entity": "Travel and Expense Policy",
+      "source_type": "POLICY",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "evidence": "This policy establishes guidelines for business travel and expense reimbursement"
+    },
+    {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "USES",
       "target_entity": "Concur/SAP",
       "target_type": "TECHNOLOGY",
       "properties": {},
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "03_travel_expense.md",
       "evidence": "Use corporate travel portal (Concur/SAP)"
     }
@@ -90,7 +101,7 @@
   "metadata": {
     "filename": "",
     "raw_entity_count": 4,
-    "raw_relationship_count": 3,
+    "raw_relationship_count": 4,
     "used_partial_parse": false,
     "truncated": false
   }

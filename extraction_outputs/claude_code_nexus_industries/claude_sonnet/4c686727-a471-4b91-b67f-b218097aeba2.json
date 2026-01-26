@@ -2,15 +2,16 @@
   "document_id": "4c686727-a471-4b91-b67f-b218097aeba2",
   "document_path": "03_press_release_fy2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:23:29.075203",
+  "extracted_at": "2026-01-25T15:43:40.387902",
   "entities": [
     {
       "name": "Nexus Industries, Inc.",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "ticker": "NYSE: NEXS",
-        "industry": "technology and advanced manufacturing",
-        "employee_count": "12,500"
+        "ticker": "NEXS",
+        "exchange": "NYSE",
+        "type": "public company",
+        "industry": "technology and advanced manufacturing"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -46,7 +47,8 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Investor Relations",
-        "role": "Vice President"
+        "role": "Vice President",
+        "department": "Investor Relations"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -58,7 +60,8 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Corporate Communications",
-        "role": "Vice President"
+        "role": "Vice President",
+        "department": "Corporate Communications"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -69,7 +72,7 @@
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "aerospace"
+        "focus_areas": "aerospace, UAV programs, commercial satellites"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -80,7 +83,7 @@
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "energy systems"
+        "focus_areas": "energy systems, solar farms, hydrogen projects"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -91,7 +94,7 @@
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "digital solutions"
+        "focus_areas": "digital solutions, IoT platforms, security platforms"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -102,7 +105,7 @@
       "name": "Nexus Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "advanced materials"
+        "focus_areas": "advanced materials, superconducting wire, composites"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -110,10 +113,11 @@
       "aliases": []
     },
     {
-      "name": "Falcon X UAV program",
+      "name": "Falcon X UAV",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "on track for first flight"
+        "status": "on track for first flight",
+        "category": "UAV program"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -124,7 +128,8 @@
       "name": "GreenHydrogen facility",
       "entity_type": "PROJECT",
       "properties": {
-        "status": "nearing completion"
+        "status": "nearing completion",
+        "category": "hydrogen project"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -134,48 +139,43 @@
     {
       "name": "Desert Sun Solar Farm",
       "entity_type": "PROJECT",
-      "properties": {},
+      "properties": {
+        "category": "solar energy project"
+      },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "led by the Desert Sun Solar Farm",
-      "aliases": []
-    },
-    {
-      "name": "GreenHydrogen project",
-      "entity_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "GreenHydrogen project progress",
+      "source_excerpt": "led by the Desert Sun Solar Farm and GreenHydrogen project progress",
       "aliases": []
     },
     {
       "name": "NexusConnect IoT",
       "entity_type": "PRODUCT",
       "properties": {
-        "category": "IoT platform"
+        "description": "IoT platform",
+        "category": "digital platform"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "NexusConnect IoT and CyberShield security platforms",
+      "source_excerpt": "NexusConnect IoT and CyberShield security platforms driving growth",
       "aliases": []
     },
     {
       "name": "CyberShield",
       "entity_type": "PRODUCT",
       "properties": {
-        "category": "security platform"
+        "description": "security platform",
+        "category": "cybersecurity"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "NexusConnect IoT and CyberShield security platforms",
+      "source_excerpt": "NexusConnect IoT and CyberShield security platforms driving growth",
       "aliases": []
     },
     {
       "name": "Toyota",
       "entity_type": "PARTNER",
       "properties": {
-        "partnership_type": "battery technology"
+        "partnership_type": "battery technology partnership"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -183,23 +183,12 @@
       "aliases": []
     },
     {
-      "name": "Phoenix",
+      "name": "Phoenix, Arizona",
       "entity_type": "LOCATION",
       "properties": {
         "city": "Phoenix",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "PHOENIX, AZ",
-      "aliases": []
-    },
-    {
-      "name": "Arizona",
-      "entity_type": "LOCATION",
-      "properties": {
-        "state": "Arizona",
-        "country": "USA"
+        "country": "United States",
+        "type": "headquarters"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
@@ -211,13 +200,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Revenue",
-        "value": "$8.45 billion",
+        "value": "$8.45B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Revenue | $8.45B",
+      "source_excerpt": "Revenue $8.45B",
       "aliases": []
     },
     {
@@ -225,13 +214,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Operating Income",
-        "value": "$945 million",
+        "value": "$945M",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Operating Income | $945M",
+      "source_excerpt": "Operating Income $945M",
       "aliases": []
     },
     {
@@ -239,13 +228,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Net Income",
-        "value": "$755 million",
+        "value": "$755M",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Net Income | $755M",
+      "source_excerpt": "Net Income $755M",
       "aliases": []
     },
     {
@@ -259,7 +248,7 @@
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Diluted EPS | $5.82",
+      "source_excerpt": "Diluted EPS $5.82",
       "aliases": []
     },
     {
@@ -267,13 +256,13 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Free Cash Flow",
-        "value": "$1.12 billion",
+        "value": "$1.12B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Free Cash Flow | $1.12B",
+      "source_excerpt": "Free Cash Flow $1.12B",
       "aliases": []
     },
     {
@@ -281,181 +270,52 @@
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Backlog",
-        "value": "$12.4 billion",
+        "value": "$12.4B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Backlog | $12.4B",
+      "source_excerpt": "Backlog $12.4B",
       "aliases": []
     },
     {
-      "name": "Q4 2025 Revenue",
+      "name": "Employee Count",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Revenue",
-        "value": "$2.38 billion",
-        "period": "Q4 2025",
+        "metric_name": "Employees",
+        "value": "12,500",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "03_press_release_fy2025.md",
+      "source_excerpt": "Nexus employs over 12,500 people worldwide",
+      "aliases": []
+    },
+    {
+      "name": "Quarterly Dividend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Quarterly Dividend",
+        "value": "$0.45",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Revenue | $2.38B",
+      "source_excerpt": "quarterly dividend of $0.45 per share",
       "aliases": []
     },
     {
-      "name": "Q4 2025 Operating Income",
+      "name": "Share Repurchase Authorization",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Operating Income",
-        "value": "$295 million",
-        "period": "Q4 2025",
+        "metric_name": "Share Repurchase Authorization",
+        "value": "$500M",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Operating Income | $295M",
-      "aliases": []
-    },
-    {
-      "name": "Q4 2025 Diluted EPS",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Diluted EPS",
-        "value": "$1.82",
-        "period": "Q4 2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Diluted EPS | $1.82",
-      "aliases": []
-    },
-    {
-      "name": "FY2026 Revenue Guidance",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$9.5 - $9.8 billion",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Revenue | $9.5 - $9.8 billion",
-      "aliases": []
-    },
-    {
-      "name": "FY2026 Operating Margin Guidance",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Operating Margin",
-        "value": "11.5% - 12.0%",
-        "period": "FY2026",
-        "type": "PERCENTAGE"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Operating Margin | 11.5% - 12.0%",
-      "aliases": []
-    },
-    {
-      "name": "FY2026 Diluted EPS Guidance",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Diluted EPS",
-        "value": "$6.20 - $6.50",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Diluted EPS | $6.20 - $6.50",
-      "aliases": []
-    },
-    {
-      "name": "FY2026 Free Cash Flow Guidance",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Free Cash Flow",
-        "value": "$1.2 - $1.3 billion",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Free Cash Flow | $1.2 - $1.3 billion",
-      "aliases": []
-    },
-    {
-      "name": "FY2026 Capital Expenditures Guidance",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Capital Expenditures",
-        "value": "~$680 million",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Capital Expenditures | ~$680 million",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Aerospace Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$2.78 billion",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Aerospace reported revenue of $2.78 billion",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Energy Systems Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$2.35 billion",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Energy Systems achieved revenue of $2.35 billion",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Digital Solutions Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$2.02 billion",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Digital Solutions delivered revenue of $2.02 billion",
-      "aliases": []
-    },
-    {
-      "name": "Nexus Advanced Materials Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Revenue",
-        "value": "$1.30 billion",
-        "period": "FY2025",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "03_press_release_fy2025.md",
-      "source_excerpt": "Nexus Advanced Materials reported revenue of $1.30 billion",
+      "source_excerpt": "authorized an additional $500 million for share repurchases",
       "aliases": []
     }
   ],
@@ -563,10 +423,10 @@
       "source_entity": "Nexus Aerospace",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV program",
+      "target_entity": "Falcon X UAV",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "driven by the Falcon X UAV program"
     },
@@ -577,7 +437,7 @@
       "target_entity": "Desert Sun Solar Farm",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "led by the Desert Sun Solar Farm"
     },
@@ -585,10 +445,10 @@
       "source_entity": "Nexus Energy Systems",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "OWNS",
-      "target_entity": "GreenHydrogen project",
+      "target_entity": "GreenHydrogen facility",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 1.0,
       "source_document": "03_press_release_fy2025.md",
       "evidence": "GreenHydrogen project progress"
     },
@@ -629,7 +489,7 @@
       "source_entity": "Nexus Industries, Inc.",
       "source_type": "ORGANIZATION",
       "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix",
+      "target_entity": "Phoenix, Arizona",
       "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
@@ -639,7 +499,7 @@
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 36,
+    "raw_entity_count": 25,
     "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false

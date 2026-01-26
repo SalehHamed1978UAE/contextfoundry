@@ -2,14 +2,13 @@
   "document_id": "a17e0d05-df96-4714-a7a1-30246c240f6a",
   "document_path": "05_digital_division_budget.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:37:54.331950",
+  "extracted_at": "2026-01-25T15:57:20.979057",
   "entities": [
     {
       "name": "Nexus Digital Solutions",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Division",
-        "industry": "Technology"
+        "focus areas": "Digital Solutions"
       },
       "confidence": 0.95,
       "source_document": "05_digital_division_budget.md",
@@ -65,23 +64,11 @@
       "aliases": []
     },
     {
-      "name": "NexusConnect",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "IoT Platform",
-        "category": "Technology"
-      },
-      "confidence": 0.95,
-      "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "IoT Platform - NexusConnect ($0.62B)",
-      "aliases": []
-    },
-    {
       "name": "CyberShield Security",
       "entity_type": "PRODUCT",
       "properties": {
         "description": "Security platform",
-        "category": "Technology"
+        "category": "Software"
       },
       "confidence": 0.95,
       "source_document": "05_digital_division_budget.md",
@@ -93,7 +80,7 @@
       "entity_type": "PRODUCT",
       "properties": {
         "description": "Computing platform",
-        "category": "Technology"
+        "category": "Software"
       },
       "confidence": 0.95,
       "source_document": "05_digital_division_budget.md",
@@ -101,15 +88,15 @@
       "aliases": []
     },
     {
-      "name": "Autonomous Mining",
+      "name": "NexusConnect",
       "entity_type": "PRODUCT",
       "properties": {
-        "description": "Mining technology",
-        "category": "Technology"
+        "description": "IoT platform",
+        "category": "Software"
       },
       "confidence": 0.95,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Autonomous Mining | $28M revenue",
+      "source_excerpt": "IoT Platform - NexusConnect ($0.62B)",
       "aliases": []
     },
     {
@@ -167,35 +154,21 @@
       },
       "confidence": 0.95,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Total Revenue | $2.18B",
+      "source_excerpt": "Total Revenue | $2.18B | FY2026",
       "aliases": []
     },
     {
-      "name": "Operating Income",
+      "name": "Total Customers",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric name": "Operating Income",
-        "value": "$457M",
+        "metric name": "Total Customers",
+        "value": "650",
         "period": "FY2026",
-        "type": "CURRENCY"
+        "type": "COUNT"
       },
       "confidence": 0.95,
       "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Operating Income | $457M",
-      "aliases": []
-    },
-    {
-      "name": "Annual Recurring Revenue",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric name": "Annual Recurring Revenue",
-        "value": "$1.05B",
-        "period": "FY2026",
-        "type": "CURRENCY"
-      },
-      "confidence": 0.95,
-      "source_document": "05_digital_division_budget.md",
-      "source_excerpt": "Annual Recurring Revenue (ARR): $1.05B (+35% YoY)",
+      "source_excerpt": "Total Customers | 650 | 520",
       "aliases": []
     }
   ],
@@ -205,7 +178,7 @@
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Digital Solutions",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_digital_division_budget.md",
@@ -216,7 +189,7 @@
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Digital Solutions",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_digital_division_budget.md",
@@ -227,7 +200,7 @@
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Digital Solutions",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_digital_division_budget.md",
@@ -238,7 +211,7 @@
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Digital Solutions",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_digital_division_budget.md",
@@ -246,18 +219,7 @@
     },
     {
       "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "NexusConnect",
-      "target_type": "PRODUCT",
-      "properties": {},
-      "confidence": 0.95,
-      "source_document": "05_digital_division_budget.md",
-      "evidence": "IoT Platform - NexusConnect ($0.62B)"
-    },
-    {
-      "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
       "target_entity": "CyberShield Security",
       "target_type": "PRODUCT",
@@ -268,7 +230,7 @@
     },
     {
       "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
       "target_entity": "QuantumLeap Computing",
       "target_type": "PRODUCT",
@@ -279,18 +241,18 @@
     },
     {
       "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Autonomous Mining",
+      "target_entity": "NexusConnect",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_digital_division_budget.md",
-      "evidence": "Autonomous Mining | $28M revenue"
+      "evidence": "IoT Platform - NexusConnect ($0.62B)"
     },
     {
       "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "LOCATED_AT",
       "target_entity": "North America",
       "target_type": "LOCATION",
@@ -301,7 +263,7 @@
     },
     {
       "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Europe",
       "target_type": "LOCATION",
@@ -312,7 +274,7 @@
     },
     {
       "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Asia Pacific",
       "target_type": "LOCATION",
@@ -323,7 +285,7 @@
     },
     {
       "source_entity": "Nexus Digital Solutions",
-      "source_type": "ORGANIZATION",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Rest of World",
       "target_type": "LOCATION",
@@ -331,12 +293,34 @@
       "confidence": 0.9,
       "source_document": "05_digital_division_budget.md",
       "evidence": "Rest of World | $0.11B | 5%"
+    },
+    {
+      "source_entity": "Total Revenue",
+      "source_type": "FINANCIAL_METRIC",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_digital_division_budget.md",
+      "evidence": "Total Revenue | $2.18B | FY2026"
+    },
+    {
+      "source_entity": "Total Customers",
+      "source_type": "FINANCIAL_METRIC",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_digital_division_budget.md",
+      "evidence": "Total Customers | 650 | 520"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 16,
-    "raw_relationship_count": 12,
+    "raw_entity_count": 14,
+    "raw_relationship_count": 13,
     "used_partial_parse": false,
     "truncated": false
   }

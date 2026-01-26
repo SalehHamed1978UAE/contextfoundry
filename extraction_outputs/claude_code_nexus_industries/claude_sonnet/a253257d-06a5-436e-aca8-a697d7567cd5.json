@@ -2,14 +2,14 @@
   "document_id": "a253257d-06a5-436e-aca8-a697d7567cd5",
   "document_path": "04_sustainability_roadmap.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:34:24.289943",
+  "extracted_at": "2026-01-25T15:54:03.384692",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Corporation",
-        "industry": "Manufacturing"
+        "industry": "Multi-industry"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -21,7 +21,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Sustainability Council Chair",
-        "role": "Chair"
+        "role": "Council Chair"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -32,8 +32,8 @@
       "name": "Dr. Sarah Williams",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Committee Chair",
-        "role": "ESG Committee Chair"
+        "title": "ESG Committee Chair",
+        "role": "Committee Chair"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -45,7 +45,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Board Chair",
-        "role": "Chairman of the Board"
+        "role": "Board Chair"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -57,7 +57,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Investor Relations",
-        "role": "Vice President"
+        "role": "VP Investor Relations"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -93,7 +93,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Human Resources",
-        "role": "Vice President"
+        "role": "Social programs responsibility"
       },
       "confidence": 0.8,
       "source_document": "04_sustainability_roadmap.md",
@@ -105,7 +105,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Communications",
-        "role": "Vice President"
+        "role": "Reporting responsibility"
       },
       "confidence": 0.8,
       "source_document": "04_sustainability_roadmap.md",
@@ -116,8 +116,8 @@
       "name": "ESG Committee",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "ESG Committee",
-        "focus_areas": "Environmental, Social, and Governance oversight"
+        "focus_areas": "Environmental, Social, Governance oversight",
+        "level": "Board Level"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -128,8 +128,8 @@
       "name": "Sustainability Council",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "Sustainability Council",
-        "focus_areas": "Management level sustainability programs"
+        "focus_areas": "Sustainability program management",
+        "level": "Management"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -140,7 +140,6 @@
       "name": "Aerospace Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "Aerospace",
         "focus_areas": "Lightweight composites"
       },
       "confidence": 1.0,
@@ -152,7 +151,6 @@
       "name": "Energy Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "Energy",
         "focus_areas": "Renewable energy systems, hydrogen"
       },
       "confidence": 1.0,
@@ -164,7 +162,6 @@
       "name": "Digital Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "Digital",
         "focus_areas": "IoT for energy efficiency"
       },
       "confidence": 1.0,
@@ -176,7 +173,6 @@
       "name": "Materials Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "name": "Materials",
         "focus_areas": "Battery materials, recyclable composites"
       },
       "confidence": 1.0,
@@ -185,110 +181,79 @@
       "aliases": []
     },
     {
-      "name": "US Operations",
-      "entity_type": "FACILITY",
-      "properties": {
-        "name": "US Operations",
-        "type": "Operations facility"
-      },
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "US Operations | 72% | 100% | PPA, on-site solar",
-      "aliases": []
-    },
-    {
-      "name": "European Operations",
-      "entity_type": "FACILITY",
-      "properties": {
-        "name": "European Operations",
-        "type": "Operations facility"
-      },
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "European Operations | 85% | 100% | Grid contracts",
-      "aliases": []
-    },
-    {
-      "name": "Asia Pacific",
-      "entity_type": "FACILITY",
-      "properties": {
-        "name": "Asia Pacific",
-        "type": "Operations facility"
-      },
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Asia Pacific | 45% | 100% | RECs, on-site",
-      "aliases": []
-    },
-    {
-      "name": "100% Renewable Energy Initiative",
+      "name": "100% Renewable Energy",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "100% Renewable Energy",
+        "budget": "$85M",
         "timeline": "2028",
         "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Initiative 1: 100% Renewable Energy (2028)",
+      "source_excerpt": "Initiative 1: 100% Renewable Energy (2028) Investment: $85M over 3 years",
       "aliases": []
     },
     {
       "name": "Fleet Electrification",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Fleet Electrification",
+        "budget": "$32M",
         "timeline": "2026-2028",
-        "status": "Active"
+        "status": "Active",
+        "scope": "850 company vehicles"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Initiative 2: Fleet Electrification",
+      "source_excerpt": "Initiative 2: Fleet Electrification Scope: 850 company vehicles",
       "aliases": []
     },
     {
       "name": "Manufacturing Efficiency",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Manufacturing Efficiency",
-        "status": "Active"
+        "budget": "$43M",
+        "timeline": "2026-2030",
+        "status": "Active",
+        "target": "30% energy intensity reduction"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Initiative 3: Manufacturing Efficiency",
+      "source_excerpt": "Initiative 3: Manufacturing Efficiency Target: 30% energy intensity reduction",
       "aliases": []
     },
     {
       "name": "Zero Waste Operations",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Zero Waste Operations",
         "timeline": "2028",
-        "status": "Active"
+        "status": "Active",
+        "target": "0% to landfill"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Initiative 4: Zero Waste Operations (2028)",
+      "source_excerpt": "Initiative 4: Zero Waste Operations (2028) Current: 28% to landfill | Target: 0%",
       "aliases": []
     },
     {
       "name": "Water Stewardship",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Water Stewardship",
-        "status": "Active"
+        "budget": "$40M",
+        "timeline": "2026-2030",
+        "status": "Active",
+        "target": "25% reduction in water intensity"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Initiative 5: Water Stewardship",
+      "source_excerpt": "Initiative 5: Water Stewardship Target: 25% reduction in water intensity",
       "aliases": []
     },
     {
       "name": "Carbon Partnership Program",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Carbon Partnership",
-        "status": "Active"
+        "budget": "$5M",
+        "scope": "Top 50 suppliers"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -299,8 +264,8 @@
       "name": "Sustainability Academy",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Sustainability Academy",
-        "status": "Active"
+        "budget": "$2M",
+        "scope": "All suppliers"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -311,8 +276,8 @@
       "name": "Joint Innovation Program",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "Joint Innovation",
-        "status": "Active"
+        "budget": "$10M",
+        "scope": "Strategic partners"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -323,8 +288,8 @@
       "name": "STEM Education Program",
       "entity_type": "PROJECT",
       "properties": {
-        "name": "STEM Education",
-        "status": "Active"
+        "budget": "$5M",
+        "type": "Annual investment"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -332,134 +297,121 @@
       "aliases": []
     },
     {
-      "name": "Community Grants Program",
-      "entity_type": "PROJECT",
-      "properties": {
-        "name": "Community Grants",
-        "status": "Active"
-      },
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Community Grants | $3M",
-      "aliases": []
-    },
-    {
-      "name": "Lightweight Composites",
+      "name": "Lightweight composites",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "Lightweight Composites",
-        "description": "20% fuel burn reduction",
+        "description": "Reduces fuel burn by 20%",
         "category": "Aerospace"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Lightweight composites (-20% fuel burn)",
+      "source_excerpt": "Aerospace | Lightweight composites (-20% fuel burn)",
       "aliases": []
     },
     {
-      "name": "Renewable Energy Systems",
+      "name": "Renewable energy systems",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "Renewable Energy Systems",
         "category": "Energy"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Renewable energy systems, hydrogen",
+      "source_excerpt": "Energy | Renewable energy systems, hydrogen",
       "aliases": []
     },
     {
-      "name": "Hydrogen Products",
+      "name": "Hydrogen products",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "Hydrogen",
         "category": "Energy"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Renewable energy systems, hydrogen",
+      "source_excerpt": "Energy | Renewable energy systems, hydrogen",
       "aliases": []
     },
     {
-      "name": "IoT Solutions",
+      "name": "IoT solutions",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "IoT for energy efficiency",
+        "description": "For energy efficiency",
         "category": "Digital"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "IoT for energy efficiency",
+      "source_excerpt": "Digital | IoT for energy efficiency",
       "aliases": []
     },
     {
-      "name": "Battery Materials",
+      "name": "Battery materials",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "Battery Materials",
         "category": "Materials"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Battery materials, recyclable composites",
+      "source_excerpt": "Materials | Battery materials, recyclable composites",
       "aliases": []
     },
     {
-      "name": "Recyclable Composites",
+      "name": "Recyclable composites",
       "entity_type": "PRODUCT",
       "properties": {
-        "name": "Recyclable Composites",
         "category": "Materials"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Battery materials, recyclable composites",
+      "source_excerpt": "Materials | Battery materials, recyclable composites",
       "aliases": []
     },
     {
-      "name": "EY",
-      "entity_type": "SUPPLIER",
+      "name": "US Operations",
+      "entity_type": "FACILITY",
       "properties": {
-        "name": "EY",
-        "capability": "GHG Emissions assurance"
+        "location": "United States",
+        "type": "Operations",
+        "renewable_energy": "72%"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "GHG Emissions | Limited | EY",
+      "source_excerpt": "US Operations | 72% | 100% | PPA, on-site solar",
       "aliases": []
     },
     {
-      "name": "PwC",
-      "entity_type": "SUPPLIER",
+      "name": "European Operations",
+      "entity_type": "FACILITY",
       "properties": {
-        "name": "PwC",
-        "capability": "Sustainability Report assurance"
+        "location": "Europe",
+        "type": "Operations",
+        "renewable_energy": "85%"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Sustainability Report | Selected metrics | PwC",
+      "source_excerpt": "European Operations | 85% | 100% | Grid contracts",
       "aliases": []
     },
     {
-      "name": "DNV",
-      "entity_type": "SUPPLIER",
+      "name": "Asia Pacific Operations",
+      "entity_type": "FACILITY",
       "properties": {
-        "name": "DNV",
-        "capability": "Energy Data verification"
+        "location": "Asia Pacific",
+        "type": "Operations",
+        "renewable_energy": "45%"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Energy Data | Full | DNV",
+      "source_excerpt": "Asia Pacific | 45% | 100% | RECs, on-site",
       "aliases": []
     },
     {
-      "name": "Scope 1 Emissions FY2025",
+      "name": "Scope 1 Emissions",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Scope 1 Emissions",
         "value": "108,000",
         "period": "FY2025",
-        "type": "COUNT"
+        "type": "COUNT",
+        "unit": "tCO2e"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -467,13 +419,14 @@
       "aliases": []
     },
     {
-      "name": "Scope 2 Emissions FY2025",
+      "name": "Scope 2 Emissions",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Scope 2 Emissions",
         "value": "235,000",
         "period": "FY2025",
-        "type": "COUNT"
+        "type": "COUNT",
+        "unit": "tCO2e"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -481,7 +434,7 @@
       "aliases": []
     },
     {
-      "name": "Renewable Energy FY2025",
+      "name": "Renewable Energy",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Renewable Energy",
@@ -495,13 +448,14 @@
       "aliases": []
     },
     {
-      "name": "Water Consumption FY2025",
+      "name": "Water Consumption",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Water Consumption",
         "value": "3,980",
         "period": "FY2025",
-        "type": "COUNT"
+        "type": "COUNT",
+        "unit": "ML"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -509,31 +463,17 @@
       "aliases": []
     },
     {
-      "name": "Renewable Energy Investment",
+      "name": "Sustainable Products Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Renewable Energy Investment",
-        "value": "85",
-        "period": "2026-2030",
-        "type": "CURRENCY"
+        "metric_name": "Revenue from sustainable products",
+        "value": "28",
+        "period": "FY2025",
+        "type": "PERCENTAGE"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Investment: $85M over 3 years",
-      "aliases": []
-    },
-    {
-      "name": "Fleet Electrification Investment",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "metric_name": "Fleet Electrification Investment",
-        "value": "32",
-        "period": "2026-2030",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "source_excerpt": "Fleet Electrification | $32M",
+      "source_excerpt": "Revenue from sustainable products | 28% | 50%",
       "aliases": []
     },
     {
@@ -543,7 +483,8 @@
         "metric_name": "Total Investment",
         "value": "245",
         "period": "2026-2030",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "unit": "Million USD"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
@@ -551,17 +492,102 @@
       "aliases": []
     },
     {
-      "name": "Annual Savings Target",
+      "name": "Expected Annual Savings",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Savings",
+        "metric_name": "Expected ROI",
         "value": "45",
         "period": "2030",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "unit": "Million USD annually"
       },
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
       "source_excerpt": "Expected ROI: $45M annual savings by 2030",
+      "aliases": []
+    },
+    {
+      "name": "EY",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "GHG Emissions assurance",
+        "risk_level": "Low"
+      },
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "source_excerpt": "GHG Emissions | Limited | EY",
+      "aliases": []
+    },
+    {
+      "name": "PwC",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Sustainability Report assurance",
+        "risk_level": "Low"
+      },
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "source_excerpt": "Sustainability Report | Selected metrics | PwC",
+      "aliases": []
+    },
+    {
+      "name": "DNV",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Energy Data verification",
+        "risk_level": "Low"
+      },
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "source_excerpt": "Energy Data | Full | DNV",
+      "aliases": []
+    },
+    {
+      "name": "GRI Standards",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "GRI",
+        "category": "Sustainability reporting framework"
+      },
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "source_excerpt": "GRI Standards | Published | Annual update",
+      "aliases": []
+    },
+    {
+      "name": "SASB",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "SASB",
+        "category": "Sustainability disclosure framework"
+      },
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "source_excerpt": "SASB | Published | Expand disclosure",
+      "aliases": []
+    },
+    {
+      "name": "TCFD",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "TCFD",
+        "category": "Climate-related financial disclosures"
+      },
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "source_excerpt": "TCFD | Aligned | Scenario analysis",
+      "aliases": []
+    },
+    {
+      "name": "SBTi",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_ID": "SBTi",
+        "category": "Science-based targets"
+      },
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "source_excerpt": "SBTi | Committed | Validation 2026",
       "aliases": []
     }
   ],
@@ -575,7 +601,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Dr. Elena Rodriguez | Council Chair"
+      "evidence": "Dr. Elena Rodriguez, Sustainability Council Chair"
     },
     {
       "source_entity": "Dr. Sarah Williams",
@@ -589,6 +615,17 @@
       "evidence": "Dr. Sarah Williams | Committee Chair"
     },
     {
+      "source_entity": "Richard Blackstone",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "evidence": "Richard Blackstone | Board Chair"
+    },
+    {
       "source_entity": "Dr. Victoria Chen",
       "source_type": "PERSON",
       "relationship_type": "LEADS",
@@ -600,28 +637,6 @@
       "evidence": "Dr. Victoria Chen | CEO"
     },
     {
-      "source_entity": "Richard Blackstone",
-      "source_type": "PERSON",
-      "relationship_type": "LEADS",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Richard Blackstone | Board Chair"
-    },
-    {
-      "source_entity": "Dr. Elena Rodriguez",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Document Owner: Dr. Elena Rodriguez, Sustainability Council Chair"
-    },
-    {
       "source_entity": "Jennifer Walsh",
       "source_type": "PERSON",
       "relationship_type": "WORKS_FOR",
@@ -631,39 +646,6 @@
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
       "evidence": "Jennifer Walsh | VP Investor Relations"
-    },
-    {
-      "source_entity": "Chief Procurement Officer",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Chief Procurement Officer | Supply chain"
-    },
-    {
-      "source_entity": "VP Human Resources",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "VP Human Resources | Social programs"
-    },
-    {
-      "source_entity": "VP Communications",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "VP Communications | Reporting"
     },
     {
       "source_entity": "ESG Committee",
@@ -696,7 +678,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Division | Aerospace"
+      "evidence": "Division contributions table"
     },
     {
       "source_entity": "Energy Division",
@@ -707,7 +689,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Division | Energy"
+      "evidence": "Division contributions table"
     },
     {
       "source_entity": "Digital Division",
@@ -718,7 +700,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Division | Digital"
+      "evidence": "Division contributions table"
     },
     {
       "source_entity": "Materials Division",
@@ -729,13 +711,13 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Division | Materials"
+      "evidence": "Division contributions table"
     },
     {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
-      "target_entity": "100% Renewable Energy Initiative",
+      "target_entity": "100% Renewable Energy",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 1.0,
@@ -787,65 +769,10 @@
       "evidence": "Initiative 5: Water Stewardship"
     },
     {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Carbon Partnership Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Carbon Partnership | Top 50 suppliers | $5M"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Sustainability Academy",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Sustainability Academy | All suppliers | $2M"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Joint Innovation Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Joint Innovation | Strategic partners | $10M"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "STEM Education Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "STEM Education | $5M"
-    },
-    {
-      "source_entity": "Nexus Industries",
-      "source_type": "ORGANIZATION",
-      "relationship_type": "OWNS",
-      "target_entity": "Community Grants Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Community Grants | $3M"
-    },
-    {
       "source_entity": "Aerospace Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Lightweight Composites",
+      "target_entity": "Lightweight composites",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
@@ -856,7 +783,7 @@
       "source_entity": "Energy Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Renewable Energy Systems",
+      "target_entity": "Renewable energy systems",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
@@ -867,7 +794,7 @@
       "source_entity": "Energy Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Hydrogen Products",
+      "target_entity": "Hydrogen products",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
@@ -878,7 +805,7 @@
       "source_entity": "Digital Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
-      "target_entity": "IoT Solutions",
+      "target_entity": "IoT solutions",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
@@ -889,7 +816,7 @@
       "source_entity": "Materials Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Battery Materials",
+      "target_entity": "Battery materials",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
@@ -900,12 +827,45 @@
       "source_entity": "Materials Division",
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PRODUCES",
-      "target_entity": "Recyclable Composites",
+      "target_entity": "Recyclable composites",
       "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
       "evidence": "Materials | Battery materials, recyclable composites"
+    },
+    {
+      "source_entity": "US Operations",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "evidence": "US Operations renewable energy table"
+    },
+    {
+      "source_entity": "European Operations",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "evidence": "European Operations renewable energy table"
+    },
+    {
+      "source_entity": "Asia Pacific Operations",
+      "source_type": "FACILITY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_sustainability_roadmap.md",
+      "evidence": "Asia Pacific renewable energy table"
     },
     {
       "source_entity": "EY",
@@ -939,34 +899,12 @@
       "confidence": 1.0,
       "source_document": "04_sustainability_roadmap.md",
       "evidence": "Energy Data | Full | DNV"
-    },
-    {
-      "source_entity": "100% Renewable Energy Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Investment: $85M over 3 years"
-    },
-    {
-      "source_entity": "Fleet Electrification",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_sustainability_roadmap.md",
-      "evidence": "Fleet Electrification | $32M"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 45,
-    "raw_relationship_count": 36,
+    "raw_entity_count": 47,
+    "raw_relationship_count": 28,
     "used_partial_parse": false,
     "truncated": false
   }

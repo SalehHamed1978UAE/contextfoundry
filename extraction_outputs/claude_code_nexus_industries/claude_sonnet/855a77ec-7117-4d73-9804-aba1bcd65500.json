@@ -2,13 +2,13 @@
   "document_id": "855a77ec-7117-4d73-9804-aba1bcd65500",
   "document_path": "04_digital_division_quarterly_review.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T10:27:16.906770",
+  "extracted_at": "2026-01-25T15:47:39.540471",
   "entities": [
     {
       "name": "Digital Solutions Division",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus_areas": "Digital solutions, IoT, Cybersecurity, Quantum computing"
+        "focus_areas": "Digital solutions, IoT, cybersecurity, quantum computing"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -20,7 +20,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division President",
-        "role": "President"
+        "role": "Division leadership"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -32,7 +32,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Engineering",
-        "role": "Vice President"
+        "role": "VP Engineering"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -44,7 +44,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Product",
-        "role": "Vice President"
+        "role": "VP Product"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -56,7 +56,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Sales",
-        "role": "Vice President"
+        "role": "VP Sales"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -68,7 +68,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Finance",
-        "role": "Vice President"
+        "role": "VP Finance"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -80,7 +80,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Customer Success",
-        "role": "Vice President"
+        "role": "VP Customer Success"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -127,105 +127,12 @@
       "name": "Denver Technology Campus",
       "entity_type": "FACILITY",
       "properties": {
-        "type": "Technology Campus",
+        "type": "Technology campus",
         "location": "Denver"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Location: Denver Technology Campus",
-      "aliases": []
-    },
-    {
-      "name": "Denver",
-      "entity_type": "LOCATION",
-      "properties": {
-        "city": "Denver",
-        "country": "USA"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Location: Denver Technology Campus",
-      "aliases": []
-    },
-    {
-      "name": "NexusConnect IoT Platform",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "IoT platform with connected devices management",
-        "category": "IoT Platform"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "NexusConnect IoT Platform",
-      "aliases": []
-    },
-    {
-      "name": "CyberShield Security Suite",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Security suite with threat detection",
-        "category": "Cybersecurity"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "CyberShield Security Suite",
-      "aliases": []
-    },
-    {
-      "name": "QuantumLeap Computing Services",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Quantum computing services and platform"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "QuantumLeap Computing Services",
-      "aliases": []
-    },
-    {
-      "name": "Microsoft Azure",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership_type": "Platform Partnership"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Microsoft Azure partnership expanded ($43M)",
-      "aliases": []
-    },
-    {
-      "name": "Rio Tinto",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Mining",
-        "region": "Global"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Rio Tinto mining deployment (85,000 sensors)",
-      "aliases": []
-    },
-    {
-      "name": "Pacific Power",
-      "entity_type": "CUSTOMER",
-      "properties": {
-        "industry": "Utilities",
-        "region": "Pacific"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Pacific Power utility pilot successful",
-      "aliases": []
-    },
-    {
-      "name": "IBM",
-      "entity_type": "PARTNER",
-      "properties": {
-        "partnership_type": "Technology Partnership"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "IBM partnership announced",
       "aliases": []
     },
     {
@@ -235,11 +142,28 @@
         "metric_name": "Revenue",
         "value": "$535M",
         "period": "Q4 2025",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "target": "$515M",
+        "variance": "+$20M"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Revenue | $515M | $535M | +$20M | +18.2%",
+      "aliases": []
+    },
+    {
+      "name": "Q4 2025 Gross Margin",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Gross Margin",
+        "value": "59.2%",
+        "period": "Q4 2025",
+        "type": "PERCENTAGE",
+        "target": "58%"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Gross Margin | 58% | 59.2% | +1.2% | +2.1%",
       "aliases": []
     },
     {
@@ -249,7 +173,8 @@
         "metric_name": "Operating Income",
         "value": "$91M",
         "period": "Q4 2025",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "target": "$82M"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -257,13 +182,14 @@
       "aliases": []
     },
     {
-      "name": "FY2025 Revenue",
+      "name": "2025 Full Year Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Revenue",
         "value": "$2.02B",
-        "period": "FY2025",
-        "type": "CURRENCY"
+        "period": "2025",
+        "type": "CURRENCY",
+        "target": "$1.95B"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -271,13 +197,42 @@
       "aliases": []
     },
     {
+      "name": "2025 Operating Income",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Operating Income",
+        "value": "$323M",
+        "period": "2025",
+        "type": "CURRENCY",
+        "target": "$293M"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Operating Income | $293M | $323M | +$30M",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect IoT Platform",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "name": "NexusConnect IoT Platform",
+        "description": "IoT platform with connected devices",
+        "category": "IoT Platform"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "NexusConnect IoT Platform",
+      "aliases": []
+    },
+    {
       "name": "NexusConnect ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Recurring Revenue",
+        "metric_name": "ARR",
         "value": "$245M",
         "period": "Q4 2025",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "product": "NexusConnect"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -285,13 +240,27 @@
       "aliases": []
     },
     {
+      "name": "CyberShield Security Suite",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "name": "CyberShield Security Suite",
+        "description": "Security suite with threat detection",
+        "category": "Cybersecurity"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "CyberShield Security Suite",
+      "aliases": []
+    },
+    {
       "name": "CyberShield ARR",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Recurring Revenue",
+        "metric_name": "ARR",
         "value": "$178M",
         "period": "Q4 2025",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "product": "CyberShield"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
@@ -299,17 +268,147 @@
       "aliases": []
     },
     {
-      "name": "QuantumLeap Q4 Revenue",
+      "name": "QuantumLeap Computing Services",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "name": "QuantumLeap Computing Services",
+        "description": "Quantum computing services",
+        "category": "Quantum Computing"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "QuantumLeap Computing Services",
+      "aliases": []
+    },
+    {
+      "name": "QuantumLeap Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Revenue",
         "value": "$8.2M",
         "period": "Q4 2025",
-        "type": "CURRENCY"
+        "type": "CURRENCY",
+        "product": "QuantumLeap"
       },
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Revenue | $8.2M | $6.5M | $7.5M",
+      "aliases": []
+    },
+    {
+      "name": "Microsoft Azure",
+      "entity_type": "PARTNER",
+      "properties": {
+        "name": "Microsoft Azure",
+        "partnership_type": "Technology partnership"
+      },
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Microsoft Azure partnership expanded ($43M)",
+      "aliases": []
+    },
+    {
+      "name": "Rio Tinto",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "name": "Rio Tinto",
+        "industry": "Mining"
+      },
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Rio Tinto mining deployment (85,000 sensors)",
+      "aliases": []
+    },
+    {
+      "name": "Pacific Power",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "name": "Pacific Power",
+        "industry": "Utilities"
+      },
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Pacific Power utility pilot successful",
+      "aliases": []
+    },
+    {
+      "name": "IBM",
+      "entity_type": "PARTNER",
+      "properties": {
+        "name": "IBM",
+        "partnership_type": "Technology partnership"
+      },
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "IBM partnership announced",
+      "aliases": []
+    },
+    {
+      "name": "FedRAMP High Authorization",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "FedRAMP High Authorization",
+        "category": "Government certification"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "FedRAMP High authorization (January 2026)",
+      "aliases": []
+    },
+    {
+      "name": "DoD IL5 Certification",
+      "entity_type": "POLICY",
+      "properties": {
+        "name": "DoD IL5 Certification",
+        "category": "Defense certification"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "DoD IL5 certification achieved",
+      "aliases": []
+    },
+    {
+      "name": "Denver",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Denver"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Location: Denver Technology Campus",
+      "aliases": []
+    },
+    {
+      "name": "North America",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "North America"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "North America | $180M | $195M | $520M",
+      "aliases": []
+    },
+    {
+      "name": "Europe",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Europe"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Europe | $85M | $78M | $245M",
+      "aliases": []
+    },
+    {
+      "name": "Asia Pacific",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Asia Pacific"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Asia Pacific | $55M | $62M | $180M",
       "aliases": []
     },
     {
@@ -318,9 +417,9 @@
       "properties": {
         "name": "AWS IoT",
         "type": "Competitor",
-        "industry": "Cloud IoT"
+        "industry": "Cloud/IoT"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "AWS IoT | 45 | 28 | 62%",
       "aliases": []
@@ -331,9 +430,9 @@
       "properties": {
         "name": "Azure IoT",
         "type": "Competitor",
-        "industry": "Cloud IoT"
+        "industry": "Cloud/IoT"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Azure IoT | 38 | 22 | 63%",
       "aliases": []
@@ -344,9 +443,9 @@
       "properties": {
         "name": "PTC ThingWorx",
         "type": "Competitor",
-        "industry": "Industrial IoT"
+        "industry": "IoT Platform"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "PTC ThingWorx | 52 | 15 | 78%",
       "aliases": []
@@ -359,7 +458,7 @@
         "type": "Competitor",
         "industry": "Cybersecurity"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "CrowdStrike | 28 | 35 | 44%",
       "aliases": []
@@ -372,102 +471,16 @@
         "type": "Competitor",
         "industry": "Cybersecurity"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Palo Alto | 32 | 42 | 43%",
-      "aliases": []
-    },
-    {
-      "name": "FedRAMP High",
-      "entity_type": "POLICY",
-      "properties": {
-        "policy_ID": "FedRAMP High",
-        "category": "Government Security Certification"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "FedRAMP High authorization (January 2026)",
-      "aliases": []
-    },
-    {
-      "name": "DoD IL5",
-      "entity_type": "POLICY",
-      "properties": {
-        "policy_ID": "DoD IL5",
-        "category": "Defense Security Certification"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "DoD IL5 certification achieved",
-      "aliases": []
-    },
-    {
-      "name": "North America",
-      "entity_type": "LOCATION",
-      "properties": {
-        "name": "North America",
-        "country": "Regional"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "North America | $180M | $195M | $520M",
-      "aliases": []
-    },
-    {
-      "name": "Europe",
-      "entity_type": "LOCATION",
-      "properties": {
-        "name": "Europe",
-        "country": "Regional"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Europe | $85M | $78M | $245M",
-      "aliases": []
-    },
-    {
-      "name": "Asia Pacific",
-      "entity_type": "LOCATION",
-      "properties": {
-        "name": "Asia Pacific",
-        "country": "Regional"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Asia Pacific | $55M | $62M | $180M",
-      "aliases": []
-    },
-    {
-      "name": "AI/ML Platform Investment",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$42M",
-        "timeline": "FY2026",
-        "status": "Planned"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "AI/ML Platform | $28M | $42M",
-      "aliases": []
-    },
-    {
-      "name": "Edge AI Processing",
-      "entity_type": "PROJECT",
-      "properties": {
-        "budget": "$12M",
-        "timeline": "March 2026",
-        "status": "In Progress"
-      },
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "source_excerpt": "Edge AI Processing | March 2026 | $12M",
       "aliases": []
     },
     {
       "name": "FY2026 Revenue Target",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Revenue Target",
+        "metric_name": "Revenue",
         "value": "$2.38B",
         "period": "FY2026",
         "type": "CURRENCY"
@@ -475,6 +488,76 @@
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
       "source_excerpt": "Revenue | $2.02B | $2.38B | +18%",
+      "aliases": []
+    },
+    {
+      "name": "AI/ML Platform Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "AI/ML Platform Investment",
+        "value": "$42M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "AI/ML Platform | $28M | $42M",
+      "aliases": []
+    },
+    {
+      "name": "Cloud Infrastructure Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Cloud Infrastructure Investment",
+        "value": "$52M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Cloud Infrastructure | $45M | $52M",
+      "aliases": []
+    },
+    {
+      "name": "Security R&D Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Security R&D Investment",
+        "value": "$68M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Security R&D | $58M | $68M",
+      "aliases": []
+    },
+    {
+      "name": "Quantum Computing Investment",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Quantum Computing Investment",
+        "value": "$42M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Quantum Computing | $38M | $42M",
+      "aliases": []
+    },
+    {
+      "name": "Engineering Headcount",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Engineering Headcount",
+        "value": "1,420",
+        "period": "Q4",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "source_excerpt": "Headcount | 1,420 | 1,380 | 1,450",
       "aliases": []
     }
   ],
@@ -499,7 +582,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Dr. Alan Chen | VP Engineering | Yes"
+      "evidence": "Dr. Alan Chen | VP Engineering"
     },
     {
       "source_entity": "Michelle Torres",
@@ -510,7 +593,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Michelle Torres | VP Product | Yes"
+      "evidence": "Michelle Torres | VP Product"
     },
     {
       "source_entity": "Steven Park",
@@ -521,7 +604,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Steven Park | VP Sales | Yes"
+      "evidence": "Steven Park | VP Sales"
     },
     {
       "source_entity": "Jennifer Adams",
@@ -532,7 +615,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Jennifer Adams | VP Finance | Yes"
+      "evidence": "Jennifer Adams | VP Finance"
     },
     {
       "source_entity": "David Lee",
@@ -543,7 +626,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "David Lee | VP Customer Success | Yes"
+      "evidence": "David Lee | VP Customer Success"
     },
     {
       "source_entity": "Denver Technology Campus",
@@ -576,7 +659,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "CyberShield Security Suite product line"
+      "evidence": "CyberShield Security Suite product line performance"
+    },
+    {
+      "source_entity": "Digital Solutions Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "QuantumLeap Computing Services product line performance"
     },
     {
       "source_entity": "Michelle Torres",
@@ -587,7 +681,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Presenter: Michelle Torres for NexusConnect"
+      "evidence": "Presenter: Michelle Torres for NexusConnect IoT Platform"
     },
     {
       "source_entity": "Dr. Alan Chen",
@@ -598,29 +692,40 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Presenter: Dr. Alan Chen for CyberShield"
+      "evidence": "Presenter: Dr. Alan Chen for CyberShield Security Suite"
     },
     {
       "source_entity": "Dr. Alan Chen",
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
       "target_entity": "QuantumLeap Computing Services",
-      "target_type": "SERVICE",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Presenter: Dr. Alan Chen for QuantumLeap"
+      "evidence": "Presenter: Dr. Alan Chen for QuantumLeap Computing Services"
     },
     {
-      "source_entity": "David Lee",
-      "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
+      "source_entity": "Digital Solutions Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Microsoft Azure",
+      "target_type": "PARTNER",
       "properties": {},
-      "confidence": 0.8,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "David Lee Customer Metrics presenter"
+      "evidence": "Microsoft Azure partnership expanded ($43M)"
+    },
+    {
+      "source_entity": "Digital Solutions Division",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "IBM",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_digital_division_quarterly_review.md",
+      "evidence": "IBM partnership announced"
     },
     {
       "source_entity": "Rio Tinto",
@@ -629,7 +734,7 @@
       "target_entity": "Digital Solutions Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "evidence": "Rio Tinto mining deployment (85,000 sensors)"
     },
@@ -640,59 +745,15 @@
       "target_entity": "Digital Solutions Division",
       "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "04_digital_division_quarterly_review.md",
       "evidence": "Pacific Power utility pilot successful"
-    },
-    {
-      "source_entity": "Microsoft Azure",
-      "source_type": "PARTNER",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Microsoft Azure partnership expanded ($43M)"
-    },
-    {
-      "source_entity": "IBM",
-      "source_type": "PARTNER",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "IBM partnership announced"
-    },
-    {
-      "source_entity": "AI/ML Platform Investment",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "AI/ML Platform | $28M | $42M investment"
-    },
-    {
-      "source_entity": "Edge AI Processing",
-      "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Digital Solutions Division",
-      "target_type": "BUSINESS_UNIT",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "04_digital_division_quarterly_review.md",
-      "evidence": "Edge AI Processing | March 2026 | $12M"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 38,
-    "raw_relationship_count": 19,
+    "raw_entity_count": 43,
+    "raw_relationship_count": 17,
     "used_partial_parse": false,
     "truncated": false
   }

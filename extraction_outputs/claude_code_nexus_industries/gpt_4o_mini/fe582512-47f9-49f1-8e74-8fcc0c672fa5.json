@@ -2,7 +2,7 @@
   "document_id": "fe582512-47f9-49f1-8e74-8fcc0c672fa5",
   "document_path": "04_us_dod_customer.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:36:34.246774",
+  "extracted_at": "2026-01-25T15:56:00.363699",
   "entities": [
     {
       "name": "U.S. Department of Defense",
@@ -20,10 +20,10 @@
       "name": "Nexus Aerospace",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Division",
+        "type": "Company",
         "industry": "Aerospace"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_us_dod_customer.md",
       "source_excerpt": "Primary Division: Nexus Aerospace",
       "aliases": []
@@ -47,7 +47,7 @@
         "title": "Division President",
         "role": "Executive Sponsor"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_us_dod_customer.md",
       "source_excerpt": "Executive Sponsor: Michael Torres (Division President)",
       "aliases": []
@@ -283,9 +283,9 @@
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_us_dod_customer.md",
-      "evidence": "Account Type: Government - Strategic"
+      "evidence": "Customer Profile: U.S. Department of Defense"
     },
     {
       "source_entity": "Colonel (Ret.) James Foster",
@@ -294,7 +294,7 @@
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_us_dod_customer.md",
       "evidence": "Account Owner: Col. (Ret.) James Foster, VP Government Programs"
     },
@@ -305,7 +305,7 @@
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "04_us_dod_customer.md",
       "evidence": "Executive Sponsor: Michael Torres (Division President)"
     },
@@ -473,34 +473,12 @@
       "confidence": 0.9,
       "source_document": "04_us_dod_customer.md",
       "evidence": "Dr. James Wilson | Research"
-    },
-    {
-      "source_entity": "Steven Park",
-      "source_type": "PERSON",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "Falcon X Flight Test | Steven Park"
-    },
-    {
-      "source_entity": "Dr. Victor Hernandez",
-      "source_type": "PERSON",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Nexus Aerospace",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "04_us_dod_customer.md",
-      "evidence": "DARPA proposal submission | Dr. Hernandez"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 22,
-    "raw_relationship_count": 20,
+    "raw_relationship_count": 18,
     "used_partial_parse": false,
     "truncated": false
   }

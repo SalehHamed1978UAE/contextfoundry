@@ -2,7 +2,7 @@
   "document_id": "3b19c5ea-badb-4313-b7bc-304f4cb026f4",
   "document_path": "05_hts_wire_manufacturing_spec.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:41:13.256348",
+  "extracted_at": "2026-01-25T16:00:40.545327",
   "entities": [
     {
       "name": "Dr. Robert Chen",
@@ -37,7 +37,7 @@
       },
       "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Customers | MRI Magnets | High field, long length | Siemens Healthineers",
+      "source_excerpt": "Customers: Siemens Healthineers",
       "aliases": []
     },
     {
@@ -49,7 +49,7 @@
       },
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Customers | Fusion Reactors | Extreme field, radiation | Government labs",
+      "source_excerpt": "Customers: Government labs",
       "aliases": []
     },
     {
@@ -61,7 +61,7 @@
       },
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Customers | Power Cables | High capacity, flexibility | Utilities",
+      "source_excerpt": "Customers: Utilities",
       "aliases": []
     },
     {
@@ -73,7 +73,7 @@
       },
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Customers | Motors/Generators | Compact, high efficiency | Transportation",
+      "source_excerpt": "Customers: Transportation",
       "aliases": []
     },
     {
@@ -85,7 +85,7 @@
       },
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Customers | Research Magnets | Ultra-high field | Universities",
+      "source_excerpt": "Customers: Universities",
       "aliases": []
     },
     {
@@ -95,9 +95,9 @@
         "city": "Albuquerque",
         "country": "USA"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Line 1 | Albuquerque | 200 km/year | Operating",
+      "source_excerpt": "Line 1 | Albuquerque",
       "aliases": []
     },
     {
@@ -109,7 +109,7 @@
       },
       "confidence": 0.85,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Supplier | Hastelloy C276 | HTS grade | Haynes",
+      "source_excerpt": "Supplier: Haynes",
       "aliases": []
     },
     {
@@ -121,7 +121,7 @@
       },
       "confidence": 0.85,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Supplier | REBCO precursors | Electronic | Alfa Aesar",
+      "source_excerpt": "Supplier: Alfa Aesar",
       "aliases": []
     },
     {
@@ -129,23 +129,23 @@
       "entity_type": "SUPPLIER",
       "properties": {
         "capability": "Supplier of Silver",
-        "risk level": "Low"
+        "risk level": "Medium"
       },
       "confidence": 0.85,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Supplier | Silver | 99.99% | ESPI",
+      "source_excerpt": "Supplier: ESPI",
       "aliases": []
     },
     {
       "name": "Linde",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Supplier of Process gases",
-        "risk level": "Low"
+        "capability": "Supplier of process gases",
+        "risk level": "Medium"
       },
       "confidence": 0.85,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Supplier | Process gases | Ultra-high purity | Linde",
+      "source_excerpt": "Supplier: Linde",
       "aliases": []
     },
     {
@@ -157,7 +157,7 @@
       },
       "confidence": 0.85,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "source_excerpt": "Supplier | MgO target | 99.9% | Kurt Lesker",
+      "source_excerpt": "Supplier: Kurt Lesker",
       "aliases": []
     },
     {
@@ -205,7 +205,7 @@
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Customers | MRI Magnets | High field, long length | Siemens Healthineers"
+      "evidence": "Customers: Siemens Healthineers"
     },
     {
       "source_entity": "Government labs",
@@ -216,7 +216,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Customers | Fusion Reactors | Extreme field, radiation | Government labs"
+      "evidence": "Customers: Government labs"
     },
     {
       "source_entity": "Utilities",
@@ -227,7 +227,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Customers | Power Cables | High capacity, flexibility | Utilities"
+      "evidence": "Customers: Utilities"
     },
     {
       "source_entity": "Transportation",
@@ -238,7 +238,7 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Customers | Motors/Generators | Compact, high efficiency | Transportation"
+      "evidence": "Customers: Transportation"
     },
     {
       "source_entity": "Universities",
@@ -249,57 +249,68 @@
       "properties": {},
       "confidence": 0.8,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Customers | Research Magnets | Ultra-high field | Universities"
+      "evidence": "Customers: Universities"
     },
     {
       "source_entity": "Line 1",
-      "source_type": "FACILITY",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Albuquerque",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Line 1 | Albuquerque | 200 km/year | Operating"
+      "evidence": "Line 1 | Albuquerque"
     },
     {
       "source_entity": "Line 2",
-      "source_type": "FACILITY",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Albuquerque",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Line 2 | Albuquerque | 300 km/year | Operating"
+      "evidence": "Line 2 | Albuquerque"
     },
     {
       "source_entity": "Line 3",
-      "source_type": "FACILITY",
+      "source_type": "BUSINESS_UNIT",
       "relationship_type": "LOCATED_AT",
       "target_entity": "Albuquerque",
       "target_type": "LOCATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Line 3 | Albuquerque | 500 km/year | Commissioning"
+      "evidence": "Line 3 | Albuquerque"
     },
     {
       "source_entity": "Dr. Robert Chen",
       "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus HTS Wire",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "05_hts_wire_manufacturing_spec.md",
+      "evidence": "Prepared By: Dr. Robert Chen, Materials R&D Director"
+    },
+    {
+      "source_entity": "John Williams",
+      "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
-      "target_entity": "John Williams",
+      "target_entity": "Dr. Robert Chen",
       "target_type": "PERSON",
       "properties": {},
       "confidence": 0.9,
       "source_document": "05_hts_wire_manufacturing_spec.md",
-      "evidence": "Prepared By: Dr. Robert Chen, Materials R&D Director"
+      "evidence": "Approved By: John Williams, Materials Division President"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 14,
-    "raw_relationship_count": 11,
+    "raw_relationship_count": 12,
     "used_partial_parse": false,
     "truncated": false
   }

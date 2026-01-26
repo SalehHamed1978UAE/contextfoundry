@@ -2,7 +2,7 @@
   "document_id": "7b72734d-0b5a-48cd-83ae-baef41928675",
   "document_path": "05_nexusconnect_platform.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T10:43:38.249246",
+  "extracted_at": "2026-01-25T16:02:52.858069",
   "entities": [
     {
       "name": "NexusConnect IoT Platform",
@@ -35,7 +35,7 @@
         "type": "Division",
         "industry": "Technology"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
       "source_excerpt": "Owning Division: Nexus Digital Solutions",
       "aliases": []
@@ -46,7 +46,7 @@
       "properties": {
         "focus areas": "IoT Platform"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
       "source_excerpt": "Business Unit: IoT Platform",
       "aliases": []
@@ -166,7 +166,7 @@
         "type": "Cloud Service Provider",
         "industry": "Technology"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_nexusconnect_platform.md",
       "source_excerpt": "AWS IoT",
       "aliases": []
@@ -178,41 +178,41 @@
         "type": "Cloud Service Provider",
         "industry": "Technology"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_nexusconnect_platform.md",
       "source_excerpt": "Azure IoT",
-      "aliases": []
-    },
-    {
-      "name": "Siemens MindSphere",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "IoT Platform",
-        "industry": "Technology"
-      },
-      "confidence": 0.85,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Siemens MindSphere",
       "aliases": []
     },
     {
       "name": "PTC ThingWorx",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "IoT Platform",
+        "type": "Software Company",
         "industry": "Technology"
       },
-      "confidence": 0.85,
+      "confidence": 0.9,
       "source_document": "05_nexusconnect_platform.md",
       "source_excerpt": "PTC ThingWorx",
+      "aliases": []
+    },
+    {
+      "name": "Siemens MindSphere",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Software Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "05_nexusconnect_platform.md",
+      "source_excerpt": "Siemens MindSphere",
       "aliases": []
     },
     {
       "name": "NexusConnect",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "IoT Platform",
-        "industry": "Technology"
+        "type": "Technology Company",
+        "industry": "IoT"
       },
       "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
@@ -220,168 +220,31 @@
       "aliases": []
     },
     {
-      "name": "TensorFlow",
-      "entity_type": "TECHNOLOGY",
+      "name": "Total R&D Investment",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "An open-source machine learning framework."
+        "metric name": "Total R&D Investment",
+        "value": "$68 million",
+        "period": "2024-2026",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "ML Framework: TensorFlow",
+      "source_excerpt": "Total R&D Investment (2024-2026) | $68 million",
       "aliases": []
     },
     {
-      "name": "PyTorch",
-      "entity_type": "TECHNOLOGY",
+      "name": "ARR",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "An open-source machine learning framework."
+        "metric name": "ARR",
+        "value": "$68 million",
+        "period": "2026",
+        "type": "CURRENCY"
       },
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "ML Framework: PyTorch",
-      "aliases": []
-    },
-    {
-      "name": "Apache Kafka",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A distributed event streaming platform."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Message Queue: Apache Kafka",
-      "aliases": []
-    },
-    {
-      "name": "AWS",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Cloud computing platform."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Cloud Platform: AWS",
-      "aliases": []
-    },
-    {
-      "name": "Azure",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Cloud computing platform."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Cloud Platform: Azure",
-      "aliases": []
-    },
-    {
-      "name": "GCP",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "Cloud computing platform."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Cloud Platform: GCP",
-      "aliases": []
-    },
-    {
-      "name": "TimescaleDB",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A time-series database."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Database: TimescaleDB",
-      "aliases": []
-    },
-    {
-      "name": "MongoDB",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A NoSQL database."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Database: MongoDB",
-      "aliases": []
-    },
-    {
-      "name": "Apache Spark",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A unified analytics engine for big data processing."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Processing: Apache Spark",
-      "aliases": []
-    },
-    {
-      "name": "Flink",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A stream processing framework."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Processing: Flink",
-      "aliases": []
-    },
-    {
-      "name": "Kubernetes",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "An open-source container orchestration platform."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Edge Runtime: Kubernetes",
-      "aliases": []
-    },
-    {
-      "name": "Docker",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A platform for developing, shipping, and running applications in containers."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Edge Runtime: Docker",
-      "aliases": []
-    },
-    {
-      "name": "MQTT",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A lightweight messaging protocol for small sensors and mobile devices."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Protocols: MQTT",
-      "aliases": []
-    },
-    {
-      "name": "OPC-UA",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A machine-to-machine communication protocol for industrial automation."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Protocols: OPC-UA",
-      "aliases": []
-    },
-    {
-      "name": "Modbus",
-      "entity_type": "TECHNOLOGY",
-      "properties": {
-        "description": "A communication protocol for industrial devices."
-      },
-      "confidence": 0.9,
-      "source_document": "05_nexusconnect_platform.md",
-      "source_excerpt": "Protocols: Modbus",
+      "source_excerpt": "2026 Target | $68M",
       "aliases": []
     }
   ],
@@ -391,9 +254,9 @@
       "source_type": "PRODUCT",
       "relationship_type": "OWNS",
       "target_entity": "Nexus Digital Solutions",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
       "evidence": "Owning Division: Nexus Digital Solutions"
     },
@@ -404,26 +267,26 @@
       "target_entity": "NexusConnect IoT Platform",
       "target_type": "PRODUCT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
       "evidence": "Product Manager: Ryan Mitchell"
     },
     {
-      "source_entity": "Ryan Mitchell",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Nexus Digital Solutions",
+      "source_entity": "Nexus Digital Solutions",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PART_OF",
+      "target_entity": "NexusConnect",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
-      "evidence": "Product Manager: Ryan Mitchell"
+      "evidence": "Owning Division: Nexus Digital Solutions"
     },
     {
       "source_entity": "Kevin Chang",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
+      "target_entity": "NexusConnect",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
@@ -434,7 +297,7 @@
       "source_entity": "Dr. Amanda Foster",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
+      "target_entity": "NexusConnect",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
@@ -445,7 +308,7 @@
       "source_entity": "Diana Chen",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
+      "target_entity": "NexusConnect",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
@@ -456,7 +319,7 @@
       "source_entity": "Patrick O'Brien",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Nexus Digital Solutions",
+      "target_entity": "NexusConnect",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
@@ -467,8 +330,8 @@
       "source_entity": "General Electric",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
+      "target_entity": "NexusConnect",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
@@ -478,8 +341,8 @@
       "source_entity": "Siemens",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
+      "target_entity": "NexusConnect",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
@@ -489,8 +352,8 @@
       "source_entity": "Honeywell",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
+      "target_entity": "NexusConnect",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
@@ -500,8 +363,8 @@
       "source_entity": "Rockwell Automation",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
+      "target_entity": "NexusConnect",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
@@ -511,8 +374,8 @@
       "source_entity": "Schneider Electric",
       "source_type": "CUSTOMER",
       "relationship_type": "CUSTOMER_OF",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
+      "target_entity": "NexusConnect",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.95,
       "source_document": "05_nexusconnect_platform.md",
@@ -521,19 +384,52 @@
     {
       "source_entity": "NexusConnect",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PRODUCES",
-      "target_entity": "NexusConnect IoT Platform",
-      "target_type": "PRODUCT",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "AWS",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.95,
+      "confidence": 0.9,
       "source_document": "05_nexusconnect_platform.md",
-      "evidence": "NexusConnect is an enterprise-grade Industrial Internet of Things (IIoT) platform"
+      "evidence": "Cloud Platform: AWS"
+    },
+    {
+      "source_entity": "NexusConnect",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Azure",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_nexusconnect_platform.md",
+      "evidence": "Cloud Platform: Azure"
+    },
+    {
+      "source_entity": "NexusConnect",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "PTC ThingWorx",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_nexusconnect_platform.md",
+      "evidence": "NexusConnect"
+    },
+    {
+      "source_entity": "NexusConnect",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Siemens MindSphere",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "05_nexusconnect_platform.md",
+      "evidence": "NexusConnect"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 33,
-    "raw_relationship_count": 13,
+    "raw_entity_count": 20,
+    "raw_relationship_count": 16,
     "used_partial_parse": false,
     "truncated": false
   }
