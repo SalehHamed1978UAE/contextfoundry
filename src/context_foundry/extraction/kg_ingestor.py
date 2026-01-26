@@ -15,6 +15,8 @@ from sqlalchemy import and_
 
 from ..models.schema import Entity, Relationship, LifecycleState, ValidationStatus
 from ..ontology.schema import EntityType, RelationshipType
+from ..memory.episodic import openai_embedding
+from ..utils.logger import logger
 from .entity_resolver import CanonicalEntity, CanonicalRelationship, ConsensusOutput
 from .consensus_validator import ValidationReport
 
@@ -155,6 +157,12 @@ class KGIngestor:
         properties["_name_variants"] = entity.name_variants
         properties["_consensus_metadata"] = entity.consensus_metadata
         
+        name_embedding = None
+        try:
+            name_embedding = openai_embedding(entity.canonical_name)
+        except Exception as e:
+            logger.warning(f"Failed to compute embedding for entity '{entity.canonical_name}': {e}")
+        
         return Entity(
             id=uuid.uuid4(),
             tenant_id=self.tenant_id,
@@ -169,6 +177,7 @@ class KGIngestor:
             ),
             extraction_method="multi_model_consensus",
             extracted_at=datetime.utcnow(),
+            name_embedding=name_embedding,
         )
     
     def _update_entity(
