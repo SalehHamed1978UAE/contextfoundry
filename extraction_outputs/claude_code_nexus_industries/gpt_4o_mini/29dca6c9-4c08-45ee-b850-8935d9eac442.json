@@ -2,7 +2,7 @@
   "document_id": "29dca6c9-4c08-45ee-b850-8935d9eac442",
   "document_path": "02_falcon_x_program_review.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:26:30.388792",
+  "extracted_at": "2026-01-26T03:10:51.417027",
   "entities": [
     {
       "name": "Thomas Mueller",
@@ -10,7 +10,7 @@
       "properties": {
         "title": "Program Director",
         "role": "Program Director",
-        "division": "Aerospace"
+        "department": "Aerospace"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -23,7 +23,7 @@
       "properties": {
         "title": "Chief Engineer",
         "role": "Chief Engineer",
-        "division": "Aerospace"
+        "department": "Aerospace"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -36,7 +36,7 @@
       "properties": {
         "title": "Manufacturing Lead",
         "role": "Manufacturing Lead",
-        "division": "Aerospace"
+        "department": "Aerospace"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -49,7 +49,7 @@
       "properties": {
         "title": "Avionics Lead",
         "role": "Avionics Lead",
-        "division": "Aerospace"
+        "department": "Aerospace"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -62,7 +62,7 @@
       "properties": {
         "title": "Flight Test Director",
         "role": "Flight Test Director",
-        "division": "Aerospace"
+        "department": "Aerospace"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -75,7 +75,7 @@
       "properties": {
         "title": "Program Finance",
         "role": "Program Finance",
-        "division": "Corporate"
+        "department": "Corporate"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -88,7 +88,7 @@
       "properties": {
         "title": "Empowered Official",
         "role": "Empowered Official",
-        "division": "Government Programs"
+        "department": "Government Programs"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -156,11 +156,11 @@
       "aliases": []
     },
     {
-      "name": "Tucson, AZ",
-      "entity_type": "LOCATION",
+      "name": "Tucson Facility",
+      "entity_type": "FACILITY",
       "properties": {
-        "city": "Tucson",
-        "country": "USA"
+        "location": "Tucson, AZ",
+        "type": "Facility"
       },
       "confidence": 0.95,
       "source_document": "02_falcon_x_program_review.md",
@@ -341,101 +341,68 @@
     {
       "source_entity": "Dr. Elena Rodriguez",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Aerospace Division",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Dr. Elena Rodriguez presented the Technical Status"
+      "evidence": "Dr. Elena Rodriguez, Chief Engineer"
     },
     {
       "source_entity": "James Park",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Aerospace Division",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "James Park presented the Manufacturing Update"
+      "evidence": "James Park, Manufacturing Lead"
     },
     {
       "source_entity": "Sarah Mitchell",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Aerospace Division",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Sarah Mitchell presented the Technical Status"
+      "evidence": "Sarah Mitchell, Avionics Lead"
     },
     {
       "source_entity": "Robert Lee",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Aerospace Division",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Robert Lee presented the Flight Test Planning"
+      "evidence": "Robert Lee, Flight Test Director"
     },
     {
       "source_entity": "Jennifer Adams",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Corporate",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Jennifer Adams presented the Financial Update"
+      "evidence": "Jennifer Adams, Program Finance"
     },
     {
       "source_entity": "Col. (Ret.) James Foster",
       "source_type": "PERSON",
-      "relationship_type": "MANAGES",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Government Programs",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Col. (Ret.) James Foster is an Empowered Official"
-    },
-    {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Dr. Victoria Chen, CEO (first 30 minutes)"
-    },
-    {
-      "source_entity": "Michael Chang",
-      "source_type": "PERSON",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Michael Chang, CFO (first 30 minutes)"
-    },
-    {
-      "source_entity": "USAF Capt. Williams",
-      "source_type": "PERSON",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_falcon_x_program_review.md",
-      "evidence": "USAF Representative (Capt. Williams)"
+      "evidence": "Col. (Ret.) James Foster, Empowered Official"
     },
     {
       "source_entity": "Falcon X UAV Program",
@@ -451,19 +418,30 @@
     {
       "source_entity": "Falcon X UAV Program",
       "source_type": "PROJECT",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Tucson, AZ",
-      "target_type": "LOCATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Aerospace Division",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_falcon_x_program_review.md",
-      "evidence": "Location: Aerospace Division, Tucson, AZ"
+      "evidence": "Falcon X UAV Program Review Meeting"
+    },
+    {
+      "source_entity": "USAF Capt. Williams",
+      "source_type": "PERSON",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Falcon X UAV Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_falcon_x_program_review.md",
+      "evidence": "Confirmed FY2027 budget allocation for production units"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 25,
-    "raw_relationship_count": 12,
+    "raw_relationship_count": 10,
     "used_partial_parse": false,
     "truncated": false
   }

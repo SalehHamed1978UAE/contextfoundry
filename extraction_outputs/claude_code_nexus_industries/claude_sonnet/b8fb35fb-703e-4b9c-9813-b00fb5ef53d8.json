@@ -2,7 +2,7 @@
   "document_id": "b8fb35fb-703e-4b9c-9813-b00fb5ef53d8",
   "document_path": "01_executive_team.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T15:18:11.884582",
+  "extracted_at": "2026-01-26T03:00:46.511051",
   "entities": [
     {
       "name": "Nexus Industries",
@@ -11,7 +11,7 @@
         "type": "Corporation",
         "industry": "Manufacturing/Technology"
       },
-      "confidence": 0.98,
+      "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "source_excerpt": "Nexus Industries Executive Leadership Team",
       "aliases": []
@@ -22,7 +22,7 @@
       "properties": {
         "title": "Chief Executive Officer",
         "role": "CEO",
-        "education": "Ph.D. in Electrical Engineering from MIT, MBA from Harvard Business School"
+        "education": "Ph.D. in Electrical Engineering from MIT and MBA from Harvard Business School"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -35,7 +35,8 @@
       "properties": {
         "title": "Chief Financial Officer",
         "role": "CFO",
-        "credentials": "CPA"
+        "certification": "CPA",
+        "experience": "20 years in corporate finance"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -61,7 +62,7 @@
       "properties": {
         "title": "Chief Operating Officer",
         "role": "COO",
-        "experience": "25 years operations experience"
+        "experience": "25 years of operations experience, including 10 years at Boeing"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -74,7 +75,7 @@
       "properties": {
         "title": "Chief Human Resources Officer",
         "role": "CHRO",
-        "experience": "18 years HR leadership"
+        "experience": "18 years of HR leadership experience from Fortune 500 companies"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -87,7 +88,7 @@
       "properties": {
         "title": "General Counsel and Chief Legal Officer",
         "role": "General Counsel",
-        "background": "Former partner at Morrison & Foerster"
+        "background": "former partner at Morrison & Foerster"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -113,7 +114,7 @@
       "properties": {
         "title": "Chief Marketing Officer",
         "role": "CMO",
-        "background": "15 years marketing leadership at Apple and Samsung"
+        "experience": "15 years in marketing leadership at Apple and Samsung"
       },
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -122,11 +123,11 @@
     },
     {
       "name": "Board of Directors",
-      "entity_type": "ORGANIZATION",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Corporate Board"
+        "focus_areas": "Corporate governance and oversight"
       },
-      "confidence": 0.95,
+      "confidence": 1.0,
       "source_document": "01_executive_team.md",
       "source_excerpt": "Reports To: Board of Directors",
       "aliases": []
@@ -135,7 +136,7 @@
       "name": "Meridian Technologies",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Technology Company"
+        "type": "Technology company"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
@@ -146,7 +147,7 @@
       "name": "GlobalTech Manufacturing",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Manufacturing Company"
+        "type": "Manufacturing company"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
@@ -157,7 +158,8 @@
       "name": "Quantum Materials Inc.",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Materials Company"
+        "type": "Materials company",
+        "focus": "R&D"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
@@ -168,7 +170,7 @@
       "name": "Boeing",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Aerospace/Manufacturing Company"
+        "type": "Aerospace manufacturer"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
@@ -179,40 +181,41 @@
       "name": "IBM",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Technology Company"
+        "type": "Technology corporation"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "Fortune 500 companies including IBM and Microsoft",
+      "source_excerpt": "HR leadership experience from Fortune 500 companies including IBM",
       "aliases": []
     },
     {
       "name": "Microsoft",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Technology Company"
+        "type": "Technology corporation"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "Fortune 500 companies including IBM and Microsoft",
+      "source_excerpt": "HR leadership experience from Fortune 500 companies including IBM and Microsoft",
       "aliases": []
     },
     {
       "name": "Morrison & Foerster",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Law Firm"
+        "type": "Law firm",
+        "specialization": "technology and manufacturing law"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "former partner at Morrison & Foerster",
+      "source_excerpt": "former partner at Morrison & Foerster with expertise in technology and manufacturing law",
       "aliases": []
     },
     {
       "name": "Accenture",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Consulting Company"
+        "type": "Consulting firm"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
@@ -223,7 +226,7 @@
       "name": "Apple",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Technology Company"
+        "type": "Technology corporation"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
@@ -234,7 +237,7 @@
       "name": "Samsung",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Technology Company"
+        "type": "Technology corporation"
       },
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
@@ -242,47 +245,14 @@
       "aliases": []
     },
     {
-      "name": "MIT",
-      "entity_type": "ORGANIZATION",
+      "name": "Office of the CEO",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Educational Institution"
+        "focus_areas": "Executive support and administration"
       },
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "01_executive_team.md",
-      "source_excerpt": "Ph.D. in Electrical Engineering from MIT",
-      "aliases": []
-    },
-    {
-      "name": "Harvard Business School",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Educational Institution"
-      },
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "source_excerpt": "MBA from Harvard Business School",
-      "aliases": []
-    },
-    {
-      "name": "Stanford",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Educational Institution"
-      },
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "source_excerpt": "Ph.D. in Materials Science from Stanford",
-      "aliases": []
-    },
-    {
-      "name": "Carnegie Mellon",
-      "entity_type": "ORGANIZATION",
-      "properties": {
-        "type": "Educational Institution"
-      },
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "source_excerpt": "Ph.D. in Computer Science from Carnegie Mellon",
+      "source_excerpt": "contact the Office of the CEO",
       "aliases": []
     }
   ],
@@ -314,7 +284,7 @@
       "source_type": "PERSON",
       "relationship_type": "REPORTS_TO",
       "target_entity": "Board of Directors",
-      "target_type": "ORGANIZATION",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_executive_team.md",
@@ -323,7 +293,7 @@
     {
       "source_entity": "Robert Martinez",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -345,7 +315,7 @@
     {
       "source_entity": "Dr. Aisha Patel",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -367,7 +337,7 @@
     {
       "source_entity": "James Wilson",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -389,7 +359,7 @@
     {
       "source_entity": "Maria Santos",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -411,7 +381,7 @@
     {
       "source_entity": "David Park",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -433,7 +403,7 @@
     {
       "source_entity": "Dr. Samuel Okonkwo",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -455,7 +425,7 @@
     {
       "source_entity": "Jennifer Lee",
       "source_type": "PERSON",
-      "relationship_type": "HOLDS_POSITION",
+      "relationship_type": "WORKS_FOR",
       "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -475,120 +445,32 @@
       "evidence": "Reports To: CEO (Dr. Victoria Chen)"
     },
     {
-      "source_entity": "Dr. Victoria Chen",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Meridian Technologies",
+      "source_entity": "Board of Directors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_executive_team.md",
-      "evidence": "she served as COO at Meridian Technologies for 8 years"
+      "evidence": "Executive leadership reporting structure"
     },
     {
-      "source_entity": "Robert Martinez",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "GlobalTech Manufacturing",
+      "source_entity": "Office of the CEO",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "01_executive_team.md",
-      "evidence": "VP of Finance at GlobalTech Manufacturing"
-    },
-    {
-      "source_entity": "Dr. Aisha Patel",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Quantum Materials Inc.",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "evidence": "She led R&D at Quantum Materials Inc."
-    },
-    {
-      "source_entity": "James Wilson",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Boeing",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "evidence": "10 years at Boeing in manufacturing leadership roles"
-    },
-    {
-      "source_entity": "Maria Santos",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "IBM",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_executive_team.md",
-      "evidence": "Fortune 500 companies including IBM and Microsoft"
-    },
-    {
-      "source_entity": "Maria Santos",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Microsoft",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "01_executive_team.md",
-      "evidence": "Fortune 500 companies including IBM and Microsoft"
-    },
-    {
-      "source_entity": "David Park",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Morrison & Foerster",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "evidence": "former partner at Morrison & Foerster"
-    },
-    {
-      "source_entity": "Dr. Samuel Okonkwo",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Accenture",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "evidence": "previously led IT at Accenture's manufacturing practice"
-    },
-    {
-      "source_entity": "Jennifer Lee",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Apple",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "evidence": "15 years in marketing leadership at Apple and Samsung"
-    },
-    {
-      "source_entity": "Jennifer Lee",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Samsung",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_executive_team.md",
-      "evidence": "15 years in marketing leadership at Apple and Samsung"
+      "evidence": "contact the Office of the CEO"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 24,
-    "raw_relationship_count": 27,
+    "raw_entity_count": 21,
+    "raw_relationship_count": 19,
     "used_partial_parse": false,
     "truncated": false
   }

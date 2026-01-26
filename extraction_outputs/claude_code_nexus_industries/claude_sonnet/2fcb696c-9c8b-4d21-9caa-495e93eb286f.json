@@ -2,7 +2,7 @@
   "document_id": "2fcb696c-9c8b-4d21-9caa-495e93eb286f",
   "document_path": "01_boeing_customer_profile.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T15:13:39.125214",
+  "extracted_at": "2026-01-26T02:56:36.549088",
   "entities": [
     {
       "name": "The Boeing Company",
@@ -10,15 +10,53 @@
       "properties": {
         "customer_id": "CUST-001",
         "account_type": "Strategic",
+        "relationship_since": "1998",
         "industry": "Aerospace & Defense",
         "headquarters": "Chicago, IL",
+        "annual_revenue": "$78B",
         "employees": "170,000",
-        "stock_ticker": "BA (NYSE)",
-        "relationship_since": "1998"
+        "stock_ticker": "BA (NYSE)"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Customer Name: The Boeing Company, Customer ID: CUST-001",
+      "source_excerpt": "The Boeing Company, Customer ID: CUST-001, Account Type: Strategic, Headquarters: Chicago, IL",
+      "aliases": []
+    },
+    {
+      "name": "Chicago",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Chicago",
+        "state": "IL",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Headquarters: Chicago, IL",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Aerospace",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "division_type": "Primary Division",
+        "focus_areas": "Aerospace components, structures"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Primary Division: Nexus Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Advanced Materials",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "division_type": "Secondary Division",
+        "focus_areas": "Composites, alloys"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Secondary Division: Nexus Advanced Materials",
       "aliases": []
     },
     {
@@ -49,23 +87,24 @@
       "name": "Victoria Chen",
       "entity_type": "PERSON",
       "properties": {
+        "title": "VPC",
         "role": "Executive"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "David Calhoun (former) CEO Victoria Chen Executive",
+      "source_excerpt": "Nov 12, 2025 | Chen (VPC), Ortberg | Executive alignment",
       "aliases": []
     },
     {
       "name": "David Calhoun",
       "entity_type": "PERSON",
       "properties": {
-        "title": "CEO",
+        "title": "CEO (former)",
         "role": "Former CEO"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "David Calhoun (former) CEO",
+      "source_excerpt": "David Calhoun (former) | CEO",
       "aliases": []
     },
     {
@@ -77,7 +116,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Kelly Ortberg CEO",
+      "source_excerpt": "Kelly Ortberg | CEO",
       "aliases": []
     },
     {
@@ -89,7 +128,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Brian West CFO",
+      "source_excerpt": "Brian West | CFO",
       "aliases": []
     },
     {
@@ -101,7 +140,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Ted Colbert President, Defense",
+      "source_excerpt": "Ted Colbert | President, Defense",
       "aliases": []
     },
     {
@@ -110,9 +149,9 @@
       "properties": {
         "role": "Finance"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Brian West CFO Robert Kim Finance",
+      "source_excerpt": "Brian West | CFO | Robert Kim | Finance",
       "aliases": []
     },
     {
@@ -120,11 +159,23 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "VP Supplier Management",
-        "role": "Vice President"
+        "role": "Vice President Supplier Management"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Sarah Thompson VP Supplier Management",
+      "source_excerpt": "Sarah Thompson | VP Supplier Management",
+      "aliases": []
+    },
+    {
+      "name": "Michael Lee",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Director, Structures",
+        "role": "Director of Structures"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Michael Lee | Director, Structures",
       "aliases": []
     },
     {
@@ -133,21 +184,9 @@
       "properties": {
         "role": "Contact"
       },
-      "confidence": 1.0,
+      "confidence": 0.8,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Sarah Thompson VP Supplier Management Jennifer Morrison",
-      "aliases": []
-    },
-    {
-      "name": "Michael Lee",
-      "entity_type": "PERSON",
-      "properties": {
-        "title": "Director, Structures",
-        "role": "Director"
-      },
-      "confidence": 1.0,
-      "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Michael Lee Director, Structures",
+      "source_excerpt": "Michael Lee | Director, Structures | Thomas Wright",
       "aliases": []
     },
     {
@@ -159,7 +198,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Amanda Chen Program Manager, 787",
+      "source_excerpt": "Amanda Chen | Program Manager, 787",
       "aliases": []
     },
     {
@@ -168,9 +207,9 @@
       "properties": {
         "role": "Contact"
       },
-      "confidence": 1.0,
+      "confidence": 0.8,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Amanda Chen Program Manager, 787 Steven Park",
+      "source_excerpt": "Amanda Chen | Program Manager, 787 | Steven Park",
       "aliases": []
     },
     {
@@ -182,7 +221,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Robert Garcia Quality Manager",
+      "source_excerpt": "Robert Garcia | Quality Manager",
       "aliases": []
     },
     {
@@ -191,9 +230,9 @@
       "properties": {
         "role": "Quality Contact"
       },
-      "confidence": 1.0,
+      "confidence": 0.8,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Robert Garcia Quality Manager Jennifer Wu",
+      "source_excerpt": "Robert Garcia | Quality Manager | Jennifer Wu",
       "aliases": []
     },
     {
@@ -201,106 +240,81 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Dr.",
-        "role": "AeroMaterials Demo Owner"
+        "role": "Technical Lead"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "AeroMaterials demo Dr. Maria Chen Feb 2026",
+      "source_excerpt": "AeroMaterials demo | Dr. Maria Chen | Feb 2026",
       "aliases": []
     },
     {
-      "name": "Nexus Aerospace",
-      "entity_type": "BUSINESS_UNIT",
+      "name": "FY2025 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "focus_areas": "Aerospace components, structures"
+        "metric_name": "Total Revenue",
+        "value": "$730M",
+        "period": "FY2025",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Primary Division: Nexus Aerospace",
+      "source_excerpt": "FY2025 Business Total: $730M",
       "aliases": []
     },
     {
-      "name": "Nexus Advanced Materials",
-      "entity_type": "BUSINESS_UNIT",
+      "name": "FY2024 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "focus_areas": "Composites, alloys, materials"
+        "metric_name": "Total Revenue",
+        "value": "$665M",
+        "period": "FY2024",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Secondary Division: Nexus Advanced Materials",
+      "source_excerpt": "FY2024: $665M",
       "aliases": []
     },
     {
-      "name": "Chicago",
-      "entity_type": "LOCATION",
+      "name": "FY2023 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "city": "Chicago",
-        "state": "IL",
-        "country": "USA"
+        "metric_name": "Total Revenue",
+        "value": "$585M",
+        "period": "FY2023",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Headquarters: Chicago, IL",
+      "source_excerpt": "FY2023: $585M",
       "aliases": []
     },
     {
-      "name": "787 Dreamliner",
-      "entity_type": "PRODUCT",
+      "name": "FY2026 Estimated Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "Commercial aircraft",
-        "category": "Aircraft"
+        "metric_name": "Estimated Revenue",
+        "value": "$812M",
+        "period": "FY2026",
+        "type": "CURRENCY"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "787 Dreamliner",
+      "source_excerpt": "FY2026 (Est): $812M",
       "aliases": []
     },
     {
-      "name": "737 MAX",
-      "entity_type": "PRODUCT",
+      "name": "Boeing Annual Revenue",
+      "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "description": "Commercial aircraft",
-        "category": "Aircraft"
+        "metric_name": "Annual Revenue",
+        "value": "$78B",
+        "period": "2024",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "737 MAX",
-      "aliases": []
-    },
-    {
-      "name": "P-8A Poseidon",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Defense aircraft",
-        "category": "Military Aircraft"
-      },
-      "confidence": 1.0,
-      "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "P-8A Poseidon",
-      "aliases": []
-    },
-    {
-      "name": "KC-46 Tanker",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Military tanker aircraft",
-        "category": "Military Aircraft"
-      },
-      "confidence": 1.0,
-      "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "KC-46 Tanker",
-      "aliases": []
-    },
-    {
-      "name": "T-7A Trainer",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "description": "Training aircraft",
-        "category": "Military Aircraft"
-      },
-      "confidence": 1.0,
-      "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "T-7A Trainer",
+      "source_excerpt": "Annual Revenue: $78B (2024)",
       "aliases": []
     },
     {
@@ -313,7 +327,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "787 Floor Beams $185M 2024-2027 Aerospace Active",
+      "source_excerpt": "787 Floor Beams | $185M | 2024-2027 | Aerospace | Active",
       "aliases": []
     },
     {
@@ -326,7 +340,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "737 MAX Components $145M 2023-2026 Aerospace Active",
+      "source_excerpt": "737 MAX Components | $145M | 2023-2026 | Aerospace | Active",
       "aliases": []
     },
     {
@@ -339,7 +353,7 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Carbon Fiber Supply $125M 2024-2028 Materials Active",
+      "source_excerpt": "Carbon Fiber Supply | $125M | 2024-2028 | Materials | Active",
       "aliases": []
     },
     {
@@ -352,31 +366,33 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Wing Structures $95M 2025-2027 Aerospace New",
+      "source_excerpt": "Wing Structures | $95M | 2025-2027 | Aerospace | New",
       "aliases": []
     },
     {
-      "name": "AeroMaterials Co-Development",
+      "name": "Titanium Alloy Supply Contract",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$18M investment",
+        "budget": "$85M",
+        "timeline": "2023-2026",
         "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "AeroMaterials Co-Development Active $18M investment",
+      "source_excerpt": "Titanium Alloy Supply | $85M | 2023-2026 | Materials | Active",
       "aliases": []
     },
     {
-      "name": "Digital Thread Integration",
+      "name": "Engineering Services Contract",
       "entity_type": "PROJECT",
       "properties": {
-        "budget": "$5M",
-        "status": "Pilot"
+        "budget": "$45M",
+        "timeline": "2025-2026",
+        "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Digital Thread Integration Pilot $5M",
+      "source_excerpt": "Engineering Services | $45M | 2025-2026 | Aerospace | Active",
       "aliases": []
     },
     {
@@ -389,67 +405,186 @@
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "777X Components $220M 65% Q2 2026",
+      "source_excerpt": "777X Components | $220M | 65% | Q2 2026",
       "aliases": []
     },
     {
-      "name": "FY2025 Revenue",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "AeroMaterials Pilot Opportunity",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric_name": "Annual Revenue",
-        "value": "$730M",
-        "period": "FY2025",
-        "type": "CURRENCY"
+        "budget": "$45M",
+        "timeline": "Q1 2026",
+        "status": "Pipeline"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "FY2025 $730M +10%",
+      "source_excerpt": "AeroMaterials Pilot | $45M | 80% | Q1 2026",
       "aliases": []
     },
     {
-      "name": "Boeing Annual Revenue 2024",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "New Narrow-body Program Opportunity",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric_name": "Annual Revenue",
-        "value": "$78B",
-        "period": "2024",
-        "type": "CURRENCY"
+        "budget": "$350M",
+        "timeline": "2027",
+        "status": "Pipeline"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Annual Revenue $78B (2024)",
+      "source_excerpt": "New Narrow-body Program | $350M | 35% | 2027",
       "aliases": []
     },
     {
-      "name": "Nexus Aerospace Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "787 Dreamliner Program",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric_name": "Division Revenue",
-        "value": "$485M",
-        "period": "FY2025",
-        "type": "CURRENCY"
+        "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Nexus Aerospace $485M 787 structures, components",
+      "source_excerpt": "787 Dreamliner Program Involvement",
       "aliases": []
     },
     {
-      "name": "Nexus Advanced Materials Revenue FY2025",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "737 MAX Program",
+      "entity_type": "PROJECT",
       "properties": {
-        "metric_name": "Division Revenue",
-        "value": "$245M",
-        "period": "FY2025",
-        "type": "CURRENCY"
+        "status": "Active"
       },
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "source_excerpt": "Nexus Advanced Materials $245M Composites, alloys",
+      "source_excerpt": "737 MAX Program",
+      "aliases": []
+    },
+    {
+      "name": "P-8A Poseidon Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "P-8A Poseidon | Component supplier | $35M",
+      "aliases": []
+    },
+    {
+      "name": "KC-46 Tanker Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "KC-46 Tanker | Structures | $28M",
+      "aliases": []
+    },
+    {
+      "name": "T-7A Trainer Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "T-7A Trainer | Materials | $18M",
+      "aliases": []
+    },
+    {
+      "name": "AeroMaterials Co-Development Initiative",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$18M",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "AeroMaterials Co-Development | Active | $18M investment",
+      "aliases": []
+    },
+    {
+      "name": "Digital Thread Integration Initiative",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$5M",
+        "status": "Pilot"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Digital Thread Integration | Pilot | $5M",
+      "aliases": []
+    },
+    {
+      "name": "Floor Beams",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Aerospace Component",
+        "description": "787 Floor Beams"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Floor Beams | Primary supplier | $62M",
+      "aliases": []
+    },
+    {
+      "name": "Wing Ribs",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Aerospace Component",
+        "description": "787 Wing Ribs"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Wing Ribs | Tier 1 supplier | $45M",
+      "aliases": []
+    },
+    {
+      "name": "Composites",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Advanced Material",
+        "description": "Composite materials"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Nexus Advanced Materials | $245M | Composites, alloys",
+      "aliases": []
+    },
+    {
+      "name": "Alloys",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "category": "Advanced Material",
+        "description": "Metal alloys"
+      },
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "source_excerpt": "Nexus Advanced Materials | $245M | Composites, alloys",
       "aliases": []
     }
   ],
   "relationships": [
+    {
+      "source_entity": "The Boeing Company",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Primary Division: Nexus Aerospace"
+    },
+    {
+      "source_entity": "The Boeing Company",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Secondary Division: Nexus Advanced Materials"
+    },
     {
       "source_entity": "The Boeing Company",
       "source_type": "CUSTOMER",
@@ -459,7 +594,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Headquarters Chicago, IL"
+      "evidence": "Headquarters: Chicago, IL"
     },
     {
       "source_entity": "Jennifer Morrison",
@@ -476,12 +611,23 @@
       "source_entity": "Michael Torres",
       "source_type": "PERSON",
       "relationship_type": "LEADS",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Michael Torres (Division President)"
+    },
+    {
+      "source_entity": "David Calhoun",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "The Boeing Company",
       "target_type": "CUSTOMER",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Executive Sponsor: Michael Torres (Division President)"
+      "evidence": "David Calhoun (former) | CEO"
     },
     {
       "source_entity": "Kelly Ortberg",
@@ -492,7 +638,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Kelly Ortberg CEO"
+      "evidence": "Kelly Ortberg | CEO"
     },
     {
       "source_entity": "Brian West",
@@ -503,7 +649,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Brian West CFO"
+      "evidence": "Brian West | CFO"
     },
     {
       "source_entity": "Ted Colbert",
@@ -514,7 +660,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Ted Colbert President, Defense"
+      "evidence": "Ted Colbert | President, Defense"
     },
     {
       "source_entity": "Sarah Thompson",
@@ -525,7 +671,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Sarah Thompson VP Supplier Management"
+      "evidence": "Sarah Thompson | VP Supplier Management"
     },
     {
       "source_entity": "Michael Lee",
@@ -536,7 +682,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Michael Lee Director, Structures"
+      "evidence": "Michael Lee | Director, Structures"
     },
     {
       "source_entity": "Amanda Chen",
@@ -547,7 +693,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Amanda Chen Program Manager, 787"
+      "evidence": "Amanda Chen | Program Manager, 787"
     },
     {
       "source_entity": "Robert Garcia",
@@ -558,145 +704,167 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Robert Garcia Quality Manager"
+      "evidence": "Robert Garcia | Quality Manager"
     },
     {
-      "source_entity": "The Boeing Company",
-      "source_type": "CUSTOMER",
-      "relationship_type": "PRODUCES",
-      "target_entity": "787 Dreamliner",
-      "target_type": "PRODUCT",
+      "source_entity": "787 Floor Beams Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "787 Dreamliner program involvement"
+      "evidence": "787 Floor Beams | $185M | 2024-2027 | Aerospace | Active"
     },
     {
-      "source_entity": "The Boeing Company",
-      "source_type": "CUSTOMER",
-      "relationship_type": "PRODUCES",
-      "target_entity": "737 MAX",
-      "target_type": "PRODUCT",
+      "source_entity": "737 MAX Components Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "737 MAX program involvement"
+      "evidence": "737 MAX Components | $145M | 2023-2026 | Aerospace | Active"
     },
     {
-      "source_entity": "The Boeing Company",
-      "source_type": "CUSTOMER",
-      "relationship_type": "PRODUCES",
-      "target_entity": "P-8A Poseidon",
-      "target_type": "PRODUCT",
+      "source_entity": "Carbon Fiber Supply Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "P-8A Poseidon Defense Programs"
+      "evidence": "Carbon Fiber Supply | $125M | 2024-2028 | Materials | Active"
     },
     {
-      "source_entity": "The Boeing Company",
-      "source_type": "CUSTOMER",
-      "relationship_type": "PRODUCES",
-      "target_entity": "KC-46 Tanker",
-      "target_type": "PRODUCT",
+      "source_entity": "Wing Structures Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "KC-46 Tanker Defense Programs"
+      "evidence": "Wing Structures | $95M | 2025-2027 | Aerospace | New"
     },
     {
-      "source_entity": "The Boeing Company",
-      "source_type": "CUSTOMER",
-      "relationship_type": "PRODUCES",
-      "target_entity": "T-7A Trainer",
-      "target_type": "PRODUCT",
+      "source_entity": "Titanium Alloy Supply Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "T-7A Trainer Defense Programs"
+      "evidence": "Titanium Alloy Supply | $85M | 2023-2026 | Materials | Active"
+    },
+    {
+      "source_entity": "Engineering Services Contract",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Engineering Services | $45M | 2025-2026 | Aerospace | Active"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "787 Floor Beams Contract",
-      "target_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Floor Beams",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "787 Floor Beams $185M 2024-2027 Aerospace Active"
+      "evidence": "Floor Beams | Primary supplier | $62M"
     },
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "737 MAX Components Contract",
-      "target_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Wing Ribs",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "737 MAX Components $145M 2023-2026 Aerospace Active"
+      "evidence": "Wing Ribs | Tier 1 supplier | $45M"
     },
     {
       "source_entity": "Nexus Advanced Materials",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Carbon Fiber Supply Contract",
-      "target_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Composites",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Carbon Fiber Supply $125M 2024-2028 Materials Active"
+      "evidence": "Nexus Advanced Materials | $245M | Composites, alloys"
     },
     {
-      "source_entity": "Nexus Aerospace",
+      "source_entity": "Nexus Advanced Materials",
       "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Wing Structures Contract",
-      "target_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Alloys",
+      "target_type": "PRODUCT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Wing Structures $95M 2025-2027 Aerospace New"
+      "evidence": "Nexus Advanced Materials | $245M | Composites, alloys"
     },
     {
-      "source_entity": "Jennifer Morrison",
+      "source_entity": "Amanda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "787 Dreamliner Program",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_boeing_customer_profile.md",
+      "evidence": "Amanda Chen | Program Manager, 787"
+    },
+    {
+      "source_entity": "Michael Torres",
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
       "target_entity": "777X Components Opportunity",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.8,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Contract negotiation Jennifer Morrison Q2 2026"
+      "evidence": "Executive visit | Michael Torres | Q1 2026"
     },
     {
       "source_entity": "Dr. Maria Chen",
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
-      "target_entity": "AeroMaterials Co-Development",
+      "target_entity": "AeroMaterials Pilot Opportunity",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 0.9,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "AeroMaterials demo Dr. Maria Chen Feb 2026"
+      "evidence": "AeroMaterials demo | Dr. Maria Chen | Feb 2026"
     },
     {
       "source_entity": "Jennifer Wu",
       "source_type": "PERSON",
       "relationship_type": "MANAGES",
-      "target_entity": "Digital Thread Integration",
-      "target_type": "PROJECT",
+      "target_entity": "The Boeing Company",
+      "target_type": "CUSTOMER",
       "properties": {},
       "confidence": 0.8,
       "source_document": "01_boeing_customer_profile.md",
-      "evidence": "Quality review Jennifer Wu Monthly"
+      "evidence": "Quality review | Jennifer Wu | Monthly"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 36,
-    "raw_relationship_count": 22,
+    "raw_entity_count": 45,
+    "raw_relationship_count": 27,
     "used_partial_parse": false,
     "truncated": false
   }

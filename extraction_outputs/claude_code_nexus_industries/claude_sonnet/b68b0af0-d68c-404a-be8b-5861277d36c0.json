@@ -2,17 +2,17 @@
   "document_id": "b68b0af0-d68c-404a-be8b-5861277d36c0",
   "document_path": "02_orbital_satellite_constellation.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T15:30:19.722046",
+  "extracted_at": "2026-01-26T03:15:11.620957",
   "entities": [
     {
       "name": "Orbital Satellite Constellation Program",
       "entity_type": "PROJECT",
       "properties": {
-        "code": "NX-AERO-2023-005",
-        "start_date": "July 2023",
-        "target_completion": "June 2028",
+        "program_code": "NX-AERO-2023-005",
+        "budget": "$680 million",
         "status": "Manufacturing and Launch Preparation",
-        "classification": "Confidential"
+        "start_date": "July 2023",
+        "target_completion": "June 2028"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
@@ -24,6 +24,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Program Manager",
+        "role": "Program Manager",
         "allocation": "100%"
       },
       "confidence": 1.0,
@@ -33,21 +34,21 @@
     },
     {
       "name": "Nexus Aerospace",
-      "entity_type": "BUSINESS_UNIT",
+      "entity_type": "ORGANIZATION",
       "properties": {
         "type": "Division",
-        "focus_areas": "Aerospace, Satellite Systems"
+        "industry": "Aerospace"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Division: Nexus Aerospace",
+      "source_excerpt": "Division: Nexus Aerospace, Owning Division: Nexus Aerospace",
       "aliases": []
     },
     {
       "name": "Satellite Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Business Unit"
+        "focus_areas": "Satellite development and operations"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
@@ -59,11 +60,12 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Chief Systems Engineer",
+        "role": "Chief Systems Engineer",
         "allocation": "100%"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Chief Systems Engineer: Dr. Priya Sharma",
+      "source_excerpt": "Chief Systems Engineer | Dr. Priya Sharma | 100%",
       "aliases": []
     },
     {
@@ -71,11 +73,12 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Spacecraft Lead",
+        "role": "Spacecraft Lead",
         "allocation": "100%"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Spacecraft Lead: Dr. Robert Kim",
+      "source_excerpt": "Spacecraft Lead | Dr. Robert Kim | 100%",
       "aliases": []
     },
     {
@@ -83,11 +86,12 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Ground Systems Lead",
+        "role": "Ground Systems Lead",
         "allocation": "80%"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Ground Systems Lead: Catherine Wu",
+      "source_excerpt": "Ground Systems Lead | Catherine Wu | 80%",
       "aliases": []
     },
     {
@@ -95,11 +99,12 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Operations Lead",
+        "role": "Operations Lead",
         "allocation": "60%"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Operations Lead: Michael Santos",
+      "source_excerpt": "Operations Lead | Michael Santos | 60%",
       "aliases": []
     },
     {
@@ -107,11 +112,12 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Launch Coordinator",
+        "role": "Launch Coordinator",
         "allocation": "70%"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Launch Coordinator: Barbara Johnson",
+      "source_excerpt": "Launch Coordinator | Barbara Johnson | 70%",
       "aliases": []
     },
     {
@@ -119,7 +125,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Division President",
-        "role": "Steering Committee Chair"
+        "role": "Division President - Chair"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
@@ -130,7 +136,8 @@
       "name": "Dr. Rachel Kim",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Engineering"
+        "title": "VP Engineering",
+        "role": "VP Engineering"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
@@ -141,7 +148,8 @@
       "name": "Angela Thompson",
       "entity_type": "PERSON",
       "properties": {
-        "title": "Division CFO"
+        "title": "Division CFO",
+        "role": "Division CFO"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
@@ -152,7 +160,8 @@
       "name": "Richard Foster",
       "entity_type": "PERSON",
       "properties": {
-        "title": "VP Business Development"
+        "title": "VP Business Development",
+        "role": "VP Business Development"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
@@ -164,11 +173,11 @@
       "entity_type": "SUPPLIER",
       "properties": {
         "capability": "Launch services",
-        "service_details": "24 launches"
+        "contract_value": "$168M"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "SpaceX: Launch services (24 launches)",
+      "source_excerpt": "SpaceX | Launch services (24 launches) | $168M",
       "aliases": []
     },
     {
@@ -176,125 +185,47 @@
       "entity_type": "SUPPLIER",
       "properties": {
         "capability": "Launch services",
-        "service_details": "8 launches"
+        "contract_value": "$27M"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Rocket Lab: Launch services (8 launches)",
+      "source_excerpt": "Rocket Lab | Launch services (8 launches) | $27M",
       "aliases": []
     },
     {
       "name": "Northrop Grumman",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Satellite buses"
+        "capability": "Satellite buses",
+        "contract_value": "$85M"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Northrop Grumman: Satellite buses",
+      "source_excerpt": "Northrop Grumman | Satellite buses | $85M",
       "aliases": []
     },
     {
       "name": "L3Harris",
       "entity_type": "SUPPLIER",
       "properties": {
-        "capability": "Payloads"
+        "capability": "Payloads",
+        "contract_value": "$62M"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "L3Harris: Payloads",
+      "source_excerpt": "L3Harris | Payloads | $62M",
       "aliases": []
     },
     {
       "name": "SES Networks",
-      "entity_type": "SUPPLIER",
+      "entity_type": "PARTNER",
       "properties": {
-        "capability": "Ground station co-location"
+        "partnership_type": "Ground station co-location",
+        "contract_value": "$18M"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "SES Networks: Ground station co-location",
-      "aliases": []
-    },
-    {
-      "name": "LEO Communication Satellites",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "quantity": "48",
-        "mass": "285 kg each",
-        "design_life": "7 years",
-        "orbital_altitude": "550 km"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "48 LEO communication satellites",
-      "aliases": []
-    },
-    {
-      "name": "Ground Station Network",
-      "entity_type": "FACILITY",
-      "properties": {
-        "quantity": "12 sites",
-        "type": "Ground Infrastructure"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Ground station network (12 sites)",
-      "aliases": []
-    },
-    {
-      "name": "Mission Control Center",
-      "entity_type": "FACILITY",
-      "properties": {
-        "type": "Operations Center"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Mission control center",
-      "aliases": []
-    },
-    {
-      "name": "Customer Access Platform",
-      "entity_type": "PRODUCT",
-      "properties": {
-        "type": "Software Platform"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Customer access platform",
-      "aliases": []
-    },
-    {
-      "name": "Data Analytics Services",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Analytics services for satellite data"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Data analytics services",
-      "aliases": []
-    },
-    {
-      "name": "Communications Services",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Global communications services"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "global communications",
-      "aliases": []
-    },
-    {
-      "name": "Earth Observation Services",
-      "entity_type": "SERVICE",
-      "properties": {
-        "description": "Earth observation services"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "earth observation services",
+      "source_excerpt": "SES Networks | Ground station co-location | $18M",
       "aliases": []
     },
     {
@@ -307,7 +238,7 @@
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Total Program Budget: $680 million: Approved",
+      "source_excerpt": "Total Program Budget | $680 million | Approved",
       "aliases": []
     },
     {
@@ -320,7 +251,7 @@
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Satellite Development: $285 million: In Progress",
+      "source_excerpt": "Satellite Development | $285 million | In Progress",
       "aliases": []
     },
     {
@@ -333,7 +264,7 @@
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Launch Services: $195 million: Contracted",
+      "source_excerpt": "Launch Services | $195 million | Contracted",
       "aliases": []
     },
     {
@@ -346,104 +277,149 @@
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Ground Infrastructure: $120 million: In Progress",
+      "source_excerpt": "Ground Infrastructure | $120 million | In Progress",
       "aliases": []
     },
     {
-      "name": "Operations Setup Budget",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "value": "$55 million",
-        "type": "CURRENCY",
-        "status": "Planned"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Operations Setup: $55 million: Planned",
-      "aliases": []
-    },
-    {
-      "name": "SpaceX Contract Value",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "value": "$168M",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "SpaceX: Contract Value: $168M",
-      "aliases": []
-    },
-    {
-      "name": "Rocket Lab Contract Value",
-      "entity_type": "FINANCIAL_METRIC",
-      "properties": {
-        "value": "$27M",
-        "type": "CURRENCY"
-      },
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Rocket Lab: Contract Value: $27M",
-      "aliases": []
-    },
-    {
-      "name": "Northrop Grumman Contract Value",
+      "name": "FY2023 Budget",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "value": "$85M",
+        "period": "FY2023",
+        "actual": "$82.3M",
+        "variance": "+$2.7M",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Northrop Grumman: Contract Value: $85M",
+      "source_excerpt": "FY2023 | $85M | $82.3M | +$2.7M",
       "aliases": []
     },
     {
-      "name": "L3Harris Contract Value",
+      "name": "FY2024 Budget",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "$62M",
+        "value": "$165M",
+        "period": "FY2024",
+        "actual": "$158.4M",
+        "variance": "+$6.6M",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "L3Harris: Contract Value: $62M",
+      "source_excerpt": "FY2024 | $165M | $158.4M | +$6.6M",
       "aliases": []
     },
     {
-      "name": "SES Networks Contract Value",
+      "name": "FY2025 Budget",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "$18M",
+        "value": "$210M",
+        "period": "FY2025",
+        "actual": "$205.2M",
+        "variance": "+$4.8M",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "SES Networks: Contract Value: $18M",
+      "source_excerpt": "FY2025 | $210M | $205.2M | +$4.8M",
       "aliases": []
     },
     {
-      "name": "Total Headcount",
+      "name": "Communications Service Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "320",
-        "type": "COUNT"
+        "year1": "$45M",
+        "year3": "$180M",
+        "year5": "$340M",
+        "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Total: 320",
+      "source_excerpt": "Communications | $45M | $180M | $340M",
       "aliases": []
     },
     {
-      "name": "Engineering Headcount",
-      "entity_type": "FINANCIAL_METRIC",
+      "name": "LEO Communication Satellites",
+      "entity_type": "PRODUCT",
       "properties": {
-        "value": "145",
-        "type": "COUNT"
+        "description": "48 LEO communication satellites",
+        "category": "Satellite",
+        "quantity": "48",
+        "mass": "285 kg each",
+        "design_life": "7 years"
       },
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "source_excerpt": "Engineering: 145",
+      "source_excerpt": "48 LEO communication satellites, Satellite Mass | 285 kg each, Design Life | 7 years",
+      "aliases": []
+    },
+    {
+      "name": "Ground Station Network",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Ground station network",
+        "quantity": "12 sites"
+      },
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "source_excerpt": "Ground station network (12 sites)",
+      "aliases": []
+    },
+    {
+      "name": "Mission Control Center",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Mission control center"
+      },
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "source_excerpt": "Mission control center",
+      "aliases": []
+    },
+    {
+      "name": "Customer Access Platform",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Customer access platform",
+        "category": "Software Platform"
+      },
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "source_excerpt": "Customer access platform",
+      "aliases": []
+    },
+    {
+      "name": "Data Analytics Services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Data analytics services"
+      },
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "source_excerpt": "Data analytics services",
+      "aliases": []
+    },
+    {
+      "name": "Communications Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Global communications services"
+      },
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "source_excerpt": "global communications and earth observation services",
+      "aliases": []
+    },
+    {
+      "name": "Earth Observation Service",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Earth observation services"
+      },
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "source_excerpt": "earth observation services",
       "aliases": []
     }
   ],
@@ -461,7 +437,7 @@
     },
     {
       "source_entity": "Nexus Aerospace",
-      "source_type": "BUSINESS_UNIT",
+      "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
       "target_entity": "Orbital Satellite Constellation Program",
       "target_type": "PROJECT",
@@ -475,77 +451,132 @@
       "source_type": "BUSINESS_UNIT",
       "relationship_type": "PART_OF",
       "target_entity": "Nexus Aerospace",
-      "target_type": "BUSINESS_UNIT",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_orbital_satellite_constellation.md",
       "evidence": "Division: Nexus Aerospace, Business Unit: Satellite Systems"
     },
     {
-      "source_entity": "Dr. Priya Sharma",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
+      "source_entity": "Satellite Systems",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "OWNS",
       "target_entity": "Orbital Satellite Constellation Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Chief Systems Engineer: Dr. Priya Sharma"
+      "evidence": "Business Unit: Satellite Systems owns the program"
+    },
+    {
+      "source_entity": "Dr. Amara Osei",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "evidence": "Program Manager working on Nexus Aerospace project"
+    },
+    {
+      "source_entity": "Dr. Priya Sharma",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "evidence": "Core team member on Nexus Aerospace project"
     },
     {
       "source_entity": "Dr. Robert Kim",
       "source_type": "PERSON",
       "relationship_type": "WORKS_FOR",
-      "target_entity": "Orbital Satellite Constellation Program",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Spacecraft Lead: Dr. Robert Kim"
+      "evidence": "Core team member on Nexus Aerospace project"
     },
     {
       "source_entity": "Catherine Wu",
       "source_type": "PERSON",
       "relationship_type": "WORKS_FOR",
-      "target_entity": "Orbital Satellite Constellation Program",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Ground Systems Lead: Catherine Wu"
+      "evidence": "Core team member on Nexus Aerospace project"
     },
     {
       "source_entity": "Michael Santos",
       "source_type": "PERSON",
       "relationship_type": "WORKS_FOR",
-      "target_entity": "Orbital Satellite Constellation Program",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Operations Lead: Michael Santos"
+      "evidence": "Core team member on Nexus Aerospace project"
     },
     {
       "source_entity": "Barbara Johnson",
       "source_type": "PERSON",
       "relationship_type": "WORKS_FOR",
-      "target_entity": "Orbital Satellite Constellation Program",
-      "target_type": "PROJECT",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Launch Coordinator: Barbara Johnson"
+      "evidence": "Core team member on Nexus Aerospace project"
     },
     {
       "source_entity": "Michael Torres",
       "source_type": "PERSON",
       "relationship_type": "LEADS",
       "target_entity": "Nexus Aerospace",
-      "target_type": "BUSINESS_UNIT",
+      "target_type": "ORGANIZATION",
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
       "evidence": "Michael Torres (Division President) - Chair"
+    },
+    {
+      "source_entity": "Dr. Rachel Kim",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "evidence": "Dr. Rachel Kim (VP Engineering) on steering committee"
+    },
+    {
+      "source_entity": "Angela Thompson",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "evidence": "Angela Thompson (Division CFO) on steering committee"
+    },
+    {
+      "source_entity": "Richard Foster",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "evidence": "Richard Foster (VP Business Development) on steering committee"
     },
     {
       "source_entity": "SpaceX",
@@ -556,7 +587,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "SpaceX: Launch services (24 launches)"
+      "evidence": "SpaceX | Launch services (24 launches) | $168M"
     },
     {
       "source_entity": "Rocket Lab",
@@ -567,7 +598,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Rocket Lab: Launch services (8 launches)"
+      "evidence": "Rocket Lab | Launch services (8 launches) | $27M"
     },
     {
       "source_entity": "Northrop Grumman",
@@ -578,7 +609,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Northrop Grumman: Satellite buses"
+      "evidence": "Northrop Grumman | Satellite buses | $85M"
     },
     {
       "source_entity": "L3Harris",
@@ -589,18 +620,18 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "L3Harris: Payloads"
+      "evidence": "L3Harris | Payloads | $62M"
     },
     {
       "source_entity": "SES Networks",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
+      "source_type": "PARTNER",
+      "relationship_type": "PARTNER_OF",
       "target_entity": "Orbital Satellite Constellation Program",
       "target_type": "PROJECT",
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "SES Networks: Ground station co-location"
+      "evidence": "SES Networks | Ground station co-location | $18M"
     },
     {
       "source_entity": "Orbital Satellite Constellation Program",
@@ -611,29 +642,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "48 LEO communication satellites"
-    },
-    {
-      "source_entity": "Orbital Satellite Constellation Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Ground Station Network",
-      "target_type": "FACILITY",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Ground station network (12 sites)"
-    },
-    {
-      "source_entity": "Orbital Satellite Constellation Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Mission Control Center",
-      "target_type": "FACILITY",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Mission control center"
+      "evidence": "48 LEO communication satellites as key deliverable"
     },
     {
       "source_entity": "Orbital Satellite Constellation Program",
@@ -644,7 +653,29 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Customer access platform"
+      "evidence": "Customer access platform as key deliverable"
+    },
+    {
+      "source_entity": "Orbital Satellite Constellation Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Communications Service",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "evidence": "global communications services as program objective"
+    },
+    {
+      "source_entity": "Orbital Satellite Constellation Program",
+      "source_type": "PROJECT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Earth Observation Service",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "02_orbital_satellite_constellation.md",
+      "evidence": "earth observation services as program objective"
     },
     {
       "source_entity": "Orbital Satellite Constellation Program",
@@ -655,35 +686,13 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "Data analytics services"
-    },
-    {
-      "source_entity": "Orbital Satellite Constellation Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Communications Services",
-      "target_type": "SERVICE",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "global communications and earth observation services"
-    },
-    {
-      "source_entity": "Orbital Satellite Constellation Program",
-      "source_type": "PROJECT",
-      "relationship_type": "PRODUCES",
-      "target_entity": "Earth Observation Services",
-      "target_type": "SERVICE",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "02_orbital_satellite_constellation.md",
-      "evidence": "earth observation services"
+      "evidence": "Data analytics services as key deliverable"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 37,
-    "raw_relationship_count": 21,
+    "raw_entity_count": 33,
+    "raw_relationship_count": 24,
     "used_partial_parse": false,
     "truncated": false
   }

@@ -1,0 +1,97 @@
+ In MultiModelExtractor.extract_document():                                                             
+                                                                                                         
+  def extract_document(self, doc_id, doc_name, content, output_dir):                                     
+      # Check if already extracted                                                                       
+      gpt_output = output_dir / f"{doc_id}_gpt4o.json"                                                   
+      claude_output = output_dir / f"{doc_id}_claude.json"                                               
+                                                                                                         
+      if gpt_output.exists() and claude_output.exists():                                                 
+          print(f"  Skipping {doc_name} - already extracted")                                            
+          return self._load_existing_results(gpt_output, claude_output)                                  
+                                                                                                         
+      # ... existing extraction code ...                                                                 
+                                                                                                         
+  Also add logging for visibility:                                                                       
+                                                                                                         
+  # At startup, count existing files                                                                     
+  existing = len(list(output_dir.glob("*_gpt4o.json")))                                                  
+  print(f"Found {existing} documents already extracted, will skip them")                                 
+                                                                                                         
+  ---                                                                                                    
+  After the fix:                                                                                         
+                                                                                                         
+  1. Restart extraction                                                                                  
+  2. It should say "Found 77 documents already extracted, will skip them"                                
+  3. Start at doc 78, not doc 1                                                                          
+  4. Complete remaining 23 documents                                                                     
+  5. Then run consensus + ingestion on all 100                                                           
+                                                                                                         
+  ---                                                                                                    
+  This is the fix we needed. Make sure Replit implements and tests it before restarting the workflow.    
+                                                                                                         
+❯ you didnt mention the dahsboard. the dahsboard shoud reflect reality is a necessary success            
+  criteria                                                                                               
+                                                                                                         
+⏺ You're right. Complete fix requires both:                                                              
+                                                                                                         
+  ---                                                                                                    
+  Instructions for Replit - COMPLETE FIX                                                                 
+                                                                                                         
+  Fix 1: Skip logic in extraction (prevents reset)                                                       
+                                                                                                         
+  In MultiModelExtractor.extract_document():                                                             
+                                                                                                         
+  def extract_document(self, doc_id, doc_name, content, output_dir):                                     
+      gpt_output = output_dir / f"{doc_id}_gpt4o.json"                                                   
+      claude_output = output_dir / f"{doc_id}_claude.json"                                               
+                                                                                                         
+      if gpt_output.exists() and claude_output.exists():                                                 
+          print(f"  Skipping {doc_name} - already extracted")                                            
+          return self._load_existing_results(gpt_output, claude_output)                                  
+                                                                                                         
+      # ... existing extraction code ...                                                                 
+                                                                                                         
+  ---                                                                                                    
+  Fix 2: Dashboard must reflect reality                                                                  
+                                                                                                         
+  Problem: Dashboard only shows Phase 4 completion (extraction_level = 'multi'). It doesn't show:        
+  - Phase 1 progress (JSON files extracted)                                                              
+  - Legacy single-model extractions                                                                      
+                                                                                                         
+  Solution A: Track Phase 1 in database                                                                  
+                                                                                                         
+  After JSON files are written for a document:                                                           
+  session.execute(text("""                                                                               
+      UPDATE platform.documents                                                                          
+      SET extraction_level = 'extracting'                                                                
+      WHERE id = :doc_id                                                                                 
+  """), {"doc_id": doc_id})                                                                              
+  session.commit()                                                                                       
+                                                                                                         
+  Update dashboard query:                                                                                
+  COUNT(*) FILTER (WHERE extraction_level = 'extracting') as phase1_complete,                            
+  COUNT(*) FILTER (WHERE extraction_level = 'multi') as phase4_complete                                  
+                                                                                                         
+  Solution B: Count JSON files directly                                                                  
+                                                                                                         
+  Add API endpoint that counts actual output files:                                                      
+  @app.route('/api/extraction/phase1-progress/<vault_id>')                                               
+  def get_phase1_progress(vault_id):                                                                     
+      output_dir = Path(f"extraction_output/{vault_id}")                                                 
+      gpt_files = len(list(output_dir.glob("*_gpt4o.json")))                                             
+      claude_files = len(list(output_dir.glob("*_claude.json")))                                         
+      complete = min(gpt_files, claude_files)  # Both models done                                        
+      return jsonify({"phase1_complete": complete})                                                      
+                                                                                                         
+  Dashboard shows:                                                                                       
+  - Phase 1 (Extraction): 77/100                                                                         
+  - Phase 4 (Ingested): 0/100                                                                            
+                                                                                                         
+  ---                                                                                                    
+  Fix 3: Backfill legacy documents                                                                       
+                                                                                                         
+  UPDATE platform.documents                                                                              
+  SET extraction_level = 'single'                                                                        
+  WHERE status = 'extracted'                                                                             
+  AND extraction_level IS NULL;                                                                          
+                                      

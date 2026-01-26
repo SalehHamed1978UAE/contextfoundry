@@ -2,7 +2,7 @@
   "document_id": "c5b2a814-9652-4e89-9aa1-8dfe15b79cf1",
   "document_path": "02_aerospace_division_strategy.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:21:35.567294",
+  "extracted_at": "2026-01-26T03:05:04.480294",
   "entities": [
     {
       "name": "Nexus Aerospace",
@@ -332,6 +332,7 @@
       "name": "Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
+        "metric name": "Revenue",
         "value": "$2.85B",
         "period": "FY2025",
         "type": "CURRENCY"
@@ -345,6 +346,7 @@
       "name": "Operating Margin",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
+        "metric name": "Operating Margin",
         "value": "12.0%",
         "period": "FY2025",
         "type": "PERCENTAGE"
@@ -358,7 +360,8 @@
       "name": "Employees",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "value": "3200",
+        "metric name": "Employees",
+        "value": "3,200",
         "period": "FY2025",
         "type": "COUNT"
       },
@@ -371,6 +374,7 @@
       "name": "Backlog",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
+        "metric name": "Backlog",
         "value": "$5.2B",
         "period": "FY2025",
         "type": "CURRENCY"
@@ -389,14 +393,14 @@
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Document Owner: Michael Torres, Division President"
+      "evidence": "Michael Torres, Division President"
     },
     {
       "source_entity": "Dr. Rachel Kim",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -407,7 +411,7 @@
     {
       "source_entity": "Catherine O'Brien",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -418,7 +422,7 @@
     {
       "source_entity": "Angela Thompson",
       "source_type": "PERSON",
-      "relationship_type": "PART_OF",
+      "relationship_type": "HOLDS_POSITION",
       "target_entity": "Nexus Aerospace",
       "target_type": "ORGANIZATION",
       "properties": {},
@@ -561,7 +565,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
+      "relationship_type": "CUSTOMER_OF",
       "target_entity": "Boeing",
       "target_type": "PARTNER",
       "properties": {},
@@ -572,7 +576,7 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "PARTNER_OF",
+      "relationship_type": "CUSTOMER_OF",
       "target_entity": "Lockheed Martin",
       "target_type": "PARTNER",
       "properties": {},
@@ -660,19 +664,52 @@
     {
       "source_entity": "Nexus Aerospace",
       "source_type": "ORGANIZATION",
-      "relationship_type": "HOLDS_POSITION",
-      "target_entity": "Michael Torres",
-      "target_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Revenue",
+      "target_type": "FINANCIAL_METRIC",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_aerospace_division_strategy.md",
-      "evidence": "Document Owner: Michael Torres, Division President"
+      "evidence": "| Revenue | $2.85B |"
+    },
+    {
+      "source_entity": "Nexus Aerospace",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Operating Margin",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "| Operating Margin | 12.0% |"
+    },
+    {
+      "source_entity": "Nexus Aerospace",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Employees",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "| Employees | 3,200 |"
+    },
+    {
+      "source_entity": "Nexus Aerospace",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Backlog",
+      "target_type": "FINANCIAL_METRIC",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "02_aerospace_division_strategy.md",
+      "evidence": "| Backlog | $5.2B |"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 30,
-    "raw_relationship_count": 26,
+    "raw_relationship_count": 29,
     "used_partial_parse": false,
     "truncated": false
   }

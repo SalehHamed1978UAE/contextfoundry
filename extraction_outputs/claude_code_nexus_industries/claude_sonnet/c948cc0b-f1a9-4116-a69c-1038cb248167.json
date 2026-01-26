@@ -2,7 +2,7 @@
   "document_id": "c948cc0b-f1a9-4116-a69c-1038cb248167",
   "document_path": "01_board_meeting_q4_2025.md",
   "model_name": "claude-sonnet-4-20250514",
-  "extracted_at": "2026-01-25T15:12:06.593739",
+  "extracted_at": "2026-01-26T02:54:56.403070",
   "entities": [
     {
       "name": "Dr. Victoria Chen",
@@ -33,7 +33,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Board Director",
+        "role": "Director",
         "background": "former HP CTO"
       },
       "confidence": 1.0,
@@ -46,7 +46,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Board Director",
+        "role": "Director",
         "background": "former GE CEO"
       },
       "confidence": 1.0,
@@ -59,7 +59,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Board Director",
+        "role": "Director",
         "background": "Goldman Sachs Partner"
       },
       "confidence": 1.0,
@@ -72,7 +72,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Board Director",
+        "role": "Director",
         "background": "MIT Professor"
       },
       "confidence": 1.0,
@@ -85,7 +85,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Board Director",
+        "role": "Director",
         "background": "Sustainability Expert"
       },
       "confidence": 1.0,
@@ -98,7 +98,7 @@
       "entity_type": "PERSON",
       "properties": {
         "title": "Director",
-        "role": "Board Director",
+        "role": "Director",
         "status": "Medical leave"
       },
       "confidence": 1.0,
@@ -182,7 +182,8 @@
       "name": "HP",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Technology Company"
+        "type": "Technology Company",
+        "industry": "Technology"
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -193,7 +194,8 @@
       "name": "GE",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Conglomerate"
+        "type": "Conglomerate",
+        "industry": "Industrial"
       },
       "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -252,83 +254,107 @@
       "name": "FAA",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Government Agency",
+        "type": "Regulatory Agency",
         "industry": "Aviation Regulation"
       },
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "FAA certification discussions progressing",
       "aliases": []
     },
     {
-      "name": "Phoenix",
-      "entity_type": "LOCATION",
+      "name": "Board of Directors",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "city": "Phoenix",
-        "state": "AZ",
-        "country": "USA"
+        "name": "Board of Directors",
+        "focus_areas": "Corporate Governance"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Nexus Industries Headquarters, Phoenix, AZ",
+      "source_excerpt": "Board of Directors Meeting Minutes",
       "aliases": []
     },
     {
-      "name": "Nexus Industries Headquarters",
-      "entity_type": "FACILITY",
+      "name": "Compensation Committee",
+      "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "type": "Corporate Headquarters",
-        "location": "Phoenix, AZ"
+        "name": "Compensation Committee",
+        "focus_areas": "Executive Compensation"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Location: Nexus Industries Headquarters, Phoenix, AZ",
+      "source_excerpt": "Compensation Committee (Maria Gonzalez, Chair)",
+      "aliases": []
+    },
+    {
+      "name": "Risk Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Risk Committee",
+        "focus_areas": "Risk Management"
+      },
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "source_excerpt": "Risk Committee (James Harrison, Chair)",
+      "aliases": []
+    },
+    {
+      "name": "Nominating Committee",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "Nominating Committee",
+        "focus_areas": "Board Composition"
+      },
+      "confidence": 0.9,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "source_excerpt": "Nominating committee to identify aerospace director candidates",
       "aliases": []
     },
     {
       "name": "Falcon X UAV Program",
       "entity_type": "PROJECT",
       "properties": {
-        "budget_variance": "$3.2M under budget",
+        "name": "Falcon X UAV Program",
+        "budget": "Under budget by $3.2M",
         "timeline": "Q2 2026 first flight",
         "status": "On track"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Falcon X UAV Program - On track for Q2 2026 first flight",
+      "source_excerpt": "Falcon X UAV Program - On track for Q2 2026 first flight - Budget variance: $3.2M under budget",
       "aliases": []
     },
     {
       "name": "GreenHydrogen Initiative",
       "entity_type": "PROJECT",
       "properties": {
-        "completion": "68% complete",
-        "timeline": "March 2026 first production",
-        "status": "In progress"
+        "name": "GreenHydrogen Initiative",
+        "status": "68% complete",
+        "timeline": "March 2026 first production"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "GreenHydrogen Initiative - Construction 68% complete",
+      "source_excerpt": "GreenHydrogen Initiative - Construction 68% complete - First hydrogen production expected March 2026",
       "aliases": []
     },
     {
       "name": "BatteryTech Solid-State",
       "entity_type": "PROJECT",
       "properties": {
-        "investment": "$312M joint investment",
-        "timeline": "Q4 2027 commercial production",
-        "status": "Approved"
+        "name": "BatteryTech Solid-State",
+        "budget": "$312M joint investment",
+        "timeline": "Q4 2027 commercial production"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "BatteryTech Solid-State - Toyota JV negotiations concluded",
+      "source_excerpt": "BatteryTech Solid-State - Toyota JV negotiations concluded - $312M joint investment approved - Commercial production target: Q4 2027",
       "aliases": []
     },
     {
       "name": "Q4 2025 Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Q4 Revenue",
+        "metric_name": "Revenue",
         "value": "$2.38B",
         "period": "Q4 2025",
         "type": "CURRENCY",
@@ -343,14 +369,14 @@
       "name": "FY2025 Revenue",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Full Year Revenue",
+        "metric_name": "Revenue",
         "value": "$8.45B",
         "period": "FY2025",
         "type": "CURRENCY"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Full year revenue of $8.45B achieved",
+      "source_excerpt": "Full year revenue of $8.45B achieved, exceeding $8.2B guidance",
       "aliases": []
     },
     {
@@ -359,9 +385,8 @@
       "properties": {
         "metric_name": "Operating Margin",
         "value": "12.4%",
-        "period": "Current Year",
-        "type": "PERCENTAGE",
-        "previous": "11.8%"
+        "period": "Current year",
+        "type": "PERCENTAGE"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -386,11 +411,11 @@
       "name": "FY2025 Dividend",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "Annual Dividend",
+        "metric_name": "Dividend",
         "value": "$1.80/share",
         "period": "FY2025",
         "type": "CURRENCY",
-        "increase": "12%"
+        "growth": "12% increase"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
@@ -413,7 +438,7 @@
       "aliases": []
     },
     {
-      "name": "FY2026 CapEx",
+      "name": "Capital Expenditure Plan",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Capital Expenditure",
@@ -427,7 +452,7 @@
       "aliases": []
     },
     {
-      "name": "FY2026 R&D Investment",
+      "name": "R&D Investment",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "R&D Investment",
@@ -470,7 +495,7 @@
       "aliases": []
     },
     {
-      "name": "FY2026 Cybersecurity Budget",
+      "name": "Cybersecurity Budget",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
         "metric_name": "Cybersecurity Budget",
@@ -487,9 +512,9 @@
       "name": "CEO Total Compensation",
       "entity_type": "FINANCIAL_METRIC",
       "properties": {
-        "metric_name": "CEO Total Compensation",
+        "metric_name": "CEO Compensation",
         "value": "$4.2M",
-        "period": "FY2025",
+        "period": "Annual",
         "type": "CURRENCY",
         "components": "base + bonus + equity"
       },
@@ -499,11 +524,37 @@
       "aliases": []
     },
     {
+      "name": "Phoenix",
+      "entity_type": "LOCATION",
+      "properties": {
+        "name": "Phoenix",
+        "city": "Phoenix",
+        "country": "USA",
+        "state": "Arizona"
+      },
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "source_excerpt": "Nexus Industries Headquarters, Phoenix, AZ",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries Headquarters",
+      "entity_type": "FACILITY",
+      "properties": {
+        "name": "Nexus Industries Headquarters",
+        "type": "Corporate Headquarters"
+      },
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "source_excerpt": "Nexus Industries Headquarters, Phoenix, AZ",
+      "aliases": []
+    },
+    {
       "name": "SOC 2 Type II",
       "entity_type": "POLICY",
       "properties": {
-        "policy_type": "Security Certification",
-        "category": "Cybersecurity",
+        "name": "SOC 2 Type II",
+        "category": "Security Certification",
         "status": "Renewed"
       },
       "confidence": 1.0,
@@ -515,57 +566,13 @@
       "name": "FedRAMP High",
       "entity_type": "POLICY",
       "properties": {
-        "policy_type": "Government Authorization",
-        "category": "Cybersecurity",
+        "name": "FedRAMP High",
+        "category": "Federal Authorization",
         "status": "In progress"
       },
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
       "source_excerpt": "FedRAMP High authorization in progress",
-      "aliases": []
-    },
-    {
-      "name": "Aerospace Division",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "UAV development, aviation"
-      },
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "James Harrison praised Aerospace execution",
-      "aliases": []
-    },
-    {
-      "name": "Compensation Committee",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Executive compensation"
-      },
-      "confidence": 1.0,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Compensation Committee (Maria Gonzalez, Chair)",
-      "aliases": []
-    },
-    {
-      "name": "Risk Committee",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Enterprise risk management"
-      },
-      "confidence": 1.0,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Risk Committee (James Harrison, Chair)",
-      "aliases": []
-    },
-    {
-      "name": "Nominating Committee",
-      "entity_type": "BUSINESS_UNIT",
-      "properties": {
-        "focus_areas": "Board composition and governance"
-      },
-      "confidence": 1.0,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "source_excerpt": "Nominating committee to identify aerospace director candidates",
       "aliases": []
     }
   ],
@@ -582,6 +589,17 @@
       "evidence": "Dr. Victoria Chen | CEO & Chair"
     },
     {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Board of Directors",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Meeting called to order at 9:00 AM PT by Dr. Victoria Chen"
+    },
+    {
       "source_entity": "Robert Mitchell",
       "source_type": "PERSON",
       "relationship_type": "HOLDS_POSITION",
@@ -591,6 +609,72 @@
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
       "evidence": "Robert Mitchell | Lead Independent Director"
+    },
+    {
+      "source_entity": "Dr. Sarah Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Dr. Sarah Kim | Director (former HP CTO)"
+    },
+    {
+      "source_entity": "James Harrison",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "James Harrison | Director (former GE CEO)"
+    },
+    {
+      "source_entity": "Maria Gonzalez",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Maria Gonzalez | Director (Goldman Sachs Partner)"
+    },
+    {
+      "source_entity": "Dr. Michael Foster",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Dr. Michael Foster | Director (MIT Professor)"
+    },
+    {
+      "source_entity": "Patricia Wong",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Patricia Wong | Director (Sustainability Expert)"
+    },
+    {
+      "source_entity": "Thomas Anderson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Thomas Anderson (Director) - Medical leave"
     },
     {
       "source_entity": "Michael Chang",
@@ -648,6 +732,50 @@
       "evidence": "Robert Kim, CISO"
     },
     {
+      "source_entity": "Board of Directors",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Board of Directors Meeting Minutes"
+    },
+    {
+      "source_entity": "Compensation Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Compensation Committee (Maria Gonzalez, Chair)"
+    },
+    {
+      "source_entity": "Risk Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Risk Committee (James Harrison, Chair)"
+    },
+    {
+      "source_entity": "Nominating Committee",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "01_board_meeting_q4_2025.md",
+      "evidence": "Nominating committee to identify aerospace director candidates"
+    },
+    {
       "source_entity": "Maria Gonzalez",
       "source_type": "PERSON",
       "relationship_type": "LEADS",
@@ -670,26 +798,15 @@
       "evidence": "Risk Committee (James Harrison, Chair)"
     },
     {
-      "source_entity": "Nexus Industries Headquarters",
-      "source_type": "FACILITY",
-      "relationship_type": "LOCATED_AT",
-      "target_entity": "Phoenix",
-      "target_type": "LOCATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Nexus Industries Headquarters, Phoenix, AZ"
-    },
-    {
       "source_entity": "Nexus Industries",
       "source_type": "ORGANIZATION",
       "relationship_type": "OWNS",
       "target_entity": "Falcon X UAV Program",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Falcon X UAV Program discussed in strategic initiative updates"
+      "evidence": "Falcon X UAV Program - On track for Q2 2026 first flight"
     },
     {
       "source_entity": "Nexus Industries",
@@ -698,9 +815,9 @@
       "target_entity": "GreenHydrogen Initiative",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "GreenHydrogen Initiative discussed in strategic initiative updates"
+      "evidence": "GreenHydrogen Initiative - Construction 68% complete"
     },
     {
       "source_entity": "Nexus Industries",
@@ -709,9 +826,9 @@
       "target_entity": "BatteryTech Solid-State",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 1.0,
+      "confidence": 0.9,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "BatteryTech Solid-State project discussed in strategic initiative updates"
+      "evidence": "BatteryTech Solid-State - Toyota JV negotiations concluded"
     },
     {
       "source_entity": "Nexus Industries",
@@ -722,7 +839,7 @@
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Shell offtake agreement finalized"
+      "evidence": "Shell offtake agreement finalized ($450M over 10 years)"
     },
     {
       "source_entity": "Nexus Industries",
@@ -736,136 +853,26 @@
       "evidence": "Toyota JV negotiations concluded"
     },
     {
-      "source_entity": "GreenHydrogen Initiative",
-      "source_type": "PROJECT",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Shell",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries Headquarters",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix",
+      "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Shell offtake agreement finalized in context of GreenHydrogen Initiative"
+      "evidence": "Nexus Industries Headquarters, Phoenix, AZ"
     },
     {
-      "source_entity": "BatteryTech Solid-State",
-      "source_type": "PROJECT",
-      "relationship_type": "PARTNER_OF",
-      "target_entity": "Toyota",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix",
+      "target_type": "LOCATION",
       "properties": {},
       "confidence": 1.0,
       "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Toyota JV negotiations concluded for BatteryTech Solid-State"
-    },
-    {
-      "source_entity": "Falcon X UAV Program",
-      "source_type": "PROJECT",
-      "relationship_type": "USES",
-      "target_entity": "FAA",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "FAA certification discussions progressing"
-    },
-    {
-      "source_entity": "Dr. Sarah Kim",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "HP",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Dr. Sarah Kim | Director (former HP CTO)"
-    },
-    {
-      "source_entity": "James Harrison",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "GE",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "James Harrison | Director (former GE CEO)"
-    },
-    {
-      "source_entity": "Maria Gonzalez",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "Goldman Sachs",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Maria Gonzalez | Director (Goldman Sachs Partner)"
-    },
-    {
-      "source_entity": "Dr. Michael Foster",
-      "source_type": "PERSON",
-      "relationship_type": "WORKS_FOR",
-      "target_entity": "MIT",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Dr. Michael Foster | Director (MIT Professor)"
-    },
-    {
-      "source_entity": "Compensation Committee",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Board committee structure within Nexus Industries"
-    },
-    {
-      "source_entity": "Risk Committee",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Board committee structure within Nexus Industries"
-    },
-    {
-      "source_entity": "Nominating Committee",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 1.0,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Board committee structure within Nexus Industries"
-    },
-    {
-      "source_entity": "Aerospace Division",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "PART_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "James Harrison praised Aerospace execution"
-    },
-    {
-      "source_entity": "Aerospace Division",
-      "source_type": "BUSINESS_UNIT",
-      "relationship_type": "OWNS",
-      "target_entity": "Falcon X UAV Program",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.8,
-      "source_document": "01_board_meeting_q4_2025.md",
-      "evidence": "Aerospace execution context with UAV program"
+      "evidence": "Nexus Industries Headquarters, Phoenix, AZ"
     }
   ],
   "metadata": {

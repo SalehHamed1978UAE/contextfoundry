@@ -2,7 +2,7 @@
   "document_id": "3de422f8-84fa-451f-80cf-512960d37f2c",
   "document_path": "02_greenhydrogen_process_specification.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:27:28.474017",
+  "extracted_at": "2026-01-26T03:12:01.740901",
   "entities": [
     {
       "name": "Dr. Marcus Thompson",
@@ -112,30 +112,6 @@
       "source_document": "02_greenhydrogen_process_specification.md",
       "source_excerpt": "Water Source | Rio Grande (treated)",
       "aliases": []
-    },
-    {
-      "name": "Emerson",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Control System Manufacturer",
-        "risk level": null
-      },
-      "confidence": 0.9,
-      "source_document": "02_greenhydrogen_process_specification.md",
-      "source_excerpt": "DCS | Emerson",
-      "aliases": []
-    },
-    {
-      "name": "OSIsoft",
-      "entity_type": "SUPPLIER",
-      "properties": {
-        "capability": "Data Historian Provider",
-        "risk level": null
-      },
-      "confidence": 0.9,
-      "source_document": "02_greenhydrogen_process_specification.md",
-      "source_excerpt": "Historian | OSIsoft",
-      "aliases": []
     }
   ],
   "relationships": [
@@ -175,74 +151,52 @@
     {
       "source_entity": "GreenHydrogen Production Process Specification",
       "source_type": "PROJECT",
-      "relationship_type": "FUNDED_BY",
-      "target_entity": "Shell",
-      "target_type": "CUSTOMER",
-      "properties": {},
-      "confidence": 0.85,
-      "source_document": "02_greenhydrogen_process_specification.md",
-      "evidence": "Product Delivery | Pipeline to Shell facility"
-    },
-    {
-      "source_entity": "Nel Hydrogen",
-      "source_type": "SUPPLIER",
       "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Production Process Specification",
-      "target_type": "PROJECT",
+      "target_entity": "Nel Hydrogen",
+      "target_type": "SUPPLIER",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_greenhydrogen_process_specification.md",
       "evidence": "Manufacturer | Nel Hydrogen"
     },
     {
-      "source_entity": "Atlas Copco",
-      "source_type": "SUPPLIER",
+      "source_entity": "GreenHydrogen Production Process Specification",
+      "source_type": "PROJECT",
       "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Production Process Specification",
-      "target_type": "PROJECT",
+      "target_entity": "Atlas Copco",
+      "target_type": "SUPPLIER",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_greenhydrogen_process_specification.md",
       "evidence": "Manufacturer | Atlas Copco"
     },
     {
-      "source_entity": "Chart Industries",
-      "source_type": "SUPPLIER",
+      "source_entity": "GreenHydrogen Production Process Specification",
+      "source_type": "PROJECT",
       "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Production Process Specification",
-      "target_type": "PROJECT",
+      "target_entity": "Chart Industries",
+      "target_type": "SUPPLIER",
       "properties": {},
       "confidence": 0.9,
       "source_document": "02_greenhydrogen_process_specification.md",
       "evidence": "Manufacturer | Chart Industries"
     },
     {
-      "source_entity": "Emerson",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
+      "source_entity": "Shell",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
       "target_entity": "GreenHydrogen Production Process Specification",
       "target_type": "PROJECT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.85,
       "source_document": "02_greenhydrogen_process_specification.md",
-      "evidence": "DCS | Emerson"
-    },
-    {
-      "source_entity": "OSIsoft",
-      "source_type": "SUPPLIER",
-      "relationship_type": "SUPPLIER_OF",
-      "target_entity": "GreenHydrogen Production Process Specification",
-      "target_type": "PROJECT",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_greenhydrogen_process_specification.md",
-      "evidence": "Historian | OSIsoft"
+      "evidence": "Product Delivery | Pipeline to Shell facility"
     }
   ],
   "metadata": {
     "filename": "",
-    "raw_entity_count": 11,
-    "raw_relationship_count": 9,
+    "raw_entity_count": 9,
+    "raw_relationship_count": 7,
     "used_partial_parse": false,
     "truncated": false
   }
