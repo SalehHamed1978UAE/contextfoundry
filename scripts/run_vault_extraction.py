@@ -243,6 +243,17 @@ def run_extraction_from_db(
     vault_slug = vault_name.lower().replace(" ", "_")
     extractor = MultiModelExtractor(output_dir=output_dir, models=models)
     
+    # Count existing extraction files for resume visibility
+    from pathlib import Path
+    vault_output_dir = Path(output_dir) / vault_slug
+    gpt_dir = vault_output_dir / "gpt_4o_mini"
+    claude_dir = vault_output_dir / "claude_sonnet"
+    gpt_existing = len(list(gpt_dir.glob("*.json"))) if gpt_dir.exists() else 0
+    claude_existing = len(list(claude_dir.glob("*.json"))) if claude_dir.exists() else 0
+    already_extracted = min(gpt_existing, claude_existing)
+    if already_extracted > 0:
+        log(f"Found {already_extracted} documents already extracted (will skip them)")
+    
     stats = {
         "total_documents": 0,
         "total_entities": 0,

@@ -592,6 +592,9 @@ def api_extraction_overview():
                         status = 'complete'
                         vaults_complete += 1
                     
+                    vault_slug = vault['name'].lower().replace(" ", "_")
+                    phase1 = _count_phase1_files(vault_slug)
+                    
                     vault_stats.append({
                         'vault_id': vault_id,
                         'name': vault['name'],
@@ -600,6 +603,7 @@ def api_extraction_overview():
                         'multi_done': multi_done,
                         'pending': pending,
                         'failed': failed,
+                        'phase1_extracted': phase1['both_complete'],
                         'last_updated': stats['last_updated'].isoformat() if stats['last_updated'] else None
                     })
         
@@ -622,12 +626,18 @@ def api_extraction_vault_detail(vault_id):
     """Return document-level extraction details for a vault."""
     import psycopg2
     from psycopg2.extras import RealDictCursor
+    from pathlib import Path
     
     try:
         database_url = os.environ.get('DATABASE_URL')
         
         with psycopg2.connect(database_url) as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT name FROM platform.tenants WHERE id = %s", (vault_id,))
+                vault_row = cur.fetchone()
+                vault_name = vault_row['name'] if vault_row else vault_id
+                vault_slug = vault_name.lower().replace(" ", "_")
+                
                 cur.execute("""
                     SELECT 
                         id, name, status, extraction_level,
@@ -646,10 +656,40 @@ def api_extraction_vault_detail(vault_id):
                     if doc.get('updated_at'):
                         doc['updated_at'] = doc['updated_at'].isoformat()
         
-        return jsonify({'vault_id': vault_id, 'documents': docs})
+        phase1_progress = _count_phase1_files(vault_slug)
+        
+        return jsonify({
+            'vault_id': vault_id,
+            'vault_name': vault_name,
+            'documents': docs,
+            'phase1_progress': phase1_progress
+        })
     except Exception as e:
         logger.error(f"Vault detail failed: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+def _count_phase1_files(vault_slug: str) -> dict:
+    """Count JSON extraction output files for Phase 1 progress tracking."""
+    from pathlib import Path
+    
+    output_dir = Path("extraction_outputs") / vault_slug
+    
+    gpt_dir = output_dir / "gpt_4o_mini"
+    claude_dir = output_dir / "claude_sonnet"
+    
+    gpt_files = set(f.stem for f in gpt_dir.glob("*.json")) if gpt_dir.exists() else set()
+    claude_files = set(f.stem for f in claude_dir.glob("*.json")) if claude_dir.exists() else set()
+    
+    both_complete = gpt_files & claude_files
+    
+    return {
+        'gpt_extracted': len(gpt_files),
+        'claude_extracted': len(claude_files),
+        'both_complete': len(both_complete),
+        'gpt_only': len(gpt_files - claude_files),
+        'claude_only': len(claude_files - gpt_files)
+    }
 
 
 @app.route('/api/extraction/events')

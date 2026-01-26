@@ -2,13 +2,13 @@
   "document_id": "90051eb0-91c5-460c-9fbd-4c383d3a3906",
   "document_path": "02_q4_2025_earnings.md",
   "model_name": "gpt-4o-mini",
-  "extracted_at": "2026-01-25T15:32:14.719799",
+  "extracted_at": "2026-01-26T03:17:39.004157",
   "entities": [
     {
       "name": "Nexus Industries",
       "entity_type": "ORGANIZATION",
       "properties": {
-        "type": "Corporation",
+        "type": "Public Company",
         "industry": "Manufacturing"
       },
       "confidence": 0.95,
@@ -56,7 +56,7 @@
       "name": "Nexus Aerospace",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus areas": "Aerospace components, UAVs, satellites"
+        "focus areas": "Aerospace components, UAVs, Defense"
       },
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
@@ -67,7 +67,7 @@
       "name": "Nexus Energy Systems",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus areas": "Renewable energy, solar, hydrogen"
+        "focus areas": "Renewable energy, Solar, SmartGrid"
       },
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
@@ -78,7 +78,7 @@
       "name": "Nexus Digital Solutions",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus areas": "IoT, cybersecurity, computing"
+        "focus areas": "IoT, Cybersecurity, Computing"
       },
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
@@ -89,7 +89,7 @@
       "name": "Nexus Advanced Materials",
       "entity_type": "BUSINESS_UNIT",
       "properties": {
-        "focus areas": "Advanced materials, composites"
+        "focus areas": "Materials science, Composites, Battery technology"
       },
       "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
@@ -124,7 +124,7 @@
       "name": "General Electric",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Manufacturing",
+        "industry": "Conglomerate",
         "region": "Global"
       },
       "confidence": 0.9,
@@ -136,7 +136,7 @@
       "name": "US DoD",
       "entity_type": "CUSTOMER",
       "properties": {
-        "industry": "Defense",
+        "industry": "Government",
         "region": "United States"
       },
       "confidence": 0.9,
@@ -278,65 +278,54 @@
       "evidence": "Nexus Advanced Materials ($355M, -3.5%)"
     },
     {
-      "source_entity": "Boeing",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Aerospace",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "evidence": "787 Floor Beams Extension | Boeing | $185M"
+      "evidence": "Nexus Aerospace ($765M, +8.5%)"
     },
     {
-      "source_entity": "Pacific Power",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Energy Systems",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "evidence": "Grid Modernization | Pacific Power | $92M"
+      "evidence": "Nexus Energy Systems ($668M, +14.8%)"
     },
     {
-      "source_entity": "General Electric",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "evidence": "IoT Platform License | General Electric | $45M"
+      "evidence": "Nexus Digital Solutions ($512M, +20.5%)"
     },
     {
-      "source_entity": "US DoD",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus Advanced Materials",
+      "target_type": "BUSINESS_UNIT",
       "properties": {},
-      "confidence": 0.9,
+      "confidence": 0.95,
       "source_document": "02_q4_2025_earnings.md",
-      "evidence": "Defense UAV Sensors | US DoD | $68M"
-    },
-    {
-      "source_entity": "First Solar",
-      "source_type": "CUSTOMER",
-      "relationship_type": "CUSTOMER_OF",
-      "target_entity": "Nexus Industries",
-      "target_type": "ORGANIZATION",
-      "properties": {},
-      "confidence": 0.9,
-      "source_document": "02_q4_2025_earnings.md",
-      "evidence": "Solar Panel Supply | First Solar | $52M"
+      "evidence": "Nexus Advanced Materials ($355M, -3.5%)"
     }
   ],
   "metadata": {
     "filename": "",
     "raw_entity_count": 16,
-    "raw_relationship_count": 12,
+    "raw_relationship_count": 11,
     "used_partial_parse": false,
     "truncated": false
   }

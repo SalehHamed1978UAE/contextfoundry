@@ -424,6 +424,21 @@ class MultiModelExtractor:
         vault_dir = self.output_dir / vault_id
         vault_dir.mkdir(parents=True, exist_ok=True)
         
+        # Check if all model outputs already exist - skip if so
+        all_exist = True
+        existing_outputs = {}
+        for model_name in self.extractors.keys():
+            model_dir = vault_dir / model_name.replace("-", "_")
+            output_path = model_dir / f"{document.document_id}.json"
+            if output_path.exists():
+                existing_outputs[model_name] = output_path
+            else:
+                all_exist = False
+        
+        if all_exist and existing_outputs:
+            print(f"[MultiExtractor] Skipping {document.metadata.get('filename', document.document_id)} - already extracted")
+            return self._load_existing_results(existing_outputs)
+        
         for model_name, extractor in self.extractors.items():
             print(f"[MultiExtractor] Extracting with {model_name}: {document.metadata.get('filename', document.document_id)}")
             
@@ -439,6 +454,18 @@ class MultiModelExtractor:
             
             print(f"[MultiExtractor] {model_name}: {len(output.entities)} entities, {len(output.relationships)} relationships")
         
+        return results
+    
+    def _load_existing_results(self, output_paths: Dict[str, Path]) -> Dict[str, ExtractionOutput]:
+        """Load previously extracted results from JSON files."""
+        results = {}
+        for model_name, output_path in output_paths.items():
+            try:
+                with open(output_path, 'r') as f:
+                    data = json.load(f)
+                results[model_name] = ExtractionOutput(**data)
+            except Exception as e:
+                print(f"[MultiExtractor] Error loading {output_path}: {e}")
         return results
     
     def extract_batch(
