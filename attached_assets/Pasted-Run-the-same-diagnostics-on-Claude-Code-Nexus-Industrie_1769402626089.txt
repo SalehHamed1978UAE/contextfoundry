@@ -1,0 +1,28 @@
+Run the same diagnostics on Claude Code Nexus Industries vault (vault ID:                              
+  claude-code-nexus-industries-5dffeef0 or b8b157e1...):                                                 
+                                                                                                         
+  -- Check top entities in Claude Code Nexus Industries                                                  
+  SELECT name, type, COUNT(*)                                                                            
+  FROM entities                                                                                          
+  WHERE tenant_id = 'claude-code-nexus-industries-5dffeef0'                                              
+  GROUP BY name, type                                                                                    
+  ORDER BY COUNT(*) DESC                                                                                 
+  LIMIT 50;                                                                                              
+                                                                                                         
+  -- Check for contamination                                                                             
+  SELECT * FROM entities                                                                                 
+  WHERE tenant_id = 'claude-code-nexus-industries-5dffeef0'                                              
+  AND (name LIKE '%Boeing%' OR name LIKE '%Koji Sato%' OR name LIKE '%Patricia Martinez%');              
+                                                                                                         
+  -- Check if Nel Hydrogen was extracted                                                                 
+  SELECT * FROM entities                                                                                 
+  WHERE tenant_id = 'claude-code-nexus-industries-5dffeef0'                                              
+  AND name LIKE '%Nel%';                                                                                 
+                                                                                                         
+  -- Check if Toyota JV ownership was extracted                                                          
+  SELECT * FROM entities                                                                                 
+  WHERE tenant_id = 'claude-code-nexus-industries-5dffeef0'                                              
+  AND (name LIKE '%51%' OR name LIKE '%NextGen Battery%');                                               
+                                                                                                         
+  Nel Hydrogen IS in the Claude Code Nexus Industries corpus (I just verified it). If it's not in the    
+  knowledge graph, extraction missed it. 
