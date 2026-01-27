@@ -928,8 +928,24 @@
             return 'uncategorized';
         }
         
+        const folderUploadSupported = 'webkitdirectory' in document.createElement('input');
+        
+        if (!folderUploadSupported) {
+            const folderBtn = document.querySelector('.upload-mode-btn[data-mode="folder"]');
+            const filesBtn = document.querySelector('.upload-mode-btn[data-mode="files"]');
+            folderBtn.classList.remove('active');
+            folderBtn.disabled = true;
+            folderBtn.style.opacity = '0.5';
+            folderBtn.title = 'Folder upload not supported in this browser';
+            filesBtn.classList.add('active');
+            uploadMode = 'files';
+            document.getElementById('folderUploadSection').style.display = 'none';
+            document.getElementById('filesUploadSection').style.display = 'block';
+        }
+        
         document.querySelectorAll('.upload-mode-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                if (btn.disabled) return;
                 document.querySelectorAll('.upload-mode-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 uploadMode = btn.dataset.mode;
@@ -983,13 +999,26 @@
                 });
             } else if (item.isDirectory) {
                 const dirReader = item.createReader();
-                return new Promise((resolve) => {
-                    dirReader.readEntries(async (entries) => {
-                        for (const entry of entries) {
-                            await traverseFileTree(entry, path + item.name + '/', filesArray);
-                        }
-                        resolve();
-                    });
+                return new Promise(async (resolve) => {
+                    let allEntries = [];
+                    const readAllEntries = async () => {
+                        return new Promise((resolveRead) => {
+                            dirReader.readEntries(async (entries) => {
+                                if (entries.length === 0) {
+                                    resolveRead();
+                                } else {
+                                    allEntries = allEntries.concat(entries);
+                                    await readAllEntries();
+                                    resolveRead();
+                                }
+                            });
+                        });
+                    };
+                    await readAllEntries();
+                    for (const entry of allEntries) {
+                        await traverseFileTree(entry, path + item.name + '/', filesArray);
+                    }
+                    resolve();
                 });
             }
         }
@@ -1414,6 +1443,7 @@
                     progressPercent.textContent = '10%';
                     
                     const categoryMap = {};
+                    const pathMap = {};
                     for (const file of folderFiles) {
                         const path = file.webkitRelativePath || file.relativePath || file.name;
                         const parts = path.split('/');
@@ -1427,9 +1457,11 @@
                         }
                         
                         formData.append('documents', file);
-                        categoryMap[file.name] = category;
+                        categoryMap[path] = category;
+                        pathMap[file.name] = path;
                     }
                     formData.append('category_map', JSON.stringify(categoryMap));
+                    formData.append('path_map', JSON.stringify(pathMap));
                     formData.append('folder_structure', JSON.stringify(folderCategoryMap));
                 } else {
                     const categoryMap = {};
