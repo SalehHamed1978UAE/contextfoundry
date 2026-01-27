@@ -88,6 +88,12 @@ app.register_blueprint(test_runner_api)
 from src.corpus_maker.api import corpus_bp
 app.register_blueprint(corpus_bp)
 
+@app.route('/corpus-maker')
+def corpus_maker_page():
+    """Serve the Corpus Maker UI."""
+    import time
+    return render_template('corpus_maker.html', cache_bust=int(time.time()))
+
 @app.route('/test_results/<path:filename>')
 def serve_test_results(filename):
     """Serve test result files from the test_results directory."""

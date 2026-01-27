@@ -5,7 +5,7 @@ import tempfile
 import uuid
 import zipfile
 from pathlib import Path
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from typing import Dict, Any, List
 
 from .uploader import upload_corpus, FolderMapping
@@ -18,15 +18,41 @@ logger = logging.getLogger(__name__)
 corpus_bp = Blueprint('corpus', __name__, url_prefix='/api/corpus')
 
 
+@corpus_bp.route('/ui', methods=['GET'])
+def corpus_maker_ui():
+    """Serve the Corpus Maker UI."""
+    import time
+    return render_template('corpus_maker.html', cache_bust=int(time.time()))
+
+
 @corpus_bp.route('/list', methods=['GET'])
 def api_list_corpora():
     """List all registered corpora."""
     try:
-        corpora = list_corpora()
+        corpora_dict = list_corpora()
+        corpora_list = []
+        for name, data in corpora_dict.items():
+            accuracy = data.get('last_accuracy')
+            if isinstance(accuracy, str):
+                try:
+                    accuracy = float(accuracy.rstrip('%'))
+                except (ValueError, AttributeError):
+                    accuracy = None
+            
+            corpora_list.append({
+                'name': name,
+                'vault_id': data.get('vault_id'),
+                'anchor_org': data.get('anchor_org'),
+                'document_count': data.get('document_count'),
+                'question_count': data.get('question_count'),
+                'last_run': data.get('last_run'),
+                'last_accuracy': accuracy,
+                'registered_at': data.get('registered_at')
+            })
         return jsonify({
             'success': True,
-            'corpora': corpora,
-            'count': len(corpora)
+            'corpora': corpora_list,
+            'count': len(corpora_list)
         })
     except Exception as e:
         logger.exception("Error listing corpora")
@@ -102,15 +128,53 @@ def api_validate():
                 errors = validate_questions(Path(question_file))
                 all_errors.extend(errors)
         
-        elif 'questions' in request.files:
-            q_file = request.files['questions']
-            with tempfile.NamedTemporaryFile(mode='wb', suffix='.json', delete=False) as f:
-                q_file.save(f.name)
-                temp_path = Path(f.name)
+        else:
+            question_count = 0
+            doc_count = 0
             
-            errors = validate_questions(temp_path)
-            all_errors.extend(errors)
-            temp_path.unlink()
+            if 'questions' in request.files:
+                q_file = request.files['questions']
+                with tempfile.NamedTemporaryFile(mode='wb', suffix='.json', delete=False) as f:
+                    q_file.save(f.name)
+                    temp_path = Path(f.name)
+                
+                errors = validate_questions(temp_path)
+                all_errors.extend(errors)
+                
+                if not errors:
+                    try:
+                        with open(temp_path) as qf:
+                            qdata = json.load(qf)
+                            question_count = len(qdata.get('questions', qdata) if isinstance(qdata, dict) else qdata)
+                    except:
+                        pass
+                
+                temp_path.unlink()
+            
+            doc_files = request.files.getlist('documents')
+            if doc_files:
+                for doc_file in doc_files:
+                    if doc_file.filename:
+                        ext = Path(doc_file.filename).suffix.lower()
+                        if ext not in SUPPORTED_EXTENSIONS:
+                            all_errors.append(f"Unsupported file type: {doc_file.filename}")
+                        else:
+                            doc_count += 1
+            
+            if all_errors:
+                return jsonify({
+                    'success': False,
+                    'valid': False,
+                    'errors': all_errors
+                })
+            
+            return jsonify({
+                'success': True,
+                'valid': True,
+                'errors': [],
+                'question_count': question_count,
+                'document_count': doc_count
+            })
         
         if all_errors:
             return jsonify({
@@ -205,60 +269,78 @@ def _handle_json_upload(data: Dict[str, Any]):
 
 def _handle_multipart_upload():
     """Handle upload with file uploads."""
-    vault_name = request.form.get('vault_name')
-    anchor_org = request.form.get('anchor_org')
+    vault_name = request.form.get('name') or request.form.get('vault_name')
+    anchor_org = request.form.get('anchor_org') or vault_name
     
-    if not vault_name or not anchor_org:
+    if not vault_name:
         return jsonify({
             'success': False,
-            'error': "vault_name and anchor_org are required"
+            'error': "name (corpus name) is required"
         }), 400
     
-    if 'question_file' not in request.files:
+    questions_file = request.files.get('questions') or request.files.get('question_file')
+    if not questions_file:
         return jsonify({
             'success': False,
-            'error': "question_file is required"
+            'error': "questions file is required"
         }), 400
     
-    if 'documents' not in request.files:
+    doc_files = request.files.getlist('documents')
+    doc_zip = request.files.get('documents_zip')
+    
+    if not doc_files and not doc_zip:
         return jsonify({
             'success': False,
-            'error': "documents (zip file) is required"
+            'error': "documents are required (individual files or zip)"
         }), 400
     
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         
-        q_file = request.files['question_file']
         q_path = temp_path / 'questions.json'
-        q_file.save(str(q_path))
-        
-        doc_zip = request.files['documents']
-        zip_path = temp_path / 'documents.zip'
-        doc_zip.save(str(zip_path))
+        questions_file.save(str(q_path))
         
         docs_path = temp_path / 'documents'
         docs_path.mkdir()
         
-        with zipfile.ZipFile(zip_path, 'r') as z:
-            z.extractall(docs_path)
-        
-        folder_mappings_json = request.form.get('folder_mappings', '[]')
+        category_map = {}
+        category_map_json = request.form.get('category_map', '{}')
         try:
-            mappings_data = json.loads(folder_mappings_json)
+            category_map = json.loads(category_map_json)
         except json.JSONDecodeError:
-            mappings_data = []
+            pass
+        
+        if doc_zip:
+            zip_path = temp_path / 'documents.zip'
+            doc_zip.save(str(zip_path))
+            with zipfile.ZipFile(zip_path, 'r') as z:
+                for member in z.namelist():
+                    member_path = docs_path / member
+                    try:
+                        member_path.resolve().relative_to(docs_path.resolve())
+                    except ValueError:
+                        logger.warning(f"Skipping potentially unsafe path in ZIP: {member}")
+                        continue
+                    z.extract(member, docs_path)
+        elif doc_files:
+            categories_used = set()
+            for doc_file in doc_files:
+                if doc_file.filename:
+                    category = category_map.get(doc_file.filename, 'uncategorized')
+                    categories_used.add(category)
+                    cat_dir = docs_path / category
+                    cat_dir.mkdir(exist_ok=True)
+                    doc_file.save(str(cat_dir / doc_file.filename))
         
         folder_mappings = []
-        if mappings_data:
-            for mapping in mappings_data:
-                source = docs_path / mapping.get('source', '')
-                if source.exists():
-                    folder_mappings.append(FolderMapping(
-                        source_path=source,
-                        category=mapping.get('category', 'uncategorized')
-                    ))
-        else:
+        for subdir in docs_path.iterdir():
+            if subdir.is_dir():
+                folder_mappings.append(FolderMapping(
+                    source_path=subdir,
+                    category=subdir.name
+                ))
+        
+        if not folder_mappings:
             folder_mappings.append(FolderMapping(
                 source_path=docs_path,
                 category='uncategorized'
@@ -270,7 +352,7 @@ def _handle_multipart_upload():
         result = upload_corpus(
             vault_id=vault_id,
             corpus_name=vault_name,
-            anchor_org=anchor_org,
+            anchor_org=anchor_org or vault_name,
             folder_mappings=folder_mappings,
             question_file=q_path,
             sync_extract=sync_extract,
