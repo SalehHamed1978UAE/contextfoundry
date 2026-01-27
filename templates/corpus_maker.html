@@ -585,6 +585,12 @@
             color: var(--text-primary); font-size: 0.75rem;
         }
         .item-row.excluded .category-select { display: none; }
+        .item-remove {
+            margin-left: 8px; padding: 4px 8px; background: transparent;
+            border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 4px;
+            color: #ef4444; font-size: 0.7rem; cursor: pointer; transition: all 0.15s;
+        }
+        .item-remove:hover { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; }
         .selection-summary {
             padding: 1rem; background: var(--bg-primary);
             border-top: 1px solid var(--border-color);
@@ -1122,14 +1128,15 @@
             const sortedFolders = Object.entries(folderStructure).sort((a, b) => a[0].localeCompare(b[0]));
             
             sortedFolders.forEach(([name, data]) => {
+                const escapedName = name.replace(/'/g, "\\'");
                 html += `
                     <div class="item-row ${data.included ? '' : 'excluded'}" data-type="folder" data-name="${name}">
-                        <input type="checkbox" class="item-checkbox" ${data.included ? 'checked' : ''} onchange="toggleFolder('${name}', this.checked)">
+                        <input type="checkbox" class="item-checkbox" ${data.included ? 'checked' : ''} onchange="toggleFolder('${escapedName}', this.checked)">
                         <span class="item-icon folder">📁</span>
                         <span class="item-name">${name}</span>
                         <span class="item-count">${data.files.length} files</span>
                         <div class="item-category">
-                            <select class="category-select" onchange="setCategory('${name}', this.value)">
+                            <select class="category-select" onchange="setCategory('${escapedName}', this.value)">
                                 <option value="uncategorized" ${data.category === 'uncategorized' ? 'selected' : ''}>Uncategorized</option>
                                 <option value="strategy" ${data.category === 'strategy' ? 'selected' : ''}>Strategy</option>
                                 <option value="projects" ${data.category === 'projects' ? 'selected' : ''}>Projects</option>
@@ -1140,6 +1147,7 @@
                                 <option value="legal" ${data.category === 'legal' ? 'selected' : ''}>Legal</option>
                             </select>
                         </div>
+                        <button type="button" class="item-remove" onclick="removeFolder('${escapedName}')" title="Remove folder">✕</button>
                     </div>
                 `;
             });
@@ -1154,6 +1162,7 @@
                             <span class="item-name">${item.name}</span>
                             <span class="item-count"></span>
                             <div class="item-category"></div>
+                            <button type="button" class="item-remove" onclick="removeLooseFile(${index})" title="Remove file">✕</button>
                         </div>
                     `;
                 });
@@ -1195,6 +1204,35 @@
         function toggleLooseFile(index, included) {
             looseFiles[index].included = included;
             updateSelectionUI();
+        }
+
+        function removeFolder(name) {
+            if (folderStructure[name]) {
+                const fileCount = folderStructure[name].files.length;
+                allFiles = allFiles.filter(f => {
+                    const subfolder = f.webkitRelativePath.split('/').slice(1, -1).join('/');
+                    return subfolder !== name;
+                });
+                delete folderStructure[name];
+                updateSelectionUI();
+                
+                if (Object.keys(folderStructure).length === 0 && looseFiles.length === 0) {
+                    clearFolderSelection();
+                }
+            }
+        }
+
+        function removeLooseFile(index) {
+            const file = looseFiles[index];
+            if (file) {
+                allFiles = allFiles.filter(f => f !== file.file);
+                looseFiles.splice(index, 1);
+                updateSelectionUI();
+                
+                if (Object.keys(folderStructure).length === 0 && looseFiles.length === 0) {
+                    clearFolderSelection();
+                }
+            }
         }
 
         function setCategory(name, category) {
