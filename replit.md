@@ -58,11 +58,16 @@ Architectural features include:
     - **RelationshipFirstRetriever**: Traverses graph edges from anchor organization to find connected entities.
     - **Stage 0 Role Resolution**: Highest priority lookup stage for role resolution.
     - **Edge-Rank Prioritization**: Ranking system for relationship types to select the best match.
-- **Corpus Maker**:
-    - **Web UI**: Full-featured UI for uploading, registering, and validating corpora.
+- **Corpus Maker (Phase 1.5)**:
+    - **Web UI**: Full-featured UI for uploading, registering, and validating corpora at `/corpus-maker`.
+    - **Selective Folder Upload**: Single parent folder selection with checkbox UI for subfolder inclusion/exclusion.
+    - **Auto-Exclude Metadata**: Automatically excludes questions.json, manifest.json, readme.md, hidden files.
     - **Core Modules**: Handles uploading, validation, normalization, manifests, and registry.
-    - **Document Categorization**: Standard categories for document organization.
+    - **Document Categorization**: Standard categories (strategy, projects, financials, compliance, hr, technical, legal) with auto-detection.
     - **Manifest Tracking**: SHA256 checksums for document integrity.
+    - **Multi-Vault Support**: Create multiple vaults from the same corpus via `/api/corpus/create-vault`.
+    - **Corpus Cards**: Registered Corpora tab shows cards with vault associations, file counts, and Create Vault buttons.
+    - **Test Runner Integration**: Direct link to create new vaults from Test Runner interface.
     - **API Endpoints & CLI Support**: Provides programmatic and command-line interfaces.
 
 ## External Dependencies
