@@ -1096,23 +1096,36 @@
             e.stopPropagation();
             docDropZone.classList.remove('dragover');
             
-            const items = Array.from(e.dataTransfer.items);
-            const droppedFolders = [];
-            
-            for (const item of items) {
+            const entries = [];
+            const items = e.dataTransfer.items;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 if (item.kind === 'file') {
                     const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
                     if (entry && entry.isDirectory) {
-                        const files = await traverseDirectory(entry);
-                        droppedFolders.push({ name: entry.name, files: files });
+                        entries.push(entry);
                     }
                 }
             }
             
-            if (droppedFolders.length > 0) {
-                droppedFolders.forEach(folder => addDroppedFolder(folder.name, folder.files));
-                updateSelectionUI();
+            if (entries.length === 0) {
+                console.log('No directory entries found in drop');
+                return;
             }
+            
+            console.log(`Processing ${entries.length} dropped folders`);
+            
+            for (const entry of entries) {
+                try {
+                    const files = await traverseDirectory(entry);
+                    console.log(`Folder "${entry.name}" has ${files.length} files`);
+                    addDroppedFolder(entry.name, files);
+                } catch (err) {
+                    console.error(`Error processing folder ${entry.name}:`, err);
+                }
+            }
+            
+            updateSelectionUI();
         });
 
         async function traverseDirectory(dirEntry, path = '') {
