@@ -310,6 +310,13 @@ def _handle_multipart_upload():
         except json.JSONDecodeError:
             pass
         
+        path_map = {}
+        path_map_json = request.form.get('path_map', '{}')
+        try:
+            path_map = json.loads(path_map_json)
+        except json.JSONDecodeError:
+            pass
+        
         if doc_zip:
             zip_path = temp_path / 'documents.zip'
             doc_zip.save(str(zip_path))
@@ -326,7 +333,8 @@ def _handle_multipart_upload():
             categories_used = set()
             for doc_file in doc_files:
                 if doc_file.filename:
-                    category = category_map.get(doc_file.filename, 'uncategorized')
+                    relative_path = path_map.get(doc_file.filename, doc_file.filename)
+                    category = category_map.get(relative_path, category_map.get(doc_file.filename, 'uncategorized'))
                     categories_used.add(category)
                     cat_dir = docs_path / category
                     cat_dir.mkdir(exist_ok=True)
