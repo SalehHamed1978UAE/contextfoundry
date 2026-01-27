@@ -1,0 +1,336 @@
+"""REST API endpoints for Corpus Maker."""
+import json
+import logging
+import tempfile
+import uuid
+import zipfile
+from pathlib import Path
+from flask import Blueprint, request, jsonify
+from typing import Dict, Any, List
+
+from .uploader import upload_corpus, FolderMapping
+from .validator import validate_documents, validate_questions, SUPPORTED_EXTENSIONS
+from .registry import list_corpora, get_corpus_config, unregister_corpus
+from .manifest import load_manifest
+
+logger = logging.getLogger(__name__)
+
+corpus_bp = Blueprint('corpus', __name__, url_prefix='/api/corpus')
+
+
+@corpus_bp.route('/list', methods=['GET'])
+def api_list_corpora():
+    """List all registered corpora."""
+    try:
+        corpora = list_corpora()
+        return jsonify({
+            'success': True,
+            'corpora': corpora,
+            'count': len(corpora)
+        })
+    except Exception as e:
+        logger.exception("Error listing corpora")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@corpus_bp.route('/<corpus_name>', methods=['GET'])
+def api_get_corpus(corpus_name: str):
+    """Get configuration for a specific corpus."""
+    try:
+        config = get_corpus_config(corpus_name)
+        if not config:
+            return jsonify({
+                'success': False,
+                'error': f"Corpus '{corpus_name}' not found"
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'corpus': config
+        })
+    except Exception as e:
+        logger.exception(f"Error getting corpus {corpus_name}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@corpus_bp.route('/<corpus_name>', methods=['DELETE'])
+def api_delete_corpus(corpus_name: str):
+    """Unregister a corpus."""
+    try:
+        result = unregister_corpus(corpus_name)
+        if result:
+            return jsonify({
+                'success': True,
+                'message': f"Corpus '{corpus_name}' unregistered"
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': f"Corpus '{corpus_name}' not found"
+            }), 404
+    except Exception as e:
+        logger.exception(f"Error deleting corpus {corpus_name}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@corpus_bp.route('/validate', methods=['POST'])
+def api_validate():
+    """
+    Validate documents and questions before upload.
+    
+    Request body:
+    {
+        "doc_folders": ["/path/to/docs"],
+        "question_file": "/path/to/questions.json"
+    }
+    
+    Or with uploaded files via multipart/form-data.
+    """
+    try:
+        all_errors = []
+        
+        if request.is_json:
+            data = request.get_json()
+            
+            doc_folders = data.get('doc_folders', [])
+            for folder in doc_folders:
+                errors = validate_documents(Path(folder), SUPPORTED_EXTENSIONS)
+                all_errors.extend(errors)
+            
+            question_file = data.get('question_file')
+            if question_file:
+                errors = validate_questions(Path(question_file))
+                all_errors.extend(errors)
+        
+        elif 'questions' in request.files:
+            q_file = request.files['questions']
+            with tempfile.NamedTemporaryFile(mode='wb', suffix='.json', delete=False) as f:
+                q_file.save(f.name)
+                temp_path = Path(f.name)
+            
+            errors = validate_questions(temp_path)
+            all_errors.extend(errors)
+            temp_path.unlink()
+        
+        if all_errors:
+            return jsonify({
+                'success': False,
+                'valid': False,
+                'errors': all_errors
+            })
+        
+        return jsonify({
+            'success': True,
+            'valid': True,
+            'errors': []
+        })
+        
+    except Exception as e:
+        logger.exception("Validation error")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@corpus_bp.route('/upload', methods=['POST'])
+def api_upload():
+    """
+    Upload a new corpus.
+    
+    Supports multipart/form-data with:
+    - vault_name: Corpus name (required)
+    - anchor_org: Anchor organization (required)
+    - folder_mappings: JSON array of {source, category} (optional)
+    - question_file: Questions JSON file (required)
+    - documents: ZIP file of documents (required)
+    - sync_extract: Boolean (default true)
+    
+    Or JSON body for server-side paths:
+    {
+        "vault_name": "My Corpus",
+        "anchor_org": "My Org",
+        "folder_mappings": [{"source": "/path", "category": "strategy"}],
+        "question_file": "/path/to/questions.json",
+        "sync_extract": true
+    }
+    """
+    try:
+        if request.is_json:
+            return _handle_json_upload(request.get_json())
+        else:
+            return _handle_multipart_upload()
+    except Exception as e:
+        logger.exception("Upload error")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+def _handle_json_upload(data: Dict[str, Any]):
+    """Handle upload with server-side file paths."""
+    vault_name = data.get('vault_name')
+    anchor_org = data.get('anchor_org')
+    
+    if not vault_name or not anchor_org:
+        return jsonify({
+            'success': False,
+            'error': "vault_name and anchor_org are required"
+        }), 400
+    
+    folder_mappings = []
+    for mapping in data.get('folder_mappings', []):
+        folder_mappings.append(FolderMapping(
+            source_path=Path(mapping['source']),
+            category=mapping.get('category', 'uncategorized')
+        ))
+    
+    question_file = data.get('question_file')
+    if not question_file:
+        return jsonify({
+            'success': False,
+            'error': "question_file is required"
+        }), 400
+    
+    vault_id = data.get('vault_id') or str(uuid.uuid4())
+    sync_extract = data.get('sync_extract', True)
+    
+    result = upload_corpus(
+        vault_id=vault_id,
+        corpus_name=vault_name,
+        anchor_org=anchor_org,
+        folder_mappings=folder_mappings,
+        question_file=Path(question_file),
+        sync_extract=sync_extract,
+        user=data.get('user', 'api')
+    )
+    
+    return _upload_result_response(result)
+
+
+def _handle_multipart_upload():
+    """Handle upload with file uploads."""
+    vault_name = request.form.get('vault_name')
+    anchor_org = request.form.get('anchor_org')
+    
+    if not vault_name or not anchor_org:
+        return jsonify({
+            'success': False,
+            'error': "vault_name and anchor_org are required"
+        }), 400
+    
+    if 'question_file' not in request.files:
+        return jsonify({
+            'success': False,
+            'error': "question_file is required"
+        }), 400
+    
+    if 'documents' not in request.files:
+        return jsonify({
+            'success': False,
+            'error': "documents (zip file) is required"
+        }), 400
+    
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+        
+        q_file = request.files['question_file']
+        q_path = temp_path / 'questions.json'
+        q_file.save(str(q_path))
+        
+        doc_zip = request.files['documents']
+        zip_path = temp_path / 'documents.zip'
+        doc_zip.save(str(zip_path))
+        
+        docs_path = temp_path / 'documents'
+        docs_path.mkdir()
+        
+        with zipfile.ZipFile(zip_path, 'r') as z:
+            z.extractall(docs_path)
+        
+        folder_mappings_json = request.form.get('folder_mappings', '[]')
+        try:
+            mappings_data = json.loads(folder_mappings_json)
+        except json.JSONDecodeError:
+            mappings_data = []
+        
+        folder_mappings = []
+        if mappings_data:
+            for mapping in mappings_data:
+                source = docs_path / mapping.get('source', '')
+                if source.exists():
+                    folder_mappings.append(FolderMapping(
+                        source_path=source,
+                        category=mapping.get('category', 'uncategorized')
+                    ))
+        else:
+            folder_mappings.append(FolderMapping(
+                source_path=docs_path,
+                category='uncategorized'
+            ))
+        
+        vault_id = request.form.get('vault_id') or str(uuid.uuid4())
+        sync_extract = request.form.get('sync_extract', 'true').lower() == 'true'
+        
+        result = upload_corpus(
+            vault_id=vault_id,
+            corpus_name=vault_name,
+            anchor_org=anchor_org,
+            folder_mappings=folder_mappings,
+            question_file=q_path,
+            sync_extract=sync_extract,
+            user=request.form.get('user', 'api')
+        )
+        
+        return _upload_result_response(result)
+
+
+def _upload_result_response(result):
+    """Convert UploadResult to JSON response."""
+    if result.success:
+        return jsonify({
+            'success': True,
+            'vault_id': result.vault_id,
+            'corpus_name': result.corpus_name,
+            'document_count': result.document_count,
+            'question_count': result.question_count,
+            'manifest_path': str(result.manifest_path) if result.manifest_path else None,
+            'extraction_status': result.extraction_status
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'errors': result.errors
+        }), 400
+
+
+@corpus_bp.route('/<corpus_name>/manifest', methods=['GET'])
+def api_get_manifest(corpus_name: str):
+    """Get manifest for a corpus."""
+    try:
+        from .normalizer import slugify
+        
+        config = get_corpus_config(corpus_name)
+        if not config:
+            return jsonify({
+                'success': False,
+                'error': f"Corpus '{corpus_name}' not found"
+            }), 404
+        
+        slug = slugify(corpus_name)
+        manifest_path = Path(f"test_questions/{slug}_manifest.json")
+        
+        manifest = load_manifest(manifest_path)
+        if not manifest:
+            return jsonify({
+                'success': False,
+                'error': "Manifest not found"
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'manifest': manifest
+        })
+    except Exception as e:
+        logger.exception(f"Error getting manifest for {corpus_name}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+def register_corpus_routes(app):
+    """Register corpus routes with Flask app."""
+    app.register_blueprint(corpus_bp)
