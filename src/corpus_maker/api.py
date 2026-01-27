@@ -452,54 +452,85 @@ def api_create_vault():
         
         ts = TenantService()
         
+        from .normalizer import slugify
+        import time
+        vault_slug = slugify(vault_name) + f"-{int(time.time())}"
+        
         new_tenant = ts.create_tenant(
             name=vault_name,
-            description=f"Created from corpus: {corpus_name}"
+            slug=vault_slug
         )
         vault_id = str(new_tenant.get('id', new_tenant.get('tenant_id', '')))
         
         if not vault_id:
             return jsonify({'success': False, 'error': 'Failed to create vault - no ID returned'}), 500
         
-        from .normalizer import slugify
         slug = slugify(corpus_name)
         manifest_path = Path(f"test_questions/{slug}_manifest.json")
         manifest = load_manifest(manifest_path)
         
         uploaded_count = 0
+        doc_service = DocumentService()
+        
+        mime_types = {
+            '.pdf': 'application/pdf',
+            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            '.xls': 'application/vnd.ms-excel',
+            '.csv': 'text/csv',
+            '.txt': 'text/plain',
+            '.md': 'text/markdown',
+        }
+        
+        excluded_files = {'questions.json', 'manifest.json', 'readme.md', 'readme.txt'}
+        excluded_extensions = {'.json', '.log'}
+        
+        def upload_file(file_path: Path) -> bool:
+            """Upload a single file, returns True on success."""
+            try:
+                if file_path.name.lower() in excluded_files:
+                    return False
+                if file_path.suffix.lower() in excluded_extensions:
+                    return False
+                if file_path.name.startswith('.'):
+                    return False
+                    
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                
+                ext = file_path.suffix.lower()
+                mime_type = mime_types.get(ext, 'application/octet-stream')
+                
+                doc_service.upload_document(
+                    tenant_id=vault_id,
+                    filename=file_path.name,
+                    mime_type=mime_type,
+                    file_content=content,
+                    auto_extract=auto_extract
+                )
+                return True
+            except Exception as doc_err:
+                logger.warning(f"Failed to upload {file_path}: {doc_err}")
+                return False
         
         if manifest and manifest.get('documents'):
-            doc_service = DocumentService()
-            
             for doc_info in manifest['documents']:
                 file_path = Path(doc_info.get('path', ''))
                 if file_path.exists() and file_path.is_file():
-                    try:
-                        with open(file_path, 'rb') as f:
-                            content = f.read()
-                        
-                        ext = file_path.suffix.lower()
-                        mime_types = {
-                            '.pdf': 'application/pdf',
-                            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                            '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                            '.xls': 'application/vnd.ms-excel',
-                            '.csv': 'text/csv',
-                            '.txt': 'text/plain',
-                            '.md': 'text/markdown',
-                        }
-                        mime_type = mime_types.get(ext, 'application/octet-stream')
-                        
-                        doc_service.upload_document(
-                            tenant_id=vault_id,
-                            filename=file_path.name,
-                            mime_type=mime_type,
-                            file_content=content,
-                            auto_extract=auto_extract
-                        )
+                    if upload_file(file_path):
                         uploaded_count += 1
-                    except Exception as doc_err:
-                        logger.warning(f"Failed to upload {file_path}: {doc_err}")
+        else:
+            config = get_corpus_config(corpus_name)
+            root_path = config.get('root_path') if config else None
+            
+            if root_path:
+                root_dir = Path(root_path)
+                if root_dir.exists():
+                    for file_path in root_dir.rglob('*'):
+                        if file_path.is_file():
+                            if upload_file(file_path):
+                                uploaded_count += 1
+                    logger.info(f"Uploaded {uploaded_count} documents from root_path: {root_path}")
         
         from .registry import update_corpus_vault
         update_corpus_vault(corpus_name, vault_id)
