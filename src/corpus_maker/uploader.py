@@ -248,6 +248,7 @@ def get_or_create_tenant(vault_id: str, corpus_name: str) -> Optional[Dict[str, 
     """Get existing tenant or create new one."""
     try:
         from platform_foundation.src.tenant_service import TenantService
+        from .normalizer import slugify
         
         ts = TenantService()
         
@@ -255,9 +256,11 @@ def get_or_create_tenant(vault_id: str, corpus_name: str) -> Optional[Dict[str, 
         if tenant:
             return tenant
         
+        slug = slugify(corpus_name) or vault_id
+        
         tenant = ts.create_tenant(
             name=corpus_name,
-            tenant_id=vault_id
+            slug=slug
         )
         return tenant
         
