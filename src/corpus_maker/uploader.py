@@ -215,16 +215,24 @@ def upload_documents_to_vault(
             with open(file_path, 'rb') as f:
                 content = f.read()
             
+            ext = file_path.suffix.lower()
+            mime_types = {
+                '.pdf': 'application/pdf',
+                '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                '.xls': 'application/vnd.ms-excel',
+                '.csv': 'text/csv',
+                '.txt': 'text/plain',
+                '.md': 'text/markdown',
+            }
+            mime_type = mime_types.get(ext, 'application/octet-stream')
+            
             doc_record = ds.upload_document(
                 tenant_id=tenant_id,
                 filename=file_path.name,
-                content=content,
-                folder=category,
-                metadata={
-                    'source_path': str(file_path),
-                    'category': category,
-                    'uploaded_at': datetime.utcnow().isoformat()
-                }
+                mime_type=mime_type,
+                file_content=content,
+                auto_extract=True
             )
             
             if doc_record:
