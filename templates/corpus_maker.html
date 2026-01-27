@@ -352,37 +352,6 @@
             color: var(--warning);
         }
         
-        .folder-mapping {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            align-items: flex-end;
-        }
-        
-        .folder-mapping .form-group {
-            margin-bottom: 0;
-            flex: 1;
-        }
-        
-        .add-folder-btn {
-            padding: 10px;
-            background: var(--bg-primary);
-            border: 1px dashed var(--border-color);
-            border-radius: var(--radius-md);
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-        
-        .add-folder-btn:hover {
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-        }
-        
         .upload-progress {
             margin-top: 16px;
             display: none;
@@ -518,99 +487,116 @@
             display: block;
         }
         
-        .upload-mode-btn.active {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-        
-        .folder-tree {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .folder-tree-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .folder-tree-item:last-child {
-            border-bottom: none;
-        }
-        
-        .folder-tree-item.level-0 {
-            background: var(--bg-card);
-        }
-        
-        .folder-tree-item.level-1 {
-            padding-left: 28px;
-        }
-        
-        .folder-tree-item.level-2 {
-            padding-left: 44px;
-        }
-        
-        .folder-tree-item.level-3 {
-            padding-left: 60px;
-        }
-        
-        .folder-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .folder-icon {
-            color: var(--accent-primary);
-            flex-shrink: 0;
-        }
-        
-        .folder-name {
-            font-size: 13px;
-            color: var(--text-primary);
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .folder-count {
-            font-size: 11px;
-            color: var(--text-muted);
-            background: var(--bg-primary);
-            padding: 2px 8px;
-            border-radius: var(--radius-full);
-        }
-        
-        .folder-category-select {
-            width: 140px;
-            padding: 6px 10px;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            font-size: 12px;
-        }
-        
-        .folder-error {
-            color: var(--error);
-            font-size: 12px;
-            padding: 8px 12px;
-            background: rgba(239, 68, 68, 0.1);
-            border-bottom: 1px solid var(--border-color);
-        }
-        
         .header-actions {
             display: flex;
             gap: 12px;
+        }
+
+        .notification {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .notification-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+        .notification-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+        .notification-icon { font-size: 1.25rem; font-weight: bold; }
+        .notification-message { flex: 1; }
+        .notification-close {
+            background: none; border: none; color: inherit;
+            font-size: 1.25rem; cursor: pointer; opacity: 0.7;
+        }
+        .notification-close:hover { opacity: 1; }
+
+        .progress-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .progress-content { text-align: center; color: #e2e8f0; }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 3px solid #334155; border-top-color: #06b6d4;
+            border-radius: 50%; animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .selection-panel {
+            margin-top: 1rem; border: 1px solid var(--border-color);
+            border-radius: 12px; background: var(--bg-card); overflow: hidden;
+        }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem; background: var(--bg-primary); border-bottom: 1px solid var(--border-color);
+        }
+        .panel-header h4 { margin: 0; font-size: 0.938rem; color: var(--text-primary); }
+        .panel-actions { display: flex; gap: 1rem; }
+        .btn-link {
+            background: none; border: none; color: var(--accent-primary);
+            font-size: 0.75rem; cursor: pointer; padding: 0;
+        }
+        .btn-link:hover { text-decoration: underline; }
+        .btn-link.danger { color: #f87171; }
+        .panel-hint {
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.75rem 1rem; background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-primary); font-size: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .item-list { max-height: 350px; overflow-y: auto; }
+        .item-row {
+            display: flex; align-items: center; padding: 0.625rem 1rem;
+            border-bottom: 1px solid var(--bg-primary); transition: background 0.15s;
+        }
+        .item-row:hover { background: rgba(255, 255, 255, 0.02); }
+        .item-row:last-child { border-bottom: none; }
+        .item-row.excluded { opacity: 0.5; }
+        .item-checkbox {
+            width: 18px; height: 18px; margin-right: 0.75rem;
+            accent-color: var(--accent-primary); cursor: pointer;
+        }
+        .item-icon { margin-right: 0.5rem; font-size: 1rem; }
+        .item-icon.folder { color: #fbbf24; }
+        .item-icon.file { color: #64748b; }
+        .item-name { flex: 1; font-size: 0.875rem; color: var(--text-primary); }
+        .item-row.excluded .item-name { color: #64748b; text-decoration: line-through; }
+        .item-count { font-size: 0.75rem; color: var(--text-muted); margin-right: 1rem; }
+        .item-category { width: 130px; }
+        .category-select {
+            width: 100%; padding: 0.25rem 0.5rem; background: var(--bg-primary);
+            border: 1px solid var(--border-color); border-radius: 4px;
+            color: var(--text-primary); font-size: 0.75rem;
+        }
+        .item-row.excluded .category-select { display: none; }
+        .selection-summary {
+            padding: 1rem; background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .summary-text { font-size: 0.875rem; color: var(--text-primary); }
+        .summary-text strong { color: var(--accent-primary); }
+        .item-separator {
+            padding: 0.5rem 1rem; background: var(--bg-primary);
+            color: var(--text-muted); font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -699,103 +685,42 @@
                         Documents
                     </h3>
                     
-                    <div class="upload-mode-toggle" style="display: flex; gap: 12px; margin-bottom: 16px;">
-                        <button class="btn btn-secondary upload-mode-btn active" data-mode="folder" style="flex: 1;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                            </svg>
-                            Upload Folder
-                        </button>
-                        <button class="btn btn-secondary upload-mode-btn" data-mode="files" style="flex: 1;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                <polyline points="14 2 14 8 20 8"/>
-                            </svg>
-                            Upload Files
-                        </button>
-                    </div>
-                    
-                    <div id="folderUploadSection">
-                        <div class="file-upload" id="folderDropZone" style="padding: 32px;">
-                            <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none;">
-                            <input type="file" id="additionalFilesInput" multiple accept=".pdf,.docx,.doc,.txt,.md,.xlsx,.xls,.csv" style="display: none;">
-                            <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                                <line x1="12" y1="11" x2="12" y2="17"/>
-                                <line x1="9" y1="14" x2="15" y2="14"/>
-                            </svg>
-                            <p class="file-upload-text">
-                                <strong>Click to select folder</strong> or drag and drop folders/files<br>
-                                Supports nested folder structures with automatic category detection
-                            </p>
-                        </div>
-                        
-                        <div id="folderTreeContainer" style="display: none; margin-top: 16px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                                <h4 style="margin: 0; color: var(--text-primary); font-size: 14px;">Folder Structure & Category Mapping</h4>
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="btn btn-sm btn-primary" id="addMoreFoldersBtn">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                                            <line x1="12" y1="11" x2="12" y2="17"/>
-                                            <line x1="9" y1="14" x2="15" y2="14"/>
-                                        </svg>
-                                        Add Folder
-                                    </button>
-                                    <button class="btn btn-sm btn-secondary" id="addMoreFilesBtn">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                            <polyline points="14 2 14 8 20 8"/>
-                                            <line x1="12" y1="11" x2="12" y2="17"/>
-                                            <line x1="9" y1="14" x2="15" y2="14"/>
-                                        </svg>
-                                        Add Files
-                                    </button>
-                                    <button class="btn btn-sm btn-secondary" id="clearFolderBtn">Clear All</button>
-                                </div>
-                            </div>
-                            <div id="folderTree" class="folder-tree"></div>
-                            <div id="folderStats" style="margin-top: 12px; padding: 12px; background: var(--bg-primary); border-radius: var(--radius-md); font-size: 13px; color: var(--text-secondary);"></div>
-                        </div>
-                    </div>
-                    
-                    <div id="filesUploadSection" style="display: none;">
-                        <div id="folderMappings">
-                            <div class="folder-mapping">
-                                <div class="form-group" style="flex: 2;">
-                                    <label class="form-label">Document Files</label>
-                                    <div class="file-upload" id="docUpload0" style="padding: 16px;">
-                                        <input type="file" class="doc-file-input" multiple accept=".pdf,.docx,.doc,.txt,.md,.xlsx,.xls,.csv" style="display: none;">
-                                        <p class="file-upload-text" style="margin: 0;">
-                                            <strong>Click to upload</strong> documents (PDF, DOCX, TXT, MD, XLSX, CSV)
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Category</label>
-                                    <select class="form-select category-select">
-                                        <option value="uncategorized">Uncategorized</option>
-                                        <option value="strategy">Strategy</option>
-                                        <option value="projects">Projects</option>
-                                        <option value="financials">Financials</option>
-                                    <option value="compliance">Compliance</option>
-                                    <option value="hr">HR</option>
-                                    <option value="technical">Technical</option>
-                                    <option value="legal">Legal</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="add-folder-btn" id="addFolderBtn">
+                    <button type="button" class="btn btn-primary" id="selectCorpusFolderBtn" style="margin-bottom: 16px;">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                         </svg>
-                        Add Another Category
+                        Select Corpus Folder
                     </button>
+                    <input type="file" id="corpusFolderInput" webkitdirectory directory multiple style="display: none;">
                     
-                    <div class="file-list" id="documentFileList" style="margin-top: 16px;"></div>
+                    <div class="file-upload" id="docDropZone" style="padding: 32px;">
+                        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <p class="file-upload-text">
+                            <strong>Select your corpus folder above</strong><br>
+                            You'll be able to choose which subfolders to include
+                        </p>
+                    </div>
+                    
+                    <div id="selectionPanel" class="selection-panel" style="display: none;">
+                        <div class="panel-header">
+                            <h4 id="rootFolderName">Selected Folder</h4>
+                            <div class="panel-actions">
+                                <button type="button" class="btn-link" onclick="selectAllFolders()">Select All Folders</button>
+                                <button type="button" class="btn-link" onclick="deselectAll()">Deselect All</button>
+                                <button type="button" class="btn-link danger" onclick="clearFolderSelection()">Clear</button>
+                            </div>
+                        </div>
+                        <div class="panel-hint">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                            </svg>
+                            Folders are selected by default. Loose files (questions.json, manifest.json) are excluded.
+                        </div>
+                        <div id="itemList" class="item-list"></div>
+                        <div id="selectionSummary" class="selection-summary"></div>
+                    </div>
                 </div>
             </div>
             
@@ -917,332 +842,79 @@
     </div>
     
     <script>
-        let uploadedDocuments = {};
-        let uploadedQuestions = null;
-        let folderCount = 1;
-        let folderFiles = [];
+        let allFiles = [];
         let folderStructure = {};
-        let folderCategoryMap = {};
-        let uploadMode = 'folder';
-        
-        const SUPPORTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt', '.md', '.xlsx', '.xls', '.csv'];
-        const CATEGORY_OPTIONS = ['uncategorized', 'strategy', 'projects', 'financials', 'compliance', 'hr', 'technical', 'legal'];
-        
+        let looseFiles = [];
+        let rootFolderName = '';
+        let uploadedQuestions = null;
+
+        const AUTO_EXCLUDE_PATTERNS = [
+            /^questions.*\.json$/i,
+            /^manifest\.json$/i,
+            /^readme\.md$/i,
+            /^\..*$/,
+            /.*\.log$/i,
+        ];
+
         const CATEGORY_KEYWORDS = {
-            'strategy': ['strategy', 'strategic', 'vision', 'mission', 'goals', 'objectives', 'roadmap'],
-            'projects': ['project', 'initiative', 'program', 'deliverable', 'milestone'],
-            'financials': ['finance', 'financial', 'budget', 'revenue', 'cost', 'forecast', 'quarterly', 'annual'],
-            'compliance': ['compliance', 'regulatory', 'policy', 'audit', 'risk', 'governance'],
-            'hr': ['hr', 'human resources', 'employee', 'hiring', 'talent', 'benefits', 'performance'],
-            'technical': ['technical', 'tech', 'engineering', 'development', 'architecture', 'infrastructure'],
-            'legal': ['legal', 'contract', 'agreement', 'nda', 'terms', 'license']
+            'strategy': ['strategy', 'strategic', 'planning', 'roadmap', 'vision'],
+            'projects': ['project', 'projects', 'initiative', 'program'],
+            'financials': ['financial', 'finance', 'budget', 'revenue', 'earnings'],
+            'compliance': ['compliance', 'regulatory', 'audit', 'risk'],
+            'hr': ['hr', 'human', 'personnel', 'employee'],
+            'technical': ['technical', 'engineering', 'architecture', 'system'],
+            'legal': ['legal', 'contract', 'agreement', 'nda'],
         };
-        
+
+        const SUPPORTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt', '.md', '.xlsx', '.xls', '.csv'];
+
+        function showNotification(type, message) {
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <span class="notification-icon">${type === 'success' ? '✓' : '✕'}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            const container = document.getElementById('alertContainer');
+            container.insertBefore(notification, container.firstChild);
+            setTimeout(() => notification.remove(), 5000);
+        }
+
+        function showProgress(message) {
+            let overlay = document.getElementById('progressOverlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'progressOverlay';
+                overlay.className = 'progress-overlay';
+                overlay.innerHTML = `<div class="progress-content"><div class="spinner"></div><p id="progressMessage">${message}</p></div>`;
+                document.body.appendChild(overlay);
+            } else {
+                document.getElementById('progressMessage').textContent = message;
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function hideProgress() {
+            const overlay = document.getElementById('progressOverlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        function shouldAutoExclude(filename) {
+            return AUTO_EXCLUDE_PATTERNS.some(pattern => pattern.test(filename));
+        }
+
         function detectCategory(folderName) {
-            const lowerName = folderName.toLowerCase();
+            const nameLower = folderName.toLowerCase();
             for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-                if (keywords.some(kw => lowerName.includes(kw))) {
+                if (keywords.some(kw => nameLower.includes(kw))) {
                     return category;
                 }
             }
             return 'uncategorized';
         }
-        
-        const folderUploadSupported = 'webkitdirectory' in document.createElement('input');
-        
-        if (!folderUploadSupported) {
-            const folderBtn = document.querySelector('.upload-mode-btn[data-mode="folder"]');
-            const filesBtn = document.querySelector('.upload-mode-btn[data-mode="files"]');
-            folderBtn.classList.remove('active');
-            folderBtn.disabled = true;
-            folderBtn.style.opacity = '0.5';
-            folderBtn.title = 'Folder upload not supported in this browser';
-            filesBtn.classList.add('active');
-            uploadMode = 'files';
-            document.getElementById('folderUploadSection').style.display = 'none';
-            document.getElementById('filesUploadSection').style.display = 'block';
-        }
-        
-        document.querySelectorAll('.upload-mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (btn.disabled) return;
-                document.querySelectorAll('.upload-mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                uploadMode = btn.dataset.mode;
-                
-                document.getElementById('folderUploadSection').style.display = uploadMode === 'folder' ? 'block' : 'none';
-                document.getElementById('filesUploadSection').style.display = uploadMode === 'files' ? 'block' : 'none';
-            });
-        });
-        
-        document.getElementById('folderDropZone').addEventListener('click', () => {
-            document.getElementById('folderInput').click();
-        });
-        
-        document.getElementById('folderDropZone').addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.currentTarget.classList.add('dragover');
-        });
-        
-        document.getElementById('folderDropZone').addEventListener('dragleave', (e) => {
-            e.currentTarget.classList.remove('dragover');
-        });
-        
-        document.getElementById('folderDropZone').addEventListener('drop', async (e) => {
-            e.preventDefault();
-            e.currentTarget.classList.remove('dragover');
-            
-            const items = e.dataTransfer.items;
-            if (items && items.length > 0) {
-                const files = [];
-                for (let i = 0; i < items.length; i++) {
-                    const item = items[i];
-                    if (item.webkitGetAsEntry) {
-                        const entry = item.webkitGetAsEntry();
-                        if (entry) {
-                            await traverseFileTree(entry, '', files);
-                        }
-                    } else if (item.kind === 'file') {
-                        const file = item.getAsFile();
-                        if (file) {
-                            file.relativePath = file.name;
-                            files.push(file);
-                        }
-                    }
-                }
-                const shouldAppend = folderFiles.length > 0;
-                processUploadedFiles(files, shouldAppend);
-            }
-        });
-        
-        async function traverseFileTree(item, path, filesArray) {
-            if (item.isFile) {
-                return new Promise((resolve) => {
-                    item.file((file) => {
-                        file.relativePath = path + file.name;
-                        filesArray.push(file);
-                        resolve();
-                    });
-                });
-            } else if (item.isDirectory) {
-                const dirReader = item.createReader();
-                return new Promise(async (resolve) => {
-                    let allEntries = [];
-                    const readAllEntries = async () => {
-                        return new Promise((resolveRead) => {
-                            dirReader.readEntries(async (entries) => {
-                                if (entries.length === 0) {
-                                    resolveRead();
-                                } else {
-                                    allEntries = allEntries.concat(entries);
-                                    await readAllEntries();
-                                    resolveRead();
-                                }
-                            });
-                        });
-                    };
-                    await readAllEntries();
-                    for (const entry of allEntries) {
-                        await traverseFileTree(entry, path + item.name + '/', filesArray);
-                    }
-                    resolve();
-                });
-            }
-        }
-        
-        let appendMode = false;
-        
-        document.getElementById('folderInput').addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            processUploadedFiles(files, appendMode);
-            appendMode = false;
-            e.target.value = '';
-        });
-        
-        document.getElementById('additionalFilesInput').addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            processUploadedFiles(files, true);
-            e.target.value = '';
-        });
-        
-        document.getElementById('addMoreFoldersBtn').addEventListener('click', () => {
-            appendMode = true;
-            document.getElementById('folderInput').click();
-        });
-        
-        document.getElementById('addMoreFilesBtn').addEventListener('click', () => {
-            document.getElementById('additionalFilesInput').click();
-        });
-        
-        function processUploadedFiles(files, append = false) {
-            const newFiles = files.filter(f => {
-                const ext = '.' + f.name.split('.').pop().toLowerCase();
-                return SUPPORTED_EXTENSIONS.includes(ext);
-            });
-            
-            if (!append) {
-                folderFiles = newFiles;
-                folderStructure = {};
-                folderCategoryMap = {};
-            } else {
-                folderFiles = folderFiles.concat(newFiles);
-            }
-            
-            if (!append) {
-                folderStructure = {};
-                folderCategoryMap = {};
-            }
-            
-            newFiles.forEach(file => {
-                const path = file.webkitRelativePath || file.relativePath || file.name;
-                const parts = path.split('/');
-                
-                if (parts.length >= 2) {
-                    const topFolder = parts.length > 2 ? parts[1] : parts[0];
-                    if (!folderStructure[topFolder]) {
-                        folderStructure[topFolder] = {
-                            files: [],
-                            subfolders: {}
-                        };
-                        folderCategoryMap[topFolder] = detectCategory(topFolder);
-                    }
-                    folderStructure[topFolder].files.push(file);
-                    
-                    if (parts.length > 2) {
-                        const subfolder = parts.slice(1, -1).join('/');
-                        if (!folderStructure[topFolder].subfolders[subfolder]) {
-                            folderStructure[topFolder].subfolders[subfolder] = [];
-                        }
-                        folderStructure[topFolder].subfolders[subfolder].push(file);
-                    }
-                } else {
-                    if (!folderStructure['_root']) {
-                        folderStructure['_root'] = { files: [], subfolders: {} };
-                        folderCategoryMap['_root'] = 'uncategorized';
-                    }
-                    folderStructure['_root'].files.push(file);
-                }
-            });
-            
-            renderFolderTree();
-        }
-        
-        function renderFolderTree() {
-            const container = document.getElementById('folderTreeContainer');
-            const tree = document.getElementById('folderTree');
-            const stats = document.getElementById('folderStats');
-            
-            if (Object.keys(folderStructure).length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-            
-            container.style.display = 'block';
-            
-            let html = '';
-            let totalFiles = 0;
-            let totalFolders = 0;
-            let errors = [];
-            
-            for (const [folderName, data] of Object.entries(folderStructure)) {
-                const displayName = folderName === '_root' ? 'Root Files' : folderName;
-                const fileCount = data.files.length;
-                totalFiles += fileCount;
-                totalFolders++;
-                
-                if (fileCount === 0) {
-                    errors.push(`Folder "${displayName}" contains no supported documents`);
-                }
-                
-                html += `
-                    <div class="folder-tree-item level-0">
-                        <div class="folder-info">
-                            <svg class="folder-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                            </svg>
-                            <span class="folder-name">${displayName}</span>
-                            <span class="folder-count">${fileCount} files</span>
-                        </div>
-                        <select class="folder-category-select" data-folder="${folderName}" onchange="updateFolderCategory('${folderName}', this.value)">
-                            ${CATEGORY_OPTIONS.map(cat => 
-                                `<option value="${cat}" ${folderCategoryMap[folderName] === cat ? 'selected' : ''}>${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`
-                            ).join('')}
-                        </select>
-                    </div>
-                `;
-                
-                const subfolders = Object.keys(data.subfolders);
-                if (subfolders.length > 0) {
-                    subfolders.slice(0, 5).forEach(subfolder => {
-                        const subCount = data.subfolders[subfolder].length;
-                        html += `
-                            <div class="folder-tree-item level-1">
-                                <div class="folder-info">
-                                    <svg class="folder-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                                    </svg>
-                                    <span class="folder-name" style="color: var(--text-secondary);">${subfolder}</span>
-                                    <span class="folder-count">${subCount} files</span>
-                                </div>
-                            </div>
-                        `;
-                    });
-                    if (subfolders.length > 5) {
-                        html += `
-                            <div class="folder-tree-item level-1">
-                                <div class="folder-info">
-                                    <span style="color: var(--text-muted); font-size: 12px;">...and ${subfolders.length - 5} more subfolders</span>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-            }
-            
-            if (errors.length > 0) {
-                tree.innerHTML = errors.map(err => `<div class="folder-error">${err}</div>`).join('') + html;
-            } else {
-                tree.innerHTML = html;
-            }
-            
-            const categories = {};
-            for (const cat of Object.values(folderCategoryMap)) {
-                categories[cat] = (categories[cat] || 0) + 1;
-            }
-            const catSummary = Object.entries(categories).map(([cat, count]) => `${cat}: ${count}`).join(', ');
-            
-            stats.innerHTML = `
-                <strong>${totalFiles}</strong> documents in <strong>${totalFolders}</strong> folders | 
-                Categories: ${catSummary}
-            `;
-        }
-        
-        function updateFolderCategory(folderName, category) {
-            folderCategoryMap[folderName] = category;
-            renderFolderTree();
-        }
-        
-        document.getElementById('clearFolderBtn').addEventListener('click', () => {
-            folderFiles = [];
-            folderStructure = {};
-            folderCategoryMap = {};
-            document.getElementById('folderInput').value = '';
-            document.getElementById('folderTreeContainer').style.display = 'none';
-        });
-        
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
-                
-                if (tab.dataset.tab === 'list') {
-                    loadCorpora();
-                }
-            });
-        });
-        
+
         function showAlert(message, type) {
             const container = document.getElementById('alertContainer');
             const alert = document.createElement('div');
@@ -1258,7 +930,180 @@
             container.appendChild(alert);
             setTimeout(() => alert.remove(), 5000);
         }
-        
+
+        document.getElementById('selectCorpusFolderBtn').addEventListener('click', () => {
+            document.getElementById('corpusFolderInput').click();
+        });
+
+        document.getElementById('corpusFolderInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            processSelectedFolder(files);
+            e.target.value = '';
+        });
+
+        function processSelectedFolder(files) {
+            allFiles = files.filter(f => {
+                const ext = '.' + f.name.split('.').pop().toLowerCase();
+                return SUPPORTED_EXTENSIONS.includes(ext);
+            });
+            folderStructure = {};
+            looseFiles = [];
+            
+            const firstPath = files[0].webkitRelativePath || '';
+            rootFolderName = firstPath.split('/')[0] || 'Selected Folder';
+            
+            allFiles.forEach(file => {
+                const path = file.webkitRelativePath || file.name;
+                const parts = path.split('/');
+                
+                if (parts.length === 2) {
+                    looseFiles.push({
+                        file: file,
+                        name: parts[1],
+                        included: !shouldAutoExclude(parts[1])
+                    });
+                } else if (parts.length > 2) {
+                    const subfolder = parts[1];
+                    if (!folderStructure[subfolder]) {
+                        folderStructure[subfolder] = {
+                            files: [],
+                            included: true,
+                            category: detectCategory(subfolder)
+                        };
+                    }
+                    folderStructure[subfolder].files.push(file);
+                }
+            });
+            
+            updateSelectionUI();
+        }
+
+        function updateSelectionUI() {
+            const dropZone = document.getElementById('docDropZone');
+            const panel = document.getElementById('selectionPanel');
+            const itemList = document.getElementById('itemList');
+            
+            dropZone.style.display = 'none';
+            panel.style.display = 'block';
+            document.getElementById('rootFolderName').textContent = `📁 ${rootFolderName}`;
+            
+            let html = '';
+            const sortedFolders = Object.entries(folderStructure).sort((a, b) => a[0].localeCompare(b[0]));
+            
+            sortedFolders.forEach(([name, data]) => {
+                html += `
+                    <div class="item-row ${data.included ? '' : 'excluded'}" data-type="folder" data-name="${name}">
+                        <input type="checkbox" class="item-checkbox" ${data.included ? 'checked' : ''} onchange="toggleFolder('${name}', this.checked)">
+                        <span class="item-icon folder">📁</span>
+                        <span class="item-name">${name}</span>
+                        <span class="item-count">${data.files.length} files</span>
+                        <div class="item-category">
+                            <select class="category-select" onchange="setCategory('${name}', this.value)">
+                                <option value="uncategorized" ${data.category === 'uncategorized' ? 'selected' : ''}>Uncategorized</option>
+                                <option value="strategy" ${data.category === 'strategy' ? 'selected' : ''}>Strategy</option>
+                                <option value="projects" ${data.category === 'projects' ? 'selected' : ''}>Projects</option>
+                                <option value="financials" ${data.category === 'financials' ? 'selected' : ''}>Financials</option>
+                                <option value="compliance" ${data.category === 'compliance' ? 'selected' : ''}>Compliance</option>
+                                <option value="hr" ${data.category === 'hr' ? 'selected' : ''}>HR</option>
+                                <option value="technical" ${data.category === 'technical' ? 'selected' : ''}>Technical</option>
+                                <option value="legal" ${data.category === 'legal' ? 'selected' : ''}>Legal</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (looseFiles.length > 0) {
+                html += `<div class="item-separator">Root Files</div>`;
+                looseFiles.forEach((item, index) => {
+                    html += `
+                        <div class="item-row ${item.included ? '' : 'excluded'}" data-type="file" data-index="${index}">
+                            <input type="checkbox" class="item-checkbox" ${item.included ? 'checked' : ''} onchange="toggleLooseFile(${index}, this.checked)">
+                            <span class="item-icon file">📄</span>
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-count"></span>
+                            <div class="item-category"></div>
+                        </div>
+                    `;
+                });
+            }
+            
+            itemList.innerHTML = html;
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('selectionSummary');
+            let includedFolders = 0, includedFiles = 0, excludedFiles = 0;
+            
+            Object.values(folderStructure).forEach(data => {
+                if (data.included) {
+                    includedFolders++;
+                    includedFiles += data.files.length;
+                } else {
+                    excludedFiles += data.files.length;
+                }
+            });
+            
+            looseFiles.forEach(item => {
+                if (item.included) includedFiles++;
+                else excludedFiles++;
+            });
+            
+            summary.innerHTML = `
+                <span class="summary-text"><strong>${includedFolders}</strong> folders, <strong>${includedFiles}</strong> files selected</span>
+                <span class="summary-text" style="color: var(--text-muted);">${excludedFiles} excluded</span>
+            `;
+        }
+
+        function toggleFolder(name, included) {
+            folderStructure[name].included = included;
+            updateSelectionUI();
+        }
+
+        function toggleLooseFile(index, included) {
+            looseFiles[index].included = included;
+            updateSelectionUI();
+        }
+
+        function setCategory(name, category) {
+            folderStructure[name].category = category;
+        }
+
+        function selectAllFolders() {
+            Object.keys(folderStructure).forEach(name => folderStructure[name].included = true);
+            updateSelectionUI();
+        }
+
+        function deselectAll() {
+            Object.keys(folderStructure).forEach(name => folderStructure[name].included = false);
+            looseFiles.forEach(item => item.included = false);
+            updateSelectionUI();
+        }
+
+        function clearFolderSelection() {
+            allFiles = [];
+            folderStructure = {};
+            looseFiles = [];
+            rootFolderName = '';
+            document.getElementById('docDropZone').style.display = 'block';
+            document.getElementById('selectionPanel').style.display = 'none';
+        }
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab + 'Tab').classList.add('active');
+                
+                if (tab.dataset.tab === 'list') {
+                    loadCorpora();
+                }
+            });
+        });
+
         function setupFileUpload(uploadZoneId, inputSelector, callback) {
             const zone = document.getElementById(uploadZoneId);
             const input = zone.querySelector(inputSelector) || document.getElementById(inputSelector);
@@ -1276,14 +1121,14 @@
             });
             input.addEventListener('change', () => callback(input.files));
         }
-        
+
         setupFileUpload('questionUpload', 'questionFile', (files) => {
             if (files.length > 0) {
                 uploadedQuestions = files[0];
                 renderQuestionFile();
             }
         });
-        
+
         function renderQuestionFile() {
             const list = document.getElementById('questionFileList');
             if (!uploadedQuestions) {
@@ -1310,168 +1155,60 @@
                 </div>
             `;
         }
-        
+
         function removeQuestionFile() {
             uploadedQuestions = null;
             document.getElementById('questionFile').value = '';
             renderQuestionFile();
         }
-        
-        function setupDocUpload(index) {
-            const zone = document.getElementById('docUpload' + index);
-            const input = zone.querySelector('.doc-file-input');
-            const categorySelect = zone.closest('.folder-mapping').querySelector('.category-select');
-            
-            zone.addEventListener('click', () => input.click());
-            zone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                zone.classList.add('dragover');
-            });
-            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-            zone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                zone.classList.remove('dragover');
-                addDocuments(index, e.dataTransfer.files, categorySelect.value);
-            });
-            input.addEventListener('change', () => addDocuments(index, input.files, categorySelect.value));
-            categorySelect.addEventListener('change', () => updateDocumentCategories(index, categorySelect.value));
-        }
-        
-        setupDocUpload(0);
-        
-        function addDocuments(index, files, category) {
-            if (!uploadedDocuments[category]) {
-                uploadedDocuments[category] = [];
-            }
-            for (let file of files) {
-                uploadedDocuments[category].push({ file, uploadIndex: index });
-            }
-            renderDocumentList();
-        }
-        
-        function updateDocumentCategories(index, newCategory) {
-            for (let cat in uploadedDocuments) {
-                uploadedDocuments[cat] = uploadedDocuments[cat].filter(d => {
-                    if (d.uploadIndex === index) {
-                        if (!uploadedDocuments[newCategory]) {
-                            uploadedDocuments[newCategory] = [];
-                        }
-                        uploadedDocuments[newCategory].push({ ...d, uploadIndex: index });
-                        return false;
-                    }
-                    return true;
-                });
-                if (uploadedDocuments[cat].length === 0) {
-                    delete uploadedDocuments[cat];
-                }
-            }
-            renderDocumentList();
-        }
-        
-        function renderDocumentList() {
-            const list = document.getElementById('documentFileList');
-            let html = '';
-            for (let category in uploadedDocuments) {
-                for (let doc of uploadedDocuments[category]) {
-                    html += `
-                        <div class="file-item">
-                            <div class="file-item-info">
-                                <svg class="file-item-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                    <polyline points="14 2 14 8 20 8"/>
-                                </svg>
-                                <span class="file-item-name">${doc.file.name}</span>
-                                <span class="category-badge">${category}</span>
-                                <span class="file-item-size">${formatFileSize(doc.file.size)}</span>
-                            </div>
-                            <span class="file-item-remove" onclick="removeDocument('${category}', '${doc.file.name}')">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                </svg>
-                            </span>
-                        </div>
-                    `;
-                }
-            }
-            list.innerHTML = html || '<div style="color: var(--text-muted); font-size: 13px; padding: 8px;">No documents uploaded yet</div>';
-        }
-        
-        function removeDocument(category, filename) {
-            uploadedDocuments[category] = uploadedDocuments[category].filter(d => d.file.name !== filename);
-            if (uploadedDocuments[category].length === 0) {
-                delete uploadedDocuments[category];
-            }
-            renderDocumentList();
-        }
-        
+
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
-        
-        document.getElementById('addFolderBtn').addEventListener('click', () => {
-            const container = document.getElementById('folderMappings');
-            const newMapping = document.createElement('div');
-            newMapping.className = 'folder-mapping';
-            newMapping.innerHTML = `
-                <div class="form-group" style="flex: 2;">
-                    <label class="form-label">Document Files</label>
-                    <div class="file-upload" id="docUpload${folderCount}" style="padding: 16px;">
-                        <input type="file" class="doc-file-input" multiple accept=".pdf,.docx,.doc,.txt,.md,.xlsx,.xls,.csv" style="display: none;">
-                        <p class="file-upload-text" style="margin: 0;">
-                            <strong>Click to upload</strong> documents
-                        </p>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select class="form-select category-select">
-                        <option value="uncategorized">Uncategorized</option>
-                        <option value="strategy">Strategy</option>
-                        <option value="projects">Projects</option>
-                        <option value="financials">Financials</option>
-                        <option value="compliance">Compliance</option>
-                        <option value="hr">HR</option>
-                        <option value="technical">Technical</option>
-                        <option value="legal">Legal</option>
-                    </select>
-                </div>
-                <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()" style="margin-bottom: 0;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-            `;
-            container.appendChild(newMapping);
-            setupDocUpload(folderCount);
-            folderCount++;
-        });
-        
+
+        function getSelectedFiles() {
+            const selectedFiles = [];
+            const categoryMap = {};
+            
+            Object.entries(folderStructure).forEach(([folderName, data]) => {
+                if (data.included) {
+                    data.files.forEach(file => {
+                        selectedFiles.push(file);
+                        const path = file.webkitRelativePath || file.name;
+                        categoryMap[path] = data.category;
+                    });
+                }
+            });
+            
+            looseFiles.forEach(item => {
+                if (item.included) {
+                    selectedFiles.push(item.file);
+                    const path = item.file.webkitRelativePath || item.file.name;
+                    categoryMap[path] = 'uncategorized';
+                }
+            });
+            
+            return { selectedFiles, categoryMap };
+        }
+
         document.getElementById('uploadBtn').addEventListener('click', async () => {
             const name = document.getElementById('corpusName').value.trim();
             if (!name) {
-                showAlert('Please enter a corpus name', 'error');
+                showNotification('error', 'Please enter a corpus name');
                 return;
             }
             
             if (!uploadedQuestions) {
-                showAlert('Please upload a question file', 'error');
+                showNotification('error', 'Please upload a question file');
                 return;
             }
             
-            let hasDocuments = false;
-            if (uploadMode === 'folder') {
-                hasDocuments = folderFiles.length > 0;
-            } else {
-                const docCount = Object.values(uploadedDocuments).reduce((sum, docs) => sum + docs.length, 0);
-                hasDocuments = docCount > 0;
-            }
+            const { selectedFiles, categoryMap } = getSelectedFiles();
             
-            if (!hasDocuments) {
-                showAlert('Please upload at least one document', 'error');
+            if (selectedFiles.length === 0) {
+                showNotification('error', 'Please select at least one document or folder');
                 return;
             }
             
@@ -1482,48 +1219,32 @@
             progress.classList.add('active');
             
             try {
+                progressStatus.textContent = 'Preparing files...';
+                progressFill.style.width = '10%';
+                progressPercent.textContent = '10%';
+                
                 const formData = new FormData();
                 formData.append('name', name);
                 formData.append('description', document.getElementById('corpusDescription').value);
                 formData.append('anchor_org', document.getElementById('anchorOrg').value);
                 formData.append('questions', uploadedQuestions);
                 
-                if (uploadMode === 'folder') {
-                    progressStatus.textContent = 'Preparing folder structure...';
-                    progressFill.style.width = '10%';
-                    progressPercent.textContent = '10%';
-                    
-                    const categoryMap = {};
-                    const pathMap = {};
-                    for (const file of folderFiles) {
-                        const path = file.webkitRelativePath || file.relativePath || file.name;
-                        const parts = path.split('/');
-                        let category = 'uncategorized';
-                        
-                        if (parts.length >= 2) {
-                            const topFolder = parts.length > 2 ? parts[1] : parts[0];
-                            category = folderCategoryMap[topFolder] || 'uncategorized';
-                        } else if (folderCategoryMap['_root']) {
-                            category = folderCategoryMap['_root'];
-                        }
-                        
-                        formData.append('documents', file);
-                        categoryMap[path] = category;
-                        pathMap[file.name] = path;
+                const pathMap = {};
+                selectedFiles.forEach(file => {
+                    formData.append('documents', file);
+                    pathMap[file.name] = file.webkitRelativePath || file.name;
+                });
+                
+                formData.append('category_map', JSON.stringify(categoryMap));
+                formData.append('path_map', JSON.stringify(pathMap));
+                
+                const folderCategoryMap = {};
+                Object.entries(folderStructure).forEach(([name, data]) => {
+                    if (data.included) {
+                        folderCategoryMap[name] = data.category;
                     }
-                    formData.append('category_map', JSON.stringify(categoryMap));
-                    formData.append('path_map', JSON.stringify(pathMap));
-                    formData.append('folder_structure', JSON.stringify(folderCategoryMap));
-                } else {
-                    const categoryMap = {};
-                    for (let category in uploadedDocuments) {
-                        for (let doc of uploadedDocuments[category]) {
-                            formData.append('documents', doc.file);
-                            categoryMap[doc.file.name] = category;
-                        }
-                    }
-                    formData.append('category_map', JSON.stringify(categoryMap));
-                }
+                });
+                formData.append('folder_structure', JSON.stringify(folderCategoryMap));
                 
                 progressStatus.textContent = 'Uploading files...';
                 progressFill.style.width = '30%';
@@ -1544,45 +1265,39 @@
                     progressPercent.textContent = '100%';
                     progressStatus.textContent = 'Complete!';
                     
-                    showAlert(`Corpus "${name}" uploaded successfully with ${result.document_count || 0} documents!`, 'success');
+                    showNotification('success', `Corpus "${name}" uploaded successfully with ${result.document_count || selectedFiles.length} documents!`);
                     
                     document.getElementById('corpusName').value = '';
                     document.getElementById('corpusDescription').value = '';
                     document.getElementById('anchorOrg').value = '';
                     uploadedQuestions = null;
-                    uploadedDocuments = {};
-                    folderFiles = [];
-                    folderStructure = {};
-                    folderCategoryMap = {};
                     renderQuestionFile();
-                    renderDocumentList();
-                    document.getElementById('folderTreeContainer').style.display = 'none';
-                    document.getElementById('folderInput').value = '';
+                    clearFolderSelection();
                     
                     setTimeout(() => progress.classList.remove('active'), 2000);
                 } else {
                     throw new Error(result.error || 'Upload failed');
                 }
             } catch (err) {
-                showAlert(err.message, 'error');
+                showNotification('error', err.message);
                 progress.classList.remove('active');
             }
         });
-        
+
         document.getElementById('validateBeforeUpload').addEventListener('click', async () => {
             if (!uploadedQuestions) {
-                showAlert('Please upload a question file to validate', 'error');
+                showNotification('error', 'Please upload a question file to validate');
                 return;
             }
+            
+            const { selectedFiles } = getSelectedFiles();
             
             const formData = new FormData();
             formData.append('questions', uploadedQuestions);
             
-            for (let category in uploadedDocuments) {
-                for (let doc of uploadedDocuments[category]) {
-                    formData.append('documents', doc.file);
-                }
-            }
+            selectedFiles.forEach(file => {
+                formData.append('documents', file);
+            });
             
             try {
                 const response = await fetch('/api/corpus/validate', {
@@ -1593,16 +1308,16 @@
                 const result = await response.json();
                 
                 if (result.valid) {
-                    showAlert('All files are valid and ready for upload!', 'success');
+                    showNotification('success', 'All files are valid and ready for upload!');
                 } else {
                     const errors = result.errors.join(', ');
-                    showAlert(`Validation failed: ${errors}`, 'error');
+                    showNotification('error', `Validation failed: ${errors}`);
                 }
             } catch (err) {
-                showAlert('Validation request failed: ' + err.message, 'error');
+                showNotification('error', 'Validation request failed: ' + err.message);
             }
         });
-        
+
         async function loadCorpora() {
             try {
                 const response = await fetch('/api/corpus/list');
@@ -1645,14 +1360,14 @@
                     `;
                 }).join('');
             } catch (err) {
-                showAlert('Failed to load corpora: ' + err.message, 'error');
+                showNotification('error', 'Failed to load corpora: ' + err.message);
             }
         }
-        
+
         function viewCorpus(name) {
             window.location.href = `/test-runner?corpus=${encodeURIComponent(name)}`;
         }
-        
+
         setupFileUpload('validateQuestionUpload', 'validateQuestionFile', async (files) => {
             if (files.length === 0) return;
             
@@ -1696,7 +1411,7 @@
                 results.innerHTML = `<div class="validation-item"><span style="color: var(--error);">Validation failed: ${err.message}</span></div>`;
             }
         });
-        
+
         setupFileUpload('validateDocUpload', 'validateDocFiles', async (files) => {
             const results = document.getElementById('docValidationResults');
             
@@ -1743,7 +1458,7 @@
                 results.innerHTML = `<div class="validation-item"><span style="color: var(--error);">Validation failed: ${err.message}</span></div>`;
             }
         });
-        
+
         loadCorpora();
     </script>
 </body>
