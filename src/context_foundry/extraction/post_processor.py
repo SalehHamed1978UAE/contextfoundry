@@ -218,6 +218,76 @@ PORTFOLIO_COMPANY_PATTERNS = [
     (r'^\s*([A-Z][A-Za-z0-9&.-]+)\s*\n\s*-\s*Stage:', 'PORTFOLIO_COMPANY', 0.90),
 ]
 
+# Supplier relationship patterns - Pattern captures: group(1)=supplier, group(2)=product/service, group(3)=recipient (if present)
+SUPPLIER_PATTERNS = [
+    # Active: "X supplies/provides Y to/for Z"
+    (r"(\b[A-Z][a-zA-Z\s]{2,30}?)\s+(?:supplies?|provides?|delivers?|furnishes?)\s+(.+?)\s+(?:to|for)\s+([A-Z][a-zA-Z\s]+?)(?:\.|,|$)", "SUPPLIES_TO", 0.85),
+    # Active without recipient: "X supplies/provides Y"
+    (r"(\b[A-Z][a-zA-Z\s]{2,30}?)\s+(?:supplies?|provides?|delivers?)\s+([a-zA-Z\s]+?)(?:\.|,|$)", "SUPPLIES_TO", 0.80),
+    # Passive: "Y supplied/provided by X"
+    (r"([a-zA-Z\s]+?)\s+(?:supplied|provided|delivered|furnished)\s+by\s+(\b[A-Z][a-zA-Z\s]{2,30}?)(?:\.|,|$)", "SUPPLIES_TO", 0.80),
+    # Role: "X as supplier/vendor of Y"
+    (r"(\b[A-Z][a-zA-Z\s]{2,30}?)\s+as\s+(?:the\s+)?(?:primary\s+)?(?:supplier|vendor|provider)\s+(?:of|for)\s+(.+?)(?:\.|,|$)", "SUPPLIES_TO", 0.75),
+    # Contract: "X contracted to supply Y"
+    (r"(\b[A-Z][a-zA-Z\s]{2,30}?)\s+(?:contracted|engaged|selected)\s+to\s+(?:supply|provide|deliver)\s+(.+?)(?:\.|,|$)", "SUPPLIES_TO", 0.80),
+]
+
+SUPPLIER_BLOCKLIST = {'the', 'a', 'an', 'this', 'that', 'these', 'their', 'our', 'its'}
+
+
+def extract_supplier_relationships(text: str) -> List[Dict]:
+    """
+    Standalone function to extract supplier relationships from text using patterns.
+    
+    Returns a list of dicts with keys: supplier, product, recipient (if present), 
+    relationship_type, confidence, pattern_index
+    """
+    results = []
+    seen = set()
+    
+    for idx, (pattern, rel_type, confidence) in enumerate(SUPPLIER_PATTERNS):
+        try:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                groups = match.groups()
+                
+                if idx == 2:  # Passive voice pattern
+                    product = groups[0].strip() if groups[0] else ""
+                    supplier = groups[1].strip() if groups[1] else ""
+                    recipient = None
+                else:
+                    supplier = groups[0].strip() if groups[0] else ""
+                    product = groups[1].strip() if groups[1] else ""
+                    recipient = groups[2].strip() if len(groups) > 2 and groups[2] else None
+                
+                supplier_lower = supplier.lower()
+                if supplier_lower in SUPPLIER_BLOCKLIST:
+                    continue
+                if not supplier or len(supplier) < 2:
+                    continue
+                
+                key = (supplier_lower, product.lower())
+                if key in seen:
+                    continue
+                seen.add(key)
+                
+                result = {
+                    "supplier": supplier,
+                    "product": product,
+                    "relationship_type": rel_type,
+                    "confidence": confidence,
+                    "pattern_index": idx,
+                    "source_text": match.group(0)
+                }
+                if recipient:
+                    result["recipient"] = recipient
+                
+                results.append(result)
+        except Exception as e:
+            logger.warning(f"Supplier pattern {idx} failed: {e}")
+    
+    return results
+
 
 @dataclass
 class ExtractedRelationshipFromPattern:
@@ -340,6 +410,13 @@ class ExtractionPostProcessor:
                 new_entities.append(pe)
                 existing_entity_names.add(pe['name'].lower())
                 patterns_matched += 1
+
+        supplier_rels, supplier_entities = self._extract_supplier_relationships(
+            document_text, existing_entity_names, existing_rel_keys
+        )
+        new_relationships.extend(supplier_rels)
+        new_entities.extend(supplier_entities)
+        patterns_matched += len(supplier_rels)
 
         elapsed_ms = (time.time() - start) * 1000
 
@@ -745,6 +822,77 @@ class ExtractionPostProcessor:
                 logger.warning(f"[PostProcessor] Portfolio company pattern failed: {e}")
         
         return entities
+
+    def _extract_supplier_relationships(
+        self, text: str, existing_entity_names: Set[str], existing_rel_keys: Set[Tuple[str, str, str]]
+    ) -> Tuple[List[ExtractedRelationshipFromPattern], List[Dict]]:
+        """Extract SUPPLIES_TO relationships from text."""
+        relationships = []
+        new_entities = []
+        seen_pairs = set()
+        
+        for idx, (pattern, rel_type, confidence) in enumerate(SUPPLIER_PATTERNS):
+            try:
+                matches = re.finditer(pattern, text, re.IGNORECASE)
+                for match in matches:
+                    groups = match.groups()
+                    
+                    if idx == 2:  # Passive voice pattern (Y supplied by X)
+                        product = groups[0].strip() if groups[0] else ""
+                        supplier = groups[1].strip() if groups[1] else ""
+                        recipient = None
+                    else:
+                        supplier = groups[0].strip() if groups[0] else ""
+                        product = groups[1].strip() if groups[1] else ""
+                        recipient = groups[2].strip() if len(groups) > 2 and groups[2] else None
+                    
+                    supplier_lower = supplier.lower()
+                    if supplier_lower in SUPPLIER_BLOCKLIST:
+                        continue
+                    if not supplier or len(supplier) < 2:
+                        continue
+                    if not product or len(product) < 2:
+                        continue
+                    
+                    pair_key = (supplier_lower, product.lower())
+                    if pair_key in seen_pairs:
+                        continue
+                    seen_pairs.add(pair_key)
+                    
+                    rel_key = (supplier_lower, product.lower(), "SUPPLIES_TO")
+                    if rel_key in existing_rel_keys:
+                        continue
+                    
+                    rel = ExtractedRelationshipFromPattern(
+                        relationship_type="SUPPLIES_TO",
+                        source_name=supplier,
+                        target_name=product,
+                        confidence=confidence,
+                        pattern_name=f"supplier_pattern_{idx}",
+                        source_text=match.group(0)
+                    )
+                    relationships.append(rel)
+                    logger.info(f"[PostProcessor] Found supplier: {supplier} → {product}")
+                    
+                    if supplier_lower not in existing_entity_names:
+                        new_entities.append({
+                            "name": supplier, "entity_type": "ORGANIZATION",
+                            "confidence": confidence, "source": "post_processor"
+                        })
+                        existing_entity_names.add(supplier_lower)
+                    
+                    product_lower = product.lower()
+                    if product_lower not in existing_entity_names:
+                        new_entities.append({
+                            "name": product, "entity_type": "PRODUCT",
+                            "confidence": confidence, "source": "post_processor"
+                        })
+                        existing_entity_names.add(product_lower)
+                        
+            except Exception as e:
+                logger.warning(f"[PostProcessor] Supplier pattern {idx} failed: {e}")
+        
+        return relationships, new_entities
 
 
 class RoleNormalizer:
