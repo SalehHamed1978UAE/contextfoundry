@@ -42,6 +42,7 @@ def api_list_corpora():
             corpora_list.append({
                 'name': name,
                 'vault_id': data.get('vault_id'),
+                'vault_ids': data.get('vault_ids', [data.get('vault_id')] if data.get('vault_id') else []),
                 'anchor_org': data.get('anchor_org'),
                 'document_count': data.get('document_count'),
                 'question_count': data.get('question_count'),
@@ -418,6 +419,101 @@ def api_get_manifest(corpus_name: str):
         })
     except Exception as e:
         logger.exception(f"Error getting manifest for {corpus_name}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@corpus_bp.route('/create-vault', methods=['POST'])
+def api_create_vault():
+    """
+    Create a new vault from a registered corpus.
+    
+    Request body:
+    {
+        "corpus_name": "My Corpus",
+        "vault_name": "My Test Vault",
+        "auto_extract": true
+    }
+    """
+    data = request.json
+    corpus_name = data.get('corpus_name')
+    vault_name = data.get('vault_name')
+    auto_extract = data.get('auto_extract', True)
+    
+    if not corpus_name or not vault_name:
+        return jsonify({'success': False, 'error': 'Missing corpus_name or vault_name'}), 400
+    
+    try:
+        config = get_corpus_config(corpus_name)
+        if not config:
+            return jsonify({'success': False, 'error': f'Corpus not found: {corpus_name}'}), 404
+        
+        from platform_foundation.src.tenant_service import TenantService
+        from platform_foundation.src.document_service import DocumentService
+        
+        ts = TenantService()
+        
+        new_tenant = ts.create_tenant(
+            name=vault_name,
+            description=f"Created from corpus: {corpus_name}"
+        )
+        vault_id = str(new_tenant.get('id', new_tenant.get('tenant_id', '')))
+        
+        if not vault_id:
+            return jsonify({'success': False, 'error': 'Failed to create vault - no ID returned'}), 500
+        
+        from .normalizer import slugify
+        slug = slugify(corpus_name)
+        manifest_path = Path(f"test_questions/{slug}_manifest.json")
+        manifest = load_manifest(manifest_path)
+        
+        uploaded_count = 0
+        
+        if manifest and manifest.get('documents'):
+            doc_service = DocumentService()
+            
+            for doc_info in manifest['documents']:
+                file_path = Path(doc_info.get('path', ''))
+                if file_path.exists() and file_path.is_file():
+                    try:
+                        with open(file_path, 'rb') as f:
+                            content = f.read()
+                        
+                        ext = file_path.suffix.lower()
+                        mime_types = {
+                            '.pdf': 'application/pdf',
+                            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            '.xls': 'application/vnd.ms-excel',
+                            '.csv': 'text/csv',
+                            '.txt': 'text/plain',
+                            '.md': 'text/markdown',
+                        }
+                        mime_type = mime_types.get(ext, 'application/octet-stream')
+                        
+                        doc_service.upload_document(
+                            tenant_id=vault_id,
+                            filename=file_path.name,
+                            mime_type=mime_type,
+                            content=content,
+                            auto_extract=auto_extract
+                        )
+                        uploaded_count += 1
+                    except Exception as doc_err:
+                        logger.warning(f"Failed to upload {file_path}: {doc_err}")
+        
+        from .registry import update_corpus_vault
+        update_corpus_vault(corpus_name, vault_id)
+        
+        return jsonify({
+            'success': True,
+            'vault_id': vault_id,
+            'vault_name': vault_name,
+            'documents_uploaded': uploaded_count,
+            'auto_extract': auto_extract
+        })
+            
+    except Exception as e:
+        logger.exception(f"Failed to create vault: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 

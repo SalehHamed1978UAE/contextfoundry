@@ -129,5 +129,45 @@ def find_corpus_by_vault(vault_id: str) -> Optional[str]:
     for name, corpus in config.get('corpora', {}).items():
         if corpus.get('vault_id') == vault_id:
             return name
+        vault_ids = corpus.get('vault_ids', [])
+        if vault_id in vault_ids:
+            return name
     
     return None
+
+
+def update_corpus_vault(corpus_name: str, vault_id: str) -> bool:
+    """
+    Add a vault ID to a corpus's list of associated vaults.
+    Supports multiple vaults per corpus.
+    
+    Args:
+        corpus_name: Name of the corpus
+        vault_id: UUID of the new vault
+    
+    Returns:
+        True if update successful
+    """
+    config = load_test_config()
+    
+    if 'corpora' not in config or corpus_name not in config['corpora']:
+        logger.warning(f"Corpus '{corpus_name}' not found in config")
+        return False
+    
+    corpus = config['corpora'][corpus_name]
+    
+    if 'vault_ids' not in corpus:
+        corpus['vault_ids'] = []
+        if corpus.get('vault_id'):
+            corpus['vault_ids'].append(corpus['vault_id'])
+    
+    if vault_id not in corpus['vault_ids']:
+        corpus['vault_ids'].append(vault_id)
+    
+    corpus['vault_id'] = vault_id
+    corpus['last_vault_created'] = datetime.utcnow().isoformat() + "Z"
+    
+    save_test_config(config)
+    logger.info(f"Added vault {vault_id} to corpus '{corpus_name}'")
+    
+    return True
