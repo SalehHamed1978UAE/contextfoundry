@@ -114,12 +114,12 @@ args = "python -u scripts/run_vault_extraction.py --vault-name \"${EXTRACTION_VA
 name = "Test: ClaudeCode Nexus"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python -m src.test_runner.runner --corpus \"ClaudeCode Nexus Industries\" --questions-only 2>&1"
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[ports]]
 localPort = 3000
