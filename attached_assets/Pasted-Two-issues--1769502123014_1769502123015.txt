@@ -1,0 +1,32 @@
+Two issues:                                                                                           
+                                                                                                         
+  1. Drop zone click is broken - The big dashed box should trigger folder selection when clicked. Add:   
+  document.getElementById('dropZone').addEventListener('click', () => {                                  
+      document.getElementById('folderInput').click();                                                    
+  });                                                                                                    
+                                                                                                         
+  2. Multi-folder selection - This is a BROWSER LIMITATION. HTML file inputs only allow selecting ONE    
+  folder at a time. You CANNOT change this.                                                              
+                                                                                                         
+  The solution is DRAG AND DROP. Update the UI to:                                                       
+  - Make drag-and-drop the PRIMARY method                                                                
+  - Text should say: 'Drag folders here - select multiple in Finder, drag them all at once'              
+  - Click is SECONDARY: 'or click to select one folder (browser limitation)'                             
+  - When multiple folders are dropped, ADD them all to selection (don't replace)                         
+  - Each folder has ✕ to remove it                                                                       
+                                                                                                         
+  See CF_Replit_DropZone_Fix.md for the drag-and-drop handler code."    
+
+  1. The “documents” drop zone must accept multiple folders at once. If I drag multiple folders onto it, it
+     should import all of them in a single interaction. The same goes for the file picker—use an input that
+     supports selecting multiple directories (e.g., webkitdirectory multiple) so I can multi-select folders
+     in one dialog.
+  2. The existing drag/drop box in the middle must remain active and handle multi-folder drops. Right now
+     it’s dead, forcing me to click the tiny button.
+  3. After I pick the parent folder, show the folder tree and let me tick which subfolders to include, all
+     in the same interaction. I should not have to repeat “select folder” for each subfolder.
+  4. The question file area (large drop zone) should also continue to work; the new button shouldn’t
+     disable it.
+
+  In short: restore the original drag/drop behavior, but enhance it so I can select multiple folders in one
+  dialog, then choose which subfolders to include—no repeated prompts.
