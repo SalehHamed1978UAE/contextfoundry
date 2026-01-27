@@ -43,10 +43,10 @@ def parse_folder_mapping(value: str) -> FolderMapping:
         "/path/to/docs" -> FolderMapping(source_path="/path/to/docs", category="uncategorized")
         "/path/to/docs:strategy" -> FolderMapping(source_path="/path/to/docs", category="strategy")
     """
-    if ':' in value and not value.startswith('/') or value.count(':') > 1:
+    if ':' in value:
         parts = value.rsplit(':', 1)
         path = parts[0]
-        category = parts[1] if len(parts) > 1 else "uncategorized"
+        category = parts[1] if len(parts) > 1 and parts[1] else "uncategorized"
     else:
         path = value
         category = "uncategorized"
