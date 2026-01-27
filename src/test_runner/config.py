@@ -33,12 +33,19 @@ DEFAULT_CONFIG = {
             "current_vault_id": None,
             "last_run": None,
             "last_accuracy": None
+        },
+        "ClaudeCode Nexus Industries": {
+            "root_path": "test documents/ClaudeCode_NExus_Industries_corpus/",
+            "questions_file": "nexus_100q.json",
+            "current_vault_id": None,
+            "last_run": None,
+            "last_accuracy": None
         }
     },
     "questions_dir": "test_questions/",
     "results_dir": "test_results/",
     "upload_rules": {
-        "include_folders": ["documents", "excel_data", "compliance", "customers", "financials", "hr", "legal", "operations", "projects", "reports", "spreadsheets", "strategy", "engineering", "meeting_notes", "policies", "finances"],
+        "include_folders": ["documents", "excel_data", "compliance", "customers", "financials", "hr", "legal", "operations", "projects", "reports", "spreadsheets", "strategy", "engineering", "meeting_notes", "policies", "finances", "All docs", "communications", "meetings", "organizational", "stakeholders", "technical"],
         "include_root_extensions": [".md", ".txt"],
         "valid_extensions": [".pdf", ".docx", ".xlsx", ".xls", ".csv", ".txt", ".md"],
         "exclude_files": ["README.md", "readme.md", "qa_pairs.md", "question_bank_200.md", "ambiguity_log.md", "consistency_validation.md", "CORPUS_STATS.txt", "qa_master.md", "qa_master.jsonl"]
