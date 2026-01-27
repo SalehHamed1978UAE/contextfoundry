@@ -598,6 +598,149 @@
             text-transform: uppercase; letter-spacing: 0.5px;
             border-bottom: 1px solid var(--border-color);
         }
+        
+        .corpora-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1rem;
+        }
+        
+        .corpus-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .corpus-card:hover {
+            border-color: var(--accent-primary);
+        }
+        
+        .corpus-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .corpus-card-header h4 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .corpus-files-badge {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .corpus-details {
+            margin-bottom: 1rem;
+        }
+        
+        .corpus-detail-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.813rem;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--bg-card);
+        }
+        
+        .corpus-detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .corpus-detail-row .label {
+            color: var(--text-muted);
+        }
+        
+        .corpus-detail-row .value {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+        
+        .corpus-detail-row .value.success {
+            color: #4ade80;
+        }
+        
+        .corpus-detail-row .value.warning {
+            color: #fbbf24;
+        }
+        
+        .corpus-vaults {
+            margin-bottom: 1rem;
+        }
+        
+        .corpus-vaults-header {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .vault-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 4px;
+            color: var(--accent-primary);
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .vault-tag .vault-id {
+            font-family: monospace;
+        }
+        
+        .corpus-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .corpus-actions .btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 12px;
+            font-size: 0.813rem;
+        }
+        
+        .btn-create-vault {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-create-vault:hover {
+            background: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
+        }
+        
+        .btn-view-vault {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .btn-delete-corpus {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        
+        .btn-delete-corpus:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
     </style>
 </head>
 <body>
@@ -763,20 +906,7 @@
                     Registered Corpora
                 </h3>
                 
-                <table class="corpus-table" id="corporaTable">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Documents</th>
-                            <th>Questions</th>
-                            <th>Last Run</th>
-                            <th>Accuracy</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="corporaTableBody">
-                    </tbody>
-                </table>
+                <div id="corporaCards" class="corpora-grid"></div>
                 
                 <div class="empty-state" id="emptyState" style="display: none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1323,40 +1453,76 @@
                 const response = await fetch('/api/corpus/list');
                 const data = await response.json();
                 
-                const tbody = document.getElementById('corporaTableBody');
+                const container = document.getElementById('corporaCards');
                 const empty = document.getElementById('emptyState');
                 
                 if (!data.corpora || data.corpora.length === 0) {
-                    tbody.innerHTML = '';
+                    container.innerHTML = '';
                     empty.style.display = 'block';
                     return;
                 }
                 
                 empty.style.display = 'none';
-                tbody.innerHTML = data.corpora.map(c => {
+                container.innerHTML = data.corpora.map(c => {
                     const accuracy = c.last_accuracy;
-                    let accuracyClass = 'accuracy-low';
-                    if (typeof accuracy === 'number' && accuracy >= 80) accuracyClass = 'accuracy-high';
-                    else if (typeof accuracy === 'number' && accuracy >= 60) accuracyClass = 'accuracy-medium';
+                    let accuracyClass = '';
+                    if (typeof accuracy === 'number' && accuracy >= 80) accuracyClass = 'success';
+                    else if (typeof accuracy === 'number' && accuracy >= 60) accuracyClass = 'warning';
                     
                     const lastRun = c.last_run ? new Date(c.last_run).toLocaleDateString() : 'Never';
                     const accuracyDisplay = typeof accuracy === 'number' 
-                        ? `<span class="accuracy-badge ${accuracyClass}">${accuracy.toFixed(1)}%</span>` 
+                        ? `${accuracy.toFixed(1)}%` 
                         : 'N/A';
                     
+                    const vaultIds = c.vault_ids || (c.vault_id ? [c.vault_id] : []);
+                    const vaultTags = vaultIds.length > 0 
+                        ? vaultIds.map(id => `<span class="vault-tag"><span class="vault-id">${id.slice(0, 8)}...</span></span>`).join('')
+                        : '<span style="color: var(--text-muted); font-size: 0.75rem;">No vaults created yet</span>';
+                    
+                    const corpusId = c.name.toLowerCase().replace(/\s+/g, '-');
+                    
                     return `
-                        <tr>
-                            <td class="corpus-name">${c.name}</td>
-                            <td>${c.document_count || 'N/A'}</td>
-                            <td>${c.question_count || 'N/A'}</td>
-                            <td>${lastRun}</td>
-                            <td>${accuracyDisplay}</td>
-                            <td>
-                                <button class="btn btn-secondary btn-sm" onclick="viewCorpus('${c.name}')">
-                                    View
+                        <div class="corpus-card" data-corpus-id="${corpusId}">
+                            <div class="corpus-card-header">
+                                <h4>${c.name}</h4>
+                                <span class="corpus-files-badge">${c.document_count || '?'} files</span>
+                            </div>
+                            
+                            <div class="corpus-details">
+                                <div class="corpus-detail-row">
+                                    <span class="label">Questions:</span>
+                                    <span class="value">${c.question_count || 0}</span>
+                                </div>
+                                <div class="corpus-detail-row">
+                                    <span class="label">Last Run:</span>
+                                    <span class="value">${lastRun}</span>
+                                </div>
+                                <div class="corpus-detail-row">
+                                    <span class="label">Accuracy:</span>
+                                    <span class="value ${accuracyClass}">${accuracyDisplay}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="corpus-vaults">
+                                <div class="corpus-vaults-header">Associated Vaults</div>
+                                ${vaultTags}
+                            </div>
+                            
+                            <div class="corpus-actions">
+                                <button class="btn btn-create-vault" onclick="createVaultFromCorpus('${c.name}')">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 5v14M5 12h14"/>
+                                    </svg>
+                                    Create Vault
                                 </button>
-                            </td>
-                        </tr>
+                                <button class="btn btn-view-vault" onclick="viewCorpus('${c.name}')">
+                                    Test
+                                </button>
+                                <button class="btn btn-delete-corpus" onclick="deleteCorpus('${c.name}')">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
                     `;
                 }).join('');
             } catch (err) {
@@ -1366,6 +1532,69 @@
 
         function viewCorpus(name) {
             window.location.href = `/test-runner?corpus=${encodeURIComponent(name)}`;
+        }
+        
+        async function createVaultFromCorpus(corpusName) {
+            const vaultName = prompt(
+                `Create new vault from "${corpusName}"?\n\nEnter vault name:`,
+                `${corpusName} - ${new Date().toLocaleDateString()}`
+            );
+            
+            if (!vaultName) return;
+            
+            showProgress('Creating vault...');
+            
+            try {
+                const response = await fetch('/api/corpus/create-vault', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        corpus_name: corpusName,
+                        vault_name: vaultName,
+                        auto_extract: true
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('success', `Vault "${vaultName}" created! ${result.documents_uploaded} documents uploaded.`);
+                    loadCorpora();
+                    
+                    if (confirm('Vault created! Open Test Runner with this vault?')) {
+                        window.location.href = `/test-runner?corpus=${encodeURIComponent(corpusName)}`;
+                    }
+                } else {
+                    showNotification('error', `Failed to create vault: ${result.error}`);
+                }
+            } catch (error) {
+                showNotification('error', `Error: ${error.message}`);
+            } finally {
+                hideProgress();
+            }
+        }
+        
+        async function deleteCorpus(corpusName) {
+            if (!confirm(`Delete corpus "${corpusName}"? This will unregister the corpus but won't delete any vaults.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/corpus/${encodeURIComponent(corpusName)}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('success', `Corpus "${corpusName}" deleted`);
+                    loadCorpora();
+                } else {
+                    showNotification('error', result.error || 'Failed to delete corpus');
+                }
+            } catch (error) {
+                showNotification('error', `Error: ${error.message}`);
+            }
         }
 
         setupFileUpload('validateQuestionUpload', 'validateQuestionFile', async (files) => {
