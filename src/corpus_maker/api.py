@@ -494,7 +494,7 @@ def api_create_vault():
                             tenant_id=vault_id,
                             filename=file_path.name,
                             mime_type=mime_type,
-                            content=content,
+                            file_content=content,
                             auto_extract=auto_extract
                         )
                         uploaded_count += 1
