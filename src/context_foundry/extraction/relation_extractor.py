@@ -30,6 +30,19 @@ from ..config.domain_schema import get_schema_loader, DomainSchemaLoader
 logger = logging.getLogger(__name__)
 
 AI_INTEGRATIONS_OPENAI_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY")
+
+# Canonical supplier relationship type mappings
+CANONICAL_SUPPLIER_TYPES = {
+    'SUPPLIES_TO': 'SUPPLIES_TO',
+    'SUPPLIES': 'SUPPLIES_TO',
+    'PROVIDES_TO': 'SUPPLIES_TO',
+    'DELIVERS_TO': 'SUPPLIES_TO',
+    'VENDOR_FOR': 'SUPPLIES_TO',
+    'VENDOR_OF': 'SUPPLIES_TO',
+    'SUPPLIER_OF': 'SUPPLIES_TO',
+    'SUPPLIER_FOR': 'SUPPLIES_TO',
+    'CONTRACTED_TO_SUPPLY': 'SUPPLIES_TO',
+}
 AI_INTEGRATIONS_OPENAI_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
 
 

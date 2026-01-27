@@ -419,7 +419,8 @@ class DocumentService:
         folder_id: Optional[UUID] = None,
         created_by: Optional[UUID] = None,
         auto_extract: bool = True,
-        priority: str = "normal"
+        priority: str = "normal",
+        sync_extract: bool = False
     ) -> Dict[str, Any]:
         """
         Complete upload flow: validate, check quota, store file, create record, queue for extraction.
@@ -433,9 +434,11 @@ class DocumentService:
             created_by: User who uploaded
             auto_extract: Whether to queue for extraction immediately
             priority: Extraction priority (low, normal, high)
+            sync_extract: If True, perform extraction synchronously and wait for completion
             
         Returns:
             Document record with extraction_request_id if auto_extract=True
+            If sync_extract=True, includes extraction_result in the response
         """
         size_bytes = len(file_content)
         
@@ -477,12 +480,17 @@ class DocumentService:
             self.log_usage(tenant_id, "upload", document_id=document['id'])
             
             if auto_extract:
-                extraction_request = self.queue_for_extraction(
-                    document_id=UUID(str(document['id'])),
-                    tenant_id=tenant_id,
-                    priority=priority
-                )
-                document['extraction_request_id'] = extraction_request['request_id']
+                if sync_extract:
+                    extraction_result = self._extract_sync(document, tenant_id)
+                    document['extraction_result'] = extraction_result
+                    document['extraction_request_id'] = extraction_result.get('request_id')
+                else:
+                    extraction_request = self.queue_for_extraction(
+                        document_id=UUID(str(document['id'])),
+                        tenant_id=tenant_id,
+                        priority=priority
+                    )
+                    document['extraction_request_id'] = extraction_request['request_id']
             
             return document
             
@@ -591,3 +599,102 @@ class DocumentService:
                 conn.commit()
         
         return processed
+
+    def _extract_sync(
+        self,
+        document: Dict[str, Any],
+        tenant_id: UUID
+    ) -> Dict[str, Any]:
+        """
+        Perform synchronous extraction on a document.
+        
+        This method queues the extraction request and waits for it to complete
+        before returning the result.
+        
+        Args:
+            document: The document record dict
+            tenant_id: The tenant UUID
+            
+        Returns:
+            The extraction result dict with status and extracted data
+        """
+        import time
+        
+        document_id = UUID(str(document['id']))
+        
+        extraction_request = self.queue_for_extraction(
+            document_id=document_id,
+            tenant_id=tenant_id,
+            priority='high'
+        )
+        
+        request_id = extraction_request['request_id']
+        logger.info(f"Sync extraction started for document {document_id}: {request_id}")
+        
+        max_wait_seconds = 120
+        poll_interval_seconds = 1
+        elapsed = 0
+        
+        while elapsed < max_wait_seconds:
+            time.sleep(poll_interval_seconds)
+            elapsed += poll_interval_seconds
+            
+            status = self.get_extraction_status(request_id, tenant_id)
+            
+            if status and status.get('result_status'):
+                logger.info(f"Sync extraction completed for {document_id}: {status.get('result_status')}")
+                return {
+                    'request_id': request_id,
+                    'status': status.get('result_status'),
+                    'entities_extracted': status.get('entities_extracted', 0),
+                    'relationships_extracted': status.get('relationships_extracted', 0),
+                    'total_tokens': status.get('total_tokens', 0),
+                    'error_message': status.get('error_message'),
+                    'elapsed_seconds': elapsed
+                }
+        
+        logger.warning(f"Sync extraction timed out for document {document_id}")
+        return {
+            'request_id': request_id,
+            'status': 'timeout',
+            'error_message': f'Extraction did not complete within {max_wait_seconds} seconds',
+            'elapsed_seconds': elapsed
+        }
+
+    def _count_pending_extractions(self) -> Dict[str, int]:
+        """
+        Count pending extraction requests for health monitoring.
+        
+        Returns:
+            Dict with counts by status: pending, processing, completed, failed
+        """
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT 
+                        COALESCE(r.status, 'pending') as status,
+                        COUNT(*) as count
+                    FROM platform.extraction_requests req
+                    LEFT JOIN platform.extraction_results r ON req.request_id = r.request_id
+                    GROUP BY COALESCE(r.status, 'pending')
+                """)
+                
+                results = cur.fetchall()
+                
+                counts = {
+                    'pending': 0,
+                    'processing': 0,
+                    'success': 0,
+                    'failed': 0,
+                    'partial': 0
+                }
+                
+                for row in results:
+                    status = row['status']
+                    if status in counts:
+                        counts[status] = row['count']
+                    else:
+                        counts[status] = row['count']
+                
+                counts['total'] = sum(counts.values())
+                return counts

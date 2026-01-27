@@ -23,6 +23,85 @@ from .entity_resolver import EntityResolver
 
 logger = logging.getLogger(__name__)
 
+# Edge rank for relationship type priority - higher scores = more important relationships
+EDGE_RANK = {
+    'HOLDS_POSITION': 100,
+    'CEO_OF': 95,
+    'CFO_OF': 90,
+    'CTO_OF': 90,
+    'FOUNDED': 85,
+    'FOUNDED_BY': 85,
+    'OWNS': 80,
+    'OWNED_BY': 80,
+    'INVESTED_IN': 75,
+    'WORKS_FOR': 70,
+    'WORKS_AT': 70,
+    'EMPLOYED_BY': 65,
+    'REPORTS_TO': 60,
+    'MANAGES': 55,
+    'MEMBER_OF': 50,
+    'SUPPLIES_TO': 45,
+    'PROVIDES_TO': 45,
+    'AFFILIATED_WITH': 40,
+    'ASSOCIATED_WITH': 35,
+    'LOCATED_IN': 30,
+    'HEADQUARTERED_IN': 30,
+}
+
+DEFAULT_EDGE_RANK = 25
+
+
+def get_edge_rank(relationship_type: str) -> int:
+    """Get priority score for a relationship type. Higher = more important."""
+    return EDGE_RANK.get(relationship_type.upper(), DEFAULT_EDGE_RANK)
+
+
+def filter_by_anchor_organization(
+    entities: List[Dict],
+    anchor_org: str,
+    prefer_higher_rank: bool = True
+) -> List[Dict]:
+    """
+    Filter entities by anchor organization affiliation.
+    
+    Args:
+        entities: List of entity dicts with 'name', 'type', and optional 'organization'
+        anchor_org: The anchor organization name to filter by
+        prefer_higher_rank: If True, sort by edge rank (descending) before filtering
+        
+    Returns:
+        Filtered list of entities that:
+        - Belong to the anchor organization, OR
+        - Have no organization specified (generic entities)
+    """
+    if not anchor_org:
+        return entities
+    
+    anchor_lower = anchor_org.lower().strip()
+    filtered = []
+    
+    for entity in entities:
+        org = entity.get('organization', '').lower().strip()
+        
+        # Keep if no organization specified (generic entity)
+        if not org:
+            filtered.append(entity)
+            continue
+        
+        # Keep if matches anchor organization
+        if org == anchor_lower or anchor_lower in org or org in anchor_lower:
+            filtered.append(entity)
+            continue
+    
+    # Sort by edge rank if requested
+    if prefer_higher_rank and filtered:
+        filtered.sort(
+            key=lambda e: get_edge_rank(e.get('discovered_via', '')),
+            reverse=True
+        )
+    
+    return filtered
+
 
 @dataclass
 class RetrievedRelationship:
