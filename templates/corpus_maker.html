@@ -842,21 +842,26 @@
                     </button>
                     <input type="file" id="corpusFolderInput" webkitdirectory directory multiple style="display: none;">
                     
-                    <div class="file-upload" id="docDropZone" style="padding: 32px;">
+                    <div class="file-upload" id="docDropZone" style="padding: 32px; cursor: pointer;">
                         <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
                         </svg>
                         <p class="file-upload-text">
-                            <strong>Select your corpus folder above</strong><br>
-                            You'll be able to choose which subfolders to include
+                            <strong>Drag folders here</strong><br>
+                            <span style="font-size: 13px; color: var(--text-muted);">Select multiple folders in Finder/Explorer, then drag them all at once</span>
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 12px; margin: 12px 0;">— or —</p>
+                        <p style="font-size: 13px; color: var(--text-muted);">
+                            Click to select one folder <span style="opacity: 0.7;">(browser limitation)</span>
                         </p>
                     </div>
                     
                     <div id="selectionPanel" class="selection-panel" style="display: none;">
                         <div class="panel-header">
-                            <h4 id="rootFolderName">Selected Folder</h4>
+                            <h4 id="rootFolderName">Selected Folders</h4>
                             <div class="panel-actions">
-                                <button type="button" class="btn-link" onclick="selectAllFolders()">Select All Folders</button>
+                                <button type="button" class="btn-link" onclick="addMoreFolders()">+ Add More</button>
+                                <button type="button" class="btn-link" onclick="selectAllFolders()">Select All</button>
                                 <button type="button" class="btn-link" onclick="deselectAll()">Deselect All</button>
                                 <button type="button" class="btn-link danger" onclick="clearFolderSelection()">Clear</button>
                             </div>
@@ -1071,34 +1076,134 @@
             document.getElementById('corpusFolderInput').click();
         });
 
+        document.getElementById('docDropZone').addEventListener('click', () => {
+            document.getElementById('corpusFolderInput').click();
+        });
+
+        const docDropZone = document.getElementById('docDropZone');
+        docDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            docDropZone.classList.add('dragover');
+        });
+        docDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            docDropZone.classList.remove('dragover');
+        });
+        docDropZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            docDropZone.classList.remove('dragover');
+            
+            const items = Array.from(e.dataTransfer.items);
+            const droppedFolders = [];
+            
+            for (const item of items) {
+                if (item.kind === 'file') {
+                    const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                    if (entry && entry.isDirectory) {
+                        const files = await traverseDirectory(entry);
+                        droppedFolders.push({ name: entry.name, files: files });
+                    }
+                }
+            }
+            
+            if (droppedFolders.length > 0) {
+                droppedFolders.forEach(folder => addDroppedFolder(folder.name, folder.files));
+                updateSelectionUI();
+            }
+        });
+
+        async function traverseDirectory(dirEntry, path = '') {
+            const files = [];
+            const reader = dirEntry.createReader();
+            
+            const readEntries = () => new Promise(resolve => reader.readEntries(resolve));
+            
+            let entries;
+            do {
+                entries = await readEntries();
+                for (const entry of entries) {
+                    const entryPath = path ? `${path}/${entry.name}` : entry.name;
+                    
+                    if (entry.isFile) {
+                        const file = await new Promise(resolve => entry.file(resolve));
+                        file.relativePath = `${dirEntry.name}/${entryPath}`;
+                        const ext = '.' + file.name.split('.').pop().toLowerCase();
+                        if (SUPPORTED_EXTENSIONS.includes(ext)) {
+                            files.push(file);
+                        }
+                    } else if (entry.isDirectory) {
+                        const subFiles = await traverseDirectory(entry, entryPath);
+                        files.push(...subFiles);
+                    }
+                }
+            } while (entries.length > 0);
+            
+            return files;
+        }
+
+        function addDroppedFolder(folderName, files) {
+            if (folderStructure[folderName]) {
+                console.log(`Folder "${folderName}" already in selection`);
+                return;
+            }
+            
+            if (!rootFolderName) {
+                rootFolderName = 'Multiple Folders';
+            }
+            
+            folderStructure[folderName] = {
+                files: files,
+                included: true,
+                category: detectCategory(folderName)
+            };
+            
+            allFiles = allFiles.concat(files);
+        }
+
+        let isAddingMore = false;
+        
         document.getElementById('corpusFolderInput').addEventListener('change', function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
-            processSelectedFolder(files);
+            processSelectedFolder(files, isAddingMore);
+            isAddingMore = false;
             e.target.value = '';
         });
 
-        function processSelectedFolder(files) {
-            allFiles = files.filter(f => {
+        function processSelectedFolder(files, accumulate = false) {
+            const newFiles = files.filter(f => {
                 const ext = '.' + f.name.split('.').pop().toLowerCase();
                 return SUPPORTED_EXTENSIONS.includes(ext);
             });
-            folderStructure = {};
-            looseFiles = [];
             
-            const firstPath = files[0].webkitRelativePath || '';
-            rootFolderName = firstPath.split('/')[0] || 'Selected Folder';
+            if (!accumulate || Object.keys(folderStructure).length === 0) {
+                allFiles = newFiles;
+                folderStructure = {};
+                looseFiles = [];
+                const firstPath = files[0].webkitRelativePath || '';
+                rootFolderName = firstPath.split('/')[0] || 'Selected Folder';
+            } else {
+                allFiles = allFiles.concat(newFiles);
+                rootFolderName = 'Multiple Folders';
+            }
             
-            allFiles.forEach(file => {
+            newFiles.forEach(file => {
                 const path = file.webkitRelativePath || file.name;
                 const parts = path.split('/');
                 
                 if (parts.length === 2) {
-                    looseFiles.push({
-                        file: file,
-                        name: parts[1],
-                        included: !shouldAutoExclude(parts[1])
-                    });
+                    const fileName = parts[1];
+                    const alreadyExists = looseFiles.some(lf => lf.name === fileName);
+                    if (!alreadyExists) {
+                        looseFiles.push({
+                            file: file,
+                            name: fileName,
+                            included: !shouldAutoExclude(fileName)
+                        });
+                    }
                 } else if (parts.length > 2) {
                     const subfolder = parts[1];
                     if (!folderStructure[subfolder]) {
@@ -1257,6 +1362,11 @@
             rootFolderName = '';
             document.getElementById('docDropZone').style.display = 'block';
             document.getElementById('selectionPanel').style.display = 'none';
+        }
+
+        function addMoreFolders() {
+            isAddingMore = true;
+            document.getElementById('corpusFolderInput').click();
         }
 
         document.querySelectorAll('.tab').forEach(tab => {
