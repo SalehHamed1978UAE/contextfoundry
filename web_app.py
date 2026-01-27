@@ -85,6 +85,9 @@ app.register_blueprint(extraction_api)
 from src.test_runner.api import test_runner_api
 app.register_blueprint(test_runner_api)
 
+from src.corpus_maker.api import corpus_bp
+app.register_blueprint(corpus_bp)
+
 @app.route('/test_results/<path:filename>')
 def serve_test_results(filename):
     """Serve test result files from the test_results directory."""
