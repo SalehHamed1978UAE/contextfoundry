@@ -252,9 +252,10 @@ class DirectedGraphRetriever:
     with precision. Returns only what was asked for.
     """
     
-    def __init__(self, session: Session, tenant_id: str):
+    def __init__(self, session: Session, tenant_id: str, anchor_organization: str = None):
         self.session = session
         self.tenant_id = str(tenant_id)
+        self.anchor_organization = anchor_organization
         self.entity_resolver = EntityResolver(session, tenant_id)
         
         self.session.execute(
@@ -262,7 +263,32 @@ class DirectedGraphRetriever:
             {'tid': self.tenant_id}
         )
         
-        logger.info(f"DirectedGraphRetriever initialized for tenant {tenant_id[:8]}...")
+        # If no anchor provided, try to get from tenant metadata
+        if not self.anchor_organization:
+            self.anchor_organization = self._get_anchor_from_tenant()
+        
+        logger.info(f"DirectedGraphRetriever initialized for tenant {tenant_id[:8]}... (anchor: {self.anchor_organization})")
+    
+    def _get_anchor_from_tenant(self) -> Optional[str]:
+        """Get anchor organization from tenant settings or primary_organization_name."""
+        try:
+            result = self.session.execute(
+                text("""
+                    SELECT 
+                        COALESCE(settings->>'anchor_organization', primary_organization_name) as anchor
+                    FROM platform.tenants
+                    WHERE id = :tid
+                """),
+                {'tid': self.tenant_id}
+            ).fetchone()
+
+            if result and result.anchor:
+                logger.info(f"[AnchorFilter] Found anchor organization: {result.anchor}")
+                return result.anchor
+        except Exception as e:
+            logger.warning(f"[AnchorFilter] Could not get anchor organization: {e}")
+
+        return None
     
     def execute(self, intent: QueryIntent) -> RetrievalResult:
         """
@@ -331,6 +357,13 @@ class DirectedGraphRetriever:
                         cascade_paths.append(path)
         
         affected = self._collect_affected_entities(relationships, entity_id)
+        
+        # CRITICAL: Filter by anchor organization to prevent cross-org contamination (e.g., Boeing in Nexus queries)
+        if self.anchor_organization:
+            affected_before = len(affected)
+            affected = filter_by_anchor_organization(affected, self.anchor_organization)
+            if affected_before != len(affected):
+                logger.info(f"[AnchorFilter] Filtered {affected_before} -> {len(affected)} entities (removed {affected_before - len(affected)} cross-org)")
         
         if intent.target_type:
             affected_before = len(affected)
