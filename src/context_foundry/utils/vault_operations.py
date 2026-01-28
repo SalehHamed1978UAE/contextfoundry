@@ -6,12 +6,180 @@ triggering Flask/web app startup code.
 import os
 import shutil
 import logging
+import time
 from uuid import UUID
 from sqlalchemy import text
 
 from src.context_foundry.models.schema import get_session
 
 logger = logging.getLogger(__name__)
+
+TENANT_STATUS_ACTIVE = 'active'
+TENANT_STATUS_DELETING = 'deleting'
+TENANT_STATUS_DELETED = 'deleted'
+
+
+def is_tenant_available(tenant_id: str) -> bool:
+    """Check if tenant is available for processing (not being deleted).
+    
+    Background workers should call this before processing any tenant-specific work.
+    Returns False if tenant is marked as 'deleting' or doesn't exist.
+    """
+    db_session = get_session(use_rls_role=False)
+    try:
+        result = db_session.execute(
+            text("SELECT status FROM platform.tenants WHERE id = :tid"),
+            {'tid': str(tenant_id)}
+        ).fetchone()
+        
+        if not result:
+            return False
+        
+        return result.status == TENANT_STATUS_ACTIVE
+    except Exception:
+        return False
+    finally:
+        db_session.close()
+
+
+def mark_tenant_deleting(tenant_id: str) -> bool:
+    """Mark tenant as 'deleting' to prevent new work.
+    
+    This is the first step in graceful deletion - it blocks:
+    - New extraction jobs from being queued
+    - Gardener from processing this tenant
+    - New queries from being executed
+    
+    Returns True if successfully marked, False if tenant doesn't exist.
+    """
+    db_session = get_session(use_rls_role=False)
+    try:
+        result = db_session.execute(
+            text("UPDATE platform.tenants SET status = :status WHERE id = :tid"),
+            {'status': TENANT_STATUS_DELETING, 'tid': str(tenant_id)}
+        )
+        db_session.commit()
+        return result.rowcount > 0
+    except Exception as e:
+        db_session.rollback()
+        logger.error(f"Failed to mark tenant as deleting: {e}")
+        return False
+    finally:
+        db_session.close()
+
+
+def cancel_pending_jobs(tenant_id: str) -> dict:
+    """Cancel all pending extraction/learning jobs for a tenant.
+    
+    This should be called after marking tenant as 'deleting' to clean up
+    any queued work that would conflict with deletion.
+    """
+    db_session = get_session(use_rls_role=False)
+    cancelled = {}
+    
+    try:
+        result = db_session.execute(
+            text("""UPDATE platform.extraction_requests 
+                    SET status = 'cancelled' 
+                    WHERE tenant_id = :tid AND status IN ('pending', 'queued', 'processing')"""),
+            {'tid': str(tenant_id)}
+        )
+        cancelled['extraction_requests'] = result.rowcount
+        
+        result = db_session.execute(
+            text("""UPDATE public.extraction_jobs 
+                    SET status = 'cancelled' 
+                    WHERE tenant_id = :tid AND status IN ('pending', 'running')"""),
+            {'tid': str(tenant_id)}
+        )
+        cancelled['extraction_jobs'] = result.rowcount
+        
+        result = db_session.execute(
+            text("""UPDATE public.learning_queue 
+                    SET status = 'cancelled' 
+                    WHERE tenant_id = :tid AND status = 'pending'"""),
+            {'tid': str(tenant_id)}
+        )
+        cancelled['learning_queue'] = result.rowcount
+        
+        db_session.commit()
+        logger.info(f"[GracefulDelete] Cancelled jobs for tenant {tenant_id}: {cancelled}")
+        return cancelled
+    except Exception as e:
+        db_session.rollback()
+        logger.warning(f"Error cancelling jobs (non-fatal): {e}")
+        return cancelled
+    finally:
+        db_session.close()
+
+
+def wait_for_active_transactions(tenant_id: str, timeout_seconds: int = 10) -> bool:
+    """Wait for active transactions on this tenant to complete.
+    
+    Polls for active locks/transactions and waits for them to finish.
+    Returns True if clear, False if timeout reached.
+    """
+    db_session = get_session(use_rls_role=False)
+    start_time = time.time()
+    
+    try:
+        while time.time() - start_time < timeout_seconds:
+            result = db_session.execute(
+                text("""
+                    SELECT COUNT(*) as active_count
+                    FROM pg_stat_activity 
+                    WHERE state = 'active' 
+                    AND query LIKE :pattern
+                    AND pid != pg_backend_pid()
+                """),
+                {'pattern': f'%{tenant_id}%'}
+            ).fetchone()
+            
+            if result.active_count == 0:
+                logger.info(f"[GracefulDelete] No active transactions for tenant {tenant_id}")
+                return True
+            
+            logger.info(f"[GracefulDelete] Waiting for {result.active_count} active transactions...")
+            time.sleep(0.5)
+        
+        logger.warning(f"[GracefulDelete] Timeout waiting for transactions on tenant {tenant_id}")
+        return False
+    except Exception as e:
+        logger.warning(f"Error checking active transactions: {e}")
+        return True
+    finally:
+        db_session.close()
+
+
+def terminate_tenant_sessions(tenant_id: str) -> int:
+    """Terminate any database sessions still referencing this tenant.
+    
+    This is a last resort if wait_for_active_transactions times out.
+    Use with caution - it will kill active queries.
+    """
+    db_session = get_session(use_rls_role=False)
+    try:
+        result = db_session.execute(
+            text("""
+                SELECT pg_terminate_backend(pid)
+                FROM pg_stat_activity 
+                WHERE state = 'active' 
+                AND query LIKE :pattern
+                AND pid != pg_backend_pid()
+            """),
+            {'pattern': f'%{tenant_id}%'}
+        )
+        terminated = result.rowcount
+        db_session.commit()
+        if terminated > 0:
+            logger.warning(f"[GracefulDelete] Terminated {terminated} sessions for tenant {tenant_id}")
+        return terminated
+    except Exception as e:
+        db_session.rollback()
+        logger.error(f"Failed to terminate sessions: {e}")
+        return 0
+    finally:
+        db_session.close()
 
 
 def cleanup_orphaned_entities() -> dict:
@@ -108,15 +276,85 @@ def cleanup_orphaned_entities() -> dict:
         db_session.close()
 
 
+def graceful_delete_vault(vault_uuid: UUID, timeout_seconds: int = 10) -> dict:
+    """Gracefully delete a vault with proper quiescing.
+    
+    This is the recommended way to delete a vault. It:
+    1. Marks tenant as 'deleting' to block new work
+    2. Cancels all pending extraction/learning jobs
+    3. Waits for active transactions to complete
+    4. Terminates stuck sessions if needed
+    5. Performs the actual deletion
+    6. Cleans up storage artifacts
+    
+    Returns dict with deletion status and counts.
+    """
+    tenant_id_str = str(vault_uuid)
+    result = {
+        'vault_id': tenant_id_str,
+        'status': 'pending',
+        'steps': {}
+    }
+    
+    try:
+        logger.info(f"[GracefulDelete] Starting deletion of vault {tenant_id_str}")
+        
+        if not mark_tenant_deleting(tenant_id_str):
+            result['status'] = 'failed'
+            result['error'] = 'Vault not found or already deleted'
+            return result
+        result['steps']['mark_deleting'] = 'success'
+        logger.info(f"[GracefulDelete] Step 1: Marked tenant as 'deleting'")
+        
+        cancelled = cancel_pending_jobs(tenant_id_str)
+        result['steps']['cancel_jobs'] = cancelled
+        logger.info(f"[GracefulDelete] Step 2: Cancelled pending jobs: {cancelled}")
+        
+        time.sleep(0.5)
+        
+        if not wait_for_active_transactions(tenant_id_str, timeout_seconds):
+            logger.warning(f"[GracefulDelete] Step 3: Timeout waiting, terminating sessions")
+            terminated = terminate_tenant_sessions(tenant_id_str)
+            result['steps']['terminate_sessions'] = terminated
+            time.sleep(0.5)
+        else:
+            result['steps']['wait_transactions'] = 'clear'
+        logger.info(f"[GracefulDelete] Step 3: Active transactions cleared")
+        
+        delete_result = delete_vault_and_artifacts(vault_uuid)
+        result['steps']['delete_artifacts'] = delete_result
+        result['status'] = 'success'
+        logger.info(f"[GracefulDelete] Step 4: Deletion complete")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"[GracefulDelete] Failed: {e}", exc_info=True)
+        result['status'] = 'failed'
+        result['error'] = str(e)
+        db_session = get_session(use_rls_role=False)
+        try:
+            db_session.execute(
+                text("UPDATE platform.tenants SET status = :status WHERE id = :tid"),
+                {'status': TENANT_STATUS_ACTIVE, 'tid': tenant_id_str}
+            )
+            db_session.commit()
+        except:
+            db_session.rollback()
+        finally:
+            db_session.close()
+        return result
+
+
 def delete_vault_and_artifacts(vault_uuid: UUID) -> dict:
     """Delete all artifacts associated with a vault/tenant.
     
-    This is the canonical implementation used by both:
-    - web_app.py (UI/API vault deletion)
-    - E2E test scripts (cleanup between test runs)
+    NOTE: Prefer using graceful_delete_vault() which handles quiescing.
     
-    Uses savepoints to handle FK constraint failures gracefully without
-    aborting the entire transaction.
+    This is the low-level implementation that:
+    - Deletes from all related tables in FK order
+    - Uses savepoints to handle constraint failures
+    - Cleans up filesystem storage
     
     Returns dict with counts of deleted items per table.
     """

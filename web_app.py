@@ -1339,23 +1339,28 @@ def api_delete_vault(vault_id):
         if confirmation_name != vault['name']:
             return jsonify({'error': 'Vault name does not match'}), 400
         
-        deleted = delete_vault_and_artifacts(vault_uuid)
+        result = graceful_delete_vault(vault_uuid, timeout_seconds=15)
+        
+        if result['status'] != 'success':
+            error_msg = result.get('error', 'Unknown error during deletion')
+            logger.error(f"Failed to delete vault {vault_id}: {error_msg}")
+            return jsonify({'error': error_msg, 'details': result}), 500
         
         if session.get('tenant_id') == vault_id:
             session.pop('tenant_id', None)
         
-        logger.info(f"Vault {vault_id} deleted by owner {user_uuid}. Artifacts deleted: {deleted}")
+        logger.info(f"Vault {vault_id} deleted by owner {user_uuid}. Result: {result}")
         
         return jsonify({
             'success': True,
             'message': 'Vault deleted successfully',
-            'deleted': deleted
+            'deleted': result.get('steps', {}).get('delete_artifacts', {})
         })
     except Exception as e:
         logger.error(f"Failed to delete vault {vault_id}: {e}", exc_info=True)
         return jsonify({'error': 'Failed to delete vault'}), 500
 
-from src.context_foundry.utils.vault_operations import delete_vault_and_artifacts
+from src.context_foundry.utils.vault_operations import graceful_delete_vault
 
 
 @app.route('/api/vaults/<vault_id>/stats', methods=['GET'])
