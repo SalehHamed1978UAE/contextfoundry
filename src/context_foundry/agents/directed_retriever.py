@@ -270,12 +270,12 @@ class DirectedGraphRetriever:
         logger.info(f"DirectedGraphRetriever initialized for tenant {tenant_id[:8]}... (anchor: {self.anchor_organization})")
     
     def _get_anchor_from_tenant(self) -> Optional[str]:
-        """Get anchor organization from tenant settings or primary_organization_name."""
+        """Get anchor organization from tenant - check primary_organization_name first, then settings."""
         try:
             result = self.session.execute(
                 text("""
                     SELECT 
-                        COALESCE(settings->>'anchor_organization', primary_organization_name) as anchor
+                        COALESCE(primary_organization_name, settings->>'anchor_organization') as anchor
                     FROM platform.tenants
                     WHERE id = :tid
                 """),

@@ -137,21 +137,36 @@ class AnchorResolver:
         """
         Get the stored primary organization for this tenant.
         
+        Priority:
+        1. Look up primary_organization_name within this vault's entities
+        2. Fall back to stored primary_organization_id (may not exist in this vault)
+        
         Returns:
             Dict with 'id' and 'name', or None if not set
         """
         try:
             result = self.session.execute(text("""
-                SELECT primary_organization_id, primary_organization_name
+                SELECT primary_organization_id, primary_organization_name,
+                       COALESCE(settings->>'anchor_organization', primary_organization_name) as anchor_name
                 FROM platform.tenants
                 WHERE id = :tenant_id
             """), {"tenant_id": self.tenant_id}).fetchone()
             
-            if result and result.primary_organization_id:
-                return {
-                    "id": str(result.primary_organization_id),
-                    "name": result.primary_organization_name
-                }
+            if result and result.anchor_name:
+                # Look up entity by name within this vault (more reliable than stored ID)
+                entity = self._find_entity_by_name(result.anchor_name)
+                if entity:
+                    logger.info(f"[ANCHOR] Found primary org by name lookup: {entity['name']} ({entity['id']})")
+                    return entity
+                
+                # Fall back to stored ID if entity lookup fails
+                if result.primary_organization_id:
+                    logger.info(f"[ANCHOR] Using stored primary org ID: {result.primary_organization_id}")
+                    return {
+                        "id": str(result.primary_organization_id),
+                        "name": result.primary_organization_name
+                    }
+            
             return None
         except Exception as e:
             logger.error(f"[ANCHOR] get_primary_organization failed: {e}")
