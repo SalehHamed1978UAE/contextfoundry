@@ -54,10 +54,11 @@ Architectural features include:
     - **FixApplier**: Applies targeted extraction results to KG.
     - **ImprovementLoop**: Orchestrates analyze → extract → apply → test cycle for iterative accuracy improvement.
 - **Relationship-First Retrieval Architecture**:
-    - **AnchorResolver**: Auto-detects primary organization for each vault using graph centrality.
+    - **AnchorResolver**: Auto-detects primary organization for each vault using graph centrality. Looks up entity by name from `primary_organization_name` column.
     - **RelationshipFirstRetriever**: Traverses graph edges from anchor organization to find connected entities.
     - **Stage 0 Role Resolution**: Highest priority lookup stage for role resolution.
     - **Edge-Rank Prioritization**: Ranking system for relationship types to select the best match.
+    - **Cross-Organization Contamination Prevention**: RoleResolver and DirectedGraphRetriever both apply anchor organization filtering to prevent returning entities from unrelated organizations (e.g., wrong CFO from different company).
 - **Corpus Maker (Phase 1.5)**:
     - **Web UI**: Full-featured UI for uploading, registering, and validating corpora at `/corpus-maker`.
     - **Selective Folder Upload**: Single parent folder selection with checkbox UI for subfolder inclusion/exclusion.

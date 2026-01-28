@@ -173,6 +173,57 @@ class RoleResolver:
         self.tenant_id = tenant_id
         self._anchor_resolver = None
         self._relationship_retriever = None
+        self._anchor_organization = None  # Cached anchor org name for filtering
+    
+    def _get_anchor_organization(self) -> Optional[str]:
+        """Get the anchor organization name for filtering results."""
+        if self._anchor_organization is None:
+            try:
+                from sqlalchemy import text
+                result = self.session.execute(text("""
+                    SELECT COALESCE(primary_organization_name, settings->>'anchor_organization') as anchor
+                    FROM platform.tenants
+                    WHERE id = :tenant_id
+                """), {"tenant_id": self.tenant_id}).fetchone()
+                if result and result.anchor:
+                    self._anchor_organization = result.anchor
+                    logger.info(f"[ROLE_RESOLVER] Anchor organization: {self._anchor_organization}")
+            except Exception as e:
+                logger.warning(f"[ROLE_RESOLVER] Could not get anchor organization: {e}")
+        return self._anchor_organization
+    
+    def _filter_by_anchor(self, candidates: list, anchor_name: Optional[str] = None) -> list:
+        """Filter candidates to prefer those connected to anchor organization."""
+        if not anchor_name:
+            anchor_name = self._get_anchor_organization()
+        if not anchor_name:
+            return candidates
+        
+        anchor_lower = anchor_name.lower()
+        filtered = []
+        for c in candidates:
+            # Handle both 'organization' (singular) and 'organizations' (plural list)
+            orgs = c.get('organizations', [])
+            if not orgs:
+                org = c.get('organization', '') or ''
+                orgs = [org] if org else []
+            
+            # Keep if: no organization specified, OR any org matches anchor
+            if not orgs:
+                filtered.append(c)
+            else:
+                for org in orgs:
+                    org_lower = (org or '').lower()
+                    if anchor_lower in org_lower or org_lower in anchor_lower:
+                        filtered.append(c)
+                        break
+        
+        if filtered:
+            logger.info(f"[ROLE_RESOLVER] Anchor filter: {len(candidates)} -> {len(filtered)} candidates (anchor={anchor_name})")
+            return filtered
+        # If no matches after filtering, return original (don't filter everything out)
+        logger.warning(f"[ROLE_RESOLVER] Anchor filter found no matches for anchor={anchor_name}, returning all {len(candidates)}")
+        return candidates
     
     def _get_anchor_resolver(self) -> AnchorResolver:
         """Lazy initialization of anchor resolver."""
@@ -621,6 +672,10 @@ class RoleResolver:
                 
                 all_matches.sort(key=vault_match_score, reverse=True)
                 logger.info(f"[ROLE_RESOLVER] Sorted by vault_context='{vault_context}': {[m['name'] for m in all_matches]}")
+            
+            # Apply anchor organization filter to remove cross-org contamination
+            if len(all_matches) > 1:
+                all_matches = self._filter_by_anchor(all_matches)
             
             if len(all_matches) == 1:
                 match = all_matches[0]
