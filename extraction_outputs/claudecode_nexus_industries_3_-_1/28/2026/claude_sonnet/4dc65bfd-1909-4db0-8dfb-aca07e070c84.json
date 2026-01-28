@@ -1,0 +1,541 @@
+{
+  "document_id": "4dc65bfd-1909-4db0-8dfb-aca07e070c84",
+  "document_path": "03_travel_expense.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-28T18:04:03.124391",
+  "entities": [
+    {
+      "name": "Travel and Expense Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-003",
+        "category": "Travel and Expense",
+        "effective_date": "January 1, 2025",
+        "last_reviewed": "January 2026",
+        "authority_level": "1",
+        "classification": "Internal"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Travel and Expense Policy, Policy Number: POL-003, Effective Date: January 1, 2025",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Owner: Chief Financial Officer, Approved by: Robert Kim, CFO",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "This policy applies to all Nexus Industries employees and contractors",
+      "aliases": []
+    },
+    {
+      "name": "Concur/SAP",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Corporate travel portal"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Use corporate travel portal (Concur/SAP)",
+      "aliases": []
+    },
+    {
+      "name": "United Airlines",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred airline partner"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Airlines: United, Delta, American (domestic)",
+      "aliases": []
+    },
+    {
+      "name": "Delta Airlines",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred airline partner"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Airlines: United, Delta, American (domestic)",
+      "aliases": []
+    },
+    {
+      "name": "American Airlines",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred airline partner"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Airlines: United, Delta, American (domestic)",
+      "aliases": []
+    },
+    {
+      "name": "Marriott",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred hotel partner"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)",
+      "aliases": []
+    },
+    {
+      "name": "Hilton",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred hotel partner"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)",
+      "aliases": []
+    },
+    {
+      "name": "Hyatt",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred hotel partner"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)",
+      "aliases": []
+    },
+    {
+      "name": "Enterprise",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred car rental vendor"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred vendors: Enterprise, National, Hertz",
+      "aliases": []
+    },
+    {
+      "name": "National",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred car rental vendor"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred vendors: Enterprise, National, Hertz",
+      "aliases": []
+    },
+    {
+      "name": "Hertz",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Preferred car rental vendor"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Preferred vendors: Enterprise, National, Hertz",
+      "aliases": []
+    },
+    {
+      "name": "NYC",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "New York City",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "High-Cost Cities (NYC, SF, London)",
+      "aliases": []
+    },
+    {
+      "name": "SF",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "San Francisco",
+        "country": "USA"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "High-Cost Cities (NYC, SF, London)",
+      "aliases": []
+    },
+    {
+      "name": "London",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "London",
+        "country": "UK"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "High-Cost Cities (NYC, SF, London)",
+      "aliases": []
+    },
+    {
+      "name": "Domestic Hotel Limit - Individual Contributor",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hotel Per Night Limit",
+        "value": "$200",
+        "type": "CURRENCY",
+        "period": "per night"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Individual Contributor: $200",
+      "aliases": []
+    },
+    {
+      "name": "Domestic Hotel Limit - Manager/Director",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hotel Per Night Limit",
+        "value": "$250",
+        "type": "CURRENCY",
+        "period": "per night"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Manager/Director: $250",
+      "aliases": []
+    },
+    {
+      "name": "Domestic Hotel Limit - VP+",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hotel Per Night Limit",
+        "value": "$350",
+        "type": "CURRENCY",
+        "period": "per night"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "VP+: $350",
+      "aliases": []
+    },
+    {
+      "name": "IRS Mileage Rate",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Personal Vehicle Reimbursement",
+        "value": "$0.67",
+        "type": "CURRENCY",
+        "period": "per mile"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "IRS rate ($0.67/mile)",
+      "aliases": []
+    },
+    {
+      "name": "US Domestic Breakfast Allowance",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Breakfast Allowance",
+        "value": "$20",
+        "type": "CURRENCY",
+        "period": "per meal"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Breakfast: $20",
+      "aliases": []
+    },
+    {
+      "name": "US Domestic Lunch Allowance",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Lunch Allowance",
+        "value": "$25",
+        "type": "CURRENCY",
+        "period": "per meal"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Lunch: $25",
+      "aliases": []
+    },
+    {
+      "name": "US Domestic Dinner Allowance",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Dinner Allowance",
+        "value": "$50",
+        "type": "CURRENCY",
+        "period": "per meal"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Dinner: $50",
+      "aliases": []
+    },
+    {
+      "name": "US Domestic Daily Meal Total",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Daily Meal Allowance",
+        "value": "$95",
+        "type": "CURRENCY",
+        "period": "per day"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Daily Total: $95",
+      "aliases": []
+    },
+    {
+      "name": "International Daily Meal Total",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Daily Meal Allowance",
+        "value": "$135",
+        "type": "CURRENCY",
+        "period": "per day"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Daily Total: $135",
+      "aliases": []
+    },
+    {
+      "name": "Western Europe Per Diem",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Per Diem Allowance",
+        "value": "$175",
+        "type": "CURRENCY",
+        "period": "per day"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Western Europe: $175",
+      "aliases": []
+    },
+    {
+      "name": "Corporate Card Limit - Individual Contributor",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate Card Monthly Limit",
+        "value": "$5,000",
+        "type": "CURRENCY",
+        "period": "monthly"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Individual Contributor: $5,000",
+      "aliases": []
+    },
+    {
+      "name": "Corporate Card Limit - Manager",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate Card Monthly Limit",
+        "value": "$10,000",
+        "type": "CURRENCY",
+        "period": "monthly"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Manager: $10,000",
+      "aliases": []
+    },
+    {
+      "name": "Corporate Card Limit - Director",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate Card Monthly Limit",
+        "value": "$15,000",
+        "type": "CURRENCY",
+        "period": "monthly"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Director: $15,000",
+      "aliases": []
+    },
+    {
+      "name": "Corporate Card Limit - VP+",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Corporate Card Monthly Limit",
+        "value": "$25,000",
+        "type": "CURRENCY",
+        "period": "monthly"
+      },
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "VP+: $25,000",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Robert Kim, CFO - Chief Financial Officer role"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Travel and Expense Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Owner: Chief Financial Officer, Approved by: Robert Kim, CFO"
+    },
+    {
+      "source_entity": "Travel and Expense Policy",
+      "source_type": "POLICY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "This policy applies to all Nexus Industries employees and contractors"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Concur/SAP",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Use corporate travel portal (Concur/SAP)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "United Airlines",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Airlines: United, Delta, American (domestic)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Delta Airlines",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Airlines: United, Delta, American (domestic)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "American Airlines",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Airlines: United, Delta, American (domestic)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Marriott",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Hilton",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Hyatt",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred Hotels: Marriott, Hilton, Hyatt (corporate rates available)"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Enterprise",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred vendors: Enterprise, National, Hertz"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "National",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred vendors: Enterprise, National, Hertz"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Hertz",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Preferred vendors: Enterprise, National, Hertz"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 30,
+    "raw_relationship_count": 13,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

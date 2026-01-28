@@ -1,0 +1,566 @@
+{
+  "document_id": "40bdb20e-0c49-4c1d-8383-c181bd97ef10",
+  "document_path": "07_environmental_health_safety.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-28T18:04:57.173125",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Industrial"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Nexus Industries is committed to providing a safe and healthy workplace",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Approved by: Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "VP Environmental, Health & Safety",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP EHS",
+        "role": "Vice President"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Owner: VP Environmental, Health & Safety",
+      "aliases": []
+    },
+    {
+      "name": "Environmental, Health, and Safety Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "POL-007",
+        "category": "Environmental Health Safety",
+        "effective_date": "January 1, 2024"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Policy Number: POL-007, Effective Date: January 1, 2024",
+      "aliases": []
+    },
+    {
+      "name": "EHS Council",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "name": "EHS Council",
+        "focus_areas": "Environmental Health Safety Governance"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EHS Council: VP EHS (Chair), Division EHS Directors, Site EHS Managers, Employee Representatives",
+      "aliases": []
+    },
+    {
+      "name": "Division EHS Directors",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Division EHS Directors"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Division EHS Directors",
+      "aliases": []
+    },
+    {
+      "name": "Site EHS Managers",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Site EHS Managers"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Site EHS Managers",
+      "aliases": []
+    },
+    {
+      "name": "Division Presidents",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Division Presidents"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Division Presidents: Division performance",
+      "aliases": []
+    },
+    {
+      "name": "Site Managers",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Site Managers"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Site Managers: Site-level implementation",
+      "aliases": []
+    },
+    {
+      "name": "EHS Manager",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "EHS Manager"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Recordable Injury: EHS Manager",
+      "aliases": []
+    },
+    {
+      "name": "TRIR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Recordable Incident Rate",
+        "value": "0.82",
+        "target": "<0.80",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "TRIR (Total Recordable): <0.80 target, 0.82 actual",
+      "aliases": []
+    },
+    {
+      "name": "LTIR",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Lost Time Incident Rate",
+        "value": "0.18",
+        "target": "<0.20",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "LTIR (Lost Time): <0.20 target, 0.18 actual",
+      "aliases": []
+    },
+    {
+      "name": "Fatalities",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Fatalities",
+        "value": "0",
+        "target": "0",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Fatalities: 0 target, 0 actual",
+      "aliases": []
+    },
+    {
+      "name": "Near Misses Reported",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Near Misses Reported",
+        "value": "2,450",
+        "target": ">2,000",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Near Misses Reported: >2,000 target, 2,450 actual",
+      "aliases": []
+    },
+    {
+      "name": "Safety Training Hours",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Safety Training Hours",
+        "value": "52,000",
+        "target": ">50,000",
+        "period": "FY2025",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Safety Training Hours: >50,000 target, 52,000 actual",
+      "aliases": []
+    },
+    {
+      "name": "GHG Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "GHG Reduction",
+        "value": "-26%",
+        "target": "-50% by 2030",
+        "period": "vs 2020",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "GHG Reduction: -50% by 2030 (vs 2020) target, -26% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Renewable Energy",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Renewable Energy",
+        "value": "65%",
+        "target": "100% by 2028",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Renewable Energy: 100% by 2028 target, 65% achieved",
+      "aliases": []
+    },
+    {
+      "name": "Zero Waste to Landfill",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Zero Waste to Landfill",
+        "value": "28%",
+        "target": "2028",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Zero Waste to Landfill: 2028 target, 28% to landfill",
+      "aliases": []
+    },
+    {
+      "name": "Water Reduction",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Water Reduction",
+        "value": "-12%",
+        "target": "-25% by 2030",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Water Reduction: -25% by 2030 target, -12% achieved",
+      "aliases": []
+    },
+    {
+      "name": "OSHA",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency",
+        "industry": "Workplace Safety Regulation"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Fatality: CEO + OSHA, OSHA Standards",
+      "aliases": []
+    },
+    {
+      "name": "EPA",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency",
+        "industry": "Environmental Regulation"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "EPA Clean Air Act, EPA Clean Water Act",
+      "aliases": []
+    },
+    {
+      "name": "DOT",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Government Agency",
+        "industry": "Transportation Regulation"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "DOT: Hazmat transport",
+      "aliases": []
+    },
+    {
+      "name": "Safety Management System",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "Safety Management System",
+        "description": "Comprehensive safety management framework"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Safety Management System with Leadership, Hazard Identification, Risk Control elements",
+      "aliases": []
+    },
+    {
+      "name": "Environmental Management System",
+      "entity_type": "SERVICE",
+      "properties": {
+        "name": "Environmental Management System",
+        "description": "Environmental compliance and monitoring system"
+      },
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Environmental Management System with Compliance, Air Quality, Water, Waste elements",
+      "aliases": []
+    },
+    {
+      "name": "Behavior-Based Safety",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Behavior-Based Safety",
+        "description": "Observation programs"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Behavior-Based Safety: Observation programs",
+      "aliases": []
+    },
+    {
+      "name": "Contractor Safety",
+      "entity_type": "PROJECT",
+      "properties": {
+        "name": "Contractor Safety",
+        "description": "Pre-qualification, oversight"
+      },
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Contractor Safety: Pre-qualification, oversight",
+      "aliases": []
+    },
+    {
+      "name": "Air Operating Permits",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Air Operating Permits",
+        "value": "12",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Air Operating: 12 sites, Current status",
+      "aliases": []
+    },
+    {
+      "name": "Water Discharge Permits",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Water Discharge Permits",
+        "value": "8",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Water Discharge: 8 sites, Current status",
+      "aliases": []
+    },
+    {
+      "name": "Hazardous Waste Permits",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Hazardous Waste Permits",
+        "value": "15",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Hazardous Waste: 15 sites, Current status",
+      "aliases": []
+    },
+    {
+      "name": "Stormwater Permits",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Stormwater Permits",
+        "value": "22",
+        "type": "COUNT"
+      },
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "source_excerpt": "Stormwater: 22 sites, Current status",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Dr. Victoria Chen, CEO - Approved by"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "VP Environmental, Health & Safety",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Owner: VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "VP Environmental, Health & Safety",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "Environmental, Health, and Safety Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Owner: VP Environmental, Health & Safety"
+    },
+    {
+      "source_entity": "VP Environmental, Health & Safety",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "VP EHS (Chair)"
+    },
+    {
+      "source_entity": "EHS Council",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EHS Council governance structure within Nexus Industries"
+    },
+    {
+      "source_entity": "Division EHS Directors",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Division EHS Directors member of EHS Council"
+    },
+    {
+      "source_entity": "Site EHS Managers",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "EHS Council",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Site EHS Managers member of EHS Council"
+    },
+    {
+      "source_entity": "Division Presidents",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Division Presidents: Division performance responsibility"
+    },
+    {
+      "source_entity": "Site Managers",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Site Managers: Site-level implementation responsibility"
+    },
+    {
+      "source_entity": "EHS Manager",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "EHS Manager incident reporting responsibilities"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Safety Management System",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Safety Management System implementation at Nexus Industries"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Environmental Management System",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Environmental Management System implementation at Nexus Industries"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Behavior-Based Safety",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Behavior-Based Safety program owned by Nexus Industries"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Contractor Safety",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "07_environmental_health_safety.md",
+      "evidence": "Contractor Safety program owned by Nexus Industries"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 30,
+    "raw_relationship_count": 15,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
