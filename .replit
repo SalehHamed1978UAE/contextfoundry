@@ -108,7 +108,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -u scripts/run_vault_extraction.py --vault-name \"${EXTRACTION_VAULT:-ClaudeCode Nexus Industries}\" 2>&1 | tee /tmp/extraction_run.log"
+args = "python -u scripts/run_vault_extraction.py --vault-name \"ClaudeCode Nexus Industries 3 - 1/28/2026\" 2>&1 | tee /tmp/extraction_run.log"
 
 [[workflows.workflow]]
 name = "Test: ClaudeCode Nexus"
