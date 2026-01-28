@@ -70,6 +70,17 @@ Architectural features include:
     - **Test Runner Integration**: Direct link to create new vaults from Test Runner interface.
     - **API Endpoints & CLI Support**: Provides programmatic and command-line interfaces.
 
+## Mandatory Testing Rule
+
+**After EVERY code change, run:**
+```bash
+python cf_integration_tests.py --all
+```
+
+If tests fail, the change is NOT complete. Fix and rerun.
+
+Include test output in your response to prove it passed.
+
 ## External Dependencies
 - **Database:** PostgreSQL (with pgvector)
 - **LLM:** OpenAI `gpt-4o-mini`
