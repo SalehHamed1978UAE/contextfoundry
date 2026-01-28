@@ -1,0 +1,46 @@
+Yes, proceed with all three fixes. Here's the priority order:                                          
+                                                                                                         
+  Fix 1 (CRITICAL): DirectedGraphRetriever anchor filtering for Q40                                      
+                                                                                                         
+  The anchor filter must be applied in execute() method AFTER collecting affected entities:              
+  # In DirectedGraphRetriever.execute(), after this line:                                                
+  affected = self._collect_affected_entities(relationships, entity_id)                                   
+                                                                                                         
+  # ADD THIS:                                                                                            
+  if self.anchor_organization:                                                                           
+      affected_before = len(affected)                                                                    
+      affected = filter_by_anchor_organization(affected, self.anchor_organization)                       
+      if affected_before != len(affected):                                                               
+          logger.info(f"[AnchorFilter] Filtered {affected_before} -> {len(affected)} entities")          
+                                                                                                         
+  Also check: Is self.anchor_organization being set? Add logging:                                        
+  logger.info(f"[DirectedGraphRetriever] anchor_org={self.anchor_organization}")                         
+                                                                                                         
+  Fix 2: Debug SUPPLIES_TO extraction                                                                    
+                                                                                                         
+  Check if relationships exist in the database:                                                          
+  SELECT COUNT(*) FROM relationships                                                                     
+  WHERE tenant_id = 'd539b871-eb24-48a6-ac5b-c623123f8833'                                               
+  AND relationship_type = 'SUPPLIES_TO';                                                                 
+                                                                                                         
+  -- Check for specific suppliers                                                                        
+  SELECT e.canonical_name, r.relationship_type                                                           
+  FROM entities e                                                                                        
+  JOIN relationships r ON e.id = r.source_id                                                             
+  WHERE r.tenant_id = 'd539b871-eb24-48a6-ac5b-c623123f8833'                                             
+  AND e.canonical_name ILIKE '%nel%' OR e.canonical_name ILIKE '%honeywell%' OR e.canonical_name ILIKE   
+  '%raytheon%';                                                                                          
+                                                                                                         
+  If count = 0, the SUPPLIER_PATTERNS aren't matching during extraction. Add logging to                  
+  post_processor.py.                                                                                     
+                                                                                                         
+  Fix 3: Verify vault 1f3320cd extraction status                                                         
+                                                                                                         
+  Check if extraction completed for the original target vault:                                           
+  SELECT COUNT(*), extraction_level FROM documents                                                       
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  GROUP BY extraction_level;                                                                             
+                                                                                                         
+  Acceptance test after fixes:                                                                           
+  - Q40 must return "Nexus $12.4 billion" (not Boeing)                                                   
+  - Q17, Q78, Q95 should find supplier relationships  
