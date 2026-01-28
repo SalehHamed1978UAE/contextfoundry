@@ -1,0 +1,97 @@
+{
+  "document_id": "4dc65bfd-1909-4db0-8dfb-aca07e070c84",
+  "document_path": "03_travel_expense.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T20:20:15.760220",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Various"
+      },
+      "confidence": 0.95,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "This policy applies to all Nexus Industries employees and contractors",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Approved by: Robert Kim, CFO",
+      "aliases": []
+    },
+    {
+      "name": "Travel and Expense Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "POL-003",
+        "category": "Corporate Policy"
+      },
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Travel and Expense Policy",
+      "aliases": []
+    },
+    {
+      "name": "Concur/SAP",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Corporate travel portal"
+      },
+      "confidence": 0.85,
+      "source_document": "03_travel_expense.md",
+      "source_excerpt": "Use corporate travel portal (Concur/SAP)",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Robert Kim",
+      "target_type": "PERSON",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Approved by: Robert Kim, CFO"
+    },
+    {
+      "source_entity": "Travel and Expense Policy",
+      "source_type": "POLICY",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_travel_expense.md",
+      "evidence": "This policy applies to all Nexus Industries employees and contractors"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Concur/SAP",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_travel_expense.md",
+      "evidence": "Use corporate travel portal (Concur/SAP)"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 4,
+    "raw_relationship_count": 3,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

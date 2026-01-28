@@ -1,0 +1,696 @@
+{
+  "document_id": "c71a701a-d07b-4574-ab3e-1dbf5cff1994",
+  "document_path": "12_rio_tinto_customer.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-28T20:41:29.501610",
+  "entities": [
+    {
+      "name": "Rio Tinto Group",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "customer_id": "CUST-009",
+        "account_type": "Strategic - Mining",
+        "relationship_since": "2023",
+        "industry": "Mining & Metals",
+        "stock_ticker": "RIO (LSE/ASX)",
+        "employees": "57,000",
+        "major_products": "Iron ore, aluminum, copper"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Customer Name: Rio Tinto Group, Customer ID: CUST-009",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Digital Solutions",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Digital solutions, autonomous mining"
+      },
+      "confidence": 0.95,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Primary Division: Nexus Digital Solutions",
+      "aliases": []
+    },
+    {
+      "name": "Patricia Williams",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Account Manager",
+        "role": "Mining Operations Lead"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Account Manager: Patricia Williams, Account Owner: Patricia Williams, Mining Operations Lead",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Andrew Morrison",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "PM, Autonomous Mining",
+        "role": "Executive Sponsor"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Executive Sponsor: Dr. Andrew Morrison (PM, Autonomous Mining)",
+      "aliases": []
+    },
+    {
+      "name": "London",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "London",
+        "country": "UK"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Headquarters: London, UK / Melbourne, Australia",
+      "aliases": []
+    },
+    {
+      "name": "Melbourne",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Melbourne",
+        "country": "Australia"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Headquarters: London, UK / Melbourne, Australia",
+      "aliases": []
+    },
+    {
+      "name": "Pilbara",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": "Pilbara",
+        "country": "Western Australia"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Location: Pilbara, Western Australia",
+      "aliases": []
+    },
+    {
+      "name": "Annual Revenue 2024",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Annual Revenue",
+        "value": "55B",
+        "period": "2024",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Annual Revenue: $55B (2024)",
+      "aliases": []
+    },
+    {
+      "name": "FY2025 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Revenue",
+        "value": "15M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "FY2025: $15M",
+      "aliases": []
+    },
+    {
+      "name": "FY2026 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Projected Revenue",
+        "value": "28M",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "FY2026: $28M",
+      "aliases": []
+    },
+    {
+      "name": "FY2027 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Projected Revenue",
+        "value": "65M",
+        "period": "FY2027",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "FY2027: $65M",
+      "aliases": []
+    },
+    {
+      "name": "FY2028 Revenue",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Projected Revenue",
+        "value": "125M",
+        "period": "FY2028",
+        "type": "CURRENCY"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "FY2028: $125M",
+      "aliases": []
+    },
+    {
+      "name": "Pilbara Autonomous Mining Pilot",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "35M",
+        "timeline": "2025-2027",
+        "status": "Active",
+        "location": "Pilbara, Western Australia",
+        "vehicles": "45 haul trucks",
+        "coverage": "3 mine sites",
+        "duration": "24 months",
+        "success_criteria": "25% productivity increase"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Pilbara Autonomous Mining Pilot: $35M, 2025-2027, Active",
+      "aliases": []
+    },
+    {
+      "name": "Digital Advisory Services",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "8M",
+        "timeline": "2024-2026",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Digital Advisory Services: $8M, 2024-2026, Active",
+      "aliases": []
+    },
+    {
+      "name": "AI/ML Research Partnership",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "5M",
+        "timeline": "2025-2027",
+        "status": "Active"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "AI/ML Research Partnership: $5M, 2025-2027, Active",
+      "aliases": []
+    },
+    {
+      "name": "Jakob Stausholm",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Jakob Stausholm: CEO",
+      "aliases": []
+    },
+    {
+      "name": "Peter Cunningham",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Peter Cunningham: CFO",
+      "aliases": []
+    },
+    {
+      "name": "Mark Davies",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Technical Officer",
+        "role": "CTO"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Mark Davies: Chief Technical Officer",
+      "aliases": []
+    },
+    {
+      "name": "Ivan Vella",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Executive, Iron Ore",
+        "role": "Executive"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Ivan Vella: Chief Executive, Iron Ore",
+      "aliases": []
+    },
+    {
+      "name": "Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Executive Contact"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Jakob Stausholm CEO Victoria Chen Executive",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Finance Contact"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Peter Cunningham CFO Robert Kim Finance",
+      "aliases": []
+    },
+    {
+      "name": "Dr. James Wilson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "Technology Contact"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Mark Davies Chief Technical Officer Dr. James Wilson Technology",
+      "aliases": []
+    },
+    {
+      "name": "Kevin Chang",
+      "entity_type": "PERSON",
+      "properties": {
+        "role": "Operations Contact"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Ivan Vella Chief Executive, Iron Ore Kevin Chang Operations",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Mine Technology",
+        "role": "Vice President"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Sarah Mitchell: VP Mine Technology",
+      "aliases": []
+    },
+    {
+      "name": "James Wong",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Digital Transformation Lead",
+        "role": "Lead"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "James Wong: Digital Transformation Lead",
+      "aliases": []
+    },
+    {
+      "name": "David Brown",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Autonomous Systems Manager",
+        "role": "Manager"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "David Brown: Autonomous Systems Manager",
+      "aliases": []
+    },
+    {
+      "name": "Amanda Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Procurement Director",
+        "role": "Director"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Amanda Chen: Procurement Director",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Volkov",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "Technology Contact"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "James Wong Digital Transformation Lead Dr. Elena Volkov",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Chen Wei",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Dr.",
+        "role": "Technology Contact"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "David Brown Autonomous Systems Manager Dr. Chen Wei",
+      "aliases": []
+    },
+    {
+      "name": "Tom Price",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Mine Site",
+        "location": "Pilbara",
+        "vehicles": "18",
+        "status": "Active",
+        "go_live": "Mar 2025"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Tom Price: 18, Active, Mar 2025",
+      "aliases": []
+    },
+    {
+      "name": "Paraburdoo",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Mine Site",
+        "location": "Pilbara",
+        "vehicles": "15",
+        "status": "Active",
+        "go_live": "Jun 2025"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Paraburdoo: 15, Active, Jun 2025",
+      "aliases": []
+    },
+    {
+      "name": "Brockman 4",
+      "entity_type": "FACILITY",
+      "properties": {
+        "type": "Mine Site",
+        "location": "Pilbara",
+        "vehicles": "12",
+        "status": "Active",
+        "go_live": "Sep 2025"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Brockman 4: 12, Active, Sep 2025",
+      "aliases": []
+    },
+    {
+      "name": "Autonomous Mining Fleet Management",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Fleet management for autonomous mining operations",
+        "revenue": "12M"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Autonomous Mining Pilot: $12M, Fleet management",
+      "aliases": []
+    },
+    {
+      "name": "Digital Transformation Consulting",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Digital transformation consulting services",
+        "revenue": "3M"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "Consulting Services: $3M, Digital transformation",
+      "aliases": []
+    },
+    {
+      "name": "SAP ERP",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Enterprise Resource Planning system",
+        "integration_status": "Complete"
+      },
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "source_excerpt": "SAP ERP: Complete, Active",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Rio Tinto Group",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Primary Division: Nexus Digital Solutions"
+    },
+    {
+      "source_entity": "Patricia Williams",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Account Manager: Patricia Williams"
+    },
+    {
+      "source_entity": "Dr. Andrew Morrison",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Pilbara Autonomous Mining Pilot",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Executive Sponsor: Dr. Andrew Morrison (PM, Autonomous Mining)"
+    },
+    {
+      "source_entity": "Rio Tinto Group",
+      "source_type": "CUSTOMER",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "London",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Headquarters: London, UK / Melbourne, Australia"
+    },
+    {
+      "source_entity": "Rio Tinto Group",
+      "source_type": "CUSTOMER",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Melbourne",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Headquarters: London, UK / Melbourne, Australia"
+    },
+    {
+      "source_entity": "Pilbara Autonomous Mining Pilot",
+      "source_type": "PROJECT",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Pilbara",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Location: Pilbara, Western Australia"
+    },
+    {
+      "source_entity": "Rio Tinto Group",
+      "source_type": "CUSTOMER",
+      "relationship_type": "OWNS",
+      "target_entity": "Pilbara Autonomous Mining Pilot",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Customer profile showing Rio Tinto as the customer for the pilot project"
+    },
+    {
+      "source_entity": "Jakob Stausholm",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Jakob Stausholm: CEO"
+    },
+    {
+      "source_entity": "Peter Cunningham",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Peter Cunningham: CFO"
+    },
+    {
+      "source_entity": "Mark Davies",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Mark Davies: Chief Technical Officer"
+    },
+    {
+      "source_entity": "Ivan Vella",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Ivan Vella: Chief Executive, Iron Ore"
+    },
+    {
+      "source_entity": "Sarah Mitchell",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Sarah Mitchell: VP Mine Technology"
+    },
+    {
+      "source_entity": "James Wong",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "James Wong: Digital Transformation Lead"
+    },
+    {
+      "source_entity": "David Brown",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "David Brown: Autonomous Systems Manager"
+    },
+    {
+      "source_entity": "Amanda Chen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Rio Tinto Group",
+      "target_type": "CUSTOMER",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Amanda Chen: Procurement Director"
+    },
+    {
+      "source_entity": "Tom Price",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Pilbara",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Mine sites located in Pilbara region"
+    },
+    {
+      "source_entity": "Paraburdoo",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Pilbara",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Mine sites located in Pilbara region"
+    },
+    {
+      "source_entity": "Brockman 4",
+      "source_type": "FACILITY",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Pilbara",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Mine sites located in Pilbara region"
+    },
+    {
+      "source_entity": "Pilbara Autonomous Mining Pilot",
+      "source_type": "PROJECT",
+      "relationship_type": "USES",
+      "target_entity": "SAP ERP",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "SAP ERP: Complete, Active integration status"
+    },
+    {
+      "source_entity": "Patricia Williams",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "Account Manager role for Nexus Digital Solutions customer"
+    },
+    {
+      "source_entity": "Dr. Andrew Morrison",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_rio_tinto_customer.md",
+      "evidence": "PM, Autonomous Mining role implies working for Nexus Digital Solutions"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 35,
+    "raw_relationship_count": 21,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
