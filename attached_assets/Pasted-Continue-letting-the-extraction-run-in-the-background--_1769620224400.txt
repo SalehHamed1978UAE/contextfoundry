@@ -1,0 +1,25 @@
+Continue letting the extraction run in the background.                                                 
+                                                                                                         
+  While waiting, please:                                                                                 
+  1. Add logging to confirm SUPPLIER_PATTERNS are being matched during extraction:                       
+  # In post_processor.py, add after supplier pattern matching:                                           
+  logger.info(f"[PostProcessor] SUPPLIES_TO matches found: {len(supplier_rels)}")                        
+  for rel in supplier_rels:                                                                              
+      logger.info(f"  - {rel['source']} SUPPLIES_TO {rel.get('target', 'unknown')}")                     
+  2. After extraction completes, verify these relationships were created:                                
+  -- Check for SUPPLIES_TO relationships                                                                 
+  SELECT COUNT(*) as supplies_to_count                                                                   
+  FROM relationships                                                                                     
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND relationship_type = 'SUPPLIES_TO';                                                                 
+                                                                                                         
+  -- Check for Michael Chang WORKS_AT Nexus                                                              
+  SELECT e1.canonical_name, r.relationship_type, e2.canonical_name                                       
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND e1.canonical_name ILIKE '%michael chang%';                                                         
+  3. Notify me when extraction is complete (or at 50% if you want a progress check)                      
+                                                                                                         
+  Do NOT run the regression test until extraction is 100% complete.  

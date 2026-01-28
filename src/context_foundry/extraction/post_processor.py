@@ -892,6 +892,10 @@ class ExtractionPostProcessor:
             except Exception as e:
                 logger.warning(f"[PostProcessor] Supplier pattern {idx} failed: {e}")
         
+        logger.info(f"[PostProcessor] SUPPLIES_TO matches found: {len(relationships)}")
+        for rel in relationships:
+            logger.info(f"  - {rel.source_name} SUPPLIES_TO {rel.target_name}")
+        
         return relationships, new_entities
 
 
