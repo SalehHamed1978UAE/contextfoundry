@@ -607,6 +607,7 @@ def api_extraction_overview():
                     pending_multi = max(0, total_docs - completed)
                     total_pending_multi += pending_multi
                     
+                    vault_created = vault.get('created_at')
                     vault_stats.append({
                         'vault_id': vault_id,
                         'name': vault['name'],
@@ -621,10 +622,18 @@ def api_extraction_overview():
                         'gpt_only': 0,
                         'claude_only': 0,
                         'total_docs': total_docs,
-                        'last_updated': last_extraction.isoformat() if last_extraction else None
+                        'last_updated': last_extraction.isoformat() if last_extraction else None,
+                        'created_at': vault_created.isoformat() if hasattr(vault_created, 'isoformat') else vault_created
                     })
         
-        vault_stats.sort(key=lambda x: x['last_updated'] or '', reverse=True)
+        def sort_key(x):
+            if x['last_updated']:
+                return x['last_updated']
+            if x['created_at']:
+                return x['created_at']
+            return ''
+        
+        vault_stats.sort(key=sort_key, reverse=True)
         
         return jsonify({
             'vaults_pending': vaults_pending,
