@@ -434,6 +434,9 @@ def api_create_vault():
         "auto_extract": true
     }
     """
+    from flask import session
+    from uuid import UUID as UUIDType
+    
     data = request.json
     corpus_name = data.get('corpus_name')
     vault_name = data.get('vault_name')
@@ -441,6 +444,10 @@ def api_create_vault():
     
     if not corpus_name or not vault_name:
         return jsonify({'success': False, 'error': 'Missing corpus_name or vault_name'}), 400
+    
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'error': 'Authentication required'}), 401
     
     try:
         config = get_corpus_config(corpus_name)
@@ -452,19 +459,16 @@ def api_create_vault():
         
         ts = TenantService()
         
-        from .normalizer import slugify
-        import time
-        vault_slug = slugify(vault_name) + f"-{int(time.time())}"
-        
-        new_tenant = ts.create_tenant(
-            name=vault_name,
-            slug=vault_slug
+        new_tenant = ts.create_vault_for_user(
+            user_id=UUIDType(user_id),
+            name=vault_name
         )
         vault_id = str(new_tenant.get('id', new_tenant.get('tenant_id', '')))
         
         if not vault_id:
             return jsonify({'success': False, 'error': 'Failed to create vault - no ID returned'}), 500
         
+        from .normalizer import slugify
         slug = slugify(corpus_name)
         manifest_path = Path(f"test_questions/{slug}_manifest.json")
         manifest = load_manifest(manifest_path)
