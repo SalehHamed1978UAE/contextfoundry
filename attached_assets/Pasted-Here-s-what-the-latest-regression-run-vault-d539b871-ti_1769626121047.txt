@@ -1,0 +1,34 @@
+Here’s what the latest regression run (vault d539b871…, timestamp 18:37) tells us:
+
+  - Accuracy is still 75% (75/100). So even after the “re-extraction,” none of the Phase 1 target questions
+    improved.
+  - Key failures remain unchanged:
+      - SUPPLIES_TO: Q17 (Nel Hydrogen), Q18 (Shell), Q78, Q95 still “NOT FOUND.”
+      - Anchor contamination: Q40 still pulls Boeing’s $11.5 B backlog.
+      - Leadership questions: Q3, Q15, Q29, Q38, Q61, Q83, Q91 all mismatched, showing cross-tenant answers
+        or “not found.”
+      - Toyota JV (Q31, Q32) still missing.
+  - Only Q2 is fixed (Michael Chang). That confirms the new role filter worked in the other vault but all
+    other fixes simply aren’t present in this data.
+
+  Conclusion: the full re-extraction either didn’t finish on the correct tenant or pulled from the wrong
+  source again. We still don’t have an updated knowledge graph with SUPPLIES_TO, anchor filtering, etc.
+
+  Next step for Replit:
+
+  Run the re-extraction on the correct vault (1f3320cd, “ClaudeCode Nexus Industries 3”), and after it
+  completes, re-run the Nexus 100-question regression and show Q2, Q17, Q18, Q38, Q40, Q78, and Q95 passing
+  before claiming Phase 1 is done.
+
+Vault d539b871 results show mixed progress:                                                            
+                                                                                                         
+  ✅ Q2 now passes (CFO = Michael Chang) - RoleResolver anchor filter working                            
+  ❌ Q40 still fails (backlog = Boeing $11.5B) - DirectedGraphRetriever anchor filter NOT working        
+                                                                                                         
+  The issue: Anchor filter works in RoleResolver but NOT in DirectedGraphRetriever entity queries.       
+                                                                                                         
+  Also: This test ran on vault d539b871, not the vault being re-extracted (1f3320cd). Please confirm:    
+  1. Is extraction complete for vault 1f3320cd?                                                          
+  2. Which vault should we be testing?                                                                   
+  3. Why does Q40 still return Boeing data - is filter_by_anchor_organization being called in the        
+  execute() path for non-role queries?  
