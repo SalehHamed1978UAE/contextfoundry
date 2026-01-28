@@ -90,3 +90,25 @@ Include test output in your response to prove it passed.
 - **Web Framework:** Flask
 - **Deployment:** Gunicorn
 - **Authentication:** Magic Link, API Keys, JWT Sessions, Google OAuth
+
+## Known Bugs
+
+### BUG-001: Dashboard shows "complete" during active re-extraction (2026-01-28)
+**Severity:** Medium  
+**Status:** Open  
+**Description:** When re-triggering extraction on a vault that already has completed extraction data, the dashboard continues to show "100% complete" with the old document count instead of reflecting the new in-progress extraction.
+
+**Steps to Reproduce:**
+1. Complete extraction on a vault (e.g., 104 documents)
+2. Clear and re-trigger extraction on the same vault
+3. Dashboard still shows "complete" and "100%" with old count (104/104)
+4. Meanwhile, extraction logs show active progress (e.g., [16/100])
+
+**Expected Behavior:** Dashboard should show extraction in-progress status with current progress (e.g., "16/100 - 16%")
+
+**Root Cause (Suspected):** The `/api/extraction/overview` endpoint likely queries completed extraction records without checking for active extraction jobs in progress. Need to cross-reference `extraction_jobs` table status when determining vault extraction state.
+
+**Fix Plan:**
+1. In extraction overview API, check `extraction_jobs` table for any jobs with status != 'COMPLETE' for the vault
+2. If active jobs exist, calculate progress from job counts vs total documents
+3. Only show "complete" when all jobs are finished AND no new extraction is queued
