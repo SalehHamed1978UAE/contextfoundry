@@ -19,6 +19,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from sqlalchemy.orm.attributes import flag_modified
 
+from sqlalchemy import text as sql_text
+
 from ..models.schema import (
     Entity, Relationship, LifecycleState, ValidationStatus,
     ConflictLog as ConflictLogDB,
@@ -29,6 +31,20 @@ from ..models.schema import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def get_deleting_tenant_ids(session) -> set:
+    """Get set of tenant IDs that are marked as 'deleting'.
+    
+    Used to exclude entities/relationships from these tenants during gardener cycles.
+    """
+    try:
+        result = session.execute(sql_text(
+            "SELECT id::text FROM platform.tenants WHERE status = 'deleting'"
+        )).fetchall()
+        return {row[0] for row in result}
+    except Exception:
+        return set()
 
 
 class ConflictType(str, Enum):
@@ -298,9 +314,22 @@ class GardenerAgent:
         self._promoted_entity_ids: Set[str] = set()
         self._promotion_thresholds: Dict[str, PromotionThreshold] = {}
         self._default_threshold: Optional[PromotionThreshold] = None
+        self._deleting_tenant_ids: Set[str] = set()
         
         if self.config.use_database_thresholds:
             self._load_promotion_thresholds()
+    
+    def _should_skip_entity(self, entity) -> bool:
+        """Check if entity should be skipped (tenant being deleted)."""
+        if not self._deleting_tenant_ids:
+            return False
+        return str(entity.tenant_id) in self._deleting_tenant_ids
+    
+    def _should_skip_relationship(self, rel) -> bool:
+        """Check if relationship should be skipped (tenant being deleted)."""
+        if not self._deleting_tenant_ids:
+            return False
+        return str(rel.tenant_id) in self._deleting_tenant_ids
     
     def _load_promotion_thresholds(self) -> None:
         """Load type-specific promotion thresholds from database."""
@@ -368,6 +397,10 @@ class GardenerAgent:
         )
         
         self._promoted_entity_ids.clear()
+        
+        self._deleting_tenant_ids = get_deleting_tenant_ids(self.session)
+        if self._deleting_tenant_ids:
+            logger.info(f"[Gardener] Excluding {len(self._deleting_tenant_ids)} tenants being deleted")
         
         try:
             logger.info(f"[Gardener] Starting cycle {cycle_id}")
@@ -544,6 +577,8 @@ class GardenerAgent:
             ).all()
             
             for rel in trusted_relationships:
+                if self._should_skip_relationship(rel):
+                    continue
                 decay_config = self.config.decay_rates.get(
                     rel.relationship_type,
                     self.config.decay_rates["_DEFAULT"]
@@ -598,6 +633,8 @@ class GardenerAgent:
             decay_config = self.config.entity_decay
             
             for entity in trusted_entities:
+                if self._should_skip_entity(entity):
+                    continue
                 entity_date = entity.updated_at or entity.created_at
                 if entity_date is None:
                     continue
