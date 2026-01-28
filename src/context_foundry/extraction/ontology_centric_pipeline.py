@@ -491,10 +491,10 @@ class OntologyCentricPipeline:
                     id=entity_id,
                     canonical_name=entity_dict.get("name", ""),
                     entity_type=entity_dict.get("entity_type", "UNKNOWN"),
-                    properties={},
+                    properties={"extraction_source": "post_processor"},
                     source_span=entity_dict.get("name", ""),
                     source_document_id=document_id,
-                    source_chunk_id=f"{document_id}:post_processor",
+                    source_chunk_id=document_id,
                     source_sentence_idx=0,
                     confidence=entity_dict.get("confidence", 0.85),
                 )
@@ -512,7 +512,7 @@ class OntologyCentricPipeline:
                     relation_type=rel.relationship_type,
                     confidence=rel.confidence,
                     source_document_id=document_id,
-                    source_chunk_id=f"{document_id}:post_processor",
+                    source_chunk_id=document_id,
                     source_span=rel.source_text,
                 )
                 new_relations.append(relation)

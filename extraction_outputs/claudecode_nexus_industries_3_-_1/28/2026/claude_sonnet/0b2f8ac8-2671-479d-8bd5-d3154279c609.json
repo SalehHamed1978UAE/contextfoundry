@@ -1,0 +1,331 @@
+{
+  "document_id": "0b2f8ac8-2671-479d-8bd5-d3154279c609",
+  "document_path": "08_cybersecurity_advisory.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-28T19:03:21.780817",
+  "entities": [
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Information Security Officer",
+        "role": "Chief Information Security Officer"
+      },
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Robert Kim, Chief Information Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "company"
+      },
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "targeting Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "IT Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Information Technology"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Appears to be from \"IT Department\" or \"Nexus IT Support\"",
+      "aliases": []
+    },
+    {
+      "name": "Nexus IT Support",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "IT Support Services"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Appears to be from \"IT Department\" or \"Nexus IT Support\"",
+      "aliases": []
+    },
+    {
+      "name": "Security Operations Center",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Security Operations",
+        "availability": "24/7"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Security Operations Center 24/7",
+      "aliases": []
+    },
+    {
+      "name": "CSA-2025-018",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy_id": "CSA-2025-018",
+        "category": "Security Advisory"
+      },
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Advisory Number: CSA-2025-018",
+      "aliases": []
+    },
+    {
+      "name": "Phishing Campaign Alert",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Active",
+        "timeline": "December 11-12, 2025"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "sophisticated phishing campaign targeted Nexus employees",
+      "aliases": []
+    },
+    {
+      "name": "Okta Portal",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Authentication platform"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All legitimate password changes go through Okta portal",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Learning Portal",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Training platform"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Location: Nexus Learning Portal",
+      "aliases": []
+    },
+    {
+      "name": "Email Filtering System",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Email security filtering"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Email filtering: Enhanced rules deployed",
+      "aliases": []
+    },
+    {
+      "name": "Domain Blocking System",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Malicious domain blocking"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Domain blocking: Known malicious domains blocked",
+      "aliases": []
+    },
+    {
+      "name": "Multi-Factor Authentication",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "MFA system"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "MFA enforcement: Active for all users",
+      "aliases": []
+    },
+    {
+      "name": "Security Awareness Training",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Cybersecurity training program"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All employees must complete the updated Security Awareness training module",
+      "aliases": []
+    },
+    {
+      "name": "Identifying Phishing Attacks",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Training module",
+        "duration": "15 minutes"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Module: \"Identifying Phishing Attacks\"",
+      "aliases": []
+    },
+    {
+      "name": "Post-Incident Review",
+      "entity_type": "PROJECT",
+      "properties": {
+        "timeline": "December 18, 2025",
+        "status": "Scheduled"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Post-Incident Review scheduled for December 18, 2025",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 1.0,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "IT Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "IT Department and Nexus IT Support are internal units"
+    },
+    {
+      "source_entity": "Nexus IT Support",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Nexus IT Support mentioned as internal unit"
+    },
+    {
+      "source_entity": "Security Operations Center",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Security Operations Center provides 24/7 support"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Okta Portal",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "All legitimate password changes go through Okta portal"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Nexus Learning Portal",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Training accessed through Nexus Learning Portal"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Email Filtering System",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Email filtering: Enhanced rules deployed"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Domain Blocking System",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Domain blocking: Known malicious domains blocked"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Multi-Factor Authentication",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "MFA enforcement: Active for all users"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Security Awareness Training",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Company provides mandatory security awareness training"
+    },
+    {
+      "source_entity": "CSA-2025-018",
+      "source_type": "POLICY",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Internal security advisory issued by Nexus Industries"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "MANAGES",
+      "target_entity": "Post-Incident Review",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "CISO overseeing incident response and review"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 15,
+    "raw_relationship_count": 13,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

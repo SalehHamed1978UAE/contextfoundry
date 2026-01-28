@@ -252,7 +252,7 @@ class DirectedGraphRetriever:
     with precision. Returns only what was asked for.
     """
     
-    def __init__(self, session: Session, tenant_id: str, anchor_organization: str = None):
+    def __init__(self, session: Session, tenant_id: str, anchor_organization: Optional[str] = None):
         self.session = session
         self.tenant_id = str(tenant_id)
         self.anchor_organization = anchor_organization
@@ -751,6 +751,48 @@ class DirectedGraphRetriever:
         
         return results
     
+    def _get_entity_organization(self, entity_id: str) -> Optional[str]:
+        """
+        Look up the organization an entity belongs to via WORKS_FOR, PART_OF, or entity properties.
+        
+        Returns the organization name if found, None otherwise.
+        """
+        try:
+            result = self.session.execute(
+                text("""
+                    SELECT DISTINCT e2.canonical_name as org_name
+                    FROM relationships r
+                    JOIN entities e2 ON r.target_id = e2.id
+                    WHERE r.source_id = :entity_id
+                    AND r.relationship_type IN ('WORKS_FOR', 'PART_OF', 'EMPLOYED_BY', 'MEMBER_OF')
+                    AND e2.entity_type IN ('ORGANIZATION', 'COMPANY', 'CORPORATION')
+                    AND r.lifecycle = 'TRUSTED'
+                    LIMIT 1
+                """),
+                {'entity_id': entity_id}
+            ).fetchone()
+            
+            if result:
+                return result[0]
+            
+            result = self.session.execute(
+                text("""
+                    SELECT properties->>'organization' as org
+                    FROM entities
+                    WHERE id = :entity_id
+                    AND properties->>'organization' IS NOT NULL
+                """),
+                {'entity_id': entity_id}
+            ).fetchone()
+            
+            if result and result[0]:
+                return result[0]
+                
+        except Exception as e:
+            logger.debug(f"Error looking up organization for entity {entity_id}: {e}")
+        
+        return None
+    
     def _collect_affected_entities(
         self,
         relationships: List[RetrievedRelationship],
@@ -760,6 +802,7 @@ class DirectedGraphRetriever:
         Collect unique entities that were discovered in the traversal.
         
         Excludes the originally queried entity.
+        Enriches each entity with organization affiliation for anchor filtering.
         """
         entities: Dict[str, Dict] = {}
         
@@ -771,7 +814,8 @@ class DirectedGraphRetriever:
                     "type": rel.source_type,
                     "discovered_via": rel.relationship_type,
                     "direction": rel.direction_relative_to_entity,
-                    "depth": rel.depth
+                    "depth": rel.depth,
+                    "organization": None
                 }
             
             if rel.target_id != queried_entity_id and rel.target_id not in entities:
@@ -781,7 +825,69 @@ class DirectedGraphRetriever:
                     "type": rel.target_type,
                     "discovered_via": rel.relationship_type,
                     "direction": rel.direction_relative_to_entity,
-                    "depth": rel.depth
+                    "depth": rel.depth,
+                    "organization": None
                 }
         
+        entity_ids = list(entities.keys())
+        if entity_ids and self.anchor_organization:
+            org_lookup = self._batch_get_entity_organizations(entity_ids)
+            for entity_id, org in org_lookup.items():
+                if entity_id in entities:
+                    entities[entity_id]["organization"] = org
+            
+            enriched_count = sum(1 for e in entities.values() if e.get("organization"))
+            logger.debug(f"[OrgEnrich] Enriched {enriched_count}/{len(entities)} entities with organization")
+        
         return list(entities.values())
+    
+    def _batch_get_entity_organizations(self, entity_ids: List[str]) -> Dict[str, str]:
+        """
+        Batch lookup organizations for multiple entities.
+        Returns dict mapping entity_id -> organization_name.
+        """
+        if not entity_ids:
+            return {}
+        
+        org_lookup: Dict[str, str] = {}
+        
+        try:
+            result = self.session.execute(
+                text("""
+                    SELECT r.source_id, e2.canonical_name as org_name
+                    FROM relationships r
+                    JOIN entities e2 ON r.target_id = e2.id
+                    WHERE r.source_id = ANY(:entity_ids)
+                    AND r.relationship_type IN ('WORKS_FOR', 'PART_OF', 'EMPLOYED_BY', 'MEMBER_OF')
+                    AND e2.entity_type IN ('ORGANIZATION', 'COMPANY', 'CORPORATION')
+                    AND r.lifecycle = 'TRUSTED'
+                """),
+                {'entity_ids': entity_ids}
+            ).fetchall()
+            
+            for row in result:
+                entity_id, org_name = str(row[0]), row[1]
+                if entity_id not in org_lookup:
+                    org_lookup[entity_id] = org_name
+            
+            remaining_ids = [eid for eid in entity_ids if eid not in org_lookup]
+            if remaining_ids:
+                result = self.session.execute(
+                    text("""
+                        SELECT id::text, properties->>'organization' as org
+                        FROM entities
+                        WHERE id = ANY(:entity_ids)
+                        AND properties->>'organization' IS NOT NULL
+                    """),
+                    {'entity_ids': remaining_ids}
+                ).fetchall()
+                
+                for row in result:
+                    entity_id, org = str(row[0]), row[1]
+                    if org and entity_id not in org_lookup:
+                        org_lookup[entity_id] = org
+                        
+        except Exception as e:
+            logger.warning(f"Error in batch org lookup: {e}")
+        
+        return org_lookup

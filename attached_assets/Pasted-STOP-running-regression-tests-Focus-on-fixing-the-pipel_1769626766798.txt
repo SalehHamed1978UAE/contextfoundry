@@ -1,0 +1,66 @@
+STOP running regression tests. Focus on fixing the pipeline first.                                     
+                                                                                                         
+  Action items in order:                                                                                 
+                                                                                                         
+  1. Wait for extraction to complete on vault 1f3320cd                                                   
+                                                                                                         
+  Currently at 50/100 documents. Do NOT run tests until this is 100% complete.                           
+                                                                                                         
+  2. Fix DirectedGraphRetriever organization enrichment                                                  
+                                                                                                         
+  The anchor filter is broken because _collect_affected_entities() never populates organization. Add the 
+  _get_entity_organization() helper method I described earlier and call it when building entity dicts.   
+                                                                                                         
+  3. After extraction completes, verify data exists                                                      
+                                                                                                         
+  Run these SQL queries on vault 1f3320cd:                                                               
+                                                                                                         
+  -- Check SUPPLIES_TO relationships                                                                     
+  SELECT COUNT(*) as supplies_to_count                                                                   
+  FROM relationships                                                                                     
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND relationship_type = 'SUPPLIES_TO';                                                                 
+                                                                                                         
+  -- Check for specific suppliers                                                                        
+  SELECT e.canonical_name, r.relationship_type, e2.canonical_name as target                              
+  FROM entities e                                                                                        
+  JOIN relationships r ON e.id = r.source_id                                                             
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND (                                                                                                  
+      e.canonical_name ILIKE '%nel%hydrogen%'                                                            
+      OR e.canonical_name ILIKE '%honeywell%'                                                            
+      OR e.canonical_name ILIKE '%raytheon%'                                                             
+      OR e.canonical_name ILIKE '%shell%'                                                                
+  );                                                                                                     
+                                                                                                         
+  -- Check backlog entity has Nexus organization                                                         
+  SELECT canonical_name, properties->>'organization' as org, properties->>'value' as value               
+  FROM entities                                                                                          
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND canonical_name ILIKE '%backlog%';                                                                  
+                                                                                                         
+  If SUPPLIES_TO count = 0 → Extraction patterns aren't matching. Check SUPPLIER_PATTERNS in             
+  post_processor.py.                                                                                     
+                                                                                                         
+  If backlog entity has no organization → Extraction needs to populate organization in entity properties.
+                                                                                                         
+  4. Only AFTER data is verified correct, run regression test                                            
+                                                                                                         
+  python -m src.test_runner.runner --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91"                     
+                                                                                                         
+  Phase 1 acceptance criteria (must all pass):                                                           
+  - Q2: Michael Chang (CFO)                                                                              
+  - Q17: Nel Hydrogen                                                                                    
+  - Q18: Shell                                                                                           
+  - Q40: $12.4B Nexus (NOT Boeing)                                                                       
+  - Q78: Honeywell                                                                                       
+  - Q95: Raytheon                                                                                        
+                                                                                                         
+  ---                                                                                                    
+                                                                                                         
+⏺ Updated the task list. No more regression tests until:                                                 
+  1. Extraction completes (1f3320cd at 50%)                                                              
+  2. Organization enrichment fix is implemented                                                          
+  3. Data verification confirms SUPPLIES_TO relationships exist                                          
+                                                              
