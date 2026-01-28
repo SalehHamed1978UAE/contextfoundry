@@ -16,7 +16,8 @@ def register_corpus(
     questions_file: str,
     anchor_org: str,
     document_count: int = 0,
-    question_count: int = 100
+    question_count: int = 100,
+    root_path: Optional[str] = None
 ) -> bool:
     """
     Register a corpus in test_config.json.
@@ -28,6 +29,7 @@ def register_corpus(
         anchor_org: Anchor organization for queries
         document_count: Number of documents in corpus
         question_count: Number of questions (default 100)
+        root_path: Path to source documents folder
     
     Returns:
         True if registration successful
@@ -37,7 +39,7 @@ def register_corpus(
     if 'corpora' not in config:
         config['corpora'] = {}
     
-    config['corpora'][corpus_name] = {
+    corpus_entry = {
         'vault_id': vault_id,
         'questions_file': questions_file,
         'anchor_org': anchor_org,
@@ -47,6 +49,11 @@ def register_corpus(
         'last_run': None,
         'last_accuracy': None
     }
+    
+    if root_path:
+        corpus_entry['root_path'] = root_path
+    
+    config['corpora'][corpus_name] = corpus_entry
     
     save_test_config(config)
     logger.info(f"Registered corpus '{corpus_name}' with vault {vault_id}")
@@ -134,6 +141,29 @@ def find_corpus_by_vault(vault_id: str) -> Optional[str]:
             return name
     
     return None
+
+
+def update_corpus_root_path(corpus_name: str, root_path: str) -> bool:
+    """
+    Update the root_path for a corpus.
+    
+    Args:
+        corpus_name: Name of the corpus
+        root_path: Path to source documents folder
+    
+    Returns:
+        True if update successful
+    """
+    config = load_test_config()
+    
+    if 'corpora' not in config or corpus_name not in config['corpora']:
+        logger.warning(f"Corpus '{corpus_name}' not found in config")
+        return False
+    
+    config['corpora'][corpus_name]['root_path'] = root_path
+    save_test_config(config)
+    logger.info(f"Updated root_path for corpus '{corpus_name}' to {root_path}")
+    return True
 
 
 def update_corpus_vault(corpus_name: str, vault_id: str) -> bool:
