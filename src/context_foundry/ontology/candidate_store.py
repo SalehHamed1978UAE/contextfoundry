@@ -384,6 +384,16 @@ class CandidateStore:
         logger.debug(f"[OntologyFoundry] Updated candidate {candidate_id}: "
                     f"docs={new_doc_count}, mentions={new_mention_count}, confidence={new_confidence}")
     
+    def _safe_uuid(self, value: Optional[str]) -> Optional[str]:
+        """Safely parse and validate a UUID string. Returns None if invalid."""
+        if value is None:
+            return None
+        try:
+            return str(UUID(str(value)))
+        except (ValueError, AttributeError):
+            logger.warning(f"[OntologyFoundry] Invalid UUID value: {value[:50] if value else 'None'}...")
+            return None
+
     def _create_pending_extraction(
         self,
         candidate_id: UUID,
@@ -398,6 +408,9 @@ class CandidateStore:
         chunk_text: Optional[str]
     ):
         """Create a pending extraction record."""
+        safe_document_id = self._safe_uuid(document_id)
+        safe_chunk_id = self._safe_uuid(chunk_id)
+        
         query = """
             INSERT INTO pending_extractions (
                 tenant_id, candidate_id,
@@ -423,8 +436,8 @@ class CandidateStore:
             'target_entity_type': target_entity_type,
             'relationship_type': relationship_type,
             'properties': json.dumps(properties or {}),
-            'document_id': document_id,
-            'chunk_id': chunk_id,
+            'document_id': safe_document_id,
+            'chunk_id': safe_chunk_id,
             'chunk_text': chunk_text[:1000] if chunk_text else None
         })
         
