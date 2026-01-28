@@ -1,24 +1,25 @@
 {
-  "run_timestamp": "2026-01-27T05:59:10.365868",
-  "trace_file": "test_results/traces/claudecode_nexus_industries_traces_ebdab795.jsonl",
+  "run_timestamp": "2026-01-28T15:56:52.867224",
+  "trace_file": "test_results/traces/vault_1f3320cd_traces_ff3ee7e4.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 3.010000000000001,
-    "avg_semantic_score": 0.07833699999999999,
+    "avg_chunks_retrieved": 3.0100000000000007,
+    "avg_semantic_score": 0.08497199999999999,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 38,
-      "no_match": 16,
-      "component_match": 26,
-      "no_data": 11,
-      "number_match": 6,
+      "component_match": 29,
+      "no_match": 15,
+      "exact_match": 37,
+      "no_data": 7,
+      "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
+      "error": 2,
       "semantic_match": 1
     },
-    "low_score_queries": 88
+    "low_score_queries": 87
   },
   "low_score_questions": [
     {
@@ -32,8 +33,8 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 4,
-      "question": "Who is the Chief Engineer for the Falcon X program?",
+      "q_id": 3,
+      "question": "Who is the President of Nexus Digital Solutions?",
       "avg_score": 0.0
     },
     {
@@ -109,7 +110,7 @@
     {
       "q_id": 20,
       "question": "Which supplier is rated Red and at risk?",
-      "avg_score": 0.3252
+      "avg_score": 0.3251
     },
     {
       "q_id": 21,
@@ -187,11 +188,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 38,
-      "question": "Who is the CISO of Nexus Industries?",
-      "avg_score": 0.0
-    },
-    {
       "q_id": 39,
       "question": "What is the annual dividend per share?",
       "avg_score": 0.0
@@ -227,8 +223,8 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 46,
-      "question": "Who supplies solar panels for the Desert Sun project?",
+      "q_id": 47,
+      "question": "Which university is a research partner for quantum computing?",
       "avg_score": 0.0
     },
     {
@@ -468,32 +464,63 @@
         "q_id": 2,
         "question": "What is the name of the CFO?",
         "expected": "Michael Chang",
-        "actual": "The CFO of Nexus Industries is Timothy C",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 5,
-        "question": "Who is the Empowered Official for ITAR compliance?",
-        "expected": "Col. (Ret.) James Foster",
-        "actual": "The Empowered Official for ITAR complian",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 24,
-        "question": "What is the hydrogen production capacity of the GreenHydroge",
-        "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
-        "actual": "The GreenHydrogen facility has a hydroge",
+        "actual": "The name of the CFO is Rahul Ghai.",
         "files_retrieved": [
-          "08_global_locations.md",
-          "09_greenhydrogen_milestone.md",
-          "04_greenhydrogen_initiative.md"
+          "03_ge_aerospace_customer.md",
+          "10_first_solar_supplier.md"
+        ]
+      },
+      {
+        "q_id": 4,
+        "question": "Who is the Chief Engineer for the Falcon X program?",
+        "expected": "Dr. Elena Rodriguez",
+        "actual": "I couldn't find specific information reg",
+        "files_retrieved": [
+          "03_ge_aerospace_customer.md",
+          "08_quantum_computing_services.md"
+        ]
+      },
+      {
+        "q_id": 16,
+        "question": "What company is Nexus partnering with for solid-state batter",
+        "expected": "Toyota Motor Corporation",
+        "actual": "Nexus Industries, Inc. is partnering wit",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 17,
+        "question": "Who supplied the electrolyzers for the GreenHydrogen facilit",
+        "expected": "Nel Hydrogen",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 19,
+        "question": "Who is the largest aerospace customer of Nexus by relationsh",
+        "expected": "Boeing ($730 million)",
+        "actual": "The largest aerospace customer of Nexus ",
+        "files_retrieved": [
+          "02_airbus_customer_profile.md",
+          "03_ge_aerospace_customer.md",
+          "12_supplier_performance_review.md"
+        ]
+      },
+      {
+        "q_id": 29,
+        "question": "Who are the members of the Executive Leadership Team?",
+        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
+        "actual": "The members of the Executive Leadership ",
+        "files_retrieved": [
+          "02_business_divisions.md",
+          "09_investor_presentation_q4.md",
+          "01_executive_team.md"
         ]
       },
       {
         "q_id": 32,
         "question": "Who will be the CEO of the Toyota JV (NextGen Battery Techno",
         "expected": "Dr. Robert Martinez",
-        "actual": "The CEO of the Toyota joint venture (Nex",
+        "actual": "The CEO of Nexus Industries is Dr. Victo",
         "files_retrieved": []
       },
       {
@@ -507,43 +534,28 @@
         ]
       },
       {
-        "q_id": 38,
-        "question": "Who is the CISO of Nexus Industries?",
-        "expected": "Jennifer Walsh (appointed January 2026, ",
-        "actual": "The Chief Information Security Officer (",
-        "files_retrieved": [
-          "08_cybersecurity_advisory.md",
-          "02_organizational_announcement.md",
-          "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
         "q_id": 40,
         "question": "What is the total company backlog?",
         "expected": "$12.4 billion",
         "actual": "The total company backlog for The Boeing",
         "files_retrieved": [
-          "03_aerospace_division_budget.md",
-          "01_boeing_customer_profile.md",
-          "06_materials_division_budget.md"
+          "11_product_launch_planning.md",
+          "06_materials_division_budget.md",
+          "02_airbus_customer_profile.md"
         ]
       },
       {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "Dr. Victoria Chen was appointed CEO of N",
-        "files_retrieved": [
-          "01_executive_team.md",
-          "01_board_meeting_q4_2025.md",
-          "04_digital_division_quarterly_review.md"
-        ]
+        "actual": "I found multiple people with the CTO rol",
+        "files_retrieved": []
       },
       {
-        "q_id": 46,
-        "question": "Who supplies solar panels for the Desert Sun project?",
-        "expected": "First Solar",
-        "actual": "The retrieved information does not speci",
+        "q_id": 61,
+        "question": "Who replaced Thomas Anderson as Digital President?",
+        "expected": "Robert Kim",
+        "actual": "Dr. Elena Rodriguez replaced Thomas Ande",
         "files_retrieved": []
       },
       {
@@ -552,19 +564,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 68,
-        "question": "Who is the Chair of the Export Control Committee?",
-        "expected": "Col. (Ret.) James Foster (Empowered Offi",
-        "actual": "The search did not return specific infor",
-        "files_retrieved": [
-          "10_aeromaterials_composites.md",
-          "09_investor_presentation_q4.md",
-          "09_nel_hydrogen_supplier.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
         ]
       },
       {
@@ -581,61 +582,23 @@
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
           "02_aerospace_division_strategy.md",
-          "06_market_expansion_asia.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "06_market_expansion_asia.md"
         ]
       },
       {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customers for the SmartGrid ",
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top three custome",
         "files_retrieved": [
-          "08_pacific_power_utility.md",
-          "08_smartgrid_controller.md",
-          "09_nel_hydrogen_supplier.md"
+          "11_product_launch_planning.md",
+          "03_ge_aerospace_customer.md",
+          "05_siemens_healthineers_customer.md"
         ]
-      },
-      {
-        "q_id": 85,
-        "question": "Who is the Chair of the Quality Council?",
-        "expected": "Chief Quality Officer",
-        "actual": "The Chair of the Quality Council is **Dr",
-        "files_retrieved": [
-          "10_aeromaterials_composites.md",
-          "09_nel_hydrogen_supplier.md"
-        ]
-      },
-      {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "I found multiple people with the VP role",
-        "files_retrieved": []
       }
     ],
     "no_data": [
-      {
-        "q_id": 15,
-        "question": "Who does Michael Chang report to?",
-        "expected": "Dr. Victoria Chen (CEO)",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 16,
-        "question": "What company is Nexus partnering with for solid-state batter",
-        "expected": "Toyota Motor Corporation",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 17,
-        "question": "Who supplied the electrolyzers for the GreenHydrogen facilit",
-        "expected": "Nel Hydrogen",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
       {
         "q_id": 18,
         "question": "Which company has a green hydrogen offtake agreement with Ne",
@@ -644,31 +607,28 @@
         "files_retrieved": []
       },
       {
-        "q_id": 19,
-        "question": "Who is the largest aerospace customer of Nexus by relationsh",
-        "expected": "Boeing ($730 million)",
+        "q_id": 31,
+        "question": "What is Nexus's ownership percentage in the Toyota battery j",
+        "expected": "51%",
         "actual": "The retrieved information does not speci",
         "files_retrieved": []
       },
       {
-        "q_id": 31,
-        "question": "What is Nexus's ownership percentage in the Toyota battery j",
-        "expected": "51%",
-        "actual": "The retrieved information does not provi",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 61,
-        "question": "Who replaced Thomas Anderson as Digital President?",
-        "expected": "Robert Kim",
-        "actual": "Based on the retrieved information, Kenj",
-        "files_retrieved": []
+        "q_id": 38,
+        "question": "Who is the CISO of Nexus Industries?",
+        "expected": "Jennifer Walsh (appointed January 2026, ",
+        "actual": "The search did not return specific infor",
+        "files_retrieved": [
+          "05_fedramp_announcement.md",
+          "02_business_divisions.md",
+          "02_information_security.md"
+        ]
       },
       {
         "q_id": 76,
         "question": "What is the total patent portfolio size?",
         "expected": "2,412 patents",
-        "actual": "I was unable to retrieve the total size ",
+        "actual": "I was unable to determine the total pate",
         "files_retrieved": []
       },
       {
@@ -684,9 +644,9 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "03_press_release_fy2025.md",
-          "04_toyota_partnership_announcement.md",
-          "08_global_locations.md"
+          "02_business_divisions.md",
+          "05_fedramp_announcement.md",
+          "04_toyota_partnership_announcement.md"
         ]
       },
       {
@@ -694,6 +654,22 @@
         "question": "Who provides the SAR radar for Falcon X?",
         "expected": "Raytheon (APY-8)",
         "actual": "The retrieved information does not speci",
+        "files_retrieved": []
+      }
+    ],
+    "error": [
+      {
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 92,
+        "question": "What is the Quantum Volume of the QL-127 system?",
+        "expected": "256",
+        "actual": "",
         "files_retrieved": []
       }
     ]
