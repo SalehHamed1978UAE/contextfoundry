@@ -1,0 +1,330 @@
+{
+  "document_id": "343e66c3-4ed0-4d0c-ac06-fd3142ab94e5",
+  "document_path": "11_treasury_report.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T17:12:07.780097",
+  "entities": [
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Nexus Industries Treasury Report Q4 FY2025",
+      "aliases": []
+    },
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CFO",
+        "role": "Chief Financial Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Robert Kim, CFO (Chair)",
+      "aliases": []
+    },
+    {
+      "name": "David Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Treasury",
+        "role": "Vice President of Treasury"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "David Chen, VP Treasury",
+      "aliases": []
+    },
+    {
+      "name": "Sarah Johnson",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Finance",
+        "role": "Vice President of Finance"
+      },
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Sarah Johnson, VP Finance",
+      "aliases": []
+    },
+    {
+      "name": "JPMorgan Chase",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "JPMorgan Chase | Lead Arranger",
+      "aliases": []
+    },
+    {
+      "name": "Bank of America",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Bank of America | Co-Lead",
+      "aliases": []
+    },
+    {
+      "name": "Citibank",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Citibank | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Wells Fargo",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Wells Fargo | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Goldman Sachs",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Goldman Sachs | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Morgan Stanley",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Bank",
+        "industry": "Financial Services"
+      },
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Morgan Stanley | Participant",
+      "aliases": []
+    },
+    {
+      "name": "Q4 FY2025",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$2.27B",
+        "timeline": "Q4 FY2025",
+        "status": "Completed"
+      },
+      "confidence": 0.85,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Total Liquidity | $2.27B",
+      "aliases": []
+    },
+    {
+      "name": "FY2025",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$330M",
+        "timeline": "FY2025",
+        "status": "Completed"
+      },
+      "confidence": 0.85,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Net Change | +$330M",
+      "aliases": []
+    },
+    {
+      "name": "Investment Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "Board approved"
+      },
+      "confidence": 0.8,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Investment Policy: Board approved",
+      "aliases": []
+    },
+    {
+      "name": "Hedging Policy",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "N/A",
+        "category": "CFO approved"
+      },
+      "confidence": 0.8,
+      "source_document": "11_treasury_report.md",
+      "source_excerpt": "Hedging Policy: CFO approved",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Robert Kim, CFO (Chair)"
+    },
+    {
+      "source_entity": "David Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "evidence": "David Chen, VP Treasury"
+    },
+    {
+      "source_entity": "Sarah Johnson",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Sarah Johnson, VP Finance"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "Q4 FY2025",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Nexus Industries Treasury Report Q4 FY2025"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "OWNS",
+      "target_entity": "FY2025",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Nexus Industries Treasury Report Q4 FY2025"
+    },
+    {
+      "source_entity": "JPMorgan Chase",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "JPMorgan Chase | Lead Arranger"
+    },
+    {
+      "source_entity": "Bank of America",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Bank of America | Co-Lead"
+    },
+    {
+      "source_entity": "Citibank",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Citibank | Participant"
+    },
+    {
+      "source_entity": "Wells Fargo",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Wells Fargo | Participant"
+    },
+    {
+      "source_entity": "Goldman Sachs",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Goldman Sachs | Participant"
+    },
+    {
+      "source_entity": "Morgan Stanley",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Morgan Stanley | Participant"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Investment Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Investment Policy: Board approved"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Hedging Policy",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "11_treasury_report.md",
+      "evidence": "Hedging Policy: CFO approved"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 14,
+    "raw_relationship_count": 13,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}
