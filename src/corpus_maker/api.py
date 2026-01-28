@@ -488,6 +488,7 @@ def api_create_vault():
         
         excluded_files = {'questions.json', 'manifest.json', 'readme.md', 'readme.txt'}
         excluded_extensions = {'.json', '.log'}
+        excluded_folders = {'all docs', 'all_docs', 'duplicates'}
         
         def upload_file(file_path: Path) -> bool:
             """Upload a single file, returns True on success."""
@@ -497,6 +498,8 @@ def api_create_vault():
                 if file_path.suffix.lower() in excluded_extensions:
                     return False
                 if file_path.name.startswith('.'):
+                    return False
+                if any(part.lower() in excluded_folders for part in file_path.parts):
                     return False
                     
                 with open(file_path, 'rb') as f:
