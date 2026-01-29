@@ -266,5 +266,5 @@ Exception requests must be submitted in writing to:
 
 ---
 
-*Approved by: Robert Kim, CFO*
+*Approved by: Michael Chang, CFO*
 *Effective: January 1, 2025*

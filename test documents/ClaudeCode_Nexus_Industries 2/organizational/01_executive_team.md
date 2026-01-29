@@ -28,7 +28,7 @@ Dr. Chen holds a Ph.D. in Electrical Engineering from MIT and an MBA from Harvar
 
 ## Chief Financial Officer
 
-**Name:** Robert Martinez
+**Name:** Michael Chang
 **Title:** Chief Financial Officer (CFO)
 **Reports To:** CEO (Dr. Victoria Chen)
 **Start Date:** June 2019
@@ -41,7 +41,7 @@ Dr. Chen holds a Ph.D. in Electrical Engineering from MIT and an MBA from Harvar
 - Financial reporting and compliance
 
 ### Background
-Robert Martinez is a CPA with 20 years of experience in corporate finance. He previously served as VP of Finance at GlobalTech Manufacturing.
+Michael Chang is a CPA with 20 years of experience in corporate finance. He previously served as VP of Finance at GlobalTech Manufacturing.
 
 ---
 
@@ -164,7 +164,7 @@ Jennifer Lee spent 15 years in marketing leadership at Apple and Samsung before 
 | Name | Title | Reports To | Start Date |
 |------|-------|------------|------------|
 | Dr. Victoria Chen | CEO | Board of Directors | March 2018 |
-| Robert Martinez | CFO | CEO | June 2019 |
+| Michael Chang | CFO | CEO | June 2019 |
 | Dr. Aisha Patel | CTO | CEO | January 2020 |
 | James Wilson | COO | CEO | September 2017 |
 | Maria Santos | CHRO | CEO | April 2021 |
