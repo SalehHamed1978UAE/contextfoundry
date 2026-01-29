@@ -1,0 +1,33 @@
+Here’s where we stand and what’s still pending:
+
+  - ✅ Supplier query engine now works: entity extraction, SUPPLIER_OF traversal, prioritized results,
+    expanded limits—all in place. Q17 and Q78 now surface the expected supplier entities (e.g., Nel ASA,
+    Honeywell, Boeing). Integration tests remain clean (22/22).
+  - ⚠️ Anchor filtering for Q40 hasn’t been addressed yet. The logging shows that ToolAgent’s document-
+    search path never hits filter_by_anchor_organization(). We still need the entity resolution/knowledge-
+    bundle code to filter by the tenant’s anchor organization so Boeing data doesn’t leak into Nexus
+    answers.
+
+  Before Phase 1 can be closed out, Replit still must:
+
+  1. Hook anchor filtering into the ToolExecutor/EntityResolver path (so all retrieval paths respect the
+     anchor).
+  2. Re-run Q40 and capture filter logs to prove Boeing entities are excluded.
+  3. Confirm pass/fail for the seven acceptance questions (Q2, Q17, Q18, Q38, Q40, Q78, Q95).
+
+run the full 100-question regression on vault 1f3320cd and    
+  report the results for the Phase 1 acceptance criteria:                                                
+                                                                                                         
+  python -m src.test_runner.runner --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91"                     
+                                                                                                         
+  Report explicit pass/fail for:                                                                         
+  - Q2: Michael Chang (CFO)                                                                              
+  - Q17: Nel Hydrogen / Nel ASA                                                                          
+  - Q18: Shell                                                                                           
+  - Q38: CISO                                                                                            
+  - Q40: $12.4B Nexus backlog (not Boeing $11.5B)                                                        
+  - Q78: Honeywell                                                                                       
+  - Q95: Raytheon                                                                                        
+                                                                                                         
+  Phase 1 is complete when all 7 questions pass.
+  
