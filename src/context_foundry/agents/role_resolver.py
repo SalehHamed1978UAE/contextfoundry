@@ -25,7 +25,7 @@ from src.context_foundry.retrieval.anchor_resolver import AnchorResolver, Relati
 
 
 # Entity names that should be filtered from role resolution results
-# These are document metadata fields that were incorrectly extracted as entities
+# These are document metadata fields or role names incorrectly extracted as entities
 ROLE_RESOLVER_BLACKLIST = {
     'document owner',
     'document author',
@@ -33,6 +33,39 @@ ROLE_RESOLVER_BLACKLIST = {
     'owner',
     'classification',
     'confidential',
+    # Role names that shouldn't be returned as person names
+    'ceo',
+    'cfo',
+    'cto',
+    'coo',
+    'ciso',
+    'cio',
+    'cdo',
+    'cmo',
+    'cpo',
+    'cro',
+    'chief executive officer',
+    'chief financial officer',
+    'chief technology officer',
+    'chief operating officer',
+    'chief information security officer',
+    'chief information officer',
+    'chief data officer',
+    'chief marketing officer',
+    'chief product officer',
+    'chief revenue officer',
+    'division cisos',
+    'divisional chief information security officers',
+}
+
+# Map roles to related department/function names for fallback lookup
+ROLE_TO_DEPARTMENT = {
+    'ciso': ['cybersecurity', 'information security', 'security', 'infosec'],
+    'cfo': ['finance', 'financial', 'treasury'],
+    'cto': ['technology', 'engineering', 'technical'],
+    'coo': ['operations', 'operational'],
+    'cmo': ['marketing', 'brand'],
+    'cio': ['information technology', 'it', 'information systems'],
 }
 
 
@@ -268,7 +301,32 @@ class RoleResolver:
             result = retriever.resolve_role_from_anchor(role, anchor['id'], anchor['name'])
             
             if result['entities']:
-                entities = result['entities']
+                # Filter out blacklisted names (role names incorrectly extracted as person entities)
+                entities = [e for e in result['entities'] if not _is_blacklisted_name(e.get('name', ''))]
+                
+                # If all matches were blacklisted, try department-based fallback
+                if not entities and result['entities']:
+                    role_lower = role.lower().strip()
+                    departments = ROLE_TO_DEPARTMENT.get(role_lower, [])
+                    if departments:
+                        logger.info(f"[ROLE_RESOLVER] Stage 0: All matches blacklisted, trying department fallback for {departments}")
+                        dept_results = retriever.resolve_by_department(departments, anchor['id'], anchor['name'])
+                        # Filter blacklisted names from department results too
+                        entities = [e for e in dept_results if not _is_blacklisted_name(e.get('name', ''))]
+                        if entities:
+                            logger.info(f"[ROLE_RESOLVER] Stage 0: Found {len(entities)} people via department fallback (after filtering)")
+                            # Prefer exact department name matches (e.g., "Cybersecurity" over "Cybersecurity Practice")
+                            if len(entities) > 1:
+                                exact_dept_matches = []
+                                for e in entities:
+                                    dept = e.get('department', '').lower()
+                                    for search_dept in departments:
+                                        if dept == search_dept.lower():
+                                            exact_dept_matches.append(e)
+                                            break
+                                if len(exact_dept_matches) == 1:
+                                    logger.info(f"[ROLE_RESOLVER] Stage 0: Selecting exact department match: {exact_dept_matches[0]['name']}")
+                                    entities = exact_dept_matches
                 
                 if len(entities) == 1:
                     person = entities[0]

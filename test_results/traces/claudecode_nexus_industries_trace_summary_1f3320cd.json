@@ -1,0 +1,155 @@
+{
+  "run_timestamp": "2026-01-29T07:15:35.789843",
+  "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
+  "stats": {
+    "total_questions": 17,
+    "avg_chunks_retrieved": 2.941176470588235,
+    "avg_semantic_score": 0.06147647058823529,
+    "query_type_distribution": {
+      "unknown": 17
+    },
+    "evaluator_rule_distribution": {
+      "exact_match": 6,
+      "no_data": 1,
+      "component_match": 5,
+      "no_match": 4,
+      "number_match": 1
+    },
+    "low_score_queries": 16
+  },
+  "low_score_questions": [
+    {
+      "q_id": 2,
+      "question": "What is the name of the CFO?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 17,
+      "question": "Who supplied the electrolyzers for the GreenHydrogen facility?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 18,
+      "question": "Which company has a green hydrogen offtake agreement with Nexus?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 20,
+      "question": "Which supplier is rated Red and at risk?",
+      "avg_score": 0.3251
+    },
+    {
+      "q_id": 21,
+      "question": "Where is Nexus Industries headquartered?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 22,
+      "question": "What is the capacity of the Desert Sun Solar Farm?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 23,
+      "question": "How many qubits does the QuantumLeap system have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 24,
+      "question": "What is the hydrogen production capacity of the GreenHydrogen facility?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 25,
+      "question": "What is the target energy density for the solid-state battery?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 26,
+      "question": "How many business divisions does Nexus Industries have?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 27,
+      "question": "Which division has the most employees?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 28,
+      "question": "Which division has the highest revenue?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 38,
+      "question": "Who is the CISO of Nexus Industries?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 40,
+      "question": "What is the total company backlog?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 78,
+      "question": "Who provides flight computers for Falcon X?",
+      "avg_score": 0.0
+    },
+    {
+      "q_id": 95,
+      "question": "Who provides the SAR radar for Falcon X?",
+      "avg_score": 0.0
+    }
+  ],
+  "failures_by_type": {
+    "no_data": [
+      {
+        "q_id": 18,
+        "question": "Which company has a green hydrogen offtake agreement with Ne",
+        "expected": "Shell",
+        "actual": "The retrieved information does not speci",
+        "files_retrieved": []
+      }
+    ],
+    "no_match": [
+      {
+        "q_id": 24,
+        "question": "What is the hydrogen production capacity of the GreenHydroge",
+        "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
+        "actual": "The GreenHydrogen facility in El Paso, T",
+        "files_retrieved": [
+          "09_greenhydrogen_milestone.md",
+          "04_greenhydrogen_initiative.md",
+          "02_greenhydrogen_process_specification.md"
+        ]
+      },
+      {
+        "q_id": 29,
+        "question": "Who are the members of the Executive Leadership Team?",
+        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
+        "actual": "The members of the Executive Leadership ",
+        "files_retrieved": [
+          "01_corporate_strategy_2026_2030.md",
+          "05_digital_division_structure.md",
+          "02_business_divisions.md"
+        ]
+      },
+      {
+        "q_id": 40,
+        "question": "What is the total company backlog?",
+        "expected": "$12.4 billion",
+        "actual": "It seems that I am unable to retrieve th",
+        "files_retrieved": [
+          "05_digital_division_budget.md",
+          "03_aerospace_division_budget.md",
+          "11_product_launch_planning.md"
+        ]
+      },
+      {
+        "q_id": 78,
+        "question": "Who provides flight computers for Falcon X?",
+        "expected": "Honeywell",
+        "actual": "The flight computers for the Falcon X ar",
+        "files_retrieved": []
+      }
+    ]
+  }
+}

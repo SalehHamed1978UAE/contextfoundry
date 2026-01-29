@@ -587,6 +587,145 @@ class RetrievalRouter:
         
         return entities, relationships
     
+    def _is_offtake_query(self, query: str) -> bool:
+        """Detect if query is asking about offtake agreements, funding, or partnerships."""
+        offtake_keywords = [
+            'offtake', 'off-take', 'offtake agreement', 'purchase agreement',
+            'funded by', 'funding', 'funder', 'investor',
+            'agreement with', 'partnered with', 'partnership with',
+            'who has', 'which company has', 'who funds', 'who invested'
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in offtake_keywords)
+    
+    def _lookup_offtake_agreements(
+        self,
+        query: str,
+        target_entity_name: str = None
+    ) -> tuple:
+        """
+        Lookup FUNDED_BY and partnership relationships for offtake agreement queries.
+        
+        For queries like "Which company has a green hydrogen offtake agreement with Shell?",
+        this finds agreement entities and traverses FUNDED_BY/PARTNER_OF relationships.
+        
+        Args:
+            query: The original query
+            target_entity_name: Optional explicit target entity name
+            
+        Returns:
+            Tuple of (entities, relationships) with agreement and partner information
+        """
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+        
+        entities = []
+        relationships = []
+        seen_entity_ids = set()
+        
+        logger.info(f"[OFFTAKE_LOOKUP] Query: '{query}', target: {target_entity_name}")
+        
+        search_terms = []
+        if target_entity_name:
+            search_terms.append(target_entity_name.lower())
+        
+        import re
+        company_patterns = [
+            r'\bwith\s+([A-Z][a-zA-Z0-9\s]+?)(?:\s*\?|\s*$|,)',
+            r'\b(?:partner|partnership|agreement)\s+(?:with\s+)?([A-Z][a-zA-Z0-9\s]+)',
+        ]
+        for pattern in company_patterns:
+            matches = re.findall(pattern, query)
+            for match in matches:
+                clean_match = match.strip()
+                if len(clean_match) > 2 and clean_match.lower() not in ['the', 'this', 'that', 'which', 'who']:
+                    search_terms.append(clean_match.lower())
+        
+        if 'hydrogen' in query.lower() or 'green' in query.lower():
+            search_terms.extend(['hydrogen', 'greenhydrogen', 'green hydrogen', 'offtake'])
+        if 'shell' in query.lower():
+            search_terms.append('shell')
+        
+        logger.info(f"[OFFTAKE_LOOKUP] Search terms: {search_terms}")
+        
+        try:
+            offtake_rel_sql = text("""
+                SELECT DISTINCT
+                    r.id as rel_id,
+                    r.relationship_type,
+                    r.confidence,
+                    r.provenance_text,
+                    src.id as source_id,
+                    src.name as source_name,
+                    src.entity_type as source_type,
+                    tgt.id as target_id,
+                    tgt.name as target_name,
+                    tgt.entity_type as target_type
+                FROM relationships r
+                JOIN entities src ON r.source_id = src.id
+                JOIN entities tgt ON r.target_id = tgt.id
+                WHERE r.tenant_id = :tenant_id
+                AND r.relationship_type IN ('FUNDED_BY', 'PARTNER_OF', 'INVESTOR_IN', 'HAS_AGREEMENT_WITH')
+                AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+                ORDER BY r.confidence DESC
+                LIMIT 100
+            """)
+            
+            rel_results = self.session.execute(offtake_rel_sql, {
+                "tenant_id": self.tenant_id
+            }).fetchall()
+            
+            logger.info(f"[OFFTAKE_LOOKUP] Found {len(rel_results)} offtake/funding relationships in vault")
+            
+            for term in search_terms:
+                term_lower = term.lower()
+                for rel in rel_results:
+                    source_name_lower = rel.source_name.lower() if rel.source_name else ''
+                    target_name_lower = rel.target_name.lower() if rel.target_name else ''
+                    
+                    if term_lower in source_name_lower or term_lower in target_name_lower:
+                        source_id = str(rel.source_id)
+                        target_id = str(rel.target_id)
+                        
+                        if source_id not in seen_entity_ids:
+                            seen_entity_ids.add(source_id)
+                            entities.append({
+                                "id": source_id,
+                                "name": rel.source_name,
+                                "type": rel.source_type,
+                                "confidence": rel.confidence,
+                                "role": "agreement" if 'agreement' in source_name_lower else "partner"
+                            })
+                            logger.info(f"[OFFTAKE_LOOKUP] Found entity: {rel.source_name} ({rel.relationship_type}) {rel.target_name}")
+                        
+                        if target_id not in seen_entity_ids:
+                            seen_entity_ids.add(target_id)
+                            entities.append({
+                                "id": target_id,
+                                "name": rel.target_name,
+                                "type": rel.target_type,
+                                "confidence": rel.confidence,
+                                "role": "funder" if rel.relationship_type == 'FUNDED_BY' else "partner"
+                            })
+                        
+                        relationships.append({
+                            "id": str(rel.rel_id),
+                            "type": rel.relationship_type,
+                            "source": rel.source_name,
+                            "source_type": rel.source_type,
+                            "target": rel.target_name,
+                            "target_type": rel.target_type,
+                            "confidence": rel.confidence,
+                            "provenance": rel.provenance_text
+                        })
+            
+            logger.info(f"[OFFTAKE_LOOKUP] Returning {len(entities)} entities, {len(relationships)} relationships")
+            
+        except Exception as e:
+            logger.error(f"[OFFTAKE_LOOKUP] Failed: {e}")
+        
+        return entities, relationships
+    
     def _search_graph(
         self,
         query: str,
@@ -1332,6 +1471,18 @@ class QueryPipeline:
                 result.relationships = supplier_relationships + result.relationships
                 result.strategy_used = f"HYBRID+SUPPLIER ({result.strategy_used})"
                 logger.info(f"[PIPELINE] Complete (supplier): strategy={result.strategy_used}, has_data={result.has_data}")
+                return result
+        
+        if self.router._is_offtake_query(query):
+            logger.info(f"[PIPELINE] Detected offtake/agreement query, using specialized lookup")
+            offtake_entities, offtake_relationships = self.router._lookup_offtake_agreements(query)
+            if offtake_entities or offtake_relationships:
+                logger.info(f"[PIPELINE] Offtake lookup found: {len(offtake_entities)} entities, {len(offtake_relationships)} relationships")
+                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result.entities = offtake_entities + result.entities
+                result.relationships = offtake_relationships + result.relationships
+                result.strategy_used = f"HYBRID+OFFTAKE ({result.strategy_used})"
+                logger.info(f"[PIPELINE] Complete (offtake): strategy={result.strategy_used}, has_data={result.has_data}")
                 return result
         
         result = self.router.route(query, classification, role_resolution, intent, classified_query)
