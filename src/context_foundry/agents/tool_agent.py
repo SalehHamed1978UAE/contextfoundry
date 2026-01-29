@@ -320,6 +320,15 @@ class ToolAgent:
         elif ("belongs to" in query_lower or "part of" in query_lower) and has_ownership_relationships:
             question_type_instruction = "\n\nIMPORTANT: This question asks about organizational membership or structure. Look for relationships showing containment or membership."
         
+        # Component-supplier matching instruction for specific component queries
+        component_supplier_instruction = ""
+        if is_supplier_query or any(term in query_lower for term in ['provides', 'supplies', 'supplier', 'vendor', 'manufacturer']):
+            component_supplier_instruction = """\n\nCOMPONENT-SUPPLIER MATCHING RULE:
+When asked about a SPECIFIC component (SAR radar, flight computers, electrolyzers, etc.), ONLY mention the supplier for THAT EXACT component.
+- "Who provides SAR radar?" → ONLY Raytheon (NOT Honeywell - Honeywell provides flight computers)
+- "Who provides flight computers?" → ONLY Honeywell (NOT Raytheon - Raytheon provides SAR radar)
+If the context lists multiple suppliers with different components, match the supplier to the specific component asked about. Do NOT list all suppliers."""
+        
         # KG prioritization instruction for person/role queries
         kg_prioritization = ""
         if pipeline_result.relationships and ('role' in query_lower or 'position' in query_lower or 'who is' in query_lower):
@@ -341,7 +350,7 @@ QUESTION: {question}
 RETRIEVED INFORMATION:
 {context}
 
-Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{question_type_instruction}{kg_prioritization}{intent_guidance}"""
+Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{question_type_instruction}{component_supplier_instruction}{kg_prioritization}{intent_guidance}"""
 
         try:
             max_tokens = 900 if expects_list else 600
