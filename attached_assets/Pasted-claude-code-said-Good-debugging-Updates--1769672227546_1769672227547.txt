@@ -1,0 +1,36 @@
+claude code said: Good debugging. Updates:                                                                               
+                                                                                                         
+  Q40: If both values are from Nexus docs, the retrieval is working correctly. The issue is which        
+  document gets prioritized. Check if the press release or annual report has the correct $12.4B value and
+   ensure it ranks higher than the division breakdown.                                                   
+                                                                                                         
+  Q18: Offtake traversal looks good. Test it after implementation.                                       
+                                                                                                         
+  Q38: The issue is missing data - Jennifer Walsh needs HOLDS_POSITION --> CISO relationship. Either:    
+  1. Add the relationship to the extraction patterns, OR                                                 
+  2. Infer CISO from LEADS --> Cybersecurity                                                             
+                                                                                                         
+  Where does "John Doe" come from? Check if it's a default/placeholder in the RoleResolver code.         
+
+  codex said: Hold up—we shouldn’t dive into more implementations until the earlier blockers are handled
+  systematically:
+
+  1. Q40: You discovered both $11.5 B and $12.4 B exist in Nexus docs, so this isn’t cross-org
+     contamination—it’s conflicting data. We need a retrieval heuristic for “total company backlog” that
+     either prefers the explicit company-level total or a consistent date (e.g., from the annual report
+     summary). Right now the LLM is grabbing a divisional figure ($11.5 B). Think about whether we can
+     prioritize the company-level total document or add a clarification metadata field.
+  2. Q38: Jennifer Walsh exists but lacks a HOLDS_POSITION entry, so role resolution falls back to whatever
+     entity references “CISO.” You’ll need to either:
+      - Ensure Jennifer Walsh’s entity has a proper role or relationship (via extraction or post-
+        processing).
+      - Adjust the role resolver to infer roles when someone leads Cybersecurity and is named CISO in text.
+  3. Q18: Good call adding FUNDED_BY/OFFTAKE traversal. Once done, rerun the question to confirm “Shell”
+     surfaces.
+
+  Finally, before adding more code, please summarize the exact fixes you’re planning for Q40 and Q38, since
+  these need to be pipeline-level solutions (not patchy per-question logic). This ensures we stay
+  systematic.
+
+
+                                                                                                
