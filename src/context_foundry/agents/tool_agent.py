@@ -444,6 +444,32 @@ Match your answer type to what was asked. If asking for a role, give the role. I
             }
         )
     
+    def _extract_anchor_org_name(self, vault_context: str) -> Optional[str]:
+        """
+        Extract the primary organization name from vault context.
+        
+        Examples:
+        - "ClaudeCode Nexus Industries 3 - 1/28/2026" -> "Nexus Industries"
+        - "Manus Medsync Corp - 2/1/2026" -> "Medsync Corp"
+        - "Orion Technologies Q1" -> "Orion Technologies"
+        """
+        import re
+        
+        if not vault_context:
+            return None
+        
+        name_part = vault_context
+        for pattern in [r'\s*-\s*\d+/\d+/\d+', r'\s*\d+\s*-', r'\s*Q[1-4]\s*$', r'\s*\d{4}$']:
+            name_part = re.sub(pattern, '', name_part)
+        
+        for prefix in ['ClaudeCode ', 'Manus ', 'Test ', 'Demo ']:
+            if name_part.startswith(prefix):
+                name_part = name_part[len(prefix):]
+        
+        name_part = re.sub(r'\s+\d+$', '', name_part).strip()
+        
+        return name_part if name_part else None
+    
     def _get_vault_matching_org(self, match: Dict[str, Any], vault_context: Optional[str]) -> Optional[str]:
         """
         Find the organization from match that best matches vault context.
@@ -871,11 +897,17 @@ Which one would you like to know more about? Please specify by name."""
                 extra=extra_data
             )
         
+        system_prompt = AGENT_SYSTEM_PROMPT
+        if vault_context:
+            anchor_org = self._extract_anchor_org_name(vault_context)
+            if anchor_org:
+                system_prompt += f"\n\nCURRENT VAULT CONTEXT:\nThis knowledge base is about {anchor_org}. When queries refer to 'the company', 'company backlog', 'company revenue', or similar terms without specifying a company name, assume they refer to {anchor_org}. Prioritize information about {anchor_org} over information about their customers or partners."
+        
         debug_info = {
             "tool_calls": [],
             "reasoning_trace": [],
             "context_loaded": {
-                "system_prompt": AGENT_SYSTEM_PROMPT,
+                "system_prompt": system_prompt,
                 "conversation_history": conversation_history[-6:] if conversation_history else [],
                 "user_question": question,
                 "pipeline_result": pipeline_result.to_dict() if pipeline_result else None
@@ -884,7 +916,7 @@ Which one would you like to know more about? Please specify by name."""
             "messages_sent": []
         } if debug else None
         
-        messages = [{"role": "system", "content": AGENT_SYSTEM_PROMPT}]
+        messages = [{"role": "system", "content": system_prompt}]
         
         if conversation_history:
             for msg in conversation_history[-6:]:
