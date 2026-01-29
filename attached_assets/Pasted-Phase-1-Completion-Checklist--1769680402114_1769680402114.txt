@@ -1,0 +1,96 @@
+Phase 1 Completion Checklist                                                                           
+                                                                                                         
+  Step 1: Verify Q40 Backlog Reranking                                                                   
+                                                                                                         
+  You mentioned adding a "backlog reranking rule to prefer official communications". Verify it's         
+  implemented:                                                                                           
+                                                                                                         
+  # In document search or synthesis:                                                                     
+  # Official documents (press releases, CEO memos, annual report summaries)                              
+  # should rank HIGHER than internal tables/division breakdowns                                          
+                                                                                                         
+  OFFICIAL_DOC_PATTERNS = ['press release', 'ceo memo', 'official', 'announces', 'record backlog']       
+  INTERNAL_DOC_PATTERNS = ['division table', 'breakdown', 'by segment']                                  
+                                                                                                         
+  # Boost official docs, demote internal tables for company-wide metrics                                 
+                                                                                                         
+  Step 2: Test Q40 Directly                                                                              
+                                                                                                         
+  # Test Q40 in isolation                                                                                
+  curl -X POST http://localhost:5000/api/vault/chat \                                                    
+    -H "Content-Type: application/json" \                                                                
+    -d '{"vault_id": "1f3320cd-...", "query": "What is the total company backlog?"}'                     
+                                                                                                         
+  Expected: Response should contain "$12.4 billion" (not $11.5B)                                         
+                                                                                                         
+  Step 3: Run Full Regression (Fresh, No Cache)                                                          
+                                                                                                         
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \                                                  
+    --force                                                                                              
+                                                                                                         
+  Step 4: Report Final Phase 1 Results                                                                   
+                                                                                                         
+  Provide explicit pass/fail for all 7 acceptance criteria:                                              
+  ┌──────────┬────────────────┬───────────┐                                                              
+  │ Question │    Expected    │ Pass/Fail │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q2       │ Michael Chang  │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q17      │ Nel Hydrogen   │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q18      │ Shell          │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q38      │ Jennifer Walsh │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q40      │ $12.4 billion  │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q78      │ Honeywell      │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q95      │ Raytheon       │           │                                                              
+  └──────────┴────────────────┴───────────┘                                                              
+  Step 5: Document Final Status                                                                          
+                                                                                                         
+  If 7/7 pass:                                                                                           
+  - Phase 1 COMPLETE                                                                                     
+  - Overall accuracy should be 80%+                                                                      
+  - Ready for Phase 2                                                                                    
+                                                                                                         
+  If 6/7 pass (Q40 still fails):                                                                         
+  - Document Q40 as known corpus data issue                                                              
+  - Both $11.5B and $12.4B are valid Nexus data                                                          
+  - Recommendation: Fix corpus to have consistent backlog value                                          
+  - Phase 1 COMPLETE with documented exception                                                           
+                                                                                                         
+  Step 6: Integration Test Verification                                                                  
+                                                                                                         
+  pytest tests/ -v                                                                                       
+                                                                                                         
+  All 22 tests should pass.                                                                              
+                                                                                                         
+  ---                                                                                                    
+  Summary of Phase 1 Fixes Implemented                                                                   
+  ┌───────────────────────────────────────┬────────┐                                                     
+  │                  Fix                  │ Status │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ DirectedGraphRetriever anchor filter  │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ RoleResolver anchor filter            │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ PostProcessor UUID fix (SUPPLIES_TO)  │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ SUPPLIER_OF query traversal           │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ Offtake relationship traversal        │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ CISO role resolution                  │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ Document reranking for official comms │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ Test runner --force flag              │ ✅     │                                                     
+  ├───────────────────────────────────────┼────────┤                                                     
+  │ Fresh tests by default (no cache)     │ ✅     │                                                     
+  └───────────────────────────────────────┴────────┘                                                     
+  ---                                                                                                    
+  Execute steps 1-6 and report final results. Phase 1 closes when you confirm 7/7 (or 6/7 with Q40       
+  documented).    

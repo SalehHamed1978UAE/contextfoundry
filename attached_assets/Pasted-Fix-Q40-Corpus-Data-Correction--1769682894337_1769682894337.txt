@@ -1,0 +1,54 @@
+Fix Q40: Corpus Data Correction                                                                        
+                                                                                                         
+  The annual report and press release have conflicting backlog values. Fix the corpus data, don't tune   
+  boost parameters.                                                                                      
+                                                                                                         
+  Step 1: Find and fix the inconsistent data                                                             
+                                                                                                         
+  # Find the annual report file with $11.5B                                                              
+  grep -r "11.5" /path/to/corpus/ --include="*.md"                                                       
+                                                                                                         
+  Update the division table in the annual report to show $12.4B total (matching the press release), OR   
+  add a note that $11.5B is division subtotal while $12.4B is company-wide total including other items.  
+                                                                                                         
+  Step 2: Re-extract the corrected document                                                              
+                                                                                                         
+  After fixing the corpus file, re-run extraction on that specific document so the knowledge graph has   
+  the correct value.                                                                                     
+                                                                                                         
+  Step 3: Run final Phase 1 verification                                                                 
+                                                                                                         
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \                                                  
+    --force                                                                                              
+                                                                                                         
+  Step 4: Report final results                                                                           
+  ┌──────────┬────────────────┬───────────┐                                                              
+  │ Question │    Expected    │ Pass/Fail │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q2       │ Michael Chang  │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q17      │ Nel Hydrogen   │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q18      │ Shell          │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q38      │ Jennifer Walsh │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q40      │ $12.4 billion  │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q78      │ Honeywell      │           │                                                              
+  ├──────────┼────────────────┼───────────┤                                                              
+  │ Q95      │ Raytheon       │           │                                                              
+  └──────────┴────────────────┴───────────┘                                                              
+  Step 5: Confirm integration tests pass                                                                 
+                                                                                                         
+  pytest tests/ -v                                                                                       
+                                                                                                         
+  ---                                                                                                    
+  Phase 1 Acceptance Criteria                                                                            
+                                                                                                         
+  - All 7 questions pass                                                                                 
+  - Overall accuracy 80%+                                                                                
+  - All 22 integration tests pass                                                                        
+                                                                                                         
+  Phase 1 is complete when you report 7/7 passing.   

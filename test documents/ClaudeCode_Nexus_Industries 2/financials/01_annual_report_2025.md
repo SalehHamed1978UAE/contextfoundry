@@ -119,7 +119,8 @@
 | Nexus Energy Systems | $3.8B | 1.22 |
 | Nexus Digital Solutions | $1.4B | 1.08 |
 | Nexus Advanced Materials | $1.1B | 1.05 |
-| **Total** | **$11.5B** | **1.14** |
+| Corporate & Strategic Programs | $0.9B | 1.25 |
+| **Total** | **$12.4B** | **1.14** |
 
 ---
 
