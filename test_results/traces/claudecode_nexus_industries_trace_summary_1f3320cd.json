@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-01-29T08:34:33.729334",
+  "run_timestamp": "2026-01-29T09:07:41.209489",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.9499999999999997,
-    "avg_semantic_score": 0.06102800000000001,
+    "avg_chunks_retrieved": 2.9299999999999997,
+    "avg_semantic_score": 0.067224,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 46,
-      "no_match": 13,
       "component_match": 26,
-      "no_data": 5,
+      "no_data": 4,
+      "no_match": 14,
       "number_match": 7,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 90
+    "low_score_queries": 89
   },
   "low_score_questions": [
     {
@@ -199,7 +199,7 @@
     {
       "q_id": 40,
       "question": "What is the total company backlog?",
-      "avg_score": 0.0
+      "avg_score": 0.2896
     },
     {
       "q_id": 41,
@@ -417,11 +417,6 @@
       "avg_score": 0.0
     },
     {
-      "q_id": 89,
-      "question": "What is the FY2026 total benefits investment?",
-      "avg_score": 0.3947
-    },
-    {
       "q_id": 90,
       "question": "What is the minimum internet speed for remote work?",
       "avg_score": 0.0
@@ -473,126 +468,6 @@
     }
   ],
   "failures_by_type": {
-    "no_match": [
-      {
-        "q_id": 5,
-        "question": "Who is the Empowered Official for ITAR compliance?",
-        "expected": "Col. (Ret.) James Foster",
-        "actual": "The search did not return specific infor",
-        "files_retrieved": [
-          "08_quantum_computing_services.md",
-          "10_first_solar_supplier.md",
-          "03_ge_aerospace_customer.md"
-        ]
-      },
-      {
-        "q_id": 19,
-        "question": "Who is the largest aerospace customer of Nexus by relationsh",
-        "expected": "Boeing ($730 million)",
-        "actual": "The largest aerospace customer of Nexus ",
-        "files_retrieved": [
-          "07_ma_strategy.md",
-          "02_airbus_customer_profile.md",
-          "14_lockheed_martin_customer.md"
-        ]
-      },
-      {
-        "q_id": 24,
-        "question": "What is the hydrogen production capacity of the GreenHydroge",
-        "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
-        "actual": "The GreenHydrogen facility in El Paso, T",
-        "files_retrieved": [
-          "08_global_locations.md",
-          "09_greenhydrogen_milestone.md",
-          "02_greenhydrogen_process_specification.md"
-        ]
-      },
-      {
-        "q_id": 29,
-        "question": "Who are the members of the Executive Leadership Team?",
-        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
-        "actual": "The members of the Executive Leadership ",
-        "files_retrieved": [
-          "10_rd_investment_report.md",
-          "08_global_locations.md",
-          "05_fedramp_announcement.md"
-        ]
-      },
-      {
-        "q_id": 32,
-        "question": "Who will be the CEO of the Toyota JV (NextGen Battery Techno",
-        "expected": "Dr. Robert Martinez",
-        "actual": "The CEO of Nexus Industries is Dr. Victo",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 37,
-        "question": "Who is the Project Director for the GreenHydrogen Initiative",
-        "expected": "Jennifer Walsh",
-        "actual": "I found multiple people with the CTO rol",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 40,
-        "question": "What is the total company backlog?",
-        "expected": "$12.4 billion",
-        "actual": "It seems that there is an issue with ret",
-        "files_retrieved": [
-          "05_digital_division_budget.md",
-          "01_annual_report_2025.md",
-          "03_aerospace_division_budget.md"
-        ]
-      },
-      {
-        "q_id": 45,
-        "question": "When was Dr. Victoria Chen appointed CEO?",
-        "expected": "2019",
-        "actual": "I found multiple people with the CTO rol",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 61,
-        "question": "Who replaced Thomas Anderson as Digital President?",
-        "expected": "Robert Kim",
-        "actual": "The PRESIDENT of Nexus Industries is Ken",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 66,
-        "question": "What is the FY2026 capital expenditure plan?",
-        "expected": "$680 million",
-        "actual": "The FY2026 capital expenditure plan for ",
-        "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 68,
-        "question": "Who is the Chair of the Export Control Committee?",
-        "expected": "Col. (Ret.) James Foster (Empowered Offi",
-        "actual": "The Chair of Nexus Industries is Richard",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 79,
-        "question": "What is the 2030 revenue target in the corporate strategy?",
-        "expected": "$15 billion",
-        "actual": "The 2030 revenue targets outlined in the",
-        "files_retrieved": [
-          "06_market_expansion_asia.md",
-          "02_aerospace_division_strategy.md",
-          "01_corporate_strategy_2026_2030.md"
-        ]
-      },
-      {
-        "q_id": 91,
-        "question": "Who is the VP Trade Compliance?",
-        "expected": "Owns the Export Control Policy (per POL-",
-        "actual": "The VP of Nexus Industries is VP Trade C",
-        "files_retrieved": []
-      }
-    ],
     "no_data": [
       {
         "q_id": 15,
@@ -621,9 +496,111 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
+          "04_toyota_partnership_announcement.md",
+          "03_press_release_fy2025.md",
+          "08_global_locations.md"
+        ]
+      }
+    ],
+    "no_match": [
+      {
+        "q_id": 19,
+        "question": "Who is the largest aerospace customer of Nexus by relationsh",
+        "expected": "Boeing ($730 million)",
+        "actual": "The largest aerospace customer of Nexus ",
+        "files_retrieved": [
+          "07_ma_strategy.md",
+          "12_supplier_performance_review.md",
+          "14_lockheed_martin_customer.md"
+        ]
+      },
+      {
+        "q_id": 24,
+        "question": "What is the hydrogen production capacity of the GreenHydroge",
+        "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
+        "actual": "The GreenHydrogen facility in El Paso, T",
+        "files_retrieved": [
           "08_global_locations.md",
-          "05_fedramp_announcement.md",
-          "03_press_release_fy2025.md"
+          "04_greenhydrogen_initiative.md",
+          "09_greenhydrogen_milestone.md"
+        ]
+      },
+      {
+        "q_id": 29,
+        "question": "Who are the members of the Executive Leadership Team?",
+        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
+        "actual": "The members of the Executive Leadership ",
+        "files_retrieved": [
+          "03_aerospace_division_structure.md",
+          "09_investor_presentation_q4.md",
+          "01_corporate_strategy_2026_2030.md"
+        ]
+      },
+      {
+        "q_id": 32,
+        "question": "Who will be the CEO of the Toyota JV (NextGen Battery Techno",
+        "expected": "Dr. Robert Martinez",
+        "actual": "The CEO of Nexus Industries is Dr. Victo",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 37,
+        "question": "Who is the Project Director for the GreenHydrogen Initiative",
+        "expected": "Jennifer Walsh",
+        "actual": "I found multiple people with the CTO rol",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 40,
+        "question": "What is the total company backlog?",
+        "expected": "$12.4 billion",
+        "actual": "The total company backlog for Nexus Indu",
+        "files_retrieved": [
+          "07_ma_strategy.md",
+          "03_aerospace_division_budget.md",
+          "01_annual_report_2025.md"
+        ]
+      },
+      {
+        "q_id": 45,
+        "question": "When was Dr. Victoria Chen appointed CEO?",
+        "expected": "2019",
+        "actual": "The CEO of Nexus Industries is Dr. Victo",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 61,
+        "question": "Who replaced Thomas Anderson as Digital President?",
+        "expected": "Robert Kim",
+        "actual": "I found multiple people with the PRESIDE",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 66,
+        "question": "What is the FY2026 capital expenditure plan?",
+        "expected": "$680 million",
+        "actual": "The FY2026 capital expenditure plan for ",
+        "files_retrieved": [
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
+        ]
+      },
+      {
+        "q_id": 68,
+        "question": "Who is the Chair of the Export Control Committee?",
+        "expected": "Col. (Ret.) James Foster (Empowered Offi",
+        "actual": "The Chair of Nexus Industries is Richard",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 79,
+        "question": "What is the 2030 revenue target in the corporate strategy?",
+        "expected": "$15 billion",
+        "actual": "The 2030 revenue targets outlined in the",
+        "files_retrieved": [
+          "01_corporate_strategy_2026_2030.md",
+          "06_market_expansion_asia.md",
+          "02_aerospace_division_strategy.md"
         ]
       },
       {
@@ -632,9 +609,27 @@
         "expected": "Pacific Power (pilot customer)",
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "08_quantum_computing_services.md",
-          "10_first_solar_supplier.md",
-          "03_ge_aerospace_customer.md"
+          "02_airbus_customer_profile.md",
+          "03_ge_aerospace_customer.md",
+          "10_first_solar_supplier.md"
+        ]
+      },
+      {
+        "q_id": 91,
+        "question": "Who is the VP Trade Compliance?",
+        "expected": "Owns the Export Control Policy (per POL-",
+        "actual": "The VP of Nexus Industries is VP Trade C",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top three custome",
+        "files_retrieved": [
+          "08_project_investment_analysis.md",
+          "05_siemens_healthineers_customer.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       }
     ]
