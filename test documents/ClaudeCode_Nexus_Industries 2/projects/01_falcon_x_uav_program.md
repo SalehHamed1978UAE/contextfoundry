@@ -99,6 +99,8 @@ The Falcon X UAV Program develops the next-generation autonomous unmanned aerial
 
 | Supplier | Component | Contract Value |
 |----------|-----------|----------------|
+| Honeywell | Flight computers | $14.2M |
+| Raytheon | SAR radar (APY-8) | $11.8M |
 | AeroTech Components | Airframe structures | $18.5M |
 | Precision Avionics Inc | Navigation systems | $12.3M |
 | PowerDrive Systems | Propulsion | $9.8M |

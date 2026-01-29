@@ -1,20 +1,19 @@
 {
-  "run_timestamp": "2026-01-29T11:07:28.649228",
+  "run_timestamp": "2026-01-29T11:38:34.252437",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.8499999999999996,
-    "avg_semantic_score": 0.06825099999999995,
+    "avg_chunks_retrieved": 2.9299999999999997,
+    "avg_semantic_score": 0.06707500000000002,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 46,
-      "component_match": 24,
-      "error": 2,
+      "exact_match": 48,
+      "number_match": 8,
+      "component_match": 26,
       "no_data": 4,
-      "no_match": 14,
-      "number_match": 7,
+      "no_match": 11,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
@@ -469,22 +468,6 @@
     }
   ],
   "failures_by_type": {
-    "error": [
-      {
-        "q_id": 12,
-        "question": "When did the GreenHydrogen facility produce its first hydrog",
-        "expected": "March 20, 2026",
-        "actual": "",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 13,
-        "question": "When is BatteryTech solid-state battery commercial productio",
-        "expected": "Q4 2027",
-        "actual": "",
-        "files_retrieved": []
-      }
-    ],
     "no_data": [
       {
         "q_id": 15,
@@ -513,9 +496,9 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "02_business_divisions.md",
           "03_press_release_fy2025.md",
-          "04_toyota_partnership_announcement.md"
+          "04_toyota_partnership_announcement.md",
+          "05_fedramp_announcement.md"
         ]
       }
     ],
@@ -526,8 +509,8 @@
         "expected": "Boeing ($730 million)",
         "actual": "The largest aerospace customer of Nexus ",
         "files_retrieved": [
-          "07_ma_strategy.md",
-          "14_lockheed_martin_customer.md",
+          "02_airbus_customer_profile.md",
+          "03_ge_aerospace_customer.md",
           "12_supplier_performance_review.md"
         ]
       },
@@ -537,20 +520,9 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
-          "08_global_locations.md",
+          "09_greenhydrogen_milestone.md",
           "04_greenhydrogen_initiative.md",
           "02_greenhydrogen_process_specification.md"
-        ]
-      },
-      {
-        "q_id": 29,
-        "question": "Who are the members of the Executive Leadership Team?",
-        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
-        "actual": "The members of the Executive Leadership ",
-        "files_retrieved": [
-          "09_investor_presentation_q4.md",
-          "01_ceo_all_hands_memo.md",
-          "05_digital_division_structure.md"
         ]
       },
       {
@@ -587,8 +559,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -596,13 +568,6 @@
         "question": "Who is the Chair of the Export Control Committee?",
         "expected": "Col. (Ret.) James Foster (Empowered Offi",
         "actual": "The Chair of Nexus Industries is Richard",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 78,
-        "question": "Who provides flight computers for Falcon X?",
-        "expected": "Honeywell",
-        "actual": "The flight computers for the Falcon X ar",
         "files_retrieved": []
       },
       {
@@ -623,8 +588,8 @@
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
           "03_ge_aerospace_customer.md",
-          "10_first_solar_supplier.md",
-          "02_airbus_customer_profile.md"
+          "02_airbus_customer_profile.md",
+          "08_quantum_computing_services.md"
         ]
       },
       {
@@ -633,17 +598,6 @@
         "expected": "Owns the Export Control Policy (per POL-",
         "actual": "The VP of Nexus Industries is VP Trade C",
         "files_retrieved": []
-      },
-      {
-        "q_id": 100,
-        "question": "What is the total value of top 3 customer relationships?",
-        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top 3 customer re",
-        "files_retrieved": [
-          "05_siemens_healthineers_customer.md",
-          "11_microsoft_customer.md",
-          "01_boeing_customer_profile.md"
-        ]
       }
     ]
   }
