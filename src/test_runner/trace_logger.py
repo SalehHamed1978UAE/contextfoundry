@@ -102,8 +102,8 @@ class QuestionTraceLogger:
         trace = {
             "q_id": question_id,
             "question": question_text[:200],
-            "expected": expected_answer[:100],
-            "actual": actual_answer[:100] if actual_answer else "",
+            "expected": expected_answer[:200],
+            "actual": actual_answer[:500] if actual_answer else "",
             "passed": passed,
             "match_type": match_type,
             "query_type": query_type,

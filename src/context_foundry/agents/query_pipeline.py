@@ -72,6 +72,12 @@ You will receive:
 
 Your task is to synthesize the retrieved data into a clear, accurate answer.
 
+ANSWER FORMAT:
+- Lead with the specific answer (name, number, supplier) in the FIRST sentence
+- Be concise - state the answer directly, then add brief context if needed
+- For supplier questions: "[Supplier Name] provides [component]" not "The component is provided by..."
+- Avoid lengthy preambles
+
 CRITICAL RULES:
 1. ONLY use information from the retrieval results - never make up facts
 2. If no relationships were found, clearly state that
