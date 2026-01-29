@@ -65,7 +65,15 @@ def _is_blacklisted_entity(name: str) -> bool:
 
 # DISABLED FOR RLM TEST - was: metric-specific reranking rules
 # To restore: see git history for METRIC_RERANK_RULES
-METRIC_RERANK_RULES = {}
+METRIC_RERANK_RULES = {
+    # For company-wide backlog queries, prefer official communications over division tables
+    'backlog': {
+        'prefer': ['record backlog', 'company backlog', 'total backlog', 'press release', 'ceo', 'record $12'],
+        'demote': ['division', '| aerospace |', '| energy |', '| digital |', '| materials |'],
+        'must_contain': [],
+        'boost_patterns': ['record backlog of $12', 'backlog: record', 'record $12.4']
+    }
+}
 
 
 def rerank_chunks_by_metric(chunks: List[Dict], query: str) -> List[Dict]:
