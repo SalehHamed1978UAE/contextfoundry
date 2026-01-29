@@ -590,6 +590,42 @@ class RetrievalRouter:
             
             logger.info(f"[SUPPLIER_LOOKUP] Returning {len(entities)} suppliers, {len(relationships)} relationships")
             
+            # Also retrieve document chunks that mention supplier + component together
+            # This provides specific context (e.g., "Honeywell" + "flight computer")
+            if entities and search_terms:
+                supplier_names = [e.get('name', '') for e in entities if e.get('name')]
+                component_terms = [t for t in search_terms if t.lower() in ['flight computer', 'flight computers', 'electrolyzer', 'electrolyzers', 'radar', 'sensor', 'battery', 'batteries']]
+                
+                if supplier_names and component_terms:
+                    # Build search pattern for chunks containing both supplier and component
+                    for supplier in supplier_names[:3]:  # Limit to top 3 suppliers
+                        for component in component_terms[:2]:  # Limit to top 2 components
+                            chunk_sql = text("""
+                                SELECT id, text, document_id
+                                FROM document_chunks
+                                WHERE tenant_id = :tenant_id
+                                AND text ILIKE :supplier_pattern
+                                AND text ILIKE :component_pattern
+                                LIMIT 2
+                            """)
+                            chunk_results = self.session.execute(chunk_sql, {
+                                "tenant_id": self.tenant_id,
+                                "supplier_pattern": f"%{supplier}%",
+                                "component_pattern": f"%{component}%"
+                            }).fetchall()
+                            
+                            for chunk in chunk_results:
+                                # Add chunk context to relationships for LLM context
+                                relationships.append({
+                                    "id": f"chunk_{chunk.id}",
+                                    "type": "DOCUMENT_CONTEXT",
+                                    "source": supplier,
+                                    "target": component,
+                                    "context": chunk.text[:500] if chunk.text else "",
+                                    "confidence": 0.9
+                                })
+                                logger.info(f"[SUPPLIER_LOOKUP] Added chunk context for {supplier} + {component}")
+            
         except Exception as e:
             logger.error(f"[SUPPLIER_LOOKUP] Failed: {e}")
         

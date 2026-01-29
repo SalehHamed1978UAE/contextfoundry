@@ -1,16 +1,17 @@
 {
-  "run_timestamp": "2026-01-29T09:07:41.209489",
+  "run_timestamp": "2026-01-29T11:07:28.649228",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.9299999999999997,
-    "avg_semantic_score": 0.067224,
+    "avg_chunks_retrieved": 2.8499999999999996,
+    "avg_semantic_score": 0.06825099999999995,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
       "exact_match": 46,
-      "component_match": 26,
+      "component_match": 24,
+      "error": 2,
       "no_data": 4,
       "no_match": 14,
       "number_match": 7,
@@ -468,6 +469,22 @@
     }
   ],
   "failures_by_type": {
+    "error": [
+      {
+        "q_id": 12,
+        "question": "When did the GreenHydrogen facility produce its first hydrog",
+        "expected": "March 20, 2026",
+        "actual": "",
+        "files_retrieved": []
+      },
+      {
+        "q_id": 13,
+        "question": "When is BatteryTech solid-state battery commercial productio",
+        "expected": "Q4 2027",
+        "actual": "",
+        "files_retrieved": []
+      }
+    ],
     "no_data": [
       {
         "q_id": 15,
@@ -496,9 +513,9 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
+          "02_business_divisions.md",
           "03_press_release_fy2025.md",
-          "08_global_locations.md"
+          "04_toyota_partnership_announcement.md"
         ]
       }
     ],
@@ -510,8 +527,8 @@
         "actual": "The largest aerospace customer of Nexus ",
         "files_retrieved": [
           "07_ma_strategy.md",
-          "12_supplier_performance_review.md",
-          "14_lockheed_martin_customer.md"
+          "14_lockheed_martin_customer.md",
+          "12_supplier_performance_review.md"
         ]
       },
       {
@@ -522,7 +539,7 @@
         "files_retrieved": [
           "08_global_locations.md",
           "04_greenhydrogen_initiative.md",
-          "09_greenhydrogen_milestone.md"
+          "02_greenhydrogen_process_specification.md"
         ]
       },
       {
@@ -531,9 +548,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "03_aerospace_division_structure.md",
           "09_investor_presentation_q4.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_ceo_all_hands_memo.md",
+          "05_digital_division_structure.md"
         ]
       },
       {
@@ -551,21 +568,10 @@
         "files_retrieved": []
       },
       {
-        "q_id": 40,
-        "question": "What is the total company backlog?",
-        "expected": "$12.4 billion",
-        "actual": "The total company backlog for Nexus Indu",
-        "files_retrieved": [
-          "07_ma_strategy.md",
-          "03_aerospace_division_budget.md",
-          "01_annual_report_2025.md"
-        ]
-      },
-      {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "The CEO of Nexus Industries is Dr. Victo",
+        "actual": "I found multiple people with the CTO rol",
         "files_retrieved": []
       },
       {
@@ -581,8 +587,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
         ]
       },
       {
@@ -593,13 +599,20 @@
         "files_retrieved": []
       },
       {
+        "q_id": 78,
+        "question": "Who provides flight computers for Falcon X?",
+        "expected": "Honeywell",
+        "actual": "The flight computers for the Falcon X ar",
+        "files_retrieved": []
+      },
+      {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
           "06_market_expansion_asia.md",
+          "01_corporate_strategy_2026_2030.md",
           "02_aerospace_division_strategy.md"
         ]
       },
@@ -609,9 +622,9 @@
         "expected": "Pacific Power (pilot customer)",
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "02_airbus_customer_profile.md",
           "03_ge_aerospace_customer.md",
-          "10_first_solar_supplier.md"
+          "10_first_solar_supplier.md",
+          "02_airbus_customer_profile.md"
         ]
       },
       {
@@ -625,11 +638,11 @@
         "q_id": 100,
         "question": "What is the total value of top 3 customer relationships?",
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
-        "actual": "The total value of the top three custome",
+        "actual": "The total value of the top 3 customer re",
         "files_retrieved": [
-          "08_project_investment_analysis.md",
           "05_siemens_healthineers_customer.md",
-          "01_corporate_strategy_2026_2030.md"
+          "11_microsoft_customer.md",
+          "01_boeing_customer_profile.md"
         ]
       }
     ]
