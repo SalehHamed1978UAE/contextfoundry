@@ -1,0 +1,32 @@
+Valid concern. Ask Replit directly:                                                                    
+                                                                                                         
+  ---                                                                                                    
+  Before you continue: Are you solving this systematically or hardcoding?                                
+                                                                                                         
+  The fix should be generic, not specific to "GreenHydrogen" or "Nel Hydrogen".                          
+                                                                                                         
+  Systematic solution:                                                                                   
+  - Extract entity names from query patterns like "for the {X} facility" → X                             
+  - Search for suppliers of entity X                                                                     
+  - Works for ANY facility/program, not just GreenHydrogen                                               
+                                                                                                         
+  Hardcoding (NOT acceptable):                                                                           
+  - Adding "GreenHydrogen" to a list of known entities                                                   
+  - Special-casing "Nel Hydrogen"                                                                        
+  - Any fix that only works for Q17 but not for similar queries                                          
+                                                                                                         
+  Show me the code change you're planning before implementing. If it includes specific entity names like 
+  "GreenHydrogen" or "Nel", that's wrong.                                                                
+                                                                                                         
+  ---                                                                                                    
+  The pattern should be something like:                                                                  
+  # Extract "X" from "for the X facility/program/project"                                                
+  match = re.search(r'for the (\w+(?:\s+\w+)*)\s+(?:facility|program|project)', query)                   
+  if match:                                                                                              
+      entity_name = match.group(1)                                                                       
+      search_terms.append(entity_name)                                                                   
+                                                                                                         
+  This works for ANY query like:                                                                         
+  - "Who supplied electrolyzers for the GreenHydrogen facility?" → GreenHydrogen                         
+  - "Who provides radar for the Falcon X program?" → Falcon X                                            
+  - "Who supplies batteries for the BatteryTech project?" → BatteryTech   

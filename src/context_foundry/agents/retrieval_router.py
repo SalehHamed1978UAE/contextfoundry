@@ -488,9 +488,9 @@ class RetrievalRouter:
         
         import re
         entity_patterns = [
-            r'\bfor\s+([A-Z][a-zA-Z0-9\s]+?)(?:\?|\.|$)',
-            r'\bto\s+([A-Z][a-zA-Z0-9\s]+?)(?:\?|\.|$)',
-            r'\bof\s+([A-Z][a-zA-Z0-9\s]+?)(?:\?|\.|$)',
+            r'\bfor\s+(?:the\s+)?([A-Z][a-zA-Z0-9\s]+?)(?:\s+facility|\s+program|\s+project|\s+initiative)?\s*(?:\?|\.|$)',
+            r'\bto\s+(?:the\s+)?([A-Z][a-zA-Z0-9\s]+?)(?:\s+facility|\s+program|\s+project|\s+initiative)?\s*(?:\?|\.|$)',
+            r'\bof\s+(?:the\s+)?([A-Z][a-zA-Z0-9\s]+?)(?:\s+facility|\s+program|\s+project|\s+initiative)?\s*(?:\?|\.|$)',
         ]
         for pattern in entity_patterns:
             matches = re.findall(pattern, query)
@@ -498,6 +498,17 @@ class RetrievalRouter:
                 clean_match = match.strip()
                 if len(clean_match) > 2 and clean_match.lower() not in ['the', 'this', 'that']:
                     search_terms.append(clean_match)
+                    query_lower_check = query.lower()
+                    type_suffixes = {
+                        'facility': [' Facility', ' Production Facility'],
+                        'program': [' Program', ' UAV Program'],
+                        'project': [' Project'],
+                        'initiative': [' Initiative'],
+                    }
+                    for type_word, suffixes in type_suffixes.items():
+                        if type_word in query_lower_check:
+                            for suffix in suffixes:
+                                search_terms.append(clean_match + suffix)
         
         if not search_terms:
             words = query_lower.replace('?', '').replace('.', '').split()
