@@ -1,0 +1,52 @@
+Phase 2, Task 1: REPORTS_TO Inference (Q15)                                                            
+                                                                                                         
+  Step 1: Check what Q15 currently returns                                                               
+                                                                                                         
+  curl -X POST http://localhost:5000/api/vault/chat \                                                    
+    -H "Content-Type: application/json" \                                                                
+    -H "Authorization: Bearer <token>" \                                                                 
+    -d '{"vault_id": "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91", "query": "Who does Michael Chang report     
+  to?"}'                                                                                                 
+                                                                                                         
+  Copy the response and share it.                                                                        
+                                                                                                         
+  Step 2: Check if REPORTS_TO relationships exist in the database                                        
+                                                                                                         
+  SELECT e1.canonical_name as person, r.relationship_type, e2.canonical_name as reports_to               
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND r.relationship_type = 'REPORTS_TO'                                                                 
+  LIMIT 20;                                                                                              
+                                                                                                         
+  Share the output.                                                                                      
+                                                                                                         
+  Step 3: Check Michael Chang's relationships                                                            
+                                                                                                         
+  SELECT e1.canonical_name as source, r.relationship_type, e2.canonical_name as target                   
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND (e1.canonical_name ILIKE '%michael chang%' OR e2.canonical_name ILIKE '%michael chang%')           
+  LIMIT 20;                                                                                              
+                                                                                                         
+  Share the output.                                                                                      
+                                                                                                         
+  Step 4: Check Victoria Chen's relationships                                                            
+                                                                                                         
+  SELECT e1.canonical_name as source, r.relationship_type, e2.canonical_name as target                   
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND (e1.canonical_name ILIKE '%victoria chen%' OR e2.canonical_name ILIKE '%victoria chen%')           
+  LIMIT 20;                                                                                              
+                                                                                                         
+  Share the output.                                                                                      
+                                                                                                         
+  ---                                                                                                    
+  STOP after Step 4. Share all outputs before implementing anything.                                     
+                                                                                                         
+  I need to see the current state before telling you exactly what code to write.
