@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-01-29T11:38:34.252437",
+  "run_timestamp": "2026-01-29T21:06:22.163050",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.9299999999999997,
-    "avg_semantic_score": 0.06707500000000002,
+    "avg_chunks_retrieved": 2.8899999999999997,
+    "avg_semantic_score": 0.06451600000000003,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 48,
-      "number_match": 8,
-      "component_match": 26,
+      "exact_match": 47,
+      "number_match": 7,
+      "component_match": 27,
       "no_data": 4,
-      "no_match": 11,
+      "no_match": 12,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 89
+    "low_score_queries": 90
   },
   "low_score_questions": [
     {
@@ -392,6 +392,11 @@
       "avg_score": 0.0
     },
     {
+      "q_id": 83,
+      "question": "Who is the primary customer for the SmartGrid Controller?",
+      "avg_score": 0.0
+    },
+    {
       "q_id": 84,
       "question": "What is the cybersecurity incident response investment?",
       "avg_score": 0.0
@@ -470,13 +475,6 @@
   "failures_by_type": {
     "no_data": [
       {
-        "q_id": 15,
-        "question": "Who does Michael Chang report to?",
-        "expected": "Dr. Victoria Chen (CEO)",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
         "q_id": 16,
         "question": "What company is Nexus partnering with for solid-state batter",
         "expected": "Toyota Motor Corporation",
@@ -496,10 +494,17 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "03_press_release_fy2025.md",
+          "05_fedramp_announcement.md",
           "04_toyota_partnership_announcement.md",
-          "05_fedramp_announcement.md"
+          "03_press_release_fy2025.md"
         ]
+      },
+      {
+        "q_id": 83,
+        "question": "Who is the primary customer for the SmartGrid Controller?",
+        "expected": "Pacific Power (pilot customer)",
+        "actual": "The primary customer for the SmartGrid C",
+        "files_retrieved": []
       }
     ],
     "no_match": [
@@ -510,8 +515,8 @@
         "actual": "The largest aerospace customer of Nexus ",
         "files_retrieved": [
           "02_airbus_customer_profile.md",
-          "03_ge_aerospace_customer.md",
-          "12_supplier_performance_review.md"
+          "07_ma_strategy.md",
+          "14_lockheed_martin_customer.md"
         ]
       },
       {
@@ -520,9 +525,20 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
-          "09_greenhydrogen_milestone.md",
+          "02_greenhydrogen_process_specification.md",
           "04_greenhydrogen_initiative.md",
-          "02_greenhydrogen_process_specification.md"
+          "09_greenhydrogen_milestone.md"
+        ]
+      },
+      {
+        "q_id": 29,
+        "question": "Who are the members of the Executive Leadership Team?",
+        "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
+        "actual": "The members of the Executive Leadership ",
+        "files_retrieved": [
+          "01_executive_team.md",
+          "05_fedramp_announcement.md",
+          "01_ceo_all_hands_memo.md"
         ]
       },
       {
@@ -567,7 +583,7 @@
         "q_id": 68,
         "question": "Who is the Chair of the Export Control Committee?",
         "expected": "Col. (Ret.) James Foster (Empowered Offi",
-        "actual": "The Chair of Nexus Industries is Richard",
+        "actual": "I found multiple people with the Chair r",
         "files_retrieved": []
       },
       {
@@ -576,20 +592,9 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
           "01_corporate_strategy_2026_2030.md",
+          "06_market_expansion_asia.md",
           "02_aerospace_division_strategy.md"
-        ]
-      },
-      {
-        "q_id": 83,
-        "question": "Who is the primary customer for the SmartGrid Controller?",
-        "expected": "Pacific Power (pilot customer)",
-        "actual": "The primary customer for the SmartGrid C",
-        "files_retrieved": [
-          "03_ge_aerospace_customer.md",
-          "02_airbus_customer_profile.md",
-          "08_quantum_computing_services.md"
         ]
       },
       {
@@ -598,6 +603,17 @@
         "expected": "Owns the Export Control Policy (per POL-",
         "actual": "The VP of Nexus Industries is VP Trade C",
         "files_retrieved": []
+      },
+      {
+        "q_id": 100,
+        "question": "What is the total value of top 3 customer relationships?",
+        "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
+        "actual": "The total value of the top three custome",
+        "files_retrieved": [
+          "02_airbus_customer_profile.md",
+          "05_siemens_healthineers_customer.md",
+          "12_rio_tinto_customer.md"
+        ]
       }
     ]
   }

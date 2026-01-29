@@ -1,0 +1,29 @@
+ STOP. You're going in circles.                                                                         
+                                                                                                         
+  1. Q78 and Q95 were passing at 84%. Now they're failing at 80%.                                        
+  2. You made changes to the supplier lookup but tested BEFORE restarting services.                      
+  3. The regressions need to be fixed before adding new features.                                        
+                                                                                                         
+  Do this in order:                                                                                      
+                                                                                                         
+  Step 1: Restart services to apply your changes                                                         
+                                                                                                         
+  # Kill and restart the server                                                                          
+  pkill -f "python.*server" && python -m src.server &                                                    
+                                                                                                         
+  Step 2: Wait 10 seconds for server to start                                                            
+                                                                                                         
+  Step 3: Run a fresh test                                                                               
+                                                                                                         
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \                                                  
+    --force                                                                                              
+                                                                                                         
+  Step 4: Report results for these specific questions:                                                   
+                                                                                                         
+  - Q15 (REPORTS_TO) - should still pass                                                                 
+  - Q78 (Honeywell) - should pass                                                                        
+  - Q95 (Raytheon) - should pass                                                                         
+  - Overall score - should be 84%+                                                                       
+                                                                                                         
+  Do NOT make any more code changes until you report these results. 

@@ -1,0 +1,64 @@
+Add Conciseness Instruction to System Prompts                                                  
+                                                                                                         
+  Location 1: src/context_foundry/agents/tool_agent.py line 33                                           
+                                                                                                         
+  Find this block:                                                                                       
+  AGENT_SYSTEM_PROMPT = '''You are Context Foundry, an AI assistant with access to a knowledge graph and 
+  documents.                                                                                             
+                                                                                                         
+  RULES:                                                                                                 
+  1. For ANY numeric answer (counts, sums, totals), you MUST use run_aggregation. Never guess numbers.   
+                                                                                                         
+  Add this section AFTER "RULES:" (as rule 0, before rule 1):                                            
+  AGENT_SYSTEM_PROMPT = '''You are Context Foundry, an AI assistant with access to a knowledge graph and 
+  documents.                                                                                             
+                                                                                                         
+  RULES:                                                                                                 
+  0. ANSWER FORMAT: Answer the question directly and concisely. Lead with the specific answer (name,     
+  number, date, supplier) in the first sentence. If needed, follow with one sentence of supporting       
+  context. Avoid lengthy preambles like "The X is provided by..." - just state the answer.               
+  1. For ANY numeric answer (counts, sums, totals), you MUST use run_aggregation. Never guess numbers.   
+                                                                                                         
+  ---                                                                                                    
+  Location 2: src/context_foundry/agents/query_pipeline.py line 65                                       
+                                                                                                         
+  Find this block:                                                                                       
+  ANSWER_SYNTHESIS_PROMPT = """You are an answer synthesizer for a knowledge graph system.               
+                                                                                                         
+  You will receive:                                                                                      
+                                                                                                         
+  Add this section right after "Your task is to synthesize...":                                          
+  ANSWER_SYNTHESIS_PROMPT = """You are an answer synthesizer for a knowledge graph system.               
+                                                                                                         
+  You will receive:                                                                                      
+  1. The original user query                                                                             
+  2. A structured query intent (what we searched for)                                                    
+  3. Precise retrieval results from the graph (with optional context: Why, Source, Evidence)             
+  4. A TARGET TYPE (optional) - the type of entity the user specifically asked for                       
+                                                                                                         
+  Your task is to synthesize the retrieved data into a clear, accurate answer.                           
+                                                                                                         
+  ANSWER FORMAT:                                                                                         
+  - Lead with the specific answer (name, number, supplier) in the FIRST sentence                         
+  - Be concise - state the answer directly, then add brief context if needed                             
+  - For supplier questions: "[Supplier Name] provides [component]" not "The component is provided by..." 
+  - Avoid lengthy preambles                                                                              
+                                                                                                         
+  CRITICAL RULES:                                                                                        
+                                                                                                         
+  ---                                                                                                    
+  Verification                                                                                           
+                                                                                                         
+  After making these changes, test Q95 directly:                                                         
+                                                                                                         
+  python -c "                                                                                            
+  from src.context_foundry.core import ContextFoundry                                                    
+  cf = ContextFoundry(vault_id='1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91')                                   
+                                                                                                         
+  # Test Q95                                                                                             
+  r = cf.query('Who provides the SAR radar for Falcon X?')                                               
+  print('Q95 Answer:', r.get('answer', '')[:200])                                                        
+  print('Starts with Raytheon:', r.get('answer', '').startswith('Raytheon'))                             
+  "                                                                                                      
+                                                                                                         
+  Expected: Answer starts with "Raytheon" not "The SAR radar is provided by..." 
