@@ -59,6 +59,12 @@ Architectural features include:
     - **Stage 0 Role Resolution**: Highest priority lookup stage for role resolution.
     - **Edge-Rank Prioritization**: Ranking system for relationship types to select the best match.
     - **Cross-Organization Contamination Prevention**: RoleResolver and DirectedGraphRetriever both apply anchor organization filtering to prevent returning entities from unrelated organizations (e.g., wrong CFO from different company).
+- **Supplier Query Lookup**:
+    - **Specialized Detection**: Detects supplier-related queries using keywords (supplier, supplies, provides, vendor, manufacturer, etc.).
+    - **Entity Extraction from Query**: Uses regex patterns to extract entity names from queries (e.g., "Falcon X" from "Who provides flight computers for Falcon X?").
+    - **SUPPLIER_OF Relationship Traversal**: Queries SUPPLIER_OF, SUPPLIES_TO, PROVIDES, MANUFACTURES relationships from the knowledge graph.
+    - **Prioritized Results**: Prepends supplier entities and relationships in context so they appear first in LLM synthesis.
+    - **Increased Context Limits**: Entity limit (15) and relationship limit (25) for supplier queries to include all relevant suppliers.
 - **Corpus Maker (Phase 1.5)**:
     - **Web UI**: Full-featured UI for uploading, registering, and validating corpora at `/corpus-maker`.
     - **Selective Folder Upload**: Single parent folder selection with checkbox UI for subfolder inclusion/exclusion.

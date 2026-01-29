@@ -432,6 +432,150 @@ class RetrievalRouter:
         
         return entities, relationships
     
+    def _is_supplier_query(self, query: str) -> bool:
+        """Detect if query is asking about suppliers/providers."""
+        supplier_keywords = [
+            'supplier', 'suppliers', 'supplied', 'supplies', 'supply',
+            'provider', 'providers', 'provided', 'provides', 'provide',
+            'vendor', 'vendors',
+            'who provides', 'who supplied', 'who supplies',
+            'source of', 'sourced from'
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in supplier_keywords)
+    
+    def _lookup_suppliers(
+        self,
+        query: str,
+        target_entity_name: str = None
+    ) -> tuple:
+        """
+        Lookup SUPPLIER_OF relationships for a target entity.
+        
+        For queries like "Who supplied the electrolyzers?" or "Who provides flight computers?",
+        this finds the product/component entity and traverses incoming SUPPLIER_OF relationships
+        to find the supplier entities.
+        
+        Args:
+            query: The original query
+            target_entity_name: Optional explicit target entity name
+            
+        Returns:
+            Tuple of (entities, relationships) with supplier information
+        """
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+        
+        entities = []
+        relationships = []
+        seen_entity_ids = set()
+        
+        logger.info(f"[SUPPLIER_LOOKUP] Query: '{query}', target: {target_entity_name}")
+        
+        search_terms = []
+        if target_entity_name:
+            search_terms.append(target_entity_name)
+        
+        component_terms = [
+            'electrolyzer', 'electrolyzers', 'flight computer', 'flight computers',
+            'radar', 'battery', 'batteries', 'sensor', 'sensors', 'component', 'components',
+            'material', 'materials', 'equipment', 'part', 'parts'
+        ]
+        query_lower = query.lower()
+        for term in component_terms:
+            if term in query_lower:
+                search_terms.append(term)
+        
+        import re
+        entity_patterns = [
+            r'\bfor\s+([A-Z][a-zA-Z0-9\s]+?)(?:\?|\.|$)',
+            r'\bto\s+([A-Z][a-zA-Z0-9\s]+?)(?:\?|\.|$)',
+            r'\bof\s+([A-Z][a-zA-Z0-9\s]+?)(?:\?|\.|$)',
+        ]
+        for pattern in entity_patterns:
+            matches = re.findall(pattern, query)
+            for match in matches:
+                clean_match = match.strip()
+                if len(clean_match) > 2 and clean_match.lower() not in ['the', 'this', 'that']:
+                    search_terms.append(clean_match)
+        
+        if not search_terms:
+            words = query_lower.replace('?', '').replace('.', '').split()
+            for word in words:
+                if len(word) > 4 and word not in ['supplier', 'supplies', 'supplied', 'provides', 'provided', 'provider', 'flight', 'computer', 'computers']:
+                    search_terms.append(word)
+        
+        logger.info(f"[SUPPLIER_LOOKUP] Search terms: {search_terms}")
+        
+        try:
+            supplier_rel_sql = text("""
+                SELECT DISTINCT
+                    r.id as rel_id,
+                    r.relationship_type,
+                    r.confidence,
+                    r.provenance_text,
+                    src.id as source_id,
+                    src.name as source_name,
+                    src.entity_type as source_type,
+                    tgt.id as target_id,
+                    tgt.name as target_name,
+                    tgt.entity_type as target_type
+                FROM relationships r
+                JOIN entities src ON r.source_id = src.id
+                JOIN entities tgt ON r.target_id = tgt.id
+                WHERE r.tenant_id = :tenant_id
+                AND r.relationship_type IN ('SUPPLIER_OF', 'SUPPLIES_TO', 'PROVIDES', 'MANUFACTURES')
+                AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
+                ORDER BY r.confidence DESC
+                LIMIT 100
+            """)
+            
+            rel_results = self.session.execute(supplier_rel_sql, {
+                "tenant_id": self.tenant_id
+            }).fetchall()
+            
+            logger.info(f"[SUPPLIER_LOOKUP] Found {len(rel_results)} supplier relationships in vault")
+            
+            for term in search_terms:
+                term_lower = term.lower()
+                for rel in rel_results:
+                    target_name_lower = rel.target_name.lower() if rel.target_name else ''
+                    source_name_lower = rel.source_name.lower() if rel.source_name else ''
+                    
+                    if term_lower in target_name_lower or term_lower in source_name_lower:
+                        supplier_id = str(rel.source_id)
+                        target_id = str(rel.target_id)
+                        
+                        if supplier_id not in seen_entity_ids:
+                            seen_entity_ids.add(supplier_id)
+                            entities.append({
+                                "id": supplier_id,
+                                "name": rel.source_name,
+                                "type": rel.source_type,
+                                "confidence": rel.confidence,
+                                "role": "supplier",
+                                "supplies": rel.target_name
+                            })
+                            logger.info(f"[SUPPLIER_LOOKUP] Found supplier: {rel.source_name} supplies {rel.target_name}")
+                        
+                        relationships.append({
+                            "id": str(rel.rel_id),
+                            "type": rel.relationship_type,
+                            "source": rel.source_name,
+                            "source_type": rel.source_type,
+                            "target": rel.target_name,
+                            "target_type": rel.target_type,
+                            "confidence": rel.confidence,
+                            "provenance": rel.provenance_text
+                        })
+            
+            logger.info(f"[SUPPLIER_LOOKUP] Returning {len(entities)} suppliers, {len(relationships)} relationships")
+            
+        except Exception as e:
+            logger.error(f"[SUPPLIER_LOOKUP] Failed: {e}")
+        
+        return entities, relationships
+    
     def _search_graph(
         self,
         query: str,
@@ -1166,6 +1310,18 @@ class QueryPipeline:
         
         if intent.intent_type != "general":
             logger.info(f"[PIPELINE] Detected intent: {intent.intent_type}={intent.relationship_type or intent.attribute_type}")
+        
+        if self.router._is_supplier_query(query):
+            logger.info(f"[PIPELINE] Detected supplier query, using specialized lookup")
+            supplier_entities, supplier_relationships = self.router._lookup_suppliers(query)
+            if supplier_entities or supplier_relationships:
+                logger.info(f"[PIPELINE] Supplier lookup found: {len(supplier_entities)} entities, {len(supplier_relationships)} relationships")
+                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result.entities = supplier_entities + result.entities
+                result.relationships = supplier_relationships + result.relationships
+                result.strategy_used = f"HYBRID+SUPPLIER ({result.strategy_used})"
+                logger.info(f"[PIPELINE] Complete (supplier): strategy={result.strategy_used}, has_data={result.has_data}")
+                return result
         
         result = self.router.route(query, classification, role_resolution, intent, classified_query)
         

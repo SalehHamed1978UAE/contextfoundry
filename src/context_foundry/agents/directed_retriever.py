@@ -75,23 +75,37 @@ def filter_by_anchor_organization(
         - Have no organization specified (generic entities)
     """
     if not anchor_org:
+        logger.info(f"[AnchorFilter] No anchor org specified, returning all {len(entities)} entities")
         return entities
     
     anchor_lower = anchor_org.lower().strip()
     filtered = []
+    rejected = []
+    
+    logger.info(f"[AnchorFilter] Filtering {len(entities)} entities for anchor '{anchor_org}'")
     
     for entity in entities:
         org = entity.get('organization', '').lower().strip()
+        entity_name = entity.get('name', 'UNKNOWN')
+        entity_type = entity.get('type', entity.get('entity_type', 'UNKNOWN'))
         
         # Keep if no organization specified (generic entity)
         if not org:
+            logger.info(f"  [PASS-GENERIC] {entity_name} ({entity_type}): org='NONE' (no org specified)")
             filtered.append(entity)
             continue
         
         # Keep if matches anchor organization
         if org == anchor_lower or anchor_lower in org or org in anchor_lower:
+            logger.info(f"  [PASS-MATCH] {entity_name} ({entity_type}): org='{org}' matches anchor")
             filtered.append(entity)
             continue
+        
+        # Reject - organization doesn't match
+        logger.info(f"  [REJECT] {entity_name} ({entity_type}): org='{org}' != anchor '{anchor_lower}'")
+        rejected.append(entity)
+    
+    logger.info(f"[AnchorFilter] Result: {len(filtered)} passed, {len(rejected)} rejected")
     
     # Sort by edge rank if requested
     if prefer_higher_rank and filtered:
