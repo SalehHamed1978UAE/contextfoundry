@@ -660,15 +660,20 @@ class RetrievalRouter:
                     src.entity_type as source_type,
                     tgt.id as target_id,
                     tgt.name as target_name,
-                    tgt.entity_type as target_type
+                    tgt.entity_type as target_type,
+                    CASE 
+                        WHEN LOWER(src.name) LIKE '%offtake%' OR LOWER(tgt.name) LIKE '%offtake%' THEN 3
+                        WHEN LOWER(src.name) LIKE '%hydrogen%' OR LOWER(tgt.name) LIKE '%hydrogen%' THEN 2
+                        ELSE 1
+                    END as priority_score
                 FROM relationships r
                 JOIN entities src ON r.source_id = src.id
                 JOIN entities tgt ON r.target_id = tgt.id
                 WHERE r.tenant_id = :tenant_id
                 AND r.relationship_type IN ('FUNDED_BY', 'PARTNER_OF', 'INVESTOR_IN', 'HAS_AGREEMENT_WITH')
                 AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
-                ORDER BY r.confidence DESC
-                LIMIT 100
+                ORDER BY priority_score DESC, r.confidence DESC
+                LIMIT 200
             """)
             
             rel_results = self.session.execute(offtake_rel_sql, {
@@ -718,6 +723,37 @@ class RetrievalRouter:
                             "confidence": rel.confidence,
                             "provenance": rel.provenance_text
                         })
+            
+            if entities or relationships:
+                shell_entities = []
+                offtake_entities = []
+                other_entities = []
+                shell_relationships = []
+                offtake_relationships = []
+                other_relationships = []
+                
+                for e in entities:
+                    name_lower = e.get('name', '').lower()
+                    if 'shell' in name_lower:
+                        shell_entities.append(e)
+                    elif 'offtake' in name_lower or 'hydrogen' in name_lower:
+                        offtake_entities.append(e)
+                    else:
+                        other_entities.append(e)
+                
+                for r in relationships:
+                    source_lower = r.get('source', '').lower()
+                    target_lower = r.get('target', '').lower()
+                    if 'shell' in source_lower or 'shell' in target_lower:
+                        shell_relationships.append(r)
+                    elif ('offtake' in source_lower or 'offtake' in target_lower or
+                        'hydrogen' in source_lower or 'hydrogen' in target_lower):
+                        offtake_relationships.append(r)
+                    else:
+                        other_relationships.append(r)
+                
+                entities = shell_entities[:5] + offtake_entities[:15] + other_entities[:5]
+                relationships = shell_relationships[:15] + offtake_relationships[:20] + other_relationships[:5]
             
             logger.info(f"[OFFTAKE_LOOKUP] Returning {len(entities)} entities, {len(relationships)} relationships")
             

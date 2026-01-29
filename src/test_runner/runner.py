@@ -4,13 +4,13 @@ Context Foundry Test Runner
 One-command test runner for all corpora.
 
 DEFAULT BEHAVIOR:
-- If checkpoint exists (extraction complete), resume Q&A from last answered question
-- If no checkpoint, run full test (upload, extract, Q&A)
+- Always runs fresh: deletes cached progress files and runs all questions
+- Use --resume only for interrupted tests that need to continue
 
 Usage:
     python -m src.test_runner.runner --list                    # List available corpora
-    python -m src.test_runner.runner --corpus "Manus Healthtec"  # Run (auto-resume if checkpoint exists)
-    python -m src.test_runner.runner --corpus "X" --fresh        # Force fresh start (delete vault, recreate, full run)
+    python -m src.test_runner.runner --corpus "Manus Healthtec"  # Run fresh (default)
+    python -m src.test_runner.runner --corpus "X" --resume       # Resume interrupted test
     python -m src.test_runner.runner --all                       # Run all corpora (sequential)
     python -m src.test_runner.runner --corpus "X" --question-set-id <uuid>  # Use question set from DB
 """
@@ -371,34 +371,51 @@ def run_vault_test(vault_id: str, question_set_id: str, mode: str, corpus_folder
                 pass
 
 
-def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, fresh: bool = False, question_set_id: str = None):
+def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool = False, resume: bool = False, question_set_id: str = None):
     """
     Run test for a single corpus (legacy mode).
     
-    Default: Auto-resume if checkpoint exists (extraction complete)
-    --fresh: Force full run from scratch (delete vault, upload, extract, Q&A)
+    Default: Always run fresh (delete progress files, run all questions)
+    --resume: Continue from previous progress (only for interrupted tests)
     --question-set-id: Use questions from database instead of file
     """
     
     update_status('init', stage_status=None)
     
-    # Check for checkpoint first (unless --fresh is specified)
+    # Default: Clear progress files and run fresh
+    # Only check for checkpoint if --resume is explicitly passed
     checkpoint = None
-    if not fresh:
+    if resume:
         checkpoint = load_checkpoint(config.results_dir, corpus_name)
         if checkpoint and checkpoint.get('extraction_complete'):
             print(f"\n  Found checkpoint from {checkpoint.get('timestamp', 'unknown')}")
+    else:
+        # Fresh run: delete any existing progress files
+        import glob
+        safe_name = corpus_name.lower().replace(' ', '_').replace('-', '_')
+        patterns = [
+            f"test_results/*{safe_name}*progress*.jsonl",
+            f"test_results/*{safe_name}*progress*.json",
+            f"test_results/vault_*_progress.jsonl",
+        ]
+        for pattern in patterns:
+            for f in glob.glob(pattern):
+                try:
+                    os.remove(f)
+                    print(f"[FRESH] Deleted cache: {f}")
+                except Exception:
+                    pass
     
     # Determine mode
-    will_resume = checkpoint and checkpoint.get('extraction_complete') and not fresh
+    will_resume = checkpoint and checkpoint.get('extraction_complete') and resume
     
     mode_str = ""
-    if fresh:
-        mode_str = " (FRESH START)"
-    elif will_resume:
+    if will_resume:
         mode_str = " (RESUMING)"
     elif questions_only:
         mode_str = " (QUESTIONS ONLY)"
+    else:
+        mode_str = " (FRESH)"
     
     print("\n" + "=" * 70)
     print(f"TEST RUNNER: {corpus_name}{mode_str}")
@@ -544,7 +561,7 @@ def run_corpus_test(corpus_name: str, config: TestConfig, questions_only: bool =
         # Save checkpoint after extraction completes successfully
         save_checkpoint(config.results_dir, corpus_name, vault_id, extraction_complete=True)
     
-    # Step 5: Run test (with auto-resume from progress file)
+    # Step 5: Run test questions
     if not vault_id:
         print("ERROR: No vault ID available")
         return None
@@ -606,13 +623,13 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Default behavior:
-  - If checkpoint exists (extraction complete), resume Q&A from last answered question
-  - If no checkpoint, run full test (upload, extract, Q&A)
+  - Always runs fresh: deletes cached progress files and runs all questions
+  - Use --resume only for interrupted tests that need to continue
 
 Examples:
+  %(prog)s --corpus "Manus Healthtec"          # Run fresh (default)
+  %(prog)s --corpus "Manus Healthtec" --resume # Resume interrupted test
   %(prog)s --vault-id <uuid> --question-set-id <uuid> --mode auto  # Run Q&A on existing vault
-  %(prog)s --vault-id <uuid> --question-set-id <uuid> --mode fresh --corpus-folder "test documents/Manus Healthtec"
-  %(prog)s --corpus "Manus Healthtec"          # Legacy: Auto-resume if checkpoint exists
   %(prog)s --list                              # Show checkpoint status for all corpora
 """
     )
@@ -624,7 +641,7 @@ Examples:
     parser.add_argument('--corpus-folder', type=str, help='Corpus folder path (required for fresh mode)')
     parser.add_argument('--all', action='store_true', help='Run all corpora (sequential)')
     parser.add_argument('--questions-only', action='store_true', help='Skip upload/extraction, run questions only against existing vault')
-    parser.add_argument('--fresh', action='store_true', help='Force fresh start (legacy flag)')
+    parser.add_argument('--resume', action='store_true', help='Resume from previous progress (only use for interrupted tests)')
     parser.add_argument('--config', type=str, default='src/test_config.json', help='Config file path')
     parser.add_argument('--test-run-id', type=str, help='Database test run ID (for persistence)')
     
@@ -646,14 +663,14 @@ Examples:
     elif args.corpus:
         run_corpus_test(args.corpus, config, 
                        questions_only=args.questions_only, 
-                       fresh=args.fresh,
+                       resume=args.resume,
                        question_set_id=args.question_set_id)
     elif args.all:
         print("Running all corpora sequentially...")
         for name in config.list_corpora().keys():
             run_corpus_test(name, config, 
                            questions_only=args.questions_only, 
-                           fresh=args.fresh,
+                           resume=args.resume,
                            question_set_id=args.question_set_id)
     else:
         parser.print_help()
