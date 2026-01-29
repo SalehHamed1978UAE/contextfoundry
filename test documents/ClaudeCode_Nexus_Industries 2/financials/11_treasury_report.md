@@ -241,7 +241,7 @@
 ## Governance
 
 **Treasury Committee:**
-- Robert Kim, CFO (Chair)
+- Michael Chang, CFO (Chair)
 - David Chen, VP Treasury
 - Sarah Johnson, VP Finance
 - External: Banking advisors

@@ -182,7 +182,7 @@
 
 **Participants:**
 - Dr. Victoria Chen, CEO
-- Robert Kim, CFO
+- Michael Chang, CFO
 - Jennifer Walsh, VP Investor Relations
 
 ---
