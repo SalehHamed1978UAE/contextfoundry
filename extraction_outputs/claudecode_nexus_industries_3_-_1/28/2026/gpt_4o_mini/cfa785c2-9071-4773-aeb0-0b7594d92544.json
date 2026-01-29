@@ -1,0 +1,224 @@
+{
+  "document_id": "cfa785c2-9071-4773-aeb0-0b7594d92544",
+  "document_path": "01_ceo_all_hands_memo.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T21:20:07.506170",
+  "entities": [
+    {
+      "name": "Dr. Victoria Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "CEO",
+        "role": "Chief Executive Officer"
+      },
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Dr. Victoria Chen, CEO",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Aerospace and Defense"
+      },
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Nexus Industries delivered its strongest year in company history",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X UAV Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "First flight targeted for May 2026",
+        "status": "On schedule and under budget"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Falcon X UAV Program: Our largest aerospace program remains on schedule and under budget",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Initiative",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": "$450 million",
+        "timeline": "First hydrogen production expected in March",
+        "status": "68% complete"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "GreenHydrogen Initiative: Construction is 68% complete at our El Paso facility",
+      "aliases": []
+    },
+    {
+      "name": "Toyota",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership type": "Joint Venture"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "finalized our solid-state battery joint venture with Toyota",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Protects over 2 million endpoints",
+        "category": "Cybersecurity"
+      },
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "CyberShield now protects over 2 million endpoints",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Edge AI processing capabilities",
+        "category": "Digital Solutions"
+      },
+      "confidence": 0.85,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Edge AI processing capabilities for NexusConnect",
+      "aliases": []
+    },
+    {
+      "name": "El Paso facility",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "El Paso, Texas",
+        "type": "Production Facility"
+      },
+      "confidence": 0.85,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Construction is 68% complete at our El Paso facility",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Team",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "Various"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Dear Nexus Team",
+      "aliases": []
+    },
+    {
+      "name": "Board of Directors",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Governing Body"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "our Board of Directors approved a 12% dividend increase",
+      "aliases": []
+    },
+    {
+      "name": "Asia-Pacific",
+      "entity_type": "LOCATION",
+      "properties": {
+        "region": "Asia-Pacific"
+      },
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "source_excerpt": "Grow our Asia-Pacific presence",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "I am honored to lead this incredible team"
+    },
+    {
+      "source_entity": "Dr. Victoria Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Dr. Victoria Chen, CEO"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "CyberShield now protects over 2 million endpoints"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Toyota",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "finalized our solid-state battery joint venture with Toyota"
+    },
+    {
+      "source_entity": "GreenHydrogen Initiative",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Shell",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "$450 million offtake agreement with Shell"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "El Paso facility",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Construction is 68% complete at our El Paso facility"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "FOCUSES_ON",
+      "target_entity": "Digital Solutions",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "01_ceo_all_hands_memo.md",
+      "evidence": "Expand our Digital Solutions business"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 11,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

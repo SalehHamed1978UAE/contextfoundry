@@ -1,0 +1,178 @@
+{
+  "document_id": "0b2f8ac8-2671-479d-8bd5-d3154279c609",
+  "document_path": "08_cybersecurity_advisory.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T21:19:23.929859",
+  "entities": [
+    {
+      "name": "Robert Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Information Security Officer",
+        "role": "CISO"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Robert Kim, Chief Information Security Officer",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Technology"
+      },
+      "confidence": 0.95,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "targeting Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Learning Portal",
+      "entity_type": "LOCATION",
+      "properties": {
+        "city": null,
+        "country": null
+      },
+      "confidence": 0.8,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Location: Nexus Learning Portal",
+      "aliases": []
+    },
+    {
+      "name": "Security Awareness training module",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "by December 31, 2025",
+        "status": "Mandatory"
+      },
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All employees must complete the updated Security Awareness training module by December 31, 2025",
+      "aliases": []
+    },
+    {
+      "name": "Credential Harvesting Phishing",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "Phishing campaign targeting credentials",
+        "category": "Cybersecurity"
+      },
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Threat Type | Credential Harvesting Phishing",
+      "aliases": []
+    },
+    {
+      "name": "IT Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus areas": "IT Security"
+      },
+      "confidence": 0.8,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "Sender | Appears to be from 'IT Department'",
+      "aliases": []
+    },
+    {
+      "name": "Okta portal",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Identity management service",
+        "category": "Security"
+      },
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "source_excerpt": "All legitimate password changes go through Okta portal",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "Robert Kim",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Robert Kim, Chief Information Security Officer"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Credential Harvesting Phishing",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "sophisticated phishing campaign targeted Nexus employees"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Nexus Learning Portal",
+      "target_type": "LOCATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Location: Nexus Learning Portal"
+    },
+    {
+      "source_entity": "Security Awareness training module",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "All employees must complete the updated Security Awareness training module"
+    },
+    {
+      "source_entity": "IT Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "Sender | Appears to be from 'IT Department'"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "USES",
+      "target_entity": "Okta portal",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_cybersecurity_advisory.md",
+      "evidence": "All legitimate password changes go through Okta portal"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 7,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

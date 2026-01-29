@@ -1,0 +1,832 @@
+{
+  "document_id": "c692ba28-d8fe-45ff-aaa5-4c4608ea323a",
+  "document_path": "12_supplier_performance_review.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-28T20:56:47.606864",
+  "entities": [
+    {
+      "name": "Patricia Williams",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Procurement",
+        "role": "Chair"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Patricia Williams | VP Procurement (Chair) | Yes",
+      "aliases": []
+    },
+    {
+      "name": "Dr. Elena Rodriguez",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Chief Engineer",
+        "role": "Chief Engineer, Aerospace"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Dr. Elena Rodriguez | Chief Engineer, Aerospace | Yes",
+      "aliases": []
+    },
+    {
+      "name": "James Park",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Manufacturing",
+        "role": "Vice President Manufacturing"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "James Park | VP Manufacturing | Yes",
+      "aliases": []
+    },
+    {
+      "name": "Jennifer Walsh",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Quality Director",
+        "role": "Director of Quality"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Jennifer Walsh | Quality Director | Yes",
+      "aliases": []
+    },
+    {
+      "name": "Robert Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Supply Chain Director",
+        "role": "Director of Supply Chain"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Robert Chen | Supply Chain Director | Yes",
+      "aliases": []
+    },
+    {
+      "name": "David Kim",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Strategic Sourcing Manager",
+        "role": "Manager of Strategic Sourcing"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "David Kim | Strategic Sourcing Manager | Yes",
+      "aliases": []
+    },
+    {
+      "name": "James Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Account Director",
+        "role": "Account Director"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Nel Hydrogen (James Foster, Account Director)",
+      "aliases": []
+    },
+    {
+      "name": "Maria Garcia",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Sales",
+        "role": "Vice President Sales"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "First Solar (Maria Garcia, VP Sales)",
+      "aliases": []
+    },
+    {
+      "name": "Thomas Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Program Manager",
+        "role": "Program Manager"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Honeywell (Thomas Mitchell, Program Manager)",
+      "aliases": []
+    },
+    {
+      "name": "Nexus Industries",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Corporation",
+        "industry": "Aerospace/Energy"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Attendees - Nexus Industries",
+      "aliases": []
+    },
+    {
+      "name": "Nel Hydrogen",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Electrolyzer Systems",
+        "risk_level": "Yellow"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Nel Hydrogen (Electrolyzer Systems)",
+      "aliases": []
+    },
+    {
+      "name": "First Solar",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Solar Panel Modules",
+        "risk_level": "Green"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "First Solar (Solar Panel Modules)",
+      "aliases": []
+    },
+    {
+      "name": "Honeywell",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Avionics Systems",
+        "risk_level": "Green"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Honeywell (Avionics Systems)",
+      "aliases": []
+    },
+    {
+      "name": "General Atomics",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Sensor Systems",
+        "risk_level": "Red"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "General Atomics (Sensor Systems) - ESCALATION",
+      "aliases": []
+    },
+    {
+      "name": "Boeing",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Composite Structures",
+        "risk_level": "Yellow"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Boeing (Composite Structures)",
+      "aliases": []
+    },
+    {
+      "name": "L3Harris",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Backup sensor supplier",
+        "risk_level": "Green"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Initiate qualification of backup supplier (L3Harris)",
+      "aliases": []
+    },
+    {
+      "name": "Plug Power",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Electrolyzer systems",
+        "risk_level": "Green"
+      },
+      "confidence": 0.85,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Evaluating Plug Power",
+      "aliases": []
+    },
+    {
+      "name": "Collins",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Flight computers",
+        "risk_level": "Green"
+      },
+      "confidence": 0.85,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Collins as backup",
+      "aliases": []
+    },
+    {
+      "name": "JinkoSolar",
+      "entity_type": "SUPPLIER",
+      "properties": {
+        "capability": "Solar panels",
+        "risk_level": "Green"
+      },
+      "confidence": 0.85,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "JinkoSolar qualified",
+      "aliases": []
+    },
+    {
+      "name": "GreenHydrogen Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Near completion",
+        "budget": "$95M",
+        "timeline": "2025-2026"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "GreenHydrogen Project Status: 4 of 5 electrolyzer units delivered",
+      "aliases": []
+    },
+    {
+      "name": "Desert Sun Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Phase 1 complete, Phase 2 active",
+        "budget": "$148M+",
+        "timeline": "2025-2026"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Desert Sun Project Status: All 1.2M panels for Phase 1 delivered",
+      "aliases": []
+    },
+    {
+      "name": "Falcon X Program",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Integration phase",
+        "budget": "$85M+",
+        "timeline": "2025-2026"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Falcon X Program Support: Flight computers delivered and integrated",
+      "aliases": []
+    },
+    {
+      "name": "Starliner Satellite Bus",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Contract award",
+        "budget": "$12M",
+        "timeline": "Q2 2026"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Starliner Satellite Bus: $12M contract value",
+      "aliases": []
+    },
+    {
+      "name": "New Mexico Project",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Planned",
+        "budget": "$42M",
+        "timeline": "Q4 2026"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "New Mexico Project | 450,000 | $42M | Q4 2026",
+      "aliases": []
+    },
+    {
+      "name": "Arizona Expansion",
+      "entity_type": "PROJECT",
+      "properties": {
+        "status": "Planned",
+        "budget": "$35M",
+        "timeline": "Q1 2027"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Arizona Expansion | 350,000 | $35M | Q1 2027",
+      "aliases": []
+    },
+    {
+      "name": "Phoenix Headquarters",
+      "entity_type": "FACILITY",
+      "properties": {
+        "location": "Phoenix",
+        "type": "Headquarters"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Location: Phoenix Headquarters + Virtual",
+      "aliases": []
+    },
+    {
+      "name": "FY2025 Total Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Critical Supplier Spend",
+        "value": "$1.425B",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total Critical | 95 | $1.425B | 92.4% | 99.3%",
+      "aliases": []
+    },
+    {
+      "name": "FY2026 Spend Forecast",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Total Projected Spend",
+        "value": "$1.63B",
+        "period": "FY2026",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total | $1.425B | $1.63B | +14%",
+      "aliases": []
+    },
+    {
+      "name": "Aerospace Components Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Aerospace Components",
+        "value": "$485M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Aerospace Components | 28 | $485M | 94% | 99.2%",
+      "aliases": []
+    },
+    {
+      "name": "Energy Equipment Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Energy Equipment",
+        "value": "$328M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Energy Equipment | 15 | $328M | 91% | 98.8%",
+      "aliases": []
+    },
+    {
+      "name": "Electronics Avionics Spend",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Electronics/Avionics",
+        "value": "$275M",
+        "period": "FY2025",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Electronics/Avionics | 22 | $275M | 96% | 99.5%",
+      "aliases": []
+    },
+    {
+      "name": "Strategic Inventory Value",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Strategic Inventory",
+        "value": "$285M",
+        "period": "Current",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total | | | $285M",
+      "aliases": []
+    },
+    {
+      "name": "Overall On-Time Delivery",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "On-Time Delivery",
+        "value": "92.4%",
+        "period": "FY2025",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total Critical | 95 | $1.425B | 92.4% | 99.3%",
+      "aliases": []
+    },
+    {
+      "name": "Overall Quality Rating",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Quality Rating",
+        "value": "99.3%",
+        "period": "FY2025",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Total Critical | 95 | $1.425B | 92.4% | 99.3%",
+      "aliases": []
+    },
+    {
+      "name": "Procurement Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Supplier management, strategic sourcing"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Patricia Williams, VP Procurement",
+      "aliases": []
+    },
+    {
+      "name": "Aerospace Business Unit",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Aerospace engineering, flight systems"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Dr. Elena Rodriguez | Chief Engineer, Aerospace",
+      "aliases": []
+    },
+    {
+      "name": "Manufacturing Business Unit",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Manufacturing operations"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "James Park | VP Manufacturing",
+      "aliases": []
+    },
+    {
+      "name": "Quality Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Quality assurance, supplier audits"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Jennifer Walsh | Quality Director",
+      "aliases": []
+    },
+    {
+      "name": "Supply Chain Department",
+      "entity_type": "BUSINESS_UNIT",
+      "properties": {
+        "focus_areas": "Supply chain management"
+      },
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "source_excerpt": "Robert Chen | Supply Chain Director",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Patricia Williams",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Procurement Department",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Patricia Williams | VP Procurement (Chair)"
+    },
+    {
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Aerospace Business Unit",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Dr. Elena Rodriguez | Chief Engineer, Aerospace"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Manufacturing Business Unit",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "James Park | VP Manufacturing"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Quality Department",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Jennifer Walsh | Quality Director"
+    },
+    {
+      "source_entity": "Robert Chen",
+      "source_type": "PERSON",
+      "relationship_type": "LEADS",
+      "target_entity": "Supply Chain Department",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Robert Chen | Supply Chain Director"
+    },
+    {
+      "source_entity": "Patricia Williams",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Attendees - Nexus Industries"
+    },
+    {
+      "source_entity": "Dr. Elena Rodriguez",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Attendees - Nexus Industries"
+    },
+    {
+      "source_entity": "James Park",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Attendees - Nexus Industries"
+    },
+    {
+      "source_entity": "Jennifer Walsh",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Attendees - Nexus Industries"
+    },
+    {
+      "source_entity": "Robert Chen",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Attendees - Nexus Industries"
+    },
+    {
+      "source_entity": "David Kim",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Attendees - Nexus Industries"
+    },
+    {
+      "source_entity": "James Foster",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Nel Hydrogen",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nel Hydrogen (James Foster, Account Director)"
+    },
+    {
+      "source_entity": "Maria Garcia",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "First Solar",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "First Solar (Maria Garcia, VP Sales)"
+    },
+    {
+      "source_entity": "Thomas Mitchell",
+      "source_type": "PERSON",
+      "relationship_type": "WORKS_FOR",
+      "target_entity": "Honeywell",
+      "target_type": "SUPPLIER",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Honeywell (Thomas Mitchell, Program Manager)"
+    },
+    {
+      "source_entity": "Nel Hydrogen",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nel Hydrogen (Electrolyzer Systems)"
+    },
+    {
+      "source_entity": "First Solar",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "First Solar (Solar Panel Modules)"
+    },
+    {
+      "source_entity": "Honeywell",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Honeywell (Avionics Systems)"
+    },
+    {
+      "source_entity": "General Atomics",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "General Atomics (Sensor Systems)"
+    },
+    {
+      "source_entity": "Boeing",
+      "source_type": "SUPPLIER",
+      "relationship_type": "SUPPLIER_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.98,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Boeing (Composite Structures)"
+    },
+    {
+      "source_entity": "GreenHydrogen Project",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "GreenHydrogen Project Status"
+    },
+    {
+      "source_entity": "Desert Sun Project",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Desert Sun Project Status"
+    },
+    {
+      "source_entity": "Falcon X Program",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Falcon X Program Support"
+    },
+    {
+      "source_entity": "Starliner Satellite Bus",
+      "source_type": "PROJECT",
+      "relationship_type": "OWNS",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Starliner Satellite Bus"
+    },
+    {
+      "source_entity": "Procurement Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Industries procurement organization"
+    },
+    {
+      "source_entity": "Aerospace Business Unit",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Industries aerospace organization"
+    },
+    {
+      "source_entity": "Manufacturing Business Unit",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Industries manufacturing organization"
+    },
+    {
+      "source_entity": "Quality Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Industries quality organization"
+    },
+    {
+      "source_entity": "Supply Chain Department",
+      "source_type": "BUSINESS_UNIT",
+      "relationship_type": "PART_OF",
+      "target_entity": "Nexus Industries",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Nexus Industries supply chain organization"
+    },
+    {
+      "source_entity": "Nexus Industries",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "LOCATED_AT",
+      "target_entity": "Phoenix Headquarters",
+      "target_type": "FACILITY",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "Location: Phoenix Headquarters"
+    },
+    {
+      "source_entity": "David Kim",
+      "source_type": "PERSON",
+      "relationship_type": "PART_OF",
+      "target_entity": "Procurement Department",
+      "target_type": "BUSINESS_UNIT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "12_supplier_performance_review.md",
+      "evidence": "David Kim | Strategic Sourcing Manager"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 39,
+    "raw_relationship_count": 30,
+    "used_partial_parse": false,
+    "truncated": false
+  }
+}

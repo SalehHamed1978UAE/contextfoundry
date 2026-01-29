@@ -1,0 +1,347 @@
+{
+  "document_id": "cec4372b-385b-4a98-be10-926f74aa6eca",
+  "document_path": "04_cybershield_architecture.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T21:13:31.450914",
+  "entities": [
+    {
+      "name": "Dr. Sarah Mitchell",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Security Architect",
+        "role": "Owner"
+      },
+      "confidence": 0.95,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Owner: Dr. Sarah Mitchell, Security Architect",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "enterprise security platform providing endpoint detection and response (EDR), security information and event management (SIEM), and threat intelligence capabilities",
+        "category": "Security"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "CyberShield is an enterprise security platform providing endpoint detection and response (EDR), security information and event management (SIEM), and threat intelligence capabilities.",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield Agent",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Endpoint agent for CyberShield platform",
+        "category": "Security"
+      },
+      "confidence": 0.85,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Name | CyberShield Agent",
+      "aliases": []
+    },
+    {
+      "name": "Apache Kafka",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Message queue technology used for data ingestion",
+        "category": "Data Processing"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Message Queue | Apache Kafka",
+      "aliases": []
+    },
+    {
+      "name": "Elasticsearch",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Search and analytics engine used for active queries",
+        "category": "Data Storage"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Store | Technology | Purpose | Retention | Hot | Elasticsearch | Active queries | 30 days",
+      "aliases": []
+    },
+    {
+      "name": "AWS",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Cloud Service Provider",
+        "industry": "Cloud Computing"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Cloud | AWS (primary), Azure (secondary)",
+      "aliases": []
+    },
+    {
+      "name": "Azure",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Cloud Service Provider",
+        "industry": "Cloud Computing"
+      },
+      "confidence": 0.85,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Cloud | AWS (primary), Azure (secondary)",
+      "aliases": []
+    },
+    {
+      "name": "FedRAMP High",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "FedRAMP",
+        "category": "Compliance"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "FedRAMP High | Authorized | Jan 2026",
+      "aliases": []
+    },
+    {
+      "name": "SOC 2 Type II",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "SOC2",
+        "category": "Compliance"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "SOC 2 Type II | Certified | Oct 2026",
+      "aliases": []
+    },
+    {
+      "name": "ISO 27001",
+      "entity_type": "POLICY",
+      "properties": {
+        "policy ID": "ISO27001",
+        "category": "Compliance"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "ISO 27001 | Certified | Mar 2027",
+      "aliases": []
+    },
+    {
+      "name": "CyberShield Security Platform",
+      "entity_type": "PROJECT",
+      "properties": {
+        "budget": null,
+        "timeline": "Effective Date: January 1, 2026",
+        "status": "Confidential"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "CyberShield Security Platform Architecture",
+      "aliases": []
+    },
+    {
+      "name": "2.1M",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Endpoints Protected",
+        "value": 2100000,
+        "period": null,
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Endpoints Protected | 2.1M",
+      "aliases": []
+    },
+    {
+      "name": "342",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Enterprise Customers",
+        "value": 342,
+        "period": null,
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Enterprise Customers | 342",
+      "aliases": []
+    },
+    {
+      "name": "50B/day",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Events Processed",
+        "value": 50000000000,
+        "period": null,
+        "type": "COUNT"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Events Processed | 50B/day",
+      "aliases": []
+    },
+    {
+      "name": "99.7%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Threat Detection Rate",
+        "value": 99.7,
+        "period": null,
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Threat Detection Rate | 99.7%",
+      "aliases": []
+    },
+    {
+      "name": "0.8%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "False Positive Rate",
+        "value": 0.8,
+        "period": null,
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "False Positive Rate | 0.8%",
+      "aliases": []
+    },
+    {
+      "name": "<15 seconds",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Mean Time to Detect",
+        "value": null,
+        "period": null,
+        "type": "TIME"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Mean Time to Detect | <15 seconds",
+      "aliases": []
+    },
+    {
+      "name": "99.99%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric name": "Uptime SLA",
+        "value": 99.99,
+        "period": null,
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "source_excerpt": "Uptime SLA | 99.99%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Sarah Mitchell",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "CyberShield Security Platform",
+      "target_type": "PROJECT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Owner: Dr. Sarah Mitchell, Security Architect"
+    },
+    {
+      "source_entity": "CyberShield Security Platform",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "AWS",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Cloud | AWS (primary), Azure (secondary)"
+    },
+    {
+      "source_entity": "CyberShield Security Platform",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Azure",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Cloud | AWS (primary), Azure (secondary)"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "CyberShield Agent",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "CyberShield is an enterprise security platform providing endpoint detection and response (EDR), security information and event management (SIEM), and threat intelligence capabilities."
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Apache Kafka",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Message Queue | Apache Kafka"
+    },
+    {
+      "source_entity": "CyberShield",
+      "source_type": "PRODUCT",
+      "relationship_type": "USES",
+      "target_entity": "Elasticsearch",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "Store | Technology | Purpose | Retention | Hot | Elasticsearch | Active queries | 30 days"
+    },
+    {
+      "source_entity": "CyberShield Security Platform",
+      "source_type": "PROJECT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "FedRAMP High",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "FedRAMP High | Authorized | Jan 2026"
+    },
+    {
+      "source_entity": "CyberShield Security Platform",
+      "source_type": "PROJECT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "SOC 2 Type II",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "SOC 2 Type II | Certified | Oct 2026"
+    },
+    {
+      "source_entity": "CyberShield Security Platform",
+      "source_type": "PROJECT",
+      "relationship_type": "RELATED_TO",
+      "target_entity": "ISO 27001",
+      "target_type": "POLICY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "04_cybershield_architecture.md",
+      "evidence": "ISO 27001 | Certified | Mar 2027"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 18,
+    "raw_relationship_count": 9,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}
