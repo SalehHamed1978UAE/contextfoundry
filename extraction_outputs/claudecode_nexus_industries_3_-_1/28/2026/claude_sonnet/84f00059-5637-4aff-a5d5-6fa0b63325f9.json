@@ -1,0 +1,673 @@
+{
+  "document_id": "84f00059-5637-4aff-a5d5-6fa0b63325f9",
+  "document_path": "08_quantum_computing_services.md",
+  "model_name": "claude-sonnet-4-20250514",
+  "extracted_at": "2026-01-28T21:09:49.450488",
+  "entities": [
+    {
+      "name": "Dr. Michael Foster",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "Quantum Computing Director",
+        "role": "Director"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Owner: Dr. Michael Foster, Quantum Computing Director",
+      "aliases": []
+    },
+    {
+      "name": "QuantumLeap Computing Services",
+      "entity_type": "SERVICE",
+      "properties": {
+        "description": "cloud-based access to quantum computing resources for solving complex optimization, simulation, and machine learning problems"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "QuantumLeap Computing Services provides cloud-based access to quantum computing resources",
+      "aliases": []
+    },
+    {
+      "name": "QuantumLeap Computing Platform",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "quantum computing platform with processing units and control systems"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "QuantumLeap Computing Platform",
+      "aliases": []
+    },
+    {
+      "name": "QL-27",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "27-qubit quantum computing system",
+        "category": "quantum hardware"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "System QL-27 with 27 Qubits",
+      "aliases": []
+    },
+    {
+      "name": "QL-65",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "65-qubit quantum computing system",
+        "category": "quantum hardware"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "System QL-65 with 65 Qubits",
+      "aliases": []
+    },
+    {
+      "name": "QL-127",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "127-qubit quantum computing system",
+        "category": "quantum hardware"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "System QL-127 with 127 Qubits",
+      "aliases": []
+    },
+    {
+      "name": "$5,000",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Research Tier Monthly Cost",
+        "value": "5000",
+        "period": "monthly",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Research tier Monthly Cost $5,000",
+      "aliases": []
+    },
+    {
+      "name": "$25,000",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Professional Tier Monthly Cost",
+        "value": "25000",
+        "period": "monthly",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Professional tier Monthly Cost $25,000",
+      "aliases": []
+    },
+    {
+      "name": "$75,000",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Enterprise Tier Monthly Cost",
+        "value": "75000",
+        "period": "monthly",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Enterprise tier Monthly Cost $75,000",
+      "aliases": []
+    },
+    {
+      "name": "Research Universities",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Education/Research",
+        "count": "12",
+        "use_case": "Algorithm development"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Research Universities 12 Algorithm development",
+      "aliases": []
+    },
+    {
+      "name": "Pharmaceutical",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Pharmaceutical",
+        "count": "4",
+        "use_case": "Molecular simulation"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Pharmaceutical 4 Molecular simulation",
+      "aliases": []
+    },
+    {
+      "name": "Financial Services",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Financial Services",
+        "count": "3",
+        "use_case": "Portfolio optimization"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Financial Services 3 Portfolio optimization",
+      "aliases": []
+    },
+    {
+      "name": "Logistics",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Logistics",
+        "count": "2",
+        "use_case": "Route optimization"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Logistics 2 Route optimization",
+      "aliases": []
+    },
+    {
+      "name": "Government Labs",
+      "entity_type": "CUSTOMER",
+      "properties": {
+        "industry": "Government",
+        "count": "3",
+        "use_case": "Materials science"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Government Labs 3 Materials science",
+      "aliases": []
+    },
+    {
+      "name": "Qiskit",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Python quantum computing framework for circuit construction"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "SDK Python (Qiskit) Circuit construction",
+      "aliases": []
+    },
+    {
+      "name": "QAOA",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Quantum Approximate Optimization Algorithm"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "QAOA Quantum Approximate Optimization",
+      "aliases": []
+    },
+    {
+      "name": "VQE",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Variational Quantum Eigensolver"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "VQE Variational Quantum Eigensolver",
+      "aliases": []
+    },
+    {
+      "name": "Grover",
+      "entity_type": "TECHNOLOGY",
+      "properties": {
+        "description": "Quantum search algorithm"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Grover Quantum search",
+      "aliases": []
+    },
+    {
+      "name": "AWS",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Cloud deployment integration"
+      },
+      "confidence": 0.85,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "AWS SDK Cloud deployment",
+      "aliases": []
+    },
+    {
+      "name": "Azure",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Cloud deployment integration"
+      },
+      "confidence": 0.85,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Azure SDK Cloud deployment",
+      "aliases": []
+    },
+    {
+      "name": "GCP",
+      "entity_type": "PARTNER",
+      "properties": {
+        "partnership_type": "Cloud deployment integration"
+      },
+      "confidence": 0.85,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "GCP SDK Cloud deployment",
+      "aliases": []
+    },
+    {
+      "name": "SOC 2 Type II",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Security Compliance",
+        "status": "Certified"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "SOC 2 Type II Certified",
+      "aliases": []
+    },
+    {
+      "name": "ISO 27001",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Security Compliance",
+        "status": "Certified"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "ISO 27001 Certified",
+      "aliases": []
+    },
+    {
+      "name": "HIPAA",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Healthcare Compliance",
+        "status": "Compliant"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "HIPAA Compliant (BAA available)",
+      "aliases": []
+    },
+    {
+      "name": "GDPR",
+      "entity_type": "POLICY",
+      "properties": {
+        "category": "Data Protection",
+        "status": "Compliant"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "GDPR Compliant",
+      "aliases": []
+    },
+    {
+      "name": "Portfolio Optimizer",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Finance application for 50 assets",
+        "category": "software application"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Portfolio Optimizer Finance 50 assets",
+      "aliases": []
+    },
+    {
+      "name": "Molecule Simulator",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Pharma application for 12 orbitals",
+        "category": "software application"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Molecule Simulator Pharma 12 orbitals",
+      "aliases": []
+    },
+    {
+      "name": "Route Optimizer",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "Logistics application for 20 nodes",
+        "category": "software application"
+      },
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Route Optimizer Logistics 20 nodes",
+      "aliases": []
+    },
+    {
+      "name": "$0.05",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "QL-27 Per Second Rate",
+        "value": "0.05",
+        "period": "per second",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "QL-27 $0.05 per second",
+      "aliases": []
+    },
+    {
+      "name": "$0.15",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "QL-65 Per Second Rate",
+        "value": "0.15",
+        "period": "per second",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "QL-65 $0.15 per second",
+      "aliases": []
+    },
+    {
+      "name": "$0.50",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "QL-127 Per Second Rate",
+        "value": "0.50",
+        "period": "per second",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "QL-127 $0.50 per second",
+      "aliases": []
+    },
+    {
+      "name": "$50,000",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Custom Algorithm Development",
+        "value": "50000",
+        "period": "one-time",
+        "type": "CURRENCY"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Custom Algorithm Development $50,000+",
+      "aliases": []
+    },
+    {
+      "name": "2,450",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Compute Hours Sold",
+        "value": "2450",
+        "period": "Q4 2025",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Compute Hours Sold 2,450",
+      "aliases": []
+    },
+    {
+      "name": "125,000",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "Jobs Executed",
+        "value": "125000",
+        "period": "Q4 2025",
+        "type": "COUNT"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "Jobs Executed 125,000",
+      "aliases": []
+    },
+    {
+      "name": "99.2%",
+      "entity_type": "FINANCIAL_METRIC",
+      "properties": {
+        "metric_name": "System Uptime",
+        "value": "99.2",
+        "period": "Q4 2025",
+        "type": "PERCENTAGE"
+      },
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "source_excerpt": "System Uptime 99.2%",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Michael Foster",
+      "source_type": "PERSON",
+      "relationship_type": "OWNS",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Owner: Dr. Michael Foster, Quantum Computing Director"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "USES",
+      "target_entity": "QuantumLeap Computing Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Service built on the QuantumLeap Computing Platform"
+    },
+    {
+      "source_entity": "QL-27",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "QuantumLeap Computing Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "QL-27 system is part of the computing platform"
+    },
+    {
+      "source_entity": "QL-65",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "QuantumLeap Computing Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "QL-65 system is part of the computing platform"
+    },
+    {
+      "source_entity": "QL-127",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "QuantumLeap Computing Platform",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "QL-127 system is part of the computing platform"
+    },
+    {
+      "source_entity": "Research Universities",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Research Universities listed as customers with 12 count"
+    },
+    {
+      "source_entity": "Pharmaceutical",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Pharmaceutical companies listed as customers"
+    },
+    {
+      "source_entity": "Financial Services",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Financial Services listed as customers"
+    },
+    {
+      "source_entity": "Logistics",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Logistics companies listed as customers"
+    },
+    {
+      "source_entity": "Government Labs",
+      "source_type": "CUSTOMER",
+      "relationship_type": "CUSTOMER_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.95,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Government Labs listed as customers"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "USES",
+      "target_entity": "Qiskit",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "SDK uses Python (Qiskit) for circuit construction"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "USES",
+      "target_entity": "QAOA",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "QAOA listed in optimization algorithms"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "USES",
+      "target_entity": "VQE",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "VQE listed in optimization algorithms"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "USES",
+      "target_entity": "Grover",
+      "target_type": "TECHNOLOGY",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Grover algorithm listed in optimization algorithms"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "AWS",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "AWS integration for cloud deployment"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "Azure",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Azure integration for cloud deployment"
+    },
+    {
+      "source_entity": "QuantumLeap Computing Services",
+      "source_type": "SERVICE",
+      "relationship_type": "PARTNER_OF",
+      "target_entity": "GCP",
+      "target_type": "PARTNER",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "GCP integration for cloud deployment"
+    },
+    {
+      "source_entity": "Portfolio Optimizer",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Portfolio Optimizer listed as pre-built application"
+    },
+    {
+      "source_entity": "Molecule Simulator",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Molecule Simulator listed as pre-built application"
+    },
+    {
+      "source_entity": "Route Optimizer",
+      "source_type": "PRODUCT",
+      "relationship_type": "PART_OF",
+      "target_entity": "QuantumLeap Computing Services",
+      "target_type": "SERVICE",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "08_quantum_computing_services.md",
+      "evidence": "Route Optimizer listed as pre-built application"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 35,
+    "raw_relationship_count": 20,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}

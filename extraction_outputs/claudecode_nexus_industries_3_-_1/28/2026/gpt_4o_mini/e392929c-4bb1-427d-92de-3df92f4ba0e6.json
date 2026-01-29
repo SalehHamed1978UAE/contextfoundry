@@ -1,0 +1,167 @@
+{
+  "document_id": "e392929c-4bb1-427d-92de-3df92f4ba0e6",
+  "document_path": "03_nexusconnect_api_specification.md",
+  "model_name": "gpt-4o-mini",
+  "extracted_at": "2026-01-28T21:18:31.005164",
+  "entities": [
+    {
+      "name": "Dr. Alan Chen",
+      "entity_type": "PERSON",
+      "properties": {
+        "title": "VP Engineering",
+        "role": "Vice President of Engineering"
+      },
+      "confidence": 0.95,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "Owner: Dr. Alan Chen, VP Engineering",
+      "aliases": []
+    },
+    {
+      "name": "NexusConnect",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "enterprise IoT platform that enables device management, data ingestion, analytics, and edge computing across industrial environments",
+        "category": "IoT Platform"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "NexusConnect is an enterprise IoT platform",
+      "aliases": []
+    },
+    {
+      "name": "Nexus",
+      "entity_type": "ORGANIZATION",
+      "properties": {
+        "type": "Company",
+        "industry": "Technology"
+      },
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "metadata: { manufacturer: 'Nexus' }",
+      "aliases": []
+    },
+    {
+      "name": "Temperature Sensor 1",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "sensor device for measuring temperature",
+        "category": "sensor"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "name: 'Temperature Sensor 1'",
+      "aliases": []
+    },
+    {
+      "name": "Vibration Sensor 1",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "sensor device for measuring vibration",
+        "category": "sensor"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "name: 'Vibration Sensor 1'",
+      "aliases": []
+    },
+    {
+      "name": "High Temperature Alert",
+      "entity_type": "PROJECT",
+      "properties": {
+        "description": "Alert when temperature exceeds threshold",
+        "status": "active"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "name: 'High Temperature Alert'",
+      "aliases": []
+    },
+    {
+      "name": "Anomaly Detection v2",
+      "entity_type": "PRODUCT",
+      "properties": {
+        "description": "model for detecting anomalies",
+        "category": "machine learning model"
+      },
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "source_excerpt": "name: 'Anomaly Detection v2'",
+      "aliases": []
+    }
+  ],
+  "relationships": [
+    {
+      "source_entity": "Dr. Alan Chen",
+      "source_type": "PERSON",
+      "relationship_type": "HOLDS_POSITION",
+      "target_entity": "Nexus",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.9,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Owner: Dr. Alan Chen, VP Engineering"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "NexusConnect",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "NexusConnect is an enterprise IoT platform"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Temperature Sensor 1",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "metadata: { manufacturer: 'Nexus' }"
+    },
+    {
+      "source_entity": "Nexus",
+      "source_type": "ORGANIZATION",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Vibration Sensor 1",
+      "target_type": "PRODUCT",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "metadata: { manufacturer: 'Nexus' }"
+    },
+    {
+      "source_entity": "High Temperature Alert",
+      "source_type": "PROJECT",
+      "relationship_type": "FUNDED_BY",
+      "target_entity": "Nexus",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.8,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "Alert when temperature exceeds threshold"
+    },
+    {
+      "source_entity": "Anomaly Detection v2",
+      "source_type": "PRODUCT",
+      "relationship_type": "PRODUCES",
+      "target_entity": "Nexus",
+      "target_type": "ORGANIZATION",
+      "properties": {},
+      "confidence": 0.85,
+      "source_document": "03_nexusconnect_api_specification.md",
+      "evidence": "model for detecting anomalies"
+    }
+  ],
+  "metadata": {
+    "filename": "",
+    "raw_entity_count": 7,
+    "raw_relationship_count": 6,
+    "used_partial_parse": false,
+    "truncated": true
+  }
+}
