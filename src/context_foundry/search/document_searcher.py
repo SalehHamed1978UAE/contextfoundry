@@ -65,6 +65,20 @@ class DocumentSearcher:
         'meeting_notes': 0.60
     }
     
+    COMPANY_METRIC_PATTERNS = [
+        r'\b(company|total|our|nexus)\s+(backlog|revenue|income|profit|margin|earnings)',
+        r'\b(total|overall|company|our)\s+(assets|debt|liabilities|equity)',
+        r'\bwhat is (the|our|nexus)\s+(backlog|revenue|profit)',
+        r'\b(fy\d{4}|fiscal year)\s+(results|performance|backlog)',
+    ]
+    
+    CUSTOMER_PROFILE_PATTERNS = [
+        r'_customer\.md$',
+        r'_customer_profile\.md$',
+        r'customer_profile',
+        r'^customers/',
+    ]
+    
     CANONICAL_TERMS = {
         'project_names': [
             'project helios', 'falcon uav', 'urbanmesh', 'autonav', 'project borealis',
@@ -108,10 +122,16 @@ class DocumentSearcher:
         """
         chunks = []
         
+        is_company_metric_query = self._is_company_metric_query(query)
+        
         if use_vector:
             chunks = self._vector_search(query, limit + offset)
             if chunks:
-                avg_score = sum(c.get('_base_similarity', c.get('similarity', 0)) for c in chunks[:3]) / min(3, len(chunks))
+                if is_company_metric_query:
+                    chunks = self._filter_customer_documents(chunks)
+                    logger.info(f"[SEARCHER] Company metric query detected, filtered customer docs: {len(chunks)} chunks remain")
+                
+                avg_score = sum(c.get('_base_similarity', c.get('similarity', 0)) for c in chunks[:3]) / min(3, len(chunks)) if chunks else 0
                 
                 if avg_score < self.SEMANTIC_SCORE_THRESHOLD:
                     logger.info(f"[SEARCHER] Low semantic scores (avg={avg_score:.3f}), applying canonical term boosting")
@@ -466,3 +486,25 @@ class DocumentSearcher:
             except Exception:
                 pass
             return []
+    
+    def _is_company_metric_query(self, query: str) -> bool:
+        """Check if query is asking about company-level metrics (backlog, revenue, etc.)."""
+        query_lower = query.lower()
+        for pattern in self.COMPANY_METRIC_PATTERNS:
+            if re.search(pattern, query_lower):
+                return True
+        return False
+    
+    def _filter_customer_documents(self, chunks: List[Dict]) -> List[Dict]:
+        """Filter out customer profile documents from results."""
+        filtered = []
+        for chunk in chunks:
+            doc_name = chunk.get('document_name', '').lower()
+            is_customer_doc = False
+            for pattern in self.CUSTOMER_PROFILE_PATTERNS:
+                if re.search(pattern, doc_name):
+                    is_customer_doc = True
+                    break
+            if not is_customer_doc:
+                filtered.append(chunk)
+        return filtered

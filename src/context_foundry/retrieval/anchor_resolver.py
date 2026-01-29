@@ -497,6 +497,95 @@ class RelationshipFirstRetriever:
                         return True
         
         return False
+    
+    def resolve_by_department(
+        self, 
+        department_names: List[str],
+        anchor_id: str,
+        anchor_name: str
+    ) -> List[Dict[str, Any]]:
+        """
+        Find people who LEAD or MANAGE departments related to a role.
+        
+        This is a fallback for when direct role resolution returns only
+        role-name entities (like "CISO" entity instead of "Jennifer Walsh").
+        
+        Args:
+            department_names: List of department names to search (e.g., ['cybersecurity', 'security'])
+            anchor_id: Entity ID of the anchor organization
+            anchor_name: Name of the anchor org
+            
+        Returns:
+            List of person entities who lead/manage matching departments
+        """
+        logger.info(f"[REL_FIRST] Resolving by department: {department_names} from anchor: {anchor_name}")
+        
+        # Build LIKE conditions for department names
+        dept_conditions = " OR ".join([f"LOWER(dept.name) LIKE :dept{i}" for i in range(len(department_names))])
+        
+        query = text(f"""
+            WITH dept_leaders AS (
+                -- Find people who LEAD/MANAGE departments matching the search terms
+                SELECT DISTINCT
+                    person.id as person_id,
+                    person.name as person_name,
+                    person.properties::jsonb as props,
+                    dept.name as department_name,
+                    r.relationship_type as edge_type,
+                    CASE 
+                        WHEN r.relationship_type = 'LEADS' THEN 1
+                        WHEN r.relationship_type = 'MANAGES' THEN 2
+                        WHEN r.relationship_type = 'HEADS' THEN 2
+                        WHEN r.relationship_type = 'DIRECTS' THEN 3
+                        ELSE 4
+                    END as edge_rank
+                FROM relationships r
+                JOIN entities person ON r.source_id = person.id
+                JOIN entities dept ON r.target_id = dept.id
+                WHERE r.tenant_id = :tenant_id
+                AND person.entity_type = 'PERSON'
+                AND r.relationship_type IN ('LEADS', 'MANAGES', 'HEADS', 'DIRECTS', 'OVERSEES')
+                AND ({dept_conditions})
+            )
+            SELECT * FROM dept_leaders
+            ORDER BY edge_rank ASC
+            LIMIT 10
+        """)
+        
+        params = {"tenant_id": self.tenant_id, "anchor_id": anchor_id}
+        for i, dept in enumerate(department_names):
+            params[f"dept{i}"] = f"%{dept.lower()}%"
+        
+        try:
+            results = self.session.execute(query, params).fetchall()
+            
+            people = []
+            for row in results:
+                props = row.props or {}
+                role_from_props = (
+                    props.get('position') or 
+                    props.get('role') or 
+                    props.get('title') or 
+                    props.get('job_title')
+                )
+                
+                person = {
+                    "id": str(row.person_id),
+                    "name": row.person_name,
+                    "properties": props,
+                    "edge_type": row.edge_type,
+                    "department": row.department_name,
+                    "edge_rank": row.edge_rank,
+                    "role_from_props": role_from_props
+                }
+                people.append(person)
+                logger.info(f"[REL_FIRST] Found dept leader: {row.person_name} {row.edge_type} {row.department_name}")
+            
+            return people
+            
+        except Exception as e:
+            logger.error(f"[REL_FIRST] resolve_by_department failed: {e}")
+            return []
 
 
 def auto_detect_and_set_anchor(session: Session, tenant_id: str) -> Optional[Dict[str, Any]]:
