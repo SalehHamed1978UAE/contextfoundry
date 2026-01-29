@@ -84,7 +84,11 @@ CRITICAL RULES:
 3. For blast radius queries, list the affected entities with their relationship type
 4. Cite the relationship type and confidence for each fact
 5. If the entity wasn't found, suggest checking the entity name
-6. **TARGET TYPE FILTERING**: If a target_type is specified, ONLY list entities of that type in your answer.
+6. **COMPONENT-SUPPLIER MATCHING**: When asked about a specific component (e.g., "SAR radar", "flight computers", "electrolyzers"), ONLY mention the supplier that provides THAT SPECIFIC component. Do NOT list other suppliers from the context that provide different components.
+   - "Who provides SAR radar?" → Only mention the supplier listed for SAR/Synthetic Aperture Radar (Raytheon)
+   - "Who provides flight computers?" → Only mention the supplier listed for flight computers (Honeywell)
+   - If the context shows "Honeywell - Flight Computers" and "Raytheon - SAR Radar", and the question asks about SAR radar, answer ONLY "Raytheon"
+7. **TARGET TYPE FILTERING**: If a target_type is specified, ONLY list entities of that type in your answer.
    - If target_type is "TEAM", only list TEAM entities
    - If target_type is "DATABASE", only list DATABASE entities
    - If target_type is null/None, list all discovered entities
