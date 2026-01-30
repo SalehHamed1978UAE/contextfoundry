@@ -1,32 +1,40 @@
 {
+  "status": "finished",
+  "vault_id": "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91",
+  "question_set_id": "c79271ca-2275-4888-9bda-b48e6405e870",
+  "test_run_id": "8e76211c-3645-4e64-84de-5bfb1c400b9e",
+  "mode": "auto",
+  "corpus_folder": null,
+  "started_at": "2026-01-30T06:46:03.724297",
+  "pid": 1944,
   "stages": {
     "delete": {
-      "status": "pending"
+      "status": "skipped"
     },
     "create": {
-      "status": "pending"
+      "status": "skipped"
     },
     "upload": {
-      "status": "pending"
+      "status": "skipped"
     },
     "extract": {
-      "status": "pending"
+      "status": "complete",
+      "entities": 7323
     },
     "qa": {
-      "status": "complete"
+      "status": "running"
     }
   },
-  "updated_at": "2026-01-30T04:44:10.833718",
   "qa_progress": {
     "total": 100,
-    "answered": 100,
-    "passed": 84,
-    "failed": 16,
-    "accuracy_percent": 84.0
+    "answered": 41,
+    "passed": 33,
+    "failed": 8,
+    "accuracy_percent": 80.5
   },
   "current_question": {
-    "id": 100,
-    "text": "What is the total value of top 3 customer relationships?"
+    "id": 41,
+    "text": "How many endpoints does CyberShield protect?"
   },
-  "status": "finished"
+  "updated_at": "2026-01-30T06:50:11.848830"
 }

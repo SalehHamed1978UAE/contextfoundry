@@ -1,0 +1,40 @@
+Results: 4 PASS, 4 FAIL                                                                                
+  ┌─────┬───────────────────┬───────────────────────────────────────┬────────────────────────┐           
+  │ Q#  │     Expected      │                Actual                 │         Status         │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q2  │ Michael Chang     │ Michael Chang                         │ ✅ PASS                │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q15 │ Dr. Victoria Chen │ "does not specify"                    │ ❌ FAIL                │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q17 │ Nel Hydrogen      │ Honeywell, Boeing, Lockheed, Northrop │ ❌ FAIL (WRONG!)       │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q18 │ Shell             │ Shell                                 │ ✅ PASS                │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q38 │ Marcus Thompson   │ "not available"                       │ ❌ FAIL                │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q40 │ $12.4 billion     │ $11.5 billion                         │ ❌ FAIL (Boeing data!) │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q78 │ Honeywell         │ Honeywell                             │ ✅ PASS                │           
+  ├─────┼───────────────────┼───────────────────────────────────────┼────────────────────────┤           
+  │ Q95 │ Raytheon          │ Raytheon                              │ ✅ PASS                │           
+  └─────┴───────────────────┴───────────────────────────────────────┴────────────────────────┘           
+  ---                                                                                                    
+  Critical Issues                                                                                        
+                                                                                                         
+  Q17 is completely wrong - It's returning aerospace contractors (Honeywell, Boeing, Lockheed, Northrop) 
+  instead of Nel Hydrogen for electrolyzers. This is a major retrieval failure.                          
+                                                                                                         
+  Q40 still has Boeing contamination - $11.5B is Boeing's backlog, not Nexus's $12.4B. The anchor filter 
+  is NOT working.                                                                                        
+                                                                                                         
+  Q15 REPORTS_TO missing - The relationship was supposedly fixed but isn't being retrieved.              
+                                                                                                         
+  Q38 CISO not found - Marcus Thompson should be in the knowledge graph.                                 
+                                                                                                         
+  ---                                                                                                    
+  The supplier fix for Q78/Q95 worked, but other critical fixes are broken. Replit needs to investigate  
+  why:                                                                                                   
+  1. Anchor filter isn't filtering Boeing data (Q40)                                                     
+  2. Nel Hydrogen isn't being retrieved for electrolyzer queries (Q17)                                   
+  3. REPORTS_TO relationship isn't being found (Q15)                                                     
+  4. CISO entity isn't being found (Q38)    
