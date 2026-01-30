@@ -524,6 +524,7 @@ class RetrievalRouter:
                 JOIN entities tgt ON r.target_id = tgt.id
                 WHERE r.tenant_id = :tenant_id
                 AND r.relationship_type IN ('SUPPLIES', 'PRODUCES', 'MANUFACTURES')
+                AND r.lifecycle_state IN ('TRUSTED', 'STAGING')
                 AND (
                     tgt.name ILIKE :comp1
                     OR tgt.name ILIKE :comp2
