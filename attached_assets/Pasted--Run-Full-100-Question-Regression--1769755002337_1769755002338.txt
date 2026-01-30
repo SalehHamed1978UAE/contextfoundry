@@ -1,0 +1,38 @@
+ Run Full 100-Question Regression                                                               
+                                                                                                         
+  # Clear old results                                                                                    
+  rm -rf test_results/*progress*.jsonl test_results/traces/*.jsonl                                       
+                                                                                                         
+  # Run fresh test with all 100 questions                                                                
+  python -m src.test_runner.runner \                                                                     
+    --vault-id "1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91" \                                                  
+    --questions "src/test_questions/nexus_100q.json" \                                                   
+    --force                                                                                              
+                                                                                                         
+  # Verify all 100 questions processed                                                                   
+  echo "Questions processed:"                                                                            
+  grep -c '"q":' test_results/*progress*.jsonl                                                           
+                                                                                                         
+  After test completes, report results for these 8 questions:                                            
+                                                                                                         
+  echo "=== ACCEPTANCE CRITERIA ==="                                                                     
+  for q in 2 15 17 18 38 40 78 95; do                                                                    
+    result=$(grep "\"q\": $q," test_results/*progress*.jsonl 2>/dev/null | head -1)                      
+    if [ -n "$result" ]; then                                                                            
+      passed=$(echo "$result" | python3 -c "import sys,json; d=json.loads(sys.stdin.read()); print('PASS'
+   if d.get('passed') else 'FAIL')")                                                                     
+      echo "Q$q: $passed"                                                                                
+    else                                                                                                 
+      echo "Q$q: NOT FOUND"                                                                              
+    fi                                                                                                   
+  done                                                                                                   
+                                                                                                         
+  echo ""                                                                                                
+  echo "=== OVERALL SCORE ==="                                                                           
+  total=$(grep -c '"q":' test_results/*progress*.jsonl)                                                  
+  passed=$(grep -c '"passed": true' test_results/*progress*.jsonl)                                       
+  echo "$passed / $total"                                                                                
+                                                                                                         
+  Expected:                                                                                              
+  - All 8 acceptance questions: PASS                                                                     
+  - Overall: 85+/100    
