@@ -1,0 +1,34 @@
+ Investigate the KG for flight computers                                                        
+                                                                                                         
+  Run these diagnostics:                                                                                 
+                                                                                                         
+  -- 1. Does "flight computer" entity exist?                                                             
+  SELECT id, name, entity_type, properties                                                               
+  FROM entities                                                                                          
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND (name ILIKE '%flight computer%' OR name ILIKE '%FMC%' OR name ILIKE '%avionics%');                 
+                                                                                                         
+  -- 2. Does Honeywell exist as supplier?                                                                
+  SELECT id, name, entity_type, properties                                                               
+  FROM entities                                                                                          
+  WHERE tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                               
+  AND name ILIKE '%honeywell%';                                                                          
+                                                                                                         
+  -- 3. Are there SUPPLIER_OF relationships for flight computers?                                        
+  SELECT e1.name as supplier, r.relationship_type, e2.name as component                                  
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND (e2.name ILIKE '%flight%' OR e2.name ILIKE '%computer%' OR e2.name ILIKE '%avionics%');            
+                                                                                                         
+  -- 4. What SUPPLIER_OF relationships exist at all?                                                     
+  SELECT e1.name as supplier, r.relationship_type, e2.name as target                                     
+  FROM relationships r                                                                                   
+  JOIN entities e1 ON r.source_id = e1.id                                                                
+  JOIN entities e2 ON r.target_id = e2.id                                                                
+  WHERE r.tenant_id = '1f3320cd-82f3-4e16-91f0-5fe7ff8f8a91'                                             
+  AND r.relationship_type = 'SUPPLIER_OF'                                                                
+  LIMIT 20;                                                                                              
+                                                                                                         
+  Report what's there vs what's missing. Then we'll know if it's a data gap or a routing issue.

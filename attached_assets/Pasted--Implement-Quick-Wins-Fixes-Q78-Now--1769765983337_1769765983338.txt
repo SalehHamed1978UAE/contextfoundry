@@ -1,0 +1,123 @@
+ Implement Quick Wins (Fixes Q78 Now)                                                           
+                                                                                                         
+  Quick Win 1: Enhanced Table Extraction Prompt                                                          
+                                                                                                         
+  When extracting from tables, use this prompt structure:                                                
+                                                                                                         
+  TABLE_EXTRACTION_PROMPT = """                                                                          
+  Given this table from program documentation:                                                           
+                                                                                                         
+  DOCUMENT CONTEXT: {document_title}                                                                     
+  TABLE TITLE: {table_caption}                                                                           
+  HEADERS: {column_headers}                                                                              
+  ROW: {row_data}                                                                                        
+                                                                                                         
+  Extract ALL of these relationship types:                                                               
+                                                                                                         
+  1. COMPONENT RELATIONSHIPS:                                                                            
+     - (Component, COMPONENT_OF, Program)                                                                
+     - (Component, SYSTEM_TYPE, Category)                                                                
+                                                                                                         
+  2. SUPPLIER-COMPONENT RELATIONSHIPS (CRITICAL):                                                        
+     - (Supplier, SUPPLIES, Component)                                                                   
+     - (Component, SUPPLIED_BY, Supplier)                                                                
+                                                                                                         
+  3. SUPPLIER-PROGRAM RELATIONSHIPS:                                                                     
+     - (Program, HAS_SUPPLIER, Supplier)                                                                 
+     - (Supplier, CONTRACT_VALUE, Amount)                                                                
+                                                                                                         
+  Return as JSON with confidence scores.                                                                 
+                                                                                                         
+  EXAMPLE:                                                                                               
+  Row: "Honeywell | Flight computers | $14.2M"                                                           
+  Context: "Falcon X UAV Program"                                                                        
+                                                                                                         
+  Output:                                                                                                
+  {                                                                                                      
+    "entities": ["Honeywell", "Flight_Computers", "Falcon_X"],                                           
+    "relationships": [                                                                                   
+      {"source": "Honeywell", "relation": "SUPPLIES", "target": "Flight_Computers", "confidence": 0.95}, 
+      {"source": "Flight_Computers", "relation": "COMPONENT_OF", "target": "Falcon_X", "confidence":     
+  0.95},                                                                                                 
+      {"source": "Falcon_X", "relation": "HAS_SUPPLIER", "target": "Honeywell", "confidence": 0.90},     
+      {"source": "Honeywell", "relation": "CONTRACT_VALUE", "target": "$14.2M", "confidence": 0.95}      
+    ]                                                                                                    
+  }                                                                                                      
+  """                                                                                                    
+                                                                                                         
+  ---                                                                                                    
+  Quick Win 2: Add Component Nodes to Schema                                                             
+                                                                                                         
+  -- Create missing component entities                                                                   
+  INSERT INTO entities (tenant_id, name, entity_type, properties, confidence)                            
+  VALUES                                                                                                 
+    ('1f3320cd-...', 'Flight Computers', 'COMPONENT',                                                    
+     '{"system_type": "Avionics", "program": "Falcon X"}', 0.95),                                        
+    ('1f3320cd-...', 'SAR Radar', 'COMPONENT',                                                           
+     '{"system_type": "Sensors", "program": "Falcon X", "model": "APY-8"}', 0.95);                       
+                                                                                                         
+  -- Create SUPPLIES relationships (Supplier → Component)                                                
+  INSERT INTO relationships (tenant_id, source_id, target_id, relationship_type, confidence)             
+  SELECT                                                                                                 
+    '1f3320cd-...',                                                                                      
+    (SELECT id FROM entities WHERE name = 'Honeywell' AND tenant_id = '1f3320cd-...'),                   
+    (SELECT id FROM entities WHERE name = 'Flight Computers' AND tenant_id = '1f3320cd-...'),            
+    'SUPPLIES',                                                                                          
+    0.95;                                                                                                
+                                                                                                         
+  -- Create COMPONENT_OF relationships (Component → Program)                                             
+  INSERT INTO relationships (tenant_id, source_id, target_id, relationship_type, confidence)             
+  SELECT                                                                                                 
+    '1f3320cd-...',                                                                                      
+    (SELECT id FROM entities WHERE name = 'Flight Computers' AND tenant_id = '1f3320cd-...'),            
+    (SELECT id FROM entities WHERE name ILIKE '%Falcon X%' AND entity_type = 'PROGRAM' AND tenant_id =   
+  '1f3320cd-...'),                                                                                       
+    'COMPONENT_OF',                                                                                      
+    0.95;                                                                                                
+                                                                                                         
+  ---                                                                                                    
+  Quick Win 3: Query Specificity Routing                                                                 
+                                                                                                         
+  def route_supplier_query(query: str):                                                                  
+      """Route supplier queries to correct specificity level."""                                         
+      query_lower = query.lower()                                                                        
+                                                                                                         
+      # Component-level queries (specific component mentioned)                                           
+      component_keywords = ['flight computer', 'sar radar', 'radar', 'avionics',                         
+                            'electrolyzer', 'battery', 'engine', 'sensor']                               
+                                                                                                         
+      for component in component_keywords:                                                               
+          if component in query_lower:                                                                   
+              return query_component_supplier(query, component)                                          
+                                                                                                         
+      # Program-level queries (no specific component)                                                    
+      return query_program_suppliers(query)                                                              
+                                                                                                         
+                                                                                                         
+  def query_component_supplier(query: str, component: str):                                              
+      """Traverse: Component <- SUPPLIES <- Supplier"""                                                  
+      sql = """                                                                                          
+          SELECT s.name as supplier, c.name as component, p.name as program                              
+          FROM entities s                                                                                
+          JOIN relationships r1 ON s.id = r1.source_id                                                   
+          JOIN entities c ON r1.target_id = c.id                                                         
+          JOIN relationships r2 ON c.id = r2.source_id                                                   
+          JOIN entities p ON r2.target_id = p.id                                                         
+          WHERE r1.relationship_type = 'SUPPLIES'                                                        
+          AND r2.relationship_type = 'COMPONENT_OF'                                                      
+          AND c.name ILIKE :component                                                                    
+          AND s.tenant_id = :tenant_id                                                                   
+      """                                                                                                
+      return execute(sql, {'component': f'%{component}%', 'tenant_id': tenant_id})                       
+                                                                                                         
+  ---                                                                                                    
+  Verification After Quick Wins                                                                          
+                                                                                                         
+  # Test Q78                                                                                             
+  response = cf.query("Who provides flight computers for Falcon X?")                                     
+  assert "Honeywell" in response['answer']                                                               
+  assert "Boeing" not in response['answer']  # Should NOT return generic suppliers                       
+                                                                                                         
+  ---                                                                                                    
+  Start with Quick Win 2 (add the missing data) to unblock Q78, then implement Quick Wins 1 and 3 to make
+   it systematic.    
