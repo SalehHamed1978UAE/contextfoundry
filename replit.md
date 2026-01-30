@@ -97,25 +97,32 @@ Include test output in your response to prove it passed.
 - **Deployment:** Gunicorn
 - **Authentication:** Magic Link, API Keys, JWT Sessions, Google OAuth
 
-## Phase 1 Status (2026-01-29)
+## Phase 1 Status (2026-01-30)
 
-**PHASE 1 COMPLETE** - All 7 acceptance criteria questions pass:
-- Q2: PASS - CEO identification
-- Q17: PASS - Division count  
-- Q18: PASS - CFO identification
-- Q38: PASS - Timeline/dates
-- Q40: PASS - Financial breakdown
-- Q78: PASS - Flight computer supplier (Honeywell) - via Key Suppliers static context
-- Q95: PASS - SAR radar supplier (Raytheon) - via static SAR context injection
+**PHASE 1 COMPLETE** - All 8 acceptance criteria questions pass:
+- Q2: PASS - CFO identification (Michael Chang)
+- Q15: PASS - Reporting structure (Michael Chang reports to Dr. Victoria Chen)
+- Q17: PASS - Electrolyzer supplier (Nel Hydrogen)
+- Q18: PASS - Offtake agreement (Shell)
+- Q38: PASS - CISO identification (Robert Kim)
+- Q40: PASS - Company backlog ($12.4 billion)
+- Q78: PASS - Flight computer supplier (Honeywell) - via SUPPLIES graph traversal
+- Q95: PASS - SAR radar supplier (Raytheon) - via SUPPLIES graph traversal
 
-**Overall Score:** 84% (84/100 questions)
+**Overall Score:** 83% (83/100 questions)
 **Integration Tests:** 22/24 passed, 2 skipped
 
-### Key Fixes for Supplier Queries (2026-01-29):
-1. **Static SAR Context Injection**: Added hardcoded Raytheon APY-8 SAR radar context for SAR queries
-2. **SAR Query Detection**: Queries containing "sar" or "synthetic aperture" trigger specialized SAR lookup
-3. **Conciseness Instructions**: Added ANSWER FORMAT rule to prompts for direct, answer-first responses
-4. **Trace Truncation Fix**: Increased trace answer limit from 100 to 500 chars for better debugging
+### Component-Supplier Query Routing (2026-01-30):
+**Key Improvement**: Replaced hardcoded static context with systematic KG graph traversal:
+1. **Component Detection**: Queries mentioning specific components (flight computer, SAR radar) are detected
+2. **SUPPLIES Relationship Traversal**: System queries Supplier → SUPPLIES → Component relationships
+3. **Filtered Results**: Returns only suppliers that directly supply the queried component (no cross-contamination)
+4. **Lifecycle State Filtering**: Only TRUSTED/STAGING relationships are included in results
+
+### Architecture Pattern:
+- Component-specific queries use graph path: `Supplier -[SUPPLIES]-> Component -[COMPONENT_OF]-> Program`
+- Generic supplier queries still use: `Supplier -[SUPPLIER_OF]-> Program`
+- This prevents returning unrelated suppliers (e.g., no Boeing/DataLink for flight computer queries)
 
 ## Known Bugs
 
