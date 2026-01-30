@@ -480,6 +480,106 @@ class RetrievalRouter:
         
         logger.info(f"[SUPPLIER_LOOKUP] Query: '{query}', target: {target_entity_name}")
         
+        query_lower = query.lower()
+        
+        # PRIORITY: Component-specific supplier lookup via SUPPLIES relationship
+        # This finds suppliers that directly SUPPLIES a specific component (e.g., Honeywell → Flight Computer)
+        component_patterns = {
+            'flight computer': ['Flight Computer', 'flight computer'],
+            'flight computers': ['Flight Computer', 'flight computer'],
+            'sar radar': ['APY-8', 'SAR Radar', 'Synthetic Aperture Radar'],
+            'sar': ['APY-8', 'SAR Radar', 'Synthetic Aperture Radar'],
+            'synthetic aperture': ['APY-8', 'SAR Radar', 'Synthetic Aperture Radar'],
+            'electrolyzer': ['electrolyzer', 'Electrolyzer'],
+            'electrolyzers': ['electrolyzer', 'Electrolyzer'],
+            'radar': ['APY-8', 'SAR Radar', 'Synthetic Aperture Radar', 'radar'],
+        }
+        
+        detected_component = None
+        component_search_names = []
+        for pattern, names in component_patterns.items():
+            if pattern in query_lower:
+                detected_component = pattern
+                component_search_names = names
+                break
+        
+        if detected_component and component_search_names:
+            logger.info(f"[SUPPLIER_LOOKUP] Detected component query: '{detected_component}' -> searching for {component_search_names}")
+            
+            # Query: Find suppliers that SUPPLIES this specific component
+            component_supplier_sql = text("""
+                SELECT DISTINCT ON (src.id)
+                    r.id as rel_id,
+                    r.relationship_type,
+                    r.confidence,
+                    r.provenance_text,
+                    src.id as source_id,
+                    src.name as source_name,
+                    src.entity_type as source_type,
+                    tgt.id as target_id,
+                    tgt.name as target_name,
+                    tgt.entity_type as target_type
+                FROM relationships r
+                JOIN entities src ON r.source_id = src.id
+                JOIN entities tgt ON r.target_id = tgt.id
+                WHERE r.tenant_id = :tenant_id
+                AND r.relationship_type IN ('SUPPLIES', 'PRODUCES', 'MANUFACTURES')
+                AND (
+                    tgt.name ILIKE :comp1
+                    OR tgt.name ILIKE :comp2
+                    OR tgt.name ILIKE :comp3
+                )
+                ORDER BY src.id, r.confidence DESC
+                LIMIT 10
+            """)
+            
+            comp_names = component_search_names + [''] * (3 - len(component_search_names))
+            try:
+                results = self.session.execute(
+                    component_supplier_sql,
+                    {
+                        'tenant_id': self.tenant_id,
+                        'comp1': f'%{comp_names[0]}%' if comp_names[0] else '%NOMATCH%',
+                        'comp2': f'%{comp_names[1]}%' if len(comp_names) > 1 and comp_names[1] else '%NOMATCH%',
+                        'comp3': f'%{comp_names[2]}%' if len(comp_names) > 2 and comp_names[2] else '%NOMATCH%'
+                    }
+                ).fetchall()
+                
+                if results:
+                    logger.info(f"[SUPPLIER_LOOKUP] Found {len(results)} component-specific suppliers via SUPPLIES relationship")
+                    for rel in results:
+                        if rel.source_id not in seen_entity_ids:
+                            seen_entity_ids.add(rel.source_id)
+                            entities.append({
+                                "id": str(rel.source_id),
+                                "name": rel.source_name,
+                                "type": rel.source_type,
+                                "component": rel.target_name,
+                                "confidence": rel.confidence
+                            })
+                            logger.info(f"[SUPPLIER_LOOKUP] Component supplier: {rel.source_name} -> SUPPLIES -> {rel.target_name}")
+                        
+                        relationships.append({
+                            "id": str(rel.rel_id),
+                            "type": rel.relationship_type,
+                            "source": rel.source_name,
+                            "source_type": rel.source_type,
+                            "target": rel.target_name,
+                            "target_type": rel.target_type,
+                            "confidence": rel.confidence,
+                            "provenance": rel.provenance_text
+                        })
+                    
+                    # If we found component-specific suppliers, prioritize them
+                    # Return early with just these suppliers to avoid noise from generic program suppliers
+                    if entities:
+                        logger.info(f"[SUPPLIER_LOOKUP] Returning {len(entities)} component-specific suppliers (skipping generic lookup)")
+                        return entities, relationships
+                else:
+                    logger.info(f"[SUPPLIER_LOOKUP] No component-specific suppliers found via SUPPLIES, falling back to standard lookup")
+            except Exception as e:
+                logger.warning(f"[SUPPLIER_LOOKUP] Component supplier query failed: {e}")
+        
         search_terms = []
         if target_entity_name:
             search_terms.append(target_entity_name)
@@ -489,7 +589,6 @@ class RetrievalRouter:
             'radar', 'battery', 'batteries', 'sensor', 'sensors', 'component', 'components',
             'material', 'materials', 'equipment', 'part', 'parts'
         ]
-        query_lower = query.lower()
         for term in component_terms:
             if term in query_lower:
                 search_terms.append(term)
@@ -675,35 +774,10 @@ class RetrievalRouter:
             
             # Also retrieve document chunks that mention supplier + component together
             # This provides specific context (e.g., "Honeywell" + "flight computer")
-            # For SAR queries, use "Synthetic Aperture Radar" for precise matching (is_sar_query set above)
+            # For SAR queries, use "Synthetic Aperture Radar" for precise matching
             if is_sar_query:
-                component_terms = ['Synthetic Aperture Radar']
-                logger.info(f"[SUPPLIER_LOOKUP] SAR-specific query detected, using 'Synthetic Aperture Radar' pattern")
-                
-                # CRITICAL: Add hardcoded static context for SAR radar to ensure correct supplier is found
-                # This is sourced from project documentation: Falcon X Payload Suite - SAR Radar
-                static_sar_context = """## Key Suppliers - Falcon X UAV Payload Components
-| Component | Manufacturer | Status |
-|-----------|--------------|--------|
-| Synthetic Aperture Radar (SAR) | Raytheon | Active Supplier |
-| SAR Model: APY-8 | Raytheon | Verified |
-| EO/IR System | L3Harris | Active Supplier |
-| Flight Computer | Honeywell | Active Supplier |
-
-**SAR Radar Details:**
-- Manufacturer: Raytheon
-- Model: APY-8 (Synthetic Aperture Radar)
-- Use: Primary ground imaging radar for Falcon X UAV"""
-                
-                relationships.insert(0, {
-                    "id": "static_sar_supplier",
-                    "type": "KEY_SUPPLIERS_TABLE",
-                    "source": "Raytheon",
-                    "target": "Synthetic Aperture Radar",
-                    "context": static_sar_context,
-                    "confidence": 0.99
-                })
-                logger.info(f"[SUPPLIER_LOOKUP] Injected static SAR supplier context: Raytheon APY-8")
+                component_terms = ['Synthetic Aperture Radar', 'SAR Radar', 'APY-8']
+                logger.info(f"[SUPPLIER_LOOKUP] SAR-specific query detected, using expanded SAR terms")
             else:
                 component_terms = [t for t in search_terms if t.lower() in ['flight computer', 'flight computers', 'electrolyzer', 'electrolyzers', 'radar', 'sensor', 'battery', 'batteries']]
             
