@@ -1,24 +1,24 @@
 {
-  "run_timestamp": "2026-01-30T06:49:00.625969",
+  "run_timestamp": "2026-01-30T10:18:03.079867",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
-    "avg_chunks_retrieved": 2.870000000000002,
-    "avg_semantic_score": 0.061169000000000015,
+    "avg_chunks_retrieved": 2.9299999999999997,
+    "avg_semantic_score": 0.06880000000000001,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 44,
-      "no_data": 5,
-      "component_match": 28,
-      "no_match": 13,
-      "number_match": 7,
+      "exact_match": 48,
+      "number_match": 8,
+      "component_match": 24,
+      "no_data": 3,
+      "no_match": 14,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
     },
-    "low_score_queries": 90
+    "low_score_queries": 89
   },
   "low_score_questions": [
     {
@@ -34,11 +34,6 @@
     {
       "q_id": 3,
       "question": "Who is the President of Nexus Digital Solutions?",
-      "avg_score": 0.0
-    },
-    {
-      "q_id": 5,
-      "question": "Who is the Empowered Official for ITAR compliance?",
       "avg_score": 0.0
     },
     {
@@ -475,23 +470,9 @@
   "failures_by_type": {
     "no_data": [
       {
-        "q_id": 5,
-        "question": "Who is the Empowered Official for ITAR compliance?",
-        "expected": "Col. (Ret.) James Foster",
-        "actual": "The information regarding the Empowered ",
-        "files_retrieved": []
-      },
-      {
         "q_id": 16,
         "question": "What company is Nexus partnering with for solid-state batter",
         "expected": "Toyota Motor Corporation",
-        "actual": "The retrieved information does not speci",
-        "files_retrieved": []
-      },
-      {
-        "q_id": 19,
-        "question": "Who is the largest aerospace customer of Nexus by relationsh",
-        "expected": "Boeing ($730 million)",
         "actual": "The retrieved information does not speci",
         "files_retrieved": []
       },
@@ -509,21 +490,32 @@
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
           "04_toyota_partnership_announcement.md",
-          "08_global_locations.md",
+          "05_fedramp_announcement.md",
           "03_press_release_fy2025.md"
         ]
       }
     ],
     "no_match": [
       {
+        "q_id": 19,
+        "question": "Who is the largest aerospace customer of Nexus by relationsh",
+        "expected": "Boeing ($730 million)",
+        "actual": "The largest aerospace customer of Nexus ",
+        "files_retrieved": [
+          "14_lockheed_martin_customer.md",
+          "03_ge_aerospace_customer.md",
+          "12_supplier_performance_review.md"
+        ]
+      },
+      {
         "q_id": 24,
         "question": "What is the hydrogen production capacity of the GreenHydroge",
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
+          "08_global_locations.md",
           "02_greenhydrogen_process_specification.md",
-          "09_greenhydrogen_milestone.md",
-          "08_global_locations.md"
+          "04_greenhydrogen_initiative.md"
         ]
       },
       {
@@ -532,9 +524,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "10_quarterly_newsletter.md",
-          "03_aerospace_division_structure.md",
-          "08_global_locations.md"
+          "01_executive_team.md",
+          "04_toyota_partnership_announcement.md",
+          "10_rd_investment_report.md"
         ]
       },
       {
@@ -545,17 +537,27 @@
         "files_retrieved": []
       },
       {
+        "q_id": 36,
+        "question": "Which division has the highest safety incident rate (TRIR)?",
+        "expected": "Nexus Advanced Materials (1.24 TRIR)",
+        "actual": "The division with the highest safety inc",
+        "files_retrieved": [
+          "05_safety_committee_meeting.md",
+          "07_environmental_health_safety.md"
+        ]
+      },
+      {
         "q_id": 37,
         "question": "Who is the Project Director for the GreenHydrogen Initiative",
         "expected": "Jennifer Walsh",
-        "actual": "I found multiple people with the DIRECTO",
+        "actual": "I found multiple people with the CTO rol",
         "files_retrieved": []
       },
       {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "I found multiple people with the CTO rol",
+        "actual": "The CEO of Nexus Industries is Dr. Victo",
         "files_retrieved": []
       },
       {
@@ -571,8 +573,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "07_capital_allocation_plan.md",
-          "01_corporate_strategy_2026_2030.md"
+          "01_corporate_strategy_2026_2030.md",
+          "07_capital_allocation_plan.md"
         ]
       },
       {
@@ -583,21 +585,14 @@
         "files_retrieved": []
       },
       {
-        "q_id": 78,
-        "question": "Who provides flight computers for Falcon X?",
-        "expected": "Honeywell",
-        "actual": "The flight computers for the Falcon X ar",
-        "files_retrieved": []
-      },
-      {
         "q_id": 79,
         "question": "What is the 2030 revenue target in the corporate strategy?",
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "02_aerospace_division_strategy.md",
+          "06_market_expansion_asia.md",
           "01_corporate_strategy_2026_2030.md",
-          "06_market_expansion_asia.md"
+          "02_aerospace_division_strategy.md"
         ]
       },
       {
@@ -606,9 +601,9 @@
         "expected": "Pacific Power (pilot customer)",
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
+          "08_quantum_computing_services.md",
           "02_airbus_customer_profile.md",
-          "03_ge_aerospace_customer.md",
-          "08_quantum_computing_services.md"
+          "03_ge_aerospace_customer.md"
         ]
       },
       {
@@ -624,9 +619,9 @@
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
         "actual": "The total value of the top three custome",
         "files_retrieved": [
-          "07_spacex_customer.md",
-          "02_airbus_customer_profile.md",
-          "11_microsoft_customer.md"
+          "14_lockheed_martin_customer.md",
+          "01_boeing_customer_profile.md",
+          "03_ge_aerospace_customer.md"
         ]
       }
     ]
