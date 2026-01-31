@@ -2017,6 +2017,38 @@ class QueryPipeline:
         if classification.has_role_reference and classification.role_referenced and not skip_role_resolution:
             role_resolution = self.role_resolver.resolve(classification.role_referenced, organization=vault_context, query=query)
             
+            # Handle scoped role resolution (Stage -1) - direct answer for "CEO of X" queries
+            # This handles queries like "Who is the CEO of NextGen Battery Technologies?"
+            # where the role resolver found a specific person via graph traversal
+            if (role_resolution.is_resolved 
+                and not role_resolution.has_multiple_matches
+                and role_resolution.resolution_method == "stage_minus1_scoped_entity"):
+                
+                logger.info(f"[PIPELINE] Scoped role resolution SUCCESS: {classification.role_referenced} of scoped entity → {role_resolution.resolved_name}")
+                
+                # Build direct answer result - this is a definitive answer from KG
+                result = RetrievalResult(
+                    entities=[],
+                    relationships=[],
+                    chunks=[],
+                    strategy_used="SCOPED_ROLE_RESOLUTION",
+                    query=query,
+                    classification=classification,
+                    role_resolution=role_resolution,
+                    intent=intent
+                )
+                
+                # Add the resolved person as context for the agent
+                result.entities = [{
+                    "name": role_resolution.resolved_name,
+                    "type": "PERSON",
+                    "role": role_resolution.role,
+                    "scoped_entity": role_resolution.metadata.get("scoped_entity") if role_resolution.metadata else None,
+                    "resolution_method": "scoped_role_resolution"
+                }]
+                
+                return result
+            
             should_chain = (
                 intent 
                 and intent.intent_type in ("attribute", "relationship")
