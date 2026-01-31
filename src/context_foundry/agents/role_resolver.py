@@ -415,7 +415,9 @@ class RoleResolver:
         
         Returns (role, entity_name) tuple if this is a scoped role query, None otherwise.
         """
+        logger.info(f"[SCOPED_EXTRACT] Input query: '{query}'")
         if not query:
+            logger.debug(f"[SCOPED_EXTRACT] Query is None/empty, returning None")
             return None
         
         query = query.strip()
