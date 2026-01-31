@@ -620,7 +620,17 @@ class RoleResolver:
                 logger.info(f"[ROLE_RESOLVER] Stage -1 SUCCESS: '{scoped_role}' of '{scoped_entity}' → '{scoped_result.resolved_name}'")
                 return scoped_result
             else:
-                logger.info(f"[ROLE_RESOLVER] Stage -1: No match for '{scoped_role}' of '{scoped_entity}', falling through")
+                logger.info(f"[ROLE_RESOLVER] Stage -1: No match for '{scoped_role}' of '{scoped_entity}' - returning NOT FOUND (no fallthrough)")
+                return RoleResolution(
+                    role=scoped_role,
+                    resolved_name=None,
+                    confidence=0.0,
+                    resolution_method="scoped_entity_not_found",
+                    metadata={
+                        "scoped_entity": scoped_entity,
+                        "message": f"No {scoped_role} found for {scoped_entity} in the knowledge graph"
+                    }
+                )
         
         stage0_result = self.resolve_from_anchor(role, query)
         if stage0_result.is_resolved:
