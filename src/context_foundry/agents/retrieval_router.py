@@ -452,6 +452,175 @@ class RetrievalRouter:
         query_lower = query.lower()
         return any(keyword in query_lower for keyword in supplier_keywords)
     
+    def _is_customer_query(self, query: str) -> bool:
+        """Detect if query is asking about customers/clients for a product."""
+        customer_keywords = [
+            'customer', 'customers', 'client', 'clients',
+            'who is the customer', 'who are the customers',
+            'who buys', 'who uses', 'who is using',
+            'pilot customer', 'customer for',
+            'buyers of', 'buyer of'
+        ]
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in customer_keywords)
+    
+    def _lookup_customers_for_product(
+        self,
+        query: str,
+        product_name: str = None
+    ) -> tuple:
+        """
+        Lookup CUSTOMER_OF relationships for a product/service.
+        
+        For queries like "Who is the customer for SmartGrid Controller?",
+        this finds customer entities connected to the product via CUSTOMER_OF.
+        
+        Args:
+            query: The original query
+            product_name: Optional explicit product name
+            
+        Returns:
+            Tuple of (entities, relationships) with customer information
+        """
+        from src.context_foundry.models.schema import set_tenant_context
+        set_tenant_context(self.session, self.tenant_id)
+        
+        entities = []
+        relationships = []
+        seen_entity_ids = set()
+        
+        logger.info(f"[CUSTOMER_LOOKUP] Query: '{query}', product: {product_name}")
+        
+        product_patterns = {
+            'smartgrid controller': ['SmartGrid Controller', 'smartgrid controller', 'SmartGrid'],
+            'smartgrid': ['SmartGrid Controller', 'SmartGrid', 'smartgrid'],
+            'nexusconnect': ['NexusConnect', 'Nexus Connect'],
+            'cybershield': ['CyberShield', 'Cybershield'],
+        }
+        
+        query_lower = query.lower()
+        detected_product = product_name
+        product_search_names = []
+        
+        if not detected_product:
+            for pattern, names in product_patterns.items():
+                if pattern in query_lower:
+                    detected_product = pattern
+                    product_search_names = names
+                    break
+        
+        if not detected_product and not product_search_names:
+            logger.info(f"[CUSTOMER_LOOKUP] No product pattern detected in query")
+            return entities, relationships
+        
+        if detected_product and not product_search_names:
+            product_search_names = [detected_product]
+        
+        logger.info(f"[CUSTOMER_LOOKUP] Searching for customers of: {product_search_names}")
+        
+        customer_sql = text("""
+            WITH direct_customers AS (
+                -- Direct: Customer CUSTOMER_OF Product
+                SELECT DISTINCT
+                    src.id as customer_id,
+                    src.name as customer_name,
+                    src.entity_type as customer_type,
+                    src.properties as customer_props,
+                    tgt.id as product_id,
+                    tgt.name as product_name,
+                    r.id as rel_id,
+                    r.relationship_type,
+                    r.confidence,
+                    1 as priority
+                FROM relationships r
+                JOIN entities src ON r.source_id = src.id
+                JOIN entities tgt ON r.target_id = tgt.id
+                WHERE r.tenant_id = :tenant_id
+                AND r.relationship_type IN ('CUSTOMER_OF', 'CLIENT_OF', 'USES')
+                AND (
+                    LOWER(tgt.name) ILIKE :prod1
+                    OR LOWER(tgt.name) ILIKE :prod2
+                    OR LOWER(tgt.name) ILIKE :prod3
+                )
+            ),
+            indirect_customers AS (
+                -- Indirect: Customer CUSTOMER_OF Division where Division has Product
+                SELECT DISTINCT
+                    cust.id as customer_id,
+                    cust.name as customer_name,
+                    cust.entity_type as customer_type,
+                    cust.properties as customer_props,
+                    prod.id as product_id,
+                    prod.name as product_name,
+                    r1.id as rel_id,
+                    r1.relationship_type,
+                    r1.confidence,
+                    2 as priority
+                FROM relationships r1
+                JOIN entities cust ON r1.source_id = cust.id
+                JOIN entities div ON r1.target_id = div.id
+                JOIN relationships r2 ON div.id = r2.target_id
+                JOIN entities prod ON r2.source_id = prod.id
+                WHERE r1.tenant_id = :tenant_id
+                AND r2.tenant_id = :tenant_id
+                AND r1.relationship_type IN ('CUSTOMER_OF', 'CLIENT_OF')
+                AND r2.relationship_type IN ('PART_OF', 'PRODUCT_OF', 'BELONGS_TO')
+                AND (
+                    LOWER(prod.name) ILIKE :prod1
+                    OR LOWER(prod.name) ILIKE :prod2
+                    OR LOWER(prod.name) ILIKE :prod3
+                )
+            )
+            SELECT * FROM direct_customers
+            UNION ALL
+            SELECT * FROM indirect_customers
+            ORDER BY priority ASC
+            LIMIT 15
+        """)
+        
+        prod_names = (product_search_names + [''] * 3)[:3]
+        prod_names = [f"%{n}%" if n else "%__NOMATCH__%" for n in prod_names]
+        
+        try:
+            results = self.session.execute(
+                customer_sql,
+                {
+                    'tenant_id': self.tenant_id,
+                    'prod1': prod_names[0],
+                    'prod2': prod_names[1],
+                    'prod3': prod_names[2],
+                }
+            ).fetchall()
+            
+            for row in results:
+                if str(row.customer_id) not in seen_entity_ids:
+                    entities.append({
+                        'id': str(row.customer_id),
+                        'name': row.customer_name,
+                        'entity_type': row.customer_type,
+                        'properties': row.customer_props or {},
+                        'role': 'customer',
+                        'priority': row.priority
+                    })
+                    seen_entity_ids.add(str(row.customer_id))
+                    
+                relationships.append({
+                    'id': str(row.rel_id),
+                    'relationship_type': row.relationship_type,
+                    'source_name': row.customer_name,
+                    'target_name': row.product_name,
+                    'confidence': row.confidence
+                })
+                
+            logger.info(f"[CUSTOMER_LOOKUP] Found {len(entities)} customers for {product_search_names}")
+            
+        except Exception as e:
+            logger.error(f"[CUSTOMER_LOOKUP] Query failed: {e}")
+            import traceback
+            traceback.print_exc()
+        
+        return entities, relationships
+    
     def _lookup_suppliers(
         self,
         query: str,
@@ -1930,6 +2099,18 @@ class QueryPipeline:
                 result.relationships = supplier_relationships + result.relationships
                 result.strategy_used = f"HYBRID+SUPPLIER ({result.strategy_used})"
                 logger.info(f"[PIPELINE] Complete (supplier): strategy={result.strategy_used}, has_data={result.has_data}")
+                return result
+        
+        if self.router._is_customer_query(query):
+            logger.info(f"[PIPELINE] Detected customer query, using specialized lookup")
+            customer_entities, customer_relationships = self.router._lookup_customers_for_product(query)
+            if customer_entities or customer_relationships:
+                logger.info(f"[PIPELINE] Customer lookup found: {len(customer_entities)} entities, {len(customer_relationships)} relationships")
+                result = self.router.route(query, classification, role_resolution, intent, classified_query)
+                result.entities = customer_entities + result.entities
+                result.relationships = customer_relationships + result.relationships
+                result.strategy_used = f"HYBRID+CUSTOMER ({result.strategy_used})"
+                logger.info(f"[PIPELINE] Complete (customer): strategy={result.strategy_used}, has_data={result.has_data}")
                 return result
         
         if self.router._is_offtake_query(query):

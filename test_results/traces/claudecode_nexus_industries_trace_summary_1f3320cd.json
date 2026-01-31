@@ -1,19 +1,19 @@
 {
-  "run_timestamp": "2026-01-30T10:18:03.079867",
+  "run_timestamp": "2026-01-31T20:47:29.840869",
   "trace_file": "test_results/traces/claudecode_nexus_industries_traces_1f3320cd.jsonl",
   "stats": {
     "total_questions": 100,
     "avg_chunks_retrieved": 2.9299999999999997,
-    "avg_semantic_score": 0.06880000000000001,
+    "avg_semantic_score": 0.06934300000000002,
     "query_type_distribution": {
       "unknown": 100
     },
     "evaluator_rule_distribution": {
-      "exact_match": 48,
-      "number_match": 8,
-      "component_match": 24,
+      "exact_match": 47,
+      "component_match": 27,
       "no_data": 3,
       "no_match": 14,
+      "number_match": 6,
       "percentage_match": 1,
       "entity_match": 1,
       "semantic_match": 1
@@ -489,9 +489,9 @@
         "expected": "1985",
         "actual": "The retrieved information does not speci",
         "files_retrieved": [
-          "04_toyota_partnership_announcement.md",
-          "05_fedramp_announcement.md",
-          "03_press_release_fy2025.md"
+          "02_business_divisions.md",
+          "03_press_release_fy2025.md",
+          "05_fedramp_announcement.md"
         ]
       }
     ],
@@ -502,9 +502,9 @@
         "expected": "Boeing ($730 million)",
         "actual": "The largest aerospace customer of Nexus ",
         "files_retrieved": [
-          "14_lockheed_martin_customer.md",
-          "03_ge_aerospace_customer.md",
-          "12_supplier_performance_review.md"
+          "07_ma_strategy.md",
+          "12_supplier_performance_review.md",
+          "02_airbus_customer_profile.md"
         ]
       },
       {
@@ -513,9 +513,9 @@
         "expected": "425 kg/hour (Phase 1) or 10,200 kg/day",
         "actual": "The GreenHydrogen facility in El Paso, T",
         "files_retrieved": [
-          "08_global_locations.md",
+          "04_greenhydrogen_initiative.md",
           "02_greenhydrogen_process_specification.md",
-          "04_greenhydrogen_initiative.md"
+          "08_global_locations.md"
         ]
       },
       {
@@ -524,9 +524,9 @@
         "expected": "Dr. Victoria Chen (CEO), Michael Chang (",
         "actual": "The members of the Executive Leadership ",
         "files_retrieved": [
-          "01_executive_team.md",
-          "04_toyota_partnership_announcement.md",
-          "10_rd_investment_report.md"
+          "01_corporate_strategy_2026_2030.md",
+          "08_hr_talent_review.md",
+          "01_executive_team.md"
         ]
       },
       {
@@ -542,29 +542,29 @@
         "expected": "Nexus Advanced Materials (1.24 TRIR)",
         "actual": "The division with the highest safety inc",
         "files_retrieved": [
-          "05_safety_committee_meeting.md",
-          "07_environmental_health_safety.md"
+          "07_environmental_health_safety.md",
+          "05_safety_committee_meeting.md"
         ]
       },
       {
         "q_id": 37,
         "question": "Who is the Project Director for the GreenHydrogen Initiative",
         "expected": "Jennifer Walsh",
-        "actual": "I found multiple people with the CTO rol",
+        "actual": "The Project Director for the GreenHydrog",
         "files_retrieved": []
       },
       {
         "q_id": 45,
         "question": "When was Dr. Victoria Chen appointed CEO?",
         "expected": "2019",
-        "actual": "The CEO of Nexus Industries is Dr. Victo",
+        "actual": "I found multiple people with the CTO rol",
         "files_retrieved": []
       },
       {
         "q_id": 61,
         "question": "Who replaced Thomas Anderson as Digital President?",
         "expected": "Robert Kim",
-        "actual": "I found multiple people with the PRESIDE",
+        "actual": "The PRESIDENT of Nexus Industries is Ken",
         "files_retrieved": []
       },
       {
@@ -573,8 +573,8 @@
         "expected": "$680 million",
         "actual": "The FY2026 capital expenditure plan for ",
         "files_retrieved": [
-          "01_corporate_strategy_2026_2030.md",
-          "07_capital_allocation_plan.md"
+          "07_capital_allocation_plan.md",
+          "01_corporate_strategy_2026_2030.md"
         ]
       },
       {
@@ -590,9 +590,9 @@
         "expected": "$15 billion",
         "actual": "The 2030 revenue targets outlined in the",
         "files_retrieved": [
-          "06_market_expansion_asia.md",
           "01_corporate_strategy_2026_2030.md",
-          "02_aerospace_division_strategy.md"
+          "02_aerospace_division_strategy.md",
+          "06_market_expansion_asia.md"
         ]
       },
       {
@@ -601,9 +601,9 @@
         "expected": "Pacific Power (pilot customer)",
         "actual": "The primary customer for the SmartGrid C",
         "files_retrieved": [
-          "08_quantum_computing_services.md",
           "02_airbus_customer_profile.md",
-          "03_ge_aerospace_customer.md"
+          "10_first_solar_supplier.md",
+          "08_quantum_computing_services.md"
         ]
       },
       {
@@ -619,9 +619,9 @@
         "expected": "Boeing ($730M) + DoD ($680M) + Airbus ($",
         "actual": "The total value of the top three custome",
         "files_retrieved": [
-          "14_lockheed_martin_customer.md",
-          "01_boeing_customer_profile.md",
-          "03_ge_aerospace_customer.md"
+          "01_corporate_strategy_2026_2030.md",
+          "11_microsoft_customer.md",
+          "05_siemens_healthineers_customer.md"
         ]
       }
     ]

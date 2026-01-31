@@ -403,6 +403,100 @@ class RoleResolver:
             logger.error(f"[ROLE_RESOLVER] Stage 0 failed: {e}")
             return RoleResolution(role=role)
     
+    SCOPED_ROLE_PATTERNS = [
+        re.compile(r"(?:who (?:is|will be) the|who's the)\s+(\w+(?:\s+\w+)?)\s+(?:of|for|at)\s+(.+?)(?:\?|$)", re.IGNORECASE),
+        re.compile(r"(\w+(?:\s+\w+)?)\s+of\s+(.+?)(?:\?|$)", re.IGNORECASE),
+        re.compile(r"(?:the\s+)?(\w+(?:\s+\w+)?)\s+(?:at|for)\s+(.+?)(?:\?|$)", re.IGNORECASE),
+    ]
+    
+    def _extract_scoped_entity_from_query(self, query: Optional[str]) -> Optional[tuple]:
+        """
+        Extract target entity and role from scoped role queries like "CEO of NextGen Battery Technologies".
+        
+        Returns (role, entity_name) tuple if this is a scoped role query, None otherwise.
+        """
+        if not query:
+            return None
+        
+        query = query.strip()
+        
+        for pattern in self.SCOPED_ROLE_PATTERNS:
+            match = pattern.search(query)
+            if match:
+                role_part = match.group(1).strip()
+                entity_part = match.group(2).strip()
+                
+                # Clean up role - strip leading "the"
+                role_part = re.sub(r'^the\s+', '', role_part, flags=re.IGNORECASE)
+                
+                # Clean up entity - strip leading "the " and extract from parentheses if present
+                # For "the Toyota JV (NextGen Battery Technologies)" → "NextGen Battery Technologies"
+                paren_match = re.search(r'\(([^)]+)\)', entity_part)
+                if paren_match:
+                    entity_part = paren_match.group(1).strip()
+                else:
+                    entity_part = re.sub(r'^the\s+', '', entity_part, flags=re.IGNORECASE)
+                
+                anchor_org = self._get_anchor_organization()
+                if anchor_org and anchor_org.lower() in entity_part.lower():
+                    continue
+                
+                if len(entity_part) > 3 and entity_part.lower() not in ['the', 'this', 'that', 'company']:
+                    logger.info(f"[ROLE_RESOLVER] Scoped pattern matched: role='{role_part}', entity='{entity_part}'")
+                    return (role_part, entity_part)
+        
+        return None
+    
+    def _resolve_scoped_role(self, role: str, target_entity_name: str) -> RoleResolution:
+        """
+        Resolve a role scoped to a specific entity (not the anchor org).
+        
+        Uses RelationshipFirstRetriever.resolve_role_for_scoped_entity().
+        """
+        try:
+            retriever = self._get_relationship_retriever()
+            result = retriever.resolve_role_for_scoped_entity(role, target_entity_name)
+            
+            if result['entities']:
+                entities = [e for e in result['entities'] if not _is_blacklisted_name(e.get('name', ''))]
+                
+                if len(entities) == 1:
+                    person = entities[0]
+                    logger.info(f"[ROLE_RESOLVER] Scoped role SUCCESS: '{role}' of '{target_entity_name}' → '{person['name']}'")
+                    return RoleResolution(
+                        role=role,
+                        resolved_name=person['name'],
+                        resolved_entity_id=person['id'],
+                        confidence=0.95,
+                        resolution_method="stage_minus1_scoped_entity",
+                        all_matches=[{
+                            "name": p['name'],
+                            "entity_id": p['id'],
+                            "role": p.get('role_from_props', role),
+                            "organization": target_entity_name
+                        } for p in entities]
+                    )
+                elif len(entities) > 1:
+                    logger.info(f"[ROLE_RESOLVER] Scoped role: Multiple matches ({len(entities)}) for '{role}' of '{target_entity_name}'")
+                    return RoleResolution(
+                        role=role,
+                        resolved_name=None,
+                        confidence=0.0,
+                        resolution_method="stage_minus1_scoped_entity_multiple",
+                        all_matches=[{
+                            "name": p['name'],
+                            "entity_id": p['id'],
+                            "role": p.get('role_from_props', role),
+                            "organization": target_entity_name
+                        } for p in entities]
+                    )
+            
+            return RoleResolution(role=role)
+            
+        except Exception as e:
+            logger.error(f"[ROLE_RESOLVER] Scoped role resolution failed: {e}")
+            return RoleResolution(role=role)
+    
     def _normalize_role(self, role: str) -> str:
         """Normalize role to standard form (CEO, CTO, etc.)."""
         role_lower = role.lower().strip()
@@ -497,9 +591,10 @@ class RoleResolver:
     
     def resolve(self, role: str, organization: Optional[str] = None, query: Optional[str] = None) -> RoleResolution:
         """
-        Resolve a role to the person who holds it using 4-stage lookup.
+        Resolve a role to the person who holds it using 5-stage lookup.
         
-        Stage 0: Relationship-first retrieval from anchor org (NEW - highest priority)
+        Stage -1: Scoped entity resolution for "X of Y" queries (NEW - highest priority)
+        Stage 0: Relationship-first retrieval from anchor org
         Stage 1: Exact relationship lookup (HOLDS_POSITION)
         Stage 2: Fuzzy ILIKE matching on role properties
         Stage 3: Document search fallback
@@ -513,6 +608,17 @@ class RoleResolver:
             RoleResolution with resolved person info
         """
         logger.info(f"[ROLE_RESOLVER] Resolving role: '{role}' (org={organization})")
+        
+        scoped_result_tuple = self._extract_scoped_entity_from_query(query)
+        if scoped_result_tuple:
+            scoped_role, scoped_entity = scoped_result_tuple
+            logger.info(f"[ROLE_RESOLVER] Stage -1: Detected scoped query - role='{scoped_role}', target='{scoped_entity}'")
+            scoped_result = self._resolve_scoped_role(scoped_role, scoped_entity)
+            if scoped_result.is_resolved:
+                logger.info(f"[ROLE_RESOLVER] Stage -1 SUCCESS: '{scoped_role}' of '{scoped_entity}' → '{scoped_result.resolved_name}'")
+                return scoped_result
+            else:
+                logger.info(f"[ROLE_RESOLVER] Stage -1: No match for '{scoped_role}' of '{scoped_entity}', falling through")
         
         stage0_result = self.resolve_from_anchor(role, query)
         if stage0_result.is_resolved:
