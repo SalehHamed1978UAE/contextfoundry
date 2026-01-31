@@ -1,0 +1,56 @@
+ Priority Order for Market-Ready Product                                                                
+                                                                                                         
+  1. Fix "Wrong Answer" → "I Don't Know" (Highest Impact)                                                
+                                                                                                         
+  When the system lacks data, it should say "I couldn't find that" instead of guessing wrong.            
+                                                                                                         
+  Current: Q32 returns Victoria Chen (WRONG)                                                             
+  Should: "I couldn't find who the CEO of NextGen Battery Technologies is"                               
+                                                                                                         
+  This single change transforms user trust.                                                              
+                                                                                                         
+  ---                                                                                                    
+  2. Fix Extraction Pipeline (Root Cause)                                                                
+                                                                                                         
+  The Q32 failure exists because extraction missed "has been named CEO of" pattern.                      
+                                                                                                         
+  Fix: Add extraction patterns for:                                                                      
+  - "has been named [ROLE] of [ENTITY]"                                                                  
+  - "appointed [ROLE] of [ENTITY]"                                                                       
+  - "[PERSON] will serve as [ROLE]"                                                                      
+                                                                                                         
+  Then re-extract affected documents.                                                                    
+                                                                                                         
+  ---                                                                                                    
+  3. Push to 90%+ (Remaining 15 Questions)                                                               
+                                                                                                         
+  From earlier analysis:                                                                                 
+  ┌──────────────────────┬────────────────┬────────────────────────────────────┐                         
+  │       Category       │   Questions    │                Fix                 │                         
+  ├──────────────────────┼────────────────┼────────────────────────────────────┤                         
+  │ Extraction gaps      │ Q16, Q31, Q32  │ Fix patterns, re-extract           │                         
+  ├──────────────────────┼────────────────┼────────────────────────────────────┤                         
+  │ Scoped roles         │ Q37, Q68       │ Retrieval routing (partially done) │                         
+  ├──────────────────────┼────────────────┼────────────────────────────────────┤                         
+  │ Numeric/ranking      │ Q19, Q36, Q100 │ Add aggregation logic              │                         
+  ├──────────────────────┼────────────────┼────────────────────────────────────┤                         
+  │ Temporal             │ Q24, Q45, Q61  │ Add phase/date handling            │                         
+  ├──────────────────────┼────────────────┼────────────────────────────────────┤                         
+  │ Customer attribution │ Q83            │ Product→customer traversal         │                         
+  └──────────────────────┴────────────────┴────────────────────────────────────┘                         
+  ---                                                                                                    
+  REPLIT: Next Step                                                                                      
+                                                                                                         
+  Start with #1 - Add confidence-based "I don't know" responses                                          
+                                                                                                         
+  When scoped role resolution fails (entity not found, no relationships), return:                        
+  {                                                                                                      
+      "answer": "I couldn't find information about the CEO of NextGen Battery Technologies in the        
+  knowledge base.",                                                                                      
+      "confidence": 0.2,                                                                                 
+      "found_data": False                                                                                
+  }                                                                                                      
+                                                                                                         
+  This is better than returning the wrong person.                                                        
+                                                                                                         
+  Show me where the final answer is generated so we can add this safeguard.           
