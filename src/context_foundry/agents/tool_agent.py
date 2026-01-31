@@ -824,6 +824,37 @@ Which one would you like to know more about? Please specify by name."""
             logger.info(f"[AGENT] Ambiguity detected ({pipeline_result.ambiguity.ambiguity_type}) - using disambiguation reasoner")
             return self._build_disambiguation_response(question, pipeline_result, start_time, vault_context=vault_context)
         
+        # Handle "I don't know" for scoped role resolution failures
+        # When user asks "Who is the CEO of NextGen Battery Technologies?" and we can't find it,
+        # return a definitive "not found" instead of falling through to wrong answers
+        if pipeline_result and pipeline_result.strategy_used == "SCOPED_ROLE_NOT_FOUND":
+            logger.info(f"[AGENT] Scoped role NOT FOUND - returning 'I don't know' response")
+            
+            # Extract the message from the entities (set by retrieval_router)
+            not_found_message = "I couldn't find that information in the knowledge base."
+            if pipeline_result.entities:
+                for e in pipeline_result.entities:
+                    if e.get('type') == 'NOT_FOUND' and e.get('message'):
+                        not_found_message = e.get('message')
+                        break
+            
+            duration = (time.time() - start_time) * 1000
+            return build_response(
+                question=question,
+                answer=not_found_message,
+                evidence={
+                    "strategy": "SCOPED_ROLE_NOT_FOUND",
+                    "data_found": False
+                },
+                confidence=0.15,  # Low confidence - we're admitting we don't know
+                duration_ms=duration,
+                extra={
+                    "direct_answer": True,
+                    "not_found_response": True,
+                    "strategy_used": "SCOPED_ROLE_NOT_FOUND"
+                }
+            )
+        
         if pipeline_result and self._can_answer_directly(pipeline_result):
             logger.info("[AGENT] Using DIRECT ANSWER path (skipping tool loop)")
             answer = self._synthesize_direct_answer(question, pipeline_result, intent)

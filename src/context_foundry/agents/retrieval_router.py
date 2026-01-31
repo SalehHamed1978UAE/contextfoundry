@@ -2049,6 +2049,37 @@ class QueryPipeline:
                 
                 return result
             
+            # Handle scoped role resolution FAILURE - "I don't know" response
+            # When user asks "Who is the CEO of NextGen Battery Technologies?" and we can't find it,
+            # return a definitive "not found" instead of falling through to wrong answers
+            if role_resolution.resolution_method == "scoped_entity_not_found":
+                scoped_entity = role_resolution.metadata.get("scoped_entity", "the entity") if role_resolution.metadata else "the entity"
+                scoped_role = role_resolution.role or "that role"
+                
+                logger.info(f"[PIPELINE] Scoped role resolution FAILED: '{scoped_role}' of '{scoped_entity}' - returning 'I don't know'")
+                
+                # Build a "not found" result that signals to the reasoning agent to admit uncertainty
+                result = RetrievalResult(
+                    entities=[],
+                    relationships=[],
+                    chunks=[],
+                    strategy_used="SCOPED_ROLE_NOT_FOUND",
+                    query=query,
+                    classification=classification,
+                    role_resolution=role_resolution,
+                    intent=intent
+                )
+                
+                # Add metadata so downstream can generate "I don't know" response
+                result.entities = [{
+                    "type": "NOT_FOUND",
+                    "scoped_entity": scoped_entity,
+                    "scoped_role": scoped_role,
+                    "message": f"I couldn't find information about the {scoped_role} of {scoped_entity} in the knowledge base."
+                }]
+                
+                return result
+            
             should_chain = (
                 intent 
                 and intent.intent_type in ("attribute", "relationship")
