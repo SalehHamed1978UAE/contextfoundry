@@ -274,7 +274,30 @@ class ToolAgent:
         
         if pipeline_result.chunks:
             context_parts.append("Document content:")
-            for chunk in pipeline_result.chunks[:chunk_limit]:
+            
+            # For ranking queries, prioritize chunks with "Total" patterns (financial tables)
+            chunks_to_use = pipeline_result.chunks
+            if classification and getattr(classification, 'has_ranking_intent', False):
+                import re
+                total_pattern = re.compile(r'\bTotal[:\s]*\$[\d,\.]+|\$[\d,\.]+\s*(million|billion|M|B)\b', re.IGNORECASE)
+                
+                # Separate table-like chunks (with Total patterns) from regular chunks
+                table_chunks = []
+                regular_chunks = []
+                for chunk in pipeline_result.chunks:
+                    text = chunk.get('text', '')
+                    if total_pattern.search(text):
+                        table_chunks.append(chunk)
+                        logger.info(f"[RANKING] Boosted table chunk from: {chunk.get('document', 'Unknown')}")
+                    else:
+                        regular_chunks.append(chunk)
+                
+                # Put table chunks first, then regular chunks
+                chunks_to_use = table_chunks + regular_chunks
+                if table_chunks:
+                    logger.info(f"[RANKING] Prioritized {len(table_chunks)} table chunks for ranking query")
+            
+            for chunk in chunks_to_use[:chunk_limit]:
                 text = chunk.get('text', '')[:chunk_text_limit]
                 doc = chunk.get('document', 'Unknown')
                 context_parts.append(f"\n[From {doc}]\n{text}")
@@ -320,6 +343,21 @@ class ToolAgent:
         elif ("belongs to" in query_lower or "part of" in query_lower) and has_ownership_relationships:
             question_type_instruction = "\n\nIMPORTANT: This question asks about organizational membership or structure. Look for relationships showing containment or membership."
         
+        # Ranking query instruction - help LLM identify and compare values
+        ranking_instruction = ""
+        has_ranking_intent = classification.has_ranking_intent if classification else False
+        ranking_type = classification.ranking_type if classification else None
+        
+        if has_ranking_intent:
+            ranking_direction = "highest/largest" if ranking_type in ('largest', 'top_n') else "lowest/smallest" if ranking_type == 'smallest' else "ranked"
+            ranking_instruction = f"""\n\nRANKING QUERY INSTRUCTION:
+This is a RANKING query looking for the {ranking_direction} value.
+1. Look for financial values (dollar amounts with $, million, M, billion, B) in the retrieved documents
+2. Compare the TOTAL or AGGREGATE values for each entity (not partial contract values)
+3. When multiple values exist for an entity, use the LARGEST/TOTAL value for comparison
+4. Look for patterns like "Total: $X" or "Total Contract Value: $X" which indicate the full amount
+5. Answer with the entity that has the {ranking_direction} total value based on the documents"""
+        
         # Component-supplier matching instruction for specific component queries
         component_supplier_instruction = ""
         if is_supplier_query or any(term in query_lower for term in ['provides', 'supplies', 'supplier', 'vendor', 'manufacturer']):
@@ -350,7 +388,7 @@ QUESTION: {question}
 RETRIEVED INFORMATION:
 {context}
 
-Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{question_type_instruction}{component_supplier_instruction}{kg_prioritization}{intent_guidance}"""
+Provide a clear, comprehensive answer based on the information above. If specific data is present, include it. If the information is incomplete, acknowledge what is known and what is not.{list_instruction}{question_type_instruction}{ranking_instruction}{component_supplier_instruction}{kg_prioritization}{intent_guidance}"""
 
         try:
             max_tokens = 900 if expects_list else 600
